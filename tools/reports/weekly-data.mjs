@@ -7,7 +7,8 @@
 import { partidasDominio, finales, embudoSalas, dificultad, usuarios, senales, ordenTramos, embudoCopas, variacion } from '../../public/panel/dominios.js';
 import { trafico, salud, unoAlDiaDelRango, origenesAgrupados, DAY } from '../../public/panel/aggregate.js';
 import { resumenCopas, pct, copasDe } from '../../public/panel/copas.js';
-import { gameById, ALL_GAMES } from '../../public/assets/js/games.js';
+import { gameById } from '../../public/assets/js/games.js';
+import { publicGameCheck, withoutLabGames } from '../../public/panel/public-games.js';
 import { juegosCopa } from '../../public/cup/rules.js';
 
 /** The weekday of a UTC day number, Sunday = 0 (day 0, 1970-01-01, was a Thursday). */
@@ -42,6 +43,10 @@ const RECURSO_EN = { 'módulo': 'module', script: 'script', 'hoja de estilos': '
 export const mensajeEn = m => String(m || '').replace(/^(módulo|script|hoja de estilos) que no cargó( \(el de la página\))?$/,
   (_, tipo, propio) => `${RECURSO_EN[tipo]} that did not load${propio ? " (the page's own)" : ''}`).replace(/^\(sin detalle\)$/, '(no detail)');
 
+/** The vigía's kinds of failure and the home page's key, stored in Spanish (data), read in English. */
+const TIPO_EN = { recurso: 'resource', promesa: 'promise' };
+export const paginaEn = k => (k === 'inicio' ? 'home' : k);
+
 /** A metric with its value, the previous week's and the change in percent (null: nothing to compare). */
 const fila = (nombre, ahora, antes) => ({ nombre, ahora, antes, cambio: variacion(ahora, antes) });
 const top = (obj, n = 5) => Object.entries(obj || {}).sort((a, b) => b[1] - a[1]).slice(0, n);
@@ -68,7 +73,9 @@ export function versionesDeLaSemana(changelog, { from, to }) {
  */
 export function semana(data, now = Date.now()) {
   const w = semanaCerrada(now), p = { from: w.from - 7, to: w.from - 1 };
-  const { days = {}, torneos = {}, uad = {}, feedback = {}, changelog = '' } = data;
+  const { torneos = {}, uad = {}, feedback = {}, changelog = '' } = data;
+  // Players' plays only: lab games, and plays before a game's launch, are left out of every count
+  const days = withoutLabGames(data.days || {}, publicGameCheck(data.flags));
   const fin = Math.min(now, (w.to + 1) * DAY);
 
   const pd = partidasDominio(days, w), pp = partidasDominio(days, p);
@@ -106,7 +113,7 @@ export function semana(data, now = Date.now()) {
     },
     individual: {
       filas: [fila('Individual games', pd.individual.total, pp.individual.total)],
-      dificultad: dificultad(days, w, fin).slice(0, 8).map(g => ({ juego: nombreJuego(g.k), empezadas: g.empezadas, terminadas: g.terminadas, abandonos: g.abandonos, mediana: g.puntaje[1], segundos: g.tiempo[1] })),
+      dificultad: dificultad(days, w, fin, { byVariant: false }).slice(0, 8).map(g => ({ juego: nombreJuego(g.k), empezadas: g.empezadas, terminadas: g.terminadas, abandonos: g.abandonos, mediana: g.puntaje[1], segundos: g.tiempo[1] })),
       top: top(pd.individual.byGame).map(([id, n]) => ({ juego: nombreJuego(id), n })),
     },
     copa: {
@@ -122,12 +129,12 @@ export function semana(data, now = Date.now()) {
     },
     trafico: {
       filas: [fila('Visits', t.visitas, tp.visitas), fila('Page views', t.vistas, tp.vistas)],
-      juegan: pctDe(t.juegan, t.visitas), origenes: top(origenesAgrupados(t.ref)), paginas: Object.entries(t.paginas).sort((a, b) => b[1].entradas - a[1].entradas).slice(0, 6).map(([k, v]) => ({ pagina: k, ...v })),
+      juegan: pctDe(t.juegan, t.visitas), origenes: top(origenesAgrupados(t.ref)), paginas: Object.entries(t.paginas).sort((a, b) => b[1].entradas - a[1].entradas).slice(0, 6).map(([k, v]) => ({ pagina: paginaEn(k), ...v })),
       compartidos: top(s.comparte), viral: s.compartidos ? Math.round(((t.via.link || 0) / s.compartidos) * 100) / 100 : null,
     },
     salud: {
       fallas: pctDe(h.total.alguna, h.total.cargas), fallasAntes: pctDe(hp.total.alguna, hp.total.cargas), noArranco: h.total.arranque,
-      errores: (h.errores || []).slice(0, 5).map(e => ({ mensaje: `${e.k}: ${mensajeEn(e.m)}`, pagina: Object.keys(e.paginas || {}).join(', '), veces: e.n })),
+      errores: (h.errores || []).slice(0, 5).map(e => ({ mensaje: `${TIPO_EN[e.k] || e.k}: ${mensajeEn(e.m)}`, pagina: Object.keys(e.paginas || {}).map(paginaEn).join(', '), veces: e.n })),
     },
     eventos: { versiones: versionesDeLaSemana(changelog, w), reportes: reportes.length, copasNuevas },
     porDia: Array.from({ length: 7 }, (_, i) => {
@@ -142,7 +149,7 @@ const inicioMes = (d, atras = 0) => { const f = new Date(d * DAY); return Date.U
 const mesCorto = d => new Date(d * DAY).toLocaleDateString('en-US', { timeZone: 'UTC', month: 'short' });
 const rangoTxt = ({ from, to }) => `${fechaDia(from).replace(/, \d{4}$/, '')} – ${fechaDia(to).replace(/, \d{4}$/, '')}`;
 /** A game's versions read as one (Bulls and Cows: Word is Bulls and Cows); its modes already split off by `:`. */
-const VERSIONES = { letras: 'toque-y-fama' };
+const VERSIONES = { letras: 'toque-y-fama', numero: 'toque-y-fama' };
 export const baseGame = id => { const b = String(id).split(/:| · /)[0]; return VERSIONES[b] || b; };
 
 /**
@@ -176,25 +183,26 @@ export function tendencia({ days = {}, torneos = {}, flags = {} } = {}, w) {
     };
   });
   const metricas = [['Games finished', 'terminadas'], ['Games started', 'empezadas'], ['Active browsers', 'activos'], ['Daily active browsers (average)', 'diarios'], ['Games per active browser', 'porActivo'], ['Visits', 'visitas']].map(([nombre, k]) => ({
-    nombre, valores: filas.map(x => x[k]), cambio: filas[0][k] === null || filas[1][k] === null || !filas[1][k] ? null : variacion(filas[0][k], filas[1][k]),
+    nombre, valores: filas.map(x => x[k]), decimales: k === 'porActivo', cambio: filas[0][k] === null || filas[1][k] === null || !filas[1][k] ? null : variacion(filas[0][k], filas[1][k]),
   }));
 
-  // Games, day by day so a launch in the middle of a range cuts it on its day
-  const publicos = new Map(ALL_GAMES.filter(g => g.id !== 'copa').map(g => [g.id, g]));
-  const lanzado = id => { const g = publicos.get(id); return g?.lanza ? Math.floor((flags?.[g.lanza]?.state === 'all' ? flags[g.lanza].at : Infinity) / DAY) : -Infinity; };
+  // Games, day by day so a launch in the middle of a range cuts it on its day (lab plays already out of `days`)
+  const esPublico = publicGameCheck(flags);
   const desdeCuando = {}, porCol = cols.map(() => ({}));
   const inicio = Math.min(...cols.map(c => c.from)), fin = w.to;
   for (let d = inicio; d <= fin; d++) {
     const pd = partidasDominio(days, { from: d, to: d }), rc = resumenCopas(torneos, { from: d, to: d }, (d + 1) * DAY);
     const hoy = {};
     for (const [id, n] of [...Object.entries(pd.grupo.byGame), ...Object.entries(pd.individual.byGame), ...rc.porJuego.map(x => [x.id, x.jugadas])]) {
-      const b = baseGame(id);
-      if (publicos.has(b) && d >= lanzado(b)) hoy[b] = (hoy[b] || 0) + n;
+      if (!esPublico(id, d)) continue;
+      const b = baseGame(id); hoy[b] = (hoy[b] || 0) + n;
     }
     for (const b in hoy) desdeCuando[b] ??= d;
     cols.forEach((c, i) => { if (d >= c.from && d <= c.to) for (const b in hoy) porCol[i][b] = (porCol[i][b] || 0) + hoy[b]; });
   }
-  const salio = b => (Number.isFinite(lanzado(b)) && lanzado(b) > -Infinity ? lanzado(b) : desdeCuando[b]);
+  // Out since its launch day, or since its first play when no flag launched it
+  const lanzadoEl = b => { for (let d = inicio; d <= fin; d++) if (esPublico(b, d)) return d; return Infinity; };
+  const salio = b => (lanzadoEl(b) > inicio ? lanzadoEl(b) : desdeCuando[b]);
   const juegos = Object.entries(porCol[0]).sort((a, b) => b[1] - a[1]).slice(0, 10).map(([b]) => {
     const valores = cols.map((c, i) => (salio(b) > c.to ? null : porCol[i][b] || 0));
     // A launch inside the week before makes a % that says nothing
