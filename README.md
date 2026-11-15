@@ -654,6 +654,7 @@ node tools/agents/push-guard.test.mjs
 node tools/agents/repo-weight.test.mjs
 node tools/agents/round-watch.test.mjs
 node tools/agents/rules.test.mjs
+node tools/agents/session-length.test.mjs
 node tools/agents/structure.test.mjs
 node tools/agents/sweep.test.mjs
 node tools/agents/tokens-rgb.test.mjs

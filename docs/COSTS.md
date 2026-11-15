@@ -29,6 +29,8 @@ rule, or speed for players, and its PR shows the proof (same tests and counts, m
 
 1. **Shorter sessions (tokens, the biggest).** One task per session, a new session for the next one.
    It is the owner's habit, not code; no quality is lost (a fresh context is if anything sharper).
+   A hook helps: `tools/agents/session-length.mjs` (UserPromptSubmit) shows the owner a one-line 📏 note
+   at 250 turns and every 150 after. It only informs; Claude never sees it.
 2. **What every session loads:** CLAUDE.md, MEMORY.md, the agents' and skills' `description` lines.
    Each KB there is paid on every turn of every session. Move what only some tasks need to the doc
    it belongs to (D-213, D-497).
