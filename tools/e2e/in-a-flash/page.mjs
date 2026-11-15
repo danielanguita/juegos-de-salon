@@ -1,4 +1,4 @@
-// ¡Al toque! in the lab end to end, at /labs/microgames/: the lab offers it under Games being tried, crediting
+// ¡Al toque! end to end, at /in-a-flash/ (out of the lab, behind flags/microgames): the lab's card links it, crediting
 // WarioWare; the cover is as tall as its content and fits above the fold; it shows the three ways to play at once (each with its moving gesture) above Jugar, the credit, no folded rules (D-550 exception), the ranking,
 // the sound button and the site footer; Jugar starts a run of 10
 // different microgames, with the HUD, a mark per game and the first intro wearing its type's gesture; a single
@@ -8,7 +8,7 @@
 import { output } from '../output.mjs';
 import { coverGapsOff } from '../cover-gaps.mjs';
 import { launch, sleep } from '../cdp.mjs';
-const OUT = output('/tmp/microgames-lab');
+const OUT = output('/tmp/in-a-flash');
 const b = await launch({ dir: `${OUT}/p`, out: OUT, width: 375, height: 812 });
 const ev = e => b.evaluate(e);
 const SITE = process.env.SITE || 'http://localhost:8765';
@@ -17,10 +17,10 @@ const ok = (cond, msg) => { console.log(`${cond ? '✓' : '✗'} ${msg}`); if (!
 const waitFor = async (expr, ms = 8000) => { for (let t = 0; t < ms; t += 100) { if (await ev(expr)) return true; await sleep(100); } return false; };
 
 await b.go(`${SITE}/labs/`);
-ok(await ev(`document.querySelector('#seccion-microgames #btn-microgames')?.getAttribute('href')`) === 'microgames/', 'the lab offers ¡Al toque! under Games being tried');
+ok(await ev(`document.querySelector('#seccion-microgames #btn-microgames')?.getAttribute('href')`) === '../in-a-flash/', 'the lab\'s card leads to /in-a-flash/');
 ok(/WarioWare/.test(await ev(`document.querySelector('#seccion-microgames a[href*="WarioWare"]')?.textContent || ''`)), 'and says it is inspired by WarioWare, with its link');
 
-await b.go(`${SITE}/labs/microgames/?test`, 1000);
+await b.go(`${SITE}/in-a-flash/?test`, 1000);
 ok(await waitFor(`!!document.getElementById('btn-jugar')`), 'the cover has Jugar');
 ok(await ev(`[...document.querySelectorAll('#screen .kinds .kind')].filter(k => k.querySelector('.gstage .hand')).length`) === 3, 'the three ways to play at once, each with its finger doing the gesture');
 ok(await ev(`(() => { const k = document.querySelector('#screen .kinds').getBoundingClientRect(), j = document.getElementById('btn-jugar').getBoundingClientRect(); return k.bottom <= j.top; })()`), 'and Jugar under them');
@@ -50,18 +50,18 @@ ok(await ev(`!document.getElementById('demo').dataset.kind`), 'the frame comes o
 await ev(`(() => { const op = document.querySelector('.op').textContent.replace('−', '-').replace('×', '*'); const r = Function('return ' + op)(); document.querySelector('.opts3.low button[data-v="' + r + '"]').dispatchEvent(new PointerEvent('pointerdown', { bubbles: true })); })(); 1`);
 ok(await waitFor(`!!document.getElementById('btn-otra')`, 6000), 'the run ends on its summary');
 ok(/★/.test(await ev(`document.querySelector('.runsum')?.textContent || ''`)) && await ev(`__microgames.total`) >= 1, 'with the stars it got');
-ok(await ev(`document.querySelector('#btn-fin-lab')?.getAttribute('href')`) === '../../labs/', 'Otra corrida and the way back to the lab, from fin.js (C-19)');
+ok(await ev(`document.querySelector('#btn-fin-menu')?.getAttribute('href')`) === '../', 'Otra corrida and the way back to the menu, from fin.js (C-19)');
 ok(/pts/.test(await ev(`document.getElementById('screen').textContent`)), 'and the run\'s points');
 ok(+(await ev(`localStorage.getItem('microgames:best-points')`)) >= 1, 'the best is kept');
 
 // A shared run: the same seed, the same ten games on every phone
-const runOf = async () => { await b.go(`${SITE}/labs/microgames/?test&seed=K7Q2X`, 800); await ev(`document.getElementById('btn-jugar').click(); 1`); return (await ev(`__microgames.order`)).join(); };
+const runOf = async () => { await b.go(`${SITE}/in-a-flash/?test&seed=K7Q2X`, 800); await ev(`document.getElementById('btn-jugar').click(); 1`); return (await ev(`__microgames.order`)).join(); };
 const r1 = await runOf(), r2 = await runOf();
 ok(r1 === r2, `a seed gives the same run twice (${r1})`);
 await b.shot('04-end');
 
 // Every microgame starts without an error (a broken one used to show only when it came up in a run)
-await b.go(`${SITE}/labs/microgames/?test`, 800);
+await b.go(`${SITE}/in-a-flash/?test`, 800);
 await ev(`window.__errs = []; addEventListener('error', e => __errs.push(__microgames.game + ': ' + e.message)); 1`);
 for (const id of await ev(`__microgames.ids`)) { await ev(`__microgames.only('${id}'); 1`); await sleep(2600); }
 const errs = await ev(`__errs`);
@@ -80,14 +80,14 @@ await ev(`document.querySelector('.opts3.low button').dispatchEvent(new PointerE
 ok(await waitFor(`!!document.getElementById('btn-retar')`, 6000) && /^[A-HJ-NP-Z]{5}$/.test(await ev(`__microgames.code`)), 'the end has Reta a alguien, and every run a code');
 
 // In English
-await b.go(`${SITE}/labs/microgames/?test&lang=en`, 800);
+await b.go(`${SITE}/in-a-flash/?test&lang=en`, 800);
 ok(/microgames in a row/.test(await ev(`document.getElementById('screen').textContent`)) && /SWIPE/.test(await ev(`document.querySelector('.kinds').textContent`)), 'in English, the cover and its three ways');
 await ev(`__microgames.only('cuenta'); 1`); await sleep(300);
 ok(/COUNT!/.test(await ev(`document.getElementById('screen').textContent`)), 'and the microgames');
 // ¡Pinball! (the owner, 2026-11-13): no taps saves none, holding a side down saves none, and tapping when a ball
 // reaches its flipper saves at least one; a ball counts once a flipper has hit it
 const pinball = async mode => {
-  await b.go(`${SITE}/labs/microgames/?test`, 800);
+  await b.go(`${SITE}/in-a-flash/?test`, 800);
   await ev(`__microgames.only('pinball'); 1`);
   await waitFor(`__microgames.active && !!window.__pinball`, 6000);
   await ev(`(() => { const demo = document.getElementById('demo'), r = demo.getBoundingClientRect(), held = [0, 0];
@@ -110,7 +110,7 @@ await b.shot('pinball');
 
 b.close();
 const s = await launch({ dir: `${OUT}/p320`, out: OUT, width: 320, height: 640 });
-await s.go(`${SITE}/labs/microgames/?test`, 1000);
+await s.go(`${SITE}/in-a-flash/?test`, 1000);
 ok(await s.evaluate(`document.documentElement.scrollWidth <= innerWidth`), 'at 320 px, no sideways scroll on the cover');
 ok(await s.evaluate(`!document.getElementById('reglas') && document.querySelector('#ranking').children.length > 0`), 'no folded rules (the cover shows the three ways), and the ranking under the stage');
 ok(await s.evaluate(`document.getElementById('ranking').getBoundingClientRect().top - document.getElementById('demo').getBoundingClientRect().bottom === 12`), 'the ranking sits 12 px under the stage, like every block of a cover (ranking.css)');
@@ -119,4 +119,4 @@ await s.evaluate(`document.querySelector('.tr-tab')?.click(); 1`); await sleep(3
 ok(await s.evaluate(`document.querySelectorAll('.tr-mg-b').length === __microgames.ids.length`), 'the tester tab offers every microgame (D-551)');
 s.close();
 if (failures) { console.log(`✗ ${failures} failed`); process.exit(1); }
-console.log('✓ ¡Al toque! in the lab');
+console.log('✓ ¡Al toque!');

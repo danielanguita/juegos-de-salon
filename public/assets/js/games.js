@@ -19,6 +19,7 @@ import { catalogEntry } from './game-manifest.js';
 import hangmanManifest from './manifests/hangman.js';
 import liarsDiceManifest from './manifests/liars-dice.js';
 import timelineManifest from './manifests/timeline.js';
+import inAFlashManifest from './manifests/in-a-flash.js';
 import bullsAndCowsManifest from './manifests/bulls-and-cows.js';
 import battleshipManifest from './manifests/battleship.js';
 import generalaManifest from './manifests/generala.js';
@@ -78,6 +79,11 @@ export const GAMES = [
   // /labs/fourth-king/; /fourth-king/ and /cuarto-rey/ are bridges there
   // Its name in URLs and its docs/games/ and docs/screenshots/ folders, without the lab (C-18)
   catalogEntry(fourthKingManifest),
+  // microgames: from public/in-a-flash/game.json. ⚡ ¡Al toque! out of the lab, launched by flags/microgames
+  // at 21:00 Pacific on 2026-11-14 (D-517's way, D-529): until then hidden (`oculto`). Its page is its own
+  // (rules.js, not a La Copa screen), so La Copa and Uno al día come in a later PR. The id is the lab's
+  // (usage signal, the `microgames` ranking)
+  { ...catalogEntry(inAFlashManifest), deLabs: 'microgames', lanza: 'microgames', oculto: !lanzado('microgames') },
 ];
 
 /**
@@ -594,7 +600,6 @@ export const idDeSlug = s => (Object.hasOwn(SLUG_DE, s) ? s : Object.hasOwn(ID_D
  * when a game sends signals with an id that has no name.
  */
 export const LAB_NAMES = {
-  microgames: { emoji: '⚡', name: { es: '¡Al toque!', en: 'In a Flash!', pt: 'Na Hora!' } },
   memory: { emoji: '👀', name: { es: 'Memorice', en: 'Memorice', pt: 'Memorice' } },
   artifacts: { emoji: '⚙️', name: { es: 'Artefactos', en: 'Artifacts', pt: 'Artefatos' } },
   dominorama: { emoji: '🎲', name: { es: 'Dominorama', en: 'Dominorama', pt: 'Dominorama' } },

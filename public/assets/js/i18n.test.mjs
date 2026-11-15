@@ -89,6 +89,8 @@ for (const { game: g, cup, folder } of await allGames()) {
   if (g.idiomas && !IDIOMAS.every(l => g.idiomas.includes(l))) continue;
   const file = cup ? `${folder.replace(/^public\//, '')}/texts.js` : `${g.path}rules.js`;
   if (cup && !existsSync(new URL(`../../${file}`, import.meta.url))) continue;
+  // ¡Al toque! keys its English and Portuguese by the Spanish (its C-3 exception): its own rules.test.mjs checks them
+  if (g.id === 'microgames') continue;
   TRADUCIDOS.push({ id: g.id, file });
 }
 for (const g of TRADUCIDOS) {

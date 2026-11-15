@@ -1,21 +1,25 @@
 // ¡Al toque!, the lab's microgames (WarioWare-style): 29 games of 3 to 5 seconds, played in runs of 10
 // different ones in a row. Moved from the owner's review prototype; docs/games/microgames.md.
-import { trackVisit, trackStart, trackFinish } from '../../assets/js/transport/stats.js';
-import { footerInto } from '../../assets/js/site-footer.js';
-import { abrirComentario } from '../../assets/js/labs-idioma.js';
-import { SFX, initSound, soundToggle } from '../../assets/js/sound.js';
-import { confetti, el } from '../../assets/js/ui.js';
-import { labAccess } from '../../assets/js/lab-access.js';
-import { salidasFin } from '../../assets/js/fin.js';
-import { param, tiene } from '../../assets/js/parametros.js';
-import { semillaDel } from '../../assets/js/uno-al-dia.js';
-import { shareLink } from '../../assets/js/compartir.js';
-import { getLang, coverLangToggle, COMMON } from '../../assets/js/i18n.js';
-import { bloqueTabla, avisoPartida } from '../../assets/js/ranking.js';
-import { rankingsVisibles } from '../../assets/js/jugador.js';
+import { trackVisit, trackStart, trackFinish } from '../assets/js/transport/stats.js';
+import { footerInto } from '../assets/js/site-footer.js';
+import { abrirComentario } from '../assets/js/labs-idioma.js';
+import { SFX, initSound, soundToggle } from '../assets/js/sound.js';
+import { confetti, el } from '../assets/js/ui.js';
+import { labAccess } from '../assets/js/lab-access.js';
+import { flag } from '../assets/js/flags.js';
+import { salidasFin } from '../assets/js/fin.js';
+import { param, tiene } from '../assets/js/parametros.js';
+import { semillaDel } from '../assets/js/uno-al-dia.js';
+import { shareLink } from '../assets/js/compartir.js';
+import { getLang, coverLangToggle, COMMON } from '../assets/js/i18n.js';
+import { bloqueTabla, avisoPartida } from '../assets/js/ranking.js';
+import { rankingsVisibles } from '../assets/js/jugador.js';
 import { TR } from './rules.js';
 import { RUN, newCode, speedAt, score, score100, stream, runOrder, STREAK, gamePoints } from './engine.js';
 const GAME_ID = 'microgames';
+// Launched by a flag (D-517's way, lab: #seccion-microgames): until flags/microgames is on for this visitor (🚀
+// everyone, or 🧪 with a lab key) the page sends them to the home page. If Firebase cannot answer, it stays
+flag('microgames').then(on => { if (!on) location.replace('../'); }).catch(() => {});
 // The texts are written in Spanish where they are used; t() gives the player's language from rules.js (C-3)
 const LANG = getLang();
 const t = (es, v = {}) => (TR[LANG]?.[es] ?? es).replace(/\{(\w+)\}/g, (_, k) => v[k] ?? '');
@@ -1653,7 +1657,7 @@ trackVisit();   // the site's traffic (D-208)
   let best = kept(BEST), bestPts = kept(BEST_PTS);
   const $btn = (id, fn) => $id(id)?.addEventListener('click', e => { e.stopPropagation(); initSound(); SFX.tap(); fn(); });
   $id('sound-slot')?.append(soundToggle());
-  document.title = `${t('¡Al toque!')} ⚡ · ${t('Laboratorio')}`; $id('btn-volver').textContent = `‹ ${t('Laboratorio')}`; demo.setAttribute('aria-label', t('¡Al toque!'));
+  document.title = `${t('¡Al toque!')} ⚡ · Juegos de Salón`; $id('btn-volver').textContent = `‹ ${(COMMON[LANG] || COMMON.es).menu}`; demo.setAttribute('aria-label', t('¡Al toque!'));
   // The run's progress in the corner: one mark per game, filled with how it went
   const rb = $id('runbar'), runbar = () => { rb.hidden = false; const sg = score(marks).games; rb.innerHTML = order.map((_, i) => `<i class="${i < marks.length ? `s${marks[i]}${sg[i].streak || sg[i + 1]?.streak ? ' fire' : ''}` : i === idx - 1 ? 'cur' : ''}"></i>`).join(''); };
   let marks = [], startedAt = 0;
@@ -1711,7 +1715,7 @@ trackVisit();   // the site's traffic (D-208)
       ${breakdown(sc)}
       <div class="menu"><button class="btn btn--yellow" type="button" id="btn-otra">🔁 ${SEED ? t('Jugarla de nuevo') : t('Otra corrida')}</button>
         <button class="btn btn--cyan btn--sm" type="button" id="btn-retar">📤 ${t('Reta a alguien con esta corrida')}</button><div id="exits"></div></div>`);
-    $id('exits').replaceWith(salidasFin('lab', { lang: LANG, raiz: '../../' }));
+    $id('exits').replaceWith(salidasFin('suelto', { lang: LANG }));
     // The total counts up while the stars fill in
     { const el = $id('ptsup'), t0 = performance.now(), D = reduce ? 0 : 1400;
       const up = now => { if (!el.isConnected) return; const k = D ? Math.min(1, (now - t0) / D) : 1; el.textContent = Math.round(sc.points * (1 - (1 - k) ** 3)); if (k < 1) requestAnimationFrame(up); };
@@ -1762,10 +1766,10 @@ trackVisit();   // the site's traffic (D-208)
   // For the end-to-end test: what the page is doing, and a way to play one game on its own
   window.__microgames = { get game() { return curGame; }, get order() { return order.slice(); }, get idx() { return idx; }, get total() { return total; }, get active() { return active; }, ids: META.map(m => m.id), seed: SEED,
     get code() { return code; }, get marks() { return marks.slice(); }, get paused() { return paused; }, only: id => { code = SEED || newCode(); start([id]); }, run: ids => { code = SEED || newCode(); start(ids); } };
-  // Testers only, in the T tab (never on the cover, which stays as players see it): play any microgame on its own, or today's run
+  // Testers only (lab: #seccion-microgames), in the T tab (never on the cover, which stays as players see it): play any microgame on its own, or today's run
   labAccess().then(ok => {
     if (!ok) return;
-    return import('../../assets/js/tester-ribbon.js').then(({ setTesterContext, foldTesterRibbon }) => {
+    return import('../assets/js/tester-ribbon.js').then(({ setTesterContext, foldTesterRibbon }) => {
       // One tap plays it: a grid of the 28 by their emoji, grouped by type (its color), the name on a long press
       const go = id => { foldTesterRibbon(); window.__microgames.only(id); };
       const grid = el('div', { class: 'tr-mg-grid', id: 'tr-mg' }, ...Object.keys(KINDS).flatMap(k => META.filter(m => KIND[m.id] === k).map(m =>
