@@ -3446,6 +3446,19 @@
         "stat": "1 file(s) +4 −0: docs/facts.json"
       },
       "flaky": false
+    },
+    {
+      "run": 43726639904,
+      "check": "tests",
+      "pr": 1473,
+      "branch": "session-length-hint",
+      "commit": "8266a82adfd61cdf243e6a35b9af214171fff8f5",
+      "test": "README up to date",
+      "error": "ERROR · the block \"tests\" went stale  →  python3 tools/release/readme.py update\nERROR · appeared tests: tools/agents/session-length.test.mjs",
+      "signature": "51172bb787",
+      "date": "2026-11-15T14:53:01.317Z",
+      "fix": null,
+      "flaky": false
     }
   ]
 }
