@@ -807,7 +807,9 @@ function renderResult(v) {
     : nadie ? T.winTitleNone
     : many ? T.winTitleMany
     : fmt(T.winTitle, { name: M.names[winners[0]] || '' });
-  $('#result-sub').textContent = soloYo ? (mia.solved ? fmt(mia.score === 1 ? T.soloScoreOne : T.soloScore, { n: mia.score, letters: mia.used.length }) : '')
+  // Lost playing alone: the word goes right under the title, not only in the list below (owner's request)
+  const miPalabra = soloYo ? normalize(v.words[M.players[0]] || M.reveals[M.players[0]]?.word || '') : '';
+  $('#result-sub').textContent = soloYo ? (mia.solved ? fmt(mia.score === 1 ? T.soloScoreOne : T.soloScore, { n: mia.score, letters: mia.used.length }) : (miPalabra ? `${T.soloWordWas}: ${miPalabra}` : ''))
     : meRole && !nadie ? (winners.includes(meRole) ? T.youWin : T.youLose) : '';
   $('#result-trophy').textContent = soloYo ? (mia.solved ? '🏆' : '💀')
     : nadie ? '💀' : (meRole && !winners.includes(meRole) ? '😵' : (many ? '🤝' : '🏆'));
