@@ -40,6 +40,7 @@ import { TEXTS as SUPPORT_TEXTS } from '../assets/js/support.js';
 import { dayOf as diaDe, toLocalInput, checkPick, switches, status as campaignStatus, overlaps, move, archive, toRemote, cleanLabel, span, todayOf, dayPlus, campaignStats, supportStats, EARLY_DAYS, skinRows, skinToRemote } from './campaigns.js';
 import { TEMPLATES as SKINS } from '../assets/season/templates.js';
 import { stateOf as flagState, flag } from '../assets/js/flags.js';
+import { publicGameCheck, withoutLabGames, withoutLabCups } from './public-games.js';
 import { FLAGS } from '../assets/js/flag-list.js';
 import { SECCIONES, leerRuta, rutaA, rutaEnIngles, seccionDe } from './rutas.js';
 import { wireReleasePush } from './release-push.js';
@@ -77,12 +78,26 @@ const S = {
   splash: undefined, unsubSplash: null, splashMsg: '',
   // 🧩 Site features and 🎨 skins (D-477): Firebase `controls/` (undefined until it answers), the tab shown and the last save
   controls: undefined, unsubControls: null, flags: undefined, unsubFlags: null, controlsMsg: '', campTab: 'splash', campOpen: new Set(), campFoco: null, campPeek: new Set(), campStats: null, tlGrain: null, tlKinds: null, tlPeriod: null, tlAll: false,
+
   unsubRooms: null, unsubDays: null, unsubTorneos: null, unsubPush: null, unsubUad: [], tick: null,
   // Desde qué día está bajado `days`: un rango más largo obliga a pedir de nuevo, uno más corto no
   desdeDia: null,
   // Lo que se eligió dentro de una vista. No va en la URL: es de esta visita, no del lugar.
   logPage: 1, logSolas: false, filtroAhora: 'todo', filtroCopas: 'todas', fichaTab: 'tabla', sinRedTodas: false, erroresTodos: false,
 };
+
+/** The days with lab plays taken out (lab games, plays before a launch): what every count reads. Live views keep S.days. */
+let memoDias = { days: null, flags: null, out: {} };
+function playerDays() {
+  if (memoDias.days !== S.days || memoDias.flags !== S.flags) memoDias = { days: S.days, flags: S.flags, out: withoutLabGames(S.days, publicGameCheck(S.flags || {})) };
+  return memoDias.out;
+}
+/** The cups without the lab's: what La Copa's counts read (D-560). */
+let memoCopas = { torneos: null, out: {} };
+function playerCups() {
+  if (memoCopas.torneos !== S.torneos) memoCopas = { torneos: S.torneos, out: withoutLabCups(S.torneos) };
+  return memoCopas.out;
+}
 if (S.ruta.r && RANGOS.some(r => r.id === S.ruta.r)) S.range = S.ruta.r;
 if (S.ruta.e) S.env = S.ruta.e;
 
@@ -655,7 +670,7 @@ function porIdioma(titulo, nota, cuenta) {
 
 function vistaCopa(now) {
   const rango = rangeOf(S.range);
-  const rc = resumenCopas(S.torneos, rango, now);
+  const rc = resumenCopas(playerCups(), rango, now);
   const part = pct(rc.participacion);
   const cargando = S.torneosLoaded ? null : 'Loading the cups…';
 
@@ -667,8 +682,8 @@ function vistaCopa(now) {
   const maxMD = Math.max(0, ...periodosM.map(d => d.total));
   const verTodas = () => { S.filtroCopas = 'todas'; render(); };
   // The period before and the funnel (D-348); who was left out of a cup (D-347)
-  const rca = resumenCopas(S.torneos, rangoAnterior(rango), now);
-  const ec = embudoCopas(S.torneos, rango, now);
+  const rca = resumenCopas(playerCups(), rangoAnterior(rango), now);
+  const ec = embudoCopas(playerCups(), rango, now);
   const pasos = [['Created', ec.creadas], ['With 2 or more players', ec.conGente], ['Started', ec.partieron], ['Finished with 2 or more', ec.terminadas]];
   const maxDia = Math.max(0, ...ec.porDia.map(d => d.esperado));
 
@@ -1148,10 +1163,10 @@ function vistaTrafico(now) {
 function vistaAudiencia(now) {
   const today = dayOf(now);
   const rango = rangeOf(S.range);
-  const s = summarize(S.days, { from: rango.from, to: rango.to, incluye: esJuego });
-  const hoy = summarize(S.days, { from: today, to: today, incluye: esJuego });
+  const s = summarize(playerDays(), { from: rango.from, to: rango.to, incluye: esJuego });
+  const hoy = summarize(playerDays(), { from: today, to: today, incluye: esJuego });
   const todo = summarize(S.days, { from: rango.from, to: rango.to });
-  const rc = resumenCopas(S.torneos, rango, now);
+  const rc = resumenCopas(playerCups(), rango, now);
   const miniHoy = rc.porDia.find(d => d.day === today)?.total || 0;
 
   const tipos = [[torneoLabel, C_TORNEO, rc.jugadas, 'games played', ir('torneo')], ['🎲 Other games', C_TOTAL, s.partidas, 'games', ir('grupo')]];
@@ -1161,7 +1176,7 @@ function vistaAudiencia(now) {
   const maxK = Math.max(0, ...periodosT.map(d => d.juegos + d.torneo));
   const origin = top(todo.origin, 15);
   const maxO = Math.max(0, ...origin.map(([, v]) => v));
-  const paises = top(paisesDelRango(S.days, { from: rango.from, to: rango.to, incluye: esJuego }), 15);
+  const paises = top(paisesDelRango(playerDays(), { from: rango.from, to: rango.to, incluye: esJuego }), 15);
   const maxPa = Math.max(0, ...paises.map(([, v]) => v));
   const lang = top(todo.lang, 10);
   const maxL = Math.max(0, ...lang.map(([, v]) => v));
@@ -1329,11 +1344,11 @@ const pctTxt = p => (p === null ? '—' : `${p}%`);
  */
 function vistaResumen(now) {
   const { r, a } = periodos();
-  const pd = partidasDominio(S.days, r), pda = partidasDominio(S.days, a);
-  const f = finales(S.days, r), fa = finales(S.days, a);
-  const rc = resumenCopas(S.torneos, r, now), rca = resumenCopas(S.torneos, a, now);
-  const norte = f.terminadas + terminadasSalas(embudoSalas(S.days, r)) + rc.jugadas;
-  const norteA = fa.terminadas + terminadasSalas(embudoSalas(S.days, a)) + rca.jugadas;
+  const pd = partidasDominio(playerDays(), r), pda = partidasDominio(playerDays(), a);
+  const f = finales(playerDays(), r), fa = finales(playerDays(), a);
+  const rc = resumenCopas(playerCups(), r, now), rca = resumenCopas(playerCups(), a, now);
+  const norte = f.terminadas + terminadasSalas(embudoSalas(playerDays(), r)) + rc.jugadas;
+  const norteA = fa.terminadas + terminadasSalas(embudoSalas(playerDays(), a)) + rca.jugadas;
   const u = usuarios(S.days, r), ua = usuarios(S.days, a);
   const t = trafico(S.days, r), ta = trafico(S.days, a);
   const sg = senales(S.days, r), sga = senales(S.days, a);
@@ -1375,10 +1390,10 @@ function vistaResumen(now) {
 /** Group games (D-348): rooms, one phone and against the phone. */
 function vistaGrupo(now) {
   const { r, a } = periodos();
-  const pd = partidasDominio(S.days, r).grupo, pda = partidasDominio(S.days, a).grupo;
-  const e = embudoSalas(S.days, r), ea = embudoSalas(S.days, a);
-  const f = finales(S.days, r);
-  const s = summarize(S.days, { from: r.from, to: r.to, incluye: esJuego, modo: m => !isIndividualMode(m) });
+  const pd = partidasDominio(playerDays(), r).grupo, pda = partidasDominio(playerDays(), a).grupo;
+  const e = embudoSalas(playerDays(), r), ea = embudoSalas(playerDays(), a);
+  const f = finales(playerDays(), r);
+  const s = summarize(playerDays(), { from: r.from, to: r.to, incluye: esJuego, modo: m => !isIndividualMode(m) });
   MODOS = s.modes;
   const sum = k => Object.values(e).reduce((x, g) => x + g[k], 0);
   const conRival = sum('conRival'), creadas = sum('creadas'), term = sum('terminadas');
@@ -1429,9 +1444,9 @@ function vistaGrupo(now) {
 /** Individual games (D-348): solo and Uno al día, with their real difficulty. */
 function vistaIndividuales(now) {
   const { r, a } = periodos();
-  const pd = partidasDominio(S.days, r).individual, pda = partidasDominio(S.days, a).individual;
-  const f = finales(S.days, r);
-  const dif = dificultad(S.days, r, now);
+  const pd = partidasDominio(playerDays(), r).individual, pda = partidasDominio(playerDays(), a).individual;
+  const f = finales(playerDays(), r);
+  const dif = dificultad(playerDays(), r, now);
   const term = Object.values(f.porJuego).reduce((k, g) => k + g.finIndividual, 0);
   const ab = dif.reduce((k, g) => k + g.abandonos, 0), emp = dif.reduce((k, g) => k + g.empezadas, 0);
   const juegos = Object.entries(pd.byGame).sort((x, y) => y[1] - x[1]);

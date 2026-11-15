@@ -23,16 +23,16 @@ const lista = pares => (pares.length ? `<ul>${pares.map(([k, v]) => `<li>${esc(k
 
 /** A value with its change kept on one line: "620 (+21.3%)". */
 const conCambio = (v, c) => `<span style="white-space:nowrap"><b>${num(v)}</b>${c === null || c === undefined ? '' : ` (${c > 0 ? '+' : c < 0 ? '−' : '±'}${Math.abs(c)}%)`}</span>`;
-const celda = (v, i, c) => (v === null ? 'n/a' : i === 0 ? conCambio(v, c) : `<span style="white-space:nowrap">${num(v)}</span>`);
+const celda = (v, i, c, dec) => { if (v === null) return 'n/a'; const x = dec ? v.toFixed(1) : v; return i === 0 ? conCambio(x, c) : `<span style="white-space:nowrap">${num(x)}</span>`; };
 const TD = 'padding:4px 8px;border-bottom:1px solid #eee8f6;text-align:right;white-space:nowrap';
 const tablaTrend = (cabeza, filas, cols) => `<table style="border-collapse:collapse;font-variant-numeric:tabular-nums;font-size:13px">
 <thead><tr><th style="${TD};text-align:left">${esc(cabeza)}</th>${cols.map((c, i) => `<th style="${TD};color:#6b6280;font-weight:600${i === 5 ? ';border-left:2px solid #e6dcf7' : ''}">${esc(c)}</th>`).join('')}</tr></thead>
-<tbody>${filas.map(([nombre, valores, cambio]) => `<tr><td style="${TD};text-align:left">${nombre}</td>${valores.map((v, i) => `<td style="${TD}${i === 5 ? ';border-left:2px solid #e6dcf7' : ''}">${celda(v, i, cambio)}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
+<tbody>${filas.map(([nombre, valores, cambio, dec]) => `<tr><td style="${TD};text-align:left">${nombre}</td>${valores.map((v, i) => `<td style="${TD}${i === 5 ? ';border-left:2px solid #e6dcf7' : ''}">${celda(v, i, cambio, dec)}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
 
 /** The email's two tables (also in the PDF): the headline and the top 10 games, five weeks and three months. */
 export function tablasTendencia(t) {
   if (!t) return '';
-  return `${tablaTrend('', t.metricas.map(m => [esc(m.nombre), m.valores, m.cambio]), t.columnas)}
+  return `${tablaTrend('', t.metricas.map(m => [esc(m.nombre), m.valores, m.cambio, m.decimales]), t.columnas)}
 <p style="margin:14px 0 4px;font-weight:600">Top 10 games (games started; every mode and version, La Copa included, lab plays left out)</p>
 ${tablaTrend('', t.juegos.map((g, i) => [`${i + 1}. ${esc(g.juego)}${g.nuevo ? ` <span style="color:#6b6280">(out ${esc(g.nuevo.replace(/, \d{4}$/, ''))})</span>` : ''}`, g.valores, g.cambio]), t.columnas)}
 <p style="color:#6b6280;font-size:12px">n/a: not measured yet, or the game was not out yet.</p>`;
@@ -110,8 +110,9 @@ ${tabla(['Cup game', 'Played', 'Unfinished', 'Average score'], r.copa.juegos.map
 <p>New browsers this week: <b>${num(r.usuarios.nuevos)}</b> · stickiness: <b>${pctTxt(r.usuarios.pegajosidad)}</b>${r.usuarios.desde === null ? ' · <span class="muted">browsers are counted since D-349</span>' : ''}</p>
 <div class="grid"><div><b>When they had come before</b>${lista(r.usuarios.vuelta.map(([k, v]) => [VUELTA[k] || k, v]))}</div><div><b>How often (last 28 days)</b>${lista(r.usuarios.frec.map(([k, v]) => [FREC[k] || k, v]))}</div></div></section>
 
-<section><h2>📈 Traffic</h2>${tablaFilas(r.trafico.filas)}<p>Visits that reached a game: <b>${pctTxt(r.trafico.juegan)}</b> · visits per share (viral factor): <b>${num(r.trafico.viral)}</b></p>
-<div class="grid"><div><b>Where they come from</b>${lista(r.trafico.origenes)}</div><div><b>What is shared</b>${lista(r.trafico.compartidos)}</div></div>
+<section><h2>📈 Traffic</h2>${tablaFilas(r.trafico.filas)}<p>Visits that reached a game: <b>${pctTxt(r.trafico.juegan)}</b></p>
+<div><b>Where they come from</b>${lista(r.trafico.origenes)}</div>
+<!-- Shares stay out until the counter has clean weeks (test runs inflated it until PR #1478) -->
 ${tabla(['Entry page', 'Visits that started here', 'Played', 'Views'], r.trafico.paginas.map(p => [esc(p.pagina), num(p.entradas), num(p.juegan), num(p.vistas)]))}</section>
 
 <section><h2>🩺 Health</h2><p>Loads with a failure: <b>${pctTxt(r.salud.fallas)}</b> ${r.salud.fallas !== null && r.salud.fallasAntes !== null ? cambio(r.salud.fallas - r.salud.fallasAntes, true) : ''} · loads that did not start: <b>${num(r.salud.noArranco)}</b></p>
