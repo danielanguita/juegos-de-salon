@@ -52,8 +52,6 @@ text by outsiders (player feedback) and persisted keys (game ids like `'ahorcado
 | Big files (videos, recordings) | [docs/REPO-WEIGHT.md](docs/REPO-WEIGHT.md): nothing over 5 MB enters git, `repo-weight.test.mjs` (D-494) | Before committing media |
 | PR previews | [docs/PREVIEWS.md](docs/PREVIEWS.md): each PR on GitHub Pages (D-429) | When the owner reviews a change, or a preview fails |
 | The learning programme (AI in the game, the owner's learning) | [docs/LEARNING.md](docs/LEARNING.md) and `docs/learning/<piece>.md` (D-532): no variable cost, the owner's plan never serves players, three free places for a model | Before any work that puts a model in a game or measures the factory; read only the index and the piece |
-
-**A rule that changes is changed in its place, in the same PR:** if a new decision changes a
 | Parallel sessions, worktrees, forks, tests side by side | [docs/SESSIONS.md](docs/SESSIONS.md) (D-135, D-189, D-252, D-301, D-303, D-428) | At the start of any work that will commit |
 | Before merging, auto-merge, waiting, version, publishing, Firebase rules | [docs/MERGING.md](docs/MERGING.md) (D-143, D-216, D-300, D-302, D-400, D-419) | Before proposing a merge |
 | Every agent and owner tool, with its commands | [docs/AGENTS.md](docs/AGENTS.md) (processes, documentation, usability, support, marketing, ideas, lab keys, splash, jobs) | Before using or changing one |
