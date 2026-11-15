@@ -3474,7 +3474,11 @@
       "error": "ERROR · the block \"tests\" went stale  →  python3 tools/release/readme.py update\nERROR · appeared tests: public/assets/js/rankings-coverage.test.mjs",
       "signature": "35eb057cab",
       "date": "2026-11-15T15:01:07.539Z",
-      "fix": null,
+      "fix": {
+        "commit": "32f4c75ac30b28e8c20931c376fae83b3e851f5a",
+        "date": "2026-11-15T15:04:01.598Z",
+        "stat": "2 file(s) +2 −0: README.md, docs/facts.json"
+      },
       "flaky": false
     },
     {
@@ -3487,7 +3491,11 @@
       "error": "ERROR · appeared tests: public/assets/js/rankings-coverage.test.mjs",
       "signature": "e3009a0ae7",
       "date": "2026-11-15T15:03:31.216Z",
-      "fix": null,
+      "fix": {
+        "commit": "32f4c75ac30b28e8c20931c376fae83b3e851f5a",
+        "date": "2026-11-15T15:04:01.598Z",
+        "stat": "1 file(s) +1 −0: docs/facts.json"
+      },
       "flaky": false
     }
   ]
