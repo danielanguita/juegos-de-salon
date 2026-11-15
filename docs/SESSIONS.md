@@ -77,7 +77,7 @@ a new test is not added to any list: one that tests something special says so on
 line. Run them here anyway before opening the PR, in parallel (~20 s instead of a minute):
 
 ```bash
-git ls-files '*.test.mjs' | xargs -P8 -I{} sh -c 'node "{}" > /dev/null 2>&1 || echo "FALLA {}"'
+node tools/release/run-tests.mjs   # the same parallel runner GitHub uses; prints only failures
 for f in $(git ls-files '*.test.py'); do python3 "$f" || echo "FALLA $f"; done
 ```
 
