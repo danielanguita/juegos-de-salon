@@ -142,4 +142,5 @@ or any other here), launch it and report what it found; do not ask the owner fir
   headless Claude session following `tools/jobs/prompts/weekly-report.md`, runs
   `node tools/reports/weekly.mjs --send` once a week: the week that ended on Saturday, with the panel's numbers,
   as a PDF in `~/Documents/Juegos de Salón/Weekly reports/` and emailed to the owner.
+  Its counts of games leave lab plays out, like the panel's (D-560).
 - **Panel, La Copa reports and rankings** (D-44, D-104, D-207, D-212): in the `owner-tools` skill (`.claude/skills/owner-tools/SKILL.md`); read it before touching them.
