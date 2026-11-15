@@ -1,7 +1,7 @@
 /**
  * Which plays are players' plays and which are the lab's (D-395): the panel and the weekly report
- * count only games that are out. A game is out when it is in `ALL_GAMES` (or is one of La Copa's
- * games, which have no page: `linea`, `numero`), and, if a flag launched it, from the day its
+ * count only games that are out. A game is out when it is in `ALL_GAMES` and neither a lab game
+ * (`labs`) nor in La Bodega (`bodega`), or is one of La Copa's games without a page (`linea`, `numero`), and, if a flag launched it, from the day its
  * `flags/<id>` went to *all*. Anything else (a lab game, a play before launch) is left out.
  * Pure: `node public/panel/public-games.test.mjs`.
  */
@@ -19,7 +19,8 @@ const flagOf = (g, flags) => g.lanza || [g.deLabs, g.id].find(f => f && flags &&
 export function publicGameCheck(flags = {}) {
   const desde = new Map();
   for (const g of ALL_GAMES) {
-    if (g.id === 'copa') continue;
+    // La Copa is counted by its cups; a lab game, and one in La Bodega (behind the lab's door), never counts
+    if (g.id === 'copa' || g.labs || g.bodega) continue;
     const f = flagOf(g, flags);
     if (!f) { desde.set(g.id, -Infinity); continue; }
     const s = flags?.[f];
@@ -45,4 +46,9 @@ export function withoutLabGames(days = {}, isPublic) {
     for (const c of ['local', 'fin', 'otra', 'rooms', 'live']) if (out[k][c] === undefined) delete out[k][c];
   }
   return out;
+}
+
+/** The cups without the lab's (`meta.lab`, the owner's and testers' cups): La Copa's counts read only players' cups. */
+export function withoutLabCups(torneos = {}) {
+  return Object.fromEntries(Object.entries(torneos || {}).filter(([, x]) => !x?.meta?.lab));
 }

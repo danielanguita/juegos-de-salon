@@ -40,7 +40,7 @@ import { TEXTS as SUPPORT_TEXTS } from '../assets/js/support.js';
 import { dayOf as diaDe, toLocalInput, checkPick, switches, status as campaignStatus, overlaps, move, archive, toRemote, cleanLabel, span, todayOf, dayPlus, campaignStats, supportStats, EARLY_DAYS, skinRows, skinToRemote } from './campaigns.js';
 import { TEMPLATES as SKINS } from '../assets/season/templates.js';
 import { stateOf as flagState, flag } from '../assets/js/flags.js';
-import { publicGameCheck, withoutLabGames } from './public-games.js';
+import { publicGameCheck, withoutLabGames, withoutLabCups } from './public-games.js';
 import { FLAGS } from '../assets/js/flag-list.js';
 import { SECCIONES, leerRuta, rutaA, rutaEnIngles, seccionDe } from './rutas.js';
 import { wireReleasePush } from './release-push.js';
@@ -91,6 +91,12 @@ let memoDias = { days: null, flags: null, out: {} };
 function playerDays() {
   if (memoDias.days !== S.days || memoDias.flags !== S.flags) memoDias = { days: S.days, flags: S.flags, out: withoutLabGames(S.days, publicGameCheck(S.flags || {})) };
   return memoDias.out;
+}
+/** The cups without the lab's: what La Copa's counts read (D-560). */
+let memoCopas = { torneos: null, out: {} };
+function playerCups() {
+  if (memoCopas.torneos !== S.torneos) memoCopas = { torneos: S.torneos, out: withoutLabCups(S.torneos) };
+  return memoCopas.out;
 }
 if (S.ruta.r && RANGOS.some(r => r.id === S.ruta.r)) S.range = S.ruta.r;
 if (S.ruta.e) S.env = S.ruta.e;
@@ -664,7 +670,7 @@ function porIdioma(titulo, nota, cuenta) {
 
 function vistaCopa(now) {
   const rango = rangeOf(S.range);
-  const rc = resumenCopas(S.torneos, rango, now);
+  const rc = resumenCopas(playerCups(), rango, now);
   const part = pct(rc.participacion);
   const cargando = S.torneosLoaded ? null : 'Loading the cups…';
 
@@ -676,8 +682,8 @@ function vistaCopa(now) {
   const maxMD = Math.max(0, ...periodosM.map(d => d.total));
   const verTodas = () => { S.filtroCopas = 'todas'; render(); };
   // The period before and the funnel (D-348); who was left out of a cup (D-347)
-  const rca = resumenCopas(S.torneos, rangoAnterior(rango), now);
-  const ec = embudoCopas(S.torneos, rango, now);
+  const rca = resumenCopas(playerCups(), rangoAnterior(rango), now);
+  const ec = embudoCopas(playerCups(), rango, now);
   const pasos = [['Created', ec.creadas], ['With 2 or more players', ec.conGente], ['Started', ec.partieron], ['Finished with 2 or more', ec.terminadas]];
   const maxDia = Math.max(0, ...ec.porDia.map(d => d.esperado));
 
@@ -1160,7 +1166,7 @@ function vistaAudiencia(now) {
   const s = summarize(playerDays(), { from: rango.from, to: rango.to, incluye: esJuego });
   const hoy = summarize(playerDays(), { from: today, to: today, incluye: esJuego });
   const todo = summarize(S.days, { from: rango.from, to: rango.to });
-  const rc = resumenCopas(S.torneos, rango, now);
+  const rc = resumenCopas(playerCups(), rango, now);
   const miniHoy = rc.porDia.find(d => d.day === today)?.total || 0;
 
   const tipos = [[torneoLabel, C_TORNEO, rc.jugadas, 'games played', ir('torneo')], ['🎲 Other games', C_TOTAL, s.partidas, 'games', ir('grupo')]];
@@ -1340,7 +1346,7 @@ function vistaResumen(now) {
   const { r, a } = periodos();
   const pd = partidasDominio(playerDays(), r), pda = partidasDominio(playerDays(), a);
   const f = finales(playerDays(), r), fa = finales(playerDays(), a);
-  const rc = resumenCopas(S.torneos, r, now), rca = resumenCopas(S.torneos, a, now);
+  const rc = resumenCopas(playerCups(), r, now), rca = resumenCopas(playerCups(), a, now);
   const norte = f.terminadas + terminadasSalas(embudoSalas(playerDays(), r)) + rc.jugadas;
   const norteA = fa.terminadas + terminadasSalas(embudoSalas(playerDays(), a)) + rca.jugadas;
   const u = usuarios(S.days, r), ua = usuarios(S.days, a);

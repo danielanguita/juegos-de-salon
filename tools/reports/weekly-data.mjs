@@ -8,7 +8,7 @@ import { partidasDominio, finales, embudoSalas, dificultad, usuarios, senales, o
 import { trafico, salud, unoAlDiaDelRango, origenesAgrupados, DAY } from '../../public/panel/aggregate.js';
 import { resumenCopas, pct, copasDe } from '../../public/panel/copas.js';
 import { gameById } from '../../public/assets/js/games.js';
-import { publicGameCheck, withoutLabGames } from '../../public/panel/public-games.js';
+import { publicGameCheck, withoutLabGames, withoutLabCups } from '../../public/panel/public-games.js';
 import { juegosCopa } from '../../public/cup/rules.js';
 
 /** The weekday of a UTC day number, Sunday = 0 (day 0, 1970-01-01, was a Thursday). */
@@ -73,7 +73,8 @@ export function versionesDeLaSemana(changelog, { from, to }) {
  */
 export function semana(data, now = Date.now()) {
   const w = semanaCerrada(now), p = { from: w.from - 7, to: w.from - 1 };
-  const { torneos = {}, uad = {}, feedback = {}, changelog = '' } = data;
+  const { uad = {}, feedback = {}, changelog = '' } = data;
+  const torneos = withoutLabCups(data.torneos);
   // Players' plays only: lab games, and plays before a game's launch, are left out of every count
   const days = withoutLabGames(data.days || {}, publicGameCheck(data.flags));
   const fin = Math.min(now, (w.to + 1) * DAY);

@@ -22,8 +22,8 @@ or month, with 🚀 marking the versions that first showed up in each period). E
 
 **Lab plays are out of every count of games (D-560).** Summary, Group, Individual and Audience read the
 days through `withoutLabGames(days, publicGameCheck(flags))` (`public/panel/public-games.js`): a play
-counts only if its game is in `ALL_GAMES` (or is one of La Copa's games without a page) and, for a game
-a flag launched, from the UTC day its `flags/<id>` went to *all*. Visits, users, traffic and signals
+counts only if its game is in `ALL_GAMES` and is neither a lab game (`labs`) nor in La Bodega (or is one of
+La Copa's games without a page) and, for a game a flag launched, from the UTC day its `flags/<id>` went to *all*. La Copa's counts read the cups without the lab's (`withoutLabCups`, `meta.lab`). Visits, users, traffic and signals
 are not about a game and stay whole; the live views (now, logs, a game's own page) still show lab
 plays. The weekly report uses the same function, so the two agree.
 
