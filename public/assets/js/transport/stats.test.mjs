@@ -6,7 +6,7 @@ import {
   liveId, liveRecord, startLive, esEnVivo, LATIDO_MS, QUIETO_MS,
   paginaDe, origenDe, canalDe, dispositivoDe, avisoDe, pwaDe, sinMarcas, visitChanges, noteVisit, notePlayed, VISITA_KEY, VINO_KEY, REF_KEY,
   nombreDelCelular, nombresDe, esRelleno, finRecord,
-  esOtraVez, finChanges, vueltaBand, frecBand, diasConHoy, habitChanges, deviceId, noteActive, shareKey, shareKeyOfPage,
+  esOtraVez, finChanges, vueltaBand, frecBand, diasConHoy, habitChanges, deviceId, noteActive, shareKey, shareKeyOfPage, shareCountable,
   ULTIMA_KEY, DIAS_KEY, DISPOSITIVO_KEY,
 } from './stats.js';
 import { readFileSync } from 'node:fs';
@@ -485,6 +485,12 @@ assert.equal(shareKeyOfPage('/'), 'app');
 assert.equal(shareKeyOfPage('/cup/'), 'copa');
 assert.equal(shareKeyOfPage('/hangman/'), 'resultado-hangman');
 assert.equal(shareKeyOfPage('/panel/'), '');
+// A share counts only on a web page and not by a robot: a Node test once filled stats/prod with `app`
+assert.equal(shareCountable(undefined, {}), false);
+assert.equal(shareCountable({}, {}), false);
+assert.equal(shareCountable({ hostname: 'juegosdesalon.cl' }, { userAgent: 'Mozilla/5.0 (iPhone)' }), true);
+assert.equal(shareCountable({ hostname: 'juegosdesalon.cl' }, { webdriver: true }), false);
+assert.equal(shareCountable({ hostname: 'juegosdesalon.cl' }, { userAgent: 'Googlebot/2.1' }), false);
 // The rules accept every key these produce
 {
   const rules = JSON.parse(readFileSync(new URL('../../../../firebase/database.rules.json', import.meta.url))).rules.stats.$env.days.$day;

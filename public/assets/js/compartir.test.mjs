@@ -134,4 +134,16 @@ await caso('compartir la app: la tarjeta de la portada y el texto, en el idioma 
   assert.ok(r.compartido[0].text.endsWith('🔗 https://juegosdesalon.cl/en/?from=link'));
 });
 
+// Sharing in a test never reaches the live numbers: every run used to add five `comparte/app` to
+// stats/prod (D-349). The count is loaded on demand, so it is awaited before looking
+await caso('compartir en una prueba no escribe en la base', async () => {
+  const escritos = [];
+  globalThis.fetch = async (u, o) => { escritos.push(`${o?.method || 'GET'} ${u}`); return { ok: true, json: async () => null }; };
+  navegador();
+  assert.equal(await compartir({ titulo: 'X', texto: 'hola', url: 'https://a.b/' }), 'shared');
+  await import('./transport/stats.js');
+  await new Promise(r => setTimeout(r, 50));
+  assert.deepEqual(escritos.filter(e => /firebaseio|firebasedatabase/.test(e)), []);
+});
+
 console.log(`compartir: ${n} casos en verde`);

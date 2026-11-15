@@ -867,9 +867,17 @@ export function trackReplay(game) {
 /** What a share is about, as a key: lowercase, digits and dashes, `otro` if nothing is left. */
 export const shareKey = what => (/^[a-z0-9-]{1,40}$/.test(clave(what)) ? clave(what) : 'otro');
 
+/**
+ * May a share be counted here? Only on a web page (a `location` with a host) and not by a robot.
+ * Outside a page `envOf({})` says `prod`: `compartir.test.mjs` once wrote five `comparte/app` to
+ * the live numbers on every run, locally and in CI, hundreds a day (D-349).
+ */
+export const shareCountable = (loc = globalThis.location, nav = globalThis.navigator) => !!loc?.hostname && !esRobot(nav);
+
 /** Something was shared. Never throws. */
 export function trackShare(what) {
   try {
+    if (!shareCountable()) return Promise.resolve();
     const s = stats();
     return quiet(() => s.api.patch(dayPath(s.fp.env, dayOf(Date.now())), { [`comparte/${shareKey(what)}`]: INC }));
   } catch (_) { return Promise.resolve(); }
