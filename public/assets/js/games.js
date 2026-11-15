@@ -475,6 +475,19 @@ export const SUELTOS = [
 export const ALL_GAMES = [...GAMES, ...SUELTOS];
 
 /**
+ * The solo score tables of the games outside SUELTOS (game id → table), each a tab in Rankings
+ * (/records/). SUELTOS get their tab on their own; a GAMES entry that records a score played alone
+ * goes here, or its scores never show in Rankings (¡Al toque! launched without one, D-559).
+ * rankings-coverage.test.mjs reads every game page's avisoPartida() and fails if a table is missing.
+ */
+export const SOLO_TABLES = {
+  'toque-y-fama': 'toque-y-fama_solo',
+  ahorcado: 'ahorcado_solo',
+  generala: 'generala_solo',
+  microgames: 'microgames',
+};
+
+/**
  * Los tipos de juego con que se filtra la portada (D-142), en el orden en que se ofrecen.
  * Cada juego dice los suyos en `tipos`; uno sin tipos solo se ve sin filtro de tipo.
  * La clave es la que va en la URL (`?type=logic`), en inglés como las rutas (D-192, D-214).
