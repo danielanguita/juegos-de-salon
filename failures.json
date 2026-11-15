@@ -3531,6 +3531,19 @@
         "stat": "51 file(s) +249 −32: README.md, changelog/ccr-f7f308c0-4frrzt.md, changelog/hangman-word-on-loss.md, changelog/lab-games-out-of-counts.md, docs/CANONS.md, …"
       },
       "flaky": false
+    },
+    {
+      "run": 43774694623,
+      "check": "end-to-end",
+      "pr": 1482,
+      "branch": "panel-wbr",
+      "commit": "9094ecabe08f9afdca77d8f5c0ef4eafc732ab4f",
+      "test": "structured-data.mjs",
+      "error": "✗ /queens/: the FAQPage says what «Cómo se juega» does not show (or not in that order): «Un jugador, 2–5 minutos. Gratis, sin instalar nada y sin cuenta.»",
+      "signature": "cd883c50a5",
+      "date": "2026-11-15T23:33:47.957Z",
+      "fix": null,
+      "flaky": false
     }
   ]
 }
