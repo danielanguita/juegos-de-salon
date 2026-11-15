@@ -2203,8 +2203,10 @@ function vistaLlaves(now) {
  * On a phone, five tabs and ☰ More (lab: #seccion-panel-nav-more): the rest open in a sheet, in groups.
  * A computer keeps the whole column.
  */
-const NAV_TABS = ['resumen', 'wbr', 'salud', 'feedback'];
-const NAV_GROUPS = [['Players', ['grupo', 'individuales', 'usuarios']], ['Games', ['torneo', 'unoaldia']], ['Owner', ['trafico', 'campanas', 'llaves', 'labs']]];
+const NAV_TABS = ['resumen', 'wbr', 'timeline', 'feedback'];
+const NAV_GROUPS = [['Players', ['grupo', 'individuales', 'usuarios']], ['Games', ['torneo', 'unoaldia']], ['Owner', ['trafico', 'salud', 'campanas', 'llaves', 'labs']]];
+// Every section is on the bar or under ☰ More: one left out of both could not be reached on a phone
+for (const sec of SECCIONES) if (!NAV_TABS.includes(sec) && !NAV_GROUPS.some(([, secs]) => secs.includes(sec))) console.error(`panel: ${sec} is neither a tab nor under More`);
 flag('panel-nav-more').then(on => { S.navMore = on; if (S.user) render(); }).catch(() => {});
 
 function abrirMas(open) {
@@ -2250,7 +2252,9 @@ function renderNav(now) {
   nav.replaceChildren(
     ...SECCIONES.map(sec => tab(sec, NAV_TABS.includes(sec) ? {} : { class: 'nav-extra' })), labs({ class: 'nav-extra' }),
     el('button', { class: 'nav-mas-btn', type: 'button', 'aria-haspopup': 'dialog', 'aria-current': enMas ? 'page' : null, onClick: () => abrirMas(true) },
-      el('span', { class: 'ico', 'aria-hidden': 'true' }, icoMas), el('span', { class: 'nombre' }, enMas ? nombreMas : 'More')),
+      el('span', { class: 'ico', 'aria-hidden': 'true' }, icoMas), el('span', { class: 'nombre' }, enMas ? nombreMas : 'More'),
+      // Health's alert stays in sight when Health is under More
+      !NAV_TABS.includes('salud') && actual !== 'salud' && noArranca ? el('span', { class: 'vivo vivo--alerta', title: 'A page did not start today or yesterday: see Health' }) : null),
     sheet);
 }
 
