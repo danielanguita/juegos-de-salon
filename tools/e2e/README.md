@@ -65,7 +65,7 @@ and are still run by hand. The ones in `OBSOLETE` test something that no longer 
 
 **In groups** (D-307): [`groups.mjs`](groups.mjs) splits the scripts into even groups based on
 how long each one actually took ([`durations.json`](durations.json), in seconds), so that none
-goes over ~4.5 min and all fit at once in the 20 runners GitHub gives at a time. Each group is a
+goes over ~6 min (`TARGET_S`, 360 s) and all fit at once in the 20 runners GitHub gives at a time. Each group is a
 job that runs its scripts one after another (that they stay even and each script appears once is tested by
 `node tools/e2e/groups.test.mjs`); the run summary has the table with each script, its
 time and its result, and the `screenshots-g<n>` artifact has, in one folder per script, the screenshots of
@@ -74,7 +74,7 @@ measured: each job leaves a "Durations" notice with how long each script took, a
 `node tools/e2e/groups.mjs measure` moves it into `durations.json` (the processes round, every round;
 that file alone runs no script, D-428). A script that goes over about 4 minutes is split into parts (`PARTS` in
 `ci.mjs`, D-204): `cup/tournament.mjs` into `cup`, `labs`, `demos` and `weekend` (D-439), `cup/languages.mjs` into `cup`,
-`standalone`, `screens-a` and `screens-b` (D-428), and `cup-games/languages.mjs` into one per game. Each part reaches the script as `--part <name>`; without a part, the script runs whole
+`standalone`, `screens-a` and `screens-b` (D-428), `cup-games/languages.mjs` into one per game, and `landing-fold.mjs` into `320` and `375` (one per phone width). Each part reaches the script as `--part <name>`; without a part, the script runs whole
 (that is how `readme.py screenshots` runs it, and anyone testing it by hand).
 
 A PR that touches nothing in the browser (`docs/`, `marketing/`, `.claude/`, the `.md` files outside `public/`
