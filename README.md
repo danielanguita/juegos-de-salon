@@ -570,6 +570,7 @@ node public/assets/js/on-screen.test.mjs
 node public/assets/js/parametros.test.mjs
 node public/assets/js/pending-scores.test.mjs
 node public/assets/js/push.test.mjs
+node public/assets/js/rankings-coverage.test.mjs
 node public/assets/js/rankings-rest.test.mjs
 node public/assets/js/records.test.mjs
 node public/assets/js/region-patterns.test.mjs
