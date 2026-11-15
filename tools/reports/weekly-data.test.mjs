@@ -75,6 +75,8 @@ test('the trend: five weeks and three months, versions merged, lab plays out, n/
   assert.deepEqual([tango.valores[0], tango.valores[1], tango.cambio], [5, 4, 25]);
   assert.equal(tango.valores[2], null, 'n/a before the game was first seen');
   assert.equal(t.metricas.find(m => m.nombre === 'Active browsers').valores[1], null, 'n/a before the counter existed');
+  assert.equal(t.metricas.find(m => m.nombre === 'Daily active browsers (average)').valores[0], 1);
+  assert.equal(t.metricas.find(m => m.nombre === 'Games per active browser').valores[0], 67, 'all 67 games started (as in the headline) by 1 active browser');
 });
 
 console.log(`reports/weekly-data: ${n} tests OK`);

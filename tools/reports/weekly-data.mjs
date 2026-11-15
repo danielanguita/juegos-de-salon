@@ -167,11 +167,16 @@ export function tendencia({ days = {}, torneos = {}, flags = {} } = {}, w) {
     const salas = Object.values(embudoSalas(days, col)).reduce((k, g) => k + g.terminadas, 0);
     return {
       terminadas: f.terminadas + salas + rc.jugadas, empezadas: pd.grupo.total + pd.individual.total + rc.jugadas,
-      activos: medido(col, 'activos') === null ? null : usuarios(days, col).rango, visitas: medido(col, 'visitas') === null ? null : trafico(days, col).visitas,
+      ...(medido(col, 'activos') === null ? { activos: null, diarios: null, porActivo: null } : (u => ({
+        activos: u.rango, diarios: u.diario,
+        // Games started per browser active in the range: how much each one plays
+        porActivo: u.rango ? Math.round(((pd.grupo.total + pd.individual.total + rc.jugadas) / u.rango) * 10) / 10 : null,
+      }))(usuarios(days, col))),
+      visitas: medido(col, 'visitas') === null ? null : trafico(days, col).visitas,
     };
   });
-  const metricas = [['Games finished', 'terminadas'], ['Games started', 'empezadas'], ['Active browsers', 'activos'], ['Visits', 'visitas']].map(([nombre, k]) => ({
-    nombre, valores: filas.map(x => x[k]), cambio: filas[0][k] === null || filas[1][k] === null ? null : variacion(filas[0][k], filas[1][k]),
+  const metricas = [['Games finished', 'terminadas'], ['Games started', 'empezadas'], ['Active browsers', 'activos'], ['Daily active browsers (average)', 'diarios'], ['Games per active browser', 'porActivo'], ['Visits', 'visitas']].map(([nombre, k]) => ({
+    nombre, valores: filas.map(x => x[k]), cambio: filas[0][k] === null || filas[1][k] === null || !filas[1][k] ? null : variacion(filas[0][k], filas[1][k]),
   }));
 
   // Games, day by day so a launch in the middle of a range cuts it on its day
