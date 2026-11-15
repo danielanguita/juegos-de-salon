@@ -187,9 +187,10 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
       const base = args[0] || 'origin/main';
       const files = git('diff', '--name-only', `${base}...HEAD`).split('\n').filter(Boolean);
       console.log(report(laneOfPr(files), await stageOf(base)));
-      // D-553: a session warns before stepping on a contributor's lab game
+      // D-553: a session is told it touches a contributor's lab game, so it can expect their changes there;
+      // the owner's PRs never wait for a contributor's approval
       const theirs = [...new Set(files.map(f => Object.keys(LAB_OWNERS).find(g => GAME_PATHS(g).slice(0, 3).some(x => globRe(x).test(f)))).filter(Boolean))];
-      for (const g of theirs) console.log(`⚠️  ${g} is owned by @${LAB_OWNERS[g]} (lab-owners.json, D-553): coordinate with them before merging.`);
+      for (const g of theirs) console.log(`⚠️  ${g} is owned by @${LAB_OWNERS[g]} (lab-owners.json, D-553): they may be changing it too, so expect conflicts; no approval of theirs is needed.`);
     } else { console.error('Usage: node tools/agents/lanes.mjs check [base] | check --pr <n> | ci'); process.exit(2); }
   } catch (e) { console.error(String(e.stderr || e.message || e)); process.exit(1); }
 }
