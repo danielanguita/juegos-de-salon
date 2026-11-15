@@ -120,6 +120,11 @@ console.log(`games: los ${ALL_GAMES.length} juegos tienen motor, tests, gancho y
   assert.ok(!esNuevo(g, new Date('2026-10-22T01:00:00')), 'and not after');
   assert.ok(!esNuevo(g, new Date('2026-10-14T23:00:00')), 'nor before');
   assert.ok(!esNuevo({}, new Date()), 'without a date it is not new');
+  // D-556: a game launched by a flag is new from the moment its flag went to everyone, even before its written date
+  const lanz = { lanza: 'x', nuevoDesde: '2026-11-15' }, at = Date.parse('2026-11-14T21:00:00');
+  assert.ok(esNuevo(lanz, new Date('2026-11-14T21:05:00'), { x: { state: 'all', at } }), 'new from its launch, the evening before its date');
+  assert.ok(!esNuevo(lanz, new Date('2026-11-14T21:05:00'), { x: { state: 'lab', at } }), 'not while only the lab has it');
+  assert.ok(!esNuevo(lanz, new Date(at + 7 * 864e5 + 1000), { x: { state: 'all', at } }), 'and its week counts from the launch');
   // D-335: while new, a game goes right after La Copa; afterwards, back to its place by popularity
   const juego = { id: 'zzz-nuevo', available: true, nuevoDesde: '2030-01-01' };
   const { ALL_GAMES: G } = await import('./games.js');
