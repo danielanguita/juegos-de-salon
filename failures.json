@@ -3423,7 +3423,11 @@
       "error": "ERROR · the block \"docs\" went stale  →  python3 tools/release/readme.py update\nERROR · appeared documents: {\"path\": \"docs/FEEDBACK-TRIAGE.md\", \"title\": \"Handling 🐞 fee",
       "signature": "000c2eddef",
       "date": "2026-11-15T14:24:00.943Z",
-      "fix": null,
+      "fix": {
+        "commit": "b0927a5d7c146ac0d45c6a491dab176b591a65bd",
+        "date": "2026-11-15T14:25:47.336Z",
+        "stat": "2 file(s) +5 −0: README.md, docs/facts.json"
+      },
       "flaky": false
     },
     {
@@ -3436,7 +3440,11 @@
       "error": "ERROR · appeared documents: {\"path\": \"docs/FEEDBACK-TRIAGE.md\", \"title\": \"Handling 🐞 fee",
       "signature": "83c51bd2d1",
       "date": "2026-11-15T14:25:36.814Z",
-      "fix": null,
+      "fix": {
+        "commit": "b0927a5d7c146ac0d45c6a491dab176b591a65bd",
+        "date": "2026-11-15T14:25:47.336Z",
+        "stat": "1 file(s) +4 −0: docs/facts.json"
+      },
       "flaky": false
     }
   ]
