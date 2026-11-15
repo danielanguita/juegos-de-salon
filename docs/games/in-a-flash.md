@@ -155,7 +155,7 @@ None: nothing goes over the network but the usage signal and the ranking (`micro
 | `public/in-a-flash/game.js` | The shared stage helpers, the 29 microgames (`GAMES`), their names (`META`), the three types (`KINDS`), the cover and the run |
 | `public/in-a-flash/style.css` | The stage and every microgame's look (moved from the artifact) |
 | `public/in-a-flash/index.html` | The page: the stage, the HUD, the run's marks and the footer |
-| `tools/e2e/in-a-flash/lab.mjs` | End to end |
+| `tools/e2e/in-a-flash/page.mjs` | End to end |
 
 `engine.js` holds the run's rules (order, speed, scoring); each microgame still draws and judges itself
 in `game.js`.
