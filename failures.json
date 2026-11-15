@@ -3457,7 +3457,11 @@
       "error": "ERROR · the block \"tests\" went stale  →  python3 tools/release/readme.py update\nERROR · appeared tests: tools/agents/session-length.test.mjs",
       "signature": "51172bb787",
       "date": "2026-11-15T14:53:01.317Z",
-      "fix": null,
+      "fix": {
+        "commit": "4b14da005e858380125f0833684c5f5df1424a03",
+        "date": "2026-11-15T14:55:13.249Z",
+        "stat": "2 file(s) +2 −0: README.md, docs/facts.json"
+      },
       "flaky": false
     }
   ]
