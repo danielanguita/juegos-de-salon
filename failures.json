@@ -3412,6 +3412,19 @@
         "stat": "2 file(s) +1 −0: tools/e2e/paths.mjs, tools/e2e/visual/ref/in-a-flash-intro.png"
       },
       "flaky": false
+    },
+    {
+      "run": 43724039799,
+      "check": "tests",
+      "pr": 1471,
+      "branch": "optimize-tests-agents",
+      "commit": "6b9045f9a83b36f292e08f860b5fb22bad8cb9a9",
+      "test": "README up to date",
+      "error": "ERROR · the block \"docs\" went stale  →  python3 tools/release/readme.py update\nERROR · appeared documents: {\"path\": \"docs/FEEDBACK-TRIAGE.md\", \"title\": \"Handling 🐞 fee",
+      "signature": "000c2eddef",
+      "date": "2026-11-15T14:24:00.943Z",
+      "fix": null,
+      "flaky": false
     }
   ]
 }
