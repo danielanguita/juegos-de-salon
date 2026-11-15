@@ -3372,7 +3372,11 @@
       "error": "❌ in-a-flash-intro: no reference (run node tools/e2e/visual.mjs --update --part in-a-flash and commit it)",
       "signature": "54b4d16f98",
       "date": "2026-11-15T03:56:43.895Z",
-      "fix": null,
+      "fix": {
+        "commit": "58fa8d4bb97c6f625ae781c77cd81badc68dcd37",
+        "date": "2026-11-15T04:19:50.318Z",
+        "stat": "4 file(s) +5 −4: public/assets/js/manifests/in-a-flash.js, public/in-a-flash/game.json, tools/e2e/conformance.mjs, tools/e2e/paths.mjs"
+      },
       "flaky": false
     },
     {
@@ -3385,7 +3389,11 @@
       "error": "✗ in-a-flash · load: a screen is showing",
       "signature": "b59e9c8eae",
       "date": "2026-11-15T03:56:43.895Z",
-      "fix": null,
+      "fix": {
+        "commit": "58fa8d4bb97c6f625ae781c77cd81badc68dcd37",
+        "date": "2026-11-15T04:19:50.318Z",
+        "stat": "4 file(s) +5 −4: public/assets/js/manifests/in-a-flash.js, public/in-a-flash/game.json, tools/e2e/conformance.mjs, tools/e2e/paths.mjs"
+      },
       "flaky": false
     },
     {
@@ -3398,7 +3406,11 @@
       "error": "❌ in-a-flash-intro: 2.42 % of the pixels changed (more than 0.3 %). If it is meant, approve it: node tools/e2e/visual.mjs --update --part in-a-flash; the new and the diff images are in /home/runner/wo",
       "signature": "14104eb992",
       "date": "2026-11-15T04:09:06.773Z",
-      "fix": null,
+      "fix": {
+        "commit": "58fa8d4bb97c6f625ae781c77cd81badc68dcd37",
+        "date": "2026-11-15T04:19:50.318Z",
+        "stat": "2 file(s) +1 −0: tools/e2e/paths.mjs, tools/e2e/visual/ref/in-a-flash-intro.png"
+      },
       "flaky": false
     }
   ]
