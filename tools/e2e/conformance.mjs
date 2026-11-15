@@ -69,7 +69,7 @@ for (const folder of chosen) {
   await fresh();
   const errs = b.errors.slice(e0), logs = b.logs.slice(l0).filter(l => /error|failed|uncaught/i.test(l));
   ok(!errs.length && !logs.length, `${folder} · load: no console errors${errs.length || logs.length ? ': ' + [...errs, ...logs][0].slice(0, 160) : ''}`);
-  ok(await b.evaluate(`!!document.querySelector('.screen.active')`), `${folder} · load: a screen is showing`);
+  if (!skip('C-2', '.screen')) ok(await b.evaluate(`!!document.querySelector('.screen.active')`), `${folder} · load: a screen is showing`);
   await b.shot(`${folder.replace('/', '-')}-intro`);
   const off = JSON.parse(await b.evaluate(coverGapsOff));
   ok(!off.length, `${folder} · spacing: the cover's blocks are ${COVER_GAP} px apart${off.length ? ` (${off.join(', ')})` : ''}`);
@@ -84,7 +84,7 @@ for (const folder of chosen) {
   }
 
   // languages
-  for (const lang of m.languages) {
+  for (const lang of skip('C-3', 'LOCALES') ? [] : m.languages) {
     await fresh(lang);
     const r = JSON.parse(await b.evaluate(`(async () => {
       const { LOCALES } = await import('/${folder}/rules.js');

@@ -81,7 +81,7 @@ export default {
     },
     {
       "canon": "C-2",
-      "why": "rules.js holds the translations keyed by the Spanish, not LOCALES by key: the short texts spread over 29 microgames read better where they are used."
+      "why": "rules.js holds the translations keyed by the Spanish, not LOCALES by key: the short texts spread over 29 microgames read better where they are used. Its stage is one .alt-stage drawn by game.js, not .screen sections."
     },
     {
       "canon": "C-6",
