@@ -707,6 +707,32 @@
       "files": [
         "public/fourth-king/index.html"
       ]
+    },
+    {
+      "id": "microgames",
+      "emoji": "⚡",
+      "name": {
+        "es": "¡Al toque!",
+        "en": "In a Flash!",
+        "pt": "Na Hora!"
+      },
+      "players": "1",
+      "duration": "1–2",
+      "available": true,
+      "labs": false,
+      "status": null,
+      "modes": [],
+      "variants": [],
+      "screens": [],
+      "chat": false,
+      "files": [
+        "public/in-a-flash/engine.js",
+        "public/in-a-flash/game.js",
+        "public/in-a-flash/game.json",
+        "public/in-a-flash/index.html",
+        "public/in-a-flash/rules.js",
+        "public/in-a-flash/style.css"
+      ]
     }
   ],
   "standalone": [
@@ -1156,6 +1182,7 @@
     "public/assets/js/manifests/cup.js",
     "public/assets/js/manifests/generala.js",
     "public/assets/js/manifests/hangman.js",
+    "public/assets/js/manifests/in-a-flash.js",
     "public/assets/js/manifests/labs/fourth-king.js",
     "public/assets/js/manifests/labs/julep.js",
     "public/assets/js/manifests/labs/transfer.js",
@@ -1335,6 +1362,9 @@
     "public/hangman/engine.js",
     "public/hangman/game.js",
     "public/hangman/rules.js",
+    "public/in-a-flash/engine.js",
+    "public/in-a-flash/game.js",
+    "public/in-a-flash/rules.js",
     "public/labs/artifacts/engine.js",
     "public/labs/artifacts/game.js",
     "public/labs/artifacts/levels.js",
@@ -1368,9 +1398,6 @@
     "public/labs/memory/game.js",
     "public/labs/memory/rules.js",
     "public/labs/memory/sprites.js",
-    "public/labs/microgames/engine.js",
-    "public/labs/microgames/game.js",
-    "public/labs/microgames/rules.js",
     "public/labs/publish.js",
     "public/labs/stack/engine.js",
     "public/labs/stack/game.js",
@@ -1518,6 +1545,8 @@
     "public/hangman/fuzz.test.mjs",
     "public/hangman/replay.test.mjs",
     "public/home-preload.test.mjs",
+    "public/in-a-flash/engine.test.mjs",
+    "public/in-a-flash/rules.test.mjs",
     "public/labs/artifacts/engine.test.mjs",
     "public/labs/bodega.test.mjs",
     "public/labs/chameleon/engine.test.mjs",
@@ -1532,8 +1561,6 @@
     "public/labs/launched.test.mjs",
     "public/labs/listed.test.mjs",
     "public/labs/memory/engine.test.mjs",
-    "public/labs/microgames/engine.test.mjs",
-    "public/labs/microgames/rules.test.mjs",
     "public/labs/stack/engine.test.mjs",
     "public/labs/sudoku/engine.test.mjs",
     "public/labs/transfer/engine.test.mjs",
@@ -1709,6 +1736,7 @@
     "home/popular.mjs",
     "home/recap.mjs",
     "home/search.mjs",
+    "in-a-flash/page.mjs",
     "inert.mjs",
     "inert.test.mjs",
     "install-prompt.mjs",
@@ -1732,7 +1760,6 @@
     "look.mjs",
     "margins-common.mjs",
     "memory/lab.mjs",
-    "microgames/lab.mjs",
     "narrow.mjs",
     "narrow.test.mjs",
     "offline.mjs",
@@ -1956,6 +1983,10 @@
       "title": "Diseño: El Ahorcado"
     },
     {
+      "path": "docs/games/in-a-flash.md",
+      "title": "⚡ ¡Al toque! (out of the lab: /in-a-flash/, launched by flags/microgames)"
+    },
+    {
       "path": "docs/games/julep.md",
       "title": "Diseño: Julepe"
     },
@@ -1966,10 +1997,6 @@
     {
       "path": "docs/games/memory.md",
       "title": "👀 Memorice (lab prototype, in Games being tried)"
-    },
-    {
-      "path": "docs/games/microgames.md",
-      "title": "⚡ ¡Al toque! (lab prototype, in Games being tried)"
     },
     {
       "path": "docs/games/paint-mines.md",
@@ -2077,6 +2104,7 @@
     "generala": 8,
     "batalla-naval": 7,
     "julepe": 10,
-    "cuarto-rey": 12
+    "cuarto-rey": 12,
+    "microgames": 0
   }
 }

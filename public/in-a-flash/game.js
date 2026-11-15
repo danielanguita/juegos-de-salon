@@ -1,5 +1,5 @@
 // ¡Al toque!, the lab's microgames (WarioWare-style): 29 games of 3 to 5 seconds, played in runs of 10
-// different ones in a row. Moved from the owner's review prototype; docs/games/microgames.md.
+// different ones in a row. Moved from the owner's review prototype; docs/games/in-a-flash.md.
 import { trackVisit, trackStart, trackFinish } from '../assets/js/transport/stats.js';
 import { footerInto } from '../assets/js/site-footer.js';
 import { abrirComentario } from '../assets/js/labs-idioma.js';
