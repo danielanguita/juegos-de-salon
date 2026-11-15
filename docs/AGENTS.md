@@ -47,6 +47,7 @@ or any other here), launch it and report what it found; do not ask the owner fir
   the owner gets the email: ticking one carries it out instantly
   (`.github/workflows/approve.yml` → `tools/agents/approve.mjs`, with a closed list of actions, among them `delete-branch`, D-555).
   Its memory is `docs/processes.json`: `node tools/agents/processes.mjs check | decide <file.json> | settle <issue> <n> "why" | pattern <key> "…" | mechanism <key> "…" --pr <url> | dispatch <documentation|usability|ideas> <commit> | record --to <commit> | history`
+  Once a week its cost check (D-558): `node tools/agents/costs.mjs [--no-tests]` (slowest tests, what every session loads, big docs, PR-check minutes); feedback triage lives in `docs/FEEDBACK-TRIAGE.md`.
   (`dispatch` records up to which `main` commit it launched each executor).
   **Rules round** (#1249 step 16): `check` includes `node tools/agents/rules.mjs report` (`--json`, `--record`): each 📈
   rule's debt and its trend against `docs/rules-debt.json`, every 👁 rule without a reviewer, and the rules fixed twice in

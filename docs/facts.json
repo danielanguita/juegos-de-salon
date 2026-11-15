@@ -1843,6 +1843,10 @@
       "title": "The design system"
     },
     {
+      "path": "docs/FEEDBACK-TRIAGE.md",
+      "title": "Handling 🐞 feedback: step 3 of the processes round"
+    },
+    {
       "path": "docs/LANES.md",
       "title": "Merge lanes (D-519)"
     },

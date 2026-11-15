@@ -917,6 +917,7 @@ These documents are being moved to English (D-316); the ones with a Spanish titl
 - [El alemán](docs/ALEMAN.md)
 - [The architecture boundary (#1249 step 5)](docs/ARCHITECTURE.md)
 - [The design system](docs/DESIGN.md)
+- [Handling 🐞 feedback: step 3 of the processes round](docs/FEEDBACK-TRIAGE.md)
 - [Merge lanes (D-519)](docs/LANES.md)
 - [The learning programme: AI in the game, and what the owner learns building it](docs/LEARNING.md)
 - [Merging and publishing](docs/MERGING.md)
