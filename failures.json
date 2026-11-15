@@ -3355,7 +3355,11 @@
       "error": "AssertionError [ERR_ASSERTION]: Spanish names not in docs/english-renames.json: name them in English, or add them with their English name (D-316): changelog/al-toque-launch.md\n+ actual - expected\ncode: 'ERR_ASSERTION',",
       "signature": "f43b0bcdd7",
       "date": "2026-11-15T03:45:40.809Z",
-      "fix": null,
+      "fix": {
+        "commit": "251b7e6ee736db47b0021670224d0c1c92592509",
+        "date": "2026-11-15T03:48:56.361Z",
+        "stat": "1 file(s) +0 −0: changelog/in-a-flash-launch.md"
+      },
       "flaky": false
     }
   ]
