@@ -1,5 +1,5 @@
 {
-  "checkedUpTo": "5ad8edd0cb115afd06693292f5fb4798cc4afc78",
+  "checkedUpTo": "5cdf1fe0b58d7bedf3931b549fb539e659733f7b",
   "patterns": [
     {
       "key": "version-hacia-atras",
@@ -552,15 +552,31 @@
           "date": "2026-11-07T20:57:00.509Z",
           "what": "#1286 tests: README up to date",
           "commit": "8f26677933afe6b7284829aa0c95933a74db9a31"
+        },
+        {
+          "date": "2026-11-12T12:47:51.011Z",
+          "what": "#1416 tests: README up to date",
+          "commit": "561767662c024265a84076c099ddfb7fbd43c558"
+        },
+        {
+          "date": "2026-11-12T12:48:06.187Z",
+          "what": "#1416 tests: README up to date",
+          "commit": "5974788ec7344bb110e695d4aa1a8d0f74e9b039"
+        },
+        {
+          "date": "2026-11-13T12:46:21.082Z",
+          "what": "#1436 tests: README up to date",
+          "commit": "828e02421e5864bbe900a1b759fac5233fc6f793"
         }
       ],
       "mechanism": {
-        "date": "2026-11-09",
-        "what": "push-guard.mjs hook stops git push while a generated file is stale",
-        "pr": "https://github.com/ellokojavi/juegos-de-salon/pull/1334"
+        "date": "2026-11-15",
+        "what": "push-guard.mjs checks the worktree a cd moves to before git push (push-guard.test.mjs)",
+        "pr": "https://github.com/ellokojavi/juegos-de-salon/pull/1468"
       },
       "signatures": [
-        "13e7a7848e"
+        "13e7a7848e",
+        "109d0529d6"
       ]
     },
     {
@@ -700,6 +716,12 @@
       "key": "flag-layout-race",
       "what": "compact-lang's gate removed: the cover compacts before first paint; landing-fold.mjs ignores the top bar and measures today's cover once",
       "pr": "pending"
+    },
+    {
+      "date": "2026-11-15",
+      "key": "readme-tests-block-stale",
+      "what": "push-guard.mjs checks the worktree a cd moves to before git push (push-guard.test.mjs)",
+      "pr": "https://github.com/ellokojavi/juegos-de-salon/pull/1468"
     }
   ],
   "queueDone": [
@@ -711,12 +733,12 @@
   ],
   "dispatches": {
     "documentation": {
-      "date": "2026-11-13",
-      "to": "5ad8edd0cb115afd06693292f5fb4798cc4afc78"
+      "date": "2026-11-15",
+      "to": "5cdf1fe0b58d7bedf3931b549fb539e659733f7b"
     },
     "usability": {
-      "date": "2026-11-13",
-      "to": "5ad8edd0cb115afd06693292f5fb4798cc4afc78"
+      "date": "2026-11-15",
+      "to": "5cdf1fe0b58d7bedf3931b549fb539e659733f7b"
     },
     "ideas": {
       "date": "2026-11-11",
@@ -923,6 +945,14 @@
       "issue": "https://github.com/ellokojavi/juegos-de-salon/issues/1435",
       "pr": null,
       "note": "catch-up round 11-12/11-13; folded #1416"
+    },
+    {
+      "date": "2026-11-15",
+      "from": "5ad8edd0cb115afd06693292f5fb4798cc4afc78",
+      "to": "5cdf1fe0b58d7bedf3931b549fb539e659733f7b",
+      "issue": null,
+      "pr": "https://github.com/ellokojavi/juegos-de-salon/pull/1468",
+      "note": "catch-up 11-14/11-15; folded unpushed 11-14 round; queue #1435:1 and #1381:1 still open"
     }
   ],
   "ownerDecisions": [

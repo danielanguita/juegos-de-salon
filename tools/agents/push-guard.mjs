@@ -9,10 +9,24 @@
 // Exit 2 blocks the push and tells the session what to run; anything unexpected lets it through.
 import { spawnSync } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { join, resolve } from 'node:path';
 
 export function isPush(command) {
   return /(^|[;&|\s(])git\s+(-C\s+\S+\s+)?push(\s|$)/.test(command || '');
+}
+
+/** The folder a push runs in: `git -C <dir>`, else the last `cd <dir>` before the push, else the
+ *  session's cwd. Sessions work in worktrees with `cd <worktree> && git push`, while the hook's cwd
+ *  is the main folder: checking that let stale README blocks through (#1416, #1436). */
+export function pushDir(command, cwd) {
+  const at = command.search(/(^|[;&|\s(])git\s+(-C\s+\S+\s+)?push(\s|$)/);
+  const before = at < 0 ? command : command.slice(0, at + 1);
+  const unq = x => x.replace(/^["']|["']$/g, '');
+  const c = before.match(/git\s+-C\s+(\S+)/) || command.match(/git\s+-C\s+(\S+)\s+push/);
+  if (c) return resolve(cwd, unq(c[1]));
+  let dir = cwd;
+  for (const m of before.matchAll(/(?:^|[;&|(]\s*)cd\s+("[^"]+"|'[^']+'|[^\s;&|)]+)/g)) dir = resolve(dir, unq(m[1]));
+  return dir;
 }
 
 export function problems(cwd, run = (cmd, args) => spawnSync(cmd, args, { cwd, encoding: 'utf8' })) {
@@ -38,8 +52,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   try { input = JSON.parse(readFileSync(0, 'utf8')); } catch { process.exit(0); }
   const command = input?.tool_input?.command;
   if (!isPush(command)) process.exit(0);
-  const m = command.match(/git\s+-C\s+(\S+)/);
-  const cwd = m ? join(input.cwd || process.cwd(), m[1]) : (input.cwd || process.cwd());
+  const cwd = pushDir(command, input.cwd || process.cwd());
   let found = [];
   try { found = problems(cwd); } catch { process.exit(0); }
   if (!found.length) process.exit(0);
