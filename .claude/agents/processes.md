@@ -207,13 +207,15 @@ that (after a new game, after a big text change), saying why.
    record). A "repeated fixes without a test" candidate is a heuristic lead: when it is real, it is
    this round's mechanism, a PR adding the missing check (rule 5); when unsure, a one-tap decision.
    **Cost check, once a week** (D-558; the first round of the week, Pacific time): run
-   `node tools/agents/costs.mjs` and look for the biggest saving in time or tokens as the app grows: a
+   `node tools/agents/costs.mjs` (what each number means and the levers: `docs/COSTS.md`) and look for
+   the biggest saving in time or tokens as the app grows, tokens first (they are the only money): a
    slow test file, an agent's guide or `CLAUDE.md` carrying text most runs don't need, a doc agents read
    whole when they need one part, a workflow step that repeats work. At most one per week, and it is
    this round's mechanism. **Nothing may get worse:** make the same work cheaper (parallel, less
    repeated setup, read on demand), never drop a test case, a check, a rule or speed for players. The PR
    shows the proof: the same tests with the same counts pass, a moved text is word for word the same.
-   Put the numbers in the round's report, and say when nothing is worth doing.
+   Put the numbers in the round's report, and say when nothing is worth doing. When a lever is the
+   owner's (long sessions, the compact window), name it in the report with its number; don't act on it.
 7. **One-tap decisions.** If there's something for the owner, open **one** issue with all of it:
    a JSON file `{ "titulo": "Processes: <date>", "resumen": "…", "decisiones": [ … ] }` and
    `node tools/agents/processes.mjs decide <file.json>`: the bot opens it (`decide.yml`), so that

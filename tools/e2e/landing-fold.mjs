@@ -4,7 +4,10 @@
  * picker in games that open with one) must be seen whole without scrolling, on a small phone
  * (320×568) and a common one (375×667), in every language (German is the longest).
  *
- *   node tools/e2e/landing-fold.mjs [<out folder>] [--only ahorcado,tango]
+ *   node tools/e2e/landing-fold.mjs [<out folder>] [--only ahorcado,tango] [--part 320|375]
+ *
+ * With --part it checks only that phone width: CI runs each size as its own job (ci.mjs PARTS), since
+ * the whole script (~8 min) set how long every full run of the check took.
  *
  * It fails (✗) for each landing where the main button ends below the first viewport, and keeps
  * a screenshot of it. It was born from the owner's issue #464: the steps pushed the button down
@@ -26,6 +29,8 @@ const SITE = process.env.SITE || process.env.SITIO || 'http://localhost:8765';
 const OUT = output('/tmp/e2e/landing-fold');
 mkdirSync(OUT, { recursive: true });
 export const SIZES = [[320, 568], [375, 667]];
+const PART = process.argv.includes('--part') ? process.argv[process.argv.indexOf('--part') + 1] : null;
+if (PART && !SIZES.some(([w]) => String(w) === PART)) throw new Error(`--part ${PART}: must be ${SIZES.map(([w]) => w).join(' or ')}`);
 // Not a game's landing: the owner's panel and the lab's index
 const NOT_LANDINGS = new Set(['panel', 'labs']);
 
@@ -62,7 +67,7 @@ const MEASURE = `(()=>{
 })()`;
 
 let failures = 0;
-for (const [width, height] of SIZES) {
+for (const [width, height] of SIZES.filter(([w]) => !PART || String(w) === PART)) {
   const b = await launch({ dir: `${OUT}/profile-${width}`, out: OUT, width, height });
   const todays = new Set();
   for (const { name: game, route, steps, fresh } of LANDINGS) {
