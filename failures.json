@@ -3508,7 +3508,11 @@
       "error": "ERROR · the block \"tests\" went stale  →  python3 tools/release/readme.py update\nERROR · appeared modules: public/panel/public-games.js\nERROR · appeared tests: public/panel/public-games.test.mjs",
       "signature": "7dbdf07886",
       "date": "2026-11-15T20:21:10.901Z",
-      "fix": null,
+      "fix": {
+        "commit": "d023b35c7926daf82952aeda0c605e40ad271fef",
+        "date": "2026-11-15T20:29:51.589Z",
+        "stat": "52 file(s) +255 −30: README.md, changelog/ccr-f7f308c0-4frrzt.md, changelog/hangman-word-on-loss.md, changelog/lab-games-out-of-counts.md, docs/AGENTS.md, …"
+      },
       "flaky": false
     },
     {
@@ -3521,7 +3525,11 @@
       "error": "ERROR · the block \"tests\" went stale  →  python3 tools/release/readme.py update\nERROR · appeared modules: public/panel/public-games.js\nERROR · appeared tests: public/panel/public-games.test.mjs",
       "signature": "7dbdf07886",
       "date": "2026-11-15T20:21:44.200Z",
-      "fix": null,
+      "fix": {
+        "commit": "d023b35c7926daf82952aeda0c605e40ad271fef",
+        "date": "2026-11-15T20:29:51.589Z",
+        "stat": "51 file(s) +249 −32: README.md, changelog/ccr-f7f308c0-4frrzt.md, changelog/hangman-word-on-loss.md, changelog/lab-games-out-of-counts.md, docs/CANONS.md, …"
+      },
       "flaky": false
     }
   ]
