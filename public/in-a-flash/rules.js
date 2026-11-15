@@ -212,7 +212,6 @@ const ROWS = [
   ['Sigue con el próximo microjuego.', 'Go on with the next microgame.', 'Continue com o próximo microjogo.'],
   ['Este microjuego parte de nuevo cuando sigas.', 'This microgame starts over when you go on.', 'Este microjogo recomeça quando você continuar.'],
   ['Seguir', 'Go on', 'Continuar'],
-  ['Laboratorio', 'Lab', 'Laboratório'],
   // The 💬 comment form
   ['¿Qué te pareció?', 'What did you think?', 'O que achou?'],
   ['Cuéntanos qué microjuegos te gustaron, cuáles no se entendían y qué le cambiarías.', 'Tell us which microgames you liked, which were unclear and what you would change.', 'Conte quais microjogos você curtiu, quais não deu para entender e o que mudaria.'],

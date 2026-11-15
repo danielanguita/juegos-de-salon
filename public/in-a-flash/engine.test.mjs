@@ -1,4 +1,4 @@
-// ¡Al toque!'s engine: node public/labs/microgames/engine.test.mjs
+// ¡Al toque!'s engine: node public/in-a-flash/engine.test.mjs
 import assert from 'node:assert/strict';
 import { RUN, newCode, speedAt, gamePoints, score, score100, runOrder } from './engine.js';
 

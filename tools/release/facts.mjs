@@ -73,7 +73,8 @@ const folder = g => g.slug || g.path.replace(/\/$/, '');
 
 const games = [];
 for (const g of GAMES) {
-  const { LOCALES } = await import(join(ROOT, 'public', g.path, 'rules.js'));
+  // A game with keyed rows and no LOCALES (¡Al toque!'s rules.js) has no modes to list
+  const { LOCALES = { es: {} } } = await import(join(ROOT, 'public', g.path, 'rules.js'));
   // There are two ways to write a rules.js: loose texts (Hangman) or inside `ui`
   // (Fourth King, Dudo). Both are looked at, or those games' modes are not seen from here.
   const es = { ...LOCALES.es, ...(LOCALES.es.ui || {}) };

@@ -1,51 +1,21 @@
-# ⚡ ¡Al toque! (lab prototype, in Games being tried)
+# ⚡ ¡Al toque! (out of the lab: /in-a-flash/, launched by flags/microgames)
 
 Microgames in the style of WarioWare (Nintendo): one quick order, 3 to 5 seconds to do it, and the next
 one comes right after. The owner designed it game by game with Claude on a claude.ai artifact (a review
 page with ✅ / ❌ per game), kept 28 of about 40 (¡Encesta! and ¡Patea! left later), tuned each one, added ¡Pinball! later (2026-11-13), and asked for runs of 10 different games
 in a row in the lab. «¡Al toque!» means "right away" (the owner first called it «¡Al tiro!», Chilean for the same).
 
-## Summary
+## Resumen
 
-- **Where:** `https://juegosdesalon.cl/labs/microgames/`, in the lab (each person's key, D-281, D-284).
-  Id `microgames` in the usage signal (named «¡Al toque!» in the panel and every list inside by `LAB_NAMES` in games.js, `game-labels.test.mjs`); the best run is `microgames:best-points` (points) and `microgames:best` (stars, out of 30). Not in `games.js`: lab only.
+- **Where:** `https://juegosdesalon.cl/in-a-flash/` (the lab's `/labs/microgames/` and `/microgames/` are bridges there), hidden until `flags/microgames` is on (D-517's way; launched at 21:00 Pacific on 2026-11-14 by the `launch` workflow, D-529, with the splash `microgames-launch` first and Sudoku's turned off).
+  Id `microgames` in the usage signal (named «¡Al toque!» in the panel and every list inside by `LAB_NAMES` in games.js, `game-labels.test.mjs`); the best run is `microgames:best-points` (points) and `microgames:best` (stars, out of 30). In `GAMES` from `public/in-a-flash/game.json`, with `lanza`, `oculto` and `deLabs` written by hand beside it. La Copa and Uno al día come in a later PR (its page is not a La Copa screen yet).
 - **For whom:** one player, on a phone held upright.
 - **Language:** Spanish, English and Portuguese (C-3), with the toggle on the cover. The Spanish is written
   where each text is used, inside `t('…')`; `rules.js` has its English and Portuguese keyed by that
   Spanish, and `rules.test.mjs` fails on a `t()` with no translation or with different `{x}`.
 - **Status:** active project. What would prove it: players who start a second run.
 
-## Files
-
-| File | What |
-|---|---|
-| `public/labs/microgames/engine.js` | The pure rules: which games a run plays (seeded or not), the speed, the points and the 0–100 score |
-| `public/labs/microgames/engine.test.mjs` | Its tests |
-| `public/labs/microgames/rules.js` | The texts in English and Portuguese, keyed by the Spanish |
-| `public/labs/microgames/rules.test.mjs` | Every `t()` has both, with the same `{x}` |
-| `public/labs/microgames/game.js` | The shared stage helpers, the 29 microgames (`GAMES`), their names (`META`), the three types (`KINDS`), the cover and the run |
-| `public/labs/microgames/style.css` | The stage and every microgame's look (moved from the artifact) |
-| `public/labs/microgames/index.html` | The page: the stage, the HUD, the run's marks and the footer |
-| `tools/e2e/microgames/lab.mjs` | End to end |
-
-`engine.js` holds the run's rules (order, speed, scoring); each microgame still draws and judges itself
-in `game.js`.
-
-## How a run goes
-
-1. **Cover:** the cover is as tall as its content (no empty band) and fits above the fold at 390×812, the house rule, and at 320×568 (U-39: below 420 px wide the three ways to play sit side by side, the gesture over its name and line); the ⚡ in the title jolts now and then. ⚡ and the name, one line, the three ways to play laid out at once (Toca, Arrastra, Desliza, each a card in its color with a finger doing its gesture), **Jugar**, the best run and the credit to WarioWare; under the stage,
-   **Cómo se juega** folded (C-8, D-550): the goal, the three ways to play each with its finger doing the
-   gesture (**Toca** turquoise, **Arrastra** orange, **Desliza** purple) and the scoring in one sentence;
-   the site footer last. Jugar goes straight into the run (the separate how-to screen is gone).
-2. **The run:** 10 different microgames drawn from the 29. Each starts with its intro card (the gesture
-   of its type on top, the stage framed in the type's color, the name and a hint); the frame comes off
-   when the game starts. Every three games the run speeds up by 10 % (`sp`). The HUD shows `n / 10`,
-   the stars so far and a mark per game: red with no star, green otherwise, pale for ★, green for ★★ and bright with a glow for ★★★.
-3. **The end** (C-19): a cheer, the points, the stars and the best, **Otra corrida**, the way back to the
-   lab from `fin.js`, then each game's icon with its stars and points (🔥 on a streak). Sound and confetti
-   on a good run (C-4).
-
-## Scoring (`engine.js`)
+## Reglas
 
 - **A game:** 0 to 3 stars, judged by the microgame. Its points are 10 per star times the speed it was
   played at (×1.0 the first three, ×1.1, ×1.2, ×1.3 the last): a ★★★ at the end is worth 39.
@@ -152,7 +122,45 @@ others at 2 to 6.2 s (one in eight did not get down in time).
 - **¡Toca rápido!:** the hose is tied to the balloon's knot as read from the page, every frame.
 - **¡Aplasta!:** the flies under the swatter's head at the tap are the ones squashed.
 
-## Exceptions to the canons, for now
+## Modos
+
+One: 🧍 solo, on one phone. No rooms, no rival.
+
+## Flujo
+
+1. **Cover:** the cover is as tall as its content (no empty band) and fits above the fold at 390×812, the house rule, and at 320×568 (U-39: below 420 px wide the three ways to play sit side by side, the gesture over its name and line); the ⚡ in the title jolts now and then. ⚡ and the name, one line, the three ways to play laid out at once (Toca, Arrastra, Desliza, each a card in its color with a finger doing its gesture), **Jugar**, the best run and the credit to WarioWare; under the stage,
+   **Cómo se juega** folded (C-8, D-550): the goal, the three ways to play each with its finger doing the
+   gesture (**Toca** turquoise, **Arrastra** orange, **Desliza** purple) and the scoring in one sentence;
+   the site footer last. Jugar goes straight into the run (the separate how-to screen is gone).
+2. **The run:** 10 different microgames drawn from the 29. Each starts with its intro card (the gesture
+   of its type on top, the stage framed in the type's color, the name and a hint); the frame comes off
+   when the game starts. Every three games the run speeds up by 10 % (`sp`). The HUD shows `n / 10`,
+   the stars so far and a mark per game: red with no star, green otherwise, pale for ★, green for ★★ and bright with a glow for ★★★.
+3. **The end** (C-19): a cheer, the points, the stars and the best, **Otra corrida**, the way back to the
+   lab from `fin.js`, then each game's icon with its stars and points (🔥 on a streak). Sound and confetti
+   on a good run (C-4).
+
+## Protocolo de mensajes
+
+None: nothing goes over the network but the usage signal and the ranking (`microgames`, D-212).
+
+## Archivos
+
+| File | What |
+|---|---|
+| `public/in-a-flash/engine.js` | The pure rules: which games a run plays (seeded or not), the speed, the points and the 0–100 score |
+| `public/in-a-flash/engine.test.mjs` | Its tests |
+| `public/in-a-flash/rules.js` | The texts in English and Portuguese, keyed by the Spanish |
+| `public/in-a-flash/rules.test.mjs` | Every `t()` has both, with the same `{x}` |
+| `public/in-a-flash/game.js` | The shared stage helpers, the 29 microgames (`GAMES`), their names (`META`), the three types (`KINDS`), the cover and the run |
+| `public/in-a-flash/style.css` | The stage and every microgame's look (moved from the artifact) |
+| `public/in-a-flash/index.html` | The page: the stage, the HUD, the run's marks and the footer |
+| `tools/e2e/in-a-flash/lab.mjs` | End to end |
+
+`engine.js` holds the run's rules (order, speed, scoring); each microgame still draws and judges itself
+in `game.js`.
+
+## Excepciones a los cánones
 
 - **C-2 (files):** `rules.js` holds the translations keyed by the Spanish, not a `LOCALES = { es, en, pt }`
   by key: the short texts spread over 29 microgames read better where they are used.

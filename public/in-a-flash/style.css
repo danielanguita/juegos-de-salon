@@ -1,7 +1,7 @@
 /* ¡Al toque! in the lab: the stage and its 30 microgames. Moved from the review prototype (the owner's claude.ai artifact), in the site's neon night */
 /* The prototype's own palette, kept for the stage only (the page around it keeps the site's) */
 .alt-stage {
-  /* The game's own colours and glyph sizes, with no token in base.css (DESIGN.md §4: docs/games/microgames.md) */
+  /* The game's own colours and glyph sizes, with no token in base.css (DESIGN.md §4: docs/games/in-a-flash.md) */
   --mg-281406: #281406;
   --mg-a0102c: #a0102c;
   --mg-8fc79c: #8fc79c;

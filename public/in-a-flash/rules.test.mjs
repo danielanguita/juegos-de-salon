@@ -1,5 +1,5 @@
 // ¡Al toque!'s languages (C-3): every t('…') in game.js has its English and Portuguese, with the same {x}.
-// node public/labs/microgames/rules.test.mjs
+// node public/in-a-flash/rules.test.mjs
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { TR, KEYS } from './rules.js';

@@ -211,7 +211,7 @@ export const CAMPAIGNS = {
     title: { es: 'No es rápido…\n¡Es al toque!', en: 'It’s not fast…\nIt’s in a flash!', pt: 'Não é rápido…\nÉ na hora!' },
     hero: true,
     items: [{
-      href: 'labs/microgames/', video: 'assets/splash/microgames-teaser.mp4', img: 'assets/splash/microgames-teaser-start.png', still: 'assets/splash/microgames-teaser.png', ratio: '8 / 5', smooth: true,
+      href: 'in-a-flash/', video: 'assets/splash/microgames-teaser.mp4', img: 'assets/splash/microgames-teaser-start.png', still: 'assets/splash/microgames-teaser.png', ratio: '8 / 5', smooth: true,
       // No title: the clip and the text are enough (the owner, 2026-11-14)
       text: {
         es: 'Toca, arrastra, desliza: una orden y 3 segundos para cumplirla. Diez seguidos, cada vez más rápido. ¿Haces la corrida perfecta?',
