@@ -3497,6 +3497,19 @@
         "stat": "1 file(s) +1 −0: docs/facts.json"
       },
       "flaky": false
+    },
+    {
+      "run": 43757448573,
+      "check": "tests",
+      "pr": 1481,
+      "branch": "lab-games-out-of-counts",
+      "commit": "cf68abcb1821a8e44a7013502bdf3f5b74dc8c0f",
+      "test": "README up to date",
+      "error": "ERROR · the block \"tests\" went stale  →  python3 tools/release/readme.py update\nERROR · appeared modules: public/panel/public-games.js\nERROR · appeared tests: public/panel/public-games.test.mjs",
+      "signature": "7dbdf07886",
+      "date": "2026-11-15T20:21:10.901Z",
+      "fix": null,
+      "flaky": false
     }
   ]
 }
