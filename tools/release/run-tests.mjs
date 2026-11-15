@@ -35,4 +35,7 @@ files.forEach((f, i) => {
   if (code !== 0) { failed++; console.log(ci ? `::error file=${f}::${f} failed` : `FAILED ${f}`); }
 });
 console.log(`${files.length - failed}/${files.length} test files passed, ${jobs} at a time`);
+// TIMES=n: the n slowest files, for the processes agent's cost check (tools/agents/costs.mjs)
+if (process.env.TIMES) for (const i of files.map((_, i) => i).sort((a, b) => results[b].ms - results[a].ms).slice(0, Number(process.env.TIMES)))
+  console.log(`  ${(results[i].ms / 1000).toFixed(1)} s  ${files[i]}`);
 process.exit(failed ? 1 : 0);
