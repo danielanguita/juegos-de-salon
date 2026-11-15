@@ -1273,7 +1273,7 @@ const pctFino = (a, b) => (!b ? '—' : a && a / b < 0.01 ? `${((a / b) * 100).t
  */
 function vistaWbr(now) {
   const w = weekOf(S.ruta.args[0], now);
-  const nota = 'The closed week (Sunday to Saturday, UTC) against the four before and the last three months, as the Sunday email. Lab plays left out (D-560). The range above does not apply.';
+  const nota = 'The closed week (Sunday to Saturday, UTC) against the four before and the last three months, like the Sunday email. Lab plays left out (D-560). Ignores the range.';
   const cabeza = [...titulo(`📋 WBR · ${wbrDay(w.from).replace(/, \d{4}$/, '')} – ${wbrDay(w.to)}`, nota),
     el('div', { class: 'wbr-nav' },
       el('a', { class: 'btn btn--sm', href: ir('wbr', [isoDay(w.to - 7)]) }, '‹ Week before'),
