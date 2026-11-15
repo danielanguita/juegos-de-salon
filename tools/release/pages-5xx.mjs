@@ -16,8 +16,11 @@ export const stuckDeployment = messages => {
   return '';
 };
 
-/** Is any of these messages a 5xx from the Pages API? */
-export const serverError = messages => messages.some(m => /\(status: 5\d\d\)|\b50[234] |Server Error/.test(m));
+/**
+ * Is any of these messages a 5xx from the Pages API, or the artifact just uploaded not yet visible to
+ * deploy-pages (2026-11-15, #1467: "No artifacts named github-pages" seconds after a good upload)?
+ */
+export const serverError = messages => messages.some(m => /\(status: 5\d\d\)|\b50[234] |Server Error|No artifacts named "github-pages" were found/.test(m));
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const gh = path => JSON.parse(execFileSync('gh', ['api', path], { encoding: 'utf8' }));
