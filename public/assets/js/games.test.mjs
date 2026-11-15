@@ -125,6 +125,12 @@ console.log(`games: los ${ALL_GAMES.length} juegos tienen motor, tests, gancho y
   assert.ok(esNuevo(lanz, new Date('2026-11-14T21:05:00'), { x: { state: 'all', at } }), 'new from its launch, the evening before its date');
   assert.ok(!esNuevo(lanz, new Date('2026-11-14T21:05:00'), { x: { state: 'lab', at } }), 'not while only the lab has it');
   assert.ok(!esNuevo(lanz, new Date(at + 7 * 864e5 + 1000), { x: { state: 'all', at } }), 'and its week counts from the launch');
+  // The newest first among the new ones (the owner's request, 2026-11-14)
+  {
+    const { ordenPortada: op, esNuevo: en, nuevoEn: ne } = await import('./games.js');
+    const nuevos = op(new Date()).filter(x => !x.torneo && x.available && en(x));
+    for (let i = 1; i < nuevos.length; i++) assert.ok(ne(nuevos[i - 1]) >= ne(nuevos[i]), `the newest new game first: ${nuevos[i - 1].id} before ${nuevos[i].id}`);
+  }
   // D-335: while new, a game goes right after La Copa; afterwards, back to its place by popularity
   const juego = { id: 'zzz-nuevo', available: true, nuevoDesde: '2030-01-01' };
   const { ALL_GAMES: G } = await import('./games.js');

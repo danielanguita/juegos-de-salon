@@ -511,13 +511,17 @@ const puesto = id => { const i = POPULARIDAD.indexOf(id); return i < 0 ? POPULAR
  * brings its date, and games.test.mjs stops one that doesn't (YA_ESTABAN is the list from before).
  */
 export const DIAS_NUEVO = 7;
-export const esNuevo = (g, hoy = new Date(), flags = cachedFlags()) => {
+/** When a game became new (ms), or Infinity when it has no date. */
+export const nuevoEn = (g, flags = cachedFlags()) => {
   // A game launched by a flag (D-517) is new from the moment its flag went to everyone (D-556): a launch
   // at 21:00 must not wait for the date written ahead of time (¡Al toque! launched without its label)
   const lanzadoEn = g?.lanza && stateOf(flags, g.lanza) === 'all' ? Number(flags[g.lanza]?.at) || 0 : 0;
-  if (!g?.nuevoDesde && !lanzadoEn) return false;
-  const fecha = g.nuevoDesde ? Date.parse(`${g.nuevoDesde}T00:00:00`) : Infinity;
-  const desde = lanzadoEn ? Math.min(lanzadoEn, fecha) : fecha;
+  const fecha = g?.nuevoDesde ? Date.parse(`${g.nuevoDesde}T00:00:00`) : Infinity;
+  return lanzadoEn ? Math.min(lanzadoEn, fecha) : fecha;
+};
+export const esNuevo = (g, hoy = new Date(), flags = cachedFlags()) => {
+  const desde = nuevoEn(g, flags);
+  if (desde === Infinity) return false;
   // A game may carry its own length (`diasNuevo`): Shinobi and Babel keep it 10 days (the owner's request, 2026-11-01)
   return hoy.getTime() >= desde && hoy.getTime() < desde + (g.diasNuevo || DIAS_NUEVO) * 24 * 60 * 60 * 1000;
 };
@@ -531,7 +535,8 @@ export const esNuevo = (g, hoy = new Date(), flags = cachedFlags()) => {
 export function ordenPortada(hoy = new Date()) {
   const ofrecidos = ALL_GAMES.filter(g => !g.labs && !g.bodega && !g.oculto).sort((a, b) => puesto(a.id) - puesto(b.id));
   const arriba = g => (g.torneo ? 0 : esNuevo(g, hoy) ? 1 : 2);
-  const disponibles = ofrecidos.filter(g => g.available).sort((a, b) => arriba(a) - arriba(b));
+  // Among the new ones, the newest first (the owner's request, 2026-11-14): a game launched tonight goes above last week's
+  const disponibles = ofrecidos.filter(g => g.available).sort((a, b) => arriba(a) - arriba(b) || (arriba(a) === 1 ? nuevoEn(b) - nuevoEn(a) : 0));
   return [...disponibles, ...ofrecidos.filter(g => !g.available)];
 }
 export const PORTADA = ordenPortada();
