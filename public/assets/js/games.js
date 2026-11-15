@@ -83,7 +83,7 @@ export const GAMES = [
   // at 21:00 Pacific on 2026-11-14 (D-517's way, D-529): until then hidden (`oculto`). Its page is its own
   // (rules.js, not a La Copa screen), so La Copa and Uno al día come in a later PR. The id is the lab's
   // (usage signal, the `microgames` ranking)
-  { ...catalogEntry(inAFlashManifest), deLabs: 'microgames', lanza: 'microgames', oculto: !lanzado('microgames') },
+  { ...catalogEntry(inAFlashManifest), diasNuevo: 10, deLabs: 'microgames', lanza: 'microgames', oculto: !lanzado('microgames') },
 ];
 
 /**
@@ -511,9 +511,13 @@ const puesto = id => { const i = POPULARIDAD.indexOf(id); return i < 0 ? POPULAR
  * brings its date, and games.test.mjs stops one that doesn't (YA_ESTABAN is the list from before).
  */
 export const DIAS_NUEVO = 7;
-export const esNuevo = (g, hoy = new Date()) => {
-  if (!g?.nuevoDesde) return false;
-  const desde = Date.parse(`${g.nuevoDesde}T00:00:00`);
+export const esNuevo = (g, hoy = new Date(), flags = cachedFlags()) => {
+  // A game launched by a flag (D-517) is new from the moment its flag went to everyone (D-556): a launch
+  // at 21:00 must not wait for the date written ahead of time (¡Al toque! launched without its label)
+  const lanzadoEn = g?.lanza && stateOf(flags, g.lanza) === 'all' ? Number(flags[g.lanza]?.at) || 0 : 0;
+  if (!g?.nuevoDesde && !lanzadoEn) return false;
+  const fecha = g.nuevoDesde ? Date.parse(`${g.nuevoDesde}T00:00:00`) : Infinity;
+  const desde = lanzadoEn ? Math.min(lanzadoEn, fecha) : fecha;
   // A game may carry its own length (`diasNuevo`): Shinobi and Babel keep it 10 days (the owner's request, 2026-11-01)
   return hoy.getTime() >= desde && hoy.getTime() < desde + (g.diasNuevo || DIAS_NUEVO) * 24 * 60 * 60 * 1000;
 };

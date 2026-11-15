@@ -61,7 +61,7 @@ export default {
   "tipos": [
     "skill"
   ],
-  "nuevoDesde": "2026-11-15",
+  "nuevoDesde": "2026-11-14",
   "available": true,
   "modes": [
     "solo"
