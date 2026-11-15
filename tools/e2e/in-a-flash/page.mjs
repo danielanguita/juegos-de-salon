@@ -4,7 +4,7 @@
 // different microgames, with the HUD, a mark per game and the first intro wearing its type's gesture; a single
 // game (¡Calcula!, answered right) ends on the run's summary with points, stars, Otra corrida and the way back to
 // the lab, and the best is kept; a seed gives the same run twice; the 29 start without errors; a hidden page
-// pauses and Seguir replays the game; the end offers Reta a alguien; the cover and games in English; at 320 px no sideways scroll. Prints ✗ if anything fails.
+// pauses and Seguir replays the game; the end offers Reta a alguien; the cover and games in English; at 320 px no sideways scroll; Rankings has its tab. Prints ✗ if anything fails.
 import { output } from '../output.mjs';
 import { coverGapsOff } from '../cover-gaps.mjs';
 import { launch, sleep } from '../cdp.mjs';
@@ -14,6 +14,7 @@ const ev = e => b.evaluate(e);
 const SITE = process.env.SITE || 'http://localhost:8765';
 let failures = 0;
 const ok = (cond, msg) => { console.log(`${cond ? '✓' : '✗'} ${msg}`); if (!cond) failures++; };
+const waitForIn = async (t, expr, ms = 8000) => { for (let k = 0; k < ms; k += 100) { if (await t.evaluate(expr)) return true; await sleep(100); } return false; };
 const waitFor = async (expr, ms = 8000) => { for (let t = 0; t < ms; t += 100) { if (await ev(expr)) return true; await sleep(100); } return false; };
 
 await b.go(`${SITE}/labs/`);
@@ -117,6 +118,11 @@ ok(await s.evaluate(`document.getElementById('ranking').getBoundingClientRect().
 ok(await s.evaluate(coverGapsOff) === '[]', 'every block of the cover is 12 px from the next');
 await s.evaluate(`document.querySelector('.tr-tab')?.click(); 1`); await sleep(300);
 ok(await s.evaluate(`document.querySelectorAll('.tr-mg-b').length === __microgames.ids.length`), 'the tester tab offers every microgame (D-551)');
+// Rankings lists its table once launched (D-559: it launched without one)
+await s.go(`${SITE}/records/?test`, 300);
+await s.evaluate(`localStorage.setItem('juegos-de-salon:flags', JSON.stringify({ microgames: { state: 'all' } })); 1`);
+await s.go(`${SITE}/records/?test`, 1000);
+ok(await waitForIn(s, `!!document.querySelector('#rk-juegos button[data-id="microgames"]')`), 'Rankings has its tab, once launched (D-559)');
 s.close();
 if (failures) { console.log(`✗ ${failures} failed`); process.exit(1); }
 console.log('✓ ¡Al toque!');

@@ -35,8 +35,10 @@ The game inside is a placeholder (a race to ten). Replace it, keeping what surro
   `handoff.js`, `chat.js`, `sound.js`, `arrastre.js` (C-4, C-7, C-8, C-9, C-15); the board carries
   `data-tablero` (D-309).
 - **The result screen** (C-19): exits from `fin.js` for each context, looked at 390×812 and 320 px.
-- **Rankings** (D-212): only La Copa's standalone games record them, through `cup/game.js`; a new
-  game that should is a question for the owner.
+- **Rankings** (D-212, D-559): whether a game records a score is a question for the owner. One that does
+  (`avisoPartida()`) adds its table to `SOLO_TABLES` in `games.js` so Rankings shows its tab
+  (`rankings-coverage.test.mjs` fails otherwise), and its e2e script checks the tab on `/records/`.
+  The panel names it on its own (`gameById`).
 
 **The conformance suite** checks all of this for every game with a `game.json`:
 `node public/assets/js/conformance.test.mjs` (the files, the languages, the shared modules; in the
