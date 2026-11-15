@@ -1273,11 +1273,11 @@ const pctFino = (a, b) => (!b ? '—' : a && a / b < 0.01 ? `${((a / b) * 100).t
  */
 function vistaWbr(now) {
   const w = weekOf(S.ruta.args[0], now);
-  const nota = 'The closed week (Sunday to Saturday, UTC) against the four before and the last three months, like the Sunday email. Lab plays left out (D-560). Ignores the range.';
+  const nota = 'The closed week (Sunday to Saturday, UTC) against the four before and the last three months, like the Sunday email. Lab plays left out (D-560).';
   const cabeza = [...titulo(`📋 WBR · ${wbrDay(w.from).replace(/, \d{4}$/, '')} – ${wbrDay(w.to)}`, nota),
     el('div', { class: 'wbr-nav' },
-      el('a', { class: 'btn btn--sm', href: ir('wbr', [isoDay(w.to - 7)]) }, '‹ Week before'),
-      w.to < weekOf(null, now).to ? el('a', { class: 'btn btn--sm', href: ir('wbr', [isoDay(w.to + 7)]) }, 'Week after ›') : null)];
+      el('a', { class: 'btn btn--sm btn--ghost', href: ir('wbr', [isoDay(w.to - 7)]) }, '‹ Week before'),
+      w.to < weekOf(null, now).to ? el('a', { class: 'btn btn--sm btn--ghost', href: ir('wbr', [isoDay(w.to + 7)]) }, 'Week after ›') : null)];
   if (!S.daysLoaded || !S.torneosLoaded) return [...cabeza, el('p', { class: 'empty' }, 'Loading…')];
   const t = trend({ days: playerDays(), torneos: playerCups(), flags: S.flags || {} }, w);
   const fmt = (v, dec) => (v === null ? 'n/a' : dec ? v.toFixed(1) : n(v));
@@ -2289,6 +2289,8 @@ function render() {
   if ((S.ruta.sec === 'campanas' || S.ruta.sec === 'llaves') && document.activeElement?.closest?.('#vista input')) return;
   MARCAS = versiones(S.days);
   const { sec, args } = S.ruta;
+  // The WBR has its own weeks: the range picker would only mislead there
+  const rangoLabel = $('#range')?.closest('label'); if (rangoLabel) rangoLabel.hidden = sec === 'wbr';
   let nodos;
   if (sec === 'torneo' && args[0]) nodos = vistaFichaCopa(args[0].toUpperCase(), now);
   else if (sec === 'torneo') nodos = vistaCopa(now);
