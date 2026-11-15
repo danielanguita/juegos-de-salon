@@ -567,10 +567,12 @@
         "sudoku"
       ],
       "revision": {
-        "fecha": "2026-11-12",
-        "app": "1.9.1",
-        "al_dia": true,
-        "pendiente": []
+        "fecha": "2026-11-15",
+        "app": "1.13.2",
+        "al_dia": false,
+        "pendiente": [
+          "Shows app 1.7.32 (today 1.13.2) and its cover lists none of today's games beside Sudoku; Sudoku's title and hard-mode subtitle changed since."
+        ]
       }
     }
   ]
