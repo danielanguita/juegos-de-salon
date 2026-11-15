@@ -1,5 +1,5 @@
 {
-  "checkedUpTo": "5ad8edd0cb115afd06693292f5fb4798cc4afc78",
+  "checkedUpTo": "5cdf1fe0b58d7bedf3931b549fb539e659733f7b",
   "patterns": [
     {
       "key": "version-hacia-atras",
@@ -570,9 +570,9 @@
         }
       ],
       "mechanism": {
-        "date": "2026-11-09",
-        "what": "push-guard.mjs hook stops git push while a generated file is stale",
-        "pr": "https://github.com/ellokojavi/juegos-de-salon/pull/1334"
+        "date": "2026-11-15",
+        "what": "push-guard.mjs checks the worktree a cd moves to before git push (push-guard.test.mjs)",
+        "pr": "https://github.com/ellokojavi/juegos-de-salon/pull/1468"
       },
       "signatures": [
         "13e7a7848e",
@@ -716,6 +716,12 @@
       "key": "flag-layout-race",
       "what": "compact-lang's gate removed: the cover compacts before first paint; landing-fold.mjs ignores the top bar and measures today's cover once",
       "pr": "pending"
+    },
+    {
+      "date": "2026-11-15",
+      "key": "readme-tests-block-stale",
+      "what": "push-guard.mjs checks the worktree a cd moves to before git push (push-guard.test.mjs)",
+      "pr": "https://github.com/ellokojavi/juegos-de-salon/pull/1468"
     }
   ],
   "queueDone": [
@@ -939,6 +945,14 @@
       "issue": "https://github.com/ellokojavi/juegos-de-salon/issues/1435",
       "pr": null,
       "note": "catch-up round 11-12/11-13; folded #1416"
+    },
+    {
+      "date": "2026-11-15",
+      "from": "5ad8edd0cb115afd06693292f5fb4798cc4afc78",
+      "to": "5cdf1fe0b58d7bedf3931b549fb539e659733f7b",
+      "issue": null,
+      "pr": "https://github.com/ellokojavi/juegos-de-salon/pull/1468",
+      "note": "catch-up 11-14/11-15; folded unpushed 11-14 round; queue #1435:1 and #1381:1 still open"
     }
   ],
   "ownerDecisions": [
