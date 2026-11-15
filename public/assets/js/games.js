@@ -19,6 +19,7 @@ import { catalogEntry } from './game-manifest.js';
 import hangmanManifest from './manifests/hangman.js';
 import liarsDiceManifest from './manifests/liars-dice.js';
 import timelineManifest from './manifests/timeline.js';
+import inAFlashManifest from './manifests/in-a-flash.js';
 import bullsAndCowsManifest from './manifests/bulls-and-cows.js';
 import battleshipManifest from './manifests/battleship.js';
 import generalaManifest from './manifests/generala.js';
@@ -78,6 +79,11 @@ export const GAMES = [
   // /labs/fourth-king/; /fourth-king/ and /cuarto-rey/ are bridges there
   // Its name in URLs and its docs/games/ and docs/screenshots/ folders, without the lab (C-18)
   catalogEntry(fourthKingManifest),
+  // microgames: from public/in-a-flash/game.json. ⚡ ¡Al toque! out of the lab, launched by flags/microgames
+  // at 21:00 Pacific on 2026-11-14 (D-517's way, D-529): until then hidden (`oculto`). Its page is its own
+  // (rules.js, not a La Copa screen), so La Copa and Uno al día come in a later PR. The id is the lab's
+  // (usage signal, the `microgames` ranking)
+  { ...catalogEntry(inAFlashManifest), diasNuevo: 10, deLabs: 'microgames', lanza: 'microgames', oculto: !lanzado('microgames') },
 ];
 
 /**
@@ -469,6 +475,19 @@ export const SUELTOS = [
 export const ALL_GAMES = [...GAMES, ...SUELTOS];
 
 /**
+ * The solo score tables of the games outside SUELTOS (game id → table), each a tab in Rankings
+ * (/records/). SUELTOS get their tab on their own; a GAMES entry that records a score played alone
+ * goes here, or its scores never show in Rankings (¡Al toque! launched without one, D-559).
+ * rankings-coverage.test.mjs reads every game page's avisoPartida() and fails if a table is missing.
+ */
+export const SOLO_TABLES = {
+  'toque-y-fama': 'toque-y-fama_solo',
+  ahorcado: 'ahorcado_solo',
+  generala: 'generala_solo',
+  microgames: 'microgames',
+};
+
+/**
  * Los tipos de juego con que se filtra la portada (D-142), en el orden en que se ofrecen.
  * Cada juego dice los suyos en `tipos`; uno sin tipos solo se ve sin filtro de tipo.
  * La clave es la que va en la URL (`?type=logic`), en inglés como las rutas (D-192, D-214).
@@ -505,9 +524,17 @@ const puesto = id => { const i = POPULARIDAD.indexOf(id); return i < 0 ? POPULAR
  * brings its date, and games.test.mjs stops one that doesn't (YA_ESTABAN is the list from before).
  */
 export const DIAS_NUEVO = 7;
-export const esNuevo = (g, hoy = new Date()) => {
-  if (!g?.nuevoDesde) return false;
-  const desde = Date.parse(`${g.nuevoDesde}T00:00:00`);
+/** When a game became new (ms), or Infinity when it has no date. */
+export const nuevoEn = (g, flags = cachedFlags()) => {
+  // A game launched by a flag (D-517) is new from the moment its flag went to everyone (D-556): a launch
+  // at 21:00 must not wait for the date written ahead of time (¡Al toque! launched without its label)
+  const lanzadoEn = g?.lanza && stateOf(flags, g.lanza) === 'all' ? Number(flags[g.lanza]?.at) || 0 : 0;
+  const fecha = g?.nuevoDesde ? Date.parse(`${g.nuevoDesde}T00:00:00`) : Infinity;
+  return lanzadoEn ? Math.min(lanzadoEn, fecha) : fecha;
+};
+export const esNuevo = (g, hoy = new Date(), flags = cachedFlags()) => {
+  const desde = nuevoEn(g, flags);
+  if (desde === Infinity) return false;
   // A game may carry its own length (`diasNuevo`): Shinobi and Babel keep it 10 days (the owner's request, 2026-11-01)
   return hoy.getTime() >= desde && hoy.getTime() < desde + (g.diasNuevo || DIAS_NUEVO) * 24 * 60 * 60 * 1000;
 };
@@ -521,7 +548,8 @@ export const esNuevo = (g, hoy = new Date()) => {
 export function ordenPortada(hoy = new Date()) {
   const ofrecidos = ALL_GAMES.filter(g => !g.labs && !g.bodega && !g.oculto).sort((a, b) => puesto(a.id) - puesto(b.id));
   const arriba = g => (g.torneo ? 0 : esNuevo(g, hoy) ? 1 : 2);
-  const disponibles = ofrecidos.filter(g => g.available).sort((a, b) => arriba(a) - arriba(b));
+  // Among the new ones, the newest first (the owner's request, 2026-11-14): a game launched tonight goes above last week's
+  const disponibles = ofrecidos.filter(g => g.available).sort((a, b) => arriba(a) - arriba(b) || (arriba(a) === 1 ? nuevoEn(b) - nuevoEn(a) : 0));
   return [...disponibles, ...ofrecidos.filter(g => !g.available)];
 }
 export const PORTADA = ordenPortada();
@@ -594,7 +622,6 @@ export const idDeSlug = s => (Object.hasOwn(SLUG_DE, s) ? s : Object.hasOwn(ID_D
  * when a game sends signals with an id that has no name.
  */
 export const LAB_NAMES = {
-  microgames: { emoji: '⚡', name: { es: '¡Al toque!', en: 'In a Flash!', pt: 'Na Hora!' } },
   memory: { emoji: '👀', name: { es: 'Memorice', en: 'Memorice', pt: 'Memorice' } },
   artifacts: { emoji: '⚙️', name: { es: 'Artefactos', en: 'Artifacts', pt: 'Artefatos' } },
   dominorama: { emoji: '🎲', name: { es: 'Dominorama', en: 'Dominorama', pt: 'Dominorama' } },

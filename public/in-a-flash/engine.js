@@ -1,6 +1,6 @@
 // ¡Al toque!'s pure rules (C-2): which games a run plays, and how a run scores. No DOM.
-// docs/games/microgames.md, "Scoring" and "Shared runs".
-import { rng } from '../../assets/js/rng.js';
+// docs/games/in-a-flash.md, "Scoring" and "Shared runs".
+import { rng } from '../assets/js/rng.js';
 
 // A text's 32-bit hash (FNV-1a with a final mix), the same La Copa's seeds use: a lab game does not
 // import La Copa's modules (docs/ARCHITECTURE.md), so it lives here too

@@ -102,7 +102,7 @@ const pages = () => [...DOORS.map(door), ...withCard.map(g => solo(g) ? {
   image: g.id,
   game: g.id,
   title: `${g.name.es} ${g.emoji} · Juegos de Salón`,
-  description: `${g.tagline.es} ${g.players} jugadores, ${g.duration} ${g.durationUnit?.es || 'min'}. Gratis, sin instalar y sin cuenta.`,
+  description: `${g.tagline.es} ${g.players === '1' ? 'Un jugador' : `${g.players} jugadores`}, ${g.duration} ${g.durationUnit?.es || 'min'}. Gratis, sin instalar y sin cuenta.`,
   alt: `${g.name.es}: ${g.tagline.es}`,
 })];
 
@@ -197,6 +197,9 @@ const bridges = () => [
       const dir = SUELTOS.find(m => m.id === p.game).deLabs;
       return { ...p, old: `public/labs/${typeof dir === 'string' ? dir : p.slug}/index.html`, to: `../..${p.route}` };
     }),
+  // A game of its own folder that left the lab (`deLabs` on its games.js entry: ¡Al toque! was /labs/microgames/)
+  ...pages().filter(p => p.game && !p.standalone && typeof ALL_GAMES.find(m => m.id === p.game)?.deLabs === 'string')
+    .map(p => ({ ...p, old: `public/labs/${ALL_GAMES.find(m => m.id === p.game).deLabs}/index.html`, to: `../..${p.route}` })),
   // The generic pages (/minijuegos/?reinas, /minigames/?reinas): the template sends each link to its place
   { old: 'public/minijuegos/index.html', to: '../cup/suelto/', title: 'Juegos de Salón 🎲' },
   { old: 'public/minigames/index.html', to: '../cup/suelto/', title: 'Juegos de Salón 🎲' },

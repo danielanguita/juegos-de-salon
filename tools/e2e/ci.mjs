@@ -55,6 +55,8 @@ const OBSOLETE = new Set([
 export const PARTS = {
   'cup/tournament.mjs': ['cup', 'labs', 'demos', 'weekend'],
   'cup/languages.mjs': ['cup', 'standalone', 'screens-a', 'screens-b'],
+  // One job per phone width: whole, it was the longest script (~8 min) and set every full run's time
+  'landing-fold.mjs': ['320', '375'],
   'cup-games/languages.mjs': SUELTOS.map(m => m.slug),
   // One job per game's screens, named after its page, so a PR compares only the games it reaches (#1249)
   'visual.mjs': visualScreens().map(s => s.part),

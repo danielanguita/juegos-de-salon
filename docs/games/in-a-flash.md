@@ -1,51 +1,21 @@
-# ⚡ ¡Al toque! (lab prototype, in Games being tried)
+# ⚡ ¡Al toque! (out of the lab: /in-a-flash/, launched by flags/microgames)
 
 Microgames in the style of WarioWare (Nintendo): one quick order, 3 to 5 seconds to do it, and the next
 one comes right after. The owner designed it game by game with Claude on a claude.ai artifact (a review
 page with ✅ / ❌ per game), kept 28 of about 40 (¡Encesta! and ¡Patea! left later), tuned each one, added ¡Pinball! later (2026-11-13), and asked for runs of 10 different games
 in a row in the lab. «¡Al toque!» means "right away" (the owner first called it «¡Al tiro!», Chilean for the same).
 
-## Summary
+## Resumen
 
-- **Where:** `https://juegosdesalon.cl/labs/microgames/`, in the lab (each person's key, D-281, D-284).
-  Id `microgames` in the usage signal (named «¡Al toque!» in the panel and every list inside by `LAB_NAMES` in games.js, `game-labels.test.mjs`); the best run is `microgames:best-points` (points) and `microgames:best` (stars, out of 30). Not in `games.js`: lab only.
+- **Where:** `https://juegosdesalon.cl/in-a-flash/` (the lab's `/labs/microgames/` and `/microgames/` are bridges there), hidden until `flags/microgames` is on (D-517's way; launched at 21:00 Pacific on 2026-11-14 by the `launch` workflow, D-529, with the splash `microgames-launch` first and Sudoku's turned off).
+  Id `microgames` in the usage signal (named «¡Al toque!» in the panel and every list inside by `LAB_NAMES` in games.js, `game-labels.test.mjs`); the best run is `microgames:best-points` (points) and `microgames:best` (stars, out of 30). In `GAMES` from `public/in-a-flash/game.json`, with `lanza`, `oculto` and `deLabs` written by hand beside it. La Copa and Uno al día come in a later PR (its page is not a La Copa screen yet).
 - **For whom:** one player, on a phone held upright.
 - **Language:** Spanish, English and Portuguese (C-3), with the toggle on the cover. The Spanish is written
   where each text is used, inside `t('…')`; `rules.js` has its English and Portuguese keyed by that
   Spanish, and `rules.test.mjs` fails on a `t()` with no translation or with different `{x}`.
 - **Status:** active project. What would prove it: players who start a second run.
 
-## Files
-
-| File | What |
-|---|---|
-| `public/labs/microgames/engine.js` | The pure rules: which games a run plays (seeded or not), the speed, the points and the 0–100 score |
-| `public/labs/microgames/engine.test.mjs` | Its tests |
-| `public/labs/microgames/rules.js` | The texts in English and Portuguese, keyed by the Spanish |
-| `public/labs/microgames/rules.test.mjs` | Every `t()` has both, with the same `{x}` |
-| `public/labs/microgames/game.js` | The shared stage helpers, the 29 microgames (`GAMES`), their names (`META`), the three types (`KINDS`), the cover and the run |
-| `public/labs/microgames/style.css` | The stage and every microgame's look (moved from the artifact) |
-| `public/labs/microgames/index.html` | The page: the stage, the HUD, the run's marks and the footer |
-| `tools/e2e/microgames/lab.mjs` | End to end |
-
-`engine.js` holds the run's rules (order, speed, scoring); each microgame still draws and judges itself
-in `game.js`.
-
-## How a run goes
-
-1. **Cover:** the cover is as tall as its content (no empty band) and fits above the fold at 390×812, the house rule, and at 320×568 (U-39: below 420 px wide the three ways to play sit side by side, the gesture over its name and line); the ⚡ in the title jolts now and then. ⚡ and the name, one line, the three ways to play laid out at once (Toca, Arrastra, Desliza, each a card in its color with a finger doing its gesture), **Jugar**, the best run and the credit to WarioWare; under the stage,
-   **Cómo se juega** folded (C-8, D-550): the goal, the three ways to play each with its finger doing the
-   gesture (**Toca** turquoise, **Arrastra** orange, **Desliza** purple) and the scoring in one sentence;
-   the site footer last. Jugar goes straight into the run (the separate how-to screen is gone).
-2. **The run:** 10 different microgames drawn from the 29. Each starts with its intro card (the gesture
-   of its type on top, the stage framed in the type's color, the name and a hint); the frame comes off
-   when the game starts. Every three games the run speeds up by 10 % (`sp`). The HUD shows `n / 10`,
-   the stars so far and a mark per game: red with no star, green otherwise, pale for ★, green for ★★ and bright with a glow for ★★★.
-3. **The end** (C-19): a cheer, the points, the stars and the best, **Otra corrida**, the way back to the
-   lab from `fin.js`, then each game's icon with its stars and points (🔥 on a streak). Sound and confetti
-   on a good run (C-4).
-
-## Scoring (`engine.js`)
+## Reglas
 
 - **A game:** 0 to 3 stars, judged by the microgame. Its points are 10 per star times the speed it was
   played at (×1.0 the first three, ×1.1, ×1.2, ×1.3 the last): a ★★★ at the end is worth 39.
@@ -103,20 +73,35 @@ some 3 to 5 taps, visually appealing; the gameplay first. A neon table on a canv
 corners cut, three pink bumpers that light up and spark, two yellow flippers over a red-glowing drain).
 Tapping the left or right half swings that flipper (both at once with two fingers; ← → or Z M on a keyboard);
 it drops back on its own after 0.35 s, so every save is a new tap and holding it up does not cradle the balls.
+A flipper fires again only once it is back down at rest (the owner, 2026-11-14): a tap while it is up or
+falling does nothing, and it shows dimmer until it is ready, so mashing does not keep it raised.
 
-- **The bumpers move** (the owner, 2026-11-14): three, drawn anew each game in the upper half, clear of the
+- **The bumpers move** (the owner, 2026-11-14): two (three until the owner tried two), drawn anew each game in the upper half, clear of the
   walls and of each other by more than a ball. A bumper kicks a ball hard once, at two thirds of the speed when it sends it
   down toward the flippers; after that it only bounces it back softer, so no ball stays up there all game.
-- **The balls' size** (the owner, 2026-11-14): 2.2 % of the table's width, at least 6.5 px (tried smaller, then a bit bigger again).
-- **A shorter table** (the owner, 2026-11-14): at most 1.4 times as tall as wide, at the bottom of the stage by the thumbs, with rounded corners and a soft cyan glow.
+- **Big, fast balls** (the owner, 2026-11-14): 2.6 % of the table's width, at least 8 px, with gravity H × 1.35, a top speed of H × 2.6 and a bumper's first kick of at least H × 0.85. Slower rounds (gravity × 1.0, then × 1.09) felt dull and were dropped.
+- **A big table** (the owner, 2026-11-14): the stage's full width and up to 1.6 times as tall as wide, centred up and down in the stage (at the bottom it sat too low), with rounded corners and a soft cyan glow. Smaller ones (1.4 tall; 86 % wide and 1.3 tall) felt cramped and were dropped.
+- **Smooth at 60 fps** (the owner saw it drop frames, 2026-11-14): a canvas blur (`shadowBlur`) on every neon tube each frame took the table to ~11 fps on a phone, and since a frame's step is capped at 33 ms the whole game ran in slow motion. The glass and the still neon (outline, lane arrows, bumpers at rest) are drawn once, with their real glow, into two layers; each frame only copies them, and what moves (flippers, a lit bumper, balls, sparkles) fakes the glow with stacked strokes and soft halos.
+- **The flippers** (the owner asked for nicer ones, 2026-11-14): a tapered paddle, wide and round at its pivot and
+  narrow at the tip, filled with a yellow-to-pink gradient, edged in neon and capped with a white pivot.
+- **Neon sparkles** on every strike: a few tiny glowing dots in the colour of what the ball hit (cyan wall, yellow flipper, pink bumper), at most one burst per ball every 90 ms.
 - **The neon** (the owner, 2026-11-14): every line is a neon tube, a faint halo, a glowing body and a white-hot core added on top of each other, that hums with a slight flicker; the bumpers have a pink ring and a yellow one inside and fill white-pink when hit; two violet lane arrows; the glass is a violet night darker at the edges with a magenta grid going away and faint twinkling stars. Nothing flickers with reduced motion.
-- **The balls come in turns** (the owner, 2026-11-14): the first drops straight onto a flipper at once (it
-  reaches it in about 0.4 s), so you react from the start. The other two wait on the table from the start,
+- **The balls come in turns** (the owner, 2026-11-14): the first waits 0.65 s, see-through like the others,
+  so you see the table first, then drops straight onto a flipper, so you react from the start. The other two wait on the table from the start,
   see-through, where they will drop (the upper half, clear of the bumpers), each with a ring that fills up and a
   last quick blink; they fall from there about 1.1 and 2.1 s in, not from the roof, so you see them coming and
   they do not all arrive together.
+- **Its intro is the table** (the owner, 2026-11-14): instead of the plain card, the intro draws the table (the neon
+  outline, two bumpers, a ball and both flippers) with each half tinted and marked «TOCA», and a thumb pressing each side
+  in turn while its flipper swings up; it stays 1.6 s longer than other intros (`command`'s `ms`), so the player knows
+  where to put their fingers before the clock starts.
+- **One finger on each side** (the owner, 2026-11-14): until a side is first tapped, a 👆 pulses under its flipper with
+  «TOCA», and the side being pressed glows; the intro says «un dedo a cada lado: cada uno mueve su paleta».
+- **Smooth motion** (the owner saw it choppy, 2026-11-14): the physics runs in steps of about 3 ms however long a frame
+  takes (up to 50 ms, so a slow phone does not play it in slow motion), each ball leaves a continuous tapering streak of
+  every step's position instead of six dots, and its halo and body are sprites drawn once.
 - **A ball counts once a flipper has hit it** (a green ring, and its dot in the corner turns green): each ball
-  hit and still on the table after 6.5 s (longer since 2026-11-14) is a ★; all three down ends it at once with none. Without a tap it
+  hit and still on the table after 7 s (longer since 2026-11-14) is a ★; all three down ends it at once with none. Without a tap it
   scores 0, and holding a side down too. A ball wedged between a guide and a flipper's base gets a nudge after
   0.3 s. Gravity grows with the run's `sp`.
 - **All three saved: ¡JACKPOT!** (the owner asked for something silly): the table stops, the three balls line
@@ -124,8 +109,8 @@ it drops back on its own after 0.35 s, so every save is a new tap and holding it
   and «¡JACKPOT!» pulses, for about 1.7 s before the stars.
 
 In tests `window.__pinball` exposes the table (balls, flippers, saved). A bot that taps when a ball reaches its
-flipper saves 1 to 3 (about 2.3) with 4 to 8 taps; the first ball reaches a flipper at about 0.7 s and the
-others at 2 to 6.2 s.
+flipper saves 1 to 3 (about 2.4) with 4 to 8 taps; the first ball reaches a flipper at about 0.5 s and the
+others at 2 to 6.2 s (one in eight did not get down in time).
 
 ## Usability rules of the microgames
 
@@ -137,7 +122,45 @@ others at 2 to 6.2 s.
 - **¡Toca rápido!:** the hose is tied to the balloon's knot as read from the page, every frame.
 - **¡Aplasta!:** the flies under the swatter's head at the tap are the ones squashed.
 
-## Exceptions to the canons, for now
+## Modos
+
+One: 🧍 solo, on one phone. No rooms, no rival.
+
+## Flujo
+
+1. **Cover:** the cover is as tall as its content (no empty band) and fits above the fold at 390×812, the house rule, and at 320×568 (U-39: below 420 px wide the three ways to play sit side by side, the gesture over its name and line); the ⚡ in the title jolts now and then. ⚡ and the name, one line, the three ways to play laid out at once (Toca, Arrastra, Desliza, each a card in its color with a finger doing its gesture), **Jugar**, the best run and the credit to WarioWare; under the stage,
+   **Cómo se juega** folded (C-8, D-550): the goal, the three ways to play each with its finger doing the
+   gesture (**Toca** turquoise, **Arrastra** orange, **Desliza** purple) and the scoring in one sentence;
+   the site footer last. Jugar goes straight into the run (the separate how-to screen is gone).
+2. **The run:** 10 different microgames drawn from the 29. Each starts with its intro card (the gesture
+   of its type on top, the stage framed in the type's color, the name and a hint); the frame comes off
+   when the game starts. Every three games the run speeds up by 10 % (`sp`). The HUD shows `n / 10`,
+   the stars so far and a mark per game: red with no star, green otherwise, pale for ★, green for ★★ and bright with a glow for ★★★.
+3. **The end** (C-19): a cheer, the points, the stars and the best, **Otra corrida**, the way back to the
+   lab from `fin.js`, then each game's icon with its stars and points (🔥 on a streak). Sound and confetti
+   on a good run (C-4).
+
+## Protocolo de mensajes
+
+None: nothing goes over the network but the usage signal and the ranking (`microgames`, D-212).
+
+## Archivos
+
+| File | What |
+|---|---|
+| `public/in-a-flash/engine.js` | The pure rules: which games a run plays (seeded or not), the speed, the points and the 0–100 score |
+| `public/in-a-flash/engine.test.mjs` | Its tests |
+| `public/in-a-flash/rules.js` | The texts in English and Portuguese, keyed by the Spanish |
+| `public/in-a-flash/rules.test.mjs` | Every `t()` has both, with the same `{x}` |
+| `public/in-a-flash/game.js` | The shared stage helpers, the 29 microgames (`GAMES`), their names (`META`), the three types (`KINDS`), the cover and the run |
+| `public/in-a-flash/style.css` | The stage and every microgame's look (moved from the artifact) |
+| `public/in-a-flash/index.html` | The page: the stage, the HUD, the run's marks and the footer |
+| `tools/e2e/in-a-flash/page.mjs` | End to end |
+
+`engine.js` holds the run's rules (order, speed, scoring); each microgame still draws and judges itself
+in `game.js`.
+
+## Excepciones a los cánones
 
 - **C-2 (files):** `rules.js` holds the translations keyed by the Spanish, not a `LOCALES = { es, en, pt }`
   by key: the short texts spread over 29 microgames read better where they are used.
@@ -160,4 +183,4 @@ taking it out of the lab.
 - **¡A la hora!:** the hand pointing nearest the finger turns (near the middle, the short one); the long one snaps to 5 minutes, the short one must be within half an hour of its place. Never 12:00, where both hands start.
 - **Testing:** the «T» tab (lab key holders) shows the 29 microgames as emoji buttons in their type's color, one tap plays it alone, and links today's run (D-551); the cover has neither.
 - **Exception to D-550 (no folded rules):** the cover itself shows the three ways to play (Toca, Arrastra, Desliza) with their moving gestures, so a «Cómo se juega» would repeat it; the owner asked to drop it so the cover fits above the fold.
-- **Ranking (D-212):** the `microgames` table under the stage, Week · All time · Friends, with signing in on the cover; a whole run of 10 offers to save its points, a microgame played alone from the tester tab never does.
+- **Ranking (D-212):** the `microgames` table under the stage, Week · All time · Friends, with signing in on the cover; a whole run of 10 offers to save its points, a microgame played alone from the tester tab never does. The same table is its tab on `/records/` through `SOLO_TABLES` in `games.js` (D-559), checked by `tools/e2e/in-a-flash/page.mjs`.

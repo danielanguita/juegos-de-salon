@@ -21,6 +21,23 @@ const tabla = (cols, filas) => (filas.length ? `<table><thead><tr>${cols.map(c =
   filas.map(f => `<tr>${f.map(x => `<td>${x}</td>`).join('')}</tr>`).join('')}</tbody></table>` : '<p class="muted">Nothing this week.</p>');
 const lista = pares => (pares.length ? `<ul>${pares.map(([k, v]) => `<li>${esc(k)} <b>${num(v)}</b></li>`).join('')}</ul>` : '<p class="muted">Nothing this week.</p>');
 
+/** A value with its change kept on one line: "620 (+21.3%)". */
+const conCambio = (v, c) => `<span style="white-space:nowrap"><b>${num(v)}</b>${c === null || c === undefined ? '' : ` (${c > 0 ? '+' : c < 0 ? '−' : '±'}${Math.abs(c)}%)`}</span>`;
+const celda = (v, i, c) => (v === null ? 'n/a' : i === 0 ? conCambio(v, c) : `<span style="white-space:nowrap">${num(v)}</span>`);
+const TD = 'padding:4px 8px;border-bottom:1px solid #eee8f6;text-align:right;white-space:nowrap';
+const tablaTrend = (cabeza, filas, cols) => `<table style="border-collapse:collapse;font-variant-numeric:tabular-nums;font-size:13px">
+<thead><tr><th style="${TD};text-align:left">${esc(cabeza)}</th>${cols.map((c, i) => `<th style="${TD};color:#6b6280;font-weight:600${i === 5 ? ';border-left:2px solid #e6dcf7' : ''}">${esc(c)}</th>`).join('')}</tr></thead>
+<tbody>${filas.map(([nombre, valores, cambio]) => `<tr><td style="${TD};text-align:left">${nombre}</td>${valores.map((v, i) => `<td style="${TD}${i === 5 ? ';border-left:2px solid #e6dcf7' : ''}">${celda(v, i, cambio)}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
+
+/** The email's two tables (also in the PDF): the headline and the top 10 games, five weeks and three months. */
+export function tablasTendencia(t) {
+  if (!t) return '';
+  return `${tablaTrend('', t.metricas.map(m => [esc(m.nombre), m.valores, m.cambio]), t.columnas)}
+<p style="margin:14px 0 4px;font-weight:600">Top 10 games (games started; every mode and version, La Copa included, lab plays left out)</p>
+${tablaTrend('', t.juegos.map((g, i) => [`${i + 1}. ${esc(g.juego)}${g.nuevo ? ` <span style="color:#6b6280">(out ${esc(g.nuevo.replace(/, \d{4}$/, ''))})</span>` : ''}`, g.valores, g.cambio]), t.columnas)}
+<p style="color:#6b6280;font-size:12px">n/a: not measured yet, or the game was not out yet.</p>`;
+}
+
 const VUELTA = { nueva: 'First visit', d1: 'Next day', 'd2-7': '2–7 days', 'd8-30': '8–30 days', d31: 'Over 30 days' };
 const FREC = { f1: '1 of 28 days', 'f2-3': '2–3 days', 'f4-7': '4–7 days', 'f8-14': '8–14 days', f15: '15 days or more' };
 
@@ -29,8 +46,9 @@ export function destacados(r) {
   const out = [];
   const [norte] = r.titular;
   if (norte.cambio !== null && norte.cambio !== 0) out.push(`Games finished ${norte.cambio > 0 ? 'rose' : 'fell'} ${Math.abs(norte.cambio)}% (${num(norte.ahora)} vs. ${num(norte.antes)}).`);
-  const juego = r.grupo.top[0] || r.individual.top[0];
-  if (juego) out.push(`Most played: ${esc(juego.juego)} (${num(juego.n)} games).`);
+  // Every public game together (group, solo, La Copa), not the group ranking first
+  const [uno, dos] = r.tendencia?.juegos || [];
+  if (uno) out.push(`Most played: ${esc(uno.juego)} (${num(uno.valores[0])} games)${dos ? `, then ${esc(dos.juego)} (${num(dos.valores[0])})` : ''}.`);
   if (r.copa.filas[2].ahora) out.push(`La Copa: ${num(r.copa.filas[2].ahora)} games played, participation ${pctTxt(r.copa.participacion)}${r.copa.embudo.fuera ? `, ${num(r.copa.embudo.fuera)} left out for missing 2 days` : ''}.`);
   if (r.salud.noArranco) out.push(`⚠️ ${num(r.salud.noArranco)} page loads did not start: see Health.`);
   if (r.eventos.versiones.length) out.push(`${r.eventos.versiones.length} version${r.eventos.versiones.length === 1 ? '' : 's'} released (${r.eventos.versiones.filter(v => /\.0$/.test(v.v)).length} with something new).`);
@@ -69,7 +87,7 @@ export function htmlDelInforme(r, { generado = new Date() } = {}) {
 <p class="sub">Week of ${esc(r.desde)} to ${esc(r.hasta)} (Sunday to Saturday, UTC days), against the week before. Live site only.</p>
 <div class="box"><b>Highlights</b><ul>${destacados(r).map(x => `<li>${x}</li>`).join('') || '<li>A quiet week: no changes to report.</li>'}</ul></div>
 
-<section><h2>Headline</h2>${tablaFilas(r.titular)}</section>
+<section><h2>Headline</h2>${r.tendencia ? tablasTendencia(r.tendencia) : tablaFilas(r.titular)}</section>
 
 <section><h2>Day by day</h2>${tabla(['Day', 'Group', 'Individual', 'La Copa', 'Active browsers', 'Visits', ''], r.porDia.map(d => [
   esc(d.dia), num(d.grupo), num(d.individual), num(d.copa), num(d.activos), num(d.visitas),

@@ -7,7 +7,7 @@
 import { partidasDominio, finales, embudoSalas, dificultad, usuarios, senales, ordenTramos, embudoCopas, variacion } from '../../public/panel/dominios.js';
 import { trafico, salud, unoAlDiaDelRango, origenesAgrupados, DAY } from '../../public/panel/aggregate.js';
 import { resumenCopas, pct, copasDe } from '../../public/panel/copas.js';
-import { gameById } from '../../public/assets/js/games.js';
+import { gameById, ALL_GAMES } from '../../public/assets/js/games.js';
 import { juegosCopa } from '../../public/cup/rules.js';
 
 /** The weekday of a UTC day number, Sunday = 0 (day 0, 1970-01-01, was a Thursday). */
@@ -91,13 +91,13 @@ export function semana(data, now = Date.now()) {
   const copasNuevas = copasDe(torneos).filter(L => enSemana(L.meta.createdAt)).map(L => ({ nombre: L.meta.name, dias: L.meta.days, lab: !!L.meta.lab }));
 
   return {
-    semana: w, anterior: p, desde: fechaDia(w.from), hasta: fechaDia(w.to),
+    semana: w, anterior: p, tendencia: tendencia({ days, torneos, flags: data.flags }, w), desde: fechaDia(w.from), hasta: fechaDia(w.to),
     titular: [
       fila('Games finished (main metric)', norte, norteP),
       fila('Games started', pd.grupo.total + pd.individual.total + rc.jugadas, pp.grupo.total + pp.individual.total + rcp.jugadas),
       fila('Active browsers in the week', u.rango, up.rango),
       fila('Visits', t.visitas, tp.visitas),
-      fila('Shares', s.compartidos, sp.compartidos),
+      // Shares left the headline until the counter stops overcounting (the home page's share fires far more than visits)
     ],
     grupo: {
       filas: [fila('Group games', pd.grupo.total, pp.grupo.total), fila('Rooms with a rival', sum('conRival'), Object.values(embudoSalas(days, p)).reduce((x, g) => x + g.conRival, 0))],
@@ -135,4 +135,71 @@ export function semana(data, now = Date.now()) {
       return { dia: fechaDia(d).replace(/, \d{4}$/, ''), grupo: pd.grupo.byDay[i].total, individual: pd.individual.byDay[i].total, copa: rc.porDia[i]?.total || 0, activos: u.porDia[i].activos, visitas: t.porDia[i].visitas };
     }),
   };
+}
+
+/** The UTC day number of the first day of the month `atras` months before the one holding day `d`. */
+const inicioMes = (d, atras = 0) => { const f = new Date(d * DAY); return Date.UTC(f.getUTCFullYear(), f.getUTCMonth() - atras, 1) / DAY; };
+const mesCorto = d => new Date(d * DAY).toLocaleDateString('en-US', { timeZone: 'UTC', month: 'short' });
+const rangoTxt = ({ from, to }) => `${fechaDia(from).replace(/, \d{4}$/, '')} – ${fechaDia(to).replace(/, \d{4}$/, '')}`;
+/** A game's versions read as one (Bulls and Cows: Word is Bulls and Cows); its modes already split off by `:`. */
+const VERSIONES = { letras: 'toque-y-fama' };
+export const baseGame = id => { const b = String(id).split(/:| · /)[0]; return VERSIONES[b] || b; };
+
+/**
+ * The trend the email's tables show: the closed week and the four before it, then this month so
+ * far (partial), and the two months before. Every column is one range; `null` is "n/a": nothing
+ * measured yet (the counter did not exist), or the game was not out yet. Games: the top 10 of the
+ * closed week, every mode, version and La Copa's plays together, lab plays left out (a game outside
+ * ALL_GAMES, or a play before the day its `flags/<id>` went to all).
+ */
+export function tendencia({ days = {}, torneos = {}, flags = {} } = {}, w) {
+  const cols = [0, 1, 2, 3, 4].map(i => ({ from: w.from - 7 * i, to: w.to - 7 * i, titulo: rangoTxt({ from: w.from - 7 * i, to: w.to - 7 * i }), semana: true }));
+  for (const atras of [0, 1, 2]) {
+    const from = inicioMes(w.to, atras), to = atras ? inicioMes(w.to, atras - 1) - 1 : w.to;
+    cols.push({ from, to, titulo: atras ? mesCorto(from) : `${mesCorto(from)} (to ${fechaDia(to).replace(/, \d{4}$/, '')}, partial)`, semana: false });
+  }
+  const dias = Object.keys(days).map(Number).filter(Number.isFinite);
+  const primerDato = clave => Math.min(...dias.filter(d => days[d]?.[clave] && Object.keys(days[d][clave]).length), Infinity);
+  const desde = { activos: primerDato('activos'), visitas: Math.min(primerDato('entradas'), primerDato('vistas')) };
+  const medido = (col, k) => (desde[k] <= col.to ? undefined : null);
+  const filas = cols.map(col => {
+    const fin = (col.to + 1) * DAY, rc = resumenCopas(torneos, col, fin), pd = partidasDominio(days, col), f = finales(days, col);
+    const salas = Object.values(embudoSalas(days, col)).reduce((k, g) => k + g.terminadas, 0);
+    return {
+      terminadas: f.terminadas + salas + rc.jugadas, empezadas: pd.grupo.total + pd.individual.total + rc.jugadas,
+      ...(medido(col, 'activos') === null ? { activos: null, diarios: null, porActivo: null } : (u => ({
+        activos: u.rango, diarios: u.diario,
+        // Games started per browser active in the range: how much each one plays
+        porActivo: u.rango ? Math.round(((pd.grupo.total + pd.individual.total + rc.jugadas) / u.rango) * 10) / 10 : null,
+      }))(usuarios(days, col))),
+      visitas: medido(col, 'visitas') === null ? null : trafico(days, col).visitas,
+    };
+  });
+  const metricas = [['Games finished', 'terminadas'], ['Games started', 'empezadas'], ['Active browsers', 'activos'], ['Daily active browsers (average)', 'diarios'], ['Games per active browser', 'porActivo'], ['Visits', 'visitas']].map(([nombre, k]) => ({
+    nombre, valores: filas.map(x => x[k]), cambio: filas[0][k] === null || filas[1][k] === null || !filas[1][k] ? null : variacion(filas[0][k], filas[1][k]),
+  }));
+
+  // Games, day by day so a launch in the middle of a range cuts it on its day
+  const publicos = new Map(ALL_GAMES.filter(g => g.id !== 'copa').map(g => [g.id, g]));
+  const lanzado = id => { const g = publicos.get(id); return g?.lanza ? Math.floor((flags?.[g.lanza]?.state === 'all' ? flags[g.lanza].at : Infinity) / DAY) : -Infinity; };
+  const desdeCuando = {}, porCol = cols.map(() => ({}));
+  const inicio = Math.min(...cols.map(c => c.from)), fin = w.to;
+  for (let d = inicio; d <= fin; d++) {
+    const pd = partidasDominio(days, { from: d, to: d }), rc = resumenCopas(torneos, { from: d, to: d }, (d + 1) * DAY);
+    const hoy = {};
+    for (const [id, n] of [...Object.entries(pd.grupo.byGame), ...Object.entries(pd.individual.byGame), ...rc.porJuego.map(x => [x.id, x.jugadas])]) {
+      const b = baseGame(id);
+      if (publicos.has(b) && d >= lanzado(b)) hoy[b] = (hoy[b] || 0) + n;
+    }
+    for (const b in hoy) desdeCuando[b] ??= d;
+    cols.forEach((c, i) => { if (d >= c.from && d <= c.to) for (const b in hoy) porCol[i][b] = (porCol[i][b] || 0) + hoy[b]; });
+  }
+  const salio = b => (Number.isFinite(lanzado(b)) && lanzado(b) > -Infinity ? lanzado(b) : desdeCuando[b]);
+  const juegos = Object.entries(porCol[0]).sort((a, b) => b[1] - a[1]).slice(0, 10).map(([b]) => {
+    const valores = cols.map((c, i) => (salio(b) > c.to ? null : porCol[i][b] || 0));
+    // A launch inside the week before makes a % that says nothing
+    const cambio = valores[1] === null || salio(b) > cols[1].from ? null : variacion(valores[0], valores[1]);
+    return { juego: nombreJuego(b), valores, cambio, nuevo: salio(b) > cols[1].to ? fechaDia(salio(b)) : null };
+  });
+  return { columnas: cols.map(c => c.titulo), metricas, juegos };
 }

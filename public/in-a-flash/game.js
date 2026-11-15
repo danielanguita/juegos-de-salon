@@ -1,21 +1,25 @@
 // ¡Al toque!, the lab's microgames (WarioWare-style): 29 games of 3 to 5 seconds, played in runs of 10
-// different ones in a row. Moved from the owner's review prototype; docs/games/microgames.md.
-import { trackVisit, trackStart, trackFinish } from '../../assets/js/transport/stats.js';
-import { footerInto } from '../../assets/js/site-footer.js';
-import { abrirComentario } from '../../assets/js/labs-idioma.js';
-import { SFX, initSound, soundToggle } from '../../assets/js/sound.js';
-import { confetti, el } from '../../assets/js/ui.js';
-import { labAccess } from '../../assets/js/lab-access.js';
-import { salidasFin } from '../../assets/js/fin.js';
-import { param, tiene } from '../../assets/js/parametros.js';
-import { semillaDel } from '../../assets/js/uno-al-dia.js';
-import { shareLink } from '../../assets/js/compartir.js';
-import { getLang, coverLangToggle, COMMON } from '../../assets/js/i18n.js';
-import { bloqueTabla, avisoPartida } from '../../assets/js/ranking.js';
-import { rankingsVisibles } from '../../assets/js/jugador.js';
+// different ones in a row. Moved from the owner's review prototype; docs/games/in-a-flash.md.
+import { trackVisit, trackStart, trackFinish } from '../assets/js/transport/stats.js';
+import { footerInto } from '../assets/js/site-footer.js';
+import { abrirComentario } from '../assets/js/labs-idioma.js';
+import { SFX, initSound, soundToggle } from '../assets/js/sound.js';
+import { confetti, el } from '../assets/js/ui.js';
+import { labAccess } from '../assets/js/lab-access.js';
+import { flag } from '../assets/js/flags.js';
+import { salidasFin } from '../assets/js/fin.js';
+import { param, tiene } from '../assets/js/parametros.js';
+import { semillaDel } from '../assets/js/uno-al-dia.js';
+import { shareLink } from '../assets/js/compartir.js';
+import { getLang, coverLangToggle, COMMON } from '../assets/js/i18n.js';
+import { bloqueTabla, avisoPartida } from '../assets/js/ranking.js';
+import { rankingsVisibles } from '../assets/js/jugador.js';
 import { TR } from './rules.js';
 import { RUN, newCode, speedAt, score, score100, stream, runOrder, STREAK, gamePoints } from './engine.js';
 const GAME_ID = 'microgames';
+// Launched by a flag (D-517's way, lab: #seccion-microgames): until flags/microgames is on for this visitor (🚀
+// everyone, or 🧪 with a lab key) the page sends them to the home page. If Firebase cannot answer, it stays
+flag('microgames').then(on => { if (!on) location.replace('../'); }).catch(() => {});
 // The texts are written in Spanish where they are used; t() gives the player's language from rules.js (C-3)
 const LANG = getLang();
 const t = (es, v = {}) => (TR[LANG]?.[es] ?? es).replace(/\{(\w+)\}/g, (_, k) => v[k] ?? '');
@@ -108,8 +112,9 @@ trackVisit();   // the site's traffic (D-208)
   // During the intro the stage wears its type's color (frame and name); it comes off when the game starts
   const dress = id => { const k = KIND[id]; if (k) { demo.dataset.kind = k; demo.style.setProperty('--kind', KINDS[k][2]); } };
   const undress = () => { delete demo.dataset.kind; };
-  function command(word, then, icon, hint, top) {
-    const gx = gesture(curGame), extra = gx ? 500 : 0; dress(curGame); const go = then; then = () => { undress(); go(); };
+  // `ms` holds the intro longer, for a game whose intro has more to show (¡Pinball!'s table)
+  function command(word, then, icon, hint, top, ms) {
+    const gx = gesture(curGame), extra = (gx ? 500 : 0) + (ms || 0); dress(curGame); const go = then; then = () => { undress(); go(); };
     set(`${gx}${top || ''}<div class="cmd">${word}</div>${icon ? `<div class="target" aria-hidden="true">${icon}</div>` : ''}${hint ? `<div class="sub">${hint}</div>` : ''}`);
     later(then, (reduce ? 900 : top ? 1800 : hint ? 1600 : icon ? 1200 : 800) + extra);
   }
@@ -849,37 +854,54 @@ trackVisit();   // the site's traffic (D-208)
     // 29 ¡PINBALL! (the owner's idea, 2026-11-13): three balls drop onto a little neon table; tap the left or
     // right half to flip that flipper and keep them up. Each ball still on the table when time runs out is a star
     pinball() {
+      // The intro shows the table itself (the owner's request, 2026-11-14): the neon outline, the bumpers and the two
+      // flippers, each half tinted, with a thumb pressing each side in turn and its flipper swinging up, so it is plain
+      // before the clock starts that one finger on each side moves that flipper
+      const PB_INTRO = () => `<div class="pb-intro" aria-hidden="true"><svg viewBox="0 0 200 250">
+        <rect class="pb-half l" x="8" y="120" width="92" height="122" rx="10"/><rect class="pb-half r" x="100" y="120" width="92" height="122" rx="10"/>
+        <path class="pb-wall" d="M60 196 L8 160 L8 40 L40 8 L160 8 L192 40 L192 160 L140 196"/>
+        <circle class="pb-bump" cx="80" cy="62" r="17"/><circle class="pb-bump in" cx="80" cy="62" r="9"/>
+        <circle class="pb-bump" cx="128" cy="100" r="17"/><circle class="pb-bump in" cx="128" cy="100" r="9"/>
+        <circle class="pb-ball" cx="46" cy="96" r="6"/>
+        <g class="pb-flip l"><line x1="60" y1="196" x2="94" y2="214"/><circle cx="60" cy="196" r="4"/></g>
+        <g class="pb-flip r"><line x1="140" y1="196" x2="106" y2="214"/><circle cx="140" cy="196" r="4"/></g>
+        </svg><span class="pb-thumb l">👆<i></i></span><span class="pb-thumb r">👆<i></i></span>
+        <b class="pb-tap l">${t('TOCA')}</b><b class="pb-tap r">${t('TOCA')}</b></div>`;
       command(t('¡PINBALL!'), () => {
-        const { lay, W, H: HL } = lay0(`<canvas class="pb-canvas" id="pbc"></canvas><span class="c4note pb-note">${t('toca a la izquierda o a la derecha')}</span>`);
-        // A shorter table than the stage (the owner's request): at most 1.4 times as tall as wide, at the bottom, by the thumbs
-        const H = Math.min(HL, Math.round(W * 1.4)), cv = $id('pbc'), dpr = Math.min(2, devicePixelRatio || 1);
-        cv.style.height = H + 'px'; cv.style.top = 'auto';
+        const { lay, W, H: HL } = lay0(`<canvas class="pb-canvas" id="pbc"></canvas><span class="c4note pb-note">${t('un dedo a cada lado')}</span>`);
+        // A big table (the owner's request, after trying smaller ones): the stage's full width, up to 1.6 times as tall as
+        // wide, centred up and down in the stage (at the bottom it sat too low)
+        const H = Math.min(HL, Math.round(W * 1.6)), OY = Math.round((HL - H) / 2), cv = $id('pbc'), dpr = Math.min(2, devicePixelRatio || 1);
+        cv.style.height = H + 'px'; cv.style.top = OY + 'px';
         cv.width = W * dpr; cv.height = H * dpr; const g = cv.getContext('2d'); g.scale(dpr, dpr);
-        const R = Math.max(6.5, W * 0.022), G = H * 1.35 * sp * sp, MAXV = H * 2.6;
+        // Big, fast balls (the owner's requests: a slower round felt dull)
+        const R = Math.max(8, W * 0.026), G = H * 1.35 * sp * sp, MAXV = H * 2.6;
         // The table: side walls, a roof with its corners cut, inlanes that lead onto each flipper, and the drain between them
         const fy = H * 0.84, FL = W * 0.25, pivL = [W * 0.2, fy], pivR = [W * 0.8, fy];
         const walls = [[[6, H * 0.14], [W * 0.18, 6]], [[W * 0.18, 6], [W * 0.82, 6]], [[W * 0.82, 6], [W - 6, H * 0.14]],
           [[6, H * 0.14], [6, H * 0.66]], [[W - 6, H * 0.14], [W - 6, H * 0.66]], [[6, H * 0.66], pivL], [[W - 6, H * 0.66], pivR]];
-        // Three bumpers, somewhere new every time (the owner's request): in the upper half, clear of the walls and of each
-        // other by more than a ball, so nothing gets trapped; the old fixed layout if no draw fits
+        // Two bumpers (the owner tried two, 2026-11-14), somewhere new every time: in the upper half, clear of the walls and
+        // of each other by more than a ball, so nothing gets trapped; a fixed pair if no draw fits
         const bumpers = (() => {
           for (let tries = 0; tries < 60; tries++) {
             const bs = [];
-            for (let k = 0; k < 3 && bs.length === k; k++) for (let a = 0; a < 40; a++) {
-              const r = W * (0.055 + rand() * 0.03), x = W * 0.2 + r + rand() * (W * 0.6 - 2 * r), y = H * 0.2 + rand() * H * 0.33;
+            for (let k = 0; k < 2 && bs.length === k; k++) for (let a = 0; a < 40; a++) {
+              const r = W * (0.07 + rand() * 0.03), x = W * 0.2 + r + rand() * (W * 0.6 - 2 * r), y = H * 0.2 + rand() * H * 0.33;
               if (bs.every(o => Math.hypot(o.x - x, o.y - y) > o.r + r + R * 3.2)) { bs.push({ x, y, r, lit: 0 }); break; }
             }
-            if (bs.length === 3) return bs;
+            if (bs.length === 2) return bs;
           }
-          return [[W * 0.3, H * 0.27, W * 0.07], [W * 0.7, H * 0.27, W * 0.07], [W * 0.5, H * 0.43, W * 0.08]].map(([x, y, r]) => ({ x, y, r, lit: 0 }));
+          return [[W * 0.32, H * 0.3, W * 0.08], [W * 0.66, H * 0.42, W * 0.08]].map(([x, y, r]) => ({ x, y, r, lit: 0 }));
         })();
         // A flipper rests pointing down to the drain and swings up while its side is held; it drops on its own after a
         // moment, so each save takes a new tap
-        const REST = 0.52, UP = -0.42, flip = (piv, dir) => ({ piv, dir, a: REST, w: 0, held: false, since: 0 });
+        // A flipper only fires again once it is back down at rest (the owner's request): a tap while it is still up or
+        // falling does nothing, so mashing does not keep it raised
+        const REST = 0.52, UP = -0.42, flip = (piv, dir) => ({ piv, dir, a: REST, w: 0, held: false, since: 0 }), armed = f => f.a >= REST - 0.04;
         const fl = [flip(pivL, 1), flip(pivR, -1)];
         const tip = f => [f.piv[0] + f.dir * FL * Math.cos(f.a), f.piv[1] + FL * Math.sin(f.a)];
         const COLORS = ['#ffffff', '#ffe27a', '#8ff7ee'];
-        // The first ball drops straight onto a flipper at once, so you react from the start; the other two wait on the table
+        // The first ball drops straight onto a flipper after a moment to see the table (0.65 s), so you react from the start; the other two wait on the table
         // where they will drop, as see-through balls with a ring that fills up, and fall from there about 1.1 and 2.1 s in, so
         // they never all arrive together and you see them coming (the owner's requests, 2026-11-14)
         const side = rand() < 0.5 ? 0 : 1, firstX = side ? W * (0.68 + rand() * 0.06) : W * (0.26 + rand() * 0.06);
@@ -889,15 +911,22 @@ trackVisit();   // the site's traffic (D-208)
           for (let a = 0; a < 80; a++) { const x = W * (0.24 + rand() * 0.52), y = H * (0.16 + rand() * 0.32);
             if (bumpers.every(o => Math.hypot(o.x - x, o.y - y) > o.r + R * 3) && spots.every(([sx, sy]) => Math.hypot(sx - x, sy - y) > W * 0.2)) { best = [x, y]; break; } }
           spots.push(best); return best; };
+        // Each ball's halo and body drawn once into a sprite: a gradient made every frame for every ball cost the phone
+        // more than the physics
+        const sprite = c => { const S = Math.ceil(R * 2.4), cv3 = document.createElement('canvas'); cv3.width = cv3.height = 2 * S * dpr; const x = cv3.getContext('2d'); x.scale(dpr, dpr);
+          const hl = x.createRadialGradient(S, S, R * 0.6, S, S, S); hl.addColorStop(0, c); hl.addColorStop(1, 'rgba(0,0,0,0)'); x.globalAlpha = 0.45; x.fillStyle = hl; x.fillRect(0, 0, 2 * S, 2 * S); x.globalAlpha = 1;
+          const bl = x.createRadialGradient(S - R * 0.35, S - R * 0.35, 1, S, S, R); bl.addColorStop(0, '#ffffff'); bl.addColorStop(1, c); x.fillStyle = bl; x.beginPath(); x.arc(S, S, R, 0, Math.PI * 2); x.fill();
+          return { cv: cv3, S }; };
+        const SPR = Object.fromEntries(COLORS.map(c => [c, sprite(c)]));
         const ball = (k, x, y, vx, vy, at) => ({ x, y, vx, vy, live: true, c: COLORS[k], trail: [], at, saved: false, still: 0 });
         const balls = [
-          ball(0, firstX, H * 0.63, (side ? 1 : -1) * W * 0.05, H * 0.15, 150),
+          ball(0, firstX, H * 0.63, (side ? 1 : -1) * W * 0.05, H * 0.15, 650),
           ...[1, 2].map(k => { const [x, y] = spot(k); return ball(k, x, y, (rand() - 0.5) * W * 0.2, 0, k === 1 ? 1000 + rand() * 200 : 2000 + rand() * 200); }),
         ];
         let alive = 3, taps = 0, last = performance.now(), shake = 0, sparks = [], party = 0;
         // The end-to-end tests read the table to play it (C-14)
         window.__pinball = { balls, fl, W, H, fy, get alive() { return alive; }, get taps() { return taps; }, get saved() { return balls.filter(b => b.live && b.saved).length; } };
-        const press = (side, on) => { if (party) return; const f = fl[side]; if (on && !f.held) { f.held = true; f.since = performance.now(); taps++; SFX.tap(); } if (!on) f.held = false; };
+        const press = (side, on) => { if (party) return; const f = fl[side]; if (on && !f.held) { if (!armed(f)) return; f.held = true; f.since = performance.now(); f.used = true; taps++; SFX.tap(); } if (!on) f.held = false; };
         const sideOf = e => (ptIn(lay, e)[0] < W / 2 ? 0 : 1), down = new Map();
         listen({ down: e => { const s = sideOf(e); down.set(e.pointerId, s); press(s, true); }, up: e => { const s = down.get(e.pointerId); down.delete(e.pointerId); if (s !== undefined && ![...down.values()].includes(s)) press(s, false); } });
         const key = e => { const s = { ArrowLeft: 0, KeyZ: 0, ArrowRight: 1, KeyM: 1 }[e.code]; if (s === undefined || !active) return; e.preventDefault(); press(s, e.type === 'keydown'); };
@@ -905,63 +934,110 @@ trackVisit();   // the site's traffic (D-208)
         const prev = cleanup; cleanup = () => { prev?.(); removeEventListener('keydown', key); removeEventListener('keyup', key); };
         // A ball against a segment (a capsule `th` thick): pushed out, and bounced off it with the segment's own speed at
         // that point (a flipper's swing is what launches it)
-        const hit = (b, a, c, th, e, vel) => {
+        // A soft neon sparkle where a ball strikes something (the owner's request): a few tiny glowing dots in that
+        // thing's colour, at most one burst per ball every 90 ms so rolling along a wall does not fizz
+        const sparkle = (b, x, y, col, n = 5) => { const now = performance.now(); if (now - (b.spk || 0) < 90) return; b.spk = now;
+          for (let k = 0; k < n; k++) { const an = rand() * Math.PI * 2, v = 30 + rand() * 60; sparks.push({ x, y, vx: Math.cos(an) * v, vy: Math.sin(an) * v, l: 0.6, c: col, soft: true }); } };
+        const hit = (b, a, c, th, e, vel, col) => {
           const dx = c[0] - a[0], dy = c[1] - a[1], L2 = dx * dx + dy * dy, u = Math.max(0, Math.min(1, ((b.x - a[0]) * dx + (b.y - a[1]) * dy) / L2));
           const px = a[0] + dx * u, py = a[1] + dy * u, ex = b.x - px, ey = b.y - py, d = Math.hypot(ex, ey), min = R + th;
           if (d >= min || d === 0) return false;
           const nx = ex / d, ny = ey / d; b.x = px + nx * min; b.y = py + ny * min;
           const [sx, sy] = vel ? vel(px, py) : [0, 0], vn = (b.vx - sx) * nx + (b.vy - sy) * ny;
           if (vn < 0) { b.vx -= (1 + e) * vn * nx; b.vy -= (1 + e) * vn * ny; }
+          if (col && vn < -H * 0.25) sparkle(b, px + nx * th, py + ny * th, col);
           return vn < -H * 0.6;
         };
         const glow = (col, blur) => { g.shadowColor = col; g.shadowBlur = reduce ? 0 : blur; };
         const line = (a, c, col, w) => { g.strokeStyle = col; g.lineWidth = w; g.lineCap = 'round'; g.beginPath(); g.moveTo(...a); g.lineTo(...c); g.stroke(); };
         // A neon tube (the owner asked for better neon): a wide faint halo, a glowing coloured body and a thin white-hot
-        // core, added on top of each other; it hums, flickering a little on its own phase
-        const tube = (trace, col, w, now, phase = 0) => {
-          const hum = reduce ? 1 : 0.9 + 0.1 * Math.sin(now / 53 + phase) * Math.sin(now / 97 + phase * 2);
-          g.save(); g.globalCompositeOperation = 'lighter'; g.lineCap = 'round'; g.lineJoin = 'round';
-          for (const [lw, alpha, blur, c] of [[w * 3.4, 0.12, 0, col], [w * 1.7, 0.55, 16, col], [w * 0.55, 0.9, 6, '#ffffff']]) {
-            g.globalAlpha = alpha * hum; g.lineWidth = lw; g.strokeStyle = c; glow(col, blur); g.beginPath(); trace(); g.stroke();
+        // core, added on top of each other. A blurred glow costs a lot every frame (the game dropped to ~11 fps on a
+        // phone), so only the still tubes get it, drawn once into a layer; the moving ones fake it with stacked strokes
+        const hum = (now, phase) => reduce ? 1 : 0.9 + 0.1 * Math.sin(now / 53 + phase) * Math.sin(now / 97 + phase * 2);
+        const tube = (trace, col, w, now, phase = 0, c = g, blurred = false) => {
+          const k = blurred ? 1 : hum(now, phase);
+          c.save(); c.globalCompositeOperation = 'lighter'; c.lineCap = 'round'; c.lineJoin = 'round';
+          const layers = blurred ? [[w * 3.4, 0.12, 0, col], [w * 1.7, 0.55, 16, col], [w * 0.55, 0.9, 6, '#ffffff']]
+            : [[w * 3.4, 0.12, 0, col], [w * 2.3, 0.22, 0, col], [w * 1.5, 0.5, 0, col], [w * 0.55, 0.9, 0, '#ffffff']];
+          for (const [lw, alpha, blur, cc] of layers) {
+            c.globalAlpha = alpha * k; c.lineWidth = lw; c.strokeStyle = cc; c.shadowColor = col; c.shadowBlur = reduce ? 0 : blur; c.beginPath(); trace(c); c.stroke();
           }
-          g.restore();
+          c.restore();
         };
-        const seg = (a, c) => () => { g.moveTo(...a); g.lineTo(...c); };
-        const ring = (x, y, r) => () => { g.arc(x, y, r, 0, Math.PI * 2); };
+        const seg = (a, c) => (x = g) => { x.moveTo(...a); x.lineTo(...c); };
+        const ring = (x, y, r) => (c = g) => { c.arc(x, y, r, 0, Math.PI * 2); };
         // The outline of the table, walls and guides as one tube each side
-        const outline = () => { g.moveTo(...pivL); g.lineTo(6, H * 0.66); g.lineTo(6, H * 0.14); g.lineTo(W * 0.18, 6); g.lineTo(W * 0.82, 6); g.lineTo(W - 6, H * 0.14); g.lineTo(W - 6, H * 0.66); g.lineTo(...pivR); };
+        const outline = c => { c.moveTo(...pivL); c.lineTo(6, H * 0.66); c.lineTo(6, H * 0.14); c.lineTo(W * 0.18, 6); c.lineTo(W * 0.82, 6); c.lineTo(W - 6, H * 0.14); c.lineTo(W - 6, H * 0.66); c.lineTo(...pivR); };
         // Two lane arrows on the glass, pointing up, and a few stars, drawn once
         const deco = [[W * 0.32, H * 0.62], [W * 0.68, H * 0.62]], stars = Array.from({ length: 22 }, () => [rand() * W, rand() * H * 0.8, 0.4 + rand() * 1.1, rand() * 6]);
+        const layer = paint => { const cv2 = document.createElement('canvas'); cv2.width = W * dpr; cv2.height = H * dpr; const c = cv2.getContext('2d'); c.scale(dpr, dpr); paint(c); return cv2; };
+        // The glass, drawn once: a deep violet night, darker at the edges, with a magenta grid going away, and the drain
+        // glowing red between the flippers
+        const glass = layer(c => {
+          const bg = c.createRadialGradient(W / 2, H * 0.45, W * 0.1, W / 2, H * 0.45, H * 0.75); bg.addColorStop(0, '#1d0838'); bg.addColorStop(1, '#05030f'); c.fillStyle = bg; c.fillRect(0, 0, W, H);
+          c.lineWidth = 1;
+          for (let k = 0; k <= 10; k++) { const x = W * k / 10; c.strokeStyle = 'rgba(255,46,136,0.07)'; c.beginPath(); c.moveTo(W / 2 + (x - W / 2) * 0.35, 0); c.lineTo(x, H); c.stroke(); }
+          for (let k = 1; k < 12; k++) { const y = H * (k / 12) ** 1.6; c.strokeStyle = `rgba(143,247,238,${0.03 + 0.05 * k / 12})`; c.beginPath(); c.moveTo(0, y); c.lineTo(W, y); c.stroke(); }
+          const dr = c.createRadialGradient(W / 2, H, 4, W / 2, H, W * 0.26); dr.addColorStop(0, 'rgba(255,46,136,0.55)'); dr.addColorStop(1, 'rgba(255,46,136,0)'); c.fillStyle = dr; c.fillRect(0, H * 0.7, W, H * 0.3);
+        });
+        // The still neon, drawn once with its real glow: the outline, the lane arrows and the bumpers at rest
+        const unlit = (c, bp) => { const fill = c.createRadialGradient(bp.x, bp.y, 1, bp.x, bp.y, bp.r); fill.addColorStop(0, 'rgba(255,46,136,0.25)'); fill.addColorStop(1, 'rgba(58,12,46,0.6)');
+          c.fillStyle = fill; c.beginPath(); c.arc(bp.x, bp.y, bp.r, 0, Math.PI * 2); c.fill(); };
+        const neon = layer(c => {
+          for (const [x, y] of deco) tube(cc => { cc.moveTo(x - 9, y + 6); cc.lineTo(x, y - 4); cc.lineTo(x + 9, y + 6); }, '#8a4dff', 2, 0, 0, c, true);
+          tube(outline, '#2ee6d6', 3, 0, 0, c, true);
+          for (const bp of bumpers) { unlit(c, bp); tube(ring(bp.x, bp.y, bp.r), '#ff2e88', 2.6, 0, 0, c, true); tube(ring(bp.x, bp.y, bp.r * 0.55), '#ffd23f', 1.4, 0, 0, c, true); }
+        });
+        // A flipper (the owner asked for a nicer one): a tapered paddle, round and wide at its pivot and narrow at the tip,
+        // filled with a warm gradient and edged in neon, with a white pivot cap. Dimmer while it is coming back down and
+        // cannot fire yet
+        const paddle = (f, now) => {
+          const [px, py] = f.piv, [tx, ty] = tip(f), an = Math.atan2(ty - py, tx - px), r0 = 7.5, r1 = 3.5, H2 = Math.PI / 2;
+          const shape = c => { c.arc(px, py, r0, an + H2, an - H2); c.arc(tx, ty, r1, an - H2, an + H2); c.closePath(); };
+          g.save(); g.globalAlpha = armed(f) || f.held ? 1 : 0.55;
+          const fill = g.createLinearGradient(px, py, tx, ty); fill.addColorStop(0, 'rgba(255,210,63,0.75)'); fill.addColorStop(1, 'rgba(255,46,136,0.6)');
+          g.fillStyle = fill; g.beginPath(); shape(g); g.fill(); g.restore();
+          tube(shape, armed(f) || f.held ? '#ffd23f' : '#8a6a20', 2.2, now, f.dir);
+          g.fillStyle = '#ffffff'; g.beginPath(); g.arc(px, py, 3, 0, Math.PI * 2); g.fill();
+          g.strokeStyle = 'rgba(255,246,200,0.8)'; g.lineWidth = 1.5; g.beginPath(); g.arc(px, py, 5, 0, Math.PI * 2); g.stroke();
+        };
         const draw = now => {
           g.save(); g.clearRect(0, 0, W, H);
           if (shake > 0) g.translate((rand() - 0.5) * shake, (rand() - 0.5) * shake);
-          // The glass: a deep violet night, darker at the edges, with a magenta grid going away and faint stars
-          const bg = g.createRadialGradient(W / 2, H * 0.45, W * 0.1, W / 2, H * 0.45, H * 0.75); bg.addColorStop(0, '#1d0838'); bg.addColorStop(1, '#05030f'); g.fillStyle = bg; g.fillRect(0, 0, W, H);
-          g.shadowBlur = 0; g.lineWidth = 1;
-          for (let k = 0; k <= 10; k++) { const x = W * k / 10; g.strokeStyle = 'rgba(255,46,136,0.07)'; g.beginPath(); g.moveTo(W / 2 + (x - W / 2) * 0.35, 0); g.lineTo(x, H); g.stroke(); }
-          for (let k = 1; k < 12; k++) { const y = H * (k / 12) ** 1.6; g.strokeStyle = `rgba(143,247,238,${0.03 + 0.05 * k / 12})`; g.beginPath(); g.moveTo(0, y); g.lineTo(W, y); g.stroke(); }
+          g.shadowBlur = 0; g.drawImage(glass, 0, 0, W, H);
           for (const [x, y, r, ph] of stars) { g.globalAlpha = 0.25 + 0.25 * Math.sin(now / 400 + ph); g.fillStyle = '#ffffff'; g.fillRect(x, y, r, r); } g.globalAlpha = 1;
-          // The drain glows red between the flippers
-          const dr = g.createRadialGradient(W / 2, H, 4, W / 2, H, W * 0.26); dr.addColorStop(0, 'rgba(255,46,136,0.55)'); dr.addColorStop(1, 'rgba(255,46,136,0)'); g.fillStyle = dr; g.fillRect(0, H * 0.7, W, H * 0.3);
-          for (const [x, y] of deco) tube(() => { g.moveTo(x - 9, y + 6); g.lineTo(x, y - 4); g.lineTo(x + 9, y + 6); }, '#8a4dff', 2, now, x);
-          tube(outline, '#2ee6d6', 3, now, 1);
-          for (const bp of bumpers) { const k = Math.max(0, bp.lit), r = bp.r * (1 + 0.12 * k);
-            // Lit: it fills white-pink from the middle
-            const fill = g.createRadialGradient(bp.x, bp.y, 1, bp.x, bp.y, r); fill.addColorStop(0, k > 0 ? `rgba(255,255,255,${0.5 + 0.5 * k})` : 'rgba(255,46,136,0.25)'); fill.addColorStop(1, k > 0 ? `rgba(255,46,136,${0.3 + 0.5 * k})` : 'rgba(58,12,46,0.6)');
-            g.shadowBlur = 0; g.fillStyle = fill; g.beginPath(); g.arc(bp.x, bp.y, r, 0, Math.PI * 2); g.fill();
+          // The still neon hums, flickering a little
+          g.globalAlpha = hum(now, 1); g.drawImage(neon, 0, 0, W, H); g.globalAlpha = 1;
+          for (const bp of bumpers) { const k = Math.max(0, bp.lit); if (!k) continue; const r = bp.r * (1 + 0.12 * k);
+            // Lit: it fills white-pink from the middle and its rings swell
+            const fill = g.createRadialGradient(bp.x, bp.y, 1, bp.x, bp.y, r); fill.addColorStop(0, `rgba(255,255,255,${0.5 + 0.5 * k})`); fill.addColorStop(1, `rgba(255,46,136,${0.3 + 0.5 * k})`);
+            g.fillStyle = fill; g.beginPath(); g.arc(bp.x, bp.y, r, 0, Math.PI * 2); g.fill();
             tube(ring(bp.x, bp.y, r), '#ff2e88', 2.6 + 1.5 * k, now, bp.x);
             tube(ring(bp.x, bp.y, r * 0.55), '#ffd23f', 1.4, now, bp.y); }
-          fl.forEach(f => tube(seg(f.piv, tip(f)), '#ffd23f', 6, now, f.dir));
-          g.shadowBlur = 0; fl.forEach(f => { g.fillStyle = '#fff6c8'; g.beginPath(); g.arc(...f.piv, 4, 0, Math.PI * 2); g.fill(); });
+          // Each half is a button: a soft glow over the side being pressed, and until a side is first tapped, a thumb pulsing
+          // over it with TOCA, so it is plain that one finger on each side moves that flipper (the owner's request)
+          fl.forEach((f, k) => { const x0 = k ? W / 2 : 0;
+            if (f.held && !reduce) { const gl = g.createLinearGradient(0, H, 0, fy - H * 0.2); gl.addColorStop(0, 'rgba(255,210,63,0.22)'); gl.addColorStop(1, 'rgba(255,210,63,0)'); g.fillStyle = gl; g.fillRect(x0, fy - H * 0.2, W / 2, H); }
+            if (f.used || party) return;
+            const cx = x0 + W / 4, cy = fy + (H - fy) * 0.55, p = reduce ? 0.5 : ((now - t0Pin) / 900) % 1;
+            g.strokeStyle = `rgba(255,255,255,${0.6 * (1 - p)})`; g.lineWidth = 2; g.beginPath(); g.arc(cx, cy, 10 + p * 22, 0, Math.PI * 2); g.stroke();
+            g.globalAlpha = 0.9; g.font = `${Math.round(W * 0.07)}px sans-serif`; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText('👆', cx, cy + 4);
+            g.font = `400 ${Math.round(W * 0.045)}px Bangers, Impact, sans-serif`; g.fillStyle = '#ffffff'; g.fillText(t('TOCA'), cx, fy - H * 0.06); g.globalAlpha = 1; });
+          fl.forEach(f => paddle(f, now));
           g.globalCompositeOperation = 'lighter';
-          for (const sp2 of sparks) { g.globalAlpha = Math.max(0, sp2.l); g.fillStyle = sp2.c; g.fillRect(sp2.x, sp2.y, 3, 3); } g.globalAlpha = 1;
+          // Sparks: tiny glowing dots that fade (soft ones, from a hit) or the party's confetti squares
+          for (const sp2 of sparks) { g.globalAlpha = Math.max(0, Math.min(1, sp2.l * (sp2.soft ? 1.6 : 1))); g.fillStyle = sp2.c;
+            if (sp2.soft) { const a = g.globalAlpha; g.globalAlpha = a * 0.3; g.beginPath(); g.arc(sp2.x, sp2.y, 4 + sp2.l * 2, 0, Math.PI * 2); g.fill();
+              g.globalAlpha = a; g.beginPath(); g.arc(sp2.x, sp2.y, 1.4 + sp2.l, 0, Math.PI * 2); g.fill(); } else g.fillRect(sp2.x, sp2.y, 3, 3); } g.globalAlpha = 1;
           g.globalCompositeOperation = 'source-over';
           for (const b of balls) { if (!b.live || b.trail.length === 0 || party) continue;
             g.globalCompositeOperation = 'lighter';
-            b.trail.forEach(([x, y], i) => { g.globalAlpha = (i + 1) / b.trail.length * 0.3; g.fillStyle = b.c; g.beginPath(); g.arc(x, y, R * (0.5 + i / b.trail.length * 0.5), 0, Math.PI * 2); g.fill(); }); g.globalAlpha = 1;
-            g.globalCompositeOperation = 'source-over';
-            glow(b.c, 18); const bl = g.createRadialGradient(b.x - R * 0.35, b.y - R * 0.35, 1, b.x, b.y, R); bl.addColorStop(0, '#ffffff'); bl.addColorStop(1, b.c);
-            g.fillStyle = bl; g.beginPath(); g.arc(b.x, b.y, R, 0, Math.PI * 2); g.fill();
+            // Its streak: every physics step's position, joined into a tapering line, so a fast ball reads as one smooth
+            // motion instead of a ball jumping from frame to frame (the owner saw it choppy)
+            const tr = b.trail; g.lineCap = 'round'; g.strokeStyle = b.c;
+            for (let i = 1; i < tr.length; i++) { const k = i / tr.length; g.globalAlpha = 0.35 * k; g.lineWidth = R * 2 * (0.35 + 0.6 * k); g.beginPath(); g.moveTo(tr[i - 1][0], tr[i - 1][1]); g.lineTo(tr[i][0], tr[i][1]); g.stroke(); }
+            g.globalAlpha = 1; g.globalCompositeOperation = 'source-over';
+            const sp4 = SPR[b.c]; g.drawImage(sp4.cv, b.x - sp4.S, b.y - sp4.S, sp4.S * 2, sp4.S * 2);
             if (b.saved) { g.shadowBlur = 0; g.strokeStyle = 'rgba(157,255,58,0.85)'; g.lineWidth = 2; g.beginPath(); g.arc(b.x, b.y, R + 3.5, 0, Math.PI * 2); g.stroke(); } }
           // The balls still waiting: see-through where they will drop, with a ring that fills up until they fall, and a
           // last quick blink
@@ -1003,27 +1079,27 @@ trackVisit();   // the site's traffic (D-208)
           g.fillText(t('¡JACKPOT!'), 0, 0); g.restore(); g.shadowBlur = 0;
         };
         animate((tm, now) => {
-          const dt = Math.min(0.033, (now - last) / 1000); last = now;
+          const dt = Math.min(0.05, (now - last) / 1000); last = now;
           if (party) { sparks = sparks.filter(q => (q.l -= dt * 1.2) > 0); sparks.forEach(q => { q.x += q.vx * dt; q.y += q.vy * dt; }); draw(now); return; }
           shake = Math.max(0, shake - dt * 40); bumpers.forEach(bp => { bp.lit -= dt * 3; });
           sparks = sparks.filter(q => (q.l -= dt * 2.5) > 0); sparks.forEach(q => { q.x += q.vx * dt; q.y += q.vy * dt; });
-          const N = 5, h = dt / N;
+          const N = Math.max(4, Math.ceil(dt / 0.003)), h = dt / N;
           for (let s2 = 0; s2 < N; s2++) {
             // Flippers swing fast up and fall back; after 0.35 s held it drops anyway
-            for (const f of fl) { const want = f.held && now - f.since < 350 ? UP : REST, a0 = f.a, spd = want < f.a ? 26 : 12;
+            for (const f of fl) { const want = f.held && now - f.since < 350 ? UP : REST, a0 = f.a, spd = want < f.a ? 26 : 9;
               f.a = want < f.a ? Math.max(want, f.a - spd * h) : Math.min(want, f.a + spd * h); f.w = (f.a - a0) / h; }
             for (const b of balls) { if (!b.live || tm < b.at / sp) continue;
-              b.vy += G * h; b.x += b.vx * h; b.y += b.vy * h;
-              walls.forEach(([a, c]) => hit(b, a, c, 2, 0.45));
+              b.vy += G * h; b.x += b.vx * h; b.y += b.vy * h; b.trail.push([b.x, b.y]); if (b.trail.length > Math.ceil(0.07 / h)) b.trail.shift();
+              walls.forEach(([a, c]) => hit(b, a, c, 2, 0.45, null, '#8ff7ee'));
               for (const f of fl) { // a point on the flipper moves at ω × r, with the angle mirrored on the right one
                 const vel = (px, py) => { const rx = px - f.piv[0], ry = py - f.piv[1]; return [-f.dir * f.w * ry, f.dir * f.w * rx]; };
                 // A ball the flipper swings into counts as saved: only those score, so every star takes a tap
-                if (hit(b, f.piv, tip(f), 5, 0.35, vel) && f.w < 0) { if (!b.saved) { b.saved = true; pop(lay, '✓', b.x, b.y - R * 2); } shake = Math.min(4, shake + 2); try { navigator.vibrate?.(12); } catch (_) { /* none */ } } }
+                if (hit(b, f.piv, tip(f), 5, 0.35, vel, '#ffe27a') && f.w < 0) { if (!b.saved) { b.saved = true; pop(lay, '✓', b.x, OY + b.y - R * 2); } shake = Math.min(4, shake + 2); try { navigator.vibrate?.(12); } catch (_) { /* none */ } } }
               // A bumper kicks a ball hard once, softer when it sends it down toward the flippers (the owner's request); after that it only bounces it back softer, so no ball stays up there all game
               for (const bp of bumpers) { const dx = b.x - bp.x, dy = b.y - bp.y, d = Math.hypot(dx, dy), min = R + bp.r;
                 if (d < min && d > 0) { const nx = dx / d, ny = dy / d, sp3 = ((b.bumps = (b.bumps || 0) + 1) <= 1 ? Math.max(H * 0.85, Math.hypot(b.vx, b.vy) * 0.95) : Math.hypot(b.vx, b.vy) * 0.6) * (ny > 0.3 ? 0.65 : 1);
                   b.x = bp.x + nx * min; b.y = bp.y + ny * min; b.vx = nx * sp3; b.vy = ny * sp3; bp.lit = 1; SFX.reveal();
-                  for (let k = 0; k < 8; k++) { const an = rand() * Math.PI * 2; sparks.push({ x: bp.x + nx * bp.r, y: bp.y + ny * bp.r, vx: Math.cos(an) * 90, vy: Math.sin(an) * 90, l: 1, c: k % 2 ? '#ff2e88' : '#ffd23f' }); } } }
+                  b.spk = 0; sparkle(b, bp.x + nx * bp.r, bp.y + ny * bp.r, '#ff7ab8', 8); } }
               const v = Math.hypot(b.vx, b.vy); if (v > MAXV) { b.vx *= MAXV / v; b.vy *= MAXV / v; }
               // Wedged where a guide meets a flipper's base: after a moment still, a nudge sends it down the flipper
               b.still = v < H * 0.05 ? b.still + h : 0;
@@ -1033,18 +1109,17 @@ trackVisit();   // the site's traffic (D-208)
                 demo.classList.remove('red'); void demo.offsetWidth; demo.classList.add('red'); later(() => demo.classList.remove('red'), 300);
                 if (!alive) { finish(0, t('¡Se cayeron las tres!')); return false; } } }
           }
-          for (const b of balls) if (b.live && tm >= b.at / sp) { b.trail.push([b.x, b.y]); if (b.trail.length > 6) b.trail.shift(); }
           draw(now);
         });
         const savedN = () => balls.filter(b => b.live && b.saved).length;
-        active = true; runTimer(T(6500), () => {
+        active = true; runTimer(T(7000), () => {
           const n = savedN();
           if (n < 3) { finish(n, t('Salvaste {n} de 3', { n })); return; }
           party = performance.now(); timer.hidden = true; SFX.win?.();
           for (let k = 0; k < 40; k++) { const an = rand() * Math.PI * 2, v = 60 + rand() * 160; sparks.push({ x: W / 2, y: H * 0.36, vx: Math.cos(an) * v, vy: Math.sin(an) * v, l: 1.5, c: HATS[k % 3] }); }
           later(() => finish(3, t('¡Las tres arriba!')), reduce ? 700 : 1700);
         });
-      }, '🕹️ ⚪⚪⚪', t('toca a cada lado para mover las paletas'));
+      }, '', t('un dedo a cada lado: cada uno mueve su paleta'), PB_INTRO(), 1600);
     },
     rebota() {
       // Three little pixel aliens (our own 8-bit drawings), each in its own color: '#' body, 'w' white, 'k' black
@@ -1582,7 +1657,7 @@ trackVisit();   // the site's traffic (D-208)
   let best = kept(BEST), bestPts = kept(BEST_PTS);
   const $btn = (id, fn) => $id(id)?.addEventListener('click', e => { e.stopPropagation(); initSound(); SFX.tap(); fn(); });
   $id('sound-slot')?.append(soundToggle());
-  document.title = `${t('¡Al toque!')} ⚡ · ${t('Laboratorio')}`; $id('btn-volver').textContent = `‹ ${t('Laboratorio')}`; demo.setAttribute('aria-label', t('¡Al toque!'));
+  document.title = `${t('¡Al toque!')} ⚡ · Juegos de Salón`; $id('btn-volver').textContent = `‹ ${(COMMON[LANG] || COMMON.es).menu}`; demo.setAttribute('aria-label', t('¡Al toque!'));
   // The run's progress in the corner: one mark per game, filled with how it went
   const rb = $id('runbar'), runbar = () => { rb.hidden = false; const sg = score(marks).games; rb.innerHTML = order.map((_, i) => `<i class="${i < marks.length ? `s${marks[i]}${sg[i].streak || sg[i + 1]?.streak ? ' fire' : ''}` : i === idx - 1 ? 'cur' : ''}"></i>`).join(''); };
   let marks = [], startedAt = 0;
@@ -1640,7 +1715,7 @@ trackVisit();   // the site's traffic (D-208)
       ${breakdown(sc)}
       <div class="menu"><button class="btn btn--yellow" type="button" id="btn-otra">🔁 ${SEED ? t('Jugarla de nuevo') : t('Otra corrida')}</button>
         <button class="btn btn--cyan btn--sm" type="button" id="btn-retar">📤 ${t('Reta a alguien con esta corrida')}</button><div id="exits"></div></div>`);
-    $id('exits').replaceWith(salidasFin('lab', { lang: LANG, raiz: '../../' }));
+    $id('exits').replaceWith(salidasFin('suelto', { lang: LANG }));
     // The total counts up while the stars fill in
     { const el = $id('ptsup'), t0 = performance.now(), D = reduce ? 0 : 1400;
       const up = now => { if (!el.isConnected) return; const k = D ? Math.min(1, (now - t0) / D) : 1; el.textContent = Math.round(sc.points * (1 - (1 - k) ** 3)); if (k < 1) requestAnimationFrame(up); };
@@ -1691,10 +1766,10 @@ trackVisit();   // the site's traffic (D-208)
   // For the end-to-end test: what the page is doing, and a way to play one game on its own
   window.__microgames = { get game() { return curGame; }, get order() { return order.slice(); }, get idx() { return idx; }, get total() { return total; }, get active() { return active; }, ids: META.map(m => m.id), seed: SEED,
     get code() { return code; }, get marks() { return marks.slice(); }, get paused() { return paused; }, only: id => { code = SEED || newCode(); start([id]); }, run: ids => { code = SEED || newCode(); start(ids); } };
-  // Testers only, in the T tab (never on the cover, which stays as players see it): play any microgame on its own, or today's run
+  // Testers only (lab: #seccion-microgames), in the T tab (never on the cover, which stays as players see it): play any microgame on its own, or today's run
   labAccess().then(ok => {
     if (!ok) return;
-    return import('../../assets/js/tester-ribbon.js').then(({ setTesterContext, foldTesterRibbon }) => {
+    return import('../assets/js/tester-ribbon.js').then(({ setTesterContext, foldTesterRibbon }) => {
       // One tap plays it: a grid of the 28 by their emoji, grouped by type (its color), the name on a long press
       const go = id => { foldTesterRibbon(); window.__microgames.only(id); };
       const grid = el('div', { class: 'tr-mg-grid', id: 'tr-mg' }, ...Object.keys(KINDS).flatMap(k => META.filter(m => KIND[m.id] === k).map(m =>

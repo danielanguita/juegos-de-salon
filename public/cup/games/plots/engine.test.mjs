@@ -8,11 +8,62 @@ import {
   ETAPAS, MAXIMO, PUNTOS_ETAPA, RESTA_AYUDA, generarDia, partida, jugada, etapasDe,
   generarServicios, generarEtapaServicios, resolverServicios, deducirServicios, validarServicios, serviciosEn, ETAPAS_SERVICIOS, trabajo,
 } from './engine.js';
+import { Worker, isMainThread, parentPort, workerData } from 'node:worker_threads';
 
 // How long a board takes to build, measured in work (candidate boards checked, the solvers' search
 // steps) and not in milliseconds: the count is the same on every run, while a stopwatch failed this
 // test when many others ran beside it. The bounds are about twice what today's boards need.
 const obra = f => { const c = trabajo.candidatos, n = trabajo.nodos; const v = f(); return { v, candidatos: trabajo.candidatos - c, nodos: trabajo.nodos - n }; };
+
+// One Utilities stage: its boards and their checks. The stages are independent, so each runs in its own
+// worker thread (the three hard ones were 14 of this file's 18 s one after another); every check is the same
+function etapaServicios(n) {
+  const e = ETAPAS_SERVICIOS[n];
+  const { lado, tam, servicios } = e;
+  assert.equal((lado * lado) % tam, 0, `${lado}×${lado} se divide en lotes de ${tam}`);
+  let nodos = 0, rondas = 0, aLaVista = 0, profundas = 0, simples = 0;
+  const cuantos = e.dificil ? 40 : 120;
+  for (let s = 0; s < cuantos; s++) {
+    const { v: t, nodos: k } = obra(() => generarServicios(`prueba-s${n}-${s}`, e));
+    nodos = Math.max(nodos, k);
+    assert.equal(t.modo, 'servicios');
+    assert.equal(t.iconos.length, lado * lado);
+    assert.equal(resolverServicios(t, 2).n, 1, `servicios ${n + 1}-${s}: una sola solución`);
+    const d = deducirServicios(t);
+    assert.ok(d.resuelto, `servicios ${n + 1}-${s}: se deduce sin adivinar`);
+    rondas += d.rondas; aLaVista += d.deEntrada; profundas += d.intermedias + d.avanzadas;
+    // Los fáciles salen con las reglas simples; los difíciles no muestran lotes de entrada
+    if (!e.dificil) assert.ok(deducirServicios(t, { avanzado: false }).resuelto, `servicios ${n + 1}-${s}: fácil, con las reglas simples`);
+    else if (d.deEntrada === 0) simples++;
+    assert.equal(t.solucion.length, lado * lado / tam);
+    let ps = [];
+    for (const r of t.solucion) {
+      assert.equal(area(r), tam, 'cada lote del tamaño justo');
+      assert.deepEqual(serviciosEn(t, r), Object.fromEntries(servicios.map(x => [x, 1])), 'cada lote con uno de cada servicio');
+      assert.deepEqual(validar(t, r), { ok: true });
+      ps = poner(ps, r);
+    }
+    assert.ok(resuelto(t, ps), 'la solución lo resuelve');
+    assert.deepEqual(t.solucion.flatMap(x => casillas(x, lado)).sort((a, b) => a - b), [...Array(lado * lado).keys()], 'y cubre cada casilla una vez');
+    // Ni más ni menos íconos que lotes
+    for (const x of servicios) assert.equal(t.iconos.filter(i => i === x).length, t.solucion.length);
+  }
+  // The hard ones always use up their 6000 candidates, so the bound is on the search: today at most
+  // 63334 steps (8×8 of 8)
+  assert.ok(nodos <= 130000, `servicios ${lado}×${lado} de ${tam}: a board takes ${nodos} search steps (at most 130000)`);
+  const prom = { rondas: rondas / cuantos, aLaVista: aLaVista / cuantos, profundas: profundas / cuantos, dificil: e.dificil };
+  // Las difíciles (pedido del dueño): casi siempre ninguno a la vista de entrada, y deducciones profundas
+  if (e.dificil) {
+    assert.ok(simples / cuantos >= 0.85, `servicios ${n + 1}: ${simples}/${cuantos} sin lotes a la vista de entrada`);
+    assert.ok(profundas / cuantos >= 3, `servicios ${n + 1}: ${(profundas / cuantos).toFixed(1)} deducciones profundas por tablero`);
+  }
+  return prom;
+}
+
+if (!isMainThread) parentPort.postMessage(etapaServicios(workerData));
+else {
+
+
 
 // Un tablero a mano: 3×3 con un 3 arriba (fila entera), un 6 abajo
 //  . 3 .
@@ -130,47 +181,11 @@ assert.equal(tarjeta(5, 1), '✅ 5×5  ✅ 6×6  ✅ 7×7  ✅ 7×7  ✅ 8×8\n�
   assert.ok(!resuelto(col, [{ f1: 0, c1: 0, f2: 1, c2: 0 }]));
 }
 assert.equal(ETAPAS_SERVICIOS.length, ETAPAS.length, 'cinco tableros, como el modo de números: el mismo puntaje');
-const promS = [];
-ETAPAS_SERVICIOS.forEach((e, n) => {
-  const { lado, tam, servicios } = e;
-  assert.equal((lado * lado) % tam, 0, `${lado}×${lado} se divide en lotes de ${tam}`);
-  let nodos = 0, rondas = 0, aLaVista = 0, profundas = 0, simples = 0;
-  const cuantos = e.dificil ? 40 : 120;
-  for (let s = 0; s < cuantos; s++) {
-    const { v: t, nodos: k } = obra(() => generarServicios(`prueba-s${n}-${s}`, e));
-    nodos = Math.max(nodos, k);
-    assert.equal(t.modo, 'servicios');
-    assert.equal(t.iconos.length, lado * lado);
-    assert.equal(resolverServicios(t, 2).n, 1, `servicios ${n + 1}-${s}: una sola solución`);
-    const d = deducirServicios(t);
-    assert.ok(d.resuelto, `servicios ${n + 1}-${s}: se deduce sin adivinar`);
-    rondas += d.rondas; aLaVista += d.deEntrada; profundas += d.intermedias + d.avanzadas;
-    // Los fáciles salen con las reglas simples; los difíciles no muestran lotes de entrada
-    if (!e.dificil) assert.ok(deducirServicios(t, { avanzado: false }).resuelto, `servicios ${n + 1}-${s}: fácil, con las reglas simples`);
-    else if (d.deEntrada === 0) simples++;
-    assert.equal(t.solucion.length, lado * lado / tam);
-    let ps = [];
-    for (const r of t.solucion) {
-      assert.equal(area(r), tam, 'cada lote del tamaño justo');
-      assert.deepEqual(serviciosEn(t, r), Object.fromEntries(servicios.map(x => [x, 1])), 'cada lote con uno de cada servicio');
-      assert.deepEqual(validar(t, r), { ok: true });
-      ps = poner(ps, r);
-    }
-    assert.ok(resuelto(t, ps), 'la solución lo resuelve');
-    assert.deepEqual(t.solucion.flatMap(x => casillas(x, lado)).sort((a, b) => a - b), [...Array(lado * lado).keys()], 'y cubre cada casilla una vez');
-    // Ni más ni menos íconos que lotes
-    for (const x of servicios) assert.equal(t.iconos.filter(i => i === x).length, t.solucion.length);
-  }
-  // The hard ones always use up their 6000 candidates, so the bound is on the search: today at most
-  // 63334 steps (8×8 of 8)
-  assert.ok(nodos <= 130000, `servicios ${lado}×${lado} de ${tam}: a board takes ${nodos} search steps (at most 130000)`);
-  promS.push({ rondas: rondas / cuantos, aLaVista: aLaVista / cuantos, profundas: profundas / cuantos, dificil: e.dificil });
-  // Las difíciles (pedido del dueño): casi siempre ninguno a la vista de entrada, y deducciones profundas
-  if (e.dificil) {
-    assert.ok(simples / cuantos >= 0.85, `servicios ${n + 1}: ${simples}/${cuantos} sin lotes a la vista de entrada`);
-    assert.ok(profundas / cuantos >= 3, `servicios ${n + 1}: ${(profundas / cuantos).toFixed(1)} deducciones profundas por tablero`);
-  }
-});
+const promS = await Promise.all(ETAPAS_SERVICIOS.map((_, n) => new Promise((ok, falla) => {
+  const w = new Worker(new URL(import.meta.url), { workerData: n });
+  w.once('message', ok); w.once('error', falla);
+  w.once('exit', c => falla(new Error(`servicios ${n + 1}: the worker ended with ${c} and no result`)));
+})));
 // Las difíciles: más rondas de deducción y menos lotes a la vista de entrada que las fáciles
 for (const d of promS.filter(x => x.dificil)) for (const f of promS.filter(x => !x.dificil)) {
   assert.ok(d.rondas > f.rondas && d.aLaVista < f.aLaVista, `servicios: las difíciles más difíciles ${JSON.stringify(promS)}`);
@@ -258,3 +273,4 @@ console.log(`✓ loteo servicios: ${JSON.stringify(promS.map(x => [+x.rondas.toF
 }
 
 console.log(`✓ loteo: validación, resolvedor, tableros de solución única que se deducen, las difíciles más difíciles, ayuda y puntaje ${JSON.stringify(prom)}`);
+}

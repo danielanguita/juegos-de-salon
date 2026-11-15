@@ -35,8 +35,10 @@ The game inside is a placeholder (a race to ten). Replace it, keeping what surro
   `handoff.js`, `chat.js`, `sound.js`, `arrastre.js` (C-4, C-7, C-8, C-9, C-15); the board carries
   `data-tablero` (D-309).
 - **The result screen** (C-19): exits from `fin.js` for each context, looked at 390×812 and 320 px.
-- **Rankings** (D-212): only La Copa's standalone games record them, through `cup/game.js`; a new
-  game that should is a question for the owner.
+- **Rankings** (D-212, D-559): whether a game records a score is a question for the owner. One that does
+  (`avisoPartida()`) adds its table to `SOLO_TABLES` in `games.js` so Rankings shows its tab
+  (`rankings-coverage.test.mjs` fails otherwise), and its e2e script checks the tab on `/records/`.
+  The panel names it on its own (`gameById`).
 
 **The conformance suite** checks all of this for every game with a `game.json`:
 `node public/assets/js/conformance.test.mjs` (the files, the languages, the shared modules; in the
@@ -80,7 +82,8 @@ old debt in `docs/manifest-debt.json`, which only shrinks; an old entry moves wi
     `cup/engine.js` is derived from it. Variants go in `VARIANTES` there (D-331).
   - `lanza: '<flag>'` only if the finished game waits for the owner's 🚀 (D-517): add its row to `FLAGS`
     in `flag-list.js` and point its /labs/ card to the page. Until the flag is *all* the entry carries
-    `oculto` (off the home page, search, filters, /records/ and `POZO_ABIERTO`); `POZO`, `POZO_FIJO` and
+    `oculto` (off the home page, search, filters, /records/ and `POZO_ABIERTO`); its ✨ Nuevo label starts the
+    moment the flag goes to *all*, whatever `nuevoDesde` says (D-556); `POZO`, `POZO_FIJO` and
     One a Day's `desde` do not read the flag. The cleanup PR removes `lanza` and the row, and moves
     the card to 🎲 Juegos guardados (D-479): `/labs/` moves only improvement cards on its own when a
     flag is *all* (`launched.js`, D-534), not a game's.

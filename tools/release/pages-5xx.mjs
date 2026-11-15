@@ -1,7 +1,7 @@
 // Did the Pages deploy fail with a server error (5xx), or behind a stuck older deployment? (D-506) publish.yml retries actions/deploy-pages
 // only then: a 502 from GitHub (2026-10-29, #985) is worth another try a minute later, while any other
 // failure (a bad artifact, missing permissions) would only fail again. It reads the annotations the
-// failed step left on the running `publish` job; if it can't read them, it says no.
+// failed step left on the running `publish` job; if it can't read them (empty while the job runs), it retries too: at most twice.
 //
 //   node tools/release/pages-5xx.mjs      # exit 0: a 5xx, retry; exit 1: anything else
 import { execFileSync } from 'node:child_process';
@@ -16,8 +16,11 @@ export const stuckDeployment = messages => {
   return '';
 };
 
-/** Is any of these messages a 5xx from the Pages API? */
-export const serverError = messages => messages.some(m => /\(status: 5\d\d\)|\b50[234] |Server Error/.test(m));
+/**
+ * Is any of these messages a 5xx from the Pages API, or the artifact just uploaded not yet visible to
+ * deploy-pages (2026-11-15, #1467: "No artifacts named github-pages" seconds after a good upload)?
+ */
+export const serverError = messages => messages.some(m => /\(status: 5\d\d\)|\b50[234] |Server Error|No artifacts named "github-pages" were found/.test(m));
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const gh = path => JSON.parse(execFileSync('gh', ['api', path], { encoding: 'utf8' }));
@@ -38,8 +41,10 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
       console.log(`cancelled the stuck Pages deployment of ${stuck.slice(0, 7)}: retrying`);
       process.exit(0);
     }
-    const yes = serverError(notes);
-    console.log(yes ? 'the deploy failed with a 5xx: retrying' : `not a 5xx, no retry: ${notes.join(' | ').slice(0, 300)}`);
+    // The running job's annotations come back empty until it ends (2026-11-15: every failed publish read
+    // nothing), so an unreadable failure gets the bounded retry too: at most two, a few minutes lost
+    const yes = serverError(notes) || !notes.some(m => /error/i.test(m));
+    console.log(yes ? 'the deploy failed with a 5xx, a missing artifact or an unreadable error: retrying' : `not a 5xx, no retry: ${notes.join(' | ').slice(0, 300)}`);
     process.exit(yes ? 0 : 1);
   } catch (e) {
     console.log(`couldn't read the error (${String(e.message).split('\n')[0]}): no retry`);
