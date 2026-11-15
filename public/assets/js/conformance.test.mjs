@@ -33,7 +33,9 @@ const FROZEN = ['conexiones', 'letras', 'anio', 'reinas', 'tango', 'zip', 'desen
   // 🐤 Aletazo: built in cup/games/ like Babel; the owner's call (2026-11-08, #1315), until the schema covers the Cup-built games
   'aletazo',
   // #️⃣ Sudoku: built in cup/games/ like Aletazo (D-517's way, 2026-11-11)
-  'sudoku'];
+  'sudoku',
+  // ⚡ ¡Al toque!: its page made La Copa's screen in cup/games/microgames/ (2026-11-15)
+  'microgames'];
 const debt = JSON.parse(readFileSync(new URL('../../../docs/manifest-debt.json', import.meta.url), 'utf8')).games;
 for (const g of ALL_GAMES) {
   if (byId[g.id]) continue;

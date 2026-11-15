@@ -19,7 +19,6 @@ import { catalogEntry } from './game-manifest.js';
 import hangmanManifest from './manifests/hangman.js';
 import liarsDiceManifest from './manifests/liars-dice.js';
 import timelineManifest from './manifests/timeline.js';
-import inAFlashManifest from './manifests/in-a-flash.js';
 import bullsAndCowsManifest from './manifests/bulls-and-cows.js';
 import battleshipManifest from './manifests/battleship.js';
 import generalaManifest from './manifests/generala.js';
@@ -79,11 +78,6 @@ export const GAMES = [
   // /labs/fourth-king/; /fourth-king/ and /cuarto-rey/ are bridges there
   // Its name in URLs and its docs/games/ and docs/screenshots/ folders, without the lab (C-18)
   catalogEntry(fourthKingManifest),
-  // microgames: from public/in-a-flash/game.json. ⚡ ¡Al toque! out of the lab, launched by flags/microgames
-  // at 21:00 Pacific on 2026-11-14 (D-517's way, D-529): until then hidden (`oculto`). Its page is its own
-  // (rules.js, not a La Copa screen), so La Copa and Uno al día come in a later PR. The id is the lab's
-  // (usage signal, the `microgames` ranking)
-  { ...catalogEntry(inAFlashManifest), diasNuevo: 10, deLabs: 'microgames', lanza: 'microgames', oculto: !lanzado('microgames') },
 ];
 
 /**
@@ -461,6 +455,30 @@ export const SUELTOS = [
     tipos: ['logic'],
     duration: '3–15',
     nuevoDesde: '2026-11-12',
+    diasNuevo: 10,
+  },
+  {
+    // ⚡ ¡Al toque!: launched by flags/microgames at 21:00 Pacific on 2026-11-14 on a page of its own, then
+    // made La Copa's screen in cup/games/microgames/ (D-456's way) for its page /in-a-flash/, La Copa and Uno
+    // al día. The id is the lab's (usage signal, the `microgames` ranking); /labs/microgames/ is a bridge
+    id: 'microgames',
+    lanza: 'microgames',
+    deLabs: 'microgames',
+    copa: { pozo: 18 },
+    // Uno al día: by date, never by flag: from 2026-11-16, joining the next deck (no day before changes)
+    unoAlDia: { orden: 23, desde: '2026-11-16' },
+    slug: 'in-a-flash',
+    emoji: '⚡',
+    name: { es: '¡Al toque!', en: 'In a Flash!', pt: 'Na Hora!' },
+    tagline: { es: 'Una orden y 3 segundos para cumplirla: diez seguidos, cada vez más rápido.', en: 'One order and 3 seconds to do it: ten in a row, faster and faster.', pt: 'Uma ordem e 3 segundos para cumprir: dez seguidos, cada vez mais rápido.' },
+    keywords: {
+      es: ['al toque', 'microjuegos', 'rápido', 'rapido', 'reflejos', 'habilidad', 'toca', 'arrastra', 'desliza', 'warioware', 'pinball'],
+      en: ['in a flash', 'microgames', 'fast', 'quick', 'reflexes', 'skill', 'tap', 'drag', 'swipe', 'warioware', 'pinball'],
+      pt: ['na hora', 'microjogos', 'rápido', 'reflexos', 'habilidade', 'toque', 'arraste', 'deslize', 'warioware', 'pinball'],
+    },
+    tipos: ['skill'],
+    duration: '1–2',
+    nuevoDesde: '2026-11-14',
     diasNuevo: 10,
   },
   // Los del laboratorio viven en /labs/<slug>/ (D-267): al salir pasan a /<slug>/

@@ -1,30 +1,42 @@
-// ¡Al toque!, the lab's microgames (WarioWare-style): 29 games of 3 to 5 seconds, played in runs of 10
-// different ones in a row. Moved from the owner's review prototype; docs/games/in-a-flash.md.
-import { trackVisit, trackStart, trackFinish } from '../assets/js/transport/stats.js';
-import { footerInto } from '../assets/js/site-footer.js';
-import { abrirComentario } from '../assets/js/labs-idioma.js';
-import { SFX, initSound, soundToggle } from '../assets/js/sound.js';
-import { confetti, el } from '../assets/js/ui.js';
-import { labAccess } from '../assets/js/lab-access.js';
-import { flag } from '../assets/js/flags.js';
-import { salidasFin } from '../assets/js/fin.js';
-import { param, tiene } from '../assets/js/parametros.js';
-import { semillaDel } from '../assets/js/uno-al-dia.js';
-import { shareLink } from '../assets/js/compartir.js';
-import { getLang, coverLangToggle, COMMON } from '../assets/js/i18n.js';
-import { bloqueTabla, avisoPartida } from '../assets/js/ranking.js';
-import { rankingsVisibles } from '../assets/js/jugador.js';
-import { TR } from './rules.js';
-import { RUN, newCode, speedAt, score, score100, stream, runOrder, STREAK, gamePoints } from './engine.js';
-const GAME_ID = 'microgames';
-// Launched by a flag (D-517's way, lab: #seccion-microgames): until flags/microgames is on for this visitor (🚀
-// everyone, or 🧪 with a lab key) the page sends them to the home page. If Firebase cannot answer, it stays
-flag('microgames').then(on => { if (!on) location.replace('../'); }).catch(() => {});
-// The texts are written in Spanish where they are used; t() gives the player's language from rules.js (C-3)
-const LANG = getLang();
-const t = (es, v = {}) => (TR[LANG]?.[es] ?? es).replace(/\{(\w+)\}/g, (_, k) => v[k] ?? '');
-trackVisit();   // the site's traffic (D-208)
-(() => {
+// ⚡ ¡Al toque! (id `microgames`): the stage and its 29 microgames (WarioWare-style, 3 to 5 seconds each), played
+// as a run of ten different ones in a row. La Copa's screen (ui.js) mounts it for its page /in-a-flash/, a cup
+// day and Uno al día (D-456's way: one screen, La Copa's). Moved from the page it had out of the lab;
+// docs/games/microgames.md.
+import { SFX, initSound } from '../../../assets/js/sound.js';
+import { getLang } from '../../../assets/js/i18n.js';
+import { TR } from './tr.js';
+import { speedAt, score, stream, STREAK, gamePoints } from './engine.js';
+
+// The texts are written in Spanish where they are used; t() gives the player's language from tr.js (C-3)
+const LANG = (() => { try { return getLang(); } catch (_) { return 'es'; } })();
+export const t = (es, v = {}) => (TR[LANG]?.[es] ?? es).replace(/\{(\w+)\}/g, (_, k) => v[k] ?? '');
+export const multTxt = x => x.toFixed(1).replace('.', LANG === 'en' ? '.' : ',');
+
+/** Each way to play's gesture, drawn and moving (the intro cards and the cover). */
+export const GESTURES = {
+  toca: '<i class="gbox"></i><i class="gbox mid"></i><i class="gbox"></i><i class="rip"></i><span class="hand">👆</span>',
+  arrastra: '<i class="gslot"></i><i class="gpiece"></i><span class="hand">👆</span>',
+  desliza: '<svg viewBox="0 0 150 76"><path class="gpath" d="M18 38 C38 20 60 50 82 30 S118 22 130 38"/><path class="gink" pathLength="200" d="M18 38 C38 20 60 50 82 30 S118 22 130 38"/></svg><span class="hand">👆</span>',
+};
+/** The three ways to play, in order, with their colour. */
+export const WAYS = [['toca', 'TOCA', '#2ee6d6'], ['arrastra', 'ARRASTRA', '#ff9a1f'], ['desliza', 'DESLIZA', '#c45cff']];
+
+/** Each microgame's icon (the run's summary, the cup's result). */
+export const ICONS = { cruza: '⚪', espera: '🟢', toca: '🎈', quecolor: '🔴', cuenta: '🍎', atrapa: '🪙', corta: '🥪', ordena: '🐘', calcula: '🧮', conecta: '🟡', limpia: '🧽', para: '🎯', aplasta: '🪰', revienta: '🫧', pinball: '🕹️', rebota: '👾', equilibra: '🍽️', dibuja: '✏️', sigue: '🐀', repite: '🟦', dondequedo: '⚪', diferente: '🔍', cualfalta: '👀', mas: '⚖️', quehora: '🕐', hands: '🕰️', sombra: '🌑', completa: '🔢', notoques: '🔨' };
+
+/** The stage's markup: the HUD, the run's marks, the screen and the clock bar (ids the microgames draw into). */
+export const STAGE = `<section class="alt-stage"><div class="demo" id="demo" aria-label="¡Al toque!">
+  <div class="hud" id="hud" hidden><span id="hud-n"></span><span id="hud-s"></span></div>
+  <div class="runbar" id="runbar" hidden aria-hidden="true"></div>
+  <div class="center" id="screen"></div>
+  <div class="timer" id="timer" hidden></div></div></section>`;
+
+/**
+ * Plays `order` (microgame ids) in the stage already in the page: each game's speed and random stream come
+ * from its place in the run and `seed`, so a run is the same on every phone. `onGame(marks)` after each one
+ * (to save it), `onEnd(marks)` when the run is over. Returns `{ meta, kinds, stop }`.
+ */
+export function playRun({ order: list, seed, done = [], onGame = () => {}, onEnd = () => {} }) {
   const demo = document.getElementById('demo'), screen = document.getElementById('screen');
   const timer = document.getElementById('timer'), hud = document.getElementById('hud');
   const hudN = document.getElementById('hud-n'), hudS = document.getElementById('hud-s');
@@ -102,11 +114,7 @@ trackVisit();   // the site's traffic (D-208)
     ordena: 'arrastra', hands: 'arrastra', conecta: 'arrastra', atrapa: 'arrastra', rebota: 'arrastra', equilibra: 'arrastra',
     corta: 'desliza', cruza: 'desliza', dibuja: 'desliza', sigue: 'desliza', limpia: 'desliza' };
   let curGame = null;
-  const GSTAGE = {
-    toca: '<i class="gbox"></i><i class="gbox mid"></i><i class="gbox"></i><i class="rip"></i><span class="hand">👆</span>',
-    arrastra: '<i class="gslot"></i><i class="gpiece"></i><span class="hand">👆</span>',
-    desliza: '<svg viewBox="0 0 150 76"><path class="gpath" d="M18 38 C38 20 60 50 82 30 S118 22 130 38"/><path class="gink" pathLength="200" d="M18 38 C38 20 60 50 82 30 S118 22 130 38"/></svg><span class="hand">👆</span>',
-  };
+  const GSTAGE = GESTURES;
   const gesture = id => { const k = KIND[id]; if (!k) return ''; const [label, , col] = KINDS[k];
     return `<div class="gest g-${k}" style="--kc:${col}"><div class="gstage" aria-hidden="true">${GSTAGE[k]}</div><b>${label}</b></div>`; };
   // During the intro the stage wears its type's color (frame and name); it comes off when the game starts
@@ -1642,95 +1650,13 @@ trackVisit();   // the site's traffic (D-208)
   const NAMES = Object.fromEntries(META.map(m => [m.id, m.n]));
   if (META.some(m => !GAMES[m.id]) || Object.keys(GAMES).some(k => !NAMES[k])) console.warn('META and GAMES differ');
 
-  // ---- The lab page: a cover with the rules folded in it, then runs of 10 different games in a row ----
-  // A shared run (?seed=K7Q2X, or ?today for Uno al día's seed of the day) is the same on every phone: the
-  // same ten games in the same order, and each one dealt the same (its own stream, engine.js `stream`).
-  // Without a seed every run is a new draw.
-  const TODAY = tiene('today'), DATE = new Date().toLocaleDateString('sv');
-  const SEED = (TODAY ? semillaDel(DATE) : param('seed') || '').toUpperCase();
-  const TODAY_KEY = 'microgames:today';
-  let code = '', scored = false;
-  const today = () => { try { const t = JSON.parse(localStorage.getItem(TODAY_KEY) || 'null'); return t?.d === DATE ? t : null; } catch (_) { return null; } };
-  const MAX = RUN * 3, BEST = 'microgames:best', BEST_PTS = 'microgames:best-points';
-  const keep = (k, v) => { try { localStorage.setItem(k, String(v)); } catch (_) { /* not kept */ } };
-  const kept = k => { try { return +localStorage.getItem(k) || 0; } catch (_) { return 0; } };
-  let best = kept(BEST), bestPts = kept(BEST_PTS);
-  const $btn = (id, fn) => $id(id)?.addEventListener('click', e => { e.stopPropagation(); initSound(); SFX.tap(); fn(); });
-  $id('sound-slot')?.append(soundToggle());
-  document.title = `${t('¡Al toque!')} ⚡ · Juegos de Salón`; $id('btn-volver').textContent = `‹ ${(COMMON[LANG] || COMMON.es).menu}`; demo.setAttribute('aria-label', t('¡Al toque!'));
-  // The run's progress in the corner: one mark per game, filled with how it went
+  // ---- The run ----
   const rb = $id('runbar'), runbar = () => { rb.hidden = false; const sg = score(marks).games; rb.innerHTML = order.map((_, i) => `<i class="${i < marks.length ? `s${marks[i]}${sg[i].streak || sg[i + 1]?.streak ? ' fire' : ''}` : i === idx - 1 ? 'cur' : ''}"></i>`).join(''); };
-  let marks = [], startedAt = 0;
-  // Under the stage: the site footer on the cover, with the game's 💬 comment as its option (C-17, U-38); just the comment elsewhere
-  const pie = $id('pie'), COMMENT = Object.fromEntries(Object.entries({ titulo: '¿Qué te pareció?', lead: 'Cuéntanos qué microjuegos te gustaron, cuáles no se entendían y qué le cambiarías.', ph: 'Por ejemplo: en ¡Corta! no me daba el tiempo.', nombre: 'Nombre o apodo (opcional)', enviar: 'Enviar comentario', enviando: 'Enviando…', vacio: 'Escribe algo primero.', gracias: '¡Gracias! 🙌 Tu comentario llegó.', guardado: 'Ahora no hay internet: tu comentario quedó en el celular y se envía solo después.', error: 'No se pudo enviar. Prueba de nuevo en un rato.', cancelar: 'Cancelar', cerrar: 'Cerrar' }).map(([k, v]) => [k, t(v)]));
-  const footer = screenName => { const b = document.createElement('button'); b.type = 'button'; b.className = 'link-btn'; b.id = 'btn-comentario'; b.textContent = t('💬 Sugerencias y comentarios');
-    b.addEventListener('click', () => abrirComentario({ T: COMMENT, contexto: { juego: GAME_ID, pantalla: screenName, microjuego: curGame, corrida: order.join(' '), semilla: code } }));
-    if (screenName === 'portada') footerInto(pie, { screen: `${GAME_ID}-cover`, inbox: false, options: [b], lang: LANG }); else pie.replaceChildren(b); };
-  // The three ways to play, for the cover's folded rules (C-8, D-550): each with its gesture, moving
-  const HOW = { toca: t('la respuesta, en el momento justo o muchas veces seguidas.'), arrastra: t('algo con el dedo hasta su lugar, o de lado a lado.'), desliza: t('el dedo por la pantalla: corta, recorre o frota.') };
-  // The ranking (D-212), as every game played alone: the `microgames` table under the stage, with signing in on the cover
-  const rankingEl = $id('ranking');
-  const tabla = ({ entrar = true } = {}) => bloqueTabla({ tabla: GAME_ID, titulo: String((COMMON[LANG] || COMMON.es).rk.titleOf).replace('{game}', t('¡Al toque!')), entrar });
-  function cover() {
-    stopAll(); active = false; paused = false; hud.hidden = true; rb.hidden = true; undress();
-    const td = TODAY ? today() : null;
-    // The three ways to play, all at once, each with its finger doing the gesture, above Jugar
-    const cap = x => x[0].toUpperCase() + x.slice(1);
-    set(`<div class="cmd"><span class="tbolt" aria-hidden="true">⚡</span> ${t('¡Al toque!')}</div>
-      <div class="sub">${TODAY ? t('La corrida de hoy: la misma para todos, y cuenta la primera.') : t('{n} microjuegos seguidos, de 3 a 5 segundos cada uno. Lee la orden y hazlo… ¡al toque!', { n: RUN })}</div>
-      ${SEED && !TODAY ? `<div class="sub best">${t('Corrida compartida · {c}: la misma para todos', { c: `<b class="num">${SEED}</b>` })}</div>` : ''}
-      <div class="kinds">${Object.entries(KINDS).map(([k, [label, , col]]) => `<div class="kind" style="--kc:${col}"><div class="gstage g-${k}" aria-hidden="true">${GSTAGE[k]}</div><div><b>${label}</b><p>${cap(HOW[k])}</p></div></div>`).join('')}</div>
-      <div class="menu"><button class="btn btn--yellow" type="button" id="btn-jugar">▶ ${TODAY ? (td ? t('Jugarla de nuevo') : t('Jugar la de hoy')) : t('Jugar')}</button></div>
-      ${td ? `<div class="sub best">${t('Hoy hiciste {n} pts', { n: `<span class="num">${td.p}</span>` })}</div>` : bestPts ? `<div class="sub best">${t('Tu mejor corrida: {n} pts', { n: `<span class="num">${bestPts}</span>` })}</div>` : ''}
-      <div class="sub credit">${t('Inspirado en {w}, de Nintendo.', { w: `<a href="https://${LANG}.wikipedia.org/wiki/WarioWare" target="_blank" rel="noopener" id="link-warioware">WarioWare</a>` })}</div>`);
-    $id('screen').prepend(coverLangToggle(() => location.reload()));
-    $btn('btn-jugar', () => start(newRun()));
-    footer('portada');
-    rankingEl.replaceChildren(tabla());
-  }
-  // How the points came out, in three lines and the total: 10 per star, what the speed added, the streaks
-  const breakdown = sc => { const base = marks.reduce((a, m) => a + m * 10, 0), streaks = sc.games.filter(g => g.streak).length,
-      speed = sc.points - base - streaks * STREAK;
-    return `<div class="breakdown" aria-label="${t('Cómo se calcularon tus puntos')}">
-      <div><span>${t('⭐ {n} estrellas × 10 puntos', { n: total })}</span><b class="num">${base}</b></div>
-      <div><span>${t('⚡ Bono de velocidad')}</span><b class="num">+${speed}</b></div>
-      <div><span>${t('🔥 Rachas de ★★ o más: {n} × {p}', { n: streaks, p: STREAK })}</span><b class="num">+${streaks * STREAK}</b></div>
-      <div class="tot"><span>${t('Total')}</span><b class="num">${sc.points} ${t('pts')}</b></div></div>`; };
-  function end() {
-    hud.hidden = true; rb.hidden = true;
-    const sc = score(marks), k = total / (order.length * 3), isBest = sc.points > bestPts;
-    if (isBest) { bestPts = sc.points; keep(BEST_PTS, bestPts); }
-    if (total > best) { best = total; keep(BEST, best); }
-    // Uno al día's way (lab only): the day's first run is the one that counts
-    const first = TODAY && order.length === RUN && !today();
-    if (first) keep(TODAY_KEY, JSON.stringify({ d: DATE, p: sc.points, s: score100(marks), m: marks }));
-    const td = TODAY ? today() : null;
-    trackFinish({ detalle: `${sc.points} pts · ${score100(marks)}/100 · ${total}/${MAX} stars · ${order.map((id, i) => `${id}:${marks[i]}`).join(' ')} · ${Math.round((Date.now() - startedAt) / 1000)}s · ${TODAY ? 'today' : SEED ? 'seed' : 'code'} ${code}` });
-    if (k >= 0.45) { SFX.win(); if (!reduce) confetti(); }
-    // C-19: the result, the main action and Share, the exits, then the detail game by game
-    set(`<div class="cmd">${k >= 0.75 ? t('¡Al toque!') : k >= 0.45 ? t('¡Bien!') : t('¡Otra!')}</div>
-      <div class="stars total"><span class="num" id="ptsup">0</span> ${t('pts')}</div>
-      <div class="sub best">${total} / ${order.length * 3} ★ · ${td && !first ? t('la de hoy que cuenta: {n} pts', { n: td.p }) : TODAY ? t('¡Esta es la que cuenta hoy!') : isBest ? t('¡Tu mejor corrida!') : t('tu mejor: {n} pts', { n: bestPts })}</div>
-      <div class="runsum" data-tablero>${order.map((id, i) => `<span><b>${META.find(m => m.id === id).i}</b>${shiny(marks[i], 0.35 + i * 0.12, 'sm')}<em class="num">${sc.games[i].points}${sc.games[i].streak ? '🔥' : ''}</em></span>`).join('')}</div>
-      ${breakdown(sc)}
-      <div class="menu"><button class="btn btn--yellow" type="button" id="btn-otra">🔁 ${SEED ? t('Jugarla de nuevo') : t('Otra corrida')}</button>
-        <button class="btn btn--cyan btn--sm" type="button" id="btn-retar">📤 ${t('Reta a alguien con esta corrida')}</button><div id="exits"></div></div>`);
-    $id('exits').replaceWith(salidasFin('suelto', { lang: LANG }));
-    // The total counts up while the stars fill in
-    { const el = $id('ptsup'), t0 = performance.now(), D = reduce ? 0 : 1400;
-      const up = now => { if (!el.isConnected) return; const k = D ? Math.min(1, (now - t0) / D) : 1; el.textContent = Math.round(sc.points * (1 - (1 - k) ** 3)); if (k < 1) requestAnimationFrame(up); };
-      requestAnimationFrame(up); }
-    // A whole run counts for the ranking (D-212): never one microgame played alone from the tester tab
-    const tablaFin = tabla({ entrar: false });
-    rankingEl.replaceChildren(...(order.length === RUN && rankingsVisibles() ? [avisoPartida({ juego: GAME_ID, s: sc.points, ms: Date.now() - startedAt, alAnotar: () => tablaFin.recargar() })] : []), tablaFin);
-    $btn('btn-otra', () => start(newRun()));
-    // The same run for whoever opens the link: its code (or today's), never the stars
-    $btn('btn-retar', () => shareLink({ title: t('¡Al toque!'), text: t('Hice {n} pts en ¡Al toque! ⚡ ¿Me ganas con la misma corrida?', { n: sc.points }),
-      url: `${location.origin}${location.pathname}?${TODAY ? 'today' : `seed=${code}`}` }));
-  }
+  let marks = [], code = String(seed || ''), scored = false, paused = false, over = false;
+  function end() { over = true; hud.hidden = true; rb.hidden = true; undress(); onEnd(marks.slice()); }
   function next() {
     screen.classList.remove('full');
-    if (idx > 0) marks[idx - 1] = lastStars;
+    if (idx > 0 && marks.length < idx) { marks[idx - 1] = lastStars; onGame(marks.slice()); }
     if (idx >= order.length) { end(); return; }
     play();
   }
@@ -1742,41 +1668,25 @@ trackVisit();   // the site's traffic (D-208)
     curGame = order[idx]; rand = stream(code, `${idx}:${curGame}`); idx++;
     if (order.length > 1) runbar(); GAMES[curGame]();
   }
-  function start(list) {
-    stopAll(); active = false; paused = false; undress();
-    total = 0; idx = 0; sp = 1; order = list; marks = []; lastStars = 0; startedAt = Date.now();
-    hud.hidden = false; hudS.textContent = `0 ${t('pts')}`; rankingEl.replaceChildren();
-    trackStart({ game: GAME_ID, mode: 'solo', players: 1 });
-    footer('juego');
-    next();
-  }
   // The phone locked, or another app came up: the timers would keep running, so the game stops and
   // waits. One not finished yet starts again (dealt the same) when the player taps Seguir
-  let paused = false;
+  const fuera = new AbortController();
   document.addEventListener('visibilitychange', () => {
-    if (!document.hidden || hud.hidden || !idx || paused) return;
+    if (!demo.isConnected) { fuera.abort(); return; }
+    if (!document.hidden || over || !idx || paused) return;
     paused = true; stopAll(); active = false; undress();
     if (!scored) idx--;
     set(`<div class="big" aria-hidden="true">⏸</div><div class="cmd">${t('Pausa')}</div><div class="sub">${scored ? t('Sigue con el próximo microjuego.') : t('Este microjuego parte de nuevo cuando sigas.')}</div>
       <div class="menu"><button class="btn btn--yellow" type="button" id="btn-seguir">▶ ${t('Seguir')}</button></div>`);
-    $btn('btn-seguir', () => { paused = false; if (scored) next(); else play(); });
-  });
-  // Every run has a code: the link's seed, today's, or a new one, so it can be shared and played the same
-  const newRun = () => { code = SEED || newCode(); return runOrder(META.map(m => m.id), code, RUN, [['quehora', 'hands']]); };
-  // For the end-to-end test: what the page is doing, and a way to play one game on its own
-  window.__microgames = { get game() { return curGame; }, get order() { return order.slice(); }, get idx() { return idx; }, get total() { return total; }, get active() { return active; }, ids: META.map(m => m.id), seed: SEED,
-    get code() { return code; }, get marks() { return marks.slice(); }, get paused() { return paused; }, only: id => { code = SEED || newCode(); start([id]); }, run: ids => { code = SEED || newCode(); start(ids); } };
-  // Testers only (lab: #seccion-microgames), in the T tab (never on the cover, which stays as players see it): play any microgame on its own, or today's run
-  labAccess().then(ok => {
-    if (!ok) return;
-    return import('../assets/js/tester-ribbon.js').then(({ setTesterContext, foldTesterRibbon }) => {
-      // One tap plays it: a grid of the 28 by their emoji, grouped by type (its color), the name on a long press
-      const go = id => { foldTesterRibbon(); window.__microgames.only(id); };
-      const grid = el('div', { class: 'tr-mg-grid', id: 'tr-mg' }, ...Object.keys(KINDS).flatMap(k => META.filter(m => KIND[m.id] === k).map(m =>
-        el('button', { type: 'button', class: 'tr-mg-b', style: `--kc:${KINDS[k][2]}`, title: m.n, 'aria-label': m.n, 'data-id': m.id, onClick: () => go(m.id) }, m.i))));
-      setTesterContext(el('div', { class: 'tr-sim tr-mg-box' }, el('small', {}, '⚡ Jugar un microjuego'), grid,
-        el('a', { class: 'tr-mg-today', href: '?today' }, '📅 Corrida de hoy ›')));
-    });
-  }).catch(() => {});
-  cover();
-})();
+    $id('btn-seguir').addEventListener('click', () => { initSound(); SFX.tap(); paused = false; if (scored) next(); else play(); });
+  }, { signal: fuera.signal });
+  // Start, or go on after the games already played (a reloaded page goes on where it was)
+  stopAll(); active = false; undress();
+  total = done.reduce((a, m) => a + m, 0); order = list; marks = done.slice(); idx = marks.length; lastStars = 0; sp = 1;
+  hud.hidden = false; hudS.textContent = `${score(marks).points} ${t('pts')}`;
+  // For the end-to-end test: what the run is doing
+  window.__microgames = { get game() { return curGame; }, get order() { return order.slice(); }, get idx() { return idx; }, get total() { return total; }, get active() { return active; }, ids: META.map(m => m.id),
+    get code() { return code; }, get marks() { return marks.slice(); }, get paused() { return paused; } };
+  next();
+  return { meta: META, kinds: KINDS, stop: () => { over = true; stopAll(); fuera.abort(); } };
+}

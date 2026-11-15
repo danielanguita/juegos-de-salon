@@ -266,7 +266,7 @@ Microgames in the style of WarioWare (Nintendo): one quick order, 3 to 5 seconds
 
 Its page is `/in-a-flash/` (the lab's `/labs/microgames/` and `/microgames/` are bridges there); it stays hidden until the flag `microgames` is switched on (21:00 Pacific, 2026-11-14), with its launch splash. La Copa and Uno al día come later.
 
-Spec and design: [docs/games/in-a-flash.md](docs/games/in-a-flash.md)
+Spec and design: [docs/games/microgames.md](docs/games/microgames.md)
 
 ## 🪢 Hangman (El Ahorcado)
 
@@ -894,7 +894,7 @@ These documents are being moved to English (D-316); the ones with a Spanish titl
 - [Especificación: Cuarto Rey](docs/games/fourth-king.md)
 - [Diseño: Generala](docs/games/generala.md)
 - [Diseño: El Ahorcado](docs/games/hangman.md)
-- [⚡ ¡Al toque! (out of the lab: /in-a-flash/, launched by flags/microgames)](docs/games/in-a-flash.md)
+- [⚡ ¡Al toque! (out of the lab: /in-a-flash/, launched by flags/microgames)](docs/games/microgames.md)
 - [Diseño: Julepe](docs/games/julep.md)
 - [Diseño: Dudo](docs/games/liars-dice.md)
 - [👀 Memorice (lab prototype, in Games being tried)](docs/games/memory.md)
