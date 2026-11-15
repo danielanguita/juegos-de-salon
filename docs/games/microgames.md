@@ -58,7 +58,7 @@ dealt the same, and one already scored goes on to the next. **Reload:** the mark
 | 💨 Desliza (5) | ¡Corta! (any direction), ¡Rueda! (a steel ball on a track), ¡Dibuja!, ¡Sigue! (a rat), ¡Limpia! |
 
 Each game gives 0 to 3 stars, mostly by time or accuracy; the rules of each are in its comment in
-`game.js`.
+`stage.js`.
 
 ## ¡Pinball!
 

@@ -113,6 +113,12 @@
         "public/cup/games/flap/ui.js",
         "public/cup/games/index.js",
         "public/cup/games/mazos.js",
+        "public/cup/games/microgames/engine.js",
+        "public/cup/games/microgames/stage.js",
+        "public/cup/games/microgames/style.css",
+        "public/cup/games/microgames/texts.js",
+        "public/cup/games/microgames/tr.js",
+        "public/cup/games/microgames/ui.js",
         "public/cup/games/number/engine.js",
         "public/cup/games/number/ui.js",
         "public/cup/games/paint-mines/dibujos.js",
@@ -707,32 +713,6 @@
       "files": [
         "public/fourth-king/index.html"
       ]
-    },
-    {
-      "id": "microgames",
-      "emoji": "⚡",
-      "name": {
-        "es": "¡Al toque!",
-        "en": "In a Flash!",
-        "pt": "Na Hora!"
-      },
-      "players": "1",
-      "duration": "1–2",
-      "available": true,
-      "labs": false,
-      "status": null,
-      "modes": [],
-      "variants": [],
-      "screens": [],
-      "chat": false,
-      "files": [
-        "public/in-a-flash/engine.js",
-        "public/in-a-flash/game.js",
-        "public/in-a-flash/game.json",
-        "public/in-a-flash/index.html",
-        "public/in-a-flash/rules.js",
-        "public/in-a-flash/style.css"
-      ]
     }
   ],
   "standalone": [
@@ -1025,6 +1005,22 @@
       "labs": false,
       "bodega": false,
       "path": "sudoku/"
+    },
+    {
+      "id": "microgames",
+      "emoji": "⚡",
+      "name": {
+        "es": "¡Al toque!",
+        "en": "In a Flash!",
+        "pt": "Na Hora!"
+      },
+      "kinds": [
+        "skill"
+      ],
+      "duration": "1–2",
+      "labs": false,
+      "bodega": false,
+      "path": "in-a-flash/"
     }
   ],
   "themes": [
@@ -1182,7 +1178,6 @@
     "public/assets/js/manifests/cup.js",
     "public/assets/js/manifests/generala.js",
     "public/assets/js/manifests/hangman.js",
-    "public/assets/js/manifests/in-a-flash.js",
     "public/assets/js/manifests/labs/fourth-king.js",
     "public/assets/js/manifests/labs/julep.js",
     "public/assets/js/manifests/labs/transfer.js",
@@ -1293,6 +1288,11 @@
     "public/cup/games/flap/ui.js",
     "public/cup/games/index.js",
     "public/cup/games/mazos.js",
+    "public/cup/games/microgames/engine.js",
+    "public/cup/games/microgames/stage.js",
+    "public/cup/games/microgames/texts.js",
+    "public/cup/games/microgames/tr.js",
+    "public/cup/games/microgames/ui.js",
     "public/cup/games/number/engine.js",
     "public/cup/games/number/ui.js",
     "public/cup/games/paint-mines/dibujos.js",
@@ -1362,9 +1362,6 @@
     "public/hangman/engine.js",
     "public/hangman/game.js",
     "public/hangman/rules.js",
-    "public/in-a-flash/engine.js",
-    "public/in-a-flash/game.js",
-    "public/in-a-flash/rules.js",
     "public/labs/artifacts/engine.js",
     "public/labs/artifacts/game.js",
     "public/labs/artifacts/levels.js",
@@ -1527,6 +1524,8 @@
     "public/cup/games/flap/engine.test.mjs",
     "public/cup/games/juegos.test.mjs",
     "public/cup/games/lazy.test.mjs",
+    "public/cup/games/microgames/engine.test.mjs",
+    "public/cup/games/microgames/tr.test.mjs",
     "public/cup/games/paint-mines/engine.test.mjs",
     "public/cup/games/plots/engine.test.mjs",
     "public/cup/games/routes/engine.test.mjs",
@@ -1545,8 +1544,6 @@
     "public/hangman/fuzz.test.mjs",
     "public/hangman/replay.test.mjs",
     "public/home-preload.test.mjs",
-    "public/in-a-flash/engine.test.mjs",
-    "public/in-a-flash/rules.test.mjs",
     "public/labs/artifacts/engine.test.mjs",
     "public/labs/bodega.test.mjs",
     "public/labs/chameleon/engine.test.mjs",
@@ -1992,10 +1989,6 @@
       "title": "Diseño: El Ahorcado"
     },
     {
-      "path": "docs/games/microgames.md",
-      "title": "⚡ ¡Al toque! (out of the lab: /in-a-flash/, launched by flags/microgames)"
-    },
-    {
       "path": "docs/games/julep.md",
       "title": "Diseño: Julepe"
     },
@@ -2006,6 +1999,10 @@
     {
       "path": "docs/games/memory.md",
       "title": "👀 Memorice (lab prototype, in Games being tried)"
+    },
+    {
+      "path": "docs/games/microgames.md",
+      "title": "⚡ ¡Al toque! (/in-a-flash/, La Copa and Uno al día)"
     },
     {
       "path": "docs/games/paint-mines.md",
@@ -2113,7 +2110,6 @@
     "generala": 8,
     "batalla-naval": 7,
     "julepe": 10,
-    "cuarto-rey": 12,
-    "microgames": 0
+    "cuarto-rey": 12
   }
 }
