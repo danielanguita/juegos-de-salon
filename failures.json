@@ -3344,6 +3344,19 @@
         "stat": "1 file(s) +1 −0: docs/facts.json"
       },
       "flaky": false
+    },
+    {
+      "run": 43673641967,
+      "check": "tests",
+      "pr": 1463,
+      "branch": "al-toque-launch",
+      "commit": "b1076675fec55eec5337b3c45ad639301383b501",
+      "test": "tools/agents/english.test.mjs",
+      "error": "AssertionError [ERR_ASSERTION]: Spanish names not in docs/english-renames.json: name them in English, or add them with their English name (D-316): changelog/al-toque-launch.md\n+ actual - expected\ncode: 'ERR_ASSERTION',",
+      "signature": "f43b0bcdd7",
+      "date": "2026-11-15T03:45:40.809Z",
+      "fix": null,
+      "flaky": false
     }
   ]
 }
