@@ -4,7 +4,7 @@
 // game, the first intro wearing its type's gesture); ending the
 // run shows the verdict, the points and the 0–100 with each game's stars, and «Continuar» gives La Copa's
 // result with the breakdown. The waiting room in en and pt; at
-// 320 px no sideways scroll. Prints ✗ if anything fails.
+// 320 px no sideways scroll; Rankings has its tab (D-559). Prints ✗ if anything fails.
 import { output } from '../output.mjs';
 import { launch, sleep } from '../cdp.mjs';
 const OUT = output('/tmp/in-a-flash');
@@ -57,6 +57,13 @@ for (const [lang, name] of [['en', 'In a Flash!'], ['pt', 'Na Hora!']]) {
 
 await b.send('Emulation.setDeviceMetricsOverride', { width: 320, height: 640, deviceScaleFactor: 2, mobile: true }); await sleep(300);
 ok(await noSideScroll(), 'at 320 px no sideways scroll');
+
+// Rankings lists its table once launched (D-559)
+await b.send('Emulation.setDeviceMetricsOverride', { width: 375, height: 812, deviceScaleFactor: 2, mobile: true });
+await b.go(`${SITE}/records/?test`, 300);
+await ev(`localStorage.setItem('juegos-de-salon:flags', JSON.stringify({ microgames: { state: 'all' } })); 1`);
+await b.go(`${SITE}/records/?test`, 1000);
+ok(await waitFor(`!!document.querySelector('#rk-juegos button[data-id="microgames"]')`), 'Rankings has its tab, once launched (D-559)');
 
 ok(!b.errors.length, `no errors on the page ${JSON.stringify(b.errors)}`);
 b.close();
