@@ -3476,6 +3476,19 @@
       "date": "2026-11-15T15:01:07.539Z",
       "fix": null,
       "flaky": false
+    },
+    {
+      "run": 43727605427,
+      "check": "tests",
+      "pr": 1474,
+      "branch": "rankings-all-games",
+      "commit": "7af976776117baf940429390ceaa1ad4d8d3a18e",
+      "test": "README up to date",
+      "error": "ERROR · appeared tests: public/assets/js/rankings-coverage.test.mjs",
+      "signature": "e3009a0ae7",
+      "date": "2026-11-15T15:03:31.216Z",
+      "fix": null,
+      "flaky": false
     }
   ]
 }
