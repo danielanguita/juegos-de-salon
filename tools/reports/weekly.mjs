@@ -76,10 +76,12 @@ writeFileSync(archivo, Buffer.from(data, 'base64'));
 console.log(`✓ ${archivo}`);
 
 if (args.includes('--send')) {
+  // The panel's 📋 WBR for this same week (only the owner's account can open it)
+  const wbr = `https://juegosdesalon.cl/panel/#/wbr/${new Date(w.to * 864e5).toISOString().slice(0, 10)}`;
   const texto = [`Juegos de Salón · weekly report, ${r.desde} – ${r.hasta}`, '', ...destacados(r).map(x => `• ${x.replace(/<[^>]+>/g, '')}`), '',
-    ...r.titular.map(f => `${f.nombre}: ${f.ahora ?? '—'} (week before: ${f.antes ?? '—'})`), '', 'The full report is attached as a PDF.'].join('\n');
+    ...r.titular.map(f => `${f.nombre}: ${f.ahora ?? '—'} (week before: ${f.antes ?? '—'})`), '', `This week's WBR: ${wbr}`, 'The full report is attached as a PDF.'].join('\n');
   const html = `<div style="font-family:-apple-system,Helvetica,Arial,sans-serif;color:#1d1530"><p>Juegos de Salón · weekly report, ${r.desde} – ${r.hasta}</p><ul>${
-    destacados(r).map(x => `<li>${x}</li>`).join('')}</ul>${tablasTendencia(r.tendencia)}<p>The full report is attached as a PDF.</p></div>`;
+    destacados(r).map(x => `<li>${x}</li>`).join('')}</ul>${tablasTendencia(r.tendencia)}<p><a href="${wbr}">Open this week's WBR in the panel</a> · the full report is attached as a PDF.</p></div>`;
   const msg = { toOwner: true, subject: `📊 Juegos de Salón · week of ${r.desde} – ${r.hasta}`, text: texto, html, attachments: [archivo] };
   const res = spawnSync('python3', [join(ROOT, 'tools/agents/send-mail.py')], { input: JSON.stringify(msg), encoding: 'utf8' });
   if (res.status !== 0) fail(`✗ send-mail.py failed (its reason says whether the email went out): ${(res.stderr || res.stdout || '').trim()}`);

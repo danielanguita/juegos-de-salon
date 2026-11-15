@@ -10,7 +10,8 @@ from `origin/main` and follow it.
 2. **Once a week, not twice.** The report for the week that ended on Saturday is
    `~/Documents/Juegos de Salón/Weekly reports/juegos-de-salon-weekly-<that Saturday>.pdf`. If it
    already exists, this week's report already went out: stop and say so in one line.
-3. `node tools/reports/weekly.mjs --send`. It writes the PDF and emails it to the owner.
+3. `node tools/reports/weekly.mjs --send`. It writes the PDF and emails it to the owner, with a link to
+   that week's 📋 WBR in the panel (`/panel/#/wbr/<Saturday>`).
 4. Report in two lines: the file written and whether the email went out. If it failed (the Firebase
    key, the mail account or its sender, which must be hola@juegosdesalon.cl (D-443), Chrome), say
    which step and its error.

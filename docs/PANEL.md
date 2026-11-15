@@ -20,6 +20,13 @@ they worsen), 🔍 **Diagnosis** (tactical: funnels and breakdowns) and 🧭 **T
 or month, with 🚀 marking the versions that first showed up in each period). Every table has a
 ⬇︎ CSV button. The pure accounts are in `public/panel/dominios.js`.
 
+**📋 WBR, the Weekly Business Review** (`#/wbr`, `#/wbr/2026-11-14` for the week ending that Saturday): the
+weekly email's tables for any closed week, from `public/panel/wbr.js`, the same module the email uses:
+the headline (games finished and started, active browsers, daily active, games per active browser, visits)
+and the top 10 games, over the week, the four before, this month so far and the two before; "n/a" before
+a counter or a game existed. It downloads back to the first of the month two months before its week.
+On a phone its tables scroll sideways with the names pinned. The Sunday email links to its week.
+
 **Lab plays are out of every count of games (D-560).** Summary, Group, Individual and Audience read the
 days through `withoutLabGames(days, publicGameCheck(flags))` (`public/panel/public-games.js`): a play
 counts only if its game is in `ALL_GAMES` and is neither a lab game (`labs`) nor in La Bodega (or is one of

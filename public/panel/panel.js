@@ -41,6 +41,7 @@ import { dayOf as diaDe, toLocalInput, checkPick, switches, status as campaignSt
 import { TEMPLATES as SKINS } from '../assets/season/templates.js';
 import { stateOf as flagState, flag } from '../assets/js/flags.js';
 import { publicGameCheck, withoutLabGames, withoutLabCups } from './public-games.js';
+import { trend, trendStart, weekOf, isoDay, highlights, dayLabel as wbrDay } from './wbr.js';
 import { FLAGS } from '../assets/js/flag-list.js';
 import { SECCIONES, leerRuta, rutaA, rutaEnIngles, seccionDe } from './rutas.js';
 import { wireReleasePush } from './release-push.js';
@@ -205,7 +206,8 @@ function listen() {
   // (D-80): mirar un año son 365 días de registros, y no hay por qué pagarlos mientras se
   // mira la semana. Cambiar a un rango más corto no vuelve a pedir nada.
   // And the period before it, so every number can say how it changed (D-348)
-  const desde = Math.min(rangoAnterior(rangeOf(S.range)).from, S.desdeDia ?? Infinity);
+  // The WBR reads back to the first of the month two months before its week
+  const desde = Math.min(rangoAnterior(rangeOf(S.range)).from, S.desdeDia ?? Infinity, S.ruta?.sec === 'wbr' ? trendStart(weekOf(S.ruta.args[0])) : Infinity);
   S.desdeDia = desde;
   S.unsubDays = onValue(query(ref(db, `stats/${S.env}/days`), orderByKey(), startAt(String(desde))), snap => { S.days = snap.val() || {}; S.daysLoaded = true; render(); }, denied);
   // The cups that were still alive on the first day loaded (D-473): every number of a period
@@ -1264,6 +1266,37 @@ function filaError(g) {
 /** Un porcentaje que no esconde lo poco: 2 de 674 es 0,3 %, no 0 %. */
 const pctFino = (a, b) => (!b ? '—' : a && a / b < 0.01 ? `${((a / b) * 100).toLocaleString(LOCALE, { maximumFractionDigits: 1, minimumFractionDigits: 1 })}%` : porcentaje(a, b));
 
+/**
+ * 📋 WBR, the Weekly Business Review: the weekly email's tables, for any closed week (D-352, D-560).
+ * The headline and the top 10 games over the week, the four before it, this month so far and the
+ * two before; lab plays out. On a phone the tables scroll sideways with the names pinned.
+ */
+function vistaWbr(now) {
+  const w = weekOf(S.ruta.args[0], now);
+  const nota = 'The closed week (Sunday to Saturday, UTC) against the four before and the last three months, like the Sunday email. Lab plays left out (D-560).';
+  const cabeza = [...titulo(`📋 WBR · ${wbrDay(w.from).replace(/, \d{4}$/, '')} – ${wbrDay(w.to)}`, nota),
+    el('div', { class: 'wbr-nav' },
+      el('a', { class: 'btn btn--sm btn--ghost', href: ir('wbr', [isoDay(w.to - 7)]) }, '‹ Week before'),
+      w.to < weekOf(null, now).to ? el('a', { class: 'btn btn--sm btn--ghost', href: ir('wbr', [isoDay(w.to + 7)]) }, 'Week after ›') : null)];
+  if (!S.daysLoaded || !S.torneosLoaded) return [...cabeza, el('p', { class: 'empty' }, 'Loading…')];
+  const t = trend({ days: playerDays(), torneos: playerCups(), flags: S.flags || {} }, w);
+  const fmt = (v, dec) => (v === null ? 'n/a' : dec ? v.toFixed(1) : n(v));
+  const cambioTxt = c => (c === null || c === undefined ? '' : ` (${c > 0 ? '+' : c < 0 ? '−' : '±'}${Math.abs(c)}%)`);
+  const tabla = (filas, cabezaCol) => el('div', { class: 'wbr-scroll' }, el('table', { class: 'wbr' },
+    el('thead', {}, el('tr', {}, el('th', {}, cabezaCol), ...t.columnas.map((c, i) => el('th', { class: i === 5 ? 'wbr-mes' : null }, c)))),
+    el('tbody', {}, ...filas.map(([nombre, valores, cambio, dec]) => el('tr', {}, el('th', {}, nombre),
+      ...valores.map((v, i) => el('td', { class: [i === 0 ? 'wbr-ahora' : '', i === 5 ? 'wbr-mes' : ''].filter(Boolean).join(' ') || null },
+        i === 0 && v !== null ? [el('b', {}, fmt(v, dec)), cambioTxt(cambio)] : fmt(v, dec))))))));
+  return [...cabeza,
+    el('ul', { class: 'wbr-destacados' }, ...highlights(t).map(x => el('li', {}, x))),
+    el('h3', {}, 'Headline'),
+    tabla(t.metricas.map(m => [m.nombre, m.valores, m.cambio, m.decimales]), ''),
+    el('h3', {}, 'Top 10 games'),
+    el('p', { class: 'muted small' }, 'Games started; every mode and version, La Copa included. n/a: not measured yet, or the game was not out yet.'),
+    tabla(t.juegos.map((g, i) => [`${i + 1}. ${g.juego}${g.nuevo ? ` (out ${g.nuevo.replace(/, \d{4}$/, '')})` : ''}`, g.valores, g.cambio]), 'Game'),
+  ];
+}
+
 function vistaSalud(now) {
   const rango = rangeOf(S.range);
   const s = salud(S.days, { from: rango.from, to: rango.to });
@@ -2088,6 +2121,7 @@ function vistaCampanas(now) {
 /** Ícono y nombre de cada sección. El de The Cup sale del registro de juegos (C-16). */
 const SECCION = {
   resumen: ['📊', 'Summary'],
+  wbr: ['📋', 'WBR'],
   timeline: ['🕑', 'Timeline'],
   grupo: ['👥', 'Group'],
   individuales: ['🧍', 'Individual'],
@@ -2169,7 +2203,7 @@ function vistaLlaves(now) {
  * On a phone, five tabs and ☰ More (lab: #seccion-panel-nav-more): the rest open in a sheet, in groups.
  * A computer keeps the whole column.
  */
-const NAV_TABS = ['resumen', 'timeline', 'salud', 'feedback'];
+const NAV_TABS = ['resumen', 'wbr', 'salud', 'feedback'];
 const NAV_GROUPS = [['Players', ['grupo', 'individuales', 'usuarios']], ['Games', ['torneo', 'unoaldia']], ['Owner', ['trafico', 'campanas', 'llaves', 'labs']]];
 flag('panel-nav-more').then(on => { S.navMore = on; if (S.user) render(); }).catch(() => {});
 
@@ -2255,6 +2289,8 @@ function render() {
   if ((S.ruta.sec === 'campanas' || S.ruta.sec === 'llaves') && document.activeElement?.closest?.('#vista input')) return;
   MARCAS = versiones(S.days);
   const { sec, args } = S.ruta;
+  // The WBR has its own weeks: the range picker would only mislead there
+  const rangoLabel = $('#range')?.closest('label'); if (rangoLabel) rangoLabel.hidden = sec === 'wbr';
   let nodos;
   if (sec === 'torneo' && args[0]) nodos = vistaFichaCopa(args[0].toUpperCase(), now);
   else if (sec === 'torneo') nodos = vistaCopa(now);
@@ -2267,6 +2303,7 @@ function render() {
   else if (sec === 'ahora') nodos = vistaAhora(now);
   else if (sec === 'trafico') nodos = vistaTrafico(now);
   else if (sec === 'salud') nodos = vistaSalud(now);
+  else if (sec === 'wbr') nodos = vistaWbr(now);
   else if (sec === 'timeline') nodos = vistaTimeline(now);
   else if (sec === 'feedback') nodos = vistaFeedback(now);
   else if (sec === 'campanas') nodos = vistaCampanas(now);
@@ -2323,6 +2360,8 @@ function alCambiarRuta() {
   if (!S.ruta.r && S.range !== RANGO_POR_DEFECTO && antes.r) cambiarRango(RANGO_POR_DEFECTO, false);
   if ((S.ruta.e || ENV_DEFECTO) !== S.env) cambiarEntorno(S.ruta.e || ENV_DEFECTO, false);
   const otra = antes.sec !== S.ruta.sec || antes.args.join('/') !== S.ruta.args.join('/');
+  // A WBR week further back than what is downloaded asks for it (D-80)
+  if (S.ruta.sec === 'wbr' && S.user && S.desdeDia !== null && trendStart(weekOf(S.ruta.args[0])) < S.desdeDia) { S.daysLoaded = false; listen(); }
   if (otra) {
     S.logPage = 1; S.sinRedTodas = false; S.erroresTodos = false; S.tlPeriod = null; S.tlAll = false;
     if (S.ruta.args[0] !== antes.args[0]) S.fichaTab = 'tabla';
