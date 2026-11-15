@@ -3387,6 +3387,19 @@
       "date": "2026-11-15T03:56:43.895Z",
       "fix": null,
       "flaky": false
+    },
+    {
+      "run": 43674748683,
+      "check": "end-to-end",
+      "pr": 1463,
+      "branch": "al-toque-launch",
+      "commit": "2b18ed642ad40e2ac8a26abdc6f1bae647689218",
+      "test": "visual.mjs:in-a-flash",
+      "error": "❌ in-a-flash-intro: 2.42 % of the pixels changed (more than 0.3 %). If it is meant, approve it: node tools/e2e/visual.mjs --update --part in-a-flash; the new and the diff images are in /home/runner/wo",
+      "signature": "14104eb992",
+      "date": "2026-11-15T04:09:06.773Z",
+      "fix": null,
+      "flaky": false
     }
   ]
 }
