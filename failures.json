@@ -3361,6 +3361,32 @@
         "stat": "1 file(s) +0 −0: changelog/in-a-flash-launch.md"
       },
       "flaky": false
+    },
+    {
+      "run": 43673844220,
+      "check": "end-to-end",
+      "pr": 1463,
+      "branch": "al-toque-launch",
+      "commit": "251b7e6ee736db47b0021670224d0c1c92592509",
+      "test": "visual.mjs:in-a-flash",
+      "error": "❌ in-a-flash-intro: no reference (run node tools/e2e/visual.mjs --update --part in-a-flash and commit it)",
+      "signature": "54b4d16f98",
+      "date": "2026-11-15T03:56:43.895Z",
+      "fix": null,
+      "flaky": false
+    },
+    {
+      "run": 43673844220,
+      "check": "end-to-end",
+      "pr": 1463,
+      "branch": "al-toque-launch",
+      "commit": "251b7e6ee736db47b0021670224d0c1c92592509",
+      "test": "conformance.mjs:in-a-flash",
+      "error": "✗ in-a-flash · load: a screen is showing",
+      "signature": "b59e9c8eae",
+      "date": "2026-11-15T03:56:43.895Z",
+      "fix": null,
+      "flaky": false
     }
   ]
 }
