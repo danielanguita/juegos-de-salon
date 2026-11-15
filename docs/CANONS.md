@@ -669,6 +669,7 @@ Reinas, Tango, Babel or Shinobi are games exactly as Ahorcado, Generala or La Co
 
 - [ ] The modes it offers (all three, if it is for two) work and the game can be resumed in **all** of them (C-5, C-6).
 - [ ] The instructions follow U-18: the goal first, at most 3 points, without repeating the example drawing (C-1), and start folded on the cover (C-8, D-550).
+- [ ] The cover goes through `coverWithDialogs` (`cover-dialogs.js`), so behind the lab flag `cover-dialogs` its steps and sign-in open as the «📖 Instrucciones» and «👤 Entrar» dialogs, not a cover of its own (C-8).
 - [ ] The game's name is translated in `games.js` (and its `texts.js`), or its same name is justified in `SAME_NAME` (C-3, D-549, `game-names.test.mjs`).
 - [ ] All text is in Spanish, English and Portuguese (that of `IDIOMAS`, the lab's too), with the same keys in all, no loose strings in the code (C-3, D-191).
 - [ ] Its screens are in `tools/e2e/paths.mjs` and its `languages.mjs` passes in every language (C-12, D-199).
