@@ -3595,6 +3595,19 @@
         "stat": "2 file(s) +5 −5: public/cup/game.js, public/cup/style.css"
       },
       "flaky": false
+    },
+    {
+      "run": 43917425530,
+      "check": "tests",
+      "pr": 1492,
+      "branch": "uad-same-table",
+      "commit": "e897004dda30fe4b611c4a8ab0ce139e20fd7277",
+      "test": "tools/agents/document.test.mjs",
+      "error": "",
+      "signature": "754d57b1bc",
+      "date": "2026-11-16T17:22:25.939Z",
+      "fix": null,
+      "flaky": false
     }
   ]
 }
