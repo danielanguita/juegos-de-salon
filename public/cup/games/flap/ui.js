@@ -281,7 +281,7 @@ export function mount(raiz, ctx) {
 
 /**
  * What goes to the cup and to the result: the points (no cap), its card, the flying time without pauses
- * and the dead centers as the tiebreak `d` (more is better; La Copa sends it only with the lab flag `flap-tiebreak`).
+ * and the dead centers as the tiebreak `d` (more is better; La Copa ranks a tie by it, D-95's time only as a fallback).
  */
 export function result(e) {
   const s = score(e);

@@ -177,10 +177,9 @@ and ranking table). It is in the three languages.
 - **Fair:** the course comes from `generateDay(code, day)`'s seed: everyone flies the same gates (their
   heights and sizes; the spacing follows the screen's width, `fit`). The trial flies with one life.
 - **Score:** the game's points with no cap (a gate 1, dead center 2); Uno al día maps them with
-  `100 × (1 − e^(−points/30))` (10 → 28, 30 → 63, 60 → 86). Ties: less flying time wins; with the lab flag
-  `flap-tiebreak`, more dead centers 🎯 win instead (the result's `d`, `posicionesDelDia`), and an equal
+  `100 × (1 − e^(−points/30))` (10 → 28, 30 → 63, 60 → 86). Ties in La Copa: more dead centers 🎯 win (the result's `d`, `posicionesDelDia`), and an equal
   count shares the place: everyone flies the same course, so equal points end within a frame or two
-  (Thursday's Guys #7: 48 and 48, 1 ms apart).
+  and the flying time only measured the phone's frames (Thursday's Guys #7: 48 and 48, 1 ms apart).
 - **A reload mid-game** ends that game with the points it had (state saved after each gate), as Babel.
 - **Names in English** (D-316): the engine and screen export `generateDay`, `dayScore`, `cover`, `title`,
   `mount`, `result`, `breakdown`; `cup/games/index.js` maps them to La Copa's Spanish interface.

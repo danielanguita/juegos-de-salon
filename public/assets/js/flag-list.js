@@ -25,7 +25,6 @@ export const FLAGS = {
   'uad-clean-hero': '📅 Uno al día: a cleaner points box, your place big, last month\'s crown on its own, the streak in one line',
   'uad-month-end': '🥇 Uno al día: month-end window with your place, a medal for the podium',
   'stack': '🗼 Babel: the game, on the home page, the search and new cups (D-517), with its background music',
-  'flap-tiebreak': '🐤 Aletazo in La Copa: a tie goes to more dead centers 🎯 instead of less flying time; still equal, the place is shared',
   'aletazo': '🐤 Aletazo: the game, on the home page, the search and new cups (D-517\'s way), launched 2026-11-09 at 00:00 Pacific',
   'sudoku': '#️⃣ Sudoku: the game, on the home page, the search and new cups (D-517\'s way), launching 2026-11-11 at 21:00 Pacific',
   'microgames': '⚡ ¡Al toque!: the game, on the home page and the search (D-517\'s way), launching 2026-11-14 at 21:00 Pacific',

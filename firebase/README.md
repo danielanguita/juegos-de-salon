@@ -74,7 +74,7 @@ own tree because they last a week and rooms die after half an hour (D-89).
 - `players/<pid>` is created by the player themselves before the final; afterwards only the admin changes it.
 - `started`, `results` and `wild` are written only once, by the seated player and within the
   window of their day. A result is `{ s, ms, d?, t, r, at }`; `d`, a game's own tiebreak (Aletazo's dead centers,
-  lab flag `flap-tiebreak`), is a number from 0 to 1000 (`firebase/cup-tiebreak.test.mjs`). The wildcard, also, only before `started` and never on the final's day (any day in a cup without a final). An unused one that lands on its own before the final (D-444) is computed when read and writes nothing, so the rules do not change for it.
+  since 2026-11-16), is a number from 0 to 1000 (`firebase/cup-tiebreak.test.mjs`). The wildcard, also, only before `started` and never on the final's day (any day in a cup without a final). An unused one that lands on its own before the final (D-444) is computed when read and writes nothing, so the rules do not change for it.
 - `started` is also refused to a player out of the cup (D-347): two days in a row closed without a
   result, counting only days that closed after their `at` and after their `back` (the admin's
   «Devolver a la copa», server time). The rule repeats the condition for each pair of days up to

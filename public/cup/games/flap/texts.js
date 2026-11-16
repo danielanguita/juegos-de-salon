@@ -15,8 +15,7 @@ const ES = {
     ],
     puntaje: 'Cada aro o hueco vale 1 punto; por el medio de un aro, 2.',
     puntajeFinal: 'En la final cuentan tus puntos tal cual, hasta un máximo de 100.',
-    desempate: 'Si empatas, gana quien voló menos tiempo.',
-    desempateCentros: 'Si empatas, gana quien pasó más veces por el medio de un aro; si siguen empatados, comparten el lugar.',
+    desempate: 'Si empatas, gana quien pasó más veces por el medio de un aro; si siguen empatados, comparten el lugar.',
   },
   ui: {
     flTap: '👆 Toca para aletear',
@@ -49,8 +48,7 @@ const EN = {
     ],
     puntaje: 'Each hoop or gap is 1 point; through a hoop\'s middle, 2.',
     puntajeFinal: 'In the final your points count as they are, up to 100.',
-    desempate: 'If you tie, whoever flew for less time wins.',
-    desempateCentros: 'If you tie, whoever went through the middle of a hoop more often wins; if still tied, you share the place.',
+    desempate: 'If you tie, whoever went through the middle of a hoop more often wins; if still tied, you share the place.',
   },
   ui: {
     flTap: '👆 Tap to flap',
@@ -83,8 +81,7 @@ const PT = {
     ],
     puntaje: 'Cada aro ou brecha vale 1 ponto; pelo meio de um aro, 2.',
     puntajeFinal: 'Na final seus pontos contam como estão, até no máximo 100.',
-    desempate: 'Se empatar, ganha quem voou por menos tempo.',
-    desempateCentros: 'Se empatar, ganha quem passou mais vezes pelo meio de um aro; se continuarem empatados, dividem o lugar.',
+    desempate: 'Se empatar, ganha quem passou mais vezes pelo meio de um aro; se continuarem empatados, dividem o lugar.',
   },
   ui: {
     flTap: '👆 Toque para bater as asas',
