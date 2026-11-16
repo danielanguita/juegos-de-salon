@@ -3606,7 +3606,11 @@
       "error": "",
       "signature": "754d57b1bc",
       "date": "2026-11-16T17:22:25.939Z",
-      "fix": null,
+      "fix": {
+        "commit": "65f2c6ef5265c75617343f41929d2aecd1100d80",
+        "date": "2026-11-16T17:24:50.957Z",
+        "stat": "2 file(s) +3 −2: docs/DECISIONS.md, docs/decisions/D-500.md"
+      },
       "flaky": false
     }
   ]
