@@ -3623,7 +3623,11 @@
       "error": "ERROR · the block \"tests\" went stale  →  python3 tools/release/readme.py update\nERROR · appeared tests: firebase/cup-tiebreak.test.mjs",
       "signature": "f09b74ef64",
       "date": "2026-11-16T18:40:45.750Z",
-      "fix": null,
+      "fix": {
+        "commit": "3db8a1c577bba79ee10ac96cb0f36161534a7aff",
+        "date": "2026-11-16T18:43:06.057Z",
+        "stat": "2 file(s) +2 −0: README.md, docs/facts.json"
+      },
       "flaky": false
     }
   ]
