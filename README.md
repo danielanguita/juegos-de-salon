@@ -514,6 +514,7 @@ node public/liars-dice/engine.test.mjs
 node public/timeline/engine.test.mjs
 node firebase/controls.test.mjs
 node firebase/cup-talk.test.mjs
+node firebase/cup-tiebreak.test.mjs
 node firebase/flags.test.mjs
 node firebase/lab-ready.test.mjs
 node firebase/labs-publish.test.mjs
