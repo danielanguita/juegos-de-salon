@@ -530,7 +530,7 @@ node tools/push/webpush.test.mjs                   # el cifrado y la firma, cont
 
 Behind the flag `cup-talk`. Today's comments on a player are stacked on their row of the table for everyone
 (`comentariosEnFila`); once you played today, a 💬 under the points (`botonCharla`) opens a text field under
-that row (`cajonCharla`), one comment per author and row. A tap redraws the board where it was (`tableroEnSuSitio`). The target can hide a comment on their row, the author can delete theirs.
+that row (`cajonCharla`), one comment per author and row. A tap redraws the board where it was (`tableroEnSuSitio`). The target can hide a comment on their row, the author can edit theirs («Editar» reopens the field already filled) or delete it.
 The pure part is `talk.js` (`talk.test.mjs`), the drawer is drawn by `pintarCharla` in `game.js`, both stores
 answer `escucharCharla`, `decir` and `ocultar`; offline it is not drawn. Stored in `cupTalk/` and
 `cupTalkHidden/` (firebase/README.md), deleted when the cup ends. End to end: `tools/e2e/cup/talk.mjs`.

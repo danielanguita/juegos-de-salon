@@ -118,7 +118,7 @@ seats and key changes on the real rules file.
 ## La Copa: reactions and comments (D-562, lab)
 
 - `cupTalk/<code>/<day>/<target>/<author>` `{ e?, c?, at }`: the author's reaction (`fire`, `laugh`,
-  `clap`, `wow`, `sad`, `crown`) and comment (1 to 120 characters, never edited, only deleted) on the
+  `clap`, `wow`, `sad`, `crown`) and comment (1 to 120 characters, the author edits or deletes it) on the
   target's result of that day. Written only from a phone seated as the author, when both have a result
   that day, while the cup is on (`meta/end` not passed, no `fin`). `at` is the server time.
 - `cupTalkHidden/<code>/<day>/<target>/<author>` `true`: the target hid that comment. Only a phone

@@ -3,7 +3,7 @@
 // is talked about): a 💬 under each player's points opens a text field under the row, without moving
 // the page; the comment (emojis in the text) shows stacked on that player's row for everyone, in the
 // order they came; one per player and row, so the 💬 goes; an offensive one is stopped; the author
-// deletes theirs; the row's player hides one and shows it again. Three languages, no sideways scroll.
+// edits theirs (the field opens filled) and deletes it; the row's player hides one and shows it again. Three languages, no sideways scroll.
 import { output } from '../output.mjs';
 import { launch, sleep } from '../cdp.mjs';
 import { LOCALES } from '../../../public/cup/rules.js';
@@ -77,6 +77,11 @@ await ev(`${row(ME)}.scrollIntoView({block:'start'})`);
 await b.shot('cup-talk');
 await ev(`${row(ME)}.querySelector('.fila-comentario.oculto .charla-accion').click()`);
 ok(await waitFor(`!${row(ME)}.querySelector('.fila-comentario.oculto')`), 'and show it again');
-await ev(`window.confirm=()=>true; [...${row(OTHER)}.querySelectorAll('.fila-comentario')].find(p=>p.textContent.includes('Qué buen día')).querySelector('.charla-accion').click()`);
-ok(await waitFor(`!${comments(OTHER)}.some(t=>t.includes('Qué buen día')) && !!${row(OTHER)}.querySelector('.fila-charla')`), 'the author deletes theirs, and the 💬 comes back');
+// Edit mine: the same field under the row, already filled
+await ev(`[...${row(OTHER)}.querySelectorAll('.fila-comentario')].find(p=>p.textContent.includes('Qué buen día')).querySelector('.charla-editar').click()`);
+ok(await waitFor(`document.querySelector('.charla-input')?.value==='🔥 ¡Qué buen día!' && document.getElementById('charla').previousElementSibling===${row(OTHER)}`), 'Edit opens the field under the row with my comment');
+await write('🔥🔥 ¡Qué buen día, crack!');
+ok(await waitFor(`${comments(OTHER)}.some(t=>t.includes('crack')) && !${comments(OTHER)}.some(t=>t.includes('día!'))`), 'the edited comment replaces it, in its place');
+await ev(`window.confirm=()=>true; [...${row(OTHER)}.querySelectorAll('.fila-comentario')].find(p=>p.textContent.includes('crack')).querySelector('.charla-accion:not(.charla-editar)').click()`);
+ok(await waitFor(`!${comments(OTHER)}.some(t=>t.includes('crack')) && !!${row(OTHER)}.querySelector('.fila-charla')`), 'the author deletes theirs, and the 💬 comes back');
 await b.close();
