@@ -79,8 +79,8 @@ link can still name another, `e=`); the search box by room or cup code is gone (
 still opened by its link, `#/cup/<code>`, `#/room/<code>`).
 
 **La hora es la del Pacífico** (Los Ángeles), la misma con que La Copa parte sus días: la hora de
-un juego y la ventana de su día se leen en el mismo reloj. Los contadores de `stats/` siguen por
-día UTC y se rotulan así; la hora del gráfico de audiencia es la local del celular.
+un juego y la ventana de su día se leen en el mismo reloj. The `stats/` counters are stored by UTC day but every
+view regroups them by Pacific date (D-561, below); la hora del gráfico de audiencia es la local del celular.
 
 **Cada nombre lleva la bandera de su país.** En las salas sale de `co` (D-79). En La Copa, de
 `co` en `torneos/<código>/players/<pid>`, que la copa guarda al crear o inscribirse desde esta
