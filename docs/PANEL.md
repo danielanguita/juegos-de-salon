@@ -21,7 +21,7 @@ or month, with 🚀 marking the versions that first showed up in each period). E
 ⬇︎ CSV button. The pure accounts are in `public/panel/dominios.js`.
 
 **📋 WBR, the Weekly Business Review** (`#/wbr`, `#/wbr/2026-11-14` for the week ending that Saturday): the
-weekly email's tables for any closed week, from `public/panel/wbr.js`, the same module the email uses:
+weekly email's tables for any closed week, by Pacific date (D-561), from `public/panel/wbr.js`, the same module the email uses:
 the headline (games finished and started, active browsers, daily active, games per active browser, visits)
 and the top 10 games, over the week, the four before, this month so far and the two before; "n/a" before
 a counter or a game existed. It downloads back to the first of the month two months before its week.
@@ -269,8 +269,10 @@ las cifras reales. `lab` quedó solo para leer lo que se guardó mientras existi
 - **Entradas de un celular a una partida**, y también *De dónde*, los idiomas y la hora, suben
   una vez cada vez que un celular empieza o entra a una partida: el mismo celular que juega cinco
   revanchas suma cinco. No son personas.
-- **Los días son días UTC**: en Chile el día del panel cambia a las 21:00 (verano) o 20:00
-  (invierno). La hora de *A qué hora se juega* sí es la local del celular, tomada al empezar.
+- **Los días son días UTC** in these views, for now: en Chile el día del panel cambia a las 21:00 (verano) o 20:00
+  (invierno). **The owner's timeframes are Pacific (D-561):** 📋 WBR, the weekly email and 🕑 Timeline read Pacific dates
+  (`toPacificDays` in `wbr.js`); any new period built for the owner is Pacific from the start, and a view moved off UTC
+  days goes through `toPacificDays`. La hora de *A qué hora se juega* sí es la local del celular, tomada al empezar.
 
 Vale también para la lista de "Now", aunque ahí cueste un rodeo: `rooms/` es el nodo real
 del transporte y es uno solo para todos los entornos, así que una partida de prueba abre una

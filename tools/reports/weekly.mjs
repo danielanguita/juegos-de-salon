@@ -48,7 +48,7 @@ const t = await token();
 // …and back to the first of the month two months before, for the trend tables
 const fd = new Date(w.to * 864e5), desdeMes = Date.UTC(fd.getUTCFullYear(), fd.getUTCMonth() - 2, 1) / 864e5;
 const [days, torneos, historia, invitados, rachas, feedback, flags] = await Promise.all([
-  leer('stats/prod/days', t, { orderBy: '$key', startAt: String(Math.min(w.from - 7 - 28, desdeMes)) }),
+  leer('stats/prod/days', t, { orderBy: '$key', startAt: String(Math.min(w.from - 7 - 28, desdeMes) - 1) }),
   // Uno al día from the previous week on, through the index by day (D-475)
   leer('torneos', t), readHistory(t, w.from - 7, { databaseURL: firebaseConfig.databaseURL }), leer('invitados', t), leer('records/uno-al-dia-racha/siempre', t), leer('feedback', t), leer('flags', t),
 ]);

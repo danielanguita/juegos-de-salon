@@ -436,6 +436,8 @@ stats/prod/days/20342/
   vuelta/d2-7: 4                       days since the browser's last visit, by band
   frec/f3-7: 6                         how many of the last 28 days the browser came, by band
   activos/k3j9x0q2ab: 2                a browser's random id: 1 visited, 2 started something (D-349)
+  activosPt/20773/k3j9x0q2ab: 2        the same, under the Pacific date (day number) of the moment (D-561)
+  entradasPt/20773/cup: 4              first pages of a visit, under the Pacific date (D-561)
   support/open: 1                      ☕ Buy me a coffee, by step: shown, open, pay, thanks (D-448, in the lab)
   splash/brindis-apoyo/reach: 4        splash windows, by campaign and event (D-461)
 stats/prod/push: { vuelta, vivas, torneos }   notify.mjs's last run and how many subscriptions are still alive
@@ -465,7 +467,9 @@ stats/prod/push: { vuelta, vivas, torneos }   notify.mjs's last run and how many
 - Domains (D-348, D-349): `fin`, `otra`, `comparte`, `vuelta` and `frec` are counters like the
   others (start at 1, go up by one; keys by shape). `activos/<id>` is the only key that names a
   browser: a random 10-character id (`^[a-z0-9]{10}$`) kept in `localStorage`, whose value can only
-  be 1 or 2 and never go down. Nothing else goes with it.
+  be 1 or 2 and never go down. Nothing else goes with it. `activosPt/<day>/<id>` and
+  `entradasPt/<day>/<page>` (D-561) repeat `activos/` and `entradas/` filed by Pacific date (the day
+  number by shape), with the same values and rules (`firebase/stats-pacific.test.mjs`).
 - Support (D-448): `support/<event>` is a counter like the others, uploaded by `support.js`; unlike
   the categories above, the event is validated **by list** (`shown`, `open`, `pay`, `thanks`), so a
   new step does force touching the rules. Only counts: nothing says who supported or how much.

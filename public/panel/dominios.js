@@ -289,8 +289,8 @@ export const ordenTramos = obj => Object.entries(obj).sort((a, b) => {
  * pressed Empezar) → finished with 2 or more. Participation by day number of the Cup (where people
  * drop), players out of the cup (D-347) and brought back by the admin.
  */
-export function embudoCopas(torneos, { from, to }, now = Date.now()) {
-  const enRango = copasDe(torneos).filter(L => { const d = dayOf(L.meta.createdAt || 0); return d >= from && d <= to; });
+export function embudoCopas(torneos, { from, to }, now = Date.now(), { dayFn = dayOf } = {}) {
+  const enRango = copasDe(torneos).filter(L => { const d = dayFn(L.meta.createdAt || 0); return d >= from && d <= to; });
   const porDia = {};
   let conGente = 0, partieron = 0, terminadas = 0, fueraN = 0, devueltos = 0, jugadores = 0;
   for (const L of enRango) {
