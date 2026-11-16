@@ -717,10 +717,10 @@ body.pantalla-completa #jugar-reglas .reglas[open] > summary { position: sticky;
 /* Reactions and comments on each other's results (D-562, lab: #seccion-cup-talk): a 💬 at the end of
    each row of the table, and the open row's drawer right under it */
 .fila-der { display: flex; flex-direction: column; align-items: flex-end; gap: var(--s-4); }
-/* Smaller than a tap target to sit under the points; its ::before keeps the 44 px area (U-10) */
-.fila-charla { position: relative; min-width: 40px; height: 28px; padding: 0 var(--s-6); font-size: var(--fs-100); line-height: 1; background: var(--glass); border: 1px solid var(--glass-border); border-radius: var(--r-pill); cursor: pointer; }
-.fila-charla::before { content: ''; position: absolute; inset: calc(-1 * var(--s-8)) calc(-1 * var(--s-2)); }
-.fila-charla.on { background: rgb(var(--cyan-rgb) / 0.3); border-color: var(--cyan); }
+/* A 44 px button (U-10) with a smaller pill inside, so it sits under the points */
+.fila-charla { display: grid; place-items: center end; min-width: 44px; height: 44px; margin: calc(-1 * var(--s-8)) 0; padding: 0; background: none; border: 0; cursor: pointer; }
+.fila-charla-pill { position: relative; display: grid; place-items: center; min-width: 40px; height: 28px; padding: 0 var(--s-6); font-size: var(--fs-100); line-height: 1; background: var(--glass); border: 1px solid var(--glass-border); border-radius: var(--r-pill); }
+.fila-charla.on .fila-charla-pill { background: rgb(var(--cyan-rgb) / 0.3); border-color: var(--cyan); }
 .fila-charla-n { position: absolute; top: calc(-1 * var(--s-4)); right: calc(-1 * var(--s-4)); min-width: 1.5em; padding: 0 var(--s-4); border-radius: var(--r-pill); background: var(--pink); color: var(--ink); font: 800 var(--fs-75) var(--font-num); line-height: 1.5; }
 .charla-cajon { margin-top: calc(-1 * var(--s-2)); padding: var(--s-10) var(--s-12); background: rgb(var(--cp-negro-rgb) / 0.32); border-radius: var(--r-12); }
 .charla-nota { margin: 0 0 var(--s-8); font-size: var(--fs-85); }

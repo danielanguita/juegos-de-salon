@@ -1050,7 +1050,7 @@ function botonCharla(pid, now) {
   return el('button', {
     type: 'button', class: 'fila-charla' + (abierto ? ' on' : ''), 'aria-expanded': String(abierto), 'aria-label': T.talkTitle, 'data-pid': pid,
     onClick: () => { SFX.tap(); C.abierto = abierto ? null : pid; C.dia = null; C.borrador = null; tablero(); },
-  }, '💬', n ? el('span', { class: 'fila-charla-n' }, String(n)) : null);
+  }, el('span', { class: 'fila-charla-pill' }, '💬', n ? el('span', { class: 'fila-charla-n' }, String(n)) : null));
 }
 
 /** Under the open row: that player's results of the days you both played, one day at a time. */
