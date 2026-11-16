@@ -1071,7 +1071,7 @@ function filaCharla(Lc, d, pid, p, now) {
   };
   const cuenta = reactions.length ? el('span', { class: 'charla-cuenta' }, reactions.map(x => el('span', { title: T.talkReactions[x.key] }, x.n > 1 ? `${x.emoji}${x.n}` : x.emoji))) : null;
   const lista = comments.map(x => el('p', { class: 'charla-comentario' + (x.h ? ' oculto' : '') },
-    el('b', {}, x.author === S.yo ? T.you : nombre(x.author)), ` ${x.c}`,
+    el('b', {}, x.author === S.yo ? T.you : nombre(x.author)), `: ${x.c}`,
     x.h ? el('small', { class: 'muted' }, ` · ${T.talkHidden}`) : null,
     x.author === S.yo ? el('button', { type: 'button', class: 'link-btn charla-accion', onClick: () => {
       if (!confirm(T.talkDeleteConfirm)) return;
