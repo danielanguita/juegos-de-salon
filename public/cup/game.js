@@ -1064,7 +1064,10 @@ function comentariosEnFila(pid, now) {
     x.h ? el('span', { class: 'fila-comentario-nota' }, ` · ${T.talkHidden}`) : null,
     // The author edits theirs in the same field, already filled (the owner, 2026-11-16), or deletes it
     x.author === S.yo ? el('button', { type: 'button', class: 'link-btn charla-accion charla-editar', onClick: () => {
-      SFX.tap(); C.abierto = pid; C.editando = true; C.borrador = null; tableroEnSuSitio(); C.borrador?.input.focus();
+      SFX.tap();
+      // A second tap closes it, as the 💬 does
+      const cerrar = C.abierto === pid && C.editando;
+      C.abierto = cerrar ? null : pid; C.editando = !cerrar; C.borrador = null; tableroEnSuSitio(); C.borrador?.input.focus();
     } }, T.talkEdit) : null,
     x.author === S.yo ? el('button', { type: 'button', class: 'link-btn charla-accion', onClick: async () => {
       if (!confirm(T.talkDeleteConfirm)) return;
@@ -1105,9 +1108,12 @@ function borrador(d, pid, inicial = '') {
   const enviar = async () => {
     const problema = commentProblem(input.value);
     if (problema) { aviso.textContent = problema === 'offensive' ? T.talkOffensive : T.talkEmpty; input.focus(); return; }
-    boton.disabled = true;
-    try { await store.decir(S.code, d, pid, S.yo, { c: cleanComment(input.value) }); } catch (e) {
-      aviso.textContent = errorDe(e); boton.disabled = false; return;
+    // Unchanged text: nothing to send
+    if (cleanComment(input.value) !== inicial) {
+      boton.disabled = true;
+      try { await store.decir(S.code, d, pid, S.yo, { c: cleanComment(input.value) }); } catch (e) {
+        aviso.textContent = errorDe(e); boton.disabled = false; return;
+      }
     }
     SFX.tap();
     C.abierto = null; C.editando = false; C.borrador = null; C.pendiente = false;
