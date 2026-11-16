@@ -38,7 +38,7 @@ export const VALORES = {
   demo: { nueva: 'new', invitado: 'guest', espera: 'waiting', 'sin-jugar': 'not-started', jugador: 'player', podio: 'podium', llena: 'full' },
   daily: { boton: 'button', tarjeta: 'card', no: 'off' },
   // Los avisos (D-233, D-230). La clave que cuenta el panel sigue siendo la de antes: ver AVISO_CLAVE
-  notif: { dia: 'day', plazo: 'deadline', fin: 'end', insc: 'signup', copas: 'cups', prueba: 'test', uaddia: 'dailyday', uadracha: 'dailystreak', uadsemana: 'dailyweek', uadadios: 'dailybye' },
+  notif: { dia: 'day', plazo: 'deadline', fin: 'end', insc: 'signup', copas: 'cups', prueba: 'test', uaddia: 'dailyday', uadracha: 'dailystreak', uadsemana: 'dailyweek', uadadios: 'dailybye', charla: 'comment' },
 };
 
 /** De un aviso de la URL (`notif=deadline`) a su contador en el panel (`aviso/plazo`), que no cambia. */

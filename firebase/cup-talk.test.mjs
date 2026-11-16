@@ -59,4 +59,11 @@ ok(as(ANA, { [path(1, BEA, ANA)]: { c: 'Revancha', at: ts } }), 'a new comment',
 ok(as(BEA, { [hide(1, BEA, ANA)]: true }), 'hidden', db);
 ok(as(CAR, { [`cupTalk/${CODE}`]: null, [`cupTalkHidden/${CODE}`]: null }), 'the admin deletes it with the cup', db);
 
+// The "Comentarios" switch of the cup's notifications (D-564): pushCopa/<code>/<pid>/<subId>/charla
+const SUB = 'a'.repeat(32);
+const pref = extra => ({ [`push/${SUB}`]: { endpoint: 'https://p.example/x', keys: { p256dh: 'k', auth: 'a' }, lang: 'es', tz: 'America/Santiago', uid: UID[ANA], at: T0 }, [`pushCopa/${CODE}/${ANA}/${SUB}`]: { dia: true, plazo: true, at: T0, ...extra } });
+ok(as(ANA, pref({})), 'without the switch, as before', db);
+ok(as(ANA, pref({ charla: false })), 'the switch saves charla: false', db);
+ok(as(ANA, pref({ charla: true })), 'and true', db);
+no(as(ANA, pref({ charla: 'yes' })), 'only a boolean');
 console.log('✓ cup-talk rules');

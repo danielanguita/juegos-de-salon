@@ -1,7 +1,7 @@
 /**
  * Which La Copa notification is due now, and to whom (D-224). A pure function: it takes the cup,
  * who wants notifications, the subscriptions and what was already sent, and returns the list.
- * notify.mjs runs it every 15 minutes; the tests, with made-up clocks. It uses the cup's logic
+ * notify.mjs runs it every 5 minutes (D-564); the tests, with made-up clocks. It uses the cup's logic
  * (cup/engine.js): the days, their windows and the table are the same the player sees.
  *
  * The notifications (docs/PWA-NOTIFICACIONES.md), by kind (the kinds and keys are stored in
@@ -57,7 +57,8 @@ export function localDate(t, tz) {
 /** How many of this cup's notifications reached this phone today (in its zone): one delivery, one notification. */
 export function sentToday(sentToSub = {}, now, tz) {
   const today = localDate(now, tz);
-  return new Set(Object.values(sentToSub || {}).filter(t => typeof t === 'number' && localDate(t, tz) === today)).size;
+  // The comment notifications (talk.mjs, D-564) do not count: they have their own limit
+  return new Set(Object.entries(sentToSub || {}).filter(([k, t]) => !k.startsWith('charla:') && typeof t === 'number' && localDate(t, tz) === today).map(([, t]) => t)).size;
 }
 
 /** The hour (0–23) in the recipient's zone; an invalid zone counts as UTC. */

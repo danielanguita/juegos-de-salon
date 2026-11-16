@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * Sends the La Copa notifications that are due now (D-224). `.github/workflows/notifications.yml`
- * runs it every 15 minutes; it can also be run by hand:
+ * runs it every 5 minutes (D-564); it can also be run by hand:
  *
  *   node tools/push/notify.mjs                # sends what is due
  *   node tools/push/notify.mjs --dry-run      # says what it would send, without sending or recording anything
@@ -14,6 +14,7 @@
  * - it records each delivered notification in `pushEnviados/<code>/<subId>/<key>`, so as not to repeat it;
  * - it deletes the subscriptions the service declared dead (404 or 410) and their cups;
  * - it cleans what belongs to cups that ended more than a week ago or no longer exist;
+ * - it also sends the comment notifications of each cup (talk.mjs, D-564);
  * - it also sends One a Day's (`pushDia`, daily.mjs, D-230) and records them in
  *   `pushEnviadosDia/<subId>/<key>`;
  * - it adds up what was delivered per day and kind in `stats/prod/days/<day>/mandados/<kind>` and
@@ -28,6 +29,7 @@
 import { firebaseConfig } from '../../public/assets/js/firebase-config.js';
 import { VAPID_PUBLICA } from '../../public/assets/js/vapid.js';
 import { cupNotifications, testNotifications, merge } from './schedule.mjs';
+import { talkNotifications } from './talk.mjs';
 import { dailyNotifications, stale } from './daily.mjs';
 import { sumarDias } from '../../public/assets/js/uno-al-dia.js';
 import { send } from './webpush.mjs';
@@ -42,7 +44,9 @@ export const STATS_ENV = 'prod';
  * `db.read(path)` and `db.update({ path: value|null })`; `deliver(sub, notification)` → { status, dead, text }.
  */
 export async function round({ db, deliver, now = Date.now(), dryRun = false, testCode = '', log = console.log }) {
-  const [allWants, subs, allSent] = await Promise.all([db.read('pushCopa'), db.read('push'), db.read('pushEnviados')]);
+  const [allWants, subs, allSent, talkFlag] = await Promise.all([db.read('pushCopa'), db.read('push'), db.read('pushEnviados'), db.read('flags/cup-talk-push')]);
+  // Comment notifications (D-564): for everyone once the flag is 'all', before that only to who turned them on
+  const flagAll = talkFlag?.state === 'all';
   const summary = { cups: 0, notifications: 0, delivered: 0, dead: 0, failures: 0, cleaned: 0 };
   const changes = {};
   const dead = new Set();
@@ -60,6 +64,10 @@ export async function round({ db, deliver, now = Date.now(), dryRun = false, tes
     summary.cups++;
     names[code] = cup.meta.name;
     all.push(...(testCode ? testNotifications({ code, cup, wants, subs: subs || {} }) : cupNotifications({ code, cup, wants, subs: subs || {}, sent: allSent?.[code] || {}, now })));
+    if (!testCode) {
+      const [talk, hidden] = await Promise.all([db.read(`cupTalk/${code}`), db.read(`cupTalkHidden/${code}`)]);
+      if (talk) all.push(...talkNotifications({ code, cup, talk, hidden: hidden || {}, wants, subs: subs || {}, sent: allSent?.[code] || {}, now, flagAll }));
+    }
   }
   for (const p of merge(all, subs || {}, names)) {
     summary.notifications++;

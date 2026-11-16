@@ -1659,6 +1659,7 @@
     "tools/push/notify.test.mjs",
     "tools/push/release.test.mjs",
     "tools/push/schedule.test.mjs",
+    "tools/push/talk.test.mjs",
     "tools/push/webpush.test.mjs",
     "tools/referee/gateway.test.mjs",
     "tools/release/changelog.test.mjs",

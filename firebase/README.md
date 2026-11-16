@@ -253,7 +253,7 @@ The owner (their UID) can write and delete in all these branches, to moderate: a
   sha256). **Nobody reads it**: only the service account that sends the notifications (`tools/push/notify.mjs`, D-224), which doesn't go through
   the rules. Only the phone of that `uid` writes and deletes it, with the shape validated (`endpoint`
   https, `lang` among the four languages, `at` not later than the server time).
-- `pushCopa/<código>/<pid>/<subId>` = `{ dia, plazo, at }`: which notifications that player wants in that
+- `pushCopa/<código>/<pid>/<subId>` = `{ dia, plazo, charla?, at }` (`charla`: comments on their row, D-564): which notifications that player wants in that
   cup. Nobody reads it. Written by whoever is seated as the player, and only with a subscription
   of their own (`push/<subId>/uid`, which can go in the same write); deleted by whoever is seated as
   the player ("Silenciar esta copa"). Whoever is seated as the admin deletes `pushCopa/<código>`

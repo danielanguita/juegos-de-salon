@@ -77,10 +77,11 @@
       "id": "notifications",
       "where": "github",
       "workflow": "notifications.yml",
-      "cron": "7,22,37,52 * * * *",
-      "what": "Sends La Copa's Web Push notifications that are due.",
+      "cron": "7 * * * *",
+      "what": "Sends La Copa's Web Push notifications that are due: each run stays ~5h40m checking every 5 minutes, the hourly cron queues the next (a relay, D-564).",
       "decisions": [
-        "D-224"
+        "D-224",
+        "D-564"
       ]
     },
     {

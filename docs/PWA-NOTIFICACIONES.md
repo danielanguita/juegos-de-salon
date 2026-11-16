@@ -18,7 +18,7 @@ Sí se puede, y **sin servidor pagado ni cuentas nuevas**:
    reparte es el servicio del propio navegador (Google en Android/Chrome, Apple en iPhone, Mozilla
    en Firefox). No hay proveedor que pagar.
 3. El "servidor" que decide **cuándo** avisar es un **workflow programado de GitHub Actions**
-   (cada 15 minutos), con la llave de la cuenta de servicio que ya está en los secretos
+   (cada 5 minutos, D-564), con la llave de la cuenta de servicio que ya está en los secretos
    (`FIREBASE_ADMIN_JSON`, D-218). Lee la base, ve a quién le toca un aviso y lo manda.
 4. Las suscripciones se guardan en Realtime Database, en una rama que **nadie puede leer** salvo
    el administrador, igual que `torneoKeys`.
