@@ -1,4 +1,4 @@
-# ⚡ ¡Al toque! (out of the lab: /in-a-flash/, launched by flags/microgames)
+# ⚡ ¡Al toque! (/in-a-flash/, La Copa and Uno al día)
 
 Microgames in the style of WarioWare (Nintendo): one quick order, 3 to 5 seconds to do it, and the next
 one comes right after. The owner designed it game by game with Claude on a claude.ai artifact (a review
@@ -8,11 +8,11 @@ in a row in the lab. «¡Al toque!» means "right away" (the owner first called 
 ## Resumen
 
 - **Where:** `https://juegosdesalon.cl/in-a-flash/` (the lab's `/labs/microgames/` and `/microgames/` are bridges there), hidden until `flags/microgames` is on (D-517's way; launched at 21:00 Pacific on 2026-11-14 by the `launch` workflow, D-529, with the splash `microgames-launch` first and Sudoku's turned off).
-  Id `microgames` in the usage signal (named «¡Al toque!» in the panel and every list inside by `LAB_NAMES` in games.js, `game-labels.test.mjs`); the best run is `microgames:best-points` (points) and `microgames:best` (stars, out of 30). In `GAMES` from `public/in-a-flash/game.json`, with `lanza`, `oculto` and `deLabs` written by hand beside it. La Copa and Uno al día come in a later PR (its page is not a La Copa screen yet).
+  Since 2026-11-15 it is La Copa's screen (D-456's way, as Aletazo and Sudoku): `public/cup/games/microgames/`, a `SUELTOS` entry in games.js with `copa: { pozo: 18 }` and `unoAlDia: { orden: 23, desde: '2026-11-16' }`; `/in-a-flash/` is the standalone page og.mjs generates from `cup/suelto/`. Id `microgames` in the usage signal and the rankings (named «¡Al toque!» by `LAB_NAMES`).
 - **For whom:** one player, on a phone held upright.
 - **Language:** Spanish, English and Portuguese (C-3), with the toggle on the cover. The Spanish is written
-  where each text is used, inside `t('…')`; `rules.js` has its English and Portuguese keyed by that
-  Spanish, and `rules.test.mjs` fails on a `t()` with no translation or with different `{x}`.
+  where each text is used, inside `t('…')`; `tr.js` has its English and Portuguese keyed by that
+  Spanish, and `tr.test.mjs` fails on a `t()` with no translation or with different `{x}`.
 - **Status:** active project. What would prove it: players who start a second run.
 
 ## Reglas
@@ -35,25 +35,19 @@ for :00, where both hands start, so both always have to move.
 
 ## Shared runs, the run of the day and pauses
 
-Every run has a code (5 letters, as a cup's): the link's `?seed=`, today's, or a new one drawn for the run.
-The end's **📤 Reta a alguien con esta corrida** shares the link with that code, so a friend plays the same
-run (La Copa's idea, inside the lab). A `?today` link (no longer a cover button: the cover keeps only Jugar, so it fits above the fold) opens: Uno al día's
-idea, inside the lab: the same run for everyone that day, and the first one played is the one that counts
-(`microgames:today`, `{ d, p, s, m }`: date, points, the 0–100 score and the stars). Neither touches the
-real La Copa or Uno al día: both are shared calendars, and ¡Al toque! stays in the lab until the owner
-decides. Joining them is then `copa: { pozo }` and `unoAlDia: { orden, desde }` in its `games.js` entry and a
-`cup/games/` screen, with `score100` as its day score.
+A run is La Copa's day: `generateDay(code, day)` (engine.js) gives the seed `<code>:<day>` and the ten games
+(`runOrder`, with ¿Qué hora es? and ¡A la hora! never together), so a cup, Uno al día and the standalone
+page's shared code play the same run on every phone: the same ten games in the same order, and each dealt
+from its own stream (`stream(seed, '<n>:<id>')`). Only the in-game motion that depends on the frame rate
+(a fly's jitter, a gust) can differ; what is judged does not.
 
-**Pause:** when the page is hidden (the phone locks, another app comes up) the game stops and shows
-**Seguir**; a game not finished yet starts again, dealt the same and at the same speed (both come from its
-place in the run), and one already scored goes on to the next.
+**Score:** the points (stars × 10 × speed, plus streaks, engine.js `score`) are the cup's score, with no cap.
+Uno al día and the Gran Final take the run's own 0–100 (`runScore100`, sent as `d100` by `result`; a game
+not played counts 0), read by `dayScore` and by final/ui.js. Tie: less time.
 
-With `?seed=K7Q2X` (a cup's code) or `?today`
-(Uno al día's seed of the day, `semillaDel`), the run is the same on every phone: the same ten games in
-the same order (`runOrder`), and each game dealt from its own stream (`stream(seed, '<n>:<id>')`), so the
-apples to count, the colour asked and the road to roll are the same too. Only the in-game motion that
-depends on the frame rate (a fly's jitter, a gust) can differ between phones; what is judged does not.
-The cover names the shared run's code.
+**Pause:** when the page is hidden the game stops and shows **Seguir**; a game not finished yet starts again,
+dealt the same, and one already scored goes on to the next. **Reload:** the marks are saved after each game
+(`ctx.guardar`); a page reloaded mid-run ends the run with what it had, as Aletazo (no retry by reloading).
 
 ## The 29 microgames, by type
 
@@ -64,7 +58,7 @@ The cover names the shared run's code.
 | 💨 Desliza (5) | ¡Corta! (any direction), ¡Rueda! (a steel ball on a track), ¡Dibuja!, ¡Sigue! (a rat), ¡Limpia! |
 
 Each game gives 0 to 3 stars, mostly by time or accuracy; the rules of each are in its comment in
-`game.js`.
+`stage.js`.
 
 ## ¡Pinball!
 
@@ -143,43 +137,38 @@ One: 🧍 solo, on one phone. No rooms, no rival.
 
 ## Flujo
 
-1. **Cover:** the cover is as tall as its content (no empty band) and fits above the fold at 390×812, the house rule, and at 320×568 (U-39: below 420 px wide the three ways to play sit side by side, the gesture over its name and line); the ⚡ in the title jolts now and then. ⚡ and the name, one line, the three ways to play laid out at once (Toca, Arrastra, Desliza, each a card in its color with a finger doing its gesture), **Jugar**, the best run and the credit to WarioWare; under the stage,
-   **Cómo se juega** folded (C-8, D-550): the goal, the three ways to play each with its finger doing the
-   gesture (**Toca** turquoise, **Arrastra** orange, **Desliza** purple) and the scoring in one sentence;
-   the site footer last. Jugar goes straight into the run (the separate how-to screen is gone).
-2. **The run:** 10 different microgames drawn from the 29. Each starts with its intro card (the gesture
-   of its type on top, the stage framed in the type's color, the name and a hint); the frame comes off
-   when the game starts. Every three games the run speeds up by 10 % (`sp`). The HUD shows `n / 10`,
-   the stars so far and a mark per game: red with no star, green otherwise, pale for ★, green for ★★ and bright with a glow for ★★★.
-3. **The end** (C-19): a cheer, the points, the stars and the best, **Otra corrida**, the way back to the
-   lab from `fin.js`, then each game's icon with its stars and points (🔥 on a streak). Sound and confetti
-   on a good run (C-4).
+1. **Cover** (La Copa's card): the three ways to play (Toca turquoise, Arrastra orange, Desliza purple), each
+   with a finger doing its gesture; in the waiting room, ⚡ and the name, its line and the credit to WarioWare.
+2. **The run:** the day's 10 microgames. Each starts with its intro card (the gesture of its type, the
+   stage framed in the type's color, the name and a hint). Every three games the run speeds up by 10 %.
+   The HUD shows `n / 10`, the stars so far and a mark per game.
+3. **The end:** the verdict, the points, the stars and the 0–100, each game's icon with its stars and
+   points (🔥 on a streak), and the button to La Copa's result (C-19 there). Sound and confetti on a good run.
 
 ## Protocolo de mensajes
 
-None: nothing goes over the network but the usage signal and the ranking (`microgames`, D-212).
+None of its own: La Copa's (the cup's results), the usage signal and the rankings (`microgames`, D-212).
 
 ## Archivos
 
+All in `public/cup/games/microgames/`:
+
 | File | What |
 |---|---|
-| `public/in-a-flash/engine.js` | The pure rules: which games a run plays (seeded or not), the speed, the points and the 0–100 score |
-| `public/in-a-flash/engine.test.mjs` | Its tests |
-| `public/in-a-flash/rules.js` | The texts in English and Portuguese, keyed by the Spanish |
-| `public/in-a-flash/rules.test.mjs` | Every `t()` has both, with the same `{x}` |
-| `public/in-a-flash/game.js` | The shared stage helpers, the 29 microgames (`GAMES`), their names (`META`), the three types (`KINDS`), the cover and the run |
-| `public/in-a-flash/style.css` | The stage and every microgame's look (moved from the artifact) |
-| `public/in-a-flash/index.html` | The page: the stage, the HUD, the run's marks and the footer |
+| `engine.js` | The pure rules: the day (`generateDay`), the run's order, the speed, the points, the 0–100 and the card |
+| `engine.test.mjs` | Its tests (and that stage.js's 29 match `IDS`) |
+| `stage.js` | The stage markup, the 29 microgames (`GAMES`), their names (`META`), the three types and `playRun` |
+| `ui.js` | La Copa's interface: `cover`, `title`, `mount`, `result`, `breakdown` (mapped in `cup/games/index.js`) |
+| `texts.js` | Its texts for La Copa in es/en/pt, merged in `cup/rules.js` |
+| `tr.js` / `tr.test.mjs` | The microgames' words in English and Portuguese keyed by the Spanish, and their test |
+| `style.css` | The stage and every microgame's look |
 | `tools/e2e/in-a-flash/page.mjs` | End to end |
-
-`engine.js` holds the run's rules (order, speed, scoring); each microgame still draws and judges itself
-in `game.js`.
 
 ## Excepciones a los cánones
 
 - **C-2 (files):** `rules.js` holds the translations keyed by the Spanish, not a `LOCALES = { es, en, pt }`
   by key: the short texts spread over 29 microgames read better where they are used.
-- **C-6 (memory):** a run is short (about a minute and a half) and is not resumed; only the best is kept.
+- **C-6 (memory):** a run is short (about a minute and a half) and is not resumed: reloaded, it ends with the games played.
 - **Characters:** every mascot is our own drawing (the muscle sponge in ¡Limpia!, the curly-haired
   tycoon in ¡Atrapa!, the dancing rat and moles). None copies a real person or a brand.
 
@@ -189,13 +178,12 @@ in `game.js`.
 corners and text sizes on the steps, buttons from base.css (`btn btn--yellow` / `btn--ghost`). The
 colours and glyph sizes base.css has no token for are the sheet's own tokens, `--mg-<hex>` (with its
 `-rgb` channels) and `--mg-fs-<size>` for the glyphs and big numbers over 2 rem, declared at the top in
-`.alt-stage` (DESIGN.md §4). Giving them real names, or merging the near ones into base.css's, is part of
-taking it out of the lab.
+`.alt-stage` (DESIGN.md §4). Giving them real names, or merging the near ones into base.css's, is still pending.
 
 ## For the end-to-end test
 
-`window.__microgames`: `game`, `order`, `idx`, `total`, `active`, `ids` and `only(id)` (a run of that one game).
+`window.__alToque`: `S` (the marks, `fin`), `estado()` and `acabar()` (ends the run now). `window.__microgames`
+(stage.js): `game`, `order`, `idx`, `total`, `active` and `ids`.
 - **¡A la hora!:** the hand pointing nearest the finger turns (near the middle, the short one); the long one snaps to 5 minutes, the short one must be within half an hour of its place. Never 12:00, where both hands start.
-- **Testing:** the «T» tab (lab key holders) shows the 29 microgames as emoji buttons in their type's color, one tap plays it alone, and links today's run (D-551); the cover has neither.
-- **Exception to D-550 (no folded rules):** the cover itself shows the three ways to play (Toca, Arrastra, Desliza) with their moving gestures, so a «Cómo se juega» would repeat it; the owner asked to drop it so the cover fits above the fold.
-- **Ranking (D-212):** the `microgames` table under the stage, Week · All time · Friends, with signing in on the cover; a whole run of 10 offers to save its points, a microgame played alone from the tester tab never does. The same table is its tab on `/records/` through `SOLO_TABLES` in `games.js` (D-559), checked by `tools/e2e/in-a-flash/page.mjs`.
+- **Testing:** the lab tester tab and the page's own ranking left with its page: La Copa's page gives the rankings.
+- **Ranking (D-212):** the `microgames` table, its tab on `/records/` as a `SUELTOS` game (D-559; no longer in `SOLO_TABLES`), checked by `tools/e2e/in-a-flash/page.mjs`.

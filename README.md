@@ -33,7 +33,6 @@ The games with their own section below come first; after them, the one-player ga
 | ⚓ [Battleship / Batalla Naval / Batalha Naval](#-battleship-batalla-naval) | 1 to 2 | One phone · Two phones · Versus the phone | v0.6 |
 | 🍹 [Julep / Julepe / Paga o Bolo](#-julep-julepe) | 1 to 6 | One phone · Several phones · Versus the phone | 🧪 lab |
 | 👑 [Fourth King / Cuarto Rey / Quarto Rei](#-fourth-king-cuarto-rey) | 4 to 6 | One phone | 🧪 lab |
-| ⚡ [In a Flash! / ¡Al toque! / Na Hora!](#-in-a-flash-al-toque) | 1 | One phone | - |
 | 🔗 [Connections / Conexiones / Conexões](https://juegosdesalon.cl/connections/) | 1 | Play alone | 📦 La Bodega |
 | 🔤 [Bulls and Cows: Word / Toque y Fama: Palabra / Toque e Fama: Palavra](https://juegosdesalon.cl/word/) | 1 | Play alone | Also in The Cup |
 | 📅 [What Year? / ¿En qué año? / Em que ano?](https://juegosdesalon.cl/year/) | 1 | Play alone | Also in The Cup |
@@ -52,6 +51,7 @@ The games with their own section below come first; after them, the one-player ga
 | 🗼 [Babel](https://juegosdesalon.cl/babel/) | 1 | Play alone | Also in The Cup |
 | 🐤 [Flap / Aletazo / Bate-Asa](https://juegosdesalon.cl/flap/) | 1 | Play alone | Also in The Cup |
 | #️⃣ [Sudoku](https://juegosdesalon.cl/sudoku/) | 1 | Play alone | Also in The Cup |
+| ⚡ [In a Flash! / ¡Al toque! / Na Hora!](https://juegosdesalon.cl/in-a-flash/) | 1 | Play alone | Also in The Cup |
 <!-- /generated -->
 
 ---
@@ -265,9 +265,9 @@ Spec: [docs/games/bulls-and-cows.md](docs/games/bulls-and-cows.md) · Feasibilit
 
 Microgames in the style of WarioWare (Nintendo): one quick order, 3 to 5 seconds to do it, and the next one comes right away. A run is 10 different games drawn from 29 (count, add, pop, sort, cut, follow the rat, balance the blocks…), a little faster every three. Before the first one it shows the three ways to play (tap, drag, swipe). Each game gives 0 to 3 stars, worth 10 points each times the speed (×1.0 to ×1.3), plus +5 for every 🔥 streak; the end explains where the points came from, and the run goes to the game's ranking (Week · All time · Friends). One player, phone upright, in three languages.
 
-Its page is `/in-a-flash/` (the lab's `/labs/microgames/` and `/microgames/` are bridges there); it stays hidden until the flag `microgames` is switched on (21:00 Pacific, 2026-11-14), with its launch splash. La Copa and Uno al día come later.
+Since 2026-11-15 it is La Copa's screen (`public/cup/games/microgames/`, like Aletazo and Sudoku): a cup can draw it, Uno al día deals it from 2026-11-16, and `/in-a-flash/` is its standalone page (the lab's `/labs/microgames/` and `/microgames/` are bridges there), launched by the flag `microgames` on 2026-11-14. Everyone playing the same day gets the same ten microgames.
 
-Spec and design: [docs/games/in-a-flash.md](docs/games/in-a-flash.md)
+Spec and design: [docs/games/microgames.md](docs/games/microgames.md)
 
 ## 🪢 Hangman (El Ahorcado)
 
@@ -489,6 +489,7 @@ node public/bulls-and-cows/engine.test.mjs
 node public/cup/engine.test.mjs
 node public/cup/games/agents/engine.test.mjs
 node public/cup/games/flap/engine.test.mjs
+node public/cup/games/microgames/engine.test.mjs
 node public/cup/games/paint-mines/engine.test.mjs
 node public/cup/games/plots/engine.test.mjs
 node public/cup/games/routes/engine.test.mjs
@@ -497,7 +498,6 @@ node public/cup/games/stick/engine.test.mjs
 node public/cup/games/sudoku/engine.test.mjs
 node public/generala/engine.test.mjs
 node public/hangman/engine.test.mjs
-node public/in-a-flash/engine.test.mjs
 node public/labs/artifacts/engine.test.mjs
 node public/labs/chameleon/engine.test.mjs
 node public/labs/code/engine.test.mjs
@@ -602,6 +602,7 @@ node public/cup/games/bridges/physics.test.mjs
 node public/cup/games/deshacer.test.mjs
 node public/cup/games/juegos.test.mjs
 node public/cup/games/lazy.test.mjs
+node public/cup/games/microgames/tr.test.mjs
 node public/cup/games/stick/issue-1103.test.mjs
 node public/cup/planilla.test.mjs
 node public/cup/recap.test.mjs
@@ -613,7 +614,6 @@ node public/cup/talk.test.mjs
 node public/hangman/fuzz.test.mjs
 node public/hangman/replay.test.mjs
 node public/home-preload.test.mjs
-node public/in-a-flash/rules.test.mjs
 node public/labs/bodega.test.mjs
 node public/labs/code/engine-palabra.test.mjs
 node public/labs/index-nav.test.mjs
@@ -778,7 +778,6 @@ The whole app is translated, Portuguese as spoken in Brazil (German left in D-51
 | Batalla Naval | Battleship | Batalha Naval |
 | Julepe | Julep | Paga o Bolo |
 | Cuarto Rey | Fourth King | Quarto Rei |
-| ¡Al toque! | In a Flash! | Na Hora! |
 | Conexiones | Connections | Conexões |
 | Toque y Fama: Palabra | Bulls and Cows: Word | Toque e Fama: Palavra |
 | ¿En qué año? | What Year? | Em que ano? |
@@ -797,6 +796,7 @@ The whole app is translated, Portuguese as spoken in Brazil (German left in D-51
 | Babel | Babel | Babel |
 | Aletazo | Flap | Bate-Asa |
 | Sudoku | Sudoku | Sudoku |
+| ¡Al toque! | In a Flash! | Na Hora! |
 <!-- /generated -->
 
 <!-- generated: screenshots:idiomas · written by python3 tools/release/readme.py update -->
@@ -902,10 +902,10 @@ These documents are being moved to English (D-316); the ones with a Spanish titl
 - [Especificación: Cuarto Rey](docs/games/fourth-king.md)
 - [Diseño: Generala](docs/games/generala.md)
 - [Diseño: El Ahorcado](docs/games/hangman.md)
-- [⚡ ¡Al toque! (out of the lab: /in-a-flash/, launched by flags/microgames)](docs/games/in-a-flash.md)
 - [Diseño: Julepe](docs/games/julep.md)
 - [Diseño: Dudo](docs/games/liars-dice.md)
 - [👀 Memorice (lab prototype, in Games being tried)](docs/games/memory.md)
+- [⚡ ¡Al toque! (/in-a-flash/, La Copa and Uno al día)](docs/games/microgames.md)
 - [🖌️ Pintaminas (Paint Mines · Pinta-Minas · Malminen)](docs/games/paint-mines.md)
 - [📐 Loteo (Plots · Loteamento · Parzellen)](docs/games/plots.md)
 - [👑 Queens (Reinas)](docs/games/queens.md)

@@ -2,9 +2,9 @@
 // node public/in-a-flash/rules.test.mjs
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { TR, KEYS } from './rules.js';
+import { TR, KEYS } from './tr.js';
 
-const src = readFileSync(new URL('./game.js', import.meta.url), 'utf8');
+const src = readFileSync(new URL('./stage.js', import.meta.url), 'utf8');
 const used = [...new Set([...src.matchAll(/\bt\('((?:[^'\\]|\\.)*)'/g)].map(m => m[1].replace(/\\'/g, "'")))];
 const holes = s => (s.match(/\{\w+\}/g) || []).sort().join();
 for (const k of used) for (const l of ['en', 'pt']) {

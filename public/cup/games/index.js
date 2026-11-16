@@ -76,6 +76,7 @@ const CODE = {
   stack: () => Promise.all([import('./stack/engine.js'), import('./stack/ui.js')]),
   aletazo: () => Promise.all([import('./flap/engine.js'), import('./flap/ui.js')]),
   sudoku: () => Promise.all([import('./sudoku/engine.js'), import('./sudoku/ui.js')]),
+  microgames: () => Promise.all([import('./microgames/engine.js'), import('./microgames/ui.js')]),
   final: () => Promise.all([import('./final/engine.js'), import('./final/ui.js')]),
 };
 CODE.trio = CODE.final;
@@ -122,6 +123,11 @@ const BUILD = {
   // variants (easy, the 6×6 mini, by default; hard, the 9×9), its score 0 to 100 already
   sudoku: ([m, ui]) => delLab('sudoku', { generarDia: m.generateDay }, {
     portada: ui.cover, titulo: ui.title, montar: ui.mount, resultado: ui.result, desglose: ui.breakdown, selector: ui.selector, clock: ui.clock, caro: ui.caro,
+  }),
+  // ⚡ ¡Al toque!, its own page made La Copa's screen (D-456's way). Its points have no cap; Uno al día and the
+  // final take the run's own 0–100 (`d100`, engine.js runScore100)
+  microgames: ([m, ui]) => delLab('microgames', { generarDia: m.generateDay, puntajeDia: m.dayScore }, {
+    portada: ui.cover, titulo: ui.title, montar: ui.mount, resultado: ui.result, desglose: ui.breakdown,
   }),
   final: ([final, uiFinal]) => ({
     ...juego(final, uiFinal),

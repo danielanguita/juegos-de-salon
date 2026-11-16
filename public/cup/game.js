@@ -139,9 +139,9 @@ if (SUELTO && !document.body.dataset.suelto && gameById(PRACTICA)?.suelto) locat
  * everyone, or 🧪 with a lab key): the answer this phone kept may be old, so a hidden one asks Firebase
  * before sending the visitor to the home page. Inside a cup and in Uno al día (`?today`, which deals it by
  * date) it always opens: they chose it for everyone alike, and a cup chose it when it
- * was out. lab: #seccion-stick, lab: #seccion-stack, lab: #seccion-aletazo, lab: #seccion-sudoku
+ * was out. lab: #seccion-stick, lab: #seccion-stack, lab: #seccion-aletazo, lab: #seccion-sudoku, lab: #seccion-microgames
  */
-const LANZA = { stack: () => flag('stack'), aletazo: () => flag('aletazo'), sudoku: () => flag('sudoku') };
+const LANZA = { stack: () => flag('stack'), aletazo: () => flag('aletazo'), sudoku: () => flag('sudoku'), microgames: () => flag('microgames') };
 // Not awaited: the module must not pause halfway, its listeners need everything below defined
 if (SUELTO && !HOY && gameById(PRACTICA)?.oculto) (LANZA[PRACTICA]?.() ?? Promise.resolve(false)).then(si => { if (!si) location.replace(RAIZ); }).catch(() => location.replace(RAIZ));
 // En la genérica, el juego queda con su nombre en inglés: `?linea&hoy` → `?timeline-flash&today` (D-266)
@@ -2285,7 +2285,7 @@ function resultadoPractica(id, semilla, r, variante = null) {
   const J = conVariante(JUEGOS_COPA[id], variante), rk = varianteRk(id, variante);
   // Uno al día: el primer intento queda como el resultado de hoy; los demás son práctica
   // A game with no cap brings its own 0–100 curve (D-526); the rest are already 0–100
-  const sDia = JUEGOS[id]?.puntajeDia ? JUEGOS[id].puntajeDia(r.s) : Math.min(100, r.s);
+  const sDia = JUEGOS[id]?.puntajeDia ? JUEGOS[id].puntajeDia(r.s, r) : Math.min(100, r.s);
   const hoy = HOY ? anotarUnoAlDia(S.hoy.fecha, { j: id, s: sDia, ms: r.ms }) : null;
   if (HOY) dailySave(S.hoy.fecha, id).borrar();   // finished: nothing to go on with (D-433)
   // Los rankings (D-212): se anota si hay jugador; si entra recién aquí, esta partida igual cuenta.

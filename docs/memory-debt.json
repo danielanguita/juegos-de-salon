@@ -75,7 +75,7 @@
     },
     {
       "id": "microgames",
-      "reason": "A run of ¡Al toque! is about a minute and a half and is not resumed: leaving it ends it, and only the best run and the run of the day are kept (docs/games/in-a-flash.md, C-6 exception)"
+      "reason": "A run of ¡Al toque! is about a minute and a half and is not resumed: leaving it ends it, and only the best run and the run of the day are kept (docs/games/microgames.md, C-6 exception)"
     }
   ]
 }

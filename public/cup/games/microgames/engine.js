@@ -1,6 +1,6 @@
 // ¡Al toque!'s pure rules (C-2): which games a run plays, and how a run scores. No DOM.
-// docs/games/in-a-flash.md, "Scoring" and "Shared runs".
-import { rng } from '../assets/js/rng.js';
+// docs/games/microgames.md, "Scoring" and "Shared runs".
+import { rng } from '../../../assets/js/rng.js';
 
 // A text's 32-bit hash (FNV-1a with a final mix), the same La Copa's seeds use: a lab game does not
 // import La Copa's modules (docs/ARCHITECTURE.md), so it lives here too
@@ -55,3 +55,48 @@ export function runOrder(ids, seed, n = RUN, apart = []) {
   for (const id of a) { if (out.length >= n) break; const g = apart.find(x => x.includes(id)); if (g && out.some(o => g.includes(o))) continue; out.push(id); }
   return out;
 }
+
+/* ------------------------------------------------------------------ */
+/* La Copa, Uno al día and the page /in-a-flash/ (D-331's interface)   */
+/* ------------------------------------------------------------------ */
+
+/** The 29 microgames, in the stage's order (stage.js `META`; engine.test.mjs keeps them equal). */
+export const IDS = ['cruza', 'espera', 'toca', 'quecolor', 'cuenta', 'atrapa', 'corta', 'ordena', 'calcula', 'conecta', 'limpia', 'para', 'aplasta', 'revienta', 'pinball',
+  'rebota', 'equilibra', 'dibuja', 'sigue', 'repite', 'dondequedo', 'diferente', 'cualfalta', 'mas', 'quehora', 'hands', 'sombra', 'completa', 'notoques'];
+/** The two clock games never share a run. */
+export const APART = [['quehora', 'hands']];
+/** The trial (D-103): a short run of three, at the run's first speed. */
+export const TRIAL = 3;
+
+/**
+ * The day's run (La Copa's `generarDia`, named in English, D-316: cup/games/index.js maps it): its seed is
+ * `código:día` (and `:sal`, the trial's), so every phone plays the same ten games, each dealt the same.
+ */
+export function generateDay(code, day, { sal = '', ensayo = false } = {}) {
+  const semilla = `${code}:${day}${sal ? `:${sal}` : ''}`;
+  return { semilla, orden: runOrder(IDS, semilla, ensayo ? TRIAL : RUN, APART) };
+}
+
+/** A run's state, as saved and handed to the cup: `{ fin, marks, orden, ms }`. Its points: the game's own (no cap). */
+export const points = e => score(Array.isArray(e?.marks) ? e.marks.map(m => Math.max(0, Math.min(3, m | 0))) : []).points;
+
+/** Over the whole run, even one left halfway: a game not played counts as 0 stars. */
+export const runScore100 = e => {
+  const n = Math.max(Array.isArray(e?.orden) ? e.orden.length : RUN, e?.marks?.length || 0);
+  const marks = Array.from({ length: n }, (_, i) => Math.max(0, Math.min(3, e?.marks?.[i] | 0)));
+  return score100(marks);
+};
+
+/** The share card's line: each game's stars as 🟩 ★★★, 🟨 ★★, 🟧 ★, ⬛ none, five to a line. */
+export function card(e) {
+  const k = (Array.isArray(e?.marks) ? e.marks : []).map(m => ['⬛', '🟧', '🟨', '🟩'][Math.max(0, Math.min(3, m | 0))]);
+  const rows = [];
+  for (let i = 0; i < k.length; i += 5) rows.push(k.slice(i, i + 5).join(''));
+  return rows.join('\n');
+}
+
+/**
+ * Uno al día's 0–100 (La Copa's `puntajeDia`): the run's own score100 (stars weighed by speed, no streak,
+ * D-412), from the result's `d100`; a bare number of points maps over a perfect run's 381.
+ */
+export const dayScore = (s, r) => (Number.isFinite(r?.d100) ? r.d100 : Math.max(0, Math.min(100, Math.round(100 * (Number(s) || 0) / 381))));

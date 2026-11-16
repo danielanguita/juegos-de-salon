@@ -42,7 +42,10 @@ for (const dir of await readdir(PUBLIC, { withFileTypes: true })) {
     assert.ok(listed.has(tabla), `${dir.name}/game.js records to "${tabla}", which Rankings does not list: add it to SOLO_TABLES in games.js (D-559)`);
   }
 }
-assert.ok(found.includes('microgames') && found.includes('generala_solo'), `the scan found the known tables: ${found}`);
+assert.ok(found.includes('ahorcado_solo') && found.includes('generala_solo'), `the scan found the known tables: ${found}`);
+
+// ¡Al toque! is a SUELTOS game now (La Copa's screen records its table), so Rankings lists it once
+assert.ok(SUELTOS.some(g => g.id === 'microgames') && !SOLO_TABLES.microgames, '¡Al toque! is listed once, as a SUELTOS game');
 
 // Every SOLO_TABLES game exists, so a rename cannot leave a dead tab
 for (const id of Object.keys(SOLO_TABLES)) assert.ok(ALL_GAMES.some(g => g.id === id), `SOLO_TABLES: no game "${id}"`);

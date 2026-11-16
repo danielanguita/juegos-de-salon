@@ -51,6 +51,7 @@ const PUNTAJE = {
   // Aletazo: its points, a gate 1 and a dead center 2 (D-517's way)
   aletazo: k => { const s = Math.round(8 + 40 * k * k); return { s, r: `🐤 ${s}` }; },
   // Sudoku: 100, minus 10 a wrong digit and 15 a hint (D-517's way)
+  microgames: k => { const s = Math.round(60 + 220 * k * k); return { s, r: `⚡ ${s}` }; },
   sudoku: k => { const s = Math.max(0, 100 - 10 * Math.round(4 * (1 - k))); return { s, r: `${s}/100` }; },
   stack: k => { const s = Math.min(100, 2 * Math.round(50 * k * k)); return { s, r: `🧱 ${s}` }; },
   puentes: k => { const s = Math.min(100, 10 * Math.round(5 * k) + Math.round(30 * k * k)); return { s, r: `${s}/100` }; },

@@ -27,3 +27,22 @@ for (let k = 0; k < 300; k++) { const o = runOrder([...IDS, 'quehora', 'hands'],
   assert.ok(!(o.includes('quehora') && o.includes('hands')), `run ${k}: one clock game at most`); assert.equal(o.length, RUN); }
 assert.match(newCode(), /^[A-HJ-NP-Z]{5}$/, 'a run code: 5 letters, no I or O');
 console.log('✓ microgames engine');
+
+// La Copa (D-331): the day's run is the same for everyone, ten different games, the trial three; the stage's ids are the engine's
+{
+  const { generateDay, IDS, points, runScore100, dayScore, card } = await import('./engine.js');
+  const a = generateDay('K7Q2X', 3), b = generateDay('K7Q2X', 3), c = generateDay('K7Q2X', 3, { sal: 'ensayo', ensayo: true });
+  assert.deepEqual(a, b, 'the same day, the same run');
+  assert.equal(new Set(a.orden).size, 10, 'ten different games');
+  assert.ok(!(a.orden.includes('quehora') && a.orden.includes('hands')), 'never both clock games');
+  assert.equal(c.orden.length, 3, 'the trial plays three');
+  assert.equal(IDS.length, 29, 'twenty-nine microgames');
+  const { readFileSync } = await import('node:fs');
+  const stage = readFileSync(new URL('./stage.js', import.meta.url), 'utf8');
+  const meta = [...stage.matchAll(/^\s{4}\['([a-z]+)', t\('/gm)].map(m => m[1]);
+  assert.deepEqual(meta, IDS, "stage.js META and engine.js IDS list the same games in the same order");
+  assert.equal(points({ marks: [3, 3, 3, 3, 3, 3, 3, 3, 3, 3] }), 381, 'a perfect run is 381');
+  assert.equal(runScore100({ marks: [3, 3, 3], orden: a.orden }) < 40, true, 'a run left halfway counts the rest as 0');
+  assert.equal(dayScore(200, { d100: 77 }), 77, 'Uno al día takes the run\'s own 0–100');
+  assert.equal(card({ marks: [3, 2, 1, 0, 3, 3] }), '🟩🟨🟧⬛🟩\n🟩');
+}

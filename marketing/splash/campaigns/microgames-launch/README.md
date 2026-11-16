@@ -44,7 +44,7 @@ Not a teaser (it is a launch, so it shows the play) but drawn on the same engine
    - The same MP4 works as a WhatsApp status / Instagram story (letterboxed) or a short post.
    - Challenge hook: a run's code (`?seed=XXXXX`) is the same on every phone: «Te reto a esta corrida».
 5. **Measure**: the panel's 📊 How they did (reach, % tapped, % closed); what proves the game is
-   players who start a second run (docs/games/in-a-flash.md).
+   players who start a second run (docs/games/microgames.md).
 
 Screenshots, as `node tools/e2e/look.mjs splash microgames-launch --lang <xx>` shows it:
 [es](es-390.jpg) · [en](en-390.jpg) · [pt](pt-390.jpg) · [es at 1280](es-1280.jpg).
