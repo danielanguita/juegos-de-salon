@@ -3,7 +3,7 @@
  * flag `cup-talk`. Pure: what can be said, by whom and how it adds up. The screen is in game.js.
  *
  * Firebase: cupTalk/<code>/<day>/<target>/<author> = { e?, c?, at }
- *   e  one reaction of REACTIONS, changeable
+ *   e  one reaction of REACTIONS (the screen no longer offers them, 2026-11-16: emojis go in the text)
  *   c  one comment of up to MAX_COMMENT characters, cannot be edited, can be deleted
  * cupTalkHidden/<code>/<day>/<target>/<author> = true: the target hid that comment from their row
  * (apart, so the author cannot undo it). The store hands both over as { talk, hidden }.
@@ -38,9 +38,6 @@ export const talkDay = (L, now) => {
 /** Whether `author` can react or comment on `target`'s result of day `d`: today, both played it. */
 export const canTalk = (L, d, author, target, now) => d === talkDay(L, now)
   && !!L.results?.[d]?.[author] && !!L.results?.[d]?.[target];
-
-/** The first comment `target` got on day `d` that is not hidden: shown on their row of the table. */
-export const firstComment = (v, d, target) => rowTalk(v, d, target, null).comments[0] || null;
 
 /**
  * What a target's row of day `d` shows: the reactions counted (in REACTIONS order, only the ones

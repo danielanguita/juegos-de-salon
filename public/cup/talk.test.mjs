@@ -1,6 +1,6 @@
 // Reactions and comments in a cup (D-562): the pure part, talk.js.
 import assert from 'node:assert/strict';
-import { REACTIONS, MAX_COMMENT, cleanComment, commentProblem, canTalk, talkDay, firstComment, rowTalk, received } from './talk.js';
+import { REACTIONS, MAX_COMMENT, cleanComment, commentProblem, canTalk, talkDay, rowTalk, received } from './talk.js';
 
 const now = 1_800_000_000_000;
 const H = 3600000;
@@ -41,7 +41,5 @@ const target = rowTalk(v, 1, 'bea', 'bea');
 assert.deepEqual(target.comments.map(x => [x.c, x.h]), [['Uf', false], ['Bien', false], ['Feo', true]], 'the target sees the hidden one, marked');
 assert.deepEqual(rowTalk({}, 1, 'bea', 'ana'), { reactions: [], comments: [], mine: null }, 'nothing said');
 assert.equal(received(v, 'bea'), 3 + 2, 'three valid reactions and two visible comments');
-assert.equal(firstComment(v, 1, 'bea').c, 'Uf', 'the first comment that is not hidden, for the row');
-assert.equal(firstComment({ talk: { 1: { bea: { eva: { c: 'Feo', at: 1 } } } }, hidden: v.hidden }, 1, 'bea'), null, 'a hidden one is not shown on the row, not even to its target');
 
 console.log('✓ cup talk');
