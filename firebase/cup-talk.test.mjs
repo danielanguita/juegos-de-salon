@@ -26,7 +26,7 @@ const as = (who, changes, now = T0 + 1000) => db.update(changes, { uid: UID[who]
 ok(as(ANA, { [path(1, BEA, ANA)]: { e: 'fire', at: ts } }), 'a player who played reacts to another result of that day', db);
 ok(as(ANA, { [`${path(1, BEA, ANA)}/e`]: 'clap', [`${path(1, BEA, ANA)}/at`]: ts }), 'the reaction can be changed', db);
 ok(as(ANA, { [`${path(1, BEA, ANA)}/c`]: 'Bien jugado', [`${path(1, BEA, ANA)}/at`]: ts }), 'and a comment added', db);
-no(as(ANA, { [`${path(1, BEA, ANA)}/c`]: 'Otra cosa' }), 'a comment cannot be edited');
+ok(as(ANA, { [`${path(1, BEA, ANA)}/c`]: 'Bien jugado 🔥', [`${path(1, BEA, ANA)}/at`]: ts }), 'the author edits their comment', db);
 ok(as(ANA, { [path(1, ANA, ANA)]: { c: 'Hoy me fue pésimo', at: ts } }), 'a player comments on their own result', db);
 
 no(as(CAR, { [path(1, ANA, CAR)]: { e: 'fire', at: ts } }), 'not before playing that day');

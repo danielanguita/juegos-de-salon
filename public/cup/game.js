@@ -1062,6 +1062,10 @@ function comentariosEnFila(pid, now) {
   return rowTalk(C.v, d, pid, S.yo).comments.map(x => el('p', { class: 'fila-comentario' + (x.h ? ' oculto' : '') },
     el('span', { class: 'fila-comentario-autor' }, nombre(x.author)), `: ${x.c}`,
     x.h ? el('span', { class: 'fila-comentario-nota' }, ` · ${T.talkHidden}`) : null,
+    // The author edits theirs in the same field, already filled (the owner, 2026-11-16), or deletes it
+    x.author === S.yo ? el('button', { type: 'button', class: 'link-btn charla-accion charla-editar', onClick: () => {
+      SFX.tap(); C.abierto = pid; C.editando = true; C.borrador = null; tableroEnSuSitio(); C.borrador?.input.focus();
+    } }, T.talkEdit) : null,
     x.author === S.yo ? el('button', { type: 'button', class: 'link-btn charla-accion', onClick: async () => {
       if (!confirm(T.talkDeleteConfirm)) return;
       SFX.tap();
@@ -1081,7 +1085,7 @@ function botonCharla(pid, now) {
   const abierto = C.abierto === pid;
   return el('button', {
     type: 'button', class: 'fila-charla' + (abierto ? ' on' : ''), 'aria-expanded': String(abierto), 'aria-label': pid === S.yo ? T.talkCommentOwn : T.talkComment, 'data-pid': pid,
-    onClick: () => { SFX.tap(); C.abierto = abierto ? null : pid; C.borrador = null; tableroEnSuSitio(); if (!abierto) C.borrador?.input.focus(); },
+    onClick: () => { SFX.tap(); C.abierto = abierto ? null : pid; C.editando = false; C.borrador = null; tableroEnSuSitio(); if (!abierto) C.borrador?.input.focus(); },
   }, el('span', { class: 'fila-charla-pill' }, '💬'));
 }
 
@@ -1089,13 +1093,14 @@ function botonCharla(pid, now) {
 function cajonCharla(pid, now) {
   if (C.abierto !== pid) return null;
   const d = diaCharla(pid, now);
-  if (!d || rowTalk(C.v, d, pid, S.yo).mine?.c) { C.abierto = null; return null; }
-  if (!(C.borrador?.pid === pid && C.borrador.d === d)) C.borrador = borrador(d, pid);
+  const mine = d ? rowTalk(C.v, d, pid, S.yo).mine : null;
+  if (!d || (mine?.c && !C.editando)) { C.abierto = null; C.editando = false; return null; }
+  if (!(C.borrador?.pid === pid && C.borrador.d === d)) C.borrador = borrador(d, pid, C.editando ? mine?.c || '' : '');
   return C.borrador.nodo;
 }
 
-function borrador(d, pid) {
-  const input = el('input', { type: 'text', class: 'charla-input', maxlength: String(MAX_COMMENT), placeholder: pid === S.yo ? T.talkCommentOwn : T.talkPlaceholder, 'aria-label': T.talkComment, enterkeyhint: 'send', autocomplete: 'off' });
+function borrador(d, pid, inicial = '') {
+  const input = el('input', { type: 'text', class: 'charla-input', maxlength: String(MAX_COMMENT), placeholder: pid === S.yo ? T.talkCommentOwn : T.talkPlaceholder, 'aria-label': T.talkComment, enterkeyhint: 'send', autocomplete: 'off', value: inicial });
   const aviso = el('small', { class: 'charla-aviso', 'aria-live': 'polite' });
   const enviar = async () => {
     const problema = commentProblem(input.value);
@@ -1105,7 +1110,7 @@ function borrador(d, pid) {
       aviso.textContent = errorDe(e); boton.disabled = false; return;
     }
     SFX.tap();
-    C.abierto = null; C.borrador = null; C.pendiente = false;
+    C.abierto = null; C.editando = false; C.borrador = null; C.pendiente = false;
     input.blur();
     tableroEnSuSitio();
   };

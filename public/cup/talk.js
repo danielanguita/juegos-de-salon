@@ -4,7 +4,7 @@
  *
  * Firebase: cupTalk/<code>/<day>/<target>/<author> = { e?, c?, at }
  *   e  one reaction of REACTIONS (the screen no longer offers them, 2026-11-16: emojis go in the text)
- *   c  one comment of up to MAX_COMMENT characters, cannot be edited, can be deleted
+ *   c  one comment of up to MAX_COMMENT characters, edited or deleted by its author
  * cupTalkHidden/<code>/<day>/<target>/<author> = true: the target hid that comment from their row
  * (apart, so the author cannot undo it). The store hands both over as { talk, hidden }.
  * Only on the cup's current day (the owner, 2026-11-16: past days are not talked about), after the

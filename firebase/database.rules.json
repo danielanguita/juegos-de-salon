@@ -1042,7 +1042,7 @@
                 ".validate": "newData.isString() && newData.val().matches(/^(fire|laugh|clap|wow|sad|crown)$/)"
               },
               "c": {
-                ".validate": "newData.isString() && newData.val().length >= 1 && newData.val().length <= 120 && (!data.exists() || newData.val() == data.val())"
+                ".validate": "newData.isString() && newData.val().length >= 1 && newData.val().length <= 120"
               },
               "at": {
                 ".validate": "newData.isNumber() && newData.val() <= now + 60000 && newData.val() > now - 60000"

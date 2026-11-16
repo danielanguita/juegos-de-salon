@@ -250,11 +250,10 @@ export function createLocalStore({ uid = null, pausa = 5000, esperar = ms => new
     async decir(code, d, target, pid, { e = null, c = null } = {}) {
       return cambiar(db => {
         const L = copa(db, code);
-        // The rules: seated as the author, both played that day, the cup still on; a comment is not edited
+        // The rules: seated as the author, both played that day, the cup still on
         if (!sentado(L, pid) || !L.results?.[d]?.[pid] || !L.results?.[d]?.[target] || terminada(vista(L), now())) throw falla('permiso');
         const t = ((L._talk ||= {}).talk ||= {});
         const day = ((t[d] ||= {})[target] ||= {});
-        if (c && day[pid]?.c && day[pid].c !== c) throw falla('permiso');
         if (e || c) day[pid] = { ...(e ? { e } : {}), ...(c ? { c } : {}), at: now() };
         else delete day[pid];
       });
