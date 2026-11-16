@@ -855,14 +855,19 @@ function vistaTabla(filas, { dias, meta, now }) {
     return [...dias.slice(0, ultimo + 1).map(d => bloque(f, d)),
       resto ? el('span', { class: 'pd eliminado', style: `min-width:calc(${resto} * 1.368rem + ${resto - 1} * 4px)` }, T.outBadge) : null];
   };
-  return el('div', { class: 'tabla' }, filas.map(f => el('div', { class: 'fila' + (f.pid === S.yo ? ' yo' : '') + (f.fuera ? ' fuera' : '') },
+  // Reactions and comments (D-562, lab): a 💬 at the end of each row, its drawer under it
+  const conCharla = filas.some(f => botonCharla(f.pid, now));
+  return el('div', { class: 'tabla' + (conCharla ? ' con-charla' : '') }, filas.flatMap(f => [el('div', { class: 'fila' + (f.pid === S.yo ? ' yo' : '') + (f.fuera ? ' fuera' : '') },
     // Out of the cup (D-347): a door instead of a place, and faded (D-376)
     el('span', { class: 'lugar', title: f.fuera ? fmt(T.outAdmin, { a: f.fuera.desde, b: f.fuera.hasta }) : null }, f.fuera ? '🚪' : String(f.lugar)),
     el('span', { class: 'flecha ' + (f.flecha > 0 ? 'sube' : f.flecha < 0 ? 'baja' : '') }, f.flecha > 0 ? '▲' : f.flecha < 0 ? '▼' : ''),
     el('div', { class: 'quien' },
       el('b', {}, f.name, f.pid === S.yo ? el('small', { class: 'muted' }, ` (${T.you})`) : null),
       el('div', { class: 'puntitos' }, bloques(f))),
-    el('span', { class: 'total' }, String(f.total), el('small', {}, ` ${T.pts}`)))));
+    // With talk on, the 💬 goes under the points, so the day blocks keep their width
+    conCharla ? el('div', { class: 'fila-der' }, el('span', { class: 'total' }, String(f.total), el('small', {}, ` ${T.pts}`)), botonCharla(f.pid, now))
+      : el('span', { class: 'total' }, String(f.total), el('small', {}, ` ${T.pts}`))),
+  conCharla ? cajonCharla(f.pid) : null].filter(Boolean)));
 }
 
 /**
@@ -1013,7 +1018,7 @@ function desdeAviso() {
 let charla = false;
 flag('cup-talk').then(v => { charla = v; if (v && S.pantalla === 'tablero' && L()?.meta && !composing()) tablero(); });
 /** The talk of the open cup, kept apart from it (cupTalk/), and what is being written. */
-const C = { code: null, off: null, v: { talk: {}, hidden: {} }, dia: null, caja: null, borrador: null, pendiente: false };
+const C = { code: null, off: null, v: { talk: {}, hidden: {} }, abierto: null, dia: null, caja: null, borrador: null, pendiente: false };
 /** Writing a comment: the board is not redrawn under the keyboard; it is once the field lets go. */
 const composing = () => !!C.borrador && !!document.activeElement?.classList?.contains('charla-input');
 
@@ -1021,47 +1026,63 @@ function seguirCharla() {
   if (!charla || offlineStore() || !store?.escucharCharla || !S.code) return false;
   if (C.code !== S.code) {
     C.off?.();
-    Object.assign(C, { code: S.code, v: { talk: {}, hidden: {} }, dia: null, caja: null, borrador: null, pendiente: false });
-    C.off = store.escucharCharla(S.code, v => { C.v = v; if (C.caja?.isConnected) pintarCharla(); });
+    Object.assign(C, { code: S.code, v: { talk: {}, hidden: {} }, abierto: null, dia: null, caja: null, borrador: null, pendiente: false });
+    // What comes in redraws the board (its 💬 counts), unless a comment is being written
+    C.off = store.escucharCharla(S.code, v => {
+      C.v = v;
+      if (S.pantalla !== 'tablero' || !L()?.meta) return;
+      if (composing()) C.pendiente = true; else tablero();
+    });
   }
   return true;
 }
 
-/** The panel under the table: one day at a time, the results of that day with their reactions and comments. */
-function panelCharla(now) {
-  if (!seguirCharla() || !talkDays(L(), S.yo, now).length) return null;
-  C.caja ||= el('div', { class: 'panel charla', id: 'charla' });
+/** The days `S.yo` can see `pid`'s talk on: the ones both played, newest first. */
+const diasCharla = (pid, now) => talkDays(L(), S.yo, now).filter(d => L().results?.[d]?.[pid]);
+
+/** The 💬 button at the end of a row of the table, with how many reactions and comments that player got. */
+function botonCharla(pid, now) {
+  if (!seguirCharla()) return null;
+  const dias = diasCharla(pid, now);
+  if (!dias.length) return null;
+  const n = dias.reduce((a, d) => { const x = rowTalk(C.v, d, pid, S.yo); return a + x.reactions.reduce((b, r) => b + r.n, 0) + x.comments.filter(c => !c.h).length; }, 0);
+  const abierto = C.abierto === pid;
+  return el('button', {
+    type: 'button', class: 'fila-charla' + (abierto ? ' on' : ''), 'aria-expanded': String(abierto), 'aria-label': T.talkTitle, 'data-pid': pid,
+    onClick: () => { SFX.tap(); C.abierto = abierto ? null : pid; C.dia = null; C.borrador = null; tablero(); },
+  }, el('span', { class: 'fila-charla-pill' }, '💬', n ? el('span', { class: 'fila-charla-n' }, String(n)) : null));
+}
+
+/** Under the open row: that player's results of the days you both played, one day at a time. */
+function cajonCharla(pid) {
+  if (C.abierto !== pid) return null;
+  C.caja ||= el('div', { class: 'charla-cajon', id: 'charla' });
   pintarCharla();
   return C.caja;
 }
 
 function pintarCharla() {
   const caja = C.caja;
-  if (!caja) return;
+  if (!caja || !C.abierto) return;
   if (composing()) { C.pendiente = true; return; }
-  const Lc = L(), now = ahora();
-  const dias = talkDays(Lc, S.yo, now);
+  const Lc = L(), now = ahora(), pid = C.abierto;
+  const dias = diasCharla(pid, now);
   if (!dias.length) { caja.replaceChildren(); return; }
   if (!dias.includes(C.dia)) C.dia = dias[0];
   const d = C.dia;
-  const J = juegoDia(Lc.meta, d);
-  const pos = posicionesDelDia(Lc.results[d], activos(Lc).map(j => j.pid));
-  const quienes = activos(Lc).filter(j => Lc.results[d]?.[j.pid])
-    .sort((a, b) => (pos[a.pid]?.pos ?? 99) - (pos[b.pid]?.pos ?? 99));
   caja.replaceChildren(...[
-    el('p', { class: 'lead', style: 'margin-bottom:4px' }, T.talkTitle),
     el('p', { class: 'muted charla-nota' }, T.talkHint),
     dias.length > 1 ? el('div', { class: 'charla-dias' }, dias.map(k => el('button', {
       type: 'button', class: 'chip' + (k === d ? ' chip--hot' : ''), 'aria-pressed': String(k === d), 'data-dia': k,
       onClick: () => { SFX.tap(); C.dia = k; C.borrador = null; pintarCharla(); },
     }, fmt(T.talkDay, { d: k })))) : null,
-    el('p', { class: 'charla-juego' }, gameIcon(J, { class: 'charla-icono' }), el('b', {}, J.nombre), el('small', { class: 'muted' }, ` · ${fmt(T.dayOf, { d, n: Lc.meta.days })}`)),
-    ...quienes.map(j => filaCharla(Lc, d, j.pid, pos[j.pid], now)),
+    filaCharla(Lc, d, pid, now),
   ].filter(Boolean));
 }
 
-function filaCharla(Lc, d, pid, p, now) {
+function filaCharla(Lc, d, pid, now) {
   const r = Lc.results[d][pid];
+  const J = juegoDia(Lc.meta, d);
   const nombre = q => Lc.players?.[q]?.name || '?';
   const { reactions, comments, mine } = rowTalk(C.v, d, pid, S.yo);
   const puede = canTalk(Lc, d, S.yo, pid, now);
@@ -1094,8 +1115,8 @@ function filaCharla(Lc, d, pid, p, now) {
   }
   return el('div', { class: 'charla-fila' + (pid === S.yo ? ' yo' : ''), 'data-pid': pid },
     el('div', { class: 'charla-cab' },
-      el('span', { class: 'charla-lugar' }, p ? ord(p.pos) : ''),
-      el('b', { class: 'charla-nombre' }, nombre(pid), pid === S.yo ? el('small', { class: 'muted' }, ` (${T.you})`) : null),
+      gameIcon(J, { class: 'charla-icono' }),
+      el('b', { class: 'charla-nombre' }, J.nombre, el('small', { class: 'muted' }, ` · ${fmt(T.talkDay, { d })}`)),
       el('span', { class: 'charla-res' }, r.r || String(r.s))),
     cuenta, ...lista, botones, escribir);
 }
@@ -1218,7 +1239,6 @@ function tablero() {
       vistaTabla(filas, { dias, meta, now }),
       leyenda,
       hayOcultos ? el('small', { class: 'muted' }, T.tableHidden) : null));
-    poner(body, panelCharla(now));
     poner(body, grafico(now));
   } else {
     const jug = activos(Lc);
