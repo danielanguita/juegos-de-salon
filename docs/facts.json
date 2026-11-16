@@ -1443,6 +1443,7 @@
   "tests": [
     "firebase/controls.test.mjs",
     "firebase/cup-talk.test.mjs",
+    "firebase/cup-tiebreak.test.mjs",
     "firebase/flags.test.mjs",
     "firebase/lab-ready.test.mjs",
     "firebase/labs-publish.test.mjs",
