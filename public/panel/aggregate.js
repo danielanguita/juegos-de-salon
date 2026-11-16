@@ -40,6 +40,8 @@ export function fechaLabel(ts) {
 
 /** El día del calendario en la hora del panel, como texto ordenable ("2026-10-04"): para agrupar eventos. */
 export const diaPanel = ts => new Date(ts).toLocaleDateString('en-CA', { timeZone: ZONA_PANEL });
+/** The Pacific date of a moment as a day number (days since 1970-01-01): the owner's day (D-561). */
+export const pacificDay = ts => Math.floor(Date.parse(`${diaPanel(ts)}T00:00:00Z`) / DAY);
 
 /**
  * Los rangos que el panel ofrece (D-80). Viven acá y no en el HTML: el selector, el título, la
@@ -72,20 +74,23 @@ export const RANGO_POR_DEFECTO = '7d';
  */
 export function rangeOf(id, now = Date.now()) {
   const r = RANGOS.find(x => x.id === id) || RANGOS.find(x => x.id === RANGO_POR_DEFECTO);
-  const hoy = dayOf(now);
+  // The owner's clock (D-561): "today" and every range end on today's Pacific date
+  const hoy = pacificDay(now);
   const desde = r.dias === null
-    ? dayOf(Date.UTC(new Date(now).getUTCFullYear(), 0, 1))
+    ? Math.floor(Date.UTC(Number(diaPanel(now).slice(0, 4)), 0, 1) / DAY)
     : hoy - r.dias + 1;
   return { ...r, from: Math.min(desde, hoy), to: hoy };
 }
 
 /**
- * How far into the "Today" range we are: the UTC day started at midnight UTC, which in Pacific
- * time is 16:00 (17:00 in summer) the day before. Shown next to the selector so a partial day
- * reads at its real size: "5h 20m of 24 · since 16:00 Mon, Pacific time".
+ * How far into the "Today" range we are: today's Pacific date, since its midnight (D-561).
+ * Shown next to the selector so a partial day reads at its real size: "5h 20m of 24 · since 00:00 Tue, Pacific time".
  */
 export function hoyUtcLabel(now = Date.now()) {
-  const inicio = dayOf(now) * DAY;
+  const d = pacificDay(now);
+  let inicio = d * DAY + 7 * 3600e3;
+  while (pacificDay(inicio - 3600e3) === d) inicio -= 3600e3;
+  while (pacificDay(inicio) < d) inicio += 3600e3;
   const min = Math.floor((now - inicio) / 60000);
   const dia = new Date(inicio).toLocaleDateString('en-US', { weekday: 'short', timeZone: ZONA_PANEL });
   return `${Math.floor(min / 60)}h ${min % 60}m of 24 · since ${horaLabel(inicio)} ${dia}, ${ZONA_NOMBRE}`;

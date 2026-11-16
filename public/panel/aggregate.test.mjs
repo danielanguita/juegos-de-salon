@@ -253,8 +253,9 @@ assert.equal(ninguna.ajenas.length, 3);
   assert.deepEqual(RANGOS.map(r => r.id), ['today', '7d', '30d', '60d', '90d', '1y', 'ytd'], 'los siete rangos, en orden');
   assert.equal(largo('today'), 1, 'hoy: el día UTC en curso');
   assert.equal(largo('7d'), 7);
-  // 3 Nov 2026 is PST: midnight UTC is 16:00 the day before
-  assert.equal(hoyUtcLabel(Date.UTC(2026, 10, 3, 5, 20)), '5h 20m of 24 · since 16:00 Mon, Pacific time');
+  // Today is the Pacific date (D-561): at 13:20 UTC on 3 Nov 2026 (PST) it is 05:20 there
+  assert.equal(hoyUtcLabel(Date.UTC(2026, 10, 3, 13, 20)), '5h 20m of 24 · since 00:00 Tue, Pacific time');
+  assert.equal(rangeOf('today', Date.UTC(2026, 10, 3, 5, 20)).to, Math.floor(Date.UTC(2026, 10, 2) / DAY), 'at 05:20 UTC it is still the 2nd in Pacific');
   assert.equal(largo('30d'), 30);
   assert.equal(largo('60d'), 60);
   assert.equal(largo('90d'), 90);
@@ -266,7 +267,7 @@ assert.equal(ninguna.ajenas.length, 3);
   assert.equal(ytd.from, Math.floor(Date.UTC(2026, 0, 1) / DAY));
   assert.equal(ytd.to - ytd.from + 1, 257);
   // El 1 de enero, "este año" es un solo día y nunca una ventana al revés
-  const enero = Date.UTC(2026, 0, 1, 3);
+  const enero = Date.UTC(2026, 0, 1, 12);
   assert.equal(rangeOf('ytd', enero).from, rangeOf('ytd', enero).to, 'el 1 de enero, este año es hoy');
 
   assert.equal(rangeOf('no-existe', ahora).id, '7d', 'un rango desconocido cae en el de siempre');

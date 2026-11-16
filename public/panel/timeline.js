@@ -36,7 +36,8 @@ const mondayOf = d => d - ((d + 3) % 7);
  * date. In the evening, Pacific time, UTC is already on the next day, which has not happened here yet.
  */
 export function pacificRange({ from, to }, now = Date.now()) {
-  const shift = Math.min(0, dayOfIso(diaPanel(now)) - Math.floor(now / DAY));
+  // A range that already ends on today's Pacific date (rangeOf, D-561) stays as it is
+  const shift = Math.min(0, dayOfIso(diaPanel(now)) - to);
   return { from: from + shift, to: to + shift };
 }
 
