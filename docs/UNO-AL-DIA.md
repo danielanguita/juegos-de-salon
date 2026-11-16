@@ -772,7 +772,7 @@ textos los propone el agente de usabilidad y el dueño los corrige en el PR.
   out in the next two decks) and `tools/e2e/daily-variants.mjs` (Loteo and Pintaminas, on the first
   day each is due, looked up in the deck since D-405, play their default variant with no picker, even when the phone remembers the other).
 
-### Uno al día points (D-412, D-414, D-415, D-465, D-500)
+### Uno al día points (D-412, D-414, D-415, D-465, D-500, D-563)
 
 One number ranks players in a **monthly season** (everyone starts at 0 on the 1st; the table is
 `records/uno-al-dia-pts/s<yyyy>-<mm>/`, so a new month is a new table):
@@ -793,10 +793,13 @@ One number ranks players in a **monthly season** (everyone starts at 0 on the 1s
   `#seccion-uad-night-totals`): with the flag on, the phone writes only raw events (history, day's
   row, 🧊 markers, acceptances); the month's points, the +10 per friend, the week's sum and the best
   streak are written only by the rebuild, which then runs every hour (`23 * * * *`) and counts every
-  friend who accepted in the month. /today/ adds to the rebuild's row this phone's days after its
-  last counted day `u` (`conMiCuenta`), so today's points show at once, in the big number and in the player's own row of
-  the month's tabs, placed again (`tablaConMiCuenta`, `bloqueRanking`'s `ajustar`); with no row yet (the first day of a month, before the rebuild counts it) the phone's own row is inserted when it fits in the list read, so the tab never says "nobody yet" under "#1 of the month"; other players' reach the
-  ranking within the hour. When it launches, a later PR removes the phone's writers and tightens
+  friend who accepted in the month. Every read of the month table projects it (D-563, `proyectarMes`
+  in `records.js`, called by `J.tabla` and `J.tablaAmigos`): to each player's row it adds the days in
+  the day tables (yesterday, today, tomorrow) after the row's last counted day `u`, with the streak
+  bonus, so /today/, the ranking under the result, /records/ and the home chip show the same numbers
+  on every phone. On top of that, /today/ adds what only this phone knows (a day not uploaded yet) to
+  its own row (`conMiCuenta`), so today's points show at once, in the big number and in the player's own row of
+  the month's tabs, placed again (`tablaConMiCuenta`, `bloqueRanking`'s `ajustar`); with no row yet (the first day of a month, before the rebuild counts it) the phone's own row is inserted when it fits in the list read, so the tab never says "nobody yet" under "#1 of the month"; other players' days reach every phone's table as soon as they are uploaded, and their 🧊 days within the hour. When it launches, a later PR removes the phone's writers and tightens
   the rules so only the administrator writes those totals.
 - **No jump on /today/:** signed in, the first drawing shows the last total the ranking gave this phone
   (`uad-pts-cache`), then the fresh one.

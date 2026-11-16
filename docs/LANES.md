@@ -52,7 +52,7 @@ inside their games (`public/labs/<game>/**`, `docs/games/<game>.md`, `tools/e2e/
 outside makes it 🔴 as before. The PR that brings a new game in adds its line to `lab-owners.json`,
 which is 🔴, so the owner's tick on that PR is the one approval. `lanes.mjs check` warns a session
 whose branch touches a contributor's game, so the owner's sessions coordinate instead of colliding.
-When the game leaves the lab its folder moves, so the ownership ends with it unless renewed.
+When the game leaves the lab its folder moves, so the ownership ends with it unless renewed. The owner's PRs never need a contributor's approval: `lanes.mjs check` only notes that a session touches a contributor's game, so it expects their changes there.
 
 **What the owner reads before deciding.** The owner approves or rejects a 🔴 PR in one tap, so the
 session gives them the decision ready to take, in plain Spanish with no jargon, in the PR

@@ -7,6 +7,7 @@ export const FLAGS = {
   'panel-nav-more': '📊 Panel on a phone: five tabs and ☰ More at the bottom, the other sections in a sheet by group',
   'cup-footer': '🏆 La Copa: the board ends with the site footer, its report and leave links as tiles (U-38)',
   'cup-offline': '🏆 La Copa offline: a pending day of a cup this phone opened with signal plays with no signal; the result uploads when the signal is back, if its day is still open (D-544)',
+  'cup-talk': '🏆 La Copa: a reaction and a comment on each result of the days you played, under the table (D-562)',
   'copa-crear': '🏆 La Copa: the new create screen, with the length from 3 to 14 days and the cup\'s zone, and each player\'s own hours in a cup of another zone (D-521)',
   'copa-hoy': '🏆 La Copa: ▶ Jugar hoy on its home page card',
   'copa-espera': '🏆 La Copa: Día N en Xh on its home page card',
@@ -26,6 +27,7 @@ export const FLAGS = {
   'stack': '🗼 Babel: the game, on the home page, the search and new cups (D-517), with its background music',
   'aletazo': '🐤 Aletazo: the game, on the home page, the search and new cups (D-517\'s way), launched 2026-11-09 at 00:00 Pacific',
   'sudoku': '#️⃣ Sudoku: the game, on the home page, the search and new cups (D-517\'s way), launching 2026-11-11 at 21:00 Pacific',
+  'microgames': '⚡ ¡Al toque!: the game, on the home page and the search (D-517\'s way), launching 2026-11-14 at 21:00 Pacific',
   'no-double-tap-zoom': '👆 Games: a double tap no longer zooms the page (iPhone)',
   'browser-lang': '🌐 First visit in the browser\'s language (English or Portuguese), not always Spanish (D-536)',
   'babel-tally': '🗼 Babel: the score adds itself up on the end screen, floors + bonuses = points, with its show',
@@ -36,6 +38,7 @@ export const FLAGS = {
   'routes-hint': '🚇 Broken Routes: a 💡 Hint button on its own page (one player, never La Copa) marks one rectangle of a shortest solution, −3 points each (#1381)',
   'mistakes-rule': '❌ Logic puzzles: what a mistake costs, in one line under the title while playing (Tango −10, Reinas nothing…)',
   'pm-pick-brush': '🖌️ Pintaminas: a game starts with no brush chosen; a tap on the board first asks to pick one, so nobody paints by mistake',
+  'cover-dialogs': '🎮 Game covers: under Empezar, Instrucciones and Entrar (or your name) open as dialogs, the rankings open below; no «Volver al menú» and no game name chip on top, ‹ Menú as tall as the icons',
   'lab-ready': '✅ Labs: lab use of each flag is counted, and its card says when it is ready to 🚀 (D-528)',
 };
 

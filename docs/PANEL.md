@@ -20,6 +20,20 @@ they worsen), 🔍 **Diagnosis** (tactical: funnels and breakdowns) and 🧭 **T
 or month, with 🚀 marking the versions that first showed up in each period). Every table has a
 ⬇︎ CSV button. The pure accounts are in `public/panel/dominios.js`.
 
+**📋 WBR, the Weekly Business Review** (`#/wbr`, `#/wbr/2026-11-14` for the week ending that Saturday): the
+weekly email's tables for any closed week, by Pacific date (D-561), from `public/panel/wbr.js`, the same module the email uses:
+the headline (games finished and started, active browsers, daily active, games per active browser, visits)
+and the top 10 games, over the week, the four before, this month so far and the two before; "n/a" before
+a counter or a game existed. It downloads back to the first of the month two months before its week.
+On a phone its tables scroll sideways with the names pinned. The Sunday email links to its week.
+
+**Lab plays are out of every count of games (D-560).** Summary, Group, Individual and Audience read the
+days through `withoutLabGames(days, publicGameCheck(flags))` (`public/panel/public-games.js`): a play
+counts only if its game is in `ALL_GAMES` and is neither a lab game (`labs`) nor in La Bodega (or is one of
+La Copa's games without a page) and, for a game a flag launched, from the UTC day its `flags/<id>` went to *all*. La Copa's counts read the cups without the lab's (`withoutLabCups`, `meta.lab`). Visits, users, traffic and signals
+are not about a game and stay whole; the live views (now, logs, a game's own page) still show lab
+plays. The weekly report uses the same function, so the two agree.
+
 | Section | Address | What it answers |
 |---|---|---|
 | 📊 Summary | `#/summary` | The main metric (**games finished**: rooms with an ending, offline games finished and La Copa games), one card per domain with its change, and what is being played now (`#/now` keeps the full list). |
@@ -45,6 +59,7 @@ A la izquierda en el computador; abajo, como barra, en el celular. Todo queda en
 URL (`public/panel/rutas.js`), así que Atrás, una recarga o un enlace guardado vuelven al mismo
 lugar; el rango y el entorno van detrás solo si no son los de siempre (`#/cup?r=30d&e=dev`).
 Los enlaces de antes (`#torneo`, `#resumen`, `#juegos`) siguen sirviendo.
+On a phone the bar holds 📊 Summary, WBR, 🕑 Timeline, Feedback and ☰ More; the rest, 🩺 Health included, is under More, and a Health alert shows on ☰.
 
 | Dirección | Qué muestra |
 |---|---|
@@ -64,8 +79,8 @@ link can still name another, `e=`); the search box by room or cup code is gone (
 still opened by its link, `#/cup/<code>`, `#/room/<code>`).
 
 **La hora es la del Pacífico** (Los Ángeles), la misma con que La Copa parte sus días: la hora de
-un juego y la ventana de su día se leen en el mismo reloj. Los contadores de `stats/` siguen por
-día UTC y se rotulan así; la hora del gráfico de audiencia es la local del celular.
+un juego y la ventana de su día se leen en el mismo reloj. The `stats/` counters are stored by UTC day but every
+view regroups them by Pacific date (D-561, below); la hora del gráfico de audiencia es la local del celular.
 
 **Cada nombre lleva la bandera de su país.** En las salas sale de `co` (D-79). En La Copa, de
 `co` en `torneos/<código>/players/<pid>`, que la copa guarda al crear o inscribirse desde esta
@@ -103,7 +118,7 @@ blanco. En `stats/<env>/days/<día>`:
   las que no, nunca llegaron ahí. Cargas = vistas + no arrancaron. Salud solo muestra tasas sobre eso.
 - **Un error viejo sale en gris** con "no se ve desde la X" cuando la versión más nueva del rango
   (de los errores, las salas y las partidas sin red) no lo tuvo.
-- **Un punto rosado en 🩺 Salud** dice que hoy o ayer (días UTC) alguna página no arrancó.
+- **Un punto rosado en 🩺 Salud** dice que hoy o ayer (días Pacific) alguna página no arrancó.
 - **Qué no se anota:** extensiones del navegador, "Script error." sin archivo, `ResizeObserver loop`,
   fetch cancelados, lo que pasa después de cerrar la pestaña, imágenes y audio que no cargaron, ni
   más de diez errores por carga. Las direcciones van sin `?` ni `#` (ahí van los códigos de sala y
@@ -208,7 +223,7 @@ which the transport bumps on every message, and the panel lists the codes with a
 |---|---|---|
 | **Now** | Salas en juego, celulares conectados, salas vivas (las que latieron hace menos de media hora, D-89), juegos en curso. Lista de salas con código, juego, nombres, quién está conectado, **jugadas**, **mensajes de chat** y última jugada (D-138). Una sala cuenta como *en juego* solo si entró un rival. Solo las del entorno elegido (D-45). | `rooms/` en vivo (índice por `createdAt`), cruzado por código con `stats/<env>` |
 | **Offline games** | Las partidas contra el celular, en un celular o solitarias que se están jugando ahora (D-140): juego, modo, cuántos juegan, país, cuándo empezó y la última señal. Sale de la lista a los tres minutos sin señal. También suben al cuadro *partidas sin red ahora* y a *juegos en curso*. | `stats/<env>/days/<día>/live/<id>` (hoy y ayer) |
-| **Últimos 7 / 30 días** | Partidas empezadas, en dos celulares (solo las que tuvieron rival), sin red, entradas de un celular a una partida, partidas de hoy (día UTC) y salas donde nunca entró nadie más (D-138). | `stats/<env>/days/<día>` |
+| **Últimos 7 / 30 días** | Partidas empezadas, en dos celulares (solo las que tuvieron rival), sin red, entradas de un celular a una partida, partidas de hoy (día Pacific) y salas donde nunca entró nadie más (D-138). | `stats/<env>/days/<día>` |
 | **Games by game** | Barra por juego, partida por modo: 📡 dos celulares, 📱 un celular, 🤖 contra el celular, 🧍 solo. Los modos salen del registro, y uno nuevo entra solo (C-16). | `rooms` (📡) y `local/<juego>/<modo>/<n>` |
 | **Players per game** | Cuántas partidas de 1, 2, … hasta el juego más numeroso del menú (hoy 6, `MAX_PLAYERS`). | `n` de los contadores sin red y cantidad de nombres de cada sala |
 | **By day** | Partidas por día, separando dos celulares del resto. | ídem |
@@ -254,8 +269,10 @@ las cifras reales. `lab` quedó solo para leer lo que se guardó mientras existi
 - **Entradas de un celular a una partida**, y también *De dónde*, los idiomas y la hora, suben
   una vez cada vez que un celular empieza o entra a una partida: el mismo celular que juega cinco
   revanchas suma cinco. No son personas.
-- **Los días son días UTC**: en Chile el día del panel cambia a las 21:00 (verano) o 20:00
-  (invierno). La hora de *A qué hora se juega* sí es la local del celular, tomada al empezar.
+- **Every view counts Pacific dates (D-561):** each count, range and "today" reads `ptDays()` in `panel.js`
+  (`toPacificDays` in `wbr.js`); the logs read the UTC buckets one day wider and keep the rows whose moment is in
+  the Pacific range. Counters with no time (failures, shares, campaign reach, pages seen) keep their UTC day; games
+  before 2026-10-04 and browsers and visits before 2026-11-16 too. Live views ("Now") and a room's card keep `S.days`. La hora de *A qué hora se juega* sí es la local del celular, tomada al empezar.
 
 Vale también para la lista de "Now", aunque ahí cueste un rodeo: `rooms/` es el nodo real
 del transporte y es uno solo para todos los entornos, así que una partida de prueba abre una
@@ -290,7 +307,7 @@ Sale del celular, por día y por entorno (`public/assets/js/transport/stats.js`)
   `vigia.js` y no `stats.js`.
 - **Since D-348:** `fin/<game>/<mode>` (an offline game finished), `otra/<game>` (a replay: the
   same game started again after finishing, detected in `stats.js`), `comparte/<what>` (a share that
-  was not cancelled, from `compartir()`), and once per visit `vuelta/<band>` (days since the last
+  was not cancelled, from `compartir()`; counted only on a web page and never from a robot, `shareCountable` in `stats.js`, so tests run in Node write nothing), and once per visit `vuelta/<band>` (days since the last
   visit: `nueva`, `d1`, `d2-7`, `d8-30`, `d31`) and once per browser and day `frec/<band>` (how many
   of the last 28 days it came: `f1`, `f2-3`, `f4-7`, `f8-14`, `f15`). The browser computes the bands
   from `juegos-de-salon:ultima` and `juegos-de-salon:dias` and sends only the band.

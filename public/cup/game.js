@@ -48,6 +48,8 @@ import { formularioComentario, abrirComentario, campoCorreo } from '../assets/js
 import { enlaceBuzon, ponerBuzon, sinDoble } from '../assets/js/buzon.js';
 import { cuentaRegresiva as cuentaComun } from '../assets/js/cuenta-regresiva.js';
 import { PANTALLAS, redibujarCon } from './screens.js';
+import { coverWithDialogs, gameTopBar } from '../assets/js/cover-dialogs.js';
+import { REACTIONS, MAX_COMMENT, cleanComment, commentProblem, canTalk, talkDay, firstComment, rowTalk } from './talk.js';
 
 // The four new One a Day share grids wait in the lab (D-508). lab: #seccion-uad-share-grids
 let gridsNuevos = false;
@@ -853,14 +855,21 @@ function vistaTabla(filas, { dias, meta, now }) {
     return [...dias.slice(0, ultimo + 1).map(d => bloque(f, d)),
       resto ? el('span', { class: 'pd eliminado', style: `min-width:calc(${resto} * 1.368rem + ${resto - 1} * 4px)` }, T.outBadge) : null];
   };
-  return el('div', { class: 'tabla' }, filas.map(f => el('div', { class: 'fila' + (f.pid === S.yo ? ' yo' : '') + (f.fuera ? ' fuera' : '') },
+  // Reactions and comments (D-562, lab): a 💬 at the end of each row, its drawer under it
+  const conCharla = filas.some(f => botonCharla(f.pid, now));
+  return el('div', { class: 'tabla' + (conCharla ? ' con-charla' : '') }, filas.flatMap(f => [el('div', { class: 'fila' + (f.pid === S.yo ? ' yo' : '') + (f.fuera ? ' fuera' : '') },
     // Out of the cup (D-347): a door instead of a place, and faded (D-376)
     el('span', { class: 'lugar', title: f.fuera ? fmt(T.outAdmin, { a: f.fuera.desde, b: f.fuera.hasta }) : null }, f.fuera ? '🚪' : String(f.lugar)),
     el('span', { class: 'flecha ' + (f.flecha > 0 ? 'sube' : f.flecha < 0 ? 'baja' : '') }, f.flecha > 0 ? '▲' : f.flecha < 0 ? '▼' : ''),
     el('div', { class: 'quien' },
       el('b', {}, f.name, f.pid === S.yo ? el('small', { class: 'muted' }, ` (${T.you})`) : null),
-      el('div', { class: 'puntitos' }, bloques(f))),
-    el('span', { class: 'total' }, String(f.total), el('small', {}, ` ${T.pts}`)))));
+      el('div', { class: 'puntitos' }, bloques(f)),
+      // Today's first comment, for everyone, even before playing (the owner, 2026-11-16)
+      charla ? comentarioEnFila(f.pid, now) : null),
+    // With talk on, the 💬 goes under the points, so the day blocks keep their width
+    conCharla ? el('div', { class: 'fila-der' }, el('span', { class: 'total' }, String(f.total), el('small', {}, ` ${T.pts}`)), botonCharla(f.pid, now))
+      : el('span', { class: 'total' }, String(f.total), el('small', {}, ` ${T.pts}`))),
+  conCharla ? cajonCharla(f.pid) : null].filter(Boolean)));
 }
 
 /**
@@ -1003,10 +1012,165 @@ function desdeAviso() {
   else tablero();
 }
 
+/* ------------------------------------------------------------------ */
+/* Reactions and comments (D-562), lab: #seccion-cup-talk               */
+/* ------------------------------------------------------------------ */
+
+// Behind its flag until the owner launches it from /labs/
+let charla = false;
+flag('cup-talk').then(v => { charla = v; if (v && S.pantalla === 'tablero' && L()?.meta && !composing()) tablero(); });
+/** The talk of the open cup, kept apart from it (cupTalk/), and what is being written. */
+const C = { code: null, off: null, v: { talk: {}, hidden: {} }, abierto: null, caja: null, borrador: null, pendiente: false };
+/** Writing a comment: the board is not redrawn under the keyboard; it is once the field lets go. */
+const composing = () => !!C.borrador && !!document.activeElement?.classList?.contains('charla-input');
+
+function seguirCharla() {
+  if (!charla || offlineStore() || !store?.escucharCharla || !S.code) return false;
+  if (C.code !== S.code) {
+    C.off?.();
+    Object.assign(C, { code: S.code, v: { talk: {}, hidden: {} }, abierto: null, caja: null, borrador: null, pendiente: false });
+    // What comes in redraws the board (its 💬 counts), unless a comment is being written
+    C.off = store.escucharCharla(S.code, v => {
+      C.v = v;
+      if (S.pantalla !== 'tablero' || !L()?.meta) return;
+      if (composing()) C.pendiente = true; else tableroEnSuSitio();
+    });
+  }
+  return true;
+}
+
+/** Today, if `S.yo` and `pid` both played it: the only day talked about (the owner, 2026-11-16). */
+const diaCharla = (pid, now) => { const d = talkDay(L(), now); return d && canTalk(L(), d, S.yo, pid, now) ? d : null; };
+
+/** The board drawn again where it was: a tap on a 💬 or a new comment does not move the page. */
+function tableroEnSuSitio() {
+  const y = scrollY;
+  tablero();
+  scrollTo(0, y);
+}
+
+/** Today's first comment on `pid`, on their row of the table for everyone (the owner, 2026-11-16). */
+function comentarioEnFila(pid, now) {
+  if (!seguirCharla()) return null;
+  const d = talkDay(L(), now);
+  const x = d && L().results?.[d]?.[pid] ? firstComment(C.v, d, pid) : null;
+  if (!x) return null;
+  return el('p', { class: 'fila-comentario' }, el('span', { class: 'fila-comentario-autor' }, L().players?.[x.author]?.name || '?'), `: ${x.c}`);
+}
+
+/** The 💬 button at the end of a row of the table, with how many reactions and comments that player got. */
+function botonCharla(pid, now) {
+  if (!seguirCharla()) return null;
+  const d = diaCharla(pid, now);
+  if (!d) return null;
+  const x = rowTalk(C.v, d, pid, S.yo);
+  const n = x.reactions.reduce((b, r) => b + r.n, 0) + x.comments.filter(c => !c.h).length;
+  const abierto = C.abierto === pid;
+  return el('button', {
+    type: 'button', class: 'fila-charla' + (abierto ? ' on' : ''), 'aria-expanded': String(abierto), 'aria-label': T.talkTitle, 'data-pid': pid,
+    onClick: () => { SFX.tap(); C.abierto = abierto ? null : pid; C.borrador = null; tableroEnSuSitio(); },
+  }, el('span', { class: 'fila-charla-pill' }, '💬', n ? el('span', { class: 'fila-charla-n' }, String(n)) : null));
+}
+
+/** Under the open row: that player's result of today, with its reactions and comments. */
+function cajonCharla(pid) {
+  if (C.abierto !== pid) return null;
+  C.caja ||= el('div', { class: 'charla-cajon', id: 'charla' });
+  pintarCharla();
+  return C.caja;
+}
+
+function pintarCharla() {
+  const caja = C.caja;
+  if (!caja || !C.abierto) return;
+  if (composing()) { C.pendiente = true; return; }
+  const Lc = L(), now = ahora(), pid = C.abierto;
+  const d = diaCharla(pid, now);
+  if (!d) { caja.replaceChildren(); return; }
+  caja.replaceChildren(el('p', { class: 'muted charla-nota' }, T.talkHint), filaCharla(Lc, d, pid, now));
+}
+
+function filaCharla(Lc, d, pid, now) {
+  const r = Lc.results[d][pid];
+  const J = juegoDia(Lc.meta, d);
+  const nombre = q => Lc.players?.[q]?.name || '?';
+  const { reactions, comments, mine } = rowTalk(C.v, d, pid, S.yo);
+  const puede = canTalk(Lc, d, S.yo, pid, now);
+  // A reaction and a comment are one entry: changing one keeps the other
+  const decir = async cambio => {
+    try { await store.decir(S.code, d, pid, S.yo, { e: mine?.e || null, c: mine?.c || null, ...cambio }); } catch (e) { toast(errorDe(e)); }
+  };
+  const cuenta = reactions.length ? el('span', { class: 'charla-cuenta' }, reactions.map(x => el('span', { title: T.talkReactions[x.key] }, x.n > 1 ? `${x.emoji}${x.n}` : x.emoji))) : null;
+  const lista = comments.map(x => el('p', { class: 'charla-comentario' + (x.h ? ' oculto' : '') },
+    el('b', {}, nombre(x.author)), `: ${x.c}`,
+    x.h ? el('small', { class: 'muted' }, ` · ${T.talkHidden}`) : null,
+    x.author === S.yo ? el('button', { type: 'button', class: 'link-btn charla-accion', onClick: () => {
+      if (!confirm(T.talkDeleteConfirm)) return;
+      SFX.tap(); decir({ c: null });
+    } }, T.talkDelete)
+      : pid === S.yo ? el('button', { type: 'button', class: 'link-btn charla-accion', onClick: async () => {
+        SFX.tap();
+        try { await store.ocultar(S.code, d, pid, x.author, !x.h); } catch (e) { toast(errorDe(e)); }
+      } }, x.h ? T.talkShow : T.talkHide) : null));
+  const botones = puede ? el('div', { class: 'charla-reacciones', role: 'group', 'aria-label': T.talkReact },
+    Object.entries(REACTIONS).map(([k, em]) => el('button', {
+      type: 'button', class: 'charla-emoji' + (mine?.e === k ? ' on' : ''), 'aria-pressed': String(mine?.e === k), 'aria-label': T.talkReactions[k], title: T.talkReactions[k], 'data-e': k,
+      onClick: () => { SFX.tap(); decir({ e: mine?.e === k ? null : k }); },
+    }, em))) : null;
+  let escribir = null;
+  if (puede && !mine?.c) {
+    escribir = C.borrador?.d === d && C.borrador.pid === pid ? C.borrador.nodo
+      : el('button', { type: 'button', class: 'link-btn charla-comentar', onClick: () => { SFX.tap(); abrirBorrador(d, pid); } },
+        `💬 ${pid === S.yo ? T.talkCommentOwn : T.talkComment}`);
+  }
+  return el('div', { class: 'charla-fila' + (pid === S.yo ? ' yo' : ''), 'data-pid': pid },
+    el('div', { class: 'charla-cab' },
+      gameIcon(J, { class: 'charla-icono' }),
+      el('b', { class: 'charla-nombre' }, J.nombre, el('small', { class: 'muted' }, ` · ${fmt(T.talkDay, { d })}`)),
+      el('span', { class: 'charla-res' }, r.r || String(r.s))),
+    cuenta, ...lista, botones, escribir);
+}
+
+function abrirBorrador(d, pid) {
+  const input = el('input', { type: 'text', class: 'charla-input', maxlength: String(MAX_COMMENT), placeholder: T.talkPlaceholder, 'aria-label': T.talkComment, enterkeyhint: 'send', autocomplete: 'off' });
+  const aviso = el('small', { class: 'charla-aviso', 'aria-live': 'polite' });
+  const enviar = async () => {
+    const problema = commentProblem(input.value);
+    if (problema) { aviso.textContent = problema === 'offensive' ? T.talkOffensive : T.talkEmpty; input.focus(); return; }
+    const mine = rowTalk(C.v, d, pid, S.yo).mine;
+    boton.disabled = true;
+    try { await store.decir(S.code, d, pid, S.yo, { e: mine?.e || null, c: cleanComment(input.value) }); } catch (e) {
+      aviso.textContent = errorDe(e); boton.disabled = false; return;
+    }
+    SFX.tap();
+    cerrar();
+  };
+  const cerrar = () => {
+    C.borrador = null;
+    input.blur();
+    if (C.pendiente && S.pantalla === 'tablero') { C.pendiente = false; tableroEnSuSitio(); } else pintarCharla();
+  };
+  const boton = el('button', { type: 'button', class: 'btn btn--cyan btn--sm', onClick: enviar }, T.talkSend);
+  input.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); enviar(); } });
+  // Whatever came while writing is drawn once the field lets go
+  input.addEventListener('blur', () => setTimeout(() => {
+    if (!C.pendiente || composing()) return;
+    C.pendiente = false;
+    if (S.pantalla === 'tablero') tableroEnSuSitio();
+  }, 300));
+  C.borrador = { d, pid, nodo: el('div', { class: 'charla-borrador' },
+    el('div', { class: 'charla-linea' }, input, boton), aviso,
+    el('button', { type: 'button', class: 'link-btn', onClick: () => { SFX.tap(); cerrar(); } }, T.talkCancel)) };
+  pintarCharla();
+  input.focus();
+}
+
 let buzonPodio;   // the inbox link under the podium, decided once per page (D-345)
 function tablero() {
   const Lc = L();
   if (!Lc || !S.yo) return;
+  // Writing a comment (D-562): not under the keyboard; drawn once the field lets go
+  if (S.pantalla === 'tablero' && composing()) { C.pendiente = true; return; }
   if (!Lc.players?.[S.yo]) { cuenta.olvidar(S.code); S.yo = null; entrar(); return; }
   anotarPais(Lc);
   mostrar('tablero');
@@ -1875,6 +2039,7 @@ function practica(id, varianteElegida = null) {
   // La página propia de un juego (también la del laboratorio, /labs/case/) lleva su nombre en la pestaña
   if (!LABS || SUELTO) document.title = `${J.nombre} ${J.emoji} · ${(COMMON[LANG] || COMMON.es).appTitle}`;
   // En el laboratorio, "‹ Laboratorio" es largo: bajo 400 px el chip queda solo con el emoji (U-12)
+  if (SUELTO) gameTopBar();
   if (SUELTO) $('#chip-juego').replaceChildren(gameIcon(J), el('span', { class: LABS ? 'chip-txt chip-txt--lab' : 'chip-txt' }, ` ${J.nombre}`));
   if (HOY) {
     // Si hoy toca otro juego (un link de ayer, o pasó la medianoche), se va al de hoy
@@ -1935,6 +2100,8 @@ function practica(id, varianteElegida = null) {
       el('p', { class: 'lead', style: 'margin:10px 0 4px' }, T.scoring), el('p', { class: 'muted' }, puntajeTexto(Jr, false))),
     rankea(id) ? bloqueRanking({ juego: tablaRk(id, variante), titulo: tituloRk(J), pestanas: varianteRk(id, variante) ? ['semana', 'siempre', 'amigos'] : ['semana', 'siempre', 'amigos', 'copa'], alTocar: () => SFX.tap() }) : null));
   pieComentario({ juego: id, semilla, pantalla: 'antesala' });
+  // A game's own page: Instrucciones and Entrar as dialogs, no game chip on top (lab: #seccion-cover-dialogs)
+  if (SUELTO) coverWithDialogs(body, { lang: LANG, alTocar: () => SFX.tap() });
   // The first attempt counts from its start (D-433): the line says so, an attempt left halfway goes
   // on where it was, and one started on another phone counts 0
   // Empezar waits for that answer (at once without a player; with one, at most Firebase's 2.5 s)

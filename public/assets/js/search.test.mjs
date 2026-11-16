@@ -24,8 +24,8 @@ const LANGS = ['es', 'en', 'pt'];
 const missing = PORTADA.flatMap(x => LANGS.filter(l => !(KEYWORDS[x.id]?.[l]?.length >= 3)).map(l => `${x.id}:${l}`));
 assert.deepEqual(missing, [], 'every game on the home page has at least three search keywords in es, en and pt: add `keywords` to its entry in games.js');
 // A game waiting for its launch flag (`oculto`, D-517) keeps its keywords: it reaches the home page with them
-const { SUELTOS: S2 } = await import('./games.js');
-assert.deepEqual(Object.keys(KEYWORDS).filter(id => !PORTADA.some(x => x.id === id) && !S2.find(g => g.id === id)?.oculto), [], 'no keywords left for a game that is no longer on the home page');
+const { ALL_GAMES: ALL } = await import('./games.js');
+assert.deepEqual(Object.keys(KEYWORDS).filter(id => !PORTADA.some(x => x.id === id) && !ALL.find(g => g.id === id)?.oculto), [], 'no keywords left for a game that is no longer on the home page');
 // Each language finds by what a game is, not only by its name
 const finds = (q, id) => search(q, PORTADA)?.has(id);
 assert.ok(finds('dados', 'dudo') && finds('dice', 'dudo'), 'dice, in every language');

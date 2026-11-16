@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { isPush, problems } from './push-guard.mjs';
+import { isPush, problems, pushDir } from './push-guard.mjs';
 
 test('isPush sees a git push, not other commands', () => {
   assert.ok(isPush('git push -u origin x'));
@@ -38,4 +38,13 @@ test('.claude/settings.json runs the guard before Bash', () => {
   const s = JSON.parse(readFileSync('.claude/settings.json', 'utf8'));
   const cmds = (s.hooks.PreToolUse || []).filter(h => h.matcher === 'Bash').flatMap(h => h.hooks.map(x => x.command));
   assert.ok(cmds.some(c => c.includes('tools/agents/push-guard.mjs')));
+});
+
+test('pushDir checks the worktree a cd moved to, not the session folder (#1416, #1436)', () => {
+  assert.equal(pushDir('git push', '/repo'), '/repo');
+  assert.equal(pushDir('cd ../wt && git push -u origin b', '/repo'), '/wt');
+  assert.equal(pushDir('cd "/tmp/a b" && git add . && git push', '/repo'), '/tmp/a b');
+  assert.equal(pushDir('cd /x && cd y; git push', '/repo'), '/x/y');
+  assert.equal(pushDir('git -C ../wt push origin b', '/repo'), '/wt');
+  assert.equal(pushDir('git push && cd /elsewhere', '/repo'), '/repo');
 });

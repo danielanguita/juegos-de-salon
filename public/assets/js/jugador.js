@@ -34,7 +34,7 @@ import { UAD_DIAS } from './uad-days.js';
 import {
   claveNombre, limpiarNombre, esPin, esJid, nuevoJid, hashPinJugador, tablaId, normalizar, esMejor, semana,
   SIEMPRE, TODOTERRENO, todoterreno, vistaTabla, ordenar, VARIANTE_VICTORIAS, claveOrden, PARTIDAS, esPais,
-  UNO_AL_DIA, UAD_RACHA, periodoDia, MS_MAX, UAD_PUNTOS, RACHA_TOPE, bonoRacha, PUNTOS_INVITAR,
+  UNO_AL_DIA, UAD_RACHA, periodoDia, MS_MAX, UAD_PUNTOS, proyectarMes, RACHA_TOPE, bonoRacha, PUNTOS_INVITAR,
 } from './records.js';
 
 /** Lo que entiende Firebase (y el almacén de prueba) como "la hora del servidor" y "sumar uno". */
@@ -204,6 +204,24 @@ export function crearJugador({ almacen, storage = globalThis.localStorage, now =
   }
 
   let subiendo = null;
+  /**
+   * The day rows of month `periodo` the hourly rebuild may not have counted yet (D-563): yesterday,
+   * today and tomorrow by this phone's clock (a player ahead in another time zone is already on
+   * tomorrow), `{ <n>: rows }`. `reciente` reuses a read that recent, as `tabla` does; a failed read is none.
+   */
+  async function diasSinContar(periodo, reciente = 0) {
+    const d = new Date(now()), hoy = Math.round(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()) / 86400000);
+    const out = {};
+    await Promise.all([hoy - 1, hoy, hoy + 1].map(async n => {
+      if (`s${new Date(n * 86400000).toISOString().slice(0, 7)}` !== periodo) return;
+      const clave = `${UNO_AL_DIA}/${periodoDia(n)}`, previa = lecturas.get(clave);
+      let p = reciente && previa && now() - previa.at < reciente ? previa.p : null;
+      if (!p) { p = almacen.top(UNO_AL_DIA, periodoDia(n), LEER); lecturas.set(clave, { at: now(), p }); }
+      out[n] = await p.catch(() => []);
+    }));
+    return out;
+  }
+
   const api = {
     /** El jugador de este celular, `{ jid, n }`, o null. */
     yo: () => leerYo(storage),
@@ -459,7 +477,9 @@ export function crearJugador({ almacen, storage = globalThis.localStorage, now =
         lecturas.set(clave, { at: now(), p: lectura });
         lectura.catch(() => { if (lecturas.get(clave)?.p === lectura) lecturas.delete(clave); });
       }
-      const leidas = await lectura;
+      let leidas = await lectura;
+      // Uno al día's month: every phone adds the same not-yet-counted days to every row (D-563)
+      if (t === UAD_PUNTOS) leidas = proyectarMes(leidas, await diasSinContar(periodo, reciente));
       let vecinosLeidos = null;
       if (yo && leidas.length >= LEER && !leidas.some(f => f.jid === yo.jid)) {
         const mio = await almacen.get(`records/${t}/${periodo}/${yo.jid}`);
@@ -484,7 +504,10 @@ export function crearJugador({ almacen, storage = globalThis.localStorage, now =
         const r = await almacen.get(`records/${t}/${periodo}/${jid}`);
         return r ? { jid, ...r } : null;
       }))).filter(Boolean);
-      return ordenar(filas);
+      if (t !== UAD_PUNTOS) return ordenar(filas);
+      const set = new Set(ids), dias = await diasSinContar(periodo);
+      for (const n of Object.keys(dias)) dias[n] = dias[n].filter(d => set.has(d.jid));
+      return proyectarMes(filas, dias);
     },
 
     /* -------------------------- Uno al día (D-230) -------------------------- */

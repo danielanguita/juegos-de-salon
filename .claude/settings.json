@@ -31,6 +31,17 @@
           }
         ]
       }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cd \"$CLAUDE_PROJECT_DIR\" && [ -f tools/agents/session-length.mjs ] && node tools/agents/session-length.mjs || true",
+            "timeout": 10
+          }
+        ]
+      }
     ]
   }
 }

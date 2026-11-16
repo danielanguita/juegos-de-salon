@@ -1,5 +1,136 @@
 # Changelog
 
+## 1.15.1 — 2026-11-15
+- **Panel: Timeline back on the phone's bar.** The bar reads Summary, WBR, Timeline, Feedback and ☰ More. Health moves under More (it was left out of More's groups, as Timeline was, so neither could be reached on a phone), and its alert dot shows on ☰ More while Health is in there. The panel now reports any section that is neither on the bar nor under More.
+
+## 1.15.0 — 2026-11-15
+- **📋 WBR in the panel.** A new section, the Weekly Business Review: the weekly email's headline and top-10 games tables for the closed week or any week before (‹ Week before / Week after ›), made for the phone, with the tables scrolling sideways and the names pinned. The Sunday email links to its week's WBR. On a phone the bottom bar shows Summary, WBR, Health and Feedback; Timeline moved under More.
+
+## 1.14.2 — 2026-11-15
+- **Lab plays out of the counts.** The panel's game numbers and the weekly report no longer count lab games (Julep, Fourth King, The Case, La Bodega's), lab cups, or plays before a game's launch (D-560): last week's games finished go from 620 to 574. The report reads each game's versions as one in its difficulty table too, keeps the broken share figures out until the counter has clean weeks, shows games per active browser with one decimal, and names pages and errors in English ("home", "resource", "promise").
+
+## 1.14.1 — 2026-11-15
+- **Hangman**: when you lose playing alone, the word you missed now shows right under the title.
+
+## 1.14.0 — 2026-11-15
+- **Game covers (in the lab first)**: under Empezar, two equal buttons, «📖 Instrucciones» and «👤 Entrar» (your name once you are in), each opening a dialog that closes on any tap outside it, with the page behind kept still: the steps, numbered; or signing in to the ranking with your name and PIN, or your account. The ranking stays open below. «Volver al menú» leaves the cover, and the top bar loses the game's name on every screen of the game, with «‹ Menú» as tall as the icons. On every game's page, also the ones with their own cover.
+
+## 1.13.14 — 2026-11-15
+- **Shares counted right in the panel**: the home page's "shared" number was mostly our own tests. `compartir.test.mjs`, run in Node with no web page, counted five home-page shares in the live numbers on every run, locally and in CI (hundreds a day since D-349). A share now counts only on a web page and never from a robot; a test fails if sharing in a test writes to the database. The days already counted are left as they are.
+
+## 1.13.13 — 2026-11-15
+- **Weekly report: daily active browsers and games per active browser.** Two new rows in the email's headline table, over the same five weeks and three months: the average of browsers active each day, and games started per browser active in the column's range.
+
+## 1.13.12 — 2026-11-15
+- **The weekly report shows the trend.** The email now carries two tables: the headline (games finished, started, active browsers, visits) for the closed week with its change, the four weeks before, this month so far and the two months before; and the top 10 games over the same columns, every mode and version read as one, La Copa's plays included and lab plays left out, with "n/a" before a game was out or a counter existed. "Most played" now ranks every public game together (it used to pick the top group game, so Battleship won with 5 games against Flap's 186). Shares left the headline until its counter stops overcounting.
+
+## 1.13.11 — 2026-11-15
+- **`lanes.mjs check` no longer asks to coordinate with a lab game's contributor**: the owner's PRs never need their approval (D-553); it only notes they may be changing the game too.
+
+## 1.13.10 — 2026-11-15
+- **¡Al toque! in Rankings**: its best runs, recorded since launch, now have their tab on the Rankings page. A test now fails if a game records a score Rankings doesn't show (D-559).
+
+## 1.13.9 — 2026-11-15
+- **Long-session hint**: at 250 turns, and every 150 after, Claude Code shows the owner a one-line 📏 note with the session's size, since long sessions take half the tokens (`tools/agents/session-length.mjs`, docs/COSTS.md). It only informs.
+
+## 1.13.8 — 2026-11-15
+- **Costs, measured**: the landing-fold check runs as two jobs, one per phone width, with the same checks (a full end-to-end run ~8.5 → ~7 min); `tools/agents/costs.mjs` now also reports end to end, every workflow's minutes and Claude's tokens from this machine's sessions; `docs/COSTS.md` explains the numbers and the levers (D-558).
+
+## 1.13.7 — 2026-11-15
+- **Faster tests, lighter rounds**: the three slowest test files run their independent parts in parallel with the same checks (18 → 10 s, 11 → 2 s, 11 → 7 s); the processes agent's feedback step moved word for word to `docs/FEEDBACK-TRIAGE.md`, read only when there is feedback (36 → 27 KB per round); and a weekly cost check (`tools/agents/costs.mjs`, D-558) that never trades quality for savings.
+
+## 1.13.6 — 2026-11-15
+- **Faster tests**: the unit tests on each PR run in parallel (`tools/release/run-tests.mjs`), about 22 s instead of 72 s; locally the same command. Fixed a duplicated line in `CLAUDE.md` that split its table in two.
+
+## 1.13.5 — 2026-11-15
+- **Publishing retries a deploy that could not find the site package yet**: three publishes on 2026-11-15 (#1467 among them) failed because GitHub had not yet made the just-uploaded site visible to the deploy step; `pages-5xx.mjs` now retries that case a minute later, as it does a 5xx, and so does a failure whose error it cannot read: the running job's annotations always came back empty, so no retry had ever fired (D-506).
+
+## 1.13.4 — 2026-11-15
+- **Dudo:** the Classic rules hint now says "con tres o más jugadores" / "com três ou mais jogadores" in Spanish and Portuguese, as English already did (U-1).
+
+## 1.13.3 — 2026-11-15
+- Workshop: the push guard now checks the worktree a `cd` moves to before `git push`, not the session folder, so a stale README block or decisions index stops the push again (#1416, #1436).
+
+## 1.13.2 — 2026-11-14
+- **✨ The newest game first.** On the home page, the games still new go from the newest to the oldest, right after La Copa: ¡Al toque! now leads them (D-557).
+
+## 1.13.1 — 2026-11-14
+- **⚡ ¡Al toque! wears its ✨ Nuevo label.** A game launched with its switch is new from the moment it goes out, not from a date written ahead (D-556).
+
+## 1.13.0 — 2026-11-14
+- **⚡ ¡Al toque! is out of the lab, ready to launch at 21:00 Pacific today.** Its page is now /in-a-flash/ (the lab's link and /microgames/ lead there), on the home page, in the search and with its link card in three languages, once the `microgames` switch is on; until then it stays hidden. Its launch splash opens the game. La Copa and Uno al día come next.
+
+## 1.12.28 — 2026-11-14
+- **Answered decisions close themselves** (D-555): a daily sweep closes the owner's decision issues once they are answered and done, settles a question asked again in a newer issue, and lists in "Pending work" an approved task left undone for two days. `decide` no longer asks again what is still open, and deleting a branch happens on the tick.
+
+## 1.12.27 — 2026-11-14
+- **Making-of: the Traction numbers refresh themselves every day**: a daily workflow counts games finished and different phones with the panel's functions and publishes only those totals; the page reads them when it opens (D-554).
+- **The Traction cards show records, labelled as such** (the best week of games, the most phones in a week and in 30 days), so a slow week never undersells the reach.
+
+## 1.12.26 — 2026-11-14
+- **Making-of: a Traction section**: games finished (2,000+ in total, 580+ in the last 7 days, 126 on the best day), different phones in 7 and 30 days, and $0 on ads, from the panel's own counts as of 14 November 2026.
+
+## 1.12.25 — 2026-11-14
+- **Making-of: the captions under Where Is It? and Liar's Dice wrap within their clip's width**, like Shinobi's and Babel's.
+
+## 1.12.24 — 2026-11-14
+- **🕹️ ¡Pinball!: the intro shows the table.** Before the game starts you see the pinball table, with a thumb pressing each side in turn and its flipper swinging up, and «TOCA» on each half: you know where to put your fingers before the clock starts.
+
+## 1.12.23 — 2026-11-14
+- **Making-of: room for the arrows between the five build steps**, and learning 9 is now "A rule without an enforcer drifts" (D-541), replacing one about evals the project has not run yet.
+
+## 1.12.22 — 2026-11-14
+- **Making-of: the numbers update themselves** (games from the site, weeks from the first commit, PRs, decisions and tests from GitHub), a "3 / 10" counter in the corner, and the setup diagram fits one laptop screen.
+- **Making-of: a 🎲 beside the title.**
+
+## 1.12.21 — 2026-11-14
+- **Making-of: a yellow "Next" button at the foot of every section**, the play section says there are 20+ games (four shown), and the presenter notes are gone: the page is what the audience sees.
+
+## 1.12.20 — 2026-11-14
+- **Lab game owners** (D-553): a contributor who brought a game into the lab now merges their own changes to it without waiting for the owner, as long as the PR stays inside that game.
+
+## 1.12.19 — 2026-11-14
+- **🕹️ ¡Pinball!: one finger on each side, and smoother.** A 👆 pulses under each flipper with «TOCA» until you tap that side, and the side you press glows, so it is clear each thumb moves its own flipper. The balls move smoothly: a continuous trail instead of jumps, and no slow motion on slower phones.
+
+## 1.12.18 — 2026-11-13
+- **⚡ ¡Al toque! launch campaign, ready and off**: the splash `microgames-launch` with a new 10 s looping clip (a whole run of ten microgames, cut by lightning strikes in each gesture's color and sped up by the game's own ramp), its texts in es/en/pt and its launch plan; unseen until a `microgames` flag exists and is on.
+
+## 1.12.17 — 2026-11-14
+- **Pintaminas (in the lab first)**: a game starts with no brush chosen. A tap on the board before picking one paints nothing and costs nothing: it says «Primero elige un pincel abajo.» and the brushes light up, so nobody paints by mistake at the start.
+
+## 1.12.16 — 2026-11-14
+- **⚡ ¡Al toque! (lab): a new microgame, 🕹️ ¡Pinball!** Three balls drop onto a little neon table; tap the left or right half to swing that flipper and keep them up. Every ball you hit with a flipper and still in play after 5 seconds is a star. The runs now draw from 29 microgames.
+- **🕹️ ¡Pinball! tuned:** the bumpers move every game, the first ball drops onto a flipper at once and the other two come in later, one by one; save all three and they throw a ¡JACKPOT! party with googly eyes and party hats.
+- **👉 Swipe between games (lab, flag `game-swipe`).** On a game's cover, swipe left for the next game and right for the previous one, in the order of the home page cards you came from (with your filter or search); a small tab at each edge shows the neighbour and can be tapped too. Only on the cover: once you play, swipes are the game's.
+- **🕹️ ¡Pinball!: you see the next balls coming.** The two later balls wait see-through where they will drop, with a ring that fills up, instead of coming from the roof; the balls are smaller, a bumper sends them down a little slower, and the game lasts 6.5 seconds.
+- **🕹️ ¡Pinball!: a shorter table in brighter neon.** The table sits lower and shorter, by your thumbs; every line is a glowing neon tube that hums, the bumpers have two rings and light up white-pink, and the balls are a bit bigger again.
+- **🕹️ ¡Pinball!: a bigger table, two bumpers, neon sparkles.** A taller table, two bumpers instead of three, the balls as fast as before, and a soft neon sparkle wherever a ball strikes a wall, a flipper or a bumper. It runs smoothly again: the neon no longer slowed the game down on phones. The table sits higher, the first ball waits a moment so you see the table, the flippers are nicer paddles, and a flipper only fires again once it is back down.
+
+## 1.12.15 — 2026-11-13
+- **Game covers, La Copa and Uno al día**: the language is a flag button in the top bar from the first moment, also on a first visit with a slow connection. Before, the three flags showed under the title until the site's settings arrived, and on a small phone that pushed the start button below the bottom of the screen. The 🌐 card moves to La Bodega for good (D-537).
+- **In the lab, ¡Al toque!**: on a phone narrower than 420 px the three ways to play sit side by side, so Jugar is seen without scrolling (it was up to 300 px below the bottom of the screen at 320 px). The fold check had been measuring the language button in the top bar instead of Jugar, and no longer does.
+
+## 1.12.14 — 2026-11-13
+- **The owner's decision issues say where each idea came from**: every decision the processes agent opens carries a "Where it came from" line (who started it, when, with links), and `processes.mjs decide` refuses one without it (#1435).
+
+## 1.12.13 — 2026-11-13
+- **Making-of: every arrow in the setup diagram has a straight stem before its point**, so the head and the line leading to it read clearly when projected.
+
+## 1.12.12 — 2026-11-13
+- **Making-of: a roomier setup diagram.** Wider gaps between columns and boxes, so every arrow and its label has space when projected.
+
+## 1.12.11 — 2026-11-13
+- **The making-of page, round two** (`/making-of/`): titled Parlor Games (Juegos de Salón) with parlorgames.app as its link and QR; the product's screenshots in English; a "See it played" section with real clips of Where Is It?, Liar's Dice, Shinobi and Babel (recorded by `tools/generators/making-of-clips.mjs`); a diagram of the whole setup (people, the factory, the product, with /labs/ and /panel/); "Free" instead of "$0"; the learnings' numbers aligned with their titles.
+
+## 1.12.10 — 2026-11-13
+- **Panel, 📣 Campaigns**: while a start or end day is being edited, its date and time sit under the label, where the day shows, instead of over the label and the old value, and the ✕ stays tappable. The preview no longer says "✓ Looks right on a phone": it says something only when it finds a problem (⚠️).
+
+## 1.12.9 — 2026-11-13
+- **Panel, 📣 Campaigns**: the start and end days can be edited again on a Mac. Safari edits them in place, and the field was invisible while it was being edited. The preview is back in its own column to the right of the controls, and pressing ▶ on it no longer makes it flicker and restart, because the panel's redraws keep the playing preview in place again.
+
+## 1.12.8 — 2026-11-13
+- **The making of Juegos de Salón** (`/making-of/`): an unlisted, English-only page the owner projects for an executive audience: the product, how the agents build and ship it, each agent's job description, nine weeks of milestones and ten learnings with presenter notes (N shows them), and a QR to play. Arrow keys or Space jump section by section.
+
 ## 1.12.7 — 2026-11-12
 - **🚉 Transbordo (lab): a cover that shows the game.** A trip plays itself on the cover, city after city: its cards, the train riding them, turning at the transfer and arriving. "Cómo se juega" now starts folded, as on every cover.
 

@@ -44,15 +44,9 @@ jobs:
           fi
 
       # Every *.test.mjs in the repo, with no list to maintain: a new one gets in by itself.
+      # In parallel, one process per file (serial took ~72 s locally, parallel ~22 s)
       - name: Node tests
-        run: |
-          failures=0
-          for f in $(git ls-files '*.test.mjs'); do
-            echo "::group::$f"
-            if node "$f"; then echo "ok"; else echo "::error file=$f::$f failed"; failures=1; fi
-            echo "::endgroup::"
-          done
-          exit $failures
+        run: node tools/release/run-tests.mjs
 
       - name: Python tests
         run: |

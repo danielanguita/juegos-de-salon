@@ -8,7 +8,7 @@ The launch of ⚡ ¡Al toque! (microgames) out of the lab, made ahead of time (t
 | Texts | kicker "¡Nuevo juego!" · title in two lines, "No es rápido…" / "¡Es al toque!" (en "It’s not fast…" / "It’s in a flash!", pt "Não é rápido…" / "É na hora!"); the ⚡ is the icon above it, so the title stays two lines at 320 px, the owner's line; the card, with no heading (the owner: the clip and the text are enough), says what it is (tap, drag, swipe; one order, 3 seconds; ten in a row, faster and faster; the perfect run) and ▶ Jugar; in es, en and pt |
 | Layout | `hero`: the clip as wide as the window, the card under it |
 | Clip | `public/assets/splash/microgames-teaser.mp4` (512×320, 10 s loop at 30 fps, ~400 KB), drawn by [`teaser/microgames.html`](../../teaser/microgames.html) on the teaser engine and recorded with `node marketing/splash/teaser.mjs microgames` |
-| Item | ⚡ ¡Al toque!, its own texts and link (`labs/microgames/` today) since the game is not in `games.js` while in the lab |
+| Item | ⚡ ¡Al toque!, its own texts and link (`in-a-flash/`) |
 | Waits for | `requires: ['microgames']`: unseen until flags/microgames exists and is on for the visitor (D-517) |
 | On | **off**: not in `ACTIVE` |
 | Usability | full pass before it is switched on (D-355) |
@@ -44,7 +44,7 @@ Not a teaser (it is a launch, so it shows the play) but drawn on the same engine
    - The same MP4 works as a WhatsApp status / Instagram story (letterboxed) or a short post.
    - Challenge hook: a run's code (`?seed=XXXXX`) is the same on every phone: «Te reto a esta corrida».
 5. **Measure**: the panel's 📊 How they did (reach, % tapped, % closed); what proves the game is
-   players who start a second run (docs/games/microgames.md).
+   players who start a second run (docs/games/in-a-flash.md).
 
 Screenshots, as `node tools/e2e/look.mjs splash microgames-launch --lang <xx>` shows it:
 [es](es-390.jpg) · [en](en-390.jpg) · [pt](pt-390.jpg) · [es at 1280](es-1280.jpg).

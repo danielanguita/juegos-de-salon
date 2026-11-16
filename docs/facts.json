@@ -14,7 +14,7 @@
     "en": 150,
     "pt": 150
   },
-  "commonKeys": 52,
+  "commonKeys": 53,
   "games": [
     {
       "id": "copa",
@@ -310,7 +310,8 @@
         "public/cup/store-offline.js",
         "public/cup/style.css",
         "public/cup/suelto/index.html",
-        "public/cup/table-image.js"
+        "public/cup/table-image.js",
+        "public/cup/talk.js"
       ]
     },
     {
@@ -706,6 +707,32 @@
       "chat": false,
       "files": [
         "public/fourth-king/index.html"
+      ]
+    },
+    {
+      "id": "microgames",
+      "emoji": "⚡",
+      "name": {
+        "es": "¡Al toque!",
+        "en": "In a Flash!",
+        "pt": "Na Hora!"
+      },
+      "players": "1",
+      "duration": "1–2",
+      "available": true,
+      "labs": false,
+      "status": null,
+      "modes": [],
+      "variants": [],
+      "screens": [],
+      "chat": false,
+      "files": [
+        "public/in-a-flash/engine.js",
+        "public/in-a-flash/game.js",
+        "public/in-a-flash/game.json",
+        "public/in-a-flash/index.html",
+        "public/in-a-flash/rules.js",
+        "public/in-a-flash/style.css"
       ]
     }
   ],
@@ -1116,6 +1143,7 @@
     "public/assets/js/compartir.js",
     "public/assets/js/connection.js",
     "public/assets/js/controls.js",
+    "public/assets/js/cover-dialogs.js",
     "public/assets/js/cover-share.js",
     "public/assets/js/cuenta-regresiva.js",
     "public/assets/js/cup-outbox.js",
@@ -1156,6 +1184,7 @@
     "public/assets/js/manifests/cup.js",
     "public/assets/js/manifests/generala.js",
     "public/assets/js/manifests/hangman.js",
+    "public/assets/js/manifests/in-a-flash.js",
     "public/assets/js/manifests/labs/fourth-king.js",
     "public/assets/js/manifests/labs/julep.js",
     "public/assets/js/manifests/labs/transfer.js",
@@ -1323,6 +1352,7 @@
     "public/cup/store-local.js",
     "public/cup/store-offline.js",
     "public/cup/table-image.js",
+    "public/cup/talk.js",
     "public/generala/engine.js",
     "public/generala/game.js",
     "public/generala/rules.js",
@@ -1335,6 +1365,9 @@
     "public/hangman/engine.js",
     "public/hangman/game.js",
     "public/hangman/rules.js",
+    "public/in-a-flash/engine.js",
+    "public/in-a-flash/game.js",
+    "public/in-a-flash/rules.js",
     "public/labs/artifacts/engine.js",
     "public/labs/artifacts/game.js",
     "public/labs/artifacts/levels.js",
@@ -1368,9 +1401,6 @@
     "public/labs/memory/game.js",
     "public/labs/memory/rules.js",
     "public/labs/memory/sprites.js",
-    "public/labs/microgames/engine.js",
-    "public/labs/microgames/game.js",
-    "public/labs/microgames/rules.js",
     "public/labs/publish.js",
     "public/labs/stack/engine.js",
     "public/labs/stack/game.js",
@@ -1391,10 +1421,12 @@
     "public/panel/feedback.js",
     "public/panel/lab-keys.js",
     "public/panel/panel.js",
+    "public/panel/public-games.js",
     "public/panel/release-push.js",
     "public/panel/rooms-watch.js",
     "public/panel/rutas.js",
     "public/panel/timeline.js",
+    "public/panel/wbr.js",
     "public/privacy/texts.js",
     "public/sw.js",
     "public/timeline/decks/brasil.js",
@@ -1410,6 +1442,7 @@
   ],
   "tests": [
     "firebase/controls.test.mjs",
+    "firebase/cup-talk.test.mjs",
     "firebase/flags.test.mjs",
     "firebase/lab-ready.test.mjs",
     "firebase/labs-publish.test.mjs",
@@ -1417,6 +1450,7 @@
     "firebase/pin-attempts.test.mjs",
     "firebase/room-limits.test.mjs",
     "firebase/splash.test.mjs",
+    "firebase/stats-pacific.test.mjs",
     "marketing/served.test.mjs",
     "marketing/splash/campaigns.test.mjs",
     "marketing/splash/teaser.test.mjs",
@@ -1468,6 +1502,7 @@
     "public/assets/js/parametros.test.mjs",
     "public/assets/js/pending-scores.test.mjs",
     "public/assets/js/push.test.mjs",
+    "public/assets/js/rankings-coverage.test.mjs",
     "public/assets/js/rankings-rest.test.mjs",
     "public/assets/js/records.test.mjs",
     "public/assets/js/region-patterns.test.mjs",
@@ -1513,11 +1548,14 @@
     "public/cup/screens.test.mjs",
     "public/cup/store-offline.test.mjs",
     "public/cup/store.test.mjs",
+    "public/cup/talk.test.mjs",
     "public/generala/engine.test.mjs",
     "public/hangman/engine.test.mjs",
     "public/hangman/fuzz.test.mjs",
     "public/hangman/replay.test.mjs",
     "public/home-preload.test.mjs",
+    "public/in-a-flash/engine.test.mjs",
+    "public/in-a-flash/rules.test.mjs",
     "public/labs/artifacts/engine.test.mjs",
     "public/labs/bodega.test.mjs",
     "public/labs/chameleon/engine.test.mjs",
@@ -1532,8 +1570,6 @@
     "public/labs/launched.test.mjs",
     "public/labs/listed.test.mjs",
     "public/labs/memory/engine.test.mjs",
-    "public/labs/microgames/engine.test.mjs",
-    "public/labs/microgames/rules.test.mjs",
     "public/labs/stack/engine.test.mjs",
     "public/labs/sudoku/engine.test.mjs",
     "public/labs/transfer/engine.test.mjs",
@@ -1545,9 +1581,11 @@
     "public/panel/dominios.test.mjs",
     "public/panel/feedback.test.mjs",
     "public/panel/lab-keys.test.mjs",
+    "public/panel/public-games.test.mjs",
     "public/panel/rooms-watch.test.mjs",
     "public/panel/rutas.test.mjs",
     "public/panel/timeline.test.mjs",
+    "public/panel/wbr.test.mjs",
     "public/privacy/texts.test.mjs",
     "public/sw-sync.test.mjs",
     "public/sw.test.mjs",
@@ -1580,7 +1618,9 @@
     "tools/agents/repo-weight.test.mjs",
     "tools/agents/round-watch.test.mjs",
     "tools/agents/rules.test.mjs",
+    "tools/agents/session-length.test.mjs",
     "tools/agents/structure.test.mjs",
+    "tools/agents/sweep.test.mjs",
     "tools/agents/tokens-rgb.test.mjs",
     "tools/agents/usability-lint.test.mjs",
     "tools/agents/wait-pr.test.mjs",
@@ -1604,6 +1644,7 @@
     "tools/firebase/rename-player.test.mjs",
     "tools/firebase/room-sweep.test.mjs",
     "tools/firebase/stats-retention.test.mjs",
+    "tools/firebase/traction.test.mjs",
     "tools/firebase/uad-index.test.mjs",
     "tools/firebase/uad-points-backfill.test.mjs",
     "tools/firebase/unnoted-rooms.test.mjs",
@@ -1671,6 +1712,7 @@
     "cup/rejoin.mjs",
     "cup/resumed-clock.mjs",
     "cup/seat.mjs",
+    "cup/talk.mjs",
     "cup/tournament.mjs",
     "cup/variants.mjs",
     "cup/zip-ten.mjs",
@@ -1707,6 +1749,7 @@
     "home/popular.mjs",
     "home/recap.mjs",
     "home/search.mjs",
+    "in-a-flash/page.mjs",
     "inert.mjs",
     "inert.test.mjs",
     "install-prompt.mjs",
@@ -1730,7 +1773,6 @@
     "look.mjs",
     "margins-common.mjs",
     "memory/lab.mjs",
-    "microgames/lab.mjs",
     "narrow.mjs",
     "narrow.test.mjs",
     "offline.mjs",
@@ -1806,12 +1848,20 @@
       "title": "Canons and standards of Juegos de Salón"
     },
     {
+      "path": "docs/COSTS.md",
+      "title": "What the factory costs, and the levers (D-558)"
+    },
+    {
       "path": "docs/DECISIONS.md",
       "title": "Decisions"
     },
     {
       "path": "docs/DESIGN.md",
       "title": "The design system"
+    },
+    {
+      "path": "docs/FEEDBACK-TRIAGE.md",
+      "title": "Handling 🐞 feedback: step 3 of the processes round"
     },
     {
       "path": "docs/LANES.md",
@@ -1954,6 +2004,10 @@
       "title": "Diseño: El Ahorcado"
     },
     {
+      "path": "docs/games/in-a-flash.md",
+      "title": "⚡ ¡Al toque! (out of the lab: /in-a-flash/, launched by flags/microgames)"
+    },
+    {
       "path": "docs/games/julep.md",
       "title": "Diseño: Julepe"
     },
@@ -1964,10 +2018,6 @@
     {
       "path": "docs/games/memory.md",
       "title": "👀 Memorice (lab prototype, in Games being tried)"
-    },
-    {
-      "path": "docs/games/microgames.md",
-      "title": "⚡ ¡Al toque! (lab prototype, in Games being tried)"
     },
     {
       "path": "docs/games/paint-mines.md",
@@ -2075,6 +2125,7 @@
     "generala": 8,
     "batalla-naval": 7,
     "julepe": 10,
-    "cuarto-rey": 12
+    "cuarto-rey": 12,
+    "microgames": 0
   }
 }

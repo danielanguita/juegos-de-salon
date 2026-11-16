@@ -4,6 +4,7 @@ import { serverError, stuckDeployment } from './pages-5xx.mjs';
 
 assert.ok(serverError(['Error: Failed to create deployment (status: 502) with build version 72ca3d7. Server error']), 'the 502 of 2026-10-29');
 assert.ok(serverError(['HttpError: Server Error']));
+assert.ok(serverError(['Error: No artifacts named "github-pages" were found for this workflow run. Ensure artifacts are uploaded with actions/upload-artifact@v4 or later.']), 'the artifact not yet visible, 2026-11-15');
 assert.ok(!serverError(['Error: Failed to create deployment (status: 404). Ensure GitHub Pages has been enabled']), 'a 404 is not retried');
 assert.ok(!serverError(['Node.js 20 is deprecated', 'The ubuntu-latest label will migrate']), 'warnings are not errors');
 assert.ok(!serverError([]));

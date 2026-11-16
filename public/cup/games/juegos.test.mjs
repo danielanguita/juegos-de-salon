@@ -29,9 +29,13 @@ import { JUEGOS, loadAll } from './index.js';
 await loadAll();
 import { temasDeLaCopa, DECKS } from './mazos.js';
 import { camino } from './queens/ui.js';
+import { Worker, isMainThread, parentPort, workerData } from 'node:worker_threads';
 
-let n = 0;
-const test = (name, fn) => { try { fn(); n++; } catch (e) { console.error(`✗ ${name}`); throw e; } };
+// The tests are split among SHARDS worker threads, each running every SHARDS-th one (one after another
+// the file took ~11 s, mostly the case and zip boards); the main thread runs none and adds up the counts
+const SHARDS = 4;
+let n = 0, i = 0;
+const test = (name, fn) => { if (isMainThread || i++ % SHARDS !== workerData) return; try { fn(); n++; } catch (e) { console.error(`✗ ${name}`); throw e; } };
 const CODIGOS = ['KQRST', 'ABCDE', 'ZZZZZ', 'MNPQR', 'HJKLM', 'WXYZA', 'BCDFG', 'TUVWX'];
 
 test('semilla: determinista y distinta por día y por sal', () => {
@@ -675,10 +679,10 @@ test('final: the rounds are the week\'s games (D-418)', () => {
 });
 
 // El desglose del puntaje explica la cuenta con frases completas (D-106)
-{
-  const { desglose } = await import('../desglose.js');
-  const { LOCALES } = await import('../rules.js');
-  const T = LOCALES.es;
+const { desglose } = await import('../desglose.js');
+const { LOCALES: TEXTOS_DESGLOSE } = await import('../rules.js');
+test('desglose: the score breakdown in full sentences (D-106)', () => {
+  const T = TEXTOS_DESGLOSE.es;
   const fmt = (t, v) => t.replace(/\{(\w+)\}/g, (_, k) => v[k]);
   const mmss = ms => `${Math.floor(ms / 60000)}:${String(Math.floor(ms / 1000) % 60).padStart(2, '0')}`;
   const pa = anio.generar('KQRST', 3);
@@ -701,8 +705,7 @@ test('final: the rounds are the week\'s games (D-418)', () => {
   assert.match(desglose('caso', casos.caso, { T, fmt, mmss }).join(' '), /1 error, que resta 10.*2 ayudas.*se restan 30/);
   assert.match(desglose('zip', casos.zip, { T, fmt, mmss }).join(' '), /3 niveles.*30 puntos.*2:05/);
   assert.deepEqual(desglose('reinas', { fin: false, errores: 0 }, { T, fmt, mmss }), [T.bdNotSolved]);
-  n++;
-}
+});
 
 test('la copa no usa la temática de Brasil (D-111)', () => {
   const codigos = [...CODIGOS, ...Array.from({ length: 200 }, (_, i) => 'ABCDEFGHJKLMNPQRSTUVWXYZ'.slice(i % 19, i % 19 + 5))];
@@ -997,5 +1000,13 @@ test('the final says how uncapped games count: up to 100, in every language (the
   }
 });
 
-console.log(`copa/juegos: ${n} tests OK`);
+if (!isMainThread) parentPort.postMessage(n);
+else {
+  const counts = await Promise.all(Array.from({ length: SHARDS }, (_, k) => new Promise((ok, fail) => {
+    const w = new Worker(new URL(import.meta.url), { workerData: k });
+    w.once('message', ok); w.once('error', fail);
+    w.once('exit', c => fail(new Error(`shard ${k}: the worker ended with ${c} and no result`)));
+  })));
+  console.log(`copa/juegos: ${counts.reduce((a, b) => a + b, 0)} tests OK`);
+}
 

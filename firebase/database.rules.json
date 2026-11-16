@@ -722,6 +722,22 @@
                 ".validate": "newData.isNumber() && (newData.val() == 1 || newData.val() == 2) && (!data.exists() || newData.val() >= data.val())"
               }
             },
+            "activosPt": {
+              "$pday": {
+                "$id": {
+                  ".write": "$env.matches(/^[a-z]{2,10}$/) && $day.matches(/^[0-9]{5}$/) && $pday.matches(/^[0-9]{5}$/) && $id.matches(/^[a-z0-9]{10}$/)",
+                  ".validate": "newData.isNumber() && (newData.val() == 1 || newData.val() == 2) && (!data.exists() || newData.val() >= data.val())"
+                }
+              }
+            },
+            "entradasPt": {
+              "$pday": {
+                "$entrada": {
+                  ".write": "$env.matches(/^[a-z]{2,10}$/) && $day.matches(/^[0-9]{5}$/) && $pday.matches(/^[0-9]{5}$/) && $entrada.matches(/^[a-z0-9-]{1,40}$/)",
+                  ".validate": "newData.isNumber() && ((!data.exists() && newData.val() == 1) || newData.val() == data.val() + 1)"
+                }
+              }
+            },
             "$other": {
               ".validate": false
             }
@@ -1010,6 +1026,46 @@
         },
         "$other": {
           ".validate": false
+        }
+      }
+    },
+    "cupTalk": {
+      "$code": {
+        ".read": "$code.matches(/^[A-HJ-NP-Z]{5}$/)",
+        ".write": "auth != null && $code.matches(/^[A-HJ-NP-Z]{5}$/) && !newData.exists() && root.child('torneoSeats/' + $code + '/' + root.child('torneos/' + $code + '/meta/admin').val() + '/' + auth.uid).exists()",
+        "$d": {
+          "$target": {
+            "$author": {
+              ".write": "auth != null && $code.matches(/^[A-HJ-NP-Z]{5}$/) && $d.matches(/^([1-9]|1[0-4])$/) && $target.matches(/^[a-z0-9]{6}$/) && $author.matches(/^[a-z0-9]{6}$/) && root.child('torneoSeats/' + $code + '/' + $author + '/' + auth.uid).exists() && root.child('torneos/' + $code + '/results/' + $d + '/' + $author).exists() && root.child('torneos/' + $code + '/results/' + $d + '/' + $target).exists() && !root.child('torneos/' + $code + '/fin').exists() && now < root.child('torneos/' + $code + '/meta/end').val()",
+              ".validate": "newData.hasChildren(['at']) && (newData.hasChild('e') || newData.hasChild('c'))",
+              "e": {
+                ".validate": "newData.isString() && newData.val().matches(/^(fire|laugh|clap|wow|sad|crown)$/)"
+              },
+              "c": {
+                ".validate": "newData.isString() && newData.val().length >= 1 && newData.val().length <= 120 && (!data.exists() || newData.val() == data.val())"
+              },
+              "at": {
+                ".validate": "newData.isNumber() && newData.val() <= now + 60000 && newData.val() > now - 60000"
+              },
+              "$other": {
+                ".validate": false
+              }
+            }
+          }
+        }
+      }
+    },
+    "cupTalkHidden": {
+      "$code": {
+        ".read": "$code.matches(/^[A-HJ-NP-Z]{5}$/)",
+        ".write": "auth != null && $code.matches(/^[A-HJ-NP-Z]{5}$/) && !newData.exists() && root.child('torneoSeats/' + $code + '/' + root.child('torneos/' + $code + '/meta/admin').val() + '/' + auth.uid).exists()",
+        "$d": {
+          "$target": {
+            "$author": {
+              ".write": "auth != null && $code.matches(/^[A-HJ-NP-Z]{5}$/) && $d.matches(/^([1-9]|1[0-4])$/) && $author.matches(/^[a-z0-9]{6}$/) && $target.matches(/^[a-z0-9]{6}$/) && root.child('torneoSeats/' + $code + '/' + $target + '/' + auth.uid).exists() && !root.child('torneos/' + $code + '/fin').exists() && now < root.child('torneos/' + $code + '/meta/end').val()",
+              ".validate": "newData.isBoolean() && newData.val() == true && root.child('cupTalk/' + $code + '/' + $d + '/' + $target + '/' + $author + '/c').exists()"
+            }
+          }
         }
       }
     },
@@ -1479,6 +1535,21 @@
             ".validate": false
           }
         }
+      },
+      "traction": {
+        ".validate": "newData.hasChildren(['total', 'week', 'best', 'phones7', 'phones30', 'bestWeek', 'peak7', 'peak30', 'asOf', 'at'])",
+        "total": { ".validate": "newData.isNumber() && newData.val() >= 0" },
+        "week": { ".validate": "newData.isNumber() && newData.val() >= 0" },
+        "best": { ".validate": "newData.isNumber() && newData.val() >= 0" },
+        "phones7": { ".validate": "newData.isNumber() && newData.val() >= 0" },
+        "phones30": { ".validate": "newData.isNumber() && newData.val() >= 0" },
+        "bestWeek": { ".validate": "newData.isNumber() && newData.val() >= 0" },
+        "peak7": { ".validate": "newData.isNumber() && newData.val() >= 0" },
+        "peak30": { ".validate": "newData.isNumber() && newData.val() >= 0" },
+        "bestDay": { ".validate": "newData.isString() && newData.val().matches(/^\\d{4}-\\d{2}-\\d{2}$/)" },
+        "asOf": { ".validate": "newData.isString() && newData.val().matches(/^\\d{4}-\\d{2}-\\d{2}$/)" },
+        "at": { ".validate": "newData.isNumber()" },
+        "$other": { ".validate": false }
       },
       "features": {
         "$id": {

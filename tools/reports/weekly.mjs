@@ -24,7 +24,7 @@ import { firebaseConfig } from '../../public/assets/js/firebase-config.js';
 import { launch, sleep } from '../e2e/cdp.mjs';
 import { semana, semanaCerrada } from './weekly-data.mjs';
 import { readHistory } from '../firebase/uad-index.mjs';
-import { htmlDelInforme, destacados } from './weekly-html.mjs';
+import { htmlDelInforme, destacados, tablasTendencia } from './weekly-html.mjs';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '../..');
 const args = process.argv.slice(2);
@@ -45,14 +45,16 @@ async function leer(ruta, t, query = {}) {
 const w = semanaCerrada(now);
 const t = await token();
 // Two weeks for the comparison, and 28 days more so returns and the users' first sight have history
-const [days, torneos, historia, invitados, rachas, feedback] = await Promise.all([
-  leer('stats/prod/days', t, { orderBy: '$key', startAt: String(w.from - 7 - 28) }),
+// …and back to the first of the month two months before, for the trend tables
+const fd = new Date(w.to * 864e5), desdeMes = Date.UTC(fd.getUTCFullYear(), fd.getUTCMonth() - 2, 1) / 864e5;
+const [days, torneos, historia, invitados, rachas, feedback, flags] = await Promise.all([
+  leer('stats/prod/days', t, { orderBy: '$key', startAt: String(Math.min(w.from - 7 - 28, desdeMes) - 1) }),
   // Uno al día from the previous week on, through the index by day (D-475)
-  leer('torneos', t), readHistory(t, w.from - 7, { databaseURL: firebaseConfig.databaseURL }), leer('invitados', t), leer('records/uno-al-dia-racha/siempre', t), leer('feedback', t),
+  leer('torneos', t), readHistory(t, w.from - 7, { databaseURL: firebaseConfig.databaseURL }), leer('invitados', t), leer('records/uno-al-dia-racha/siempre', t), leer('feedback', t), leer('flags', t),
 ]);
 // CHANGELOG.md and its archived months (D-497): a week may start in the month before
 const changelog = existsSync(join(ROOT, 'CHANGELOG.md')) ? fullHistory(ROOT) : '';
-const r = semana({ days, torneos, uad: { historia, invitados, rachas }, feedback, changelog }, now);
+const r = semana({ days, torneos, flags, uad: { historia, invitados, rachas }, feedback, changelog }, now);
 
 // The PDF, printed by headless Chrome from the page written to a temporary file
 mkdirSync(out, { recursive: true });
@@ -74,9 +76,13 @@ writeFileSync(archivo, Buffer.from(data, 'base64'));
 console.log(`✓ ${archivo}`);
 
 if (args.includes('--send')) {
+  // The panel's 📋 WBR for this same week (only the owner's account can open it)
+  const wbr = `https://juegosdesalon.cl/panel/#/wbr/${new Date(w.to * 864e5).toISOString().slice(0, 10)}`;
   const texto = [`Juegos de Salón · weekly report, ${r.desde} – ${r.hasta}`, '', ...destacados(r).map(x => `• ${x.replace(/<[^>]+>/g, '')}`), '',
-    ...r.titular.map(f => `${f.nombre}: ${f.ahora ?? '—'} (week before: ${f.antes ?? '—'})`), '', 'The full report is attached as a PDF.'].join('\n');
-  const msg = { toOwner: true, subject: `📊 Juegos de Salón · week of ${r.desde} – ${r.hasta}`, text: texto, attachments: [archivo] };
+    ...r.titular.map(f => `${f.nombre}: ${f.ahora ?? '—'} (week before: ${f.antes ?? '—'})`), '', `This week's WBR: ${wbr}`, 'The full report is attached as a PDF.'].join('\n');
+  const html = `<div style="font-family:-apple-system,Helvetica,Arial,sans-serif;color:#1d1530"><p>Juegos de Salón · weekly report, ${r.desde} – ${r.hasta}</p><ul>${
+    destacados(r).map(x => `<li>${x}</li>`).join('')}</ul>${tablasTendencia(r.tendencia)}<p><a href="${wbr}">Open this week's WBR in the panel</a> · the full report is attached as a PDF.</p></div>`;
+  const msg = { toOwner: true, subject: `📊 Juegos de Salón · week of ${r.desde} – ${r.hasta}`, text: texto, html, attachments: [archivo] };
   const res = spawnSync('python3', [join(ROOT, 'tools/agents/send-mail.py')], { input: JSON.stringify(msg), encoding: 'utf8' });
   if (res.status !== 0) fail(`✗ send-mail.py failed (its reason says whether the email went out): ${(res.stderr || res.stdout || '').trim()}`);
   console.log(`✓ emailed to the owner (${(res.stderr || '').trim()})`);

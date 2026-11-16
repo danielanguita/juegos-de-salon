@@ -8,21 +8,20 @@ import { partidasDominio, finales, embudoSalas, dificultad, usuarios, senales, o
 import { trafico, salud, unoAlDiaDelRango, origenesAgrupados, DAY } from '../../public/panel/aggregate.js';
 import { resumenCopas, pct, copasDe } from '../../public/panel/copas.js';
 import { gameById } from '../../public/assets/js/games.js';
+import { publicGameCheck, withoutLabGames, withoutLabCups } from '../../public/panel/public-games.js';
+import { trend, baseGame, closedWeek, toPacificDays, pacificDay, pacificEndMs } from '../../public/panel/wbr.js';
+// The trend tables live with the panel's WBR view (one account for both); the report re-exports them
+export { trend as tendencia, baseGame };
 import { juegosCopa } from '../../public/cup/rules.js';
 
 /** The weekday of a UTC day number, Sunday = 0 (day 0, 1970-01-01, was a Thursday). */
 export const diaSemana = d => (d + 4) % 7;
 
 /**
- * The last full week (Sunday to Saturday, UTC days) before `now`. Run on a Sunday, it is the
+ * The last full week (Sunday to Saturday, Pacific dates, D-561) before `now`. Run on a Sunday, it is the
  * week that ended yesterday; run on any other day, the last one that already ended.
  */
-export function semanaCerrada(now = Date.now()) {
-  const hoy = Math.floor(now / DAY);
-  let sabado = hoy - 1;
-  while (diaSemana(sabado) !== 6) sabado--;
-  return { from: sabado - 6, to: sabado };
-}
+export const semanaCerrada = closedWeek;
 
 /** A day number as "Oct 12, 2026" (UTC). */
 export const fechaDia = d => new Date(d * DAY).toLocaleDateString('en-US', { timeZone: 'UTC', month: 'short', day: 'numeric', year: 'numeric' });
@@ -41,6 +40,10 @@ export function nombreJuego(id) {
 const RECURSO_EN = { 'módulo': 'module', script: 'script', 'hoja de estilos': 'stylesheet' };
 export const mensajeEn = m => String(m || '').replace(/^(módulo|script|hoja de estilos) que no cargó( \(el de la página\))?$/,
   (_, tipo, propio) => `${RECURSO_EN[tipo]} that did not load${propio ? " (the page's own)" : ''}`).replace(/^\(sin detalle\)$/, '(no detail)');
+
+/** The vigía's kinds of failure and the home page's key, stored in Spanish (data), read in English. */
+const TIPO_EN = { recurso: 'resource', promesa: 'promise' };
+export const paginaEn = k => (k === 'inicio' ? 'home' : k);
 
 /** A metric with its value, the previous week's and the change in percent (null: nothing to compare). */
 const fila = (nombre, ahora, antes) => ({ nombre, ahora, antes, cambio: variacion(ahora, antes) });
@@ -68,13 +71,18 @@ export function versionesDeLaSemana(changelog, { from, to }) {
  */
 export function semana(data, now = Date.now()) {
   const w = semanaCerrada(now), p = { from: w.from - 7, to: w.from - 1 };
-  const { days = {}, torneos = {}, uad = {}, feedback = {}, changelog = '' } = data;
-  const fin = Math.min(now, (w.to + 1) * DAY);
+  const { uad = {}, feedback = {}, changelog = '' } = data;
+  const torneos = withoutLabCups(data.torneos);
+  // Players' plays only: lab games, and plays before a game's launch, are left out of every count
+  // …by Pacific date (D-561): the week, the months and every day of the report are the owner's clock
+  const days = withoutLabGames(toPacificDays(data.days || {}), publicGameCheck(data.flags));
+  const fin = Math.min(now, pacificEndMs(w.to));
+  const PT = { dayFn: pacificDay };
 
   const pd = partidasDominio(days, w), pp = partidasDominio(days, p);
   const f = finales(days, w), fp = finales(days, p);
   const salasT = r => Object.values(embudoSalas(days, r)).reduce((k, g) => k + g.terminadas, 0);
-  const rc = resumenCopas(torneos, w, fin), rcp = resumenCopas(torneos, p, (p.to + 1) * DAY);
+  const rc = resumenCopas(torneos, w, fin, PT), rcp = resumenCopas(torneos, p, pacificEndMs(p.to), PT);
   const norte = f.terminadas + salasT(w) + rc.jugadas, norteP = fp.terminadas + salasT(p) + rcp.jugadas;
   const u = usuarios(days, w), up = usuarios(days, p);
   const t = trafico(days, w), tp = trafico(days, p);
@@ -82,22 +90,22 @@ export function semana(data, now = Date.now()) {
   const h = salud(days, w), hp = salud(days, p);
   const ua = unoAlDiaDelRango({ days, ...uad }, { from: w.from, to: w.to, hoy: w.to });
   const uap = unoAlDiaDelRango({ days, ...uad }, { from: p.from, to: p.to, hoy: p.to });
-  const ec = embudoCopas(torneos, w, fin);
+  const ec = embudoCopas(torneos, w, fin, PT);
   const salas = embudoSalas(days, w);
   const sum = k => Object.values(salas).reduce((x, g) => x + g[k], 0);
 
-  const enSemana = ts => typeof ts === 'number' && ts >= w.from * DAY && ts < (w.to + 1) * DAY;
+  const enSemana = ts => typeof ts === 'number' && pacificDay(ts) >= w.from && pacificDay(ts) <= w.to;
   const reportes = Object.values(feedback || {}).filter(r => enSemana(r?.at));
   const copasNuevas = copasDe(torneos).filter(L => enSemana(L.meta.createdAt)).map(L => ({ nombre: L.meta.name, dias: L.meta.days, lab: !!L.meta.lab }));
 
   return {
-    semana: w, anterior: p, desde: fechaDia(w.from), hasta: fechaDia(w.to),
+    semana: w, anterior: p, tendencia: trend({ days, torneos, flags: data.flags }, w), desde: fechaDia(w.from), hasta: fechaDia(w.to),
     titular: [
       fila('Games finished (main metric)', norte, norteP),
       fila('Games started', pd.grupo.total + pd.individual.total + rc.jugadas, pp.grupo.total + pp.individual.total + rcp.jugadas),
       fila('Active browsers in the week', u.rango, up.rango),
       fila('Visits', t.visitas, tp.visitas),
-      fila('Shares', s.compartidos, sp.compartidos),
+      // Shares left the headline until the counter stops overcounting (the home page's share fires far more than visits)
     ],
     grupo: {
       filas: [fila('Group games', pd.grupo.total, pp.grupo.total), fila('Rooms with a rival', sum('conRival'), Object.values(embudoSalas(days, p)).reduce((x, g) => x + g.conRival, 0))],
@@ -106,7 +114,7 @@ export function semana(data, now = Date.now()) {
     },
     individual: {
       filas: [fila('Individual games', pd.individual.total, pp.individual.total)],
-      dificultad: dificultad(days, w, fin).slice(0, 8).map(g => ({ juego: nombreJuego(g.k), empezadas: g.empezadas, terminadas: g.terminadas, abandonos: g.abandonos, mediana: g.puntaje[1], segundos: g.tiempo[1] })),
+      dificultad: dificultad(days, w, fin, { byVariant: false }).slice(0, 8).map(g => ({ juego: nombreJuego(g.k), empezadas: g.empezadas, terminadas: g.terminadas, abandonos: g.abandonos, mediana: g.puntaje[1], segundos: g.tiempo[1] })),
       top: top(pd.individual.byGame).map(([id, n]) => ({ juego: nombreJuego(id), n })),
     },
     copa: {
@@ -122,12 +130,12 @@ export function semana(data, now = Date.now()) {
     },
     trafico: {
       filas: [fila('Visits', t.visitas, tp.visitas), fila('Page views', t.vistas, tp.vistas)],
-      juegan: pctDe(t.juegan, t.visitas), origenes: top(origenesAgrupados(t.ref)), paginas: Object.entries(t.paginas).sort((a, b) => b[1].entradas - a[1].entradas).slice(0, 6).map(([k, v]) => ({ pagina: k, ...v })),
+      juegan: pctDe(t.juegan, t.visitas), origenes: top(origenesAgrupados(t.ref)), paginas: Object.entries(t.paginas).sort((a, b) => b[1].entradas - a[1].entradas).slice(0, 6).map(([k, v]) => ({ pagina: paginaEn(k), ...v })),
       compartidos: top(s.comparte), viral: s.compartidos ? Math.round(((t.via.link || 0) / s.compartidos) * 100) / 100 : null,
     },
     salud: {
       fallas: pctDe(h.total.alguna, h.total.cargas), fallasAntes: pctDe(hp.total.alguna, hp.total.cargas), noArranco: h.total.arranque,
-      errores: (h.errores || []).slice(0, 5).map(e => ({ mensaje: `${e.k}: ${mensajeEn(e.m)}`, pagina: Object.keys(e.paginas || {}).join(', '), veces: e.n })),
+      errores: (h.errores || []).slice(0, 5).map(e => ({ mensaje: `${TIPO_EN[e.k] || e.k}: ${mensajeEn(e.m)}`, pagina: Object.keys(e.paginas || {}).map(paginaEn).join(', '), veces: e.n })),
     },
     eventos: { versiones: versionesDeLaSemana(changelog, w), reportes: reportes.length, copasNuevas },
     porDia: Array.from({ length: 7 }, (_, i) => {
@@ -136,3 +144,4 @@ export function semana(data, now = Date.now()) {
     }),
   };
 }
+

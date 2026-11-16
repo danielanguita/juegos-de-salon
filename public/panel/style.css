@@ -467,6 +467,18 @@ table.llaves .btn { width: auto; min-height: 44px; }
   .nav-panel.nav--mas > a, .nav-panel.nav--mas > .nav-mas-btn { border-radius: var(--r-14); padding: var(--s-6) var(--s-2); }
   .nav-panel.nav--mas > a[aria-current="page"], .nav-panel.nav--mas > .nav-mas-btn[aria-current="page"] { background: var(--yellow); color: var(--ink-on-yellow); }
   .nav-panel.nav--mas > .nav-extra { display: none; }
-  .nav-panel.nav--mas > .nav-mas-btn { display: flex; flex-direction: column; align-items: center; gap: var(--s-2); min-height: 44px; border: 0; background: none; color: var(--muted); font: inherit; font-weight: 900; font-size: var(--fs-75); cursor: pointer; }
+  .nav-panel.nav--mas > .nav-mas-btn { position: relative; display: flex; flex-direction: column; align-items: center; gap: var(--s-2); min-height: 44px; border: 0; background: none; color: var(--muted); font: inherit; font-weight: 900; font-size: var(--fs-75); cursor: pointer; }
 }
 @media (min-width: 960px) { .nav-mas { display: none; } }
+
+/* 📋 WBR (the Weekly Business Review): wide tables that scroll sideways on a phone, the names pinned */
+.wbr-nav { display: flex; gap: var(--s-8); flex-wrap: wrap; margin: var(--s-8) 0 var(--s-12); }
+.wbr-destacados { margin: 0 0 var(--s-12); padding-left: 1.2em; }
+.wbr-destacados li { margin: var(--s-4) 0; }
+.wbr-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 0 0 var(--s-16); border: 1px solid var(--glass-border); border-radius: var(--r-10); }
+table.wbr { border-collapse: separate; border-spacing: 0; font-variant-numeric: tabular-nums; min-width: 100%; }
+table.wbr th, table.wbr td { padding: var(--s-8) var(--s-10); white-space: nowrap; text-align: right; border-bottom: 1px solid var(--glass-border); }
+table.wbr thead th { font-size: var(--fs-75); font-weight: 600; opacity: .75; }
+table.wbr tbody th, table.wbr thead th:first-child { position: sticky; left: 0; z-index: 1; text-align: left; background: var(--bg1); font-weight: 600; white-space: normal; min-width: 7.5em; max-width: 34vw; }
+table.wbr .wbr-mes { border-left: 2px solid var(--glass-border); }
+table.wbr td.wbr-ahora { font-weight: 400; }

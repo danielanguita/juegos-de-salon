@@ -20,7 +20,9 @@ for (const f of folders) {
   // A game still in the lab may live outside GAMES (a card in /labs/, D-409); a registered one is its manifest
   assert.ok(entry || m.labs, `${m.id} is in GAMES`);
   if (entry) {
-    assert.deepEqual(entry, catalogEntry(m), `${m.id}: the GAMES entry is the manifest's`);
+    // The fields the schema does not have yet (ADD-GAME §2: `lanza` and its `oculto`, `deLabs`, `diasNuevo`) are written by hand beside it
+    const { lanza, oculto, deLabs, diasNuevo, ...own } = entry;
+    assert.deepEqual(own, catalogEntry(m), `${m.id}: the GAMES entry is the manifest's`);
     assert.equal(entry.players, m.players.min === m.players.max ? String(m.players.min) : `${m.players.min}–${m.players.max}`);
   }
   // Its session key is the one session.js writes (C-6)

@@ -33,6 +33,7 @@ The games with their own section below come first; after them, the one-player ga
 | ⚓ [Battleship / Batalla Naval / Batalha Naval](#-battleship-batalla-naval) | 1 to 2 | One phone · Two phones · Versus the phone | v0.6 |
 | 🍹 [Julep / Julepe / Paga o Bolo](#-julep-julepe) | 1 to 6 | One phone · Several phones · Versus the phone | 🧪 lab |
 | 👑 [Fourth King / Cuarto Rey / Quarto Rei](#-fourth-king-cuarto-rey) | 4 to 6 | One phone | 🧪 lab |
+| ⚡ [In a Flash! / ¡Al toque! / Na Hora!](#-in-a-flash-al-toque) | 1 | One phone | - |
 | 🔗 [Connections / Conexiones / Conexões](https://juegosdesalon.cl/connections/) | 1 | Play alone | 📦 La Bodega |
 | 🔤 [Bulls and Cows: Word / Toque y Fama: Palabra / Toque e Fama: Palavra](https://juegosdesalon.cl/word/) | 1 | Play alone | Also in The Cup |
 | 📅 [What Year? / ¿En qué año? / Em que ano?](https://juegosdesalon.cl/year/) | 1 | Play alone | Also in The Cup |
@@ -102,6 +103,7 @@ How it works:
 - **A day stays open until the next midnight** (grace day), except the final. **Late sign-ups** stay open until the final unless closed or full (ten players); missed days score 0 (D-177). Time only breaks ties, and it is *active* time (D-95). **Two days in a row without playing leave a player out**, with a warning the day before; the admin can bring them back (D-347, D-376).
 - **A pending day plays offline** (lab flag `cup-offline`): from the copy the phone kept of the cup (`store-offline.js`); the result waits in `assets/js/cup-outbox.js` and uploads when the signal is back, if the day is still open then; later, it counts as not played (D-544).
 - **Results stay hidden until you play**, so the table cannot spoil today.
+- **Reactions and comments on each result** (lab flag `cup-talk`): a 💬 on each row of the table opens that player's result of today, for one reaction and one short comment; the first comment shows on the row (`talk.js`); the target can hide a comment, and all of it is deleted when the cup ends (D-562).
 - **Accounts are a name and a PIN inside one cup**, on Firebase anonymous auth; the PIN hash is unreadable and the rules check it, one PIN attempt every 5 seconds per player (D-96, D-464). Signed in to the leaderboards, **Your cups** follows you to any phone (D-220); finished cups hide behind **Show finished cups** (D-234, D-336).
 - **The admin plays too**: renames, removes or re-PINs players, shares the invite, **today's reminder** with who is missing, the table and the final summary (D-99, D-171, D-176, D-165); can **end the cup early** (D-161) and **export the final table** as an image or CSV. A new cup opens with a short guide (D-110).
 - **Every day has a practice round** that does not count (D-103), then a **3-to-1 countdown** before the clock starts (D-105, D-258); the result **explains its score** line by line (D-106).
@@ -258,6 +260,14 @@ Crack a secret number with no repeated digits. For every guess the phone answers
 <!-- /generated -->
 
 Spec: [docs/games/bulls-and-cows.md](docs/games/bulls-and-cows.md) · Feasibility study: [docs/games/bulls-and-cows-factibilidad.md](docs/games/bulls-and-cows-factibilidad.md)
+
+## ⚡ In a Flash! (¡Al toque!)
+
+Microgames in the style of WarioWare (Nintendo): one quick order, 3 to 5 seconds to do it, and the next one comes right away. A run is 10 different games drawn from 29 (count, add, pop, sort, cut, follow the rat, balance the blocks…), a little faster every three. Before the first one it shows the three ways to play (tap, drag, swipe). Each game gives 0 to 3 stars, worth 10 points each times the speed (×1.0 to ×1.3), plus +5 for every 🔥 streak; the end explains where the points came from, and the run goes to the game's ranking (Week · All time · Friends). One player, phone upright, in three languages.
+
+Its page is `/in-a-flash/` (the lab's `/labs/microgames/` and `/microgames/` are bridges there); it stays hidden until the flag `microgames` is switched on (21:00 Pacific, 2026-11-14), with its launch splash. La Copa and Uno al día come later.
+
+Spec and design: [docs/games/in-a-flash.md](docs/games/in-a-flash.md)
 
 ## 🪢 Hangman (El Ahorcado)
 
@@ -487,6 +497,7 @@ node public/cup/games/stick/engine.test.mjs
 node public/cup/games/sudoku/engine.test.mjs
 node public/generala/engine.test.mjs
 node public/hangman/engine.test.mjs
+node public/in-a-flash/engine.test.mjs
 node public/labs/artifacts/engine.test.mjs
 node public/labs/chameleon/engine.test.mjs
 node public/labs/code/engine.test.mjs
@@ -496,13 +507,13 @@ node public/labs/flap/engine.test.mjs
 node public/labs/fourth-king/engine.test.mjs
 node public/labs/julep/engine.test.mjs
 node public/labs/memory/engine.test.mjs
-node public/labs/microgames/engine.test.mjs
 node public/labs/stack/engine.test.mjs
 node public/labs/sudoku/engine.test.mjs
 node public/labs/transfer/engine.test.mjs
 node public/liars-dice/engine.test.mjs
 node public/timeline/engine.test.mjs
 node firebase/controls.test.mjs
+node firebase/cup-talk.test.mjs
 node firebase/flags.test.mjs
 node firebase/lab-ready.test.mjs
 node firebase/labs-publish.test.mjs
@@ -510,6 +521,7 @@ node firebase/owner-push.test.mjs
 node firebase/pin-attempts.test.mjs
 node firebase/room-limits.test.mjs
 node firebase/splash.test.mjs
+node firebase/stats-pacific.test.mjs
 node marketing/served.test.mjs
 node marketing/splash/campaigns.test.mjs
 node marketing/splash/teaser.test.mjs
@@ -561,6 +573,7 @@ node public/assets/js/on-screen.test.mjs
 node public/assets/js/parametros.test.mjs
 node public/assets/js/pending-scores.test.mjs
 node public/assets/js/push.test.mjs
+node public/assets/js/rankings-coverage.test.mjs
 node public/assets/js/rankings-rest.test.mjs
 node public/assets/js/records.test.mjs
 node public/assets/js/region-patterns.test.mjs
@@ -595,15 +608,16 @@ node public/cup/reportes.test.mjs
 node public/cup/screens.test.mjs
 node public/cup/store-offline.test.mjs
 node public/cup/store.test.mjs
+node public/cup/talk.test.mjs
 node public/hangman/fuzz.test.mjs
 node public/hangman/replay.test.mjs
 node public/home-preload.test.mjs
+node public/in-a-flash/rules.test.mjs
 node public/labs/bodega.test.mjs
 node public/labs/code/engine-palabra.test.mjs
 node public/labs/index-nav.test.mjs
 node public/labs/launched.test.mjs
 node public/labs/listed.test.mjs
-node public/labs/microgames/rules.test.mjs
 node public/panel/adapta.test.mjs
 node public/panel/aggregate.test.mjs
 node public/panel/campaigns.test.mjs
@@ -611,9 +625,11 @@ node public/panel/copas.test.mjs
 node public/panel/dominios.test.mjs
 node public/panel/feedback.test.mjs
 node public/panel/lab-keys.test.mjs
+node public/panel/public-games.test.mjs
 node public/panel/rooms-watch.test.mjs
 node public/panel/rutas.test.mjs
 node public/panel/timeline.test.mjs
+node public/panel/wbr.test.mjs
 node public/privacy/texts.test.mjs
 node public/sw-sync.test.mjs
 node public/sw.test.mjs
@@ -645,7 +661,9 @@ node tools/agents/push-guard.test.mjs
 node tools/agents/repo-weight.test.mjs
 node tools/agents/round-watch.test.mjs
 node tools/agents/rules.test.mjs
+node tools/agents/session-length.test.mjs
 node tools/agents/structure.test.mjs
+node tools/agents/sweep.test.mjs
 node tools/agents/tokens-rgb.test.mjs
 node tools/agents/usability-lint.test.mjs
 node tools/agents/wait-pr.test.mjs
@@ -669,6 +687,7 @@ node tools/firebase/rankings-history.test.mjs
 node tools/firebase/rename-player.test.mjs
 node tools/firebase/room-sweep.test.mjs
 node tools/firebase/stats-retention.test.mjs
+node tools/firebase/traction.test.mjs
 node tools/firebase/uad-index.test.mjs
 node tools/firebase/uad-points-backfill.test.mjs
 node tools/firebase/unnoted-rooms.test.mjs
@@ -758,6 +777,7 @@ The whole app is translated, Portuguese as spoken in Brazil (German left in D-51
 | Batalla Naval | Battleship | Batalha Naval |
 | Julepe | Julep | Paga o Bolo |
 | Cuarto Rey | Fourth King | Quarto Rei |
+| ¡Al toque! | In a Flash! | Na Hora! |
 | Conexiones | Connections | Conexões |
 | Toque y Fama: Palabra | Bulls and Cows: Word | Toque e Fama: Palavra |
 | ¿En qué año? | What Year? | Em que ano? |
@@ -791,7 +811,7 @@ The whole app is translated, Portuguese as spoken in Brazil (German left in D-51
 
 How it is put together (canon C-3):
 
-- `public/assets/js/i18n.js` keeps the language in `localStorage` (`juegos-de-salon:lang`), draws the toggle and holds the shared text (`COMMON`). Each game keeps its text in `LOCALES = { es, en, pt, de }` in its `rules.js`, with no literal string in `game.js`; fixed HTML is marked `data-i18n`.
+- `public/assets/js/i18n.js` keeps the language in `localStorage` (`juegos-de-salon:lang`), draws the toggle and holds the shared text (`COMMON`). Each game keeps its text in `LOCALES = { es, en, pt }` in its `rules.js`, with no literal string in `game.js`; fixed HTML is marked `data-i18n`.
 - **The four dictionaries have the same keys**: `node public/assets/js/i18n.test.mjs` checks keys, list lengths, `{braces}` and empty texts. **Every screen is tested in every language** by `tools/e2e/<folder>/languages.mjs` (D-199).
 - Translations are adapted, not copied (Santiago's districts become bairros in Portuguese).
 - **The language can travel in the link** (D-74): `?lang=pt` on any page, or the `/en/` and `/pt/` doors (`/de/` and `?lang=de` now open English, D-514); room invitations carry it.
@@ -810,7 +830,7 @@ The repo root is not the web root (D-192). `public/` is the site, exactly as ser
 public/                     The site (juegosdesalon.cl/): the only folder that gets published
   index.html                  Main menu (generated from assets/js/games.js)
   en/ · pt/ · de/             Language doors
-  cup/                        The Cup: engine, stores (store-offline.js plays a pending day from the phone's copy, D-544), score breakdown, CSV export, reports, demos, table image, recap (D-423, D-427)
+  cup/                        The Cup: engine, stores (store-offline.js plays a pending day from the phone's copy, D-544), score breakdown, CSV export, reports, reactions and comments (talk.js, D-562), demos, table image, recap (D-423, D-427)
     games/                    The Cup's games, one folder each (engine.js + ui.js + word content per language)
   timeline/ · bulls-and-cows/ · hangman/ · liars-dice/ · generala/ · battleship/
                               The group games (engine.js + tests, game.js, rules.js, decks/ where needed)
@@ -819,8 +839,8 @@ public/                     The site (juegosdesalon.cl/): the only folder that g
   records/                    Leaderboards (D-212)
   today/                      One a Day (D-230, D-414)
   privacy/                    The privacy page, its texts in texts.js in the three languages (D-463)
-  panel/                      Private owner dashboard (docs/PANEL.md); release-push.js, its 🔔 for the owner's release notifications (D-504)
-  assets/css/ · assets/js/    Shared styles and modules: games.js (registry), i18n.js, compartir.js (sharing), parametros.js, records.js, uno-al-dia*.js, share-grid.js (Uno al día's spoiler-free share grid, D-482), splash.js, home-windows.js (one window per visit on the home page, D-431), back-guard.js (a back swipe or «‹ Menú» mid-game asks, D-432), search.js, game-icon.js (a game's icon on screen: its drawing or its emoji, DESIGN.md rule 9), vigia.js (error reporting, D-251), support.js (☕ Buy me a coffee, D-448, D-449), site-footer.js (the home page's footer on the screens outside a game, the one-player games' covers included; not while playing), season.js (seasonal touches on the home page and Rankings, D-457), controls.js (the panel's skins and site-feature switches, D-477), flags.js (runtime lab flags in Firebase, lab|all|off switched on their /labs/ card, D-498, D-509), lab-usage.js (aggregate lab use per flag for the ✅ ready badge on /labs/, D-528), flag-list.js (the flags by name for /labs/, the panel and tests, apart so a new flag does not run every page's e2e, D-515), tester-badge.js (the «tester» chip under the home title, with a lab key), tester-boot.js (vigia.js adds it to every page: the tester ribbon for lab key holders), tester-ribbon.js (in the lab, the testers' ribbon on the right edge: tester sheet, Labs and each screen's test control), music.js (background music for a game, an experiment behind a lab flag), region-patterns.js (a texture per Queens region for colorblind players, D-481),how-to-play-facts.js (in the lab, who plays, how and what it costs as the first line of «Cómo se juega» on six covers, D-488), waiting.js (a waiting screen, or a failure with Retry and a way home, from La Copa, D-533), connection.js (offline mode: whether the app is online or offline, D-538), offline-ui.js (offline mode on screen: the chip, what needs signal dimmed, D-538), offline-cut.js (the testers' forced offline mode as a real network cut, D-538), offline-ready.js (the home page's ☁️ button: whether this phone can play with no signal, and storing the games for it, D-538), cup-outbox.js (La Copa's days played offline, waiting to upload before their day closes, D-544), qr.js (the room QR, drawn with vendor/qrcode.js, a copy of qrcode-generator served by the site) …
+  panel/                      Private owner dashboard (docs/PANEL.md); release-push.js, its 🔔 for the owner's release notifications (D-504); public-games.js, which leaves lab plays and lab cups out of every count, shared with the weekly report (D-560); wbr.js, the Weekly Business Review the 📋 WBR view and the Sunday email share
+  assets/css/ · assets/js/    Shared styles and modules: games.js (registry), i18n.js, compartir.js (sharing), parametros.js, records.js, uno-al-dia*.js, share-grid.js (Uno al día's spoiler-free share grid, D-482), splash.js, home-windows.js (one window per visit on the home page, D-431), back-guard.js (a back swipe or «‹ Menú» mid-game asks, D-432), search.js, game-icon.js (a game's icon on screen: its drawing or its emoji, DESIGN.md rule 9), vigia.js (error reporting, D-251), support.js (☕ Buy me a coffee, D-448, D-449), site-footer.js (the home page's footer on the screens outside a game, the one-player games' covers included; not while playing), season.js (seasonal touches on the home page and Rankings, D-457), controls.js (the panel's skins and site-feature switches, D-477), flags.js (runtime lab flags in Firebase, lab|all|off switched on their /labs/ card, D-498, D-509), lab-usage.js (aggregate lab use per flag for the ✅ ready badge on /labs/, D-528), flag-list.js (the flags by name for /labs/, the panel and tests, apart so a new flag does not run every page's e2e, D-515), tester-badge.js (the «tester» chip under the home title, with a lab key), tester-boot.js (vigia.js adds it to every page: the tester ribbon for lab key holders), tester-ribbon.js (in the lab, the testers' ribbon on the right edge: tester sheet, Labs and each screen's test control), music.js (background music for a game, an experiment behind a lab flag), region-patterns.js (a texture per Queens region for colorblind players, D-481),how-to-play-facts.js (in the lab, who plays, how and what it costs as the first line of «Cómo se juega» on six covers, D-488), cover-dialogs.js (in the lab, a game's cover with «📖 Instrucciones» and «👤 Entrar» as dialogs and no game name chip in the top bar, flag `cover-dialogs`), waiting.js (a waiting screen, or a failure with Retry and a way home, from La Copa, D-533), connection.js (offline mode: whether the app is online or offline, D-538), offline-ui.js (offline mode on screen: the chip, what needs signal dimmed, D-538), offline-cut.js (the testers' forced offline mode as a real network cut, D-538), offline-ready.js (the home page's ☁️ button: whether this phone can play with no signal, and storing the games for it, D-538), cup-outbox.js (La Copa's days played offline, waiting to upload before their day closes, D-544), qr.js (the room QR, drawn with vendor/qrcode.js, a copy of qrcode-generator served by the site) …
   assets/season/              The seasonal templates, one row per date, and each date's stylesheet (docs/SEASONS.md)
   assets/js/transport/        Local, Firebase room and usage-signal transports, with their helpers
   assets/og/                  Social card images
@@ -881,10 +901,10 @@ These documents are being moved to English (D-316); the ones with a Spanish titl
 - [Especificación: Cuarto Rey](docs/games/fourth-king.md)
 - [Diseño: Generala](docs/games/generala.md)
 - [Diseño: El Ahorcado](docs/games/hangman.md)
+- [⚡ ¡Al toque! (out of the lab: /in-a-flash/, launched by flags/microgames)](docs/games/in-a-flash.md)
 - [Diseño: Julepe](docs/games/julep.md)
 - [Diseño: Dudo](docs/games/liars-dice.md)
 - [👀 Memorice (lab prototype, in Games being tried)](docs/games/memory.md)
-- [⚡ ¡Al toque! (lab prototype, in Games being tried)](docs/games/microgames.md)
 - [🖌️ Pintaminas (Paint Mines · Pinta-Minas · Malminen)](docs/games/paint-mines.md)
 - [📐 Loteo (Plots · Loteamento · Parzellen)](docs/games/plots.md)
 - [👑 Queens (Reinas)](docs/games/queens.md)
@@ -904,7 +924,9 @@ These documents are being moved to English (D-316); the ones with a Spanish titl
 - [The owner's agents and tools](docs/AGENTS.md)
 - [El alemán](docs/ALEMAN.md)
 - [The architecture boundary (#1249 step 5)](docs/ARCHITECTURE.md)
+- [What the factory costs, and the levers (D-558)](docs/COSTS.md)
 - [The design system](docs/DESIGN.md)
+- [Handling 🐞 feedback: step 3 of the processes round](docs/FEEDBACK-TRIAGE.md)
 - [Merge lanes (D-519)](docs/LANES.md)
 - [The learning programme: AI in the game, and what the owner learns building it](docs/LEARNING.md)
 - [Merging and publishing](docs/MERGING.md)
