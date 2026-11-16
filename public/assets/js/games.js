@@ -462,7 +462,6 @@ export const SUELTOS = [
     // made La Copa's screen in cup/games/microgames/ (D-456's way) for its page /in-a-flash/, La Copa and Uno
     // al día. The id is the lab's (usage signal, the `microgames` ranking); /labs/microgames/ is a bridge
     id: 'microgames',
-    lanza: 'microgames',
     deLabs: 'microgames',
     copa: { pozo: 18 },
     // Uno al día: by date, never by flag: from 2026-11-16, joining the next deck (no day before changes)

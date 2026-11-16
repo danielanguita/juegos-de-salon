@@ -202,11 +202,10 @@ export const CAMPAIGNS = {
   // ⚡ ¡Al toque! leaves the lab (the owner's request, 2026-11-14: made now, not launched): a whole run
   // in 10 s, drawn by marketing/splash/teaser/microgames.html with the game's own speed ramp and scoring
   // (engine.js), each microgame cut by a lightning strike in its gesture's color, a loop with no seam.
-  // `requires` keeps it unseen until flags/microgames exists and is on; the launch PR points `href`
+  // (its `requires` left with the flag's gate once the game was out for everyone); the launch PR points `href`
   // at the game's folder out of the lab
   'microgames-launch': {
     emoji: '⚡',
-    requires: ['microgames'],
     kicker: { es: '¡Nuevo juego!', en: 'New game!', pt: 'Jogo novo!' },
     title: { es: 'No es rápido…\n¡Es al toque!', en: 'It’s not fast…\nIt’s in a flash!', pt: 'Não é rápido…\nÉ na hora!' },
     hero: true,
