@@ -649,8 +649,8 @@ export function activos(L) {
 /**
  * Las posiciones de un día. Manda el puntaje del juego; a igual puntaje, el menor tiempo.
  * Si empatan en las dos cosas, comparten la mejor posición.
- * A result may bring its own tiebreak `d`, higher is better (Aletazo's dead centers, lab flag
- * `flap-tiebreak`): when both tied results have it, it decides instead of the time, and an equal `d`
+ * A result may bring its own tiebreak `d`, higher is better (Aletazo's dead centers,
+ * launched 2026-11-16): when both tied results have it, it decides instead of the time, and an equal `d`
  * shares the place. In a game whose time is the same course for everyone, the milliseconds only
  * measure the phone's frames.
  */

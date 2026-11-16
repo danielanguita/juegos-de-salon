@@ -1,4 +1,4 @@
-// A day's result may bring its own tiebreak `d` (Aletazo's dead centers, lab flag `flap-tiebreak`):
+// A day's result may bring its own tiebreak `d` (Aletazo's dead centers):
 // torneos/<code>/results/<day>/<pid> takes it as a number from 0 to 1000, and still nothing else.
 // Runs the real rules in tools/firebase/rules-sim.mjs.
 import assert from 'node:assert/strict';
