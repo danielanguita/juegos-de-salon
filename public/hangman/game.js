@@ -18,6 +18,7 @@ import { createChat } from '../assets/js/chat.js';
 import { createLocalTransport } from '../assets/js/transport/local.js';
 import { trackStart, trackVisit, trackFinish, nombreDelCelular } from '../assets/js/transport/stats.js';
 import { finDePartida, bloqueVictorias, bloqueTabla, avisoPartida } from '../assets/js/ranking.js';
+import { coverWithDialogs } from '../assets/js/cover-dialogs.js';
 import { rankingsVisibles } from '../assets/js/jugador.js';
 import { createSessionStore, createNameStore } from '../assets/js/session.js';
 import { modoHoy, introHoy, terminarHoy, ponerTarjeta, empezarHoy } from '../assets/js/uno-al-dia-ui.js';
@@ -806,7 +807,9 @@ function renderResult(v) {
     : nadie ? T.winTitleNone
     : many ? T.winTitleMany
     : fmt(T.winTitle, { name: M.names[winners[0]] || '' });
-  $('#result-sub').textContent = soloYo ? (mia.solved ? fmt(mia.score === 1 ? T.soloScoreOne : T.soloScore, { n: mia.score, letters: mia.used.length }) : '')
+  // Lost playing alone: the word goes right under the title, not only in the list below (owner's request)
+  const miPalabra = soloYo ? normalize(v.words[M.players[0]] || M.reveals[M.players[0]]?.word || '') : '';
+  $('#result-sub').textContent = soloYo ? (mia.solved ? fmt(mia.score === 1 ? T.soloScoreOne : T.soloScore, { n: mia.score, letters: mia.used.length }) : (miPalabra ? `${T.soloWordWas}: ${miPalabra}` : ''))
     : meRole && !nadie ? (winners.includes(meRole) ? T.youWin : T.youLose) : '';
   $('#result-trophy').textContent = soloYo ? (mia.solved ? '🏆' : '💀')
     : nadie ? '💀' : (meRole && !winners.includes(meRole) ? '😵' : (many ? '🤝' : '🏆'));
@@ -1073,6 +1076,8 @@ function init() {
   $('#rk-slot')?.append(
     bloqueTabla({ tabla: TABLA_SOLO, titulo: `🧍 ${COMMON[lang].rk.soloOf}`, alTocar: () => SFX.tap(), entrar: false }),
     bloqueVictorias({ juego: GAME_ID, nombre: T.title, alTocar: () => SFX.tap() }));
+  // The cover's Instrucciones and Entrar as dialogs, no game chip on top (lab: #seccion-cover-dialogs)
+  coverWithDialogs($('#screen-intro'), { lang, alTocar: () => SFX.tap() });
   renderResumeSlot();
   const code = param('room');
   if (code && /^[A-Z]{4}$/i.test(code)) {

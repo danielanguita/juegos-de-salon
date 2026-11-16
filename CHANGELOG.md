@@ -1,5 +1,56 @@
 # Changelog
 
+## 1.15.1 — 2026-11-15
+- **Panel: Timeline back on the phone's bar.** The bar reads Summary, WBR, Timeline, Feedback and ☰ More. Health moves under More (it was left out of More's groups, as Timeline was, so neither could be reached on a phone), and its alert dot shows on ☰ More while Health is in there. The panel now reports any section that is neither on the bar nor under More.
+
+## 1.15.0 — 2026-11-15
+- **📋 WBR in the panel.** A new section, the Weekly Business Review: the weekly email's headline and top-10 games tables for the closed week or any week before (‹ Week before / Week after ›), made for the phone, with the tables scrolling sideways and the names pinned. The Sunday email links to its week's WBR. On a phone the bottom bar shows Summary, WBR, Health and Feedback; Timeline moved under More.
+
+## 1.14.2 — 2026-11-15
+- **Lab plays out of the counts.** The panel's game numbers and the weekly report no longer count lab games (Julep, Fourth King, The Case, La Bodega's), lab cups, or plays before a game's launch (D-560): last week's games finished go from 620 to 574. The report reads each game's versions as one in its difficulty table too, keeps the broken share figures out until the counter has clean weeks, shows games per active browser with one decimal, and names pages and errors in English ("home", "resource", "promise").
+
+## 1.14.1 — 2026-11-15
+- **Hangman**: when you lose playing alone, the word you missed now shows right under the title.
+
+## 1.14.0 — 2026-11-15
+- **Game covers (in the lab first)**: under Empezar, two equal buttons, «📖 Instrucciones» and «👤 Entrar» (your name once you are in), each opening a dialog that closes on any tap outside it, with the page behind kept still: the steps, numbered; or signing in to the ranking with your name and PIN, or your account. The ranking stays open below. «Volver al menú» leaves the cover, and the top bar loses the game's name on every screen of the game, with «‹ Menú» as tall as the icons. On every game's page, also the ones with their own cover.
+
+## 1.13.14 — 2026-11-15
+- **Shares counted right in the panel**: the home page's "shared" number was mostly our own tests. `compartir.test.mjs`, run in Node with no web page, counted five home-page shares in the live numbers on every run, locally and in CI (hundreds a day since D-349). A share now counts only on a web page and never from a robot; a test fails if sharing in a test writes to the database. The days already counted are left as they are.
+
+## 1.13.13 — 2026-11-15
+- **Weekly report: daily active browsers and games per active browser.** Two new rows in the email's headline table, over the same five weeks and three months: the average of browsers active each day, and games started per browser active in the column's range.
+
+## 1.13.12 — 2026-11-15
+- **The weekly report shows the trend.** The email now carries two tables: the headline (games finished, started, active browsers, visits) for the closed week with its change, the four weeks before, this month so far and the two months before; and the top 10 games over the same columns, every mode and version read as one, La Copa's plays included and lab plays left out, with "n/a" before a game was out or a counter existed. "Most played" now ranks every public game together (it used to pick the top group game, so Battleship won with 5 games against Flap's 186). Shares left the headline until its counter stops overcounting.
+
+## 1.13.11 — 2026-11-15
+- **`lanes.mjs check` no longer asks to coordinate with a lab game's contributor**: the owner's PRs never need their approval (D-553); it only notes they may be changing the game too.
+
+## 1.13.10 — 2026-11-15
+- **¡Al toque! in Rankings**: its best runs, recorded since launch, now have their tab on the Rankings page. A test now fails if a game records a score Rankings doesn't show (D-559).
+
+## 1.13.9 — 2026-11-15
+- **Long-session hint**: at 250 turns, and every 150 after, Claude Code shows the owner a one-line 📏 note with the session's size, since long sessions take half the tokens (`tools/agents/session-length.mjs`, docs/COSTS.md). It only informs.
+
+## 1.13.8 — 2026-11-15
+- **Costs, measured**: the landing-fold check runs as two jobs, one per phone width, with the same checks (a full end-to-end run ~8.5 → ~7 min); `tools/agents/costs.mjs` now also reports end to end, every workflow's minutes and Claude's tokens from this machine's sessions; `docs/COSTS.md` explains the numbers and the levers (D-558).
+
+## 1.13.7 — 2026-11-15
+- **Faster tests, lighter rounds**: the three slowest test files run their independent parts in parallel with the same checks (18 → 10 s, 11 → 2 s, 11 → 7 s); the processes agent's feedback step moved word for word to `docs/FEEDBACK-TRIAGE.md`, read only when there is feedback (36 → 27 KB per round); and a weekly cost check (`tools/agents/costs.mjs`, D-558) that never trades quality for savings.
+
+## 1.13.6 — 2026-11-15
+- **Faster tests**: the unit tests on each PR run in parallel (`tools/release/run-tests.mjs`), about 22 s instead of 72 s; locally the same command. Fixed a duplicated line in `CLAUDE.md` that split its table in two.
+
+## 1.13.5 — 2026-11-15
+- **Publishing retries a deploy that could not find the site package yet**: three publishes on 2026-11-15 (#1467 among them) failed because GitHub had not yet made the just-uploaded site visible to the deploy step; `pages-5xx.mjs` now retries that case a minute later, as it does a 5xx, and so does a failure whose error it cannot read: the running job's annotations always came back empty, so no retry had ever fired (D-506).
+
+## 1.13.4 — 2026-11-15
+- **Dudo:** the Classic rules hint now says "con tres o más jugadores" / "com três ou mais jogadores" in Spanish and Portuguese, as English already did (U-1).
+
+## 1.13.3 — 2026-11-15
+- Workshop: the push guard now checks the worktree a `cd` moves to before `git push`, not the session folder, so a stale README block or decisions index stops the push again (#1416, #1436).
+
 ## 1.13.2 — 2026-11-14
 - **✨ The newest game first.** On the home page, the games still new go from the newest to the oldest, right after La Copa: ¡Al toque! now leads them (D-557).
 

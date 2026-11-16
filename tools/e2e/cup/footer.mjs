@@ -17,7 +17,7 @@ for (const lang of ['es', 'en', 'pt']) {
   await b.go(`${SITE}/cup/?test&demo=player&lang=${lang}`, 2000);
   ok(await waitFor(`!!document.querySelector('#screen-tablero .pie-sitio .tiles')`), `${lang}: the board ends with the site footer, as tiles`);
   const f = await ev(`(()=>{const s=document.querySelector('#screen-tablero .pie-sitio');const t=[...s.querySelectorAll('.footer-links > *')].map(x=>x.textContent.replace(/\\s+/g,' ').trim());
-    return {t, last: s.parentElement.lastElementChild===s, inbox: !!s.querySelector('.op-buzon'), loose: document.querySelectorAll('#screen-tablero .link-btn:not(.pie-sitio *)').length, wide: document.documentElement.scrollWidth>innerWidth}})()`);
+    return {t, last: s.parentElement.lastElementChild===s, inbox: !!s.querySelector('.op-buzon'), loose: document.querySelectorAll('#screen-tablero .link-btn:not(.pie-sitio *):not(#charla *)').length, wide: document.documentElement.scrollWidth>innerWidth}})()`);
   const label = k => T[k].split(' ').slice(1).join(' ');
   ok(f.t.some(x => x.endsWith(label('reportTile'))) && f.t.some(x => x.endsWith(label('leaveTile'))), `${lang}: report and leave are tiles (${f.t.join(' | ')})`);
   ok(f.last && !f.inbox && f.loose === 0, `${lang}: the footer is last, no general inbox, no loose links`);

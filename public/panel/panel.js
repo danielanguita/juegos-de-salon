@@ -40,6 +40,8 @@ import { TEXTS as SUPPORT_TEXTS } from '../assets/js/support.js';
 import { dayOf as diaDe, toLocalInput, checkPick, switches, status as campaignStatus, overlaps, move, archive, toRemote, cleanLabel, span, todayOf, dayPlus, campaignStats, supportStats, EARLY_DAYS, skinRows, skinToRemote } from './campaigns.js';
 import { TEMPLATES as SKINS } from '../assets/season/templates.js';
 import { stateOf as flagState, flag } from '../assets/js/flags.js';
+import { publicGameCheck, withoutLabGames, withoutLabCups } from './public-games.js';
+import { trend, trendStart, weekOf, isoDay, highlights, toPacificDays, pacificDay, dayLabel as wbrDay } from './wbr.js';
 import { FLAGS } from '../assets/js/flag-list.js';
 import { SECCIONES, leerRuta, rutaA, rutaEnIngles, seccionDe } from './rutas.js';
 import { wireReleasePush } from './release-push.js';
@@ -77,12 +79,40 @@ const S = {
   splash: undefined, unsubSplash: null, splashMsg: '',
   // 🧩 Site features and 🎨 skins (D-477): Firebase `controls/` (undefined until it answers), the tab shown and the last save
   controls: undefined, unsubControls: null, flags: undefined, unsubFlags: null, controlsMsg: '', campTab: 'splash', campOpen: new Set(), campFoco: null, campPeek: new Set(), campStats: null, tlGrain: null, tlKinds: null, tlPeriod: null, tlAll: false,
+
   unsubRooms: null, unsubDays: null, unsubTorneos: null, unsubPush: null, unsubUad: [], tick: null,
   // Desde qué día está bajado `days`: un rango más largo obliga a pedir de nuevo, uno más corto no
   desdeDia: null,
   // Lo que se eligió dentro de una vista. No va en la URL: es de esta visita, no del lugar.
   logPage: 1, logSolas: false, filtroAhora: 'todo', filtroCopas: 'todas', fichaTab: 'tabla', sinRedTodas: false, erroresTodos: false,
 };
+
+/** The days by Pacific date (D-561): what every count and range reads. Live views and a room's card keep S.days (UTC buckets). */
+let memoPtDias = { days: null, out: {} };
+function ptDays() {
+  if (memoPtDias.days !== S.days) memoPtDias = { days: S.days, out: toPacificDays(S.days) };
+  return memoPtDias.out;
+}
+/** Log rows (read from the UTC buckets one day wider) whose moment falls in the Pacific range. */
+const enRangoPt = (filas, { from, to }) => filas.filter(f => { const d = pacificDay(f.at || f.endAt || 0); return d >= from && d <= to; });
+/** The days with lab plays taken out (lab games, plays before a launch): what every count reads. Live views keep S.days. */
+let memoDias = { days: null, flags: null, out: {} };
+function playerDays() {
+  if (memoDias.days !== S.days || memoDias.flags !== S.flags) memoDias = { days: S.days, flags: S.flags, out: withoutLabGames(ptDays(), publicGameCheck(S.flags || {})) };
+  return memoDias.out;
+}
+/** The days by Pacific date with lab plays out: what the WBR reads (D-560, D-561). */
+let memoPt = { days: null, flags: null, out: {} };
+function wbrDays() {
+  if (memoPt.days !== S.days || memoPt.flags !== S.flags) memoPt = { days: S.days, flags: S.flags, out: playerDays() };
+  return memoPt.out;
+}
+/** The cups without the lab's: what La Copa's counts read (D-560). */
+let memoCopas = { torneos: null, out: {} };
+function playerCups() {
+  if (memoCopas.torneos !== S.torneos) memoCopas = { torneos: S.torneos, out: withoutLabCups(S.torneos) };
+  return memoCopas.out;
+}
 if (S.ruta.r && RANGOS.some(r => r.id === S.ruta.r)) S.range = S.ruta.r;
 if (S.ruta.e) S.env = S.ruta.e;
 
@@ -190,7 +220,9 @@ function listen() {
   // (D-80): mirar un año son 365 días de registros, y no hay por qué pagarlos mientras se
   // mira la semana. Cambiar a un rango más corto no vuelve a pedir nada.
   // And the period before it, so every number can say how it changed (D-348)
-  const desde = Math.min(rangoAnterior(rangeOf(S.range)).from, S.desdeDia ?? Infinity);
+  // The WBR reads back to the first of the month two months before its week
+  // One UTC day more: a Pacific date's evening is in the next UTC bucket, its night before in the one before
+  const desde = Math.min(rangoAnterior(rangeOf(S.range)).from - 1, S.desdeDia ?? Infinity, S.ruta?.sec === 'wbr' ? trendStart(weekOf(S.ruta.args[0])) - 1 : Infinity);
   S.desdeDia = desde;
   S.unsubDays = onValue(query(ref(db, `stats/${S.env}/days`), orderByKey(), startAt(String(desde))), snap => { S.days = snap.val() || {}; S.daysLoaded = true; render(); }, denied);
   // The cups that were still alive on the first day loaded (D-473): every number of a period
@@ -655,7 +687,7 @@ function porIdioma(titulo, nota, cuenta) {
 
 function vistaCopa(now) {
   const rango = rangeOf(S.range);
-  const rc = resumenCopas(S.torneos, rango, now);
+  const rc = resumenCopas(playerCups(), rango, now);
   const part = pct(rc.participacion);
   const cargando = S.torneosLoaded ? null : 'Loading the cups…';
 
@@ -667,8 +699,8 @@ function vistaCopa(now) {
   const maxMD = Math.max(0, ...periodosM.map(d => d.total));
   const verTodas = () => { S.filtroCopas = 'todas'; render(); };
   // The period before and the funnel (D-348); who was left out of a cup (D-347)
-  const rca = resumenCopas(S.torneos, rangoAnterior(rango), now);
-  const ec = embudoCopas(S.torneos, rango, now);
+  const rca = resumenCopas(playerCups(), rangoAnterior(rango), now);
+  const ec = embudoCopas(playerCups(), rango, now);
   const pasos = [['Created', ec.creadas], ['With 2 or more players', ec.conGente], ['Started', ec.partieron], ['Finished with 2 or more', ec.terminadas]];
   const maxDia = Math.max(0, ...ec.porDia.map(d => d.esperado));
 
@@ -707,7 +739,7 @@ function vistaCopa(now) {
           `in ${n(m.copas)} cup${m.copas === 1 ? '' : 's'}`,
         ].filter(Boolean).join(' · '),
       })), cargando || 'No games played in this range.', 'bars')),
-    bloque({ dia: 'Games per day', semana: 'Games per week', mes: 'Games per month' }[rango.grano], `UTC days.${rango.grano === 'semana' ? ' The date is the Monday of each week.' : ''}`,
+    bloque({ dia: 'Games per day', semana: 'Games per week', mes: 'Games per month' }[rango.grano], `Pacific days.${rango.grano === 'semana' ? ' The date is the Monday of each week.' : ''}`,
       lista(periodosM.map(d => bar(d.label, [seg(C_TORNEO, d.total)], maxMD)), 'Nothing yet.', 'bars')),
   ];
 }
@@ -726,7 +758,7 @@ const PWA_LABEL = { android: 'Android', ios: 'iPhone / iPad', otro: 'Other (comp
  * entorno elegido.
  */
 function bloqueAvisos(rango, now) {
-  const a = avisosDelRango(S.days, { from: rango.from, to: rango.to });
+  const a = avisosDelRango(ptDays(), { from: rango.from, to: rango.to });
   const p = S.push || {};
   const atrasada = S.push !== null && vueltaAtrasada(p.vuelta, now);
   const tipos = [...AVISO_TIPOS, ...Object.keys({ ...a.mandados, ...a.tocados }).filter(k => !AVISO_TIPOS.includes(k))]
@@ -873,7 +905,7 @@ function vistaFichaCopa(code, now) {
  * invitaciones aceptadas. Los avisos van en el bloque de avisos al celular, como `uad<tipo>`.
  */
 function bloqueUnoAlDia(rango) {
-  const u = unoAlDiaDelRango({ days: S.days, ...S.uad }, { from: rango.from, to: rango.to, hoy: dayOf(Date.now()) });
+  const u = unoAlDiaDelRango({ days: ptDays(), ...S.uad }, { from: rango.from, to: rango.to, hoy: pacificDay(Date.now()) });
   const periodos = groupDays(u.porDia, rango.grano);
   const maxD = Math.max(0, ...periodos.map(d => d.total));
   const juegos = Object.entries(u.porJuego).sort((a, b) => b[1] - a[1]);
@@ -926,7 +958,7 @@ const AVISOS_UAD = {
  * gets solo and One a Day, so each log matches the numbers above it. The Cup is not here.
  */
 function sinRedRecientes(rango, dominio) {
-  const todas = localLog(S.days, { from: rango.from, to: rango.to })
+  const todas = enRangoPt(localLog(S.days, { from: rango.from - 1, to: rango.to + 1 }), rango)
     .filter(p => esJuego(p.game) && (isIndividualMode(p.mode) ? 'individual' : 'grupo') === dominio);
   const visibles = S.sinRedTodas ? todas : todas.slice(0, SIN_RED_VISIBLES);
   return bloque('Offline games', NOTA_SIN_RED[dominio],
@@ -952,14 +984,14 @@ function graficosJuego(s, rango) {
   return el('div', { class: 'grid2' },
     bloque('Players per game', null, lista(players.map(([k, v]) => bar(k === '1' ? '1 player' : `${k} players`, [seg(C_SIN_RED, v)], maxP)), 'Nothing yet.', 'bars')),
     bloque({ dia: 'By day', semana: 'By week', mes: 'By month' }[rango.grano],
-      `${modeIcon(ROOM_MODE)} On two phones and, in yellow, offline. UTC days.${rango.grano === 'semana' ? ' The date is the Monday of each week.' : ''}`,
+      `${modeIcon(ROOM_MODE)} On two phones and, in yellow, offline. Pacific days.${rango.grano === 'semana' ? ' The date is the Monday of each week.' : ''}`,
       lista(periodos.map(d => bar(d.label, [segModo(ROOM_MODE, d.online), seg(C_SIN_RED, d.local)], maxDay)), 'Nothing yet.', 'bars')),
   );
 }
 
 /** La bitácora de salas jugadas del rango (D-79), de un juego o de todos. */
 function bitacora(rango, game = null) {
-  const filas = roomLog(S.days, { from: rango.from, to: rango.to, soloJugadas: !S.logSolas }).filter(f => !game || f.game === game);
+  const filas = enRangoPt(roomLog(S.days, { from: rango.from - 1, to: rango.to + 1, soloJugadas: !S.logSolas }), rango).filter(f => !game || f.game === game);
   const { rows, page, pages, total, desde } = paginate(filas, { page: S.logPage, perPage: POR_PAGINA });
   S.logPage = page;
   return el('div', { class: 'panel', id: 'salas-jugadas' },
@@ -974,12 +1006,12 @@ function bitacora(rango, game = null) {
 function vistaFichaJuego(id) {
   const rango = rangeOf(S.range);
   const nombre = gameLabel(id);
-  const s = summarize(S.days, { from: rango.from, to: rango.to, incluye: g => g === id });
+  const s = summarize(ptDays(), { from: rango.from, to: rango.to, incluye: g => g === id });
   MODOS = s.modes;
   const fila = s.byGame[id] || { total: 0 };
-  const salas = roomLog(S.days, { from: rango.from, to: rango.to, soloJugadas: true }).filter(f => f.game === id);
+  const salas = enRangoPt(roomLog(S.days, { from: rango.from - 1, to: rango.to + 1, soloJugadas: true }), rango).filter(f => f.game === id);
   const durTipica = mediana(salas.filter(f => f.durMs).map(f => f.durMs));
-  const sinRed = localLog(S.days, { from: rango.from, to: rango.to, game: id });
+  const sinRed = enRangoPt(localLog(S.days, { from: rango.from - 1, to: rango.to + 1, game: id }), rango);
   const modos = MODOS.filter(m => fila[m]);
   const maxM = Math.max(0, ...modos.map(m => fila[m]));
   const visibles = S.sinRedTodas ? sinRed : sinRed.slice(0, SIN_RED_VISIBLES);
@@ -987,7 +1019,7 @@ function vistaFichaJuego(id) {
 
   return [
     migas(['👥 Group', 'grupo'], [nombre]),
-    ...titulo(`${nombre} · ${tituloRango()}`, `Counts go by UTC day; times, in ${ZONA_NOMBRE}.`),
+    ...titulo(`${nombre} · ${tituloRango()}`, `Counts go by Pacific day; times, in ${ZONA_NOMBRE}.`),
     el('div', { class: 'tiles' },
       tile(fila.total, 'games started'),
       tile(s.online, 'on two phones'),
@@ -997,7 +1029,7 @@ function vistaFichaJuego(id) {
     ),
     el('div', { class: 'grid2' },
       bloque('By mode', null, lista(modos.map(m => bar(modoDe(m), [segModo(m, fila[m])], maxM)), 'Nothing in this range.', 'bars')),
-      porIdioma('In which language', 'Once per player in each room and once per offline game. Recorded since D-211.', idiomasDelRango(S.days, { from: rango.from, to: rango.to, incluye: g => g === id }))),
+      porIdioma('In which language', 'Once per player in each room and once per offline game. Recorded since D-211.', idiomasDelRango(ptDays(), { from: rango.from, to: rango.to, incluye: g => g === id }))),
     graficosJuego(s, rango),
     bitacora(rango, id),
     bloque('Offline games', NOTA_SIN_RED.todas,
@@ -1071,8 +1103,8 @@ const porcentaje = (a, b) => (b ? `${Math.round((a / b) * 100)}%` : '—');
 
 /** What was shared and how many visits the shared links brought (D-348). */
 function bloqueCompartidos(rango) {
-  const sg = senales(S.days, rango);
-  const t = trafico(S.days, rango);
+  const sg = senales(ptDays(), rango);
+  const t = trafico(ptDays(), rango);
   const que = Object.entries(sg.comparte).sort((a, b) => b[1] - a[1]);
   const max = Math.max(0, ...que.map(([, v]) => v));
   const llegan = t.via.link || 0;
@@ -1082,8 +1114,8 @@ function bloqueCompartidos(rango) {
 
 function vistaTrafico(now) {
   const rango = rangeOf(S.range);
-  const t = trafico(S.days, { from: rango.from, to: rango.to });
-  const hoy = trafico(S.days, { from: dayOf(now), to: dayOf(now) });
+  const t = trafico(ptDays(), { from: rango.from, to: rango.to });
+  const hoy = trafico(ptDays(), { from: pacificDay(now), to: pacificDay(now) });
   const nota = 'Visits to the site, whether they play or not. A visit is a tab: it counts once, on the page where it started, and each page it opens afterwards adds a view. No IP, no cookies and no identifying anyone: of where it came from only the domain is kept. UTC days.';
   if (t.desde === null) {
     return [...titulo(`📈 Traffic · ${tituloRango()}`, nota),
@@ -1115,7 +1147,7 @@ function vistaTrafico(now) {
       tile(t.vistas, `pages viewed · ${t.visitas ? (t.vistas / t.visitas).toLocaleString(LOCALE, { maximumFractionDigits: 1 }) : '—'} per visit`),
       tile(porcentaje(t.juegan, t.visitas), `went on to play · ${n(t.juegan)} visits`, { info: 'started a game or a cup game' }),
       tile(porcentaje(t.retorno.nueva || 0, t.visitas), 'first-time visits', { info: 'a mark in the browser: it identifies nobody' }),
-      tile(hoy.visitas, 'visits today (UTC day)'),
+      tile(hoy.visitas, 'visits today (Pacific day)'),
     ),
     bloque({ dia: 'Visits per day', semana: 'Visits per week', mes: 'Visits per month' }[rango.grano],
       `In green, those that went on to play.${rango.grano === 'semana' ? ' The date is the Monday of each week.' : ''}`,
@@ -1146,12 +1178,12 @@ function vistaTrafico(now) {
 /* Audiencia                                                           */
 /* ------------------------------------------------------------------ */
 function vistaAudiencia(now) {
-  const today = dayOf(now);
+  const today = pacificDay(now);
   const rango = rangeOf(S.range);
-  const s = summarize(S.days, { from: rango.from, to: rango.to, incluye: esJuego });
-  const hoy = summarize(S.days, { from: today, to: today, incluye: esJuego });
-  const todo = summarize(S.days, { from: rango.from, to: rango.to });
-  const rc = resumenCopas(S.torneos, rango, now);
+  const s = summarize(playerDays(), { from: rango.from, to: rango.to, incluye: esJuego });
+  const hoy = summarize(playerDays(), { from: today, to: today, incluye: esJuego });
+  const todo = summarize(ptDays(), { from: rango.from, to: rango.to });
+  const rc = resumenCopas(playerCups(), rango, now);
   const miniHoy = rc.porDia.find(d => d.day === today)?.total || 0;
 
   const tipos = [[torneoLabel, C_TORNEO, rc.jugadas, 'games played', ir('torneo')], ['🎲 Other games', C_TOTAL, s.partidas, 'games', ir('grupo')]];
@@ -1161,7 +1193,7 @@ function vistaAudiencia(now) {
   const maxK = Math.max(0, ...periodosT.map(d => d.juegos + d.torneo));
   const origin = top(todo.origin, 15);
   const maxO = Math.max(0, ...origin.map(([, v]) => v));
-  const paises = top(paisesDelRango(S.days, { from: rango.from, to: rango.to, incluye: esJuego }), 15);
+  const paises = top(paisesDelRango(playerDays(), { from: rango.from, to: rango.to, incluye: esJuego }), 15);
   const maxPa = Math.max(0, ...paises.map(([, v]) => v));
   const lang = top(todo.lang, 10);
   const maxL = Math.max(0, ...lang.map(([, v]) => v));
@@ -1171,7 +1203,7 @@ function vistaAudiencia(now) {
   const maxH = Math.max(1, ...todo.hour);
 
   return [
-    ...titulo(`🌎 Audience · ${tituloRango()}`, 'UTC days (the day changes at 16:00/17:00 Pacific).'),
+    ...titulo(`🌎 Audience · ${tituloRango()}`, 'Pacific days (before Nov 16, 2026 browsers and visits were counted by UTC day).'),
     el('div', { class: 'tiles' },
       tile(s.partidas, 'games started', { href: ir('grupo') }),
       tile(rc.jugadas, `${torneoNombre} games`, { href: ir('torneo') }),
@@ -1249,10 +1281,41 @@ function filaError(g) {
 /** Un porcentaje que no esconde lo poco: 2 de 674 es 0,3 %, no 0 %. */
 const pctFino = (a, b) => (!b ? '—' : a && a / b < 0.01 ? `${((a / b) * 100).toLocaleString(LOCALE, { maximumFractionDigits: 1, minimumFractionDigits: 1 })}%` : porcentaje(a, b));
 
+/**
+ * 📋 WBR, the Weekly Business Review: the weekly email's tables, for any closed week (D-352, D-560).
+ * The headline and the top 10 games over the week, the four before it, this month so far and the
+ * two before; lab plays out. On a phone the tables scroll sideways with the names pinned.
+ */
+function vistaWbr(now) {
+  const w = weekOf(S.ruta.args[0], now);
+  const nota = 'The closed week (Sunday to Saturday, Pacific time) against the four before and the last three months, like the Sunday email. Lab plays left out (D-560). Browsers and visits before Nov 16 follow UTC days (D-561).';
+  const cabeza = [...titulo(`📋 WBR · ${wbrDay(w.from).replace(/, \d{4}$/, '')} – ${wbrDay(w.to)}`, nota),
+    el('div', { class: 'wbr-nav' },
+      el('a', { class: 'btn btn--sm btn--ghost', href: ir('wbr', [isoDay(w.to - 7)]) }, '‹ Week before'),
+      w.to < weekOf(null, now).to ? el('a', { class: 'btn btn--sm btn--ghost', href: ir('wbr', [isoDay(w.to + 7)]) }, 'Week after ›') : null)];
+  if (!S.daysLoaded || !S.torneosLoaded) return [...cabeza, el('p', { class: 'empty' }, 'Loading…')];
+  const t = trend({ days: wbrDays(), torneos: playerCups(), flags: S.flags || {} }, w);
+  const fmt = (v, dec) => (v === null ? 'n/a' : dec ? v.toFixed(1) : n(v));
+  const cambioTxt = c => (c === null || c === undefined ? '' : ` (${c > 0 ? '+' : c < 0 ? '−' : '±'}${Math.abs(c)}%)`);
+  const tabla = (filas, cabezaCol) => el('div', { class: 'wbr-scroll' }, el('table', { class: 'wbr' },
+    el('thead', {}, el('tr', {}, el('th', {}, cabezaCol), ...t.columnas.map((c, i) => el('th', { class: i === 5 ? 'wbr-mes' : null }, c)))),
+    el('tbody', {}, ...filas.map(([nombre, valores, cambio, dec]) => el('tr', {}, el('th', {}, nombre),
+      ...valores.map((v, i) => el('td', { class: [i === 0 ? 'wbr-ahora' : '', i === 5 ? 'wbr-mes' : ''].filter(Boolean).join(' ') || null },
+        i === 0 && v !== null ? [el('b', {}, fmt(v, dec)), cambioTxt(cambio)] : fmt(v, dec))))))));
+  return [...cabeza,
+    el('ul', { class: 'wbr-destacados' }, ...highlights(t).map(x => el('li', {}, x))),
+    el('h3', {}, 'Headline'),
+    tabla(t.metricas.map(m => [m.nombre, m.valores, m.cambio, m.decimales]), ''),
+    el('h3', {}, 'Top 10 games'),
+    el('p', { class: 'muted small' }, 'Games started; every mode and version, La Copa included. n/a: not measured yet, or the game was not out yet.'),
+    tabla(t.juegos.map((g, i) => [`${i + 1}. ${g.juego}${g.nuevo ? ` (out ${g.nuevo.replace(/, \d{4}$/, '')})` : ''}`, g.valores, g.cambio]), 'Game'),
+  ];
+}
+
 function vistaSalud(now) {
   const rango = rangeOf(S.range);
-  const s = salud(S.days, { from: rango.from, to: rango.to });
-  const hoy = salud(S.days, { from: dayOf(now), to: dayOf(now) });
+  const s = salud(ptDays(), { from: rango.from, to: rango.to });
+  const hoy = salud(ptDays(), { from: pacificDay(now), to: pacificDay(now) });
   const nota = 'What fails for whoever opens the site: pages that did not start, errors and how long until they can play. Each phone records it, once per load and type, with no IP or full address (D-251). A load is an opened page: those that started are the views in Traffic. UTC days.';
   if (s.desde === null) {
     return [...titulo(`🩺 Health · ${tituloRango()}`, nota),
@@ -1280,7 +1343,7 @@ function vistaSalud(now) {
       tile(pctFino(t.alguna, t.cargas), `loads with some failure · ${n(t.alguna)}`, { hot: t.alguna > 0 }),
       tile(pctFino(t.lentas, t.medidas), 'took 6 s or more to start', { info: `of ${n(t.medidas)} measured loads, those visible the whole time` }),
       tile(s.errores.length, 'distinct errors'),
-      tile(hoy.total.alguna, 'loads with failures today (UTC day)', { hot: hoy.total.arranque > 0 }),
+      tile(hoy.total.alguna, 'loads with failures today', { hot: hoy.total.arranque > 0 }),
     ),
     el('div', { class: 'grid2' },
       bloque({ dia: 'Loads with failures per day', semana: 'Loads with failures per week', mes: 'Loads with failures per month' }[rango.grano],
@@ -1329,17 +1392,17 @@ const pctTxt = p => (p === null ? '—' : `${p}%`);
  */
 function vistaResumen(now) {
   const { r, a } = periodos();
-  const pd = partidasDominio(S.days, r), pda = partidasDominio(S.days, a);
-  const f = finales(S.days, r), fa = finales(S.days, a);
-  const rc = resumenCopas(S.torneos, r, now), rca = resumenCopas(S.torneos, a, now);
-  const norte = f.terminadas + terminadasSalas(embudoSalas(S.days, r)) + rc.jugadas;
-  const norteA = fa.terminadas + terminadasSalas(embudoSalas(S.days, a)) + rca.jugadas;
-  const u = usuarios(S.days, r), ua = usuarios(S.days, a);
-  const t = trafico(S.days, r), ta = trafico(S.days, a);
-  const sg = senales(S.days, r), sga = senales(S.days, a);
-  const h = salud(S.days, r), ha = salud(S.days, a);
-  const uad = unoAlDiaDelRango({ days: S.days, ...S.uad }, { from: r.from, to: r.to, hoy: dayOf(now) });
-  const uada = unoAlDiaDelRango({ days: S.days, ...S.uad }, { from: a.from, to: a.to, hoy: a.to });
+  const pd = partidasDominio(playerDays(), r), pda = partidasDominio(playerDays(), a);
+  const f = finales(playerDays(), r), fa = finales(playerDays(), a);
+  const rc = resumenCopas(playerCups(), r, now), rca = resumenCopas(playerCups(), a, now);
+  const norte = f.terminadas + terminadasSalas(embudoSalas(playerDays(), r)) + rc.jugadas;
+  const norteA = fa.terminadas + terminadasSalas(embudoSalas(playerDays(), a)) + rca.jugadas;
+  const u = usuarios(ptDays(), r), ua = usuarios(ptDays(), a);
+  const t = trafico(ptDays(), r), ta = trafico(ptDays(), a);
+  const sg = senales(ptDays(), r), sga = senales(ptDays(), a);
+  const h = salud(ptDays(), r), ha = salud(ptDays(), a);
+  const uad = unoAlDiaDelRango({ days: ptDays(), ...S.uad }, { from: r.from, to: r.to, hoy: pacificDay(now) });
+  const uada = unoAlDiaDelRango({ days: ptDays(), ...S.uad }, { from: a.from, to: a.to, hoy: a.to });
   const fallas = pctDe(h.total.alguna, h.total.cargas), fallasA = pctDe(ha.total.alguna, ha.total.cargas);
   const vivas = salasVivas(now).propias.filter(x => x.active).length;
   const sinRed = liveLocal(S.days, now).length;
@@ -1350,11 +1413,11 @@ function vistaResumen(now) {
   };
   const porDia = pd.grupo.byDay.map((d, i) => ({ day: d.day, grupo: d.total, individual: pd.individual.byDay[i].total, torneo: rc.porDia[i]?.total || 0 }));
   return [
-    ...titulo(`📊 Summary · ${tituloRango()}`, 'Each card vs. the previous period of the same length. UTC days.'),
+    ...titulo(`📊 Summary · ${tituloRango()}`, 'Each card vs. the previous period of the same length. Pacific days.'),
     franja('pulso'),
     el('div', { class: 'tiles' },
       tile(norte, '⭐ games finished', { cambio: vs(norte, norteA), info: 'main metric: rooms with an ending, offline games finished and The Cup games' }),
-      tile(u.semana || '—', 'browsers active in 7 days', { href: ir('usuarios'), cambio: u.semana ? variacion(u.semana, usuarios(S.days, { from: a.to - 6, to: a.to }).semana) : undefined, info: 'since D-349' }),
+      tile(u.semana || '—', 'browsers active in 7 days', { href: ir('usuarios'), cambio: u.semana ? variacion(u.semana, usuarios(ptDays(), { from: a.to - 6, to: a.to }).semana) : undefined, info: 'since D-349' }),
       tile(vivas + sinRed + jugandoCopa, '🟢 playing now', { href: ir('ahora'), info: `${n(vivas)} rooms · ${n(sinRed)} offline · ${n(jugandoCopa)} in cups` }),
     ),
     el('div', { class: 'tiles' },
@@ -1375,10 +1438,10 @@ function vistaResumen(now) {
 /** Group games (D-348): rooms, one phone and against the phone. */
 function vistaGrupo(now) {
   const { r, a } = periodos();
-  const pd = partidasDominio(S.days, r).grupo, pda = partidasDominio(S.days, a).grupo;
-  const e = embudoSalas(S.days, r), ea = embudoSalas(S.days, a);
-  const f = finales(S.days, r);
-  const s = summarize(S.days, { from: r.from, to: r.to, incluye: esJuego, modo: m => !isIndividualMode(m) });
+  const pd = partidasDominio(playerDays(), r).grupo, pda = partidasDominio(playerDays(), a).grupo;
+  const e = embudoSalas(playerDays(), r), ea = embudoSalas(playerDays(), a);
+  const f = finales(playerDays(), r);
+  const s = summarize(playerDays(), { from: r.from, to: r.to, incluye: esJuego, modo: m => !isIndividualMode(m) });
   MODOS = s.modes;
   const sum = k => Object.values(e).reduce((x, g) => x + g[k], 0);
   const conRival = sum('conRival'), creadas = sum('creadas'), term = sum('terminadas');
@@ -1394,7 +1457,7 @@ function vistaGrupo(now) {
   const players = Object.entries(s.byPlayers).filter(([k]) => k !== '1').sort((x, y) => Number(x[0]) - Number(y[0]));
   const maxP = Math.max(0, ...players.map(([, v]) => v));
   return [
-    ...titulo(`👥 Group · ${tituloRango()}`, 'Rooms, one phone and vs. the phone. A room counts once someone joins. UTC days.'),
+    ...titulo(`👥 Group · ${tituloRango()}`, 'Rooms, one phone and vs. the phone. A room counts once someone joins. Pacific days.'),
     franja('pulso'),
     el('div', { class: 'tiles' },
       tile(pd.total, 'group games', { cambio: vs(pd.total, pda.total) }),
@@ -1429,9 +1492,9 @@ function vistaGrupo(now) {
 /** Individual games (D-348): solo and Uno al día, with their real difficulty. */
 function vistaIndividuales(now) {
   const { r, a } = periodos();
-  const pd = partidasDominio(S.days, r).individual, pda = partidasDominio(S.days, a).individual;
-  const f = finales(S.days, r);
-  const dif = dificultad(S.days, r, now);
+  const pd = partidasDominio(playerDays(), r).individual, pda = partidasDominio(playerDays(), a).individual;
+  const f = finales(playerDays(), r);
+  const dif = dificultad(playerDays(), r, now);
   const term = Object.values(f.porJuego).reduce((k, g) => k + g.finIndividual, 0);
   const ab = dif.reduce((k, g) => k + g.abandonos, 0), emp = dif.reduce((k, g) => k + g.empezadas, 0);
   const juegos = Object.entries(pd.byGame).sort((x, y) => y[1] - x[1]);
@@ -1440,7 +1503,7 @@ function vistaIndividuales(now) {
   const q = xs => (xs[1] === null ? '—' : `${xs[0]}–${xs[1]}–${xs[2]}`);
   const qT = xs => (xs[1] === null ? '—' : xs.map(x => `${Math.floor(x / 60)}:${String(x % 60).padStart(2, '0')}`).join('–'));
   return [
-    ...titulo(`🧍 Individual · ${tituloRango()}`, 'Games for one person: The Cup\'s standalone games, the solo ones and One a Day. UTC days.'),
+    ...titulo(`🧍 Individual · ${tituloRango()}`, 'Games for one person: The Cup\'s standalone games, the solo ones and One a Day. Pacific days.'),
     franja('pulso'),
     el('div', { class: 'tiles' },
       tile(pd.total, 'individual games', { cambio: vs(pd.total, pda.total) }),
@@ -1465,10 +1528,10 @@ function vistaIndividuales(now) {
 /** Uno al día as its own domain (D-348): the block it had in Games, with the bands. */
 function vistaUnoAlDia(now) {
   const { r, a } = periodos();
-  const u = unoAlDiaDelRango({ days: S.days, ...S.uad }, { from: r.from, to: r.to, hoy: dayOf(now) });
-  const ua = unoAlDiaDelRango({ days: S.days, ...S.uad }, { from: a.from, to: a.to, hoy: a.to });
+  const u = unoAlDiaDelRango({ days: ptDays(), ...S.uad }, { from: r.from, to: r.to, hoy: pacificDay(now) });
+  const ua = unoAlDiaDelRango({ days: ptDays(), ...S.uad }, { from: a.from, to: a.to, hoy: a.to });
   return [
-    ...titulo(`📅 One a Day · ${tituloRango()}`, 'The game of the day, the same for everyone (D-230). UTC days.'),
+    ...titulo(`📅 One a Day · ${tituloRango()}`, 'The game of the day, the same for everyone (D-230). Pacific days.'),
     franja('pulso'),
     el('div', { class: 'tiles' },
       tile(u.partidas, 'games', { cambio: vs(u.partidas, ua.partidas) }),
@@ -1492,15 +1555,15 @@ const FREC_LABEL = { f1: '1 day of 28', 'f2-3': '2 to 3 days', 'f4-7': '4 to 7 d
  */
 function vistaUsuarios(now) {
   const { r, a } = periodos();
-  const u = usuarios(S.days, r), ua = usuarios(S.days, a);
-  const sg = senales(S.days, r);
-  const co = cohortes(S.days, { hoy: Math.min(r.to, dayOf(now)) });
+  const u = usuarios(ptDays(), r), ua = usuarios(ptDays(), a);
+  const sg = senales(ptDays(), r);
+  const co = cohortes(ptDays(), { hoy: Math.min(r.to, pacificDay(now)) });
   const vuelta = ordenTramos(sg.vuelta), frec = ordenTramos(sg.frec);
   const maxV = Math.max(0, ...vuelta.map(([, v]) => v)), maxF = Math.max(0, ...frec.map(([, v]) => v));
   const audiencia = vistaAudiencia(now).slice(3);
   const desde = u.desde === null ? 'No browsers counted yet: they are counted since D-349.' : u.desde > r.from ? `Counted since ${dayLabel(u.desde)} (D-349).` : '';
   return [
-    ...titulo(`🌎 Users · ${tituloRango()}`, 'A user = a browser, anonymous. Clearing data counts as new. UTC days.'),
+    ...titulo(`🌎 Users · ${tituloRango()}`, 'A user = a browser, anonymous. Clearing data counts as new. Pacific days.'),
     desde ? el('p', { class: 'muted small' }, desde) : null,
     franja('pulso'),
     el('div', { class: 'tiles' },
@@ -1735,9 +1798,9 @@ const tasa = x => (x === null ? '—' : `${Math.round(x * 100)}%`);
 const unDecimal = x => (x === null ? '—' : x.toLocaleString(LOCALE, { maximumFractionDigits: 1 }));
 function bloqueResultados(rows) {
   const rango = rangeOf(S.range);
-  const todas = rows.map(s => campaignStats(S.days, s.id, rango)).filter(Boolean);
+  const todas = rows.map(s => campaignStats(ptDays(), s.id, rango)).filter(Boolean);
   const nombre = id => `${CAMPAIGNS[id]?.emoji || ''} ${S.splash?.[id]?.label || (CAMPAIGNS[id]?.title?.[PANEL_LANG] || CAMPAIGNS[id]?.title?.es) || id}`.trim();
-  const nota = `${tituloRango()}, UTC days; previews never count. Reach: phones that saw it for the first time. Tapped: taps on its Play link over reach. Finished a game: in the same tab, within 2 hours of the tap. Only the days it was shown count, so switching it off and on is fine.`;
+  const nota = `${tituloRango()}, Pacific days (its counters carry no time, so they keep their UTC day); previews never count. Reach: phones that saw it for the first time. Tapped: taps on its Play link over reach. Finished a game: in the same tab, within 2 hours of the tap. Only the days it was shown count, so switching it off and on is fine.`;
   if (!todas.length) return bloque('📊 How they did', nota, el('p', { class: 'empty' }, S.daysLoaded ? 'No campaign was shown in this range.' : 'Loading…'));
   const elegida = todas.find(c => c.id === S.campStats) || todas[0];
   const maxR = Math.max(0, ...todas.map(c => c.reach));
@@ -1780,8 +1843,8 @@ function bloqueResultados(rows) {
  */
 const C_OPEN = 'var(--yellow)';
 function bloqueApoyo() {
-  const c = supportStats(S.days, rangeOf(S.range));
-  const nota = `${tituloRango()}, UTC days; ?test never counts. Always on: the home footer link (not counted as shown) and an invitation at the end of some games (shown). Opened counts both.`;
+  const c = supportStats(ptDays(), rangeOf(S.range));
+  const nota = `${tituloRango()}, Pacific days (counters keep their UTC day); ?test never counts. Always on: the home footer link (not counted as shown) and an invitation at the end of some games (shown). Opened counts both.`;
   if (!c) return bloque("📊 How it did", nota, el('p', { class: 'empty' }, S.daysLoaded ? 'Nothing counted in this range.' : 'Loading…'));
   const maxD = Math.max(0, ...c.series.map(r => Math.max(r.shown, r.open)));
   const dias = c.series.map(r => bar(periodLabelDia(r.day), [seg(C_OPEN, r.open), seg(C_REST, Math.max(0, r.shown - r.open))], maxD,
@@ -2073,6 +2136,7 @@ function vistaCampanas(now) {
 /** Ícono y nombre de cada sección. El de The Cup sale del registro de juegos (C-16). */
 const SECCION = {
   resumen: ['📊', 'Summary'],
+  wbr: ['📋', 'WBR'],
   timeline: ['🕑', 'Timeline'],
   grupo: ['👥', 'Group'],
   individuales: ['🧍', 'Individual'],
@@ -2154,8 +2218,10 @@ function vistaLlaves(now) {
  * On a phone, five tabs and ☰ More (lab: #seccion-panel-nav-more): the rest open in a sheet, in groups.
  * A computer keeps the whole column.
  */
-const NAV_TABS = ['resumen', 'timeline', 'salud', 'feedback'];
-const NAV_GROUPS = [['Players', ['grupo', 'individuales', 'usuarios']], ['Games', ['torneo', 'unoaldia']], ['Owner', ['trafico', 'campanas', 'llaves', 'labs']]];
+const NAV_TABS = ['resumen', 'wbr', 'timeline', 'feedback'];
+const NAV_GROUPS = [['Players', ['grupo', 'individuales', 'usuarios']], ['Games', ['torneo', 'unoaldia']], ['Owner', ['trafico', 'salud', 'campanas', 'llaves', 'labs']]];
+// Every section is on the bar or under ☰ More: one left out of both could not be reached on a phone
+for (const sec of SECCIONES) if (!NAV_TABS.includes(sec) && !NAV_GROUPS.some(([, secs]) => secs.includes(sec))) console.error(`panel: ${sec} is neither a tab nor under More`);
 flag('panel-nav-more').then(on => { S.navMore = on; if (S.user) render(); }).catch(() => {});
 
 function abrirMas(open) {
@@ -2171,7 +2237,7 @@ function renderNav(now) {
   // Un punto verde en Ahora cuando hay algo en juego: se ve desde cualquier sección
   const algo = liveLocal(S.days, now).length > 0 || copasEnCurso(S.torneos, now).some(c => c.jugando.length) || salasVivas(now).propias.some(r => r.active);
   // Un punto rojo en Salud si hoy o ayer alguna página no arrancó (D-251)
-  const noArranca = salud(S.days, { from: dayOf(now) - 1, to: dayOf(now) }).total.arranque > 0;
+  const noArranca = salud(ptDays(), { from: pacificDay(now) - 1, to: pacificDay(now) }).total.arranque > 0;
   // The bottom bar's real height, so the page leaves that much room below its last line
   const nav = $('#nav');
   if (!nav.dataset.sized && typeof ResizeObserver === 'function') {
@@ -2201,7 +2267,9 @@ function renderNav(now) {
   nav.replaceChildren(
     ...SECCIONES.map(sec => tab(sec, NAV_TABS.includes(sec) ? {} : { class: 'nav-extra' })), labs({ class: 'nav-extra' }),
     el('button', { class: 'nav-mas-btn', type: 'button', 'aria-haspopup': 'dialog', 'aria-current': enMas ? 'page' : null, onClick: () => abrirMas(true) },
-      el('span', { class: 'ico', 'aria-hidden': 'true' }, icoMas), el('span', { class: 'nombre' }, enMas ? nombreMas : 'More')),
+      el('span', { class: 'ico', 'aria-hidden': 'true' }, icoMas), el('span', { class: 'nombre' }, enMas ? nombreMas : 'More'),
+      // Health's alert stays in sight when Health is under More
+      !NAV_TABS.includes('salud') && actual !== 'salud' && noArranca ? el('span', { class: 'vivo vivo--alerta', title: 'A page did not start today or yesterday: see Health' }) : null),
     sheet);
 }
 
@@ -2234,12 +2302,14 @@ async function copaSuelta(q) {
 
 function render() {
   const now = Date.now();
-  // "Today" is the UTC day: say how much of it has gone by, in the owner's time
+  // "Today" is the Pacific date (D-561): say how much of it has gone by
   $('#range-note').textContent = S.range === 'today' ? hoyUtcLabel(now) : '';
   // A date being picked is not redrawn under the finger: it saves on change, and that redraws
   if ((S.ruta.sec === 'campanas' || S.ruta.sec === 'llaves') && document.activeElement?.closest?.('#vista input')) return;
   MARCAS = versiones(S.days);
   const { sec, args } = S.ruta;
+  // The WBR has its own weeks: the range picker would only mislead there
+  const rangoLabel = $('#range')?.closest('label'); if (rangoLabel) rangoLabel.hidden = sec === 'wbr';
   let nodos;
   if (sec === 'torneo' && args[0]) nodos = vistaFichaCopa(args[0].toUpperCase(), now);
   else if (sec === 'torneo') nodos = vistaCopa(now);
@@ -2252,6 +2322,7 @@ function render() {
   else if (sec === 'ahora') nodos = vistaAhora(now);
   else if (sec === 'trafico') nodos = vistaTrafico(now);
   else if (sec === 'salud') nodos = vistaSalud(now);
+  else if (sec === 'wbr') nodos = vistaWbr(now);
   else if (sec === 'timeline') nodos = vistaTimeline(now);
   else if (sec === 'feedback') nodos = vistaFeedback(now);
   else if (sec === 'campanas') nodos = vistaCampanas(now);
@@ -2308,6 +2379,8 @@ function alCambiarRuta() {
   if (!S.ruta.r && S.range !== RANGO_POR_DEFECTO && antes.r) cambiarRango(RANGO_POR_DEFECTO, false);
   if ((S.ruta.e || ENV_DEFECTO) !== S.env) cambiarEntorno(S.ruta.e || ENV_DEFECTO, false);
   const otra = antes.sec !== S.ruta.sec || antes.args.join('/') !== S.ruta.args.join('/');
+  // A WBR week further back than what is downloaded asks for it (D-80)
+  if (S.ruta.sec === 'wbr' && S.user && S.desdeDia !== null && trendStart(weekOf(S.ruta.args[0])) - 1 < S.desdeDia) { S.daysLoaded = false; listen(); }
   if (otra) {
     S.logPage = 1; S.sinRedTodas = false; S.erroresTodos = false; S.tlPeriod = null; S.tlAll = false;
     if (S.ruta.args[0] !== antes.args[0]) S.fichaTab = 'tabla';
@@ -2344,7 +2417,7 @@ function cambiarRango(id, anotar = true) {
   S.range = id;
   S.logPage = 1;
   $('#range').value = id;
-  if (S.user && S.desdeDia !== null && rangoAnterior(rangeOf(id)).from < S.desdeDia) { S.daysLoaded = false; listen(); }
+  if (S.user && S.desdeDia !== null && rangoAnterior(rangeOf(id)).from - 1 < S.desdeDia) { S.daysLoaded = false; listen(); }
   if (anotar) { anotarEnUrl(); render(); }
 }
 

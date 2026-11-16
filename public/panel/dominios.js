@@ -142,13 +142,14 @@ export const ABANDONO_MS = 60 * 60 * 1000;
  * time quartiles of the finished ones, and how many were left halfway. A variant other than the
  * default counts apart (`pintaminas · hard`).
  */
-export function dificultad(days, { from, to }, now = Date.now()) {
+export function dificultad(days, { from, to }, now = Date.now(), { byVariant = true } = {}) {
   const porJuego = {};
   for (let d = from; d <= to; d++) for (const x of Object.values(bucketOf(days, d).live || {})) {
     if (!x || !isIndividualMode(x.mode)) continue;
     const det = x.fin ? leerDetalle(x.fin.d) : {};
-    const k = det.variante ? `${x.game} · ${det.variante}` : x.game;
-    const g = (porJuego[k] ||= { game: x.game, variante: det.variante || null, empezadas: 0, terminadas: 0, abandonos: 0, pcts: [], segs: [] });
+    // byVariant false reads a game's versions as one (the weekly report): a game left halfway has no variant yet
+    const k = byVariant && det.variante ? `${x.game} · ${det.variante}` : x.game;
+    const g = (porJuego[k] ||= { game: x.game, variante: (byVariant && det.variante) || null, empezadas: 0, terminadas: 0, abandonos: 0, pcts: [], segs: [] });
     g.empezadas++;
     if (x.fin) { g.terminadas++; if (det.pct !== null) g.pcts.push(det.pct); if (det.seg !== null) g.segs.push(det.seg); }
     else if (now - num(x.beat || x.at) > ABANDONO_MS) g.abandonos++;
@@ -288,8 +289,8 @@ export const ordenTramos = obj => Object.entries(obj).sort((a, b) => {
  * pressed Empezar) → finished with 2 or more. Participation by day number of the Cup (where people
  * drop), players out of the cup (D-347) and brought back by the admin.
  */
-export function embudoCopas(torneos, { from, to }, now = Date.now()) {
-  const enRango = copasDe(torneos).filter(L => { const d = dayOf(L.meta.createdAt || 0); return d >= from && d <= to; });
+export function embudoCopas(torneos, { from, to }, now = Date.now(), { dayFn = dayOf } = {}) {
+  const enRango = copasDe(torneos).filter(L => { const d = dayFn(L.meta.createdAt || 0); return d >= from && d <= to; });
   const porDia = {};
   let conGente = 0, partieron = 0, terminadas = 0, fueraN = 0, devueltos = 0, jugadores = 0;
   for (const L of enRango) {

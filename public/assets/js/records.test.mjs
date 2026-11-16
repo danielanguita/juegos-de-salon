@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import {
   nuevoJid, esJid, claveNombre, bandera, esPais, PARTIDAS, esCuenta, CLAVE_NOMBRE, hashPinJugador, tablaId, TABLA, PERIODO, semana, claveOrden,
-  normalizar, esMejor, ordenar, vistaTabla, todoterreno, podioDe, medallero, ultimasCopas, S_MAX, MS_MAX, limpiarNombre,
+  normalizar, esMejor, ordenar, vistaTabla, todoterreno, podioDe, medallero, ultimasCopas, S_MAX, MS_MAX, limpiarNombre, proyectarMes,
 } from './records.js';
 import { crearAlmacenLocal } from './jugador-local.js';
 import { crearJugador, rankingsVisibles, activarRankings, RANKINGS_EN_LABS } from './jugador.js';
@@ -275,3 +275,15 @@ assert.match(reglaJ['.write'], /!data\.exists\(\)/, 'el jid del podio se firma u
 assert.match(reglaJ['.write'], /torneoSeats\/' \+ \$code \+ '\/' \+ \$pid/, 'solo quien está sentado como ese jugador de la copa');
 
 console.log('records: ok');
+
+// Uno al día's month as every phone shows it (D-563): Mica's and Chan's phones disagreed because each
+// added today's points to its own row only. One projection for every row, from the day tables.
+{
+  const mes = [{ jid: 'mica', s: 1883, u: '20407', r: 10, ms: 0 }, { jid: 'chan', s: 1781, u: '20407', r: 10, ms: 0 }, { jid: 'seba', s: 1790, u: '20406', r: 10, ms: 0 }];
+  const dias = { 20408: [{ jid: 'mica', s: 81 }, { jid: 'chan', s: 39 }, { jid: 'seba', s: 20 }, { jid: 'nuevo', n: 'Nuevo', s: 70 }] };
+  const v = proyectarMes(mes, dias);
+  assert.deepEqual(v.map(f => [f.jid, f.s, f.puesto]), [['mica', 2014, 1], ['chan', 1870, 2], ['seba', 1815, 3], ['nuevo', 75, 4]]);
+  // The same tables give the same answer whoever reads them; a day already counted is not added again
+  assert.deepEqual(proyectarMes(v, dias).map(f => f.s), [2014, 1870, 1815, 75]);
+  assert.deepEqual(proyectarMes(mes, {}).map(f => f.s), [1883, 1790, 1781]);
+}

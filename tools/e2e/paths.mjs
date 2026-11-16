@@ -263,7 +263,7 @@ export const PATHS = {
   dudo: {
     intro: [],
     // The folded rules, open, with the setup's two switches told before the last rule (D-447)
-    rules: [`(()=>{const d=document.querySelector('#screen-intro details');d.open=true;document.getElementById('rules-list').scrollIntoView({block:'center'});return 1})()`],
+    rules: [`(()=>{const i=document.getElementById('btn-instrucciones');if(i)i.click();else document.querySelector('#screen-intro details').open=true;document.getElementById('rules-list').scrollIntoView({block:'center'});return 1})()`],   // behind the flag cover-dialogs, the Instrucciones dialog
     setup: [`document.querySelectorAll('.mode')[0].click()`],
     // The room creator's setup: the same switches travel to every phone (D-447)
     'setup-room': [`document.querySelectorAll('.mode')[1].click()`],
@@ -338,7 +338,7 @@ export const PATHS = {
   generala: {
     intro: [],
     // The folded rules, open: the three points and what each box asks for and is worth
-    rules: [`(()=>{const d=document.querySelector('#screen-intro details');d.open=true;document.getElementById('boxes-list').scrollIntoView({block:'center'});return 1})()`],
+    rules: [`(()=>{const i=document.getElementById('btn-instrucciones');if(i)i.click();else document.querySelector('#screen-intro details').open=true;document.getElementById('boxes-list').scrollIntoView({block:'center'});return 1})()`],   // behind the flag cover-dialogs, the Instrucciones dialog
     setup: [`document.querySelector('[data-mode=local]').click()`],
     // Playing solo the table is reached without a handoff: a roll, two dice kept and a box chosen
     game: [
@@ -604,7 +604,7 @@ export const PATHS = {
    */
   panel: {
     ...Object.fromEntries([['data', '/users'], ['now', '/now'], ['summary', '/summary'], ['timeline', '/timeline'], ['tournament', '/cup'], ['games', '/group'], ['group', '/group'], ['individual', '/individual'], ['daily', '/daily'], ['users', '/users'], ['audience', '/users'],
-      ['cup-card', '/cup/OFICI'], ['game-card', '/game/liars-dice'], ['room-card', '/room/CPSV'], ['traffic', '/traffic'], ['health', '/health'], ['campaigns', '/campaigns'], ['feedback', '/feedback']].map(([shot, view]) => [shot, [SEED_PANEL(view)]])),
+      ['cup-card', '/cup/OFICI'], ['game-card', '/game/liars-dice'], ['room-card', '/room/CPSV'], ['traffic', '/traffic'], ['health', '/health'], ['wbr', '/wbr'], ['campaigns', '/campaigns'], ['feedback', '/feedback']].map(([shot, view]) => [shot, [SEED_PANEL(view)]])),
     // 📣 Campaigns' other two tabs (D-477)
     ...Object.fromEntries([['campaigns-features', 1], ['campaigns-skins', 2]].map(([shot, i]) => [shot, [SEED_PANEL('/campaigns'), `document.querySelectorAll('.campanas-tabs button')[${i}].click()`]])),
     // A splash card's Quick look, opened
@@ -751,7 +751,7 @@ PATHS.copa['privacy'] = [`location.href='/privacy/'`, `1`, `1`, `1`];
 
 // The cover's «Cómo se juega», opened (collapsed by default, U-39)
 for (const g of ['ahorcado', 'batalla-naval', 'toque-y-fama']) {
-  if (PATHS[g]) PATHS[g]['intro-rules'] = [`document.querySelector('details.panel').open=true; document.querySelector('details.panel').scrollIntoView({block:'start'}); 1`, `1`];
+  if (PATHS[g]) PATHS[g]['intro-rules'] = [`(() => { const b = document.getElementById('btn-instrucciones'); if (b) { b.click(); return 1; } document.querySelector('details.panel').open=true; document.querySelector('details.panel').scrollIntoView({block:'start'}); return 1; })()`, `1`];   // behind the flag cover-dialogs the rules are the Instrucciones dialog
 }
 
 /**

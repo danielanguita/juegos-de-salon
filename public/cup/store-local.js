@@ -87,7 +87,7 @@ export function createLocalStore({ uid = null, pausa = 5000, esperar = ms => new
   const esAdmin = L => sentado(L, L.meta.admin);
   const publica = L => {
     if (!L) return null;
-    const { _keys, _seats, _avisos, _intentos, ...resto } = L;
+    const { _keys, _seats, _avisos, _intentos, _talk, ...resto } = L;
     return JSON.parse(JSON.stringify(resto));
   };
 
@@ -236,6 +236,36 @@ export function createLocalStore({ uid = null, pausa = 5000, esperar = ms => new
         if (!esAdmin(L)) throw falla('permiso');
         if (!L.players[pid]) throw falla('no-existe');
         L.players[pid].back = now();
+      });
+    },
+
+    /** Reactions and comments (D-562), as in Firebase: kept in the cup under `_talk`, which `publica` leaves out. */
+    escucharCharla(code, cb) {
+      const f = () => { const t = leerTodo()[code]?._talk; cb({ talk: t?.talk || {}, hidden: t?.hidden || {} }); };
+      oyentes.add(f);
+      f();
+      return () => oyentes.delete(f);
+    },
+
+    async decir(code, d, target, pid, { e = null, c = null } = {}) {
+      return cambiar(db => {
+        const L = copa(db, code);
+        // The rules: seated as the author, both played that day, the cup still on
+        if (!sentado(L, pid) || !L.results?.[d]?.[pid] || !L.results?.[d]?.[target] || terminada(vista(L), now())) throw falla('permiso');
+        const t = ((L._talk ||= {}).talk ||= {});
+        const day = ((t[d] ||= {})[target] ||= {});
+        if (e || c) day[pid] = { ...(e ? { e } : {}), ...(c ? { c } : {}), at: now() };
+        else delete day[pid];
+      });
+    },
+
+    async ocultar(code, d, target, author, si) {
+      return cambiar(db => {
+        const L = copa(db, code);
+        if (!sentado(L, target) || terminada(vista(L), now())) throw falla('permiso');
+        if (si && !L._talk?.talk?.[d]?.[target]?.[author]?.c) throw falla('permiso');
+        const h = (((L._talk ||= {}).hidden ||= {})[d] ||= {})[target] ||= {};
+        if (si) h[author] = true; else delete h[author];
       });
     },
 

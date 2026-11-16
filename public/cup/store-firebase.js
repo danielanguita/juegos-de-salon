@@ -8,6 +8,7 @@
  *   torneoSeats/<código>/<pid>/<uid>   el celular `uid` puede escribir por `pid`. Las reglas
  *                                    aceptan el asiento solo si trae el mismo hash que torneoKeys,
  *                                    or the jid that `pid` is linked to, from a phone seated as that player (D-359).
+ *   cupTalk/<código>/<día>/<target>/<pid>, cupTalkHidden/…  reactions and comments (D-562, talk.js).
  *   torneoIntentos/<código>/<pid>    { h, u, at }: the last PIN attempt on that cup player (D-464). One
  *                                    every 5 s; a seat with the PIN needs this phone's attempt from
  *                                    the last minute with the same hash. Nobody reads it.
@@ -101,6 +102,28 @@ export function createFirebaseStore() {
         off = onValue(ref(db, `torneos/${code}`), s => cb(s.val()), e => onError(traducir(e)));
       }).catch(onError);
       return () => off();
+    },
+
+    /** Reactions and comments of a cup (D-562): cb({ talk, hidden }), live. */
+    escucharCharla(code, cb) {
+      const v = { talk: {}, hidden: {} };
+      const offs = [];
+      listo().then(() => {
+        offs.push(onValue(ref(db, `cupTalk/${code}`), s => { v.talk = s.val() || {}; cb({ ...v }); }, () => {}));
+        offs.push(onValue(ref(db, `cupTalkHidden/${code}`), s => { v.hidden = s.val() || {}; cb({ ...v }); }, () => {}));
+      }).catch(() => {});
+      return () => offs.forEach(f => f());
+    },
+
+    /** What `pid` says on `target`'s day `d`: { e, c } (either may be empty); nothing left deletes it. */
+    async decir(code, d, target, pid, { e = null, c = null } = {}) {
+      const v = e || c ? { ...(e ? { e } : {}), ...(c ? { c } : {}), at: serverTimestamp() } : null;
+      await escribir({ [`cupTalk/${code}/${d}/${target}/${pid}`]: v });
+    },
+
+    /** The target hides (or shows again) a comment on their row (D-562). */
+    async ocultar(code, d, target, author, si) {
+      await escribir({ [`cupTalkHidden/${code}/${d}/${target}/${author}`]: si ? true : null });
     },
 
     async leer(code) {
@@ -200,7 +223,7 @@ export function createFirebaseStore() {
     async eliminar(code) {
       const alias = (await withTimeout(get(ref(db, `torneos/${code}/meta/alias`)), OP_MS)).val();
       await escribir({
-        [`torneos/${code}`]: null, [`torneoKeys/${code}`]: null, [`torneoSeats/${code}`]: null, [`torneoIntentos/${code}`]: null,
+        [`torneos/${code}`]: null, [`torneoKeys/${code}`]: null, [`cupTalk/${code}`]: null, [`cupTalkHidden/${code}`]: null, [`torneoSeats/${code}`]: null, [`torneoIntentos/${code}`]: null,
         // Y quién quería avisos de ella (D-223)
         [`pushCopa/${code}`]: null,
         // El link propio queda libre de inmediato (D-121)

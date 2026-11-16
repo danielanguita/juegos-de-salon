@@ -73,7 +73,8 @@ own tree because they last a week and rooms die after half an hour (D-89).
   `joinUntil` and `final` (the final's day as text, or `'0'` in a cup without a final, D-438): the rules compare `now` against numbers, they know nothing about time zones.
 - `players/<pid>` is created by the player themselves before the final; afterwards only the admin changes it.
 - `started`, `results` and `wild` are written only once, by the seated player and within the
-  window of their day. The wildcard, also, only before `started` and never on the final's day (any day in a cup without a final). An unused one that lands on its own before the final (D-444) is computed when read and writes nothing, so the rules do not change for it.
+  window of their day. A result is `{ s, ms, d?, t, r, at }`; `d`, a game's own tiebreak (Aletazo's dead centers,
+  lab flag `flap-tiebreak`), is a number from 0 to 1000 (`firebase/cup-tiebreak.test.mjs`). The wildcard, also, only before `started` and never on the final's day (any day in a cup without a final). An unused one that lands on its own before the final (D-444) is computed when read and writes nothing, so the rules do not change for it.
 - `started` is also refused to a player out of the cup (D-347): two days in a row closed without a
   result, counting only days that closed after their `at` and after their `back` (the admin's
   «Devolver a la copa», server time). The rule repeats the condition for each pair of days up to
@@ -114,6 +115,18 @@ it leaks it is revoked right there. Without the key, you can still paste by hand
 says whether they did. It covers what the tests
 need, not the whole rules language. `firebase/pin-attempts.test.mjs` uses it to check the PIN attempts,
 seats and key changes on the real rules file.
+
+## La Copa: reactions and comments (D-562, lab)
+
+- `cupTalk/<code>/<day>/<target>/<author>` `{ e?, c?, at }`: the author's reaction (`fire`, `laugh`,
+  `clap`, `wow`, `sad`, `crown`) and comment (1 to 120 characters, the author edits or deletes it) on the
+  target's result of that day. Written only from a phone seated as the author, when both have a result
+  that day, while the cup is on (`meta/end` not passed, no `fin`). `at` is the server time.
+- `cupTalkHidden/<code>/<day>/<target>/<author>` `true`: the target hid that comment. Only a phone
+  seated as the target writes it, and only on a comment that exists; apart, so the author cannot undo it.
+- Both are public to read, like the cup. The admin deletes them with the cup (`eliminar`), and the
+  nightly `tools/firebase/archive.mjs` deletes them (not archives) once the cup ended.
+  Tested in `firebase/cup-talk.test.mjs`.
 
 ## La Copa: closed sign-up and movable start (D-110)
 
@@ -389,6 +402,8 @@ The rules close it to everyone (`.read` and `.write` false); only the admin key 
 compares it and only then deletes the live one. The `firebase-archive` workflow runs it nightly at
 09:41 UTC, as a dry run until the repository variable `FIREBASE_ARCHIVE_APPLY` is `true`.
 An old Cup link stops opening once its Cup is archived (two years after it ended).
+The same run **deletes**, not archives, `cupTalk/<code>` and `cupTalkHidden/<code>` once that Cup
+ended, was ended early or no longer exists (D-562): players were told the talk lasts as long as the Cup.
 `unoAlDia/` and `rooms/` are not archived here.
 
 ## The goodbye (`left`)
@@ -436,6 +451,8 @@ stats/prod/days/20342/
   vuelta/d2-7: 4                       days since the browser's last visit, by band
   frec/f3-7: 6                         how many of the last 28 days the browser came, by band
   activos/k3j9x0q2ab: 2                a browser's random id: 1 visited, 2 started something (D-349)
+  activosPt/20773/k3j9x0q2ab: 2        the same, under the Pacific date (day number) of the moment (D-561)
+  entradasPt/20773/cup: 4              first pages of a visit, under the Pacific date (D-561)
   support/open: 1                      ☕ Buy me a coffee, by step: shown, open, pay, thanks (D-448, in the lab)
   splash/brindis-apoyo/reach: 4        splash windows, by campaign and event (D-461)
 stats/prod/push: { vuelta, vivas, torneos }   notify.mjs's last run and how many subscriptions are still alive
@@ -465,7 +482,9 @@ stats/prod/push: { vuelta, vivas, torneos }   notify.mjs's last run and how many
 - Domains (D-348, D-349): `fin`, `otra`, `comparte`, `vuelta` and `frec` are counters like the
   others (start at 1, go up by one; keys by shape). `activos/<id>` is the only key that names a
   browser: a random 10-character id (`^[a-z0-9]{10}$`) kept in `localStorage`, whose value can only
-  be 1 or 2 and never go down. Nothing else goes with it.
+  be 1 or 2 and never go down. Nothing else goes with it. `activosPt/<day>/<id>` and
+  `entradasPt/<day>/<page>` (D-561) repeat `activos/` and `entradas/` filed by Pacific date (the day
+  number by shape), with the same values and rules (`firebase/stats-pacific.test.mjs`).
 - Support (D-448): `support/<event>` is a counter like the others, uploaded by `support.js`; unlike
   the categories above, the event is validated **by list** (`shown`, `open`, `pay`, `thanks`), so a
   new step does force touching the rules. Only counts: nothing says who supported or how much.
