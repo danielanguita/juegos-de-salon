@@ -1289,6 +1289,8 @@ const pctFino = (a, b) => (!b ? '—' : a && a / b < 0.01 ? `${((a / b) * 100).t
  * The headline and the top 10 games over the week, the four before it, this month so far and the
  * two before; lab plays out. On a phone the tables scroll sideways with the names pinned.
  */
+let memoTrend = {};
+const SIN_FLAGS = {};
 function vistaWbr(now) {
   const w = weekOf(S.ruta.args[0], now);
   const nota = 'The closed week (Sunday to Saturday, Pacific time) against the four before and the last three months, like the Sunday email. Lab plays left out (D-560). Browsers and visits before Nov 16 follow UTC days (D-561).';
@@ -1297,7 +1299,10 @@ function vistaWbr(now) {
       el('a', { class: 'btn btn--sm btn--ghost', href: ir('wbr', [isoDay(w.to - 7)]) }, '‹ Week before'),
       w.to < weekOf(null, now).to ? el('a', { class: 'btn btn--sm btn--ghost', href: ir('wbr', [isoDay(w.to + 7)]) }, 'Week after ›') : null)];
   if (!S.daysLoaded || !S.torneosLoaded) return [...cabeza, el('p', { class: 'empty' }, 'Loading…')];
-  const t = trend({ days: wbrDays(), torneos: playerCups(), flags: S.flags || {} }, w);
+  // Kept until its data or week changes: every Firebase answer and the 30 s tick redraw the panel (it froze)
+  const dias = wbrDays(), copas = playerCups(), flags = S.flags || SIN_FLAGS;
+  if (memoTrend.days !== dias || memoTrend.copas !== copas || memoTrend.flags !== flags || memoTrend.to !== w.to) memoTrend = { days: dias, copas, flags, to: w.to, out: trend({ days: dias, torneos: copas, flags }, w) };
+  const t = memoTrend.out;
   const fmt = (v, dec) => (v === null ? 'n/a' : dec ? v.toFixed(1) : n(v));
   const cambioTxt = c => (c === null || c === undefined ? '' : ` (${c > 0 ? '+' : c < 0 ? '−' : '±'}${Math.abs(c)}%)`);
   const tabla = (filas, cabezaCol) => el('div', { class: 'wbr-scroll' }, el('table', { class: 'wbr' },
