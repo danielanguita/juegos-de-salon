@@ -3612,6 +3612,19 @@
         "stat": "2 file(s) +3 −2: docs/DECISIONS.md, docs/decisions/D-500.md"
       },
       "flaky": false
+    },
+    {
+      "run": 43931078602,
+      "check": "tests",
+      "pr": 1496,
+      "branch": "flap-tiebreak",
+      "commit": "ebddfe78184ca6528971eb7ed5e6394586a17c38",
+      "test": "README up to date",
+      "error": "ERROR · the block \"tests\" went stale  →  python3 tools/release/readme.py update\nERROR · appeared tests: firebase/cup-tiebreak.test.mjs",
+      "signature": "f09b74ef64",
+      "date": "2026-11-16T18:40:45.750Z",
+      "fix": null,
+      "flaky": false
     }
   ]
 }
