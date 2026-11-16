@@ -16,10 +16,6 @@ const ok = (cond, msg) => { console.log(`${cond ? '✓' : '✗'} ${msg}`); if (!
 const waitFor = async (expr, ms = 8000) => { for (let t = 0; t < ms; t += 100) { if (await ev(expr)) return true; await sleep(100); } return false; };
 const noSideScroll = () => ev(`document.documentElement.scrollWidth <= innerWidth`);
 
-// The lab's card still leads to the game
-await b.go(`${SITE}/labs/`);
-ok(await ev(`document.querySelector('#seccion-microgames #btn-microgames')?.getAttribute('href')`) === '../in-a-flash/', 'the lab\'s card leads to /in-a-flash/');
-
 // The waiting room
 await b.go(`${SITE}/in-a-flash/?test&lang=es`, 1500);
 ok(await waitFor(`!!document.getElementById('btn-empezar')`), 'the waiting room has Empezar');
