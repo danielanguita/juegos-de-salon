@@ -229,6 +229,9 @@ ol.como li { line-height: 1.45; }
 .pd.abierto { color: var(--yellow); background: transparent; box-shadow: 0 0 0 1.5px rgb(var(--yellow-rgb) / 0.7) inset; }
 .pd.perdido { color: rgb(var(--cp-perdido-rgb) / 0.9); background: rgb(var(--red-rgb) / 0.12); }
 .pd.pendiente { background: transparent; box-shadow: 0 0 0 1px rgb(var(--ink-rgb) / 0.14) inset; min-height: 1.45em; }
+.charla-pista { display: flex; align-items: center; gap: var(--s-6); background: var(--yellow); color: var(--ink-on-yellow); border-radius: var(--r-14); padding: var(--s-6) var(--s-6) var(--s-6) var(--s-12); font-size: var(--fs-90); font-weight: 600; }
+.charla-pista > span { flex: 1; }
+.charla-pista-x { min-width: 44px; min-height: 44px; border: 0; background: none; color: inherit; font-size: var(--fs-110); cursor: pointer; }
 .tabla-leyenda { display: flex; flex-wrap: wrap; gap: 6px 14px; margin: 10px 2px 4px; font-size: var(--fs-75); color: var(--muted); }
 .tabla-leyenda > span { display: inline-flex; align-items: center; gap: var(--s-6); }
 

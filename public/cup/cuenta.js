@@ -47,6 +47,11 @@ export function createCuenta({ prueba = false } = {}) {
       borrar(`${p}snapshot:${code}`);
       escribir(`${p}mias`, (leer(`${p}mias`) || []).filter(c => c.code !== code));
     },
+    /** The comments balloon was closed on this phone (D-566): it never shows again, in any cup. */
+    pistaCharla: {
+      leer: () => !!leer(`${p}pista-charla`),
+      guardar: () => escribir(`${p}pista-charla`, true),
+    },
     /** Las copas en que este celular participa, para ofrecerlas en la portada. */
     mias() {
       return leer(`${p}mias`) || [];

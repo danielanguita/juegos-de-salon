@@ -3,7 +3,7 @@
 // is talked about): a 💬 under each player's points opens a text field under the row, without moving
 // the page; the comment (emojis in the text) shows stacked on that player's row for everyone, in the
 // order they came; one per player and row, so the 💬 goes; an offensive one is stopped; the author
-// edits theirs (the field opens filled) and deletes it; the row's player hides one and shows it again. Three languages, no sideways scroll.
+// edits theirs (the field opens filled) and deletes it; a balloon (D-566) says it exists, once per phone; the row's player hides one and shows it again. Three languages, no sideways scroll.
 import { output } from '../output.mjs';
 import { launch, sleep } from '../cdp.mjs';
 import { LOCALES } from '../../../public/cup/rules.js';
@@ -38,6 +38,15 @@ for (const lang of ['es', 'en', 'pt']) {
   await b.go(`${SITE}/cup/?test&demo=player&lang=${lang}`, 2000);
   ME = await playToday();
   OTHER = await ev(`document.querySelector('.tabla .fila:not(.yo) .fila-charla')?.dataset.pid`);
+  // The balloon (D-566): once per phone, at the top of the table; ✕ closes it for good
+  if (lang === 'es') {
+    ok(await ev(`document.querySelector('.tabla > .charla-pista span')?.textContent`) === LOCALES.es.talkHint, 'es: the balloon says comments exist, at the top of the table');
+    ok(await ev(`document.querySelector('.charla-pista-x').getBoundingClientRect().height >= 44`), 'es: its ✕ is big enough to tap');
+    await ev(`window.scrollTo(0, document.querySelector('.charla-pista').getBoundingClientRect().top + scrollY - 140)`);
+    await b.shot('cup-talk-hint');
+    await ev(`document.querySelector('.charla-pista-x').click()`);
+    ok(!await ev(`!!document.querySelector('.charla-pista')`), 'es: ✕ closes it');
+  } else ok(!await ev(`!!document.querySelector('.charla-pista')`), `${lang}: once closed, it never comes back`);
   ok(!!OTHER && await ev(`!!${row(ME)}.querySelector('.fila-charla')`), `${lang}: a 💬 under the points, your own row too`);
   ok(!await ev(`!!document.getElementById('charla')`), `${lang}: no field until tapped`);
   await ev(`${row(OTHER)}.scrollIntoView({block:'center'})`);
