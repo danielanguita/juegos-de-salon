@@ -103,6 +103,7 @@ How it works:
 - **A day stays open until the next midnight** (grace day), except the final. **Late sign-ups** stay open until the final unless closed or full (ten players); missed days score 0 (D-177). Time only breaks ties, and it is *active* time (D-95). **Two days in a row without playing leave a player out**, with a warning the day before; the admin can bring them back (D-347, D-376).
 - **A pending day plays offline** (lab flag `cup-offline`): from the copy the phone kept of the cup (`store-offline.js`); the result waits in `assets/js/cup-outbox.js` and uploads when the signal is back, if the day is still open then; later, it counts as not played (D-544).
 - **Results stay hidden until you play**, so the table cannot spoil today.
+- **Reactions and comments on each result** (lab flag `cup-talk`): under the table, one reaction and one short comment per result of the days you played (`talk.js`); the target can hide a comment, and all of it is deleted when the cup ends (D-562).
 - **Accounts are a name and a PIN inside one cup**, on Firebase anonymous auth; the PIN hash is unreadable and the rules check it, one PIN attempt every 5 seconds per player (D-96, D-464). Signed in to the leaderboards, **Your cups** follows you to any phone (D-220); finished cups hide behind **Show finished cups** (D-234, D-336).
 - **The admin plays too**: renames, removes or re-PINs players, shares the invite, **today's reminder** with who is missing, the table and the final summary (D-99, D-171, D-176, D-165); can **end the cup early** (D-161) and **export the final table** as an image or CSV. A new cup opens with a short guide (D-110).
 - **Every day has a practice round** that does not count (D-103), then a **3-to-1 countdown** before the clock starts (D-105, D-258); the result **explains its score** line by line (D-106).
@@ -512,6 +513,7 @@ node public/labs/transfer/engine.test.mjs
 node public/liars-dice/engine.test.mjs
 node public/timeline/engine.test.mjs
 node firebase/controls.test.mjs
+node firebase/cup-talk.test.mjs
 node firebase/flags.test.mjs
 node firebase/lab-ready.test.mjs
 node firebase/labs-publish.test.mjs
@@ -606,6 +608,7 @@ node public/cup/reportes.test.mjs
 node public/cup/screens.test.mjs
 node public/cup/store-offline.test.mjs
 node public/cup/store.test.mjs
+node public/cup/talk.test.mjs
 node public/hangman/fuzz.test.mjs
 node public/hangman/replay.test.mjs
 node public/home-preload.test.mjs
@@ -827,7 +830,7 @@ The repo root is not the web root (D-192). `public/` is the site, exactly as ser
 public/                     The site (juegosdesalon.cl/): the only folder that gets published
   index.html                  Main menu (generated from assets/js/games.js)
   en/ · pt/ · de/             Language doors
-  cup/                        The Cup: engine, stores (store-offline.js plays a pending day from the phone's copy, D-544), score breakdown, CSV export, reports, demos, table image, recap (D-423, D-427)
+  cup/                        The Cup: engine, stores (store-offline.js plays a pending day from the phone's copy, D-544), score breakdown, CSV export, reports, reactions and comments (talk.js, D-562), demos, table image, recap (D-423, D-427)
     games/                    The Cup's games, one folder each (engine.js + ui.js + word content per language)
   timeline/ · bulls-and-cows/ · hangman/ · liars-dice/ · generala/ · battleship/
                               The group games (engine.js + tests, game.js, rules.js, decks/ where needed)

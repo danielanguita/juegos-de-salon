@@ -526,6 +526,15 @@ node tools/push/notify.test.mjs                    # una vuelta del envío, con 
 node tools/push/webpush.test.mjs                   # el cifrado y la firma, contra el ejemplo del RFC 8291
 ```
 
+## Reactions and comments (D-562, lab)
+
+Behind the flag `cup-talk`. Under the table, the 💬 Reactions panel shows the days you played, one at a
+time, with every result of that day. On each (your own too) you leave one reaction of six and one
+comment of up to 120 characters; the target can hide a comment on their row, the author can delete theirs.
+The pure part is `talk.js` (`talk.test.mjs`), the panel is `panelCharla` in `game.js`, both stores
+answer `escucharCharla`, `decir` and `ocultar`; offline it is not drawn. Stored in `cupTalk/` and
+`cupTalkHidden/` (firebase/README.md), deleted when the cup ends. End to end: `tools/e2e/cup/talk.mjs`.
+
 ## Excepciones a los cánones
 
 - **C-5 no aplica:** la copa no es una partida de dos con tres modos (ver “Modos”).

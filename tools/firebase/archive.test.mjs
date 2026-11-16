@@ -33,4 +33,15 @@ await assert.rejects(() => move('records/t/d1', bad.db['records/t/d1'], bad));
 assert.ok(bad.db['records/t/d1'], 'the live node stays');
 assert.equal(await move('x', null, ok), 'gone');
 assert.equal(canonical({ b: 1, a: { d: 1, c: 2 } }), canonical({ a: { c: 2, d: 1 }, b: 1 }));
+// The talk of a finished cup is deleted (D-562)
+{
+  const { talkToDelete } = await import('./archive.mjs');
+  const now = 1_800_000_000_000;
+  assert.deepEqual(talkToDelete({
+    ONGO: { end: now + 1000, fin: null },
+    ENDED: { end: now - 1000, fin: null },
+    EARLY: { end: now + 99999, fin: now - 5 },
+    GONE: null,
+  }, now), ['EARLY', 'ENDED', 'GONE'], 'ended, ended early or deleted; never one still on');
+}
 console.log('archive: ok');

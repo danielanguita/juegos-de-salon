@@ -7,6 +7,7 @@ export const FLAGS = {
   'panel-nav-more': '📊 Panel on a phone: five tabs and ☰ More at the bottom, the other sections in a sheet by group',
   'cup-footer': '🏆 La Copa: the board ends with the site footer, its report and leave links as tiles (U-38)',
   'cup-offline': '🏆 La Copa offline: a pending day of a cup this phone opened with signal plays with no signal; the result uploads when the signal is back, if its day is still open (D-544)',
+  'cup-talk': '🏆 La Copa: a reaction and a comment on each result of the days you played, under the table (D-562)',
   'copa-crear': '🏆 La Copa: the new create screen, with the length from 3 to 14 days and the cup\'s zone, and each player\'s own hours in a cup of another zone (D-521)',
   'copa-hoy': '🏆 La Copa: ▶ Jugar hoy on its home page card',
   'copa-espera': '🏆 La Copa: Día N en Xh on its home page card',

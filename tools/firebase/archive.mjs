@@ -14,6 +14,9 @@
  *   Their named parts (`rooms/`, `live/`) are not copied: D-472 deletes them at 24 months anyway.
  * - **Old daily tables** (`records/<t>/d<day>`) and **day starts** (`unoAlDiaInicio/<jid>/<day>`)
  *   older than DAILY_DAYS: the app only ever reads today's.
+ * - **The talk of a finished Cup** (`cupTalk/<code>`, `cupTalkHidden/<code>`, D-562) is deleted, not
+ *   archived: players were told it lasts as long as the Cup. Once it ended (or was ended early, or
+ *   deleted), the next night.
  * Uno al día's history (`unoAlDia/`) is not touched here (step 4 of #848 shards it by month).
  *
  *   node tools/firebase/archive.mjs           dry run: what it would move
@@ -44,6 +47,20 @@ export function cupsToArchive(cups, podiums = {}, now = Date.now()) {
   return Object.entries(cups || {})
     .filter(([code, L]) => Number(L?.meta?.end) > 0 && L.meta.end < cutoff
       && !Object.keys(missingPodiums({ [code]: L }, podiums, now)).length)
+    .map(([code]) => code)
+    .sort();
+}
+
+/** The talk roots of a cup (D-562), deleted rather than moved. */
+export const TALK = ['cupTalk', 'cupTalkHidden'];
+
+/**
+ * The cups whose talk goes (D-562): from `{ code: { end, fin } }` (null when the cup is gone), the
+ * ones that ended before `now`.
+ */
+export function talkToDelete(cups, now = Date.now()) {
+  return Object.entries(cups || {})
+    .filter(([, c]) => !c || !(Number(c.end) > 0) || Math.min(Number(c.end), Number(c.fin) || Infinity) <= now)
     .map(([code]) => code)
     .sort();
 }
@@ -126,11 +143,20 @@ async function main() {
   const startsAll = await get('unoAlDiaInicio');
   const starts = startsToArchive(startsAll, now);
 
+  const talkCodes = [...new Set((await Promise.all(TALK.map(r => shallow(r)))).flatMap(Object.keys))];
+  const talkCups = {};
+  for (const code of talkCodes) {
+    const end = await io.read(`torneos/${code}/meta/end`);
+    talkCups[code] = end ? { end, fin: await io.read(`torneos/${code}/fin`) } : null;
+  }
+  const talk = talkToDelete(talkCups, now);
+
   const say = (label, list) => console.log(`${label}: ${list.length}${apply ? '' : ' (dry run)'}${list.length ? `\n  ${list.slice(0, 20).join('\n  ')}${list.length > 20 ? `\n  … and ${list.length - 20} more` : ''}` : ''}`);
   say(`Finished Cups ended more than ${CUP_DAYS} days ago, podium saved`, codes);
   say(`Stats days older than ${STATS_DAYS} days`, stats);
   say(`Daily tables older than ${DAILY_DAYS} days`, tables);
   say(`Day starts older than ${DAILY_DAYS} days`, starts);
+  say('Talk of finished Cups, deleted (D-562)', talk);
   if (!apply) { console.log('\nNothing was moved. To move it: node tools/firebase/archive.mjs --apply'); return; }
 
   let moved = 0;
@@ -150,7 +176,8 @@ async function main() {
     const [, jid, d] = p.split('/');
     moved += (await move(p, startsAll[jid][d], io)) === 'moved';
   }
-  console.log(`\n✓ Moved ${moved} node(s) to ${ARCHIVE}/.`);
+  for (const code of talk) for (const root of TALK) await io.write(`${root}/${code}`, 'DELETE');
+  console.log(`\n✓ Moved ${moved} node(s) to ${ARCHIVE}/, deleted the talk of ${talk.length} finished Cup(s).`);
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) await main();
