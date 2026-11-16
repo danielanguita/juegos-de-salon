@@ -3640,7 +3640,11 @@
       "error": "ERROR · public/index.html fell behind games.js  →  node tools/release/og.mjs cards\nERROR · public/assets/og/menu.jpg was made with another drawing or other texts  →  node tools/release/og.mjs images\nERROR · public/pt/index.html fell behind games.js  →  node tools/release/og.mjs cards",
       "signature": "40e67038b3",
       "date": "2026-11-16T19:50:01.681Z",
-      "fix": null,
+      "fix": {
+        "commit": "1f15a42cdb0728c51adefae46b81c1fb2c45cd3a",
+        "date": "2026-11-16T19:56:34.638Z",
+        "stat": "9 file(s) +26 −21: public/assets/og/huellas.json, public/assets/og/menu-en.jpg, public/assets/og/menu-pt.jpg, public/assets/og/menu.jpg, public/en/index.html, …"
+      },
       "flaky": false
     }
   ]
