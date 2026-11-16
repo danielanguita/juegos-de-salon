@@ -3555,7 +3555,11 @@
       "error": "ERROR · the block \"tests\" went stale  →  python3 tools/release/readme.py update\nERROR · appeared games.copa.files: public/cup/talk.js\nERROR · appeared modules: public/cup/talk.js",
       "signature": "ccfd9c9bf6",
       "date": "2026-11-16T15:43:34.912Z",
-      "fix": null,
+      "fix": {
+        "commit": "aa969ee55b2cd70a61d73ab08214a3a6aef36a05",
+        "date": "2026-11-16T15:48:25.644Z",
+        "stat": "2 file(s) +10 −2: README.md, docs/facts.json"
+      },
       "flaky": false
     }
   ]
