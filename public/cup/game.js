@@ -865,10 +865,12 @@ function vistaTabla(filas, { dias, meta, now }) {
       el('b', {}, f.name, f.pid === S.yo ? el('small', { class: 'muted' }, ` (${T.you})`) : null),
       el('div', { class: 'puntitos' }, bloques(f)),
       // Today's first comment, for everyone, even before playing (the owner, 2026-11-16)
-      ...(charla ? comentariosEnFila(f.pid, now) : [])),
+      ),
     // With talk on, the 💬 goes under the points, so the day blocks keep their width
     conCharla ? el('div', { class: 'fila-der' }, el('span', { class: 'total' }, String(f.total), el('small', {}, ` ${T.pts}`)), botonCharla(f.pid, now))
-      : el('span', { class: 'total' }, String(f.total), el('small', {}, ` ${T.pts}`))),
+      : el('span', { class: 'total' }, String(f.total), el('small', {}, ` ${T.pts}`)),
+    // Today's comments as an extra line of the row, under the name: place, arrow and points stay where they were
+    ...(() => { const cs = charla ? comentariosEnFila(f.pid, now) : []; return cs.length ? [el('div', { class: 'fila-comentarios' }, cs)] : []; })()),
   conCharla ? cajonCharla(f.pid, now) : null].filter(Boolean)));
 }
 
