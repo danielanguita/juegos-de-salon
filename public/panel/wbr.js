@@ -151,10 +151,12 @@ export function trend({ days = {}, torneos = {}, flags = {} } = {}, w) {
   const esPublico = publicGameCheck(flags);
   const desdeCuando = {}, porCol = cols.map(() => ({}));
   const inicio = Math.min(...cols.map(c => c.from)), fin = w.to;
+  // La Copa's plays by day read in one pass over the cups, not one pass per day (the panel froze)
+  const copasPorDia = resumenCopas(torneos, { from: inicio, to: fin }, pacificEndMs(fin), { dayFn: pacificDay }).porDiaJuego;
   for (let d = inicio; d <= fin; d++) {
-    const pd = partidasDominio(days, { from: d, to: d }), rc = resumenCopas(torneos, { from: d, to: d }, pacificEndMs(d), { dayFn: pacificDay });
+    const pd = partidasDominio(days, { from: d, to: d });
     const hoy = {};
-    for (const [id, n] of [...Object.entries(pd.grupo.byGame), ...Object.entries(pd.individual.byGame), ...rc.porJuego.map(x => [x.id, x.jugadas])]) {
+    for (const [id, n] of [...Object.entries(pd.grupo.byGame), ...Object.entries(pd.individual.byGame), ...Object.entries(copasPorDia[d] || {})]) {
       if (!esPublico(id, d)) continue;
       const b = baseGame(id); hoy[b] = (hoy[b] || 0) + n;
     }
@@ -162,7 +164,8 @@ export function trend({ days = {}, torneos = {}, flags = {} } = {}, w) {
     cols.forEach((c, i) => { if (d >= c.from && d <= c.to) for (const b in hoy) porCol[i][b] = (porCol[i][b] || 0) + hoy[b]; });
   }
   // Out since its launch day, or since its first play when no flag launched it
-  const lanzadoEl = b => { for (let d = inicio; d <= fin; d++) if (esPublico(b, d)) return d; return Infinity; };
+  const lanzados = {};
+  const lanzadoEl = b => (lanzados[b] ??= (() => { for (let d = inicio; d <= fin; d++) if (esPublico(b, d)) return d; return Infinity; })());
   const salio = b => (lanzadoEl(b) > inicio ? lanzadoEl(b) : desdeCuando[b]);
   const juegos = Object.entries(porCol[0]).sort((a, b) => b[1] - a[1]).slice(0, 10).map(([b]) => {
     const valores = cols.map((c, i) => (salio(b) > c.to ? null : porCol[i][b] || 0));

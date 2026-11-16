@@ -161,6 +161,8 @@ export function resumenCopas(torneos, { from, to }, now = Date.now(), { dayFn = 
   const enRango = copas.filter(L => tocaRango(L.meta, from, to, dayFn));
   const mini = {};
   const porDiaN = {};
+  // Plays by day and game, so a caller needing every day reads the cups once (the WBR)
+  const porDiaJuego = {};
   let jugadas = 0, abandonos = 0, esperado = 0, jugado = 0, inscripciones = 0;
   const caja = id => (mini[id] ||= { id, jugadas: 0, abandonos: 0, suma: 0, tiempos: [], copas: new Set() });
   const enElRango = ts => typeof ts === 'number' && dayFn(ts) >= from && dayFn(ts) <= to;
@@ -179,6 +181,7 @@ export function resumenCopas(torneos, { from, to }, now = Date.now(), { dayFn = 
         if (Number(r.ms) > 0) c.tiempos.push(Number(r.ms));
         jugadas++;
         const k = dayFn(r.at); porDiaN[k] = (porDiaN[k] || 0) + 1;
+        (porDiaJuego[k] ||= {})[id] = (porDiaJuego[k][id] || 0) + 1;
       }
       for (const [pid, at] of Object.entries(L.started[d] || {})) {
         if (L.results[d]?.[pid] || !pids.has(pid) || !enElRango(at)) continue;
@@ -211,7 +214,7 @@ export function resumenCopas(torneos, { from, to }, now = Date.now(), { dayFn = 
   return {
     copas: enRango.length,
     nuevas: enRango.filter(L => enElRango(L.meta.createdAt)).length,
-    inscripciones, jugadas, abandonos, participacion: { jugado, esperado }, porJuego, porDia,
+    inscripciones, jugadas, abandonos, participacion: { jugado, esperado }, porJuego, porDia, porDiaJuego,
   };
 }
 
