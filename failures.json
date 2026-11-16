@@ -3572,7 +3572,11 @@
       "error": "✗ board-day2: buttons 44 px or taller [\"💬\",\"💬\",\"💬\",\"💬\"]",
       "signature": "460d8811a1",
       "date": "2026-11-16T16:46:13.265Z",
-      "fix": null,
+      "fix": {
+        "commit": "5643b5479de8378af05d5fe7139ac977e997ab0b",
+        "date": "2026-11-16T17:10:37.699Z",
+        "stat": "2 file(s) +5 −5: public/cup/game.js, public/cup/style.css"
+      },
       "flaky": false
     },
     {
@@ -3585,7 +3589,11 @@
       "error": "✗ demo-player: buttons 44 px or taller [\"💬\",\"💬\",\"💬\",\"💬\",\"💬\",\"💬\",\"💬\",\"💬\",\"💬\",\"💬\"]",
       "signature": "c7dbfcbf41",
       "date": "2026-11-16T16:46:13.265Z",
-      "fix": null,
+      "fix": {
+        "commit": "5643b5479de8378af05d5fe7139ac977e997ab0b",
+        "date": "2026-11-16T17:10:37.699Z",
+        "stat": "2 file(s) +5 −5: public/cup/game.js, public/cup/style.css"
+      },
       "flaky": false
     }
   ]
