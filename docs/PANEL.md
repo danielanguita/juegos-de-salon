@@ -79,8 +79,8 @@ link can still name another, `e=`); the search box by room or cup code is gone (
 still opened by its link, `#/cup/<code>`, `#/room/<code>`).
 
 **La hora es la del Pacífico** (Los Ángeles), la misma con que La Copa parte sus días: la hora de
-un juego y la ventana de su día se leen en el mismo reloj. Los contadores de `stats/` siguen por
-día UTC y se rotulan así; la hora del gráfico de audiencia es la local del celular.
+un juego y la ventana de su día se leen en el mismo reloj. The `stats/` counters are stored by UTC day but every
+view regroups them by Pacific date (D-561, below); la hora del gráfico de audiencia es la local del celular.
 
 **Cada nombre lleva la bandera de su país.** En las salas sale de `co` (D-79). En La Copa, de
 `co` en `torneos/<código>/players/<pid>`, que la copa guarda al crear o inscribirse desde esta
@@ -118,7 +118,7 @@ blanco. En `stats/<env>/days/<día>`:
   las que no, nunca llegaron ahí. Cargas = vistas + no arrancaron. Salud solo muestra tasas sobre eso.
 - **Un error viejo sale en gris** con "no se ve desde la X" cuando la versión más nueva del rango
   (de los errores, las salas y las partidas sin red) no lo tuvo.
-- **Un punto rosado en 🩺 Salud** dice que hoy o ayer (días UTC) alguna página no arrancó.
+- **Un punto rosado en 🩺 Salud** dice que hoy o ayer (días Pacific) alguna página no arrancó.
 - **Qué no se anota:** extensiones del navegador, "Script error." sin archivo, `ResizeObserver loop`,
   fetch cancelados, lo que pasa después de cerrar la pestaña, imágenes y audio que no cargaron, ni
   más de diez errores por carga. Las direcciones van sin `?` ni `#` (ahí van los códigos de sala y
@@ -223,7 +223,7 @@ which the transport bumps on every message, and the panel lists the codes with a
 |---|---|---|
 | **Now** | Salas en juego, celulares conectados, salas vivas (las que latieron hace menos de media hora, D-89), juegos en curso. Lista de salas con código, juego, nombres, quién está conectado, **jugadas**, **mensajes de chat** y última jugada (D-138). Una sala cuenta como *en juego* solo si entró un rival. Solo las del entorno elegido (D-45). | `rooms/` en vivo (índice por `createdAt`), cruzado por código con `stats/<env>` |
 | **Offline games** | Las partidas contra el celular, en un celular o solitarias que se están jugando ahora (D-140): juego, modo, cuántos juegan, país, cuándo empezó y la última señal. Sale de la lista a los tres minutos sin señal. También suben al cuadro *partidas sin red ahora* y a *juegos en curso*. | `stats/<env>/days/<día>/live/<id>` (hoy y ayer) |
-| **Últimos 7 / 30 días** | Partidas empezadas, en dos celulares (solo las que tuvieron rival), sin red, entradas de un celular a una partida, partidas de hoy (día UTC) y salas donde nunca entró nadie más (D-138). | `stats/<env>/days/<día>` |
+| **Últimos 7 / 30 días** | Partidas empezadas, en dos celulares (solo las que tuvieron rival), sin red, entradas de un celular a una partida, partidas de hoy (día Pacific) y salas donde nunca entró nadie más (D-138). | `stats/<env>/days/<día>` |
 | **Games by game** | Barra por juego, partida por modo: 📡 dos celulares, 📱 un celular, 🤖 contra el celular, 🧍 solo. Los modos salen del registro, y uno nuevo entra solo (C-16). | `rooms` (📡) y `local/<juego>/<modo>/<n>` |
 | **Players per game** | Cuántas partidas de 1, 2, … hasta el juego más numeroso del menú (hoy 6, `MAX_PLAYERS`). | `n` de los contadores sin red y cantidad de nombres de cada sala |
 | **By day** | Partidas por día, separando dos celulares del resto. | ídem |
@@ -269,10 +269,10 @@ las cifras reales. `lab` quedó solo para leer lo que se guardó mientras existi
 - **Entradas de un celular a una partida**, y también *De dónde*, los idiomas y la hora, suben
   una vez cada vez que un celular empieza o entra a una partida: el mismo celular que juega cinco
   revanchas suma cinco. No son personas.
-- **Los días son días UTC** in these views, for now: en Chile el día del panel cambia a las 21:00 (verano) o 20:00
-  (invierno). **The owner's timeframes are Pacific (D-561):** 📋 WBR, the weekly email and 🕑 Timeline read Pacific dates
-  (`toPacificDays` in `wbr.js`); any new period built for the owner is Pacific from the start, and a view moved off UTC
-  days goes through `toPacificDays`. La hora de *A qué hora se juega* sí es la local del celular, tomada al empezar.
+- **Every view counts Pacific dates (D-561):** each count, range and "today" reads `ptDays()` in `panel.js`
+  (`toPacificDays` in `wbr.js`); the logs read the UTC buckets one day wider and keep the rows whose moment is in
+  the Pacific range. Counters with no time (failures, shares, campaign reach, pages seen) keep their UTC day; games
+  before 2026-10-04 and browsers and visits before 2026-11-16 too. Live views ("Now") and a room's card keep `S.days`. La hora de *A qué hora se juega* sí es la local del celular, tomada al empezar.
 
 Vale también para la lista de "Now", aunque ahí cueste un rodeo: `rooms/` es el nodo real
 del transporte y es uno solo para todos los entornos, así que una partida de prueba abre una

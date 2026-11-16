@@ -5,7 +5,7 @@
  * `node tools/reports/weekly-data.test.mjs` tests it.
  */
 import { partidasDominio, finales, embudoSalas, usuarios, variacion } from './dominios.js';
-import { trafico, DAY, diaPanel } from './aggregate.js';
+import { trafico, DAY, pacificDay } from './aggregate.js';
 import { resumenCopas } from './copas.js';
 import { publicGameCheck } from './public-games.js';
 import { gameById, isLocalMode, MODES } from '../assets/js/games.js';
@@ -21,7 +21,7 @@ import { juegosCopa } from '../cup/rules.js';
  * on its UTC day: games before `live/` existed (before 2026-10-04), browsers and visits before D-561,
  * and the other counters. Day numbers keep their form (days since 1970-01-01), now naming Pacific dates.
  */
-export const pacificDay = ts => Math.floor(Date.parse(`${diaPanel(ts)}T00:00:00Z`) / DAY);
+export { pacificDay };
 
 export function toPacificDays(days = {}) {
   const out = {};
