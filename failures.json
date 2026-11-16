@@ -3544,6 +3544,19 @@
       "date": "2026-11-15T23:33:47.957Z",
       "fix": null,
       "flaky": true
+    },
+    {
+      "run": 43899214355,
+      "check": "tests",
+      "pr": 1490,
+      "branch": "cup-comments",
+      "commit": "6034ca6493c18d770a0b681d37b5c56d02630ce6",
+      "test": "README up to date",
+      "error": "ERROR · the block \"tests\" went stale  →  python3 tools/release/readme.py update\nERROR · appeared games.copa.files: public/cup/talk.js\nERROR · appeared modules: public/cup/talk.js",
+      "signature": "ccfd9c9bf6",
+      "date": "2026-11-16T15:43:34.912Z",
+      "fix": null,
+      "flaky": false
     }
   ]
 }
