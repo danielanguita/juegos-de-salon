@@ -401,6 +401,8 @@ The rules close it to everyone (`.read` and `.write` false); only the admin key 
 compares it and only then deletes the live one. The `firebase-archive` workflow runs it nightly at
 09:41 UTC, as a dry run until the repository variable `FIREBASE_ARCHIVE_APPLY` is `true`.
 An old Cup link stops opening once its Cup is archived (two years after it ended).
+The same run **deletes**, not archives, `cupTalk/<code>` and `cupTalkHidden/<code>` once that Cup
+ended, was ended early or no longer exists (D-562): players were told the talk lasts as long as the Cup.
 `unoAlDia/` and `rooms/` are not archived here.
 
 ## The goodbye (`left`)
