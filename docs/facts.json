@@ -310,7 +310,8 @@
         "public/cup/store-offline.js",
         "public/cup/style.css",
         "public/cup/suelto/index.html",
-        "public/cup/table-image.js"
+        "public/cup/table-image.js",
+        "public/cup/talk.js"
       ]
     },
     {
@@ -1351,6 +1352,7 @@
     "public/cup/store-local.js",
     "public/cup/store-offline.js",
     "public/cup/table-image.js",
+    "public/cup/talk.js",
     "public/generala/engine.js",
     "public/generala/game.js",
     "public/generala/rules.js",
@@ -1440,6 +1442,7 @@
   ],
   "tests": [
     "firebase/controls.test.mjs",
+    "firebase/cup-talk.test.mjs",
     "firebase/flags.test.mjs",
     "firebase/lab-ready.test.mjs",
     "firebase/labs-publish.test.mjs",
@@ -1545,6 +1548,7 @@
     "public/cup/screens.test.mjs",
     "public/cup/store-offline.test.mjs",
     "public/cup/store.test.mjs",
+    "public/cup/talk.test.mjs",
     "public/generala/engine.test.mjs",
     "public/hangman/engine.test.mjs",
     "public/hangman/fuzz.test.mjs",
@@ -1708,6 +1712,7 @@
     "cup/rejoin.mjs",
     "cup/resumed-clock.mjs",
     "cup/seat.mjs",
+    "cup/talk.mjs",
     "cup/tournament.mjs",
     "cup/variants.mjs",
     "cup/zip-ten.mjs",
