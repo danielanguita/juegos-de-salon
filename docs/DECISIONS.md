@@ -55,7 +55,7 @@ Where today's rule is and which decisions explain it: those in force that still 
 | Marketing | `marketing/README.md` | D-178, D-380, D-410, D-454, D-456, D-494, D-505, D-529 |
 | Installable app and phone notifications | C-2, [PWA-NOTIFICACIONES.md](PWA-NOTIFICACIONES.md) | D-221, D-222, D-223, D-224, D-225, D-227, D-228, D-229, D-230, D-232, D-233, D-504, D-538, D-544, D-545, D-546 |
 
-## In force (546)
+## In force (547)
 
 | D | Title | Status |
 |---|---|---|
@@ -544,6 +544,7 @@ Where today's rule is and which decisions explain it: those in force that still 
 | [D-497](decisions/D-497.md) | A lighter process: short CLAUDE.md, D-n only for policy, no translating history, CHANGELOG by month | current |
 | [D-498](decisions/D-498.md) | Lab gates are runtime flags: "Yes, and publish" is a toggle | amended by D-509, D-510, D-515 |
 | [D-499](decisions/D-499.md) | The nightly jobs are the single authority for room sweeping and Cup podiums; phones write only raw events | current |
+| [D-500](decisions/D-500.md) | Uno al día totals are written only by the hourly rebuild; /today/ adds the phone's own pending days (lab first) | amended by D-563 |
 | [D-502](decisions/D-502.md) | A campaign for regulars waits only for 5 visit days; every finished game is now counted on the phone | current |
 | [D-503](decisions/D-503.md) | Every campaign seen is a key event on the Timeline, with who saw it | current |
 | [D-504](decisions/D-504.md) | The owner is notified when a PR goes live, and every PR says where it is seen | current |
