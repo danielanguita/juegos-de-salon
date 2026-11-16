@@ -1,3 +1,0 @@
-level: patch
-
-- **The weekly report shows the trend.** The email now carries two tables: the headline (games finished, started, active browsers, visits) for the closed week with its change, the four weeks before, this month so far and the two months before; and the top 10 games over the same columns, every mode and version read as one, La Copa's plays included and lab plays left out, with "n/a" before a game was out or a counter existed. "Most played" now ranks every public game together (it used to pick the top group game, so Battleship won with 5 games against Flap's 186). Shares left the headline until its counter stops overcounting.
