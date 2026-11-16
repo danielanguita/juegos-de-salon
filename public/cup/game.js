@@ -49,6 +49,7 @@ import { enlaceBuzon, ponerBuzon, sinDoble } from '../assets/js/buzon.js';
 import { cuentaRegresiva as cuentaComun } from '../assets/js/cuenta-regresiva.js';
 import { PANTALLAS, redibujarCon } from './screens.js';
 import { coverWithDialogs, gameTopBar } from '../assets/js/cover-dialogs.js';
+import { REACTIONS, MAX_COMMENT, cleanComment, commentProblem, canTalk, talkDays, rowTalk } from './talk.js';
 
 // The four new One a Day share grids wait in the lab (D-508). lab: #seccion-uad-share-grids
 let gridsNuevos = false;
@@ -1004,10 +1005,141 @@ function desdeAviso() {
   else tablero();
 }
 
+/* ------------------------------------------------------------------ */
+/* Reactions and comments (D-562), lab: #seccion-cup-talk               */
+/* ------------------------------------------------------------------ */
+
+// Behind its flag until the owner launches it from /labs/
+let charla = false;
+flag('cup-talk').then(v => { charla = v; if (v && S.pantalla === 'tablero' && L()?.meta && !composing()) tablero(); });
+/** The talk of the open cup, kept apart from it (cupTalk/), and what is being written. */
+const C = { code: null, off: null, v: { talk: {}, hidden: {} }, dia: null, caja: null, borrador: null, pendiente: false };
+/** Writing a comment: the board is not redrawn under the keyboard; it is once the field lets go. */
+const composing = () => !!C.borrador && !!document.activeElement?.classList?.contains('charla-input');
+
+function seguirCharla() {
+  if (!charla || offlineStore() || !store?.escucharCharla || !S.code) return false;
+  if (C.code !== S.code) {
+    C.off?.();
+    Object.assign(C, { code: S.code, v: { talk: {}, hidden: {} }, dia: null, caja: null, borrador: null, pendiente: false });
+    C.off = store.escucharCharla(S.code, v => { C.v = v; if (C.caja?.isConnected) pintarCharla(); });
+  }
+  return true;
+}
+
+/** The panel under the table: one day at a time, the results of that day with their reactions and comments. */
+function panelCharla(now) {
+  if (!seguirCharla() || !talkDays(L(), S.yo, now).length) return null;
+  C.caja ||= el('div', { class: 'panel charla', id: 'charla' });
+  pintarCharla();
+  return C.caja;
+}
+
+function pintarCharla() {
+  const caja = C.caja;
+  if (!caja) return;
+  if (composing()) { C.pendiente = true; return; }
+  const Lc = L(), now = ahora();
+  const dias = talkDays(Lc, S.yo, now);
+  if (!dias.length) { caja.replaceChildren(); return; }
+  if (!dias.includes(C.dia)) C.dia = dias[0];
+  const d = C.dia;
+  const J = juegoDia(Lc.meta, d);
+  const pos = posicionesDelDia(Lc.results[d], activos(Lc).map(j => j.pid));
+  const quienes = activos(Lc).filter(j => Lc.results[d]?.[j.pid])
+    .sort((a, b) => (pos[a.pid]?.pos ?? 99) - (pos[b.pid]?.pos ?? 99));
+  caja.replaceChildren(...[
+    el('p', { class: 'lead', style: 'margin-bottom:4px' }, T.talkTitle),
+    el('p', { class: 'muted charla-nota' }, T.talkHint),
+    dias.length > 1 ? el('div', { class: 'charla-dias' }, dias.map(k => el('button', {
+      type: 'button', class: 'chip' + (k === d ? ' chip--hot' : ''), 'aria-pressed': String(k === d), 'data-dia': k,
+      onClick: () => { SFX.tap(); C.dia = k; C.borrador = null; pintarCharla(); },
+    }, fmt(T.talkDay, { d: k })))) : null,
+    el('p', { class: 'charla-juego' }, gameIcon(J, { class: 'charla-icono' }), el('b', {}, J.nombre), el('small', { class: 'muted' }, ` · ${fmt(T.dayOf, { d, n: Lc.meta.days })}`)),
+    ...quienes.map(j => filaCharla(Lc, d, j.pid, pos[j.pid], now)),
+  ].filter(Boolean));
+}
+
+function filaCharla(Lc, d, pid, p, now) {
+  const r = Lc.results[d][pid];
+  const nombre = q => Lc.players?.[q]?.name || '?';
+  const { reactions, comments, mine } = rowTalk(C.v, d, pid, S.yo);
+  const puede = canTalk(Lc, d, S.yo, pid, now);
+  // A reaction and a comment are one entry: changing one keeps the other
+  const decir = async cambio => {
+    try { await store.decir(S.code, d, pid, S.yo, { e: mine?.e || null, c: mine?.c || null, ...cambio }); } catch (e) { toast(errorDe(e)); }
+  };
+  const cuenta = reactions.length ? el('span', { class: 'charla-cuenta' }, reactions.map(x => el('span', { title: T.talkReactions[x.key] }, x.n > 1 ? `${x.emoji}${x.n}` : x.emoji))) : null;
+  const lista = comments.map(x => el('p', { class: 'charla-comentario' + (x.h ? ' oculto' : '') },
+    el('b', {}, x.author === S.yo ? T.you : nombre(x.author)), ` ${x.c}`,
+    x.h ? el('small', { class: 'muted' }, ` · ${T.talkHidden}`) : null,
+    x.author === S.yo ? el('button', { type: 'button', class: 'link-btn charla-accion', onClick: () => {
+      if (!confirm(T.talkDeleteConfirm)) return;
+      SFX.tap(); decir({ c: null });
+    } }, T.talkDelete)
+      : pid === S.yo ? el('button', { type: 'button', class: 'link-btn charla-accion', onClick: async () => {
+        SFX.tap();
+        try { await store.ocultar(S.code, d, pid, x.author, !x.h); } catch (e) { toast(errorDe(e)); }
+      } }, x.h ? T.talkShow : T.talkHide) : null));
+  const botones = puede ? el('div', { class: 'charla-reacciones', role: 'group', 'aria-label': T.talkReact },
+    Object.entries(REACTIONS).map(([k, em]) => el('button', {
+      type: 'button', class: 'charla-emoji' + (mine?.e === k ? ' on' : ''), 'aria-pressed': String(mine?.e === k), 'aria-label': T.talkReactions[k], title: T.talkReactions[k], 'data-e': k,
+      onClick: () => { SFX.tap(); decir({ e: mine?.e === k ? null : k }); },
+    }, em))) : null;
+  let escribir = null;
+  if (puede && !mine?.c) {
+    escribir = C.borrador?.d === d && C.borrador.pid === pid ? C.borrador.nodo
+      : el('button', { type: 'button', class: 'link-btn charla-comentar', onClick: () => { SFX.tap(); abrirBorrador(d, pid); } },
+        `💬 ${pid === S.yo ? T.talkCommentOwn : T.talkComment}`);
+  }
+  return el('div', { class: 'charla-fila' + (pid === S.yo ? ' yo' : ''), 'data-pid': pid },
+    el('div', { class: 'charla-cab' },
+      el('span', { class: 'charla-lugar' }, p ? ord(p.pos) : ''),
+      el('b', { class: 'charla-nombre' }, nombre(pid), pid === S.yo ? el('small', { class: 'muted' }, ` (${T.you})`) : null),
+      el('span', { class: 'charla-res' }, r.r || String(r.s))),
+    cuenta, ...lista, botones, escribir);
+}
+
+function abrirBorrador(d, pid) {
+  const input = el('input', { type: 'text', class: 'charla-input', maxlength: String(MAX_COMMENT), placeholder: T.talkPlaceholder, 'aria-label': T.talkComment, enterkeyhint: 'send', autocomplete: 'off' });
+  const aviso = el('small', { class: 'charla-aviso', 'aria-live': 'polite' });
+  const enviar = async () => {
+    const problema = commentProblem(input.value);
+    if (problema) { aviso.textContent = problema === 'offensive' ? T.talkOffensive : T.talkEmpty; input.focus(); return; }
+    const mine = rowTalk(C.v, d, pid, S.yo).mine;
+    boton.disabled = true;
+    try { await store.decir(S.code, d, pid, S.yo, { e: mine?.e || null, c: cleanComment(input.value) }); } catch (e) {
+      aviso.textContent = errorDe(e); boton.disabled = false; return;
+    }
+    SFX.tap();
+    cerrar();
+  };
+  const cerrar = () => {
+    C.borrador = null;
+    input.blur();
+    if (C.pendiente && S.pantalla === 'tablero') { C.pendiente = false; tablero(); } else pintarCharla();
+  };
+  const boton = el('button', { type: 'button', class: 'btn btn--cyan btn--sm', onClick: enviar }, T.talkSend);
+  input.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); enviar(); } });
+  // Whatever came while writing is drawn once the field lets go
+  input.addEventListener('blur', () => setTimeout(() => {
+    if (!C.pendiente || composing()) return;
+    C.pendiente = false;
+    if (S.pantalla === 'tablero') tablero();
+  }, 300));
+  C.borrador = { d, pid, nodo: el('div', { class: 'charla-borrador' },
+    el('div', { class: 'charla-linea' }, input, boton), aviso,
+    el('button', { type: 'button', class: 'link-btn', onClick: () => { SFX.tap(); cerrar(); } }, T.talkCancel)) };
+  pintarCharla();
+  input.focus();
+}
+
 let buzonPodio;   // the inbox link under the podium, decided once per page (D-345)
 function tablero() {
   const Lc = L();
   if (!Lc || !S.yo) return;
+  // Writing a comment (D-562): not under the keyboard; drawn once the field lets go
+  if (S.pantalla === 'tablero' && composing()) { C.pendiente = true; return; }
   if (!Lc.players?.[S.yo]) { cuenta.olvidar(S.code); S.yo = null; entrar(); return; }
   anotarPais(Lc);
   mostrar('tablero');
@@ -1086,6 +1218,7 @@ function tablero() {
       vistaTabla(filas, { dias, meta, now }),
       leyenda,
       hayOcultos ? el('small', { class: 'muted' }, T.tableHidden) : null));
+    poner(body, panelCharla(now));
     poner(body, grafico(now));
   } else {
     const jug = activos(Lc);
