@@ -714,37 +714,21 @@ body.pantalla-completa #jugar-reglas .reglas[open] > summary { position: sticky;
 .zona-sel option { color: var(--cp-negro); }
 /* A cup longer than a week shows its days by week (D-521) */
 .semana-sep { margin: 12px 0 4px; font-size: 0.75rem; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
-/* Reactions and comments on each other's results (D-562, lab: #seccion-cup-talk): a 💬 at the end of
-   each row of the table, and the open row's drawer right under it */
-/* Today's first comment on a player, on their row for everyone */
+/* Comments on each other's results (D-562, lab: #seccion-cup-talk): today's comments stacked on each
+   row of the table for everyone; a 💬 under the points opens a text field right under the row */
 .fila-comentario { margin: var(--s-4) 0 0; font-size: var(--fs-85); color: var(--muted); overflow-wrap: anywhere; }
+.fila-comentario.oculto { opacity: 0.6; }
+.fila-comentario-nota { font-size: var(--fs-75); }
 .fila-comentario-autor { font-weight: 800; color: var(--ink); }
 .fila-der { display: flex; flex-direction: column; align-items: flex-end; gap: var(--s-4); }
 /* A 44 px button (U-10) with a smaller pill inside, so it sits under the points */
 .fila-charla { display: grid; place-items: center end; min-width: 44px; height: 44px; margin: calc(-1 * var(--s-8)) 0; padding: 0; background: none; border: 0; cursor: pointer; }
 .fila-charla-pill { position: relative; display: grid; place-items: center; min-width: 40px; height: 28px; padding: 0 var(--s-6); font-size: var(--fs-100); line-height: 1; background: var(--glass); border: 1px solid var(--glass-border); border-radius: var(--r-pill); }
 .fila-charla.on .fila-charla-pill { background: rgb(var(--cyan-rgb) / 0.3); border-color: var(--cyan); }
-.fila-charla-n { position: absolute; top: calc(-1 * var(--s-4)); right: calc(-1 * var(--s-4)); min-width: 1.5em; padding: 0 var(--s-4); border-radius: var(--r-pill); background: var(--pink); color: var(--ink); font: 800 var(--fs-75) var(--font-num); line-height: 1.5; }
 .charla-cajon { margin-top: calc(-1 * var(--s-2)); padding: var(--s-10) var(--s-12); background: rgb(var(--cp-negro-rgb) / 0.32); border-radius: var(--r-12); }
-.charla-nota { margin: 0 0 var(--s-8); font-size: var(--fs-85); }
-.charla-dias { display: flex; flex-wrap: wrap; gap: var(--s-6); margin-bottom: var(--s-8); }
-.charla-dias .chip { min-height: 44px; cursor: pointer; font: inherit; }
-.charla-icono { width: 1.4em; height: 1.4em; }
-.charla-cab { display: flex; align-items: center; gap: var(--s-8); }
-.charla-nombre { flex: 1; min-width: 0; overflow-wrap: anywhere; }
-.charla-res { font-family: var(--font-num); font-weight: 800; white-space: nowrap; }
-.charla-cuenta { display: flex; flex-wrap: wrap; gap: var(--s-6); margin-top: var(--s-6); font-size: var(--fs-90); }
-.charla-comentario { margin: var(--s-6) 0 0; font-size: var(--fs-90); overflow-wrap: anywhere; }
-.charla-comentario.oculto { opacity: 0.6; }
 /* Inline after the comment, its 44 px tap area kept without growing the line (U-10) */
 .charla-accion { position: relative; display: inline; min-height: 0; margin: 0 0 0 var(--s-8); font-size: var(--fs-85); }
 .charla-accion::before { content: ''; position: absolute; inset: calc(-1 * var(--s-12)) calc(-1 * var(--s-4)); }
-/* The six in one line at 320 px */
-.charla-reacciones { display: flex; gap: var(--s-4); margin-top: var(--s-8); }
-.charla-emoji { flex: 1 1 0; min-width: 0; max-width: 56px; min-height: 44px; padding: 0; font-size: var(--fs-120); line-height: 1; background: var(--glass); border: 1px solid var(--glass-border); border-radius: var(--r-pill); cursor: pointer; }
-.charla-emoji.on { background: rgb(var(--cyan-rgb) / 0.3); border-color: var(--cyan); }
-.charla-comentar { margin: var(--s-4) 0 0; }
-.charla-borrador { margin-top: var(--s-6); }
 .charla-linea { display: flex; gap: var(--s-6); }
 /* 16 px exactly, or iOS zooms in (as the room chat, D-28) */
 .charla-input { flex: 1; min-width: 0; min-height: 44px; font: inherit; font-size: 16px; color: var(--ink); background: var(--glass); border: 1px solid var(--glass-border); border-radius: var(--r-12); padding: 0 var(--s-10); }
