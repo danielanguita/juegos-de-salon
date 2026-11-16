@@ -857,7 +857,12 @@ function vistaTabla(filas, { dias, meta, now }) {
   };
   // Reactions and comments (D-562, lab): a 💬 at the end of each row, its drawer under it
   const conCharla = charla && !!talkDay(L(), now) && !!L().results?.[talkDay(L(), now)]?.[S.yo] && !!seguirCharla();
-  return el('div', { class: 'tabla' + (conCharla ? ' con-charla' : '') }, filas.flatMap(f => [el('div', { class: 'fila' + (f.pid === S.yo ? ' yo' : '') + (f.fuera ? ' fuera' : ''), 'data-pid': f.pid },
+  // Once, the first time a 💬 shows: a balloon that says comments exist (D-566, lab)
+  const pista = conCharla && pistaCharla && !cuenta.pistaCharla.leer()
+    ? el('div', { class: 'charla-pista', role: 'note' }, el('span', {}, T.talkHint),
+      el('button', { type: 'button', class: 'charla-pista-x', 'aria-label': T.talkHintClose, onClick: () => { SFX.tap(); cerrarPista(); } }, '✕'))
+    : null;
+  return el('div', { class: 'tabla' + (conCharla ? ' con-charla' : '') }, pista, ...filas.flatMap(f => [el('div', { class: 'fila' + (f.pid === S.yo ? ' yo' : '') + (f.fuera ? ' fuera' : ''), 'data-pid': f.pid },
     // Out of the cup (D-347): a door instead of a place, and faded (D-376)
     el('span', { class: 'lugar', title: f.fuera ? fmt(T.outAdmin, { a: f.fuera.desde, b: f.fuera.hasta }) : null }, f.fuera ? '🚪' : String(f.lugar)),
     el('span', { class: 'flecha ' + (f.flecha > 0 ? 'sube' : f.flecha < 0 ? 'baja' : '') }, f.flecha > 0 ? '▲' : f.flecha < 0 ? '▼' : ''),
@@ -1021,6 +1026,11 @@ function desdeAviso() {
 // Behind its flag until the owner launches it from /labs/
 let charla = false;
 flag('cup-talk').then(v => { charla = v; if (v && S.pantalla === 'tablero' && L()?.meta && !composing()) tablero(); });
+// The balloon that tells comments exist (D-566, lab: #seccion-cup-talk-hint)
+let pistaCharla = false;
+flag('cup-talk-hint').then(v => { pistaCharla = v; if (v && S.pantalla === 'tablero' && L()?.meta && !composing()) tablero(); });
+/** Closed with ✕ or by using a 💬: never again on this phone. */
+const cerrarPista = () => { if (!cuenta.pistaCharla.leer()) cuenta.pistaCharla.guardar(); document.querySelector('.charla-pista')?.remove(); };
 /** The talk of the open cup, kept apart from it (cupTalk/), and what is being written. */
 const C = { code: null, off: null, v: { talk: {}, hidden: {} }, abierto: null, borrador: null, pendiente: false };
 /** Writing a comment: the board is not redrawn under the keyboard; it is once the field lets go. */
@@ -1091,7 +1101,7 @@ function botonCharla(pid, now) {
   const abierto = C.abierto === pid;
   return el('button', {
     type: 'button', class: 'fila-charla' + (abierto ? ' on' : ''), 'aria-expanded': String(abierto), 'aria-label': pid === S.yo ? T.talkCommentOwn : T.talkComment, 'data-pid': pid,
-    onClick: () => { SFX.tap(); C.abierto = abierto ? null : pid; C.editando = false; C.borrador = null; tableroEnSuSitio(); if (!abierto) C.borrador?.input.focus(); },
+    onClick: () => { SFX.tap(); cerrarPista(); C.abierto = abierto ? null : pid; C.editando = false; C.borrador = null; tableroEnSuSitio(); if (!abierto) C.borrador?.input.focus(); },
   }, el('span', { class: 'fila-charla-pill' }, '💬'));
 }
 

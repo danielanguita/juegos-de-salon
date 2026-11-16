@@ -536,6 +536,7 @@ answer `escucharCharla`, `decir` and `ocultar`; offline it is not drawn. Stored 
 `cupTalkHidden/` (firebase/README.md), deleted when the cup ends. End to end: `tools/e2e/cup/talk.mjs`.
 Notification (D-564): the row's player gets «💬 Bea comentó tu resultado» (who, never what; several together; never at night),
 decided by `tools/push/talk.mjs` (`talk.test.mjs`) inside `notify.mjs`, if their ⚙️ Avisos switch «Comentarios» (`charla`) is on.
+Balloon (D-566, lab, flag `cup-talk-hint`): the first time a 💬 shows, a note at the top of the table (`.charla-pista`, `T.talkHint`) says you can comment on any player's result today; ✕ or using a 💬 closes it (`cerrarPista`) for good on that phone (`cuenta.pistaCharla`, key `pista-charla`).
 
 ## Excepciones a los cánones
 
