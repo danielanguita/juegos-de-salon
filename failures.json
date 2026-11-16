@@ -3561,6 +3561,32 @@
         "stat": "2 file(s) +10 −2: README.md, docs/facts.json"
       },
       "flaky": false
+    },
+    {
+      "run": 43909021352,
+      "check": "end-to-end",
+      "pr": 1491,
+      "branch": "cup-talk-in-table",
+      "commit": "61f83828132d5d92cdb22614ca54a30a14d10e46",
+      "test": "cup/tournament.mjs:cup",
+      "error": "✗ board-day2: buttons 44 px or taller [\"💬\",\"💬\",\"💬\",\"💬\"]",
+      "signature": "460d8811a1",
+      "date": "2026-11-16T16:46:13.265Z",
+      "fix": null,
+      "flaky": false
+    },
+    {
+      "run": 43909021352,
+      "check": "end-to-end",
+      "pr": 1491,
+      "branch": "cup-talk-in-table",
+      "commit": "61f83828132d5d92cdb22614ca54a30a14d10e46",
+      "test": "cup/tournament.mjs:demos",
+      "error": "✗ demo-player: buttons 44 px or taller [\"💬\",\"💬\",\"💬\",\"💬\",\"💬\",\"💬\",\"💬\",\"💬\",\"💬\",\"💬\"]",
+      "signature": "c7dbfcbf41",
+      "date": "2026-11-16T16:46:13.265Z",
+      "fix": null,
+      "flaky": false
     }
   ]
 }
