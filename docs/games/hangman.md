@@ -120,6 +120,7 @@ nadie, tampoco hay secreto que comprometer, así que este es el único modo que 
 
 La pantalla final es distinta: no hay "ganó fulano", solo si la sacaste y con cuántas vidas, la
 palabra que era y, después de los botones, el puntaje para el ranking de jugar solo (D-274).
+If you lose, the word you missed also shows right under the title (since 2026-11-15).
 
 **Rankings (D-215):** con un jugador de los rankings abierto en el celular (nombre y PIN,
 D-212, abiertos a todos desde D-217), cada partida terminada se cuenta en `jugadores/<jid>/juegos/ahorcado`
