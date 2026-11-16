@@ -279,10 +279,13 @@ export function mount(raiz, ctx) {
   window.__aletazo = { S, get g() { return S.g; }, tocar: () => tocar(), pausar, estado };
 }
 
-/** What goes to the cup and to the result: the points (no cap), its card, and the flying time without pauses. */
+/**
+ * What goes to the cup and to the result: the points (no cap), its card, the flying time without pauses
+ * and the dead centers as the tiebreak `d` (more is better; La Copa sends it only with the lab flag `flap-tiebreak`).
+ */
 export function result(e) {
   const s = score(e);
-  return { s, t: card(e), resumen: String(s), ms: Number.isFinite(e?.ms) ? Math.round(e.ms) : undefined };
+  return { s, t: card(e), resumen: String(s), ms: Number.isFinite(e?.ms) ? Math.round(e.ms) : undefined, d: Math.max(0, e?.perfects | 0) };
 }
 
 /** How the score was reached (D-106): the gates crossed, the dead centers and the level reached. */

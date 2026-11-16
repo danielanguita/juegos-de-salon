@@ -73,6 +73,13 @@ const poner = (nodo, ...hijos) => nodo.append(...hijos.flat().filter(x => x !== 
 const LANG = getLang();
 const T = LOCALES[LANG] || LOCALES.es;
 const JUEGOS_COPA = juegosCopa(LANG);
+// Aletazo's tie goes to the dead centers 🎯, not to a millisecond of the phone's frames; still equal,
+// the place is shared (lab: #seccion-flap-tiebreak). Read once: the result sends `d` only with it on
+let desempateCentros = false;
+flag('flap-tiebreak').then(v => {
+  desempateCentros = !!v;
+  if (v && JUEGOS_COPA.aletazo?.desempateCentros) JUEGOS_COPA.aletazo.desempate = JUEGOS_COPA.aletazo.desempateCentros;
+}, () => {});
 const RONDAS_FINAL = rondasFinal(LANG);
 /** El idioma de las palabras de una copa; las de antes de D-170 no lo dicen y son en español. */
 const palabrasDe = meta => meta?.lang || 'es';
@@ -1748,7 +1755,7 @@ async function jugar(d, { nuevo = false } = {}) {
   const persistir = () => cuenta.intento.guardar(S.code, d, S.yo, { jugadas, reloj: reloj.pausar(rel, ahora()), detenido, ...(fin ? { fin } : {}) });
   const cerrar = estado => {
     const r = mod.resultado(estado);
-    fin = { s: r.s, ms: r.ms ?? Math.round(reloj.leer(rel, ahora())), t: r.t, resumen: r.resumen, det: detalle(id, estado, { T, fmt, mmss, lang: LANG }) };
+    fin = { s: r.s, ms: r.ms ?? Math.round(reloj.leer(rel, ahora())), ...(desempateCentros && id === 'aletazo' && Number.isFinite(r.d) ? { d: r.d } : {}), t: r.t, resumen: r.resumen, det: detalle(id, estado, { T, fmt, mmss, lang: LANG }) };
     persistir();
     envio = mandar(d, fin);
     // Si falla, "Ver resultado" lo reintenta y lo dice en pantalla; aquí no hay nada que mostrar
@@ -1813,7 +1820,7 @@ async function jugar(d, { nuevo = false } = {}) {
 /** Escribe el resultado en la copa. Que ya estuviera guardado cuenta como enviado. */
 async function mandar(d, fin) {
   const t = String(fin.t || '').slice(0, 300);
-  const res = { s: fin.s, ms: fin.ms, t, r: String(fin.resumen || '').slice(0, 30) };
+  const res = { s: fin.s, ms: fin.ms, ...(Number.isFinite(fin.d) ? { d: fin.d } : {}), t, r: String(fin.resumen || '').slice(0, 30) };
   try {
     await store.resultado(S.code, d, S.yo, res);
   } catch (e) {

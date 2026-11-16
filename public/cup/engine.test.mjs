@@ -302,6 +302,25 @@ test('posiciones: puntaje, luego tiempo; empate total comparte', () => {
   assert.deepEqual(Object.values(q).map(x => x.pts), PUNTOS);
 });
 
+test('posiciones: a result\'s own tiebreak d (Aletazo\'s 🎯) beats the time; equal d shares the place', () => {
+  // Thursday's Guys #7, day 5: 48 and 48, a millisecond apart. With d the centers decide, not the frames
+  const p = posicionesDelDia({
+    chan00: { s: 48, ms: 42887, d: 9 }, jiri00: { s: 48, ms: 42888, d: 11 }, jose00: { s: 36, ms: 33221, d: 3 },
+  }, ['chan00', 'jiri00', 'jose00']);
+  assert.deepEqual(p.jiri00, { pos: 1, pts: 10 });
+  assert.deepEqual(p.chan00, { pos: 2, pts: 8 });
+  assert.deepEqual(p.jose00, { pos: 3, pts: 6 });
+  // Same points, same centers: the time no longer splits them
+  const q = posicionesDelDia({ aaaaaa: { s: 48, ms: 42887, d: 10 }, bbbbbb: { s: 48, ms: 42888, d: 10 }, cccccc: { s: 40, ms: 1, d: 20 } }, ['aaaaaa', 'bbbbbb', 'cccccc']);
+  assert.deepEqual(q.aaaaaa, { pos: 1, pts: 10 });
+  assert.deepEqual(q.bbbbbb, { pos: 1, pts: 10 });
+  assert.equal(q.cccccc.pos, 3);
+  // A d of 0 counts; a result without d (sent before the flag) falls back to the time
+  const r = posicionesDelDia({ aaaaaa: { s: 5, ms: 9, d: 0 }, bbbbbb: { s: 5, ms: 1, d: 1 }, cccccc: { s: 5, ms: 2 } }, ['aaaaaa', 'bbbbbb', 'cccccc']);
+  assert.equal(r.bbbbbb.pos, 1);
+  assert.ok(r.aaaaaa.pos > 1 && r.cccccc.pos > 1);
+});
+
 test('tabla: oculta lo que no jugaste, suma comodín y final', () => {
   const L = {
     meta: meta7, players,

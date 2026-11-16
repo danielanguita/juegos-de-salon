@@ -883,6 +883,9 @@
               "ms": {
                 ".validate": "newData.isNumber() && newData.val() >= 0"
               },
+              "d": {
+                ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 1000"
+              },
               "t": {
                 ".validate": "newData.isString() && newData.val().length <= 300"
               },
