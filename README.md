@@ -702,6 +702,7 @@ node tools/push/daily.test.mjs
 node tools/push/notify.test.mjs
 node tools/push/release.test.mjs
 node tools/push/schedule.test.mjs
+node tools/push/talk.test.mjs
 node tools/push/webpush.test.mjs
 node tools/referee/gateway.test.mjs
 node tools/release/changelog.test.mjs

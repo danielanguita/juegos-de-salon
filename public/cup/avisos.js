@@ -11,6 +11,11 @@
  *   del laboratorio (AVISOS_EN_LABS, D-228).
  */
 import { el, $ } from '../assets/js/ui.js';
+import { flag } from '../assets/js/flags.js';
+
+// The «Comments on your result» notification (D-564), behind its flag. lab: #seccion-cup-talk-push
+let conCharla = false;
+flag('cup-talk-push').then(v => { conCharla = !!v; }, () => {});
 import {
   avisosVisibles, celular, camino as caminoDe, permiso, pedirPermiso, suscribir, suscripcionActual, subIdDe,
   paraGuardar, zonaHoraria, avisoDePrueba, anular,
@@ -123,12 +128,13 @@ export function crearAvisos({ T, lang, cuenta, store, copa, redibujar, toast, ta
     };
     const dia = interruptor('av-dia', T.avSetDay, T.avSetDaySub, g.dia !== false);
     const plazo = interruptor('av-plazo', T.avSetDue, T.avSetDueSub, g.plazo !== false);
+    const charla = conCharla ? interruptor('av-charla', T.avSetTalk, T.avSetTalkSub, g.charla !== false) : null;
     async function guardarPrefs() {
-      try { await activar({ dia: dia.input.checked, plazo: plazo.input.checked, silencioso: true }); } catch (_) { toast(T.avError); }
+      try { await activar({ dia: dia.input.checked, plazo: plazo.input.checked, charla: charla ? charla.input.checked : g.charla, silencioso: true }); } catch (_) { toast(T.avError); }
     }
     hoja('hoja-ajustes',
       el('h2', {}, T.avSetTitle),
-      dia.nodo, plazo.nodo,
+      dia.nodo, plazo.nodo, charla?.nodo,
       // A cup without the Grand Final (the 3-day one, D-438) has only the end-of-cup notification to name
       el('p', { class: 'muted' }, copa().final === false ? T.avSetNoteLast : T.avSetNote),
       el('button', { class: 'btn btn--ghost', id: 'btn-probar-avisos', onClick: async () => {
@@ -142,11 +148,13 @@ export function crearAvisos({ T, lang, cuenta, store, copa, redibujar, toast, ta
   /* ---------------- Acciones ---------------- */
 
   /** Suscribe este celular y anota la copa. Lanza si algo falla. */
-  async function activar({ dia = true, plazo = true, silencioso = false } = {}) {
+  async function activar({ dia = true, plazo = true, charla, silencioso = false } = {}) {
+    // Comments (D-564): on by default where the flag shows the switch; otherwise left as it was
+    if (charla === undefined && conCharla) charla = true;
     const { code, pid } = copa();
     let sub = await suscribir();
     let subId = await subIdDe(sub.endpoint);
-    const guardar = () => store().guardarAvisos(code, pid, subId, paraGuardar(sub, { lang, tz: zonaHoraria() }), { dia, plazo });
+    const guardar = () => store().guardarAvisos(code, pid, subId, paraGuardar(sub, { lang, tz: zonaHoraria() }), { dia, plazo, charla });
     try { await guardar(); } catch (e) {
       // La suscripción ya está en la base a nombre de otra identidad de este mismo celular (Firebase
       // le dio un uid anónimo nuevo): las reglas no dejan reescribirla. Se anula y se pide otra.
@@ -156,7 +164,7 @@ export function crearAvisos({ T, lang, cuenta, store, copa, redibujar, toast, ta
       subId = await subIdDe(sub.endpoint);
       await guardar();
     }
-    cuenta.avisos.guardar(code, { subId, dia, plazo });
+    cuenta.avisos.guardar(code, { subId, dia, plazo, ...(typeof charla === 'boolean' ? { charla } : {}) });
     guardarCelular(subId);
     if (!silencioso) {
       try { await avisoDePrueba({ titulo: titulo(), texto: T.avReady, url: copa().url }); } catch (_) { toast(T.avReady); }
@@ -241,7 +249,10 @@ export function crearAvisos({ T, lang, cuenta, store, copa, redibujar, toast, ta
     const actual = await suscripcionActual();
     if (permiso() !== 'granted' || !actual) { cuenta.avisos.borrar(code); redibujar(); return; }
     // El navegador renovó la suscripción: se vuelve a guardar con la misma elección
-    if (await subIdDe(actual.endpoint) !== g.subId) { try { await activar({ dia: g.dia, plazo: g.plazo, silencioso: true }); } catch (_) { /* la próxima vez */ } }
+    // Or, with the comments' flag on, a choice saved before it existed: saved again with comments on (D-564)
+    if (await subIdDe(actual.endpoint) !== g.subId || (conCharla && g.charla === undefined)) {
+      try { await activar({ dia: g.dia, plazo: g.plazo, charla: g.charla, silencioso: true }); } catch (_) { /* la próxima vez */ }
+    }
   }
 
   return { disponible, boton, tarjeta, revisar, camino, cerrar, silenciar, abiertaDesdeApp: () => cel.instalada && (cel.ios || !!new URLSearchParams(location.search).get('app')) };

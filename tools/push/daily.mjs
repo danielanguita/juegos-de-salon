@@ -1,7 +1,7 @@
 /**
  * Which One a Day notification is due now, and to whom (D-230). A pure function, like schedule.mjs:
  * it takes who asked for notifications (`pushDia`), the subscriptions (`push`) and what was already
- * sent (`pushEnviadosDia`), and returns the list. notify.mjs runs it every 15 minutes.
+ * sent (`pushEnviadosDia`), and returns the list. notify.mjs runs it every 5 minutes (D-564).
  *
  * The phone writes `pushDia/<subId>` when it turns notifications on and after each One a Day:
  *   { h: the daily notification's hour (0–23), d, r, w: whether it wants the daily, the streak and

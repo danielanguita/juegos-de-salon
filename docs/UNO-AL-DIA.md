@@ -422,7 +422,7 @@ semilla elegida en el link. Todos los intentos se cuentan en `partidas` (D-219).
 escribe el celular al terminar, así que el aviso sabe si ya jugó aunque no tenga jugador.
 `ts` is the last season recap the phone saw (`yyyy-mm`): a season already seen on the home page
 is not notified (D-545).
-`tools/push/daily.mjs` decide los avisos dentro de la vuelta de `notify.mjs`, cada 15 minutos
+`tools/push/daily.mjs` decide los avisos dentro de la vuelta de `notify.mjs`, cada 5 minutos (D-564)
 (detalle en "Lo que el PR 4 hizo").
 
 ## Qué se mide (panel, D-44)
@@ -581,7 +581,7 @@ celular saca la palabra, la flota o los dados de la semilla del día.
   días jugó esa semana. Lo escribe el celular dueño de la suscripción (`push/<subId>`, la misma de La
   Copa) al activarlos y después de cada Uno al día; nadie lo lee. No hace falta jugador.
 - **Quién decide** es `tools/push/daily.mjs` (puro, con prueba), dentro de la vuelta de
-  `notify.mjs` cada 15 minutos. Lo mandado va a `pushEnviadosDia/<subId>/<clave>` y se limpia a la
+  `notify.mjs` cada 5 minutos (D-564). Lo mandado va a `pushEnviadosDia/<subId>/<clave>` y se limpia a la
   semana. La racha del aviso es la que sigue viva hoy: la del último día si fue ayer, o anteayer con
   un comodín.
 - **Lo que quedó distinto del diseño:** no se juntan con los de La Copa en un aviso ("…y tu Uno al

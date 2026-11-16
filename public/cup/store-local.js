@@ -359,14 +359,14 @@ export function createLocalStore({ uid = null, pausa = 5000, esperar = ms => new
     },
 
     /** Como en Firebase (D-223): solo quien está sentado como el jugador. Nadie más lo lee. */
-    async guardarAvisos(code, pid, subId, sub, { dia = true, plazo = true } = {}) {
+    async guardarAvisos(code, pid, subId, sub, { dia = true, plazo = true, charla } = {}) {
       return cambiar(db => {
         const L = copa(db, code);
         if (!sentado(L, pid)) throw falla('permiso');
         if (!/^[0-9a-f]{32}$/.test(subId) || !/^https:\/\//.test(sub?.endpoint || '')) throw falla('permiso');
         L._avisos ||= {};
         L._avisos[pid] ||= {};
-        L._avisos[pid][subId] = { dia: !!dia, plazo: !!plazo, at: now(), sub: { ...sub, uid: yo } };
+        L._avisos[pid][subId] = { dia: !!dia, plazo: !!plazo, ...(typeof charla === 'boolean' ? { charla } : {}), at: now(), sub: { ...sub, uid: yo } };
       });
     },
 

@@ -282,11 +282,11 @@ export function createFirebaseStore() {
      * lee: solo quien manda los avisos) y qué avisos quiere en `pushCopa/<código>/<pid>/<subId>`.
      * Las reglas piden estar sentado como el jugador, y que la suscripción sea de este celular.
      */
-    async guardarAvisos(code, pid, subId, sub, { dia = true, plazo = true } = {}) {
+    async guardarAvisos(code, pid, subId, sub, { dia = true, plazo = true, charla } = {}) {
       const uid = await listo();
       await escribir({
         [`push/${subId}`]: { ...sub, uid, at: serverTimestamp() },
-        [`pushCopa/${code}/${pid}/${subId}`]: { dia, plazo, at: serverTimestamp() },
+        [`pushCopa/${code}/${pid}/${subId}`]: { dia, plazo, ...(typeof charla === 'boolean' ? { charla } : {}), at: serverTimestamp() },
       });
     },
 

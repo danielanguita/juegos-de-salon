@@ -18,7 +18,7 @@ Sí se puede, y **sin servidor pagado ni cuentas nuevas**:
    reparte es el servicio del propio navegador (Google en Android/Chrome, Apple en iPhone, Mozilla
    en Firefox). No hay proveedor que pagar.
 3. El "servidor" que decide **cuándo** avisar es un **workflow programado de GitHub Actions**
-   (cada 15 minutos), con la llave de la cuenta de servicio que ya está en los secretos
+   (cada 5 minutos, D-564), con la llave de la cuenta de servicio que ya está en los secretos
    (`FIREBASE_ADMIN_JSON`, D-218). Lee la base, ve a quién le toca un aviso y lo manda.
 4. Las suscripciones se guardan en Realtime Database, en una rama que **nadie puede leer** salvo
    el administrador, igual que `torneoKeys`.
@@ -277,7 +277,7 @@ bloqueados. Con eso se ve dónde se cae la gente y si el esfuerzo en iPhone vale
 ## Arquitectura
 
 ```
-Celular                                   Realtime Database                 GitHub Actions (cada 15 min)
+Celular                                   Realtime Database                 GitHub Actions (cada 5 min)  
 ───────                                   ─────────────────                 ────────────────────────────
 /sw.js (service worker)                   push/<subId>  (nadie lo lee)      tools/push/notify.mjs
   · evento push → showNotification          endpoint, keys, idioma, zona, uid · token admin (firebase-admin.mjs)

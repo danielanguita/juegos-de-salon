@@ -1425,7 +1425,7 @@
             ".write": "auth != null && $code.matches(/^[A-HJ-NP-Z]{5}$/) && $pid.matches(/^[a-z0-9]{6}$/) && $subId.matches(/^[0-9a-f]{32}$/) && root.child('torneoSeats/' + $code + '/' + $pid + '/' + auth.uid).exists() && (!newData.exists() || newData.parent().parent().parent().parent().child('push/' + $subId + '/uid').val() === auth.uid)",
             ".validate": "newData.hasChildren(['dia', 'plazo', 'at']) && newData.child('dia').isBoolean() && newData.child('plazo').isBoolean() && newData.child('at').isNumber() && newData.child('at').val() <= now",
             "$otro": {
-              ".validate": "$otro === 'dia' || $otro === 'plazo' || $otro === 'at'"
+              ".validate": "$otro === 'dia' || $otro === 'plazo' || $otro === 'at' || ($otro === 'charla' && newData.isBoolean())"
             }
           }
         }
