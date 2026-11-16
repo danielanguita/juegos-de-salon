@@ -1060,7 +1060,7 @@ function comentariosEnFila(pid, now) {
   if (!d || !L().results?.[d]?.[pid]) return [];
   const nombre = q => L().players?.[q]?.name || '?';
   return rowTalk(C.v, d, pid, S.yo).comments.map(x => el('p', { class: 'fila-comentario' + (x.h ? ' oculto' : '') },
-    el('span', { class: 'fila-comentario-autor' }, nombre(x.author)), `: ${x.c}`,
+    el('span', { class: 'fila-comentario-icono', 'aria-hidden': 'true' }, '💬'), el('span', { class: 'fila-comentario-autor' }, nombre(x.author)), `: ${x.c}`,
     x.h ? el('span', { class: 'fila-comentario-nota' }, ` · ${T.talkHidden}`) : null,
     // The author edits theirs in the same field, already filled (the owner, 2026-11-16), or deletes it
     x.author === S.yo ? el('button', { type: 'button', class: 'link-btn charla-accion charla-editar', onClick: () => {
