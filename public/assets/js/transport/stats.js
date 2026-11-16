@@ -45,6 +45,8 @@
  *   frec/<f1|f2-3|f4-7|f8-14|f15>: distinct days visited in the last 28, once per device per day
  *   activos/<device id>: 1 visited, 2 started something. The id is a random pseudonym kept in
  *                        this browser, never tied to a name, an IP or anything else (D-349, amends D-44)
+ *   activosPt/<pacific day>/<id>, entradasPt/<pacific day>/<page>: the same as `activos/` and
+ *                        `entradas/`, filed under the Pacific date of the moment (D-561)
  *
  * Written by other modules into the same day: `support/<event>` (support.js, D-448) and
  * `splash/<campaign>/<event>` (splash.js: shown, reach, play, close, t0–t2 time open; D-461; start and finish of the game its Play opened, D-466).
