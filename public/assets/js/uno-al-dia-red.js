@@ -21,7 +21,7 @@ import { tiene } from './parametros.js';
  * The night's totals (D-500), behind their flag (D-498). lab: #seccion-uad-night-totals. On, this
  * phone writes only raw events (the history, its 🧊 markers, the day's row, the acceptances): the
  * month's points, the +10 per friend, the week's sum and the best streak are written only by the
- * rebuild (`uad-rebuild.yml`, every hour), and /today/ adds this phone's own days the rebuild has
+ * rebuild (the heartbeat's hourly `tools/jobs/uad-hourly.sh`, D-565), and /today/ adds this phone's own days the rebuild has
  * not counted yet (`conMiCuenta`). Test scripts get it only with `?lab`; node, only through `forzarNoche`.
  */
 let forzada = null;
