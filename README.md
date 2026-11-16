@@ -512,6 +512,7 @@ node public/labs/transfer/engine.test.mjs
 node public/liars-dice/engine.test.mjs
 node public/timeline/engine.test.mjs
 node firebase/controls.test.mjs
+node firebase/cup-talk.test.mjs
 node firebase/flags.test.mjs
 node firebase/lab-ready.test.mjs
 node firebase/labs-publish.test.mjs
@@ -606,6 +607,7 @@ node public/cup/reportes.test.mjs
 node public/cup/screens.test.mjs
 node public/cup/store-offline.test.mjs
 node public/cup/store.test.mjs
+node public/cup/talk.test.mjs
 node public/hangman/fuzz.test.mjs
 node public/hangman/replay.test.mjs
 node public/home-preload.test.mjs
