@@ -629,9 +629,27 @@ export function avisosDelRango(days, { from, to }) {
   return { mandados, tocados, pwa, totalMandados: suma(mandados), totalTocados: suma(tocados), totalPwa: suma(pwa) };
 }
 
-/** El workflow corre cada 15 minutos (D-224, con atrasos de GitHub): más de una hora sin vuelta es para mirar. */
-export const VUELTA_ATRASADA_MS = 60 * 60 * 1000;
+/** The heartbeat checks every 5 minutes (D-564, D-565): 20 minutes without a round is worth a look. */
+export const VUELTA_ATRASADA_MS = 20 * 60 * 1000;
 export const vueltaAtrasada = (vuelta, now = Date.now()) => !vuelta || now - vuelta > VUELTA_ATRASADA_MS;
+
+/**
+ * The heartbeat in the range (D-565): `dias` is `stats/prod/push/dias` ({ 'YYYY-MM-DD' Pacific:
+ * { vueltas, maxHueco, uad } }), `from`/`to` Pacific day numbers. The rounds, the longest gap in
+ * minutes and the Uno al día rebuilds, with the days that have a record.
+ */
+export function latidoDelRango(dias, { from, to }) {
+  const out = { vueltas: 0, maxHueco: 0, uad: 0, dias: 0 };
+  for (const [k, v] of Object.entries(dias || {})) {
+    const d = Math.floor(Date.parse(`${k}T00:00:00Z`) / DAY);
+    if (!(d >= from && d <= to) || !v) continue;
+    out.dias++;
+    out.vueltas += Number(v.vueltas) || 0;
+    out.uad += Number(v.uad) || 0;
+    out.maxHueco = Math.max(out.maxHueco, Number(v.maxHueco) || 0);
+  }
+  return out;
+}
 
 
 /**

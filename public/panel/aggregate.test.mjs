@@ -1,7 +1,7 @@
 // Ejecutar: node public/panel/aggregate.test.mjs
 import assert from 'node:assert/strict';
 import { MODE_IDS } from '../assets/js/games.js';
-import { DAY, roomLog, paginate, flagOf, whenLabel, RANGOS, rangeOf, hoyUtcLabel, groupDays, periodLabel, ROOM_TTL, liveRooms, esJugada, connections, summarize, top, tzLabel, ago, dayLabel, codesOfDays, splitByEnv, liveLocal, VIVA_SIN_RED_MS, ZONA_PANEL, horaLabel, fechaLabel, diaPanel, localLog, paisesDeSalas, paisesDelRango, salaDe, mediana, trafico, origenLabel, origenesAgrupados, idiomasDeSalas, idiomasDelRango, avisosDelRango, vueltaAtrasada, salud, compararVersion, navegadorLabel } from './aggregate.js';
+import { DAY, roomLog, paginate, flagOf, whenLabel, RANGOS, rangeOf, hoyUtcLabel, groupDays, periodLabel, ROOM_TTL, liveRooms, esJugada, connections, summarize, top, tzLabel, ago, dayLabel, codesOfDays, splitByEnv, liveLocal, VIVA_SIN_RED_MS, ZONA_PANEL, horaLabel, fechaLabel, diaPanel, localLog, paisesDeSalas, paisesDelRango, salaDe, mediana, trafico, origenLabel, origenesAgrupados, idiomasDeSalas, idiomasDelRango, avisosDelRango, vueltaAtrasada, latidoDelRango, salud, compararVersion, navegadorLabel } from './aggregate.js';
 import { ZONA as ZONA_COPA } from '../cup/engine.js';
 
 const now = 20342 * DAY + 15 * 60 * 60 * 1000; // día 20342, 15:00 UTC
@@ -434,7 +434,11 @@ assert.equal(origenLabel('elmostrador_cl'), 'elmostrador.cl', 'un sitio que no s
   assert.deepEqual([a.totalMandados, a.totalTocados, a.totalPwa], [6, 3, 3]);
   assert.equal(avisosDelRango({}, { from: 1, to: 3 }).totalMandados, 0);
   const t = 1e12;
-  assert.equal(vueltaAtrasada(t - 20 * 60e3, t), false, 'hace 20 min: al día');
+  assert.equal(vueltaAtrasada(t - 10 * 60e3, t), false, '10 minutes ago: up to date');
+  assert.equal(vueltaAtrasada(t - 25 * 60e3, t), true, '25 minutes ago: the heartbeat checks every 5');
+  const d0 = Math.floor(Date.parse('2026-11-15T00:00:00Z') / DAY);
+  assert.deepEqual(latidoDelRango({ '2026-11-14': { vueltas: 9 }, '2026-11-15': { vueltas: 280, maxHueco: 6, uad: 24 }, '2026-11-16': { vueltas: 100, maxHueco: 12, uad: 10 } }, { from: d0, to: d0 + 1 }),
+    { vueltas: 380, maxHueco: 12, uad: 34, dias: 2 }, 'the heartbeat in the range');
   assert.equal(vueltaAtrasada(t - 2 * 3600e3, t), true, 'hace 2 horas: ¿se apagó?');
   assert.equal(vueltaAtrasada(undefined, t), true, 'nunca corrió');
 }

@@ -167,7 +167,10 @@ En `#/cup`, debajo de las cifras de las copas, el bloque **🔔 Avisos al celula
 - **Qué abre un aviso:** the service worker (`public/sw.js`, `notificationclick`) opens the notification's
   page only if it is on this site; any other address opens the home page instead.
 - **Aperturas de la app instalada:** `pwa/<sistema>`, del `start_url` `./?pwa` de los manifests.
-- **Última vuelta:** la hora de `stats/prod/push/vuelta`. Si pasó más de una hora sale en rojo:
+- **Longest gap** (D-565): el hueco más largo entre vueltas del latido en el rango, de
+  `stats/prod/push/dias/<día Pacífico>` (`latidoDelRango`), con las vueltas y las reconstrucciones de
+  Uno al día; sobre 15 minutos sale en rojo.
+- **Última vuelta:** la hora de `stats/prod/push/vuelta`. Si pasaron más de 20 minutos (el latido revisa cada 5, D-565) sale en rojo:
   GitHub pudo apagar el workflow programado (lo hace tras 60 días sin commits) o le faltan los
   secretos.
 

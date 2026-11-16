@@ -112,7 +112,7 @@ job's log, find the cause, fix it on the branch and push, without asking the own
   node tools/firebase/uad-points-backfill.mjs --rebuild [--apply] [--month yyyy-mm]   # recomputes a month's totals from the history and the 🧊 markers, a day's points only if it reached the server near its date; the uad-rebuild workflow runs it every hour, with the week's sums and best streaks (D-415, D-465, D-500)
   node tools/firebase/uad-index.mjs [--apply]   # copies Uno al día's older history into the index by day (unoAlDiaDias/), checks it, then writes the unoAlDiaIndice mark the readers wait for; once after D-475 publishes (dry run without --apply)
   node tools/firebase/rankings-history.mjs --podiums [--write]   # finished Cups' missing podiums (torneoPodios/); the cup-podiums workflow runs it twice a night (D-450)
-  node tools/firebase/stats-retention.mjs [--apply]   # deletes the names in stats/ older than 24 months (dry run without --apply); the uad-rebuild workflow runs it once a day, in its 08 UTC run (D-472)
+  node tools/firebase/stats-retention.mjs [--apply]   # deletes the names in stats/ older than 24 months (dry run without --apply); the heartbeat runs it once a day, in its 08 UTC hour (tools/jobs/uad-hourly.sh, D-565) (D-472)
   ```
 - The worktree and the branch are deleted on their own (above, D-218, D-252); to do it now, `node tools/agents/clean-worktrees.mjs`.
 
