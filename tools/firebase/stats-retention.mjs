@@ -10,7 +10,7 @@
  *   node tools/firebase/stats-retention.mjs           dry run: what it would delete
  *   node tools/firebase/stats-retention.mjs --apply   deletes it
  *
- * The `uad-rebuild` workflow runs it every night. Running it twice deletes nothing new.
+ * The heartbeat (notifications.yml, D-565) runs it once a day, in its 08 UTC hour. Running it twice deletes nothing new.
  * Needs the service account key (see tools/firebase/firebase-admin.mjs).
  */
 import { fileURLToPath } from 'node:url';

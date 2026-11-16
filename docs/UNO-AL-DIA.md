@@ -783,7 +783,7 @@ One number ranks players in a **monthly season** (everyone starts at 0 on the 1s
   bonus; without one, the streak and its bonus start over. The phone uploads each day its 🧊 saved as a marker
   (`unoAlDia/<jid>/<n>: { c: true }`, D-415), so the server keeps the streak through it too.
 - **The hourly rebuild** (D-415, D-500): `tools/firebase/uad-points-backfill.mjs --rebuild`, run by the
-  `uad-rebuild` workflow every hour at :23 (nightly until D-500), recomputes each player's month from the history and the
+  heartbeat every hour (notifications.yml, D-565; before, the `uad-rebuild` workflow's hourly cron, which GitHub ran about 4 times a day; nightly until D-500), recomputes each player's month from the history and the
   markers and corrects a total that differs. The server spends the 🧊 it can see (7 days in a row,
   invited friends) and lends 2 more, once, for marked days it can't back. A played day earns points
   only if its result reached the server near its date (`onTime` in `daily-points.js`, the rules' window below, D-465); a

@@ -753,6 +753,26 @@
           "torneos": {
             ".validate": "newData.isNumber() && newData.val() >= 0"
           },
+          "uadAt": {
+            ".validate": "newData.isNumber()"
+          },
+          "dias": {
+            "$day": {
+              ".validate": "$day.matches(/^\\d{4}-\\d{2}-\\d{2}$/)",
+              "vueltas": {
+                ".validate": "newData.isNumber() && newData.val() >= 0"
+              },
+              "maxHueco": {
+                ".validate": "newData.isNumber() && newData.val() >= 0"
+              },
+              "uad": {
+                ".validate": "newData.isNumber() && newData.val() >= 0"
+              },
+              "$other": {
+                ".validate": false
+              }
+            }
+          },
           "$other": {
             ".validate": false
           }

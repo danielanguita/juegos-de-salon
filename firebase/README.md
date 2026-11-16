@@ -233,7 +233,7 @@ The owner (their UID) can write and delete in all these branches, to moderate: a
   day's score has to be the one in its history, and the week adds a day from the history (`u`) that
   didn't have `w` yet. The `uno-al-dia-pts` table (D-412, D-414) takes only a
   month (`s<yyyy>-<mm>`): each write adds a day `u` that didn't have `p` yet, its score plus the
-  streak bonus (5 × `r`, up to 50), and the streak `r` (1–10) grows at most one per write. October 2026 was filled in from the history by `tools/firebase/uad-points-backfill.mjs` as administrator (D-414), and its `--rebuild` rewrites every month's totals every hour from the history and the markers, with the week's sums and best streaks (the `uad-rebuild` workflow, D-415, D-500; for phones in the lab flag `uad-night-totals` it is their only writer, and the rules tighten when it launches). Details and limits in [docs/UNO-AL-DIA.md](../docs/UNO-AL-DIA.md).
+  streak bonus (5 × `r`, up to 50), and the streak `r` (1–10) grows at most one per write. October 2026 was filled in from the history by `tools/firebase/uad-points-backfill.mjs` as administrator (D-414), and its `--rebuild` rewrites every month's totals every hour from the history and the markers, with the week's sums and best streaks (`tools/jobs/uad-hourly.sh`, run by the heartbeat in notifications.yml, D-415, D-500, D-565; by hand from the `uad-rebuild` workflow; for phones in the lab flag `uad-night-totals` it is their only writer, and the rules tighten when it launches). Details and limits in [docs/UNO-AL-DIA.md](../docs/UNO-AL-DIA.md).
 - The owner reads all of `unoAlDia/`, `unoAlDiaInicio/`, `unoAlDiaDias/` and `invitados/`, for the panel's Uno al día block, and
   can write and delete in both, to moderate.
 - **A real player's `unoAlDia/<jid>` is never deleted to test something** (👁): the rules let no one
@@ -456,6 +456,8 @@ stats/prod/days/20342/
   support/open: 1                      ☕ Buy me a coffee, by step: shown, open, pay, thanks (D-448, in the lab)
   splash/brindis-apoyo/reach: 4        splash windows, by campaign and event (D-461)
 stats/prod/push: { vuelta, vivas, torneos }   notify.mjs's last run and how many subscriptions are still alive
+stats/prod/push/uadAt                          the heartbeat's last Uno al día rebuild (D-565)
+stats/prod/push/dias/2026-11-16: { vueltas, maxHueco, uad }   the heartbeat per Pacific day: rounds, longest gap in minutes, rebuilds; 60 days kept (tools/push/heartbeat.mjs, D-565)
 ```
 
 - `rooms/<CÓDIGO>` is created only once; each `players/<rol>` too. Nothing is edited or deleted.
@@ -463,7 +465,7 @@ stats/prod/push: { vuelta, vivas, torneos }   notify.mjs's last run and how many
   `{".sv": {"increment": 1}}` over REST and the rules reject any other value.
 - The time zone goes with `__` instead of `/` (`America__Sao_Paulo`), because the slash can't
   go in a key and names already use the underscore.
-- `stats/` doesn't go in the trash bin: it's a few hundred bytes per game. Its names (`rooms/`, `live/` and `seen/` of each day, D-503) are deleted after 24 months by `tools/firebase/stats-retention.mjs`, run once a day by the `uad-rebuild` workflow, in its 08 UTC run (D-472); the nameless counts stay.
+- `stats/` doesn't go in the trash bin: it's a few hundred bytes per game. Its names (`rooms/`, `live/` and `seen/` of each day, D-503) are deleted after 24 months by `tools/firebase/stats-retention.mjs`, run once a day by `tools/jobs/uad-hourly.sh` in the heartbeat's 08 UTC rebuild (D-472, D-565), or by hand from the `uad-rebuild` workflow; the nameless counts stay.
 - **Keys are validated by shape, not by list** (canon C-16, D-73): the game
   (`^[a-z-]{1,40}$`), the mode (`^[a-z][a-z-]{0,15}$`, the same shape as `MODE_KEY` in
   `public/assets/js/games.js`), the number of players (`^[1-9][0-9]?$`) and the environment

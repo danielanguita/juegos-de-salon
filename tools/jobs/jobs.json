@@ -78,17 +78,18 @@
       "where": "github",
       "workflow": "notifications.yml",
       "cron": "7 * * * *",
-      "what": "Sends La Copa's Web Push notifications that are due: each run stays ~5h40m checking every 5 minutes, the hourly cron queues the next (a relay, D-564).",
+      "what": "The heartbeat: each run stays ~5h40m sending the Web Push notifications that are due every 5 minutes and rebuilding Uno al día every hour; the hourly cron queues the next (a relay, D-564, D-565), and each round is measured (rounds and longest gap per Pacific day).",
       "decisions": [
         "D-224",
-        "D-564"
+        "D-564",
+        "D-565"
       ]
     },
     {
       "id": "uad-rebuild",
       "where": "github",
       "workflow": "uad-rebuild.yml",
-      "cron": "23 * * * *",
+      "trigger": "hourly inside notifications.yml's heartbeat (D-565); this workflow only by hand",
       "what": "Every hour: rebuilds Uno al día's month of points from the history, with the days a phone's 🧊 saved, and corrects any total that differs, and the week's sums and best streaks, the only writer of them for phones in the night's totals lab (D-500); also writes the season's places by week (uadTemporada/). In the 08 UTC run, deletes the names in stats/ older than 24 months (stats-retention.mjs).",
       "decisions": [
         "D-415",
@@ -153,7 +154,7 @@
       "where": "github",
       "workflow": "round-watch.yml",
       "cron": "17 17 * * *",
-      "what": "Opens the \"Processes round missed\" issue when a commit on main has gone more than a day without the processes round looking at it, and closes it when the round catches up.",
+      "what": "Opens the \"Processes round missed\" issue when a commit on main has gone more than a day without the processes round looking at it, and closes it when the round catches up. Also the \"Heartbeat behind\" issue when notifications.yml's heartbeat stopped or had gaps yesterday (D-565).",
       "decisions": [
         "D-440"
       ]

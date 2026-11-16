@@ -19,7 +19,8 @@
  *   `pushEnviadosDia/<subId>/<key>`;
  * - it adds up what was delivered per day and kind in `stats/prod/days/<day>/mandados/<kind>` and
  *   leaves in `stats/prod/push` the round's time and how many subscriptions are still alive
- *   (D-233): the dashboard shows them, and if the time falls behind, GitHub stopped running the workflow.
+ *   (D-233): the dashboard shows them, and if the time falls behind, GitHub stopped running the workflow;
+ * - and the heartbeat (heartbeat.mjs, D-565): the rounds of each Pacific day and the longest gap between them.
  * The Firebase paths and fields named here are persisted data: they keep their Spanish names (D-316).
  *
  * The VAPID private key comes from $VAPID_PRIVADA (the GitHub secret, a name the owner decided to
@@ -33,6 +34,7 @@ import { talkNotifications } from './talk.mjs';
 import { dailyNotifications, stale } from './daily.mjs';
 import { sumarDias } from '../../public/assets/js/uno-al-dia.js';
 import { send } from './webpush.mjs';
+import { beat, oldDays, pacificDate } from './heartbeat.mjs';
 
 const WEEK = 7 * 24 * 3600e3;
 const DAY = 24 * 3600e3;
@@ -44,7 +46,7 @@ export const STATS_ENV = 'prod';
  * `db.read(path)` and `db.update({ path: value|null })`; `deliver(sub, notification)` → { status, dead, text }.
  */
 export async function round({ db, deliver, now = Date.now(), dryRun = false, testCode = '', log = console.log }) {
-  const [allWants, subs, allSent, talkFlag] = await Promise.all([db.read('pushCopa'), db.read('push'), db.read('pushEnviados'), db.read('flags/cup-talk-push')]);
+  const [allWants, subs, allSent, talkFlag, pushStats] = await Promise.all([db.read('pushCopa'), db.read('push'), db.read('pushEnviados'), db.read('flags/cup-talk-push'), db.read(`stats/${STATS_ENV}/push`)]);
   // Comment notifications (D-564): for everyone once the flag is 'all', before that only to who turned them on
   const flagAll = talkFlag?.state === 'all';
   const summary = { cups: 0, notifications: 0, delivered: 0, dead: 0, failures: 0, cleaned: 0 };
@@ -123,6 +125,13 @@ export async function round({ db, deliver, now = Date.now(), dryRun = false, tes
   const day = Math.floor(now / DAY);
   for (const [kind, k] of Object.entries(byKind)) changes[`stats/${STATS_ENV}/days/${day}/mandados/${kind}`] = { '.sv': { increment: k } };
   changes[`stats/${STATS_ENV}/push/vuelta`] = now;
+  // The heartbeat (D-565): rounds and the longest gap between them, by Pacific day; not for a test round
+  if (!testCode) {
+    const { changes: b, gap } = beat({ prev: pushStats?.vuelta, today: pushStats?.dias?.[pacificDate(now)], now, base: `stats/${STATS_ENV}/push` });
+    Object.assign(changes, b);
+    summary.gap = gap;
+    for (const d of oldDays(pushStats?.dias, now)) changes[`stats/${STATS_ENV}/push/dias/${d}`] = null;
+  }
   changes[`stats/${STATS_ENV}/push/vivas`] = Object.keys(subs || {}).filter(s => !dead.has(s)).length;
   changes[`stats/${STATS_ENV}/push/torneos`] = summary.cups;
   if (!dryRun) await db.update(changes);

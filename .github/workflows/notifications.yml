@@ -7,10 +7,14 @@
 #   VAPID_PRIVADA        the notifications' private key (uploaded by `node tools/push/vapid.mjs`, D-223)
 # Without either of them it warns and ends green: there is nothing to send.
 #
-# A relay (D-564): GitHub starts scheduled runs late or skips them (a 15-minute cron ran every 4-10
-# hours), so one scheduled run stays up ~5h40m and checks every 5 minutes; the hourly cron queues the
-# next one behind it (the concurrency group), so another always takes over. All on GitHub (owner,
-# D-564): the repo is public, the minutes are free. A manual run checks once.
+# The heartbeat (D-564, D-565): GitHub starts scheduled runs late or skips them (a 15-minute cron
+# ran every 4-10 hours, an hourly one about 4 times a day), so one scheduled run stays up ~5h40m:
+# notifications every 5 minutes, Uno al día's rebuild every hour (tools/jobs/uad-hourly.sh, which
+# uad-rebuild.yml also runs by hand). The hourly cron queues the next run behind it (the concurrency
+# group), so another always takes over. Every round is measured (tools/push/heartbeat.mjs: rounds and
+# the longest gap of each Pacific day), the panel shows it and round-watch.yml opens an issue when it
+# falls behind. All on GitHub (owner, D-564): the repo is public, the minutes are free. A manual run
+# checks once.
 
 name: Notifications
 
@@ -46,31 +50,35 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 24
-      - name: Send the notifications that are due
+      - name: Notifications every 5 minutes, Uno al día every hour
         env:
           KEY_JSON: ${{ secrets.FIREBASE_ADMIN_JSON }}
           # The secret keeps its Spanish name (owner's decision, D-316)
           VAPID_PRIVADA: ${{ secrets.VAPID_PRIVADA }}
           DRY_RUN: ${{ inputs.dry_run && '--dry-run' || '' }}
           TEST: ${{ inputs.test }}
+          RELAY: ${{ github.event_name == 'schedule' && '1' || '' }}
         run: |
-          if [ -z "$KEY_JSON" ] || [ -z "$VAPID_PRIVADA" ]; then
-            echo "::warning::The FIREBASE_ADMIN_JSON or VAPID_PRIVADA secrets are missing: no notifications are sent (see tools/push/vapid.mjs)"
+          if [ -z "$KEY_JSON" ]; then
+            echo "::warning::The FIREBASE_ADMIN_JSON secret is missing: nothing to do"
             exit 0
           fi
+          [ -z "$VAPID_PRIVADA" ] && echo "::warning::The VAPID_PRIVADA secret is missing: no notifications are sent (see tools/push/vapid.mjs)"
           umask 077
           printf '%s' "$KEY_JSON" > "$RUNNER_TEMP/key.json"
           export FIREBASE_KEY="$RUNNER_TEMP/key.json"
-          if [ -n "$TEST" ]; then
-            node tools/push/notify.mjs $DRY_RUN --test "$TEST"
-          else
-            node tools/push/notify.mjs $DRY_RUN
-          fi
-          # The relay: only a scheduled run stays, checking every 5 minutes for 5h40m
-          if [ "${{ github.event_name }}" = "schedule" ]; then
-            end=$(( $(date +%s) + 340 * 60 ))
-            while [ $(( $(date +%s) + 300 )) -lt "$end" ]; do
-              sleep 300
-              node tools/push/notify.mjs || echo "::warning::a round failed; the next one tries again"
-            done
-          fi
+          notify() { [ -n "$VAPID_PRIVADA" ] || return 0; node tools/push/notify.mjs $DRY_RUN ${TEST:+--test "$TEST"} || echo "::warning::a notifications round failed; the next one tries again"; }
+          notify
+          [ -z "$RELAY" ] && exit 0
+          # The relay: 5h40m, a round every 5 minutes and a rebuild each hour, starting now
+          end=$(( $(date +%s) + 340 * 60 ))
+          last_uad=0
+          while :; do
+            if [ $(( $(date +%s) - last_uad )) -ge 3600 ]; then
+              bash tools/jobs/uad-hourly.sh --apply || echo "::warning::the Uno al día rebuild failed; the next hour tries again"
+              last_uad=$(date +%s)
+            fi
+            [ $(( $(date +%s) + 300 )) -lt "$end" ] || break
+            sleep 300
+            notify
+          done

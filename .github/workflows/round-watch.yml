@@ -4,6 +4,8 @@
 # if a commit it has not looked at is more than a day old, it opens the "Processes round missed"
 # issue (GitHub emails the owner); when the round catches up, it closes it. It also runs when the
 # round's memory changes on main, so the issue closes as soon as the round's PR merges.
+# A second step watches the heartbeat the same way (D-565, tools/push/heartbeat-watch.mjs): the
+# "Heartbeat behind" issue when the notifications or Uno al día's rebuild stopped or had gaps yesterday.
 
 name: Processes round watchdog
 
@@ -39,3 +41,14 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: node tools/agents/round-watch.mjs notify
+      # The heartbeat's watchdog (D-565): notifications every 5 minutes and Uno al día every hour
+      - name: Is the heartbeat behind?
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          KEY_JSON: ${{ secrets.FIREBASE_ADMIN_JSON }}
+        run: |
+          if [ -z "$KEY_JSON" ]; then echo "::warning::FIREBASE_ADMIN_JSON is missing: the heartbeat is not checked"; exit 0; fi
+          umask 077
+          printf '%s' "$KEY_JSON" > "$RUNNER_TEMP/key.json"
+          FIREBASE_KEY="$RUNNER_TEMP/key.json" node tools/push/heartbeat-watch.mjs notify

@@ -699,6 +699,7 @@ node tools/jobs/inbox-watch.test.mjs
 node tools/jobs/jobs.test.mjs
 node tools/jobs/machine.test.mjs
 node tools/push/daily.test.mjs
+node tools/push/heartbeat.test.mjs
 node tools/push/notify.test.mjs
 node tools/push/release.test.mjs
 node tools/push/schedule.test.mjs

@@ -1,4 +1,6 @@
-# Rebuilds Uno al día's month of points every hour (D-415, D-500): tools/firebase/uad-points-backfill.mjs
+# Rebuilds Uno al día's month of points every hour (D-415, D-500), now from the heartbeat
+# (notifications.yml, D-565: GitHub ran this hourly cron about 4 times a day); this workflow stays
+# to run it by hand. tools/jobs/uad-hourly.sh, which runs tools/firebase/uad-points-backfill.mjs
 # --rebuild recomputes each player's month from their history in Firebase, including the days their
 # phone said a 🧊 saved (the markers it uploads on opening /today/), and rewrites a total that
 # differs. So a total a phone added with a streak the server didn't know is corrected by the next
@@ -17,8 +19,6 @@
 name: Uno al día points rebuild
 
 on:
-  schedule:
-    - cron: '23 * * * *'
   # To rebuild now (Actions → Uno al día points rebuild → Run workflow), or only see what it would do
   workflow_dispatch:
     inputs:
@@ -55,11 +55,4 @@ jobs:
           umask 077
           printf '%s' "$KEY_JSON" > "$RUNNER_TEMP/key.json"
           export FIREBASE_KEY="$RUNNER_TEMP/key.json"
-          # Chile's date: the app's days and months are Chile's
-          month=$(TZ=America/Santiago date +%Y-%m)
-          node tools/firebase/uad-points-backfill.mjs --rebuild $APPLY --month "$month"
-          if [ "$(TZ=America/Santiago date +%d)" -le 3 ]; then
-            node tools/firebase/uad-points-backfill.mjs --rebuild $APPLY --month "$(TZ=America/Santiago date -d "$month-01 -1 day" +%Y-%m)"
-          fi
-          # Once a day is enough for the names in the statistics
-          if [ "$(date -u +%H)" = 08 ] || [ "${{ github.event_name }}" = workflow_dispatch ]; then node tools/firebase/stats-retention.mjs $APPLY; fi
+          ALWAYS_RETENTION=1 bash tools/jobs/uad-hourly.sh "$APPLY"

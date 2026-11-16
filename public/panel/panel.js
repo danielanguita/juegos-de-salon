@@ -31,7 +31,7 @@ import {
   DAY, ROOM_TTL, liveRooms, connections, summarize, top, tzLabel, ago, dayOf, codesOfDays, splitByEnv, liveLocal, roomLog,
   paginate, flagOf, whenLabel, horaLabel, fechaLabel, diaPanel, ZONA_PANEL, ZONA_NOMBRE, RANGOS, RANGO_POR_DEFECTO, rangeOf, hoyUtcLabel,
   groupDays, periodLabel, localLog, paisesDeSalas, paisesDelRango, salaDe, mediana, idiomasDeSalas, idiomasDelRango, trafico, origenesAgrupados, origenLabel, dayLabel,
-  avisosDelRango, AVISO_TIPOS, vueltaAtrasada, unoAlDiaDelRango, salud, TRAMOS, navegadorLabel,
+  avisosDelRango, AVISO_TIPOS, vueltaAtrasada, latidoDelRango, unoAlDiaDelRango, salud, TRAMOS, navegadorLabel,
 } from './aggregate.js';
 import { keyEvents, periods as periodosClave, periodOf, byHour, countKinds, KINDS, pacificRange } from './timeline.js';
 import { feedbackRows, countStages, STAGES, FILTERS } from './feedback.js';
@@ -761,19 +761,22 @@ function bloqueAvisos(rango, now) {
   const a = avisosDelRango(ptDays(), { from: rango.from, to: rango.to });
   const p = S.push || {};
   const atrasada = S.push !== null && vueltaAtrasada(p.vuelta, now);
+  const lat = latidoDelRango(p.dias, rango);
+  const hueco = lat.maxHueco > 15;
   const tipos = [...AVISO_TIPOS, ...Object.keys({ ...a.mandados, ...a.tocados }).filter(k => !AVISO_TIPOS.includes(k))]
     .filter(k => a.mandados[k] || a.tocados[k]);
   const maxT = Math.max(0, ...tipos.map(k => Math.max(a.mandados[k] || 0, a.tocados[k] || 0)));
   const pwa = Object.entries(a.pwa).sort((x, y) => y[1] - x[1]);
   const maxP = Math.max(0, ...pwa.map(([, v]) => v));
   return bloque('🔔 Push notifications',
-    'GitHub sends them every 15 minutes. Sent: those the phone\'s push service accepted. Tapped: those that opened the app from the notification. In the bars, pink is tapped; cyan, sent and not tapped. UTC days.',
+    'GitHub\'s heartbeat checks every 5 minutes and rebuilds Uno al día every hour (D-565). Longest gap: the most a notification waited for a round (night quiet aside). Pacific days. Sent: those the phone\'s push service accepted. Tapped: those that opened the app from the notification. In the bars, pink is tapped; cyan, sent and not tapped. UTC days.',
     el('div', { class: 'tiles' },
       tile(p.vivas ?? '—', 'phones with notifications', { info: 'live subscriptions in the last run' }),
       tile(a.totalMandados, 'notifications sent'),
       tile(porcentaje(a.totalTocados, a.totalMandados), `tapped · ${n(a.totalTocados)}`),
       tile(a.totalPwa, 'installed app opens'),
       tile(p.vuelta ? horaLabel(p.vuelta) : '—', `last run${p.vuelta ? ` · ${ago(p.vuelta, now)}` : ''}${atrasada ? ' · did the workflow turn off?' : ''}`, { hot: atrasada, info: atrasada ? 'GitHub disables scheduled workflows after 60 days without commits' : '' }),
+      tile(lat.dias ? `${lat.maxHueco} min` : '—', `longest gap · ${n(lat.vueltas)} rounds${hueco ? ' · more than 15 min' : ''}`, { hot: hueco, info: `${n(lat.uad)} Uno al día rebuilds in ${lat.dias} day(s) with a record` }),
     ),
     el('div', { class: 'grid2' },
       el('div', {}, el('h3', { class: 'small' }, 'By type'),
