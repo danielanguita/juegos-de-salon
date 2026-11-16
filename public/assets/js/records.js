@@ -154,6 +154,31 @@ export function ordenar(filas) {
 }
 
 /**
+ * Uno al día's month points as every phone shows them (D-563): the hourly rebuild's rows (D-500) plus
+ * the days each player already played that the rebuild has not counted yet, read from the day tables
+ * (`records/uno-al-dia/d<n>`, which every phone writes at once). The same function for every row,
+ * the viewer's own included, so two phones reading the same tables show the same totals and places.
+ * `filas`: the month's rows (`{ jid, s, u, r }`); `dias`: `{ <n>: rows of day n }`, only days of the
+ * month. A day counts after the row's last counted day `u`: its score plus the streak bonus, the
+ * streak going on from the row's `r` when the day follows `u`, else from 1 (a 🧊 day waits for the
+ * rebuild). A player with no month row yet gets one. Returns the rows, ordered, with their places.
+ */
+export function proyectarMes(filas, dias) {
+  const por = new Map(filas.map(f => [f.jid, { ...f }]));
+  for (const n of Object.keys(dias).map(Number).filter(Number.isInteger).sort((a, b) => a - b)) {
+    for (const d of dias[n] || []) {
+      if (!d?.jid || !(d.s >= 0)) continue;
+      const f = por.get(d.jid) || { jid: d.jid, n: d.n, ...(d.co ? { co: d.co } : {}), s: 0, ms: 0 };
+      const u = Number(f.u) || 0;
+      if (u >= n) continue;
+      const r = u === n - 1 ? Math.min(RACHA_TOPE, (Number(f.r) || 0) + 1) : 1;
+      por.set(d.jid, { ...f, s: (f.s || 0) + d.s + bonoRacha(r), ms: 0, u: String(n), r });
+    }
+  }
+  return ordenar([...por.values()]);
+}
+
+/**
  * Lo que se muestra de una tabla: el top y, si el jugador quedó más abajo, sus vecinos. Recibe
  * el top ya leído (los primeros `leidos`, en orden) y, si hace falta, los vecinos leídos aparte.
  * Devuelve `{ top, yo, vecinos, fuera }`: `fuera` si está más abajo de lo leído (sin puesto exacto).
