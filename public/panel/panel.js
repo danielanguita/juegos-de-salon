@@ -41,7 +41,7 @@ import { dayOf as diaDe, toLocalInput, checkPick, switches, status as campaignSt
 import { TEMPLATES as SKINS } from '../assets/season/templates.js';
 import { stateOf as flagState, flag } from '../assets/js/flags.js';
 import { publicGameCheck, withoutLabGames, withoutLabCups } from './public-games.js';
-import { trend, trendStart, weekOf, isoDay, highlights, dayLabel as wbrDay } from './wbr.js';
+import { trend, trendStart, weekOf, isoDay, highlights, toPacificDays, dayLabel as wbrDay } from './wbr.js';
 import { FLAGS } from '../assets/js/flag-list.js';
 import { SECCIONES, leerRuta, rutaA, rutaEnIngles, seccionDe } from './rutas.js';
 import { wireReleasePush } from './release-push.js';
@@ -92,6 +92,12 @@ let memoDias = { days: null, flags: null, out: {} };
 function playerDays() {
   if (memoDias.days !== S.days || memoDias.flags !== S.flags) memoDias = { days: S.days, flags: S.flags, out: withoutLabGames(S.days, publicGameCheck(S.flags || {})) };
   return memoDias.out;
+}
+/** The days by Pacific date with lab plays out: what the WBR reads (D-560, D-561). */
+let memoPt = { days: null, flags: null, out: {} };
+function wbrDays() {
+  if (memoPt.days !== S.days || memoPt.flags !== S.flags) memoPt = { days: S.days, flags: S.flags, out: withoutLabGames(toPacificDays(S.days), publicGameCheck(S.flags || {})) };
+  return memoPt.out;
 }
 /** The cups without the lab's: what La Copa's counts read (D-560). */
 let memoCopas = { torneos: null, out: {} };
@@ -207,7 +213,7 @@ function listen() {
   // mira la semana. Cambiar a un rango más corto no vuelve a pedir nada.
   // And the period before it, so every number can say how it changed (D-348)
   // The WBR reads back to the first of the month two months before its week
-  const desde = Math.min(rangoAnterior(rangeOf(S.range)).from, S.desdeDia ?? Infinity, S.ruta?.sec === 'wbr' ? trendStart(weekOf(S.ruta.args[0])) : Infinity);
+  const desde = Math.min(rangoAnterior(rangeOf(S.range)).from, S.desdeDia ?? Infinity, S.ruta?.sec === 'wbr' ? trendStart(weekOf(S.ruta.args[0])) - 1 : Infinity);
   S.desdeDia = desde;
   S.unsubDays = onValue(query(ref(db, `stats/${S.env}/days`), orderByKey(), startAt(String(desde))), snap => { S.days = snap.val() || {}; S.daysLoaded = true; render(); }, denied);
   // The cups that were still alive on the first day loaded (D-473): every number of a period
@@ -1273,13 +1279,13 @@ const pctFino = (a, b) => (!b ? '—' : a && a / b < 0.01 ? `${((a / b) * 100).t
  */
 function vistaWbr(now) {
   const w = weekOf(S.ruta.args[0], now);
-  const nota = 'The closed week (Sunday to Saturday, UTC) against the four before and the last three months, like the Sunday email. Lab plays left out (D-560).';
+  const nota = 'The closed week (Sunday to Saturday, Pacific time) against the four before and the last three months, like the Sunday email. Lab plays left out (D-560). Browsers and visits before Nov 16 follow UTC days (D-561).';
   const cabeza = [...titulo(`📋 WBR · ${wbrDay(w.from).replace(/, \d{4}$/, '')} – ${wbrDay(w.to)}`, nota),
     el('div', { class: 'wbr-nav' },
       el('a', { class: 'btn btn--sm btn--ghost', href: ir('wbr', [isoDay(w.to - 7)]) }, '‹ Week before'),
       w.to < weekOf(null, now).to ? el('a', { class: 'btn btn--sm btn--ghost', href: ir('wbr', [isoDay(w.to + 7)]) }, 'Week after ›') : null)];
   if (!S.daysLoaded || !S.torneosLoaded) return [...cabeza, el('p', { class: 'empty' }, 'Loading…')];
-  const t = trend({ days: playerDays(), torneos: playerCups(), flags: S.flags || {} }, w);
+  const t = trend({ days: wbrDays(), torneos: playerCups(), flags: S.flags || {} }, w);
   const fmt = (v, dec) => (v === null ? 'n/a' : dec ? v.toFixed(1) : n(v));
   const cambioTxt = c => (c === null || c === undefined ? '' : ` (${c > 0 ? '+' : c < 0 ? '−' : '±'}${Math.abs(c)}%)`);
   const tabla = (filas, cabezaCol) => el('div', { class: 'wbr-scroll' }, el('table', { class: 'wbr' },
@@ -2365,7 +2371,7 @@ function alCambiarRuta() {
   if ((S.ruta.e || ENV_DEFECTO) !== S.env) cambiarEntorno(S.ruta.e || ENV_DEFECTO, false);
   const otra = antes.sec !== S.ruta.sec || antes.args.join('/') !== S.ruta.args.join('/');
   // A WBR week further back than what is downloaded asks for it (D-80)
-  if (S.ruta.sec === 'wbr' && S.user && S.desdeDia !== null && trendStart(weekOf(S.ruta.args[0])) < S.desdeDia) { S.daysLoaded = false; listen(); }
+  if (S.ruta.sec === 'wbr' && S.user && S.desdeDia !== null && trendStart(weekOf(S.ruta.args[0])) - 1 < S.desdeDia) { S.daysLoaded = false; listen(); }
   if (otra) {
     S.logPage = 1; S.sinRedTodas = false; S.erroresTodos = false; S.tlPeriod = null; S.tlAll = false;
     if (S.ruta.args[0] !== antes.args[0]) S.fichaTab = 'tabla';

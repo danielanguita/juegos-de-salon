@@ -84,6 +84,12 @@ export function setNotCounted(on, storage = globalThis.localStorage) {
 export const envFor = (loc, storage) => { const e = envOf(loc || {}); return e === 'prod' && notCounted(storage) ? 'owner' : e; };
 // Los modos viven en `games.js` (C-16): acá solo se pregunta si el que llegó sube contador.
 
+/**
+ * The Pacific date of a moment as a day number (days since 1970-01-01, like `dayOf`): the owner's
+ * clock (D-561). The UTC bucket a write goes to holds this day or the one before it.
+ */
+export const pacificDayOf = ts => Math.floor(Date.parse(`${new Date(ts).toLocaleDateString('en-CA', { timeZone: 'America/Los_Angeles' })}T00:00:00Z`) / 864e5);
+
 /** Valores que resuelve el servidor (REST): hora y suma de a uno. */
 const STAMP = { '.sv': 'timestamp' };
 const INC = { '.sv': { increment: 1 } };
@@ -643,13 +649,14 @@ export function dispositivoDe({ ua = '', platform = '', touch = 0 } = {}) {
  * Los contadores que suben al abrir una página. `primera` dice si es la primera página de la
  * visita: solo esa cuenta la entrada, el origen, el canal, si vuelve, el aparato y el país.
  */
-export function visitChanges(fp, { pagina, primera, origen, canal, vuelve, disp, aviso, pwa }) {
+export function visitChanges(fp, { pagina, primera, origen, canal, vuelve, disp, aviso, pwa, now = Date.now() }) {
   const c = { [`vistas/${pagina}`]: INC };
   // Un aviso tocado o la app instalada abren una página, sea o no la primera de la visita (D-233)
   if (aviso) c[`aviso/${aviso}`] = INC;
   if (pwa) c[`pwa/${pwa}`] = INC;
   if (!primera) return c;
   c[`entradas/${pagina}`] = INC;
+  c[`entradasPt/${pacificDayOf(now)}/${pagina}`] = INC;
   c[`ref/${origen || 'directo'}`] = INC;
   if (canal) c[`via/${canal}`] = INC;
   c[`retorno/${vuelve ? 'vuelve' : 'nueva'}`] = INC;
@@ -694,7 +701,7 @@ export function noteVisit(api, fp, {
     if (datos.canal) poner(sesion, VIA_KEY, datos.canal);
     poner(local, VINO_KEY, '1');
   }
-  const cambios = visitChanges(fp, datos);
+  const cambios = visitChanges(fp, { ...datos, now });
   if (primera) Object.assign(cambios, habitChanges(local, dayOf(now)));
   Object.assign(cambios, activeChange({ level: 1, local, now }));
   return quiet(() => api.patch(dayPath(fp.env, dayOf(now)), cambios));
@@ -838,13 +845,14 @@ export function deviceId(local = globalThis.localStorage, rand = Math.random) {
  */
 export function activeChange({ level, local = globalThis.localStorage, now = Date.now() } = {}) {
   try {
-    const day = dayOf(now);
-    const [d, l] = String(leer(local, ACTIVO_KEY) || '').split(':').map(Number);
-    if (d === day && l >= level) return {};
+    const day = dayOf(now), pday = pacificDayOf(now);
+    const [d, l, p] = String(leer(local, ACTIVO_KEY) || '').split(':').map(Number);
+    if (d === day && p === pday && l >= level) return {};
     const id = deviceId(local);
     if (!id) return {};
-    poner(local, ACTIVO_KEY, `${day}:${level}`);
-    return { [`activos/${id}`]: level };
+    poner(local, ACTIVO_KEY, `${day}:${level}:${pday}`);
+    // Also by Pacific day (D-561): the owner's weeks and months are Pacific, and a UTC day holds two of them
+    return { [`activos/${id}`]: level, [`activosPt/${pday}/${id}`]: level };
   } catch (_) { return {}; }
 }
 

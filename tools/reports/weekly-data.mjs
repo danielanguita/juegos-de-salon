@@ -9,7 +9,7 @@ import { trafico, salud, unoAlDiaDelRango, origenesAgrupados, DAY } from '../../
 import { resumenCopas, pct, copasDe } from '../../public/panel/copas.js';
 import { gameById } from '../../public/assets/js/games.js';
 import { publicGameCheck, withoutLabGames, withoutLabCups } from '../../public/panel/public-games.js';
-import { trend, baseGame } from '../../public/panel/wbr.js';
+import { trend, baseGame, closedWeek, toPacificDays, pacificDay, pacificEndMs } from '../../public/panel/wbr.js';
 // The trend tables live with the panel's WBR view (one account for both); the report re-exports them
 export { trend as tendencia, baseGame };
 import { juegosCopa } from '../../public/cup/rules.js';
@@ -18,15 +18,10 @@ import { juegosCopa } from '../../public/cup/rules.js';
 export const diaSemana = d => (d + 4) % 7;
 
 /**
- * The last full week (Sunday to Saturday, UTC days) before `now`. Run on a Sunday, it is the
+ * The last full week (Sunday to Saturday, Pacific dates, D-561) before `now`. Run on a Sunday, it is the
  * week that ended yesterday; run on any other day, the last one that already ended.
  */
-export function semanaCerrada(now = Date.now()) {
-  const hoy = Math.floor(now / DAY);
-  let sabado = hoy - 1;
-  while (diaSemana(sabado) !== 6) sabado--;
-  return { from: sabado - 6, to: sabado };
-}
+export const semanaCerrada = closedWeek;
 
 /** A day number as "Oct 12, 2026" (UTC). */
 export const fechaDia = d => new Date(d * DAY).toLocaleDateString('en-US', { timeZone: 'UTC', month: 'short', day: 'numeric', year: 'numeric' });
@@ -79,13 +74,15 @@ export function semana(data, now = Date.now()) {
   const { uad = {}, feedback = {}, changelog = '' } = data;
   const torneos = withoutLabCups(data.torneos);
   // Players' plays only: lab games, and plays before a game's launch, are left out of every count
-  const days = withoutLabGames(data.days || {}, publicGameCheck(data.flags));
-  const fin = Math.min(now, (w.to + 1) * DAY);
+  // …by Pacific date (D-561): the week, the months and every day of the report are the owner's clock
+  const days = withoutLabGames(toPacificDays(data.days || {}), publicGameCheck(data.flags));
+  const fin = Math.min(now, pacificEndMs(w.to));
+  const PT = { dayFn: pacificDay };
 
   const pd = partidasDominio(days, w), pp = partidasDominio(days, p);
   const f = finales(days, w), fp = finales(days, p);
   const salasT = r => Object.values(embudoSalas(days, r)).reduce((k, g) => k + g.terminadas, 0);
-  const rc = resumenCopas(torneos, w, fin), rcp = resumenCopas(torneos, p, (p.to + 1) * DAY);
+  const rc = resumenCopas(torneos, w, fin, PT), rcp = resumenCopas(torneos, p, pacificEndMs(p.to), PT);
   const norte = f.terminadas + salasT(w) + rc.jugadas, norteP = fp.terminadas + salasT(p) + rcp.jugadas;
   const u = usuarios(days, w), up = usuarios(days, p);
   const t = trafico(days, w), tp = trafico(days, p);
@@ -93,11 +90,11 @@ export function semana(data, now = Date.now()) {
   const h = salud(days, w), hp = salud(days, p);
   const ua = unoAlDiaDelRango({ days, ...uad }, { from: w.from, to: w.to, hoy: w.to });
   const uap = unoAlDiaDelRango({ days, ...uad }, { from: p.from, to: p.to, hoy: p.to });
-  const ec = embudoCopas(torneos, w, fin);
+  const ec = embudoCopas(torneos, w, fin, PT);
   const salas = embudoSalas(days, w);
   const sum = k => Object.values(salas).reduce((x, g) => x + g[k], 0);
 
-  const enSemana = ts => typeof ts === 'number' && ts >= w.from * DAY && ts < (w.to + 1) * DAY;
+  const enSemana = ts => typeof ts === 'number' && pacificDay(ts) >= w.from && pacificDay(ts) <= w.to;
   const reportes = Object.values(feedback || {}).filter(r => enSemana(r?.at));
   const copasNuevas = copasDe(torneos).filter(L => enSemana(L.meta.createdAt)).map(L => ({ nombre: L.meta.name, dias: L.meta.days, lab: !!L.meta.lab }));
 

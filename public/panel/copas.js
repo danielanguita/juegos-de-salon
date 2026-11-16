@@ -134,7 +134,7 @@ export function copasEnCurso(torneos, now = Date.now()) {
 }
 
 /** ¿La copa estuvo viva en algún momento del rango (números de día)? */
-const tocaRango = (m, from, to) => dayOf(m.createdAt || m.win[1].a) <= to && dayOf(m.end - 1) >= from;
+const tocaRango = (m, from, to, dia = dayOf) => dia(m.createdAt || m.win[1].a) <= to && dia(m.end - 1) >= from;
 
 const mediana = xs => {
   if (!xs.length) return 0;
@@ -155,14 +155,15 @@ const mediana = xs => {
  * Por juego salen jugadas, abandonos, puntaje promedio (0 a 100) y tiempo mediano: el
  * promedio del tiempo lo arrastra una sola persona que dejó el celular media hora encendido.
  */
-export function resumenCopas(torneos, { from, to }, now = Date.now()) {
+// `dayFn`: how a moment becomes a day number; UTC days by default, Pacific dates for the WBR (D-561)
+export function resumenCopas(torneos, { from, to }, now = Date.now(), { dayFn = dayOf } = {}) {
   const copas = copasDe(torneos);
-  const enRango = copas.filter(L => tocaRango(L.meta, from, to));
+  const enRango = copas.filter(L => tocaRango(L.meta, from, to, dayFn));
   const mini = {};
   const porDiaN = {};
   let jugadas = 0, abandonos = 0, esperado = 0, jugado = 0, inscripciones = 0;
   const caja = id => (mini[id] ||= { id, jugadas: 0, abandonos: 0, suma: 0, tiempos: [], copas: new Set() });
-  const enElRango = ts => typeof ts === 'number' && dayOf(ts) >= from && dayOf(ts) <= to;
+  const enElRango = ts => typeof ts === 'number' && dayFn(ts) >= from && dayFn(ts) <= to;
 
   for (const L of copas) {
     const m = L.meta;
@@ -177,7 +178,7 @@ export function resumenCopas(torneos, { from, to }, now = Date.now()) {
         c.jugadas++; c.suma += Number(r.s) || 0; c.copas.add(L.code);
         if (Number(r.ms) > 0) c.tiempos.push(Number(r.ms));
         jugadas++;
-        const k = dayOf(r.at); porDiaN[k] = (porDiaN[k] || 0) + 1;
+        const k = dayFn(r.at); porDiaN[k] = (porDiaN[k] || 0) + 1;
       }
       for (const [pid, at] of Object.entries(L.started[d] || {})) {
         if (L.results[d]?.[pid] || !pids.has(pid) || !enElRango(at)) continue;

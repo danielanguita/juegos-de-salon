@@ -4,7 +4,7 @@ import {
   envOf, versionOf, tzKey, langKey, fingerprint, startChanges, roomRecord, dayPath,
   noteStart, noteRoom, notePlayer, noteEnd, endRecord, countryOf, regionOfLang, restApi,
   liveId, liveRecord, startLive, esEnVivo, LATIDO_MS, QUIETO_MS,
-  paginaDe, origenDe, canalDe, dispositivoDe, avisoDe, pwaDe, sinMarcas, visitChanges, noteVisit, notePlayed, VISITA_KEY, VINO_KEY, REF_KEY,
+  paginaDe, origenDe, canalDe, dispositivoDe, avisoDe, pwaDe, sinMarcas, visitChanges, pacificDayOf, noteVisit, notePlayed, VISITA_KEY, VINO_KEY, REF_KEY,
   nombreDelCelular, nombresDe, esRelleno, finRecord,
   esOtraVez, finChanges, vueltaBand, frecBand, diasConHoy, habitChanges, deviceId, noteActive, shareKey, shareKeyOfPage, shareCountable,
   ULTIMA_KEY, DIAS_KEY, DISPOSITIVO_KEY,
@@ -283,7 +283,7 @@ assert.equal(dispositivoDe({ ua: 'Mozilla/5.0 (Macintosh)', platform: 'MacIntel'
   const fp = { env: 'prod', co: 'CL' };
   assert.deepEqual(visitChanges(fp, { pagina: 'cup', primera: false }), { 'vistas/cup': INC });
   assert.deepEqual(visitChanges(fp, { pagina: 'cup', primera: true, origen: 'google_com', canal: 'link', vuelve: true, disp: 'celular' }),
-    { 'vistas/cup': INC, 'entradas/cup': INC, 'ref/google_com': INC, 'via/link': INC, 'retorno/vuelve': INC, 'disp/celular': INC, 'pais/CL': INC });
+    { 'vistas/cup': INC, 'entradas/cup': INC, [`entradasPt/${pacificDayOf(Date.now())}/cup`]: INC, 'ref/google_com': INC, 'via/link': INC, 'retorno/vuelve': INC, 'disp/celular': INC, 'pais/CL': INC });
   assert.deepEqual(visitChanges({ env: 'prod' }, { pagina: 'x', primera: true, disp: 'celular' })['pais/desconocido'], INC);
 }
 {
@@ -298,7 +298,7 @@ assert.equal(dispositivoDe({ ua: 'Mozilla/5.0 (Macintosh)', platform: 'MacIntel'
   await noteVisit(api, { env: 'prod', co: 'AR' }, ctx('/liars-dice/', { ref: 'https://juegosdesalon.cl/dudo/' }));
   assert.equal(api.calls[0].path, 'stats/prod/days/20000');
   const id = local.getItem(DISPOSITIVO_KEY);
-  assert.deepEqual(Object.keys(api.calls[0].changes).sort(), [`activos/${id}`, 'disp/celular', 'entradas/liars-dice', 'frec/f1', 'pais/AR', 'ref/instagram_com', 'retorno/nueva', 'vistas/liars-dice', 'vuelta/nueva']);
+  assert.deepEqual(Object.keys(api.calls[0].changes).sort(), [`activos/${id}`, `activosPt/${pacificDayOf(now)}/${id}`, 'disp/celular', 'entradas/liars-dice', `entradasPt/${pacificDayOf(now)}/liars-dice`, 'frec/f1', 'pais/AR', 'ref/instagram_com', 'retorno/nueva', 'vistas/liars-dice', 'vuelta/nueva']);
   assert.equal(api.calls[0].changes[`activos/${id}`], 1);
   assert.equal(sesion.getItem(REF_KEY), null, 'el origen guardado se usa una vez');
   assert.equal(local.getItem(VINO_KEY), '1');
@@ -472,11 +472,15 @@ assert.deepEqual(diasConHoy('basura', 100), [100]);
   await noteActive(api, fp, { level: 2, local: st, now });
   await noteActive(api, fp, { level: 1, local: st, now });
   assert.deepEqual(api.calls, [
-    { path: 'stats/dev/days/100', changes: { [`activos/${id}`]: 1 } },
-    { path: 'stats/dev/days/100', changes: { [`activos/${id}`]: 2 } },
+    { path: 'stats/dev/days/100', changes: { [`activos/${id}`]: 1, [`activosPt/99/${id}`]: 1 } },
+    { path: 'stats/dev/days/100', changes: { [`activos/${id}`]: 2, [`activosPt/99/${id}`]: 2 } },
   ]);
+  // A new Pacific day inside the same UTC day writes again (Pacific midnight is 07:00 or 08:00 UTC, D-561)
+  await noteActive(api, fp, { level: 1, local: st, now: now + 9 * 3600e3 });
+  assert.deepEqual(api.calls[2].changes, { [`activos/${id}`]: 1, [`activosPt/100/${id}`]: 1 });
+  assert.equal(pacificDayOf(Date.parse('2026-11-15T07:59:00Z')), pacificDayOf(Date.parse('2026-11-14T12:00:00Z')), 'before 08:00 UTC it is still the day before in Pacific (PST)');
   await noteActive(api, fp, { level: 1, local: st, now: now + DAY });
-  assert.equal(api.calls.length, 3);
+  assert.equal(api.calls.length, 4);
 }
 assert.equal(shareKey('resultado-hangman'), 'resultado-hangman');
 assert.equal(shareKey('Uno al día!'), 'unoalda');

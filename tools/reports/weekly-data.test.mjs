@@ -30,7 +30,7 @@ test('the numbers of the week against the one before', () => {
     [w.from]: { local: { ahorcado: { solo: { 1: 4 } } }, fin: { ahorcado: { solo: 3 } }, entradas: { inicio: 10 }, juegan: { inicio: 4 }, activos: { aaaaaaaaaa: 2, bbbbbbbbbb: 1 }, comparte: { app: 2 } },
     [w.from - 7]: { local: { ahorcado: { solo: { 1: 2 } } }, fin: { ahorcado: { solo: 1 } }, entradas: { inicio: 5 } },
   };
-  const r = semana({ days, feedback: { a: { at: w.from * DAY + 1000 }, b: { at: 0 } } }, now);
+  const r = semana({ days, feedback: { a: { at: w.from * DAY + 12 * 3600e3 }, b: { at: 0 } } }, now);
   const t = Object.fromEntries(r.titular.map(f => [f.nombre, f]));
   assert.deepEqual([t['Games finished (main metric)'].ahora, t['Games finished (main metric)'].antes, t['Games finished (main metric)'].cambio], [3, 1, 200]);
   assert.equal(t.Visits.cambio, 100);

@@ -45,7 +45,7 @@ Where today's rule is and which decisions explain it: those in force that still 
 | Touch interface | C-8 | D-38, D-52, D-77, D-85, D-86, D-87, D-90, D-92, D-163, D-213, D-283, D-309, D-342, D-344, D-425, D-432, D-447, D-481, D-483 |
 | Errors and passing the phone | C-8b, C-9, C-14 | D-36, D-40, D-56, D-60, D-123, D-213, D-277, D-314, D-319, D-322 |
 | Sharing | C-7 | D-72, D-162, D-165, D-171, D-173, D-181, D-226, D-242, D-243, D-253, D-254, D-271, D-272, D-410, D-427, D-482, D-485, D-508 |
-| Panel and usage signals (privacy) | C-16 | D-44, D-45, D-46, D-73, D-79, D-80, D-140, D-207, D-208, D-209, D-210, D-211, D-251, D-317, D-318, D-320, D-348, D-349, D-350, D-352, D-408, D-448, D-452, D-454, D-461, D-466, D-471, D-473, D-474, D-475, D-476, D-477, D-484, D-493, D-498, D-503, D-504, D-509, D-528, D-554, D-560 |
+| Panel and usage signals (privacy) | C-16 | D-44, D-45, D-46, D-73, D-79, D-80, D-140, D-207, D-208, D-209, D-210, D-211, D-251, D-317, D-318, D-320, D-348, D-349, D-350, D-352, D-408, D-448, D-452, D-454, D-461, D-466, D-471, D-473, D-474, D-475, D-476, D-477, D-484, D-493, D-498, D-503, D-504, D-509, D-528, D-554, D-560, D-561 |
 | Publishing and version | C-11 | D-22, D-122, D-189, D-192, D-205, D-213, D-216, D-218, D-300, D-302, D-308, D-323, D-400, D-419, D-429, D-441, D-467, D-486, D-496, D-497, D-504, D-506, D-519, D-530, D-531, D-540, D-543, D-553, D-560 |
 | README and screenshots | C-13 | D-51, D-76, D-78, D-213, D-316, D-506 |
 | Tests | C-12 | D-143, D-193, D-199, D-204, D-216, D-299, D-307, D-315, D-377, D-378, D-388, D-391, D-392, D-401, D-428, D-460, D-484, D-494, D-496, D-506, D-515, D-516, D-518, D-541, D-551, D-558, D-559 |
@@ -55,7 +55,7 @@ Where today's rule is and which decisions explain it: those in force that still 
 | Marketing | `marketing/README.md` | D-178, D-380, D-410, D-454, D-456, D-494, D-505, D-529 |
 | Installable app and phone notifications | C-2, [PWA-NOTIFICACIONES.md](PWA-NOTIFICACIONES.md) | D-221, D-222, D-223, D-224, D-225, D-227, D-228, D-229, D-230, D-232, D-233, D-504, D-538, D-544, D-545, D-546 |
 
-## In force (544)
+## In force (545)
 
 | D | Title | Status |
 |---|---|---|
@@ -257,7 +257,7 @@ Where today's rule is and which decisions explain it: those in force that still 
 | [D-204](decisions/D-204.md) | Publishing faster: long scripts in parts and a bounded PR review | amended by D-213, D-304, D-307 |
 | [D-205](decisions/D-205.md) | The version is stamped on publish, not in git | amended by D-299, D-300, D-302, D-467 |
 | [D-206](decisions/D-206.md) | A session's worktree is deleted when its PR merges | amended by D-218 |
-| [D-207](decisions/D-207.md) | The panel is navigable: sections, cards and Pacific time | amended by D-266, D-348 |
+| [D-207](decisions/D-207.md) | The panel is navigable: sections, cards and Pacific time | amended by D-266, D-348, D-561 |
 | [D-208](decisions/D-208.md) | Site traffic, even when nobody plays | amended by D-266, D-349 |
 | [D-209](decisions/D-209.md) | The flag next to each name, also for earlier ones | current |
 | [D-210](decisions/D-210.md) | Offline games say who played and how they ended | amended by D-213 |
@@ -397,7 +397,7 @@ Where today's rule is and which decisions explain it: those in force that still 
 | [D-349](decisions/D-349.md) | A random id per browser, to count users and cohorts | current |
 | [D-350](decisions/D-350.md) | The owner's panel in English | current |
 | [D-351](decisions/D-351.md) | A promotional splash over the home page, off by default and seen once | amended by D-355, D-389, D-395, D-430, D-431, D-454, D-458, D-462 |
-| [D-352](decisions/D-352.md) | A weekly report, as a PDF on disk and by email | amended by D-560 |
+| [D-352](decisions/D-352.md) | A weekly report, as a PDF on disk and by email | amended by D-560, D-561 |
 | [D-353](decisions/D-353.md) | A result says each thing once | current |
 | [D-354](decisions/D-354.md) | The move to English gets an owner and a ratchet | amended by D-497 |
 | [D-355](decisions/D-355.md) | A splash campaign passes usability before it goes live, and is kept in marketing | current |
@@ -603,6 +603,7 @@ Where today's rule is and which decisions explain it: those in force that still 
 | [D-558](decisions/D-558.md) | A weekly cost check, and no saving that costs quality | current |
 | [D-559](decisions/D-559.md) | Every score a game records has its tab in Rankings, checked by a test | current |
 | [D-560](decisions/D-560.md) | Counts of games leave lab plays out, in the panel and the weekly report | current |
+| [D-561](decisions/D-561.md) | The owner's timeframes are Pacific time: the WBR, the weekly email and every period the owner reads | current |
 
 ## No longer in force (12)
 

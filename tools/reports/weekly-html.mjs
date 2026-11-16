@@ -84,7 +84,7 @@ export function htmlDelInforme(r, { generado = new Date() } = {}) {
   footer { margin-top: 18px; color: #6b6280; font-size: 8.5pt; }
 </style></head><body>
 <h1>🎲 Juegos de Salón · Weekly report</h1>
-<p class="sub">Week of ${esc(r.desde)} to ${esc(r.hasta)} (Sunday to Saturday, UTC days), against the week before. Live site only.</p>
+<p class="sub">Week of ${esc(r.desde)} to ${esc(r.hasta)} (Sunday to Saturday, Pacific time), against the week before. Live site only.</p>
 <div class="box"><b>Highlights</b><ul>${destacados(r).map(x => `<li>${x}</li>`).join('') || '<li>A quiet week: no changes to report.</li>'}</ul></div>
 
 <section><h2>Headline</h2>${r.tendencia ? tablasTendencia(r.tendencia) : tablaFilas(r.titular)}</section>
@@ -122,6 +122,6 @@ ${tabla(['Top errors', 'Pages', 'Loads'], r.salud.errores.map(e => [esc(e.mensaj
 ${eventosVersiones(r.eventos.versiones)}
 <p>Cups created: ${r.eventos.copasNuevas.length ? r.eventos.copasNuevas.map(c => `${esc(c.nombre)} (${c.dias} days${c.lab ? ', lab' : ''})`).join(', ') : 'none'} · player reports: <b>${num(r.eventos.reportes)}</b></p></section>
 
-<footer>Generated ${esc(generado.toISOString().slice(0, 16).replace('T', ' '))} UTC by tools/reports/weekly.mjs (D-352), with the same accounts as the panel (D-348). Days are UTC.</footer>
+<footer>Generated ${esc(generado.toLocaleString('en-US', { timeZone: 'America/Los_Angeles', dateStyle: 'medium', timeStyle: 'short' }))} Pacific time by tools/reports/weekly.mjs (D-352), with the same accounts as the panel (D-348). Days, weeks and months are Pacific dates (D-561); active browsers and visits before Nov 16, 2026, and games before Oct 4, 2026, follow UTC days.</footer>
 </body></html>`;
 }

@@ -5,11 +5,89 @@
  * `node tools/reports/weekly-data.test.mjs` tests it.
  */
 import { partidasDominio, finales, embudoSalas, usuarios, variacion } from './dominios.js';
-import { trafico, DAY } from './aggregate.js';
+import { trafico, DAY, diaPanel } from './aggregate.js';
 import { resumenCopas } from './copas.js';
 import { publicGameCheck } from './public-games.js';
-import { gameById } from '../assets/js/games.js';
+import { gameById, isLocalMode, MODES } from '../assets/js/games.js';
 import { juegosCopa } from '../cup/rules.js';
+
+
+/**
+ * Pacific time (D-561): the owner's weeks, months and days are Pacific dates, not UTC ones. A UTC
+ * day's bucket (`stats/<env>/days/<utc day>`) holds the end of one Pacific date and the start of the
+ * next, so `toPacificDays` moves what carries its moment to the Pacific date of that moment:
+ * offline games (`live/`, with `local/` and `fin/` rebuilt from them), rooms (`rooms/`, by `at`) and,
+ * since D-561, active browsers and visits (`activosPt/`, `entradasPt/`). What carries no moment stays
+ * on its UTC day: games before `live/` existed (before 2026-10-04), browsers and visits before D-561,
+ * and the other counters. Day numbers keep their form (days since 1970-01-01), now naming Pacific dates.
+ */
+export const pacificDay = ts => Math.floor(Date.parse(`${diaPanel(ts)}T00:00:00Z`) / DAY);
+
+export function toPacificDays(days = {}) {
+  const out = {};
+  const caja = d => (out[d] ||= {});
+  const movidos = new Map(), conActivosPt = new Set(), conEntradasPt = new Set();
+  for (const [k, b] of Object.entries(days || {})) {
+    const d = Number(k);
+    if (!b || typeof b !== 'object' || !Number.isFinite(d)) continue;
+    const todos = Object.entries(b.live || {}).filter(([, x]) => x && Number.isFinite(x.at));
+    // live/ took a few weeks to cover every game: a day whose live/ does not match its counters keeps them
+    const cuenta = x => isLocalMode(x?.mode) && !MODES[x.mode]?.torneo;
+    let enLocal = 0;
+    for (const modes of Object.values(b.local || {})) for (const [m, ns] of Object.entries(modes || {})) if (cuenta({ mode: m })) enLocal += Object.values(ns || {}).reduce((a, v) => a + (Number(v) || 0), 0);
+    const live = Math.abs(todos.filter(([, x]) => cuenta(x)).length - enLocal) <= 1 ? todos : [];
+    for (const [key, val] of Object.entries(b)) {
+      if (key === 'live' || key === 'rooms' || key === 'activosPt' || key === 'entradasPt') continue;
+      // local/ and fin/ come from live/ when the day has it (they match it one to one since 2026-10-04)
+      if ((key === 'local' || key === 'fin') && live.length) continue;
+      const c = caja(d);
+      c[key] = key in c && typeof val === 'object' && val ? { ...c[key], ...val } : val;
+    }
+    for (const [id, x] of live) {
+      const p = pacificDay(x.at);
+      if (!movidos.has(p)) movidos.set(p, []);
+      movidos.get(p).push(x);
+      (caja(p).live ||= {})[id] = x;
+    }
+    if (!live.length && b.live) Object.assign(caja(d).live ||= {}, b.live);
+    for (const [code, r] of Object.entries(b.rooms || {})) (caja(r && Number.isFinite(r.at) ? pacificDay(r.at) : d).rooms ||= {})[code] = r;
+    for (const [p, ids] of Object.entries(b.activosPt || {})) { conActivosPt.add(Number(p)); Object.assign(caja(Number(p)).activosPt ||= {}, ids); }
+    for (const [p, pags] of Object.entries(b.entradasPt || {})) {
+      conEntradasPt.add(Number(p));
+      const e = (caja(Number(p)).entradasPt ||= {});
+      for (const [pg, v] of Object.entries(pags || {})) e[pg] = (e[pg] || 0) + (Number(v) || 0);
+    }
+  }
+  for (const [p, xs] of movidos) {
+    // Added to what a day kept of its own counters (a day whose live/ did not match, at the edge)
+    const c = out[p], local = structuredClone(c.local || {}), fin = structuredClone(c.fin || {});
+    for (const x of xs) {
+      const m = x.mode || 'solo', n = String(Math.max(1, Number(x.n) || 1));
+      ((local[x.game] ||= {})[m] ||= {})[n] = (local[x.game][m][n] || 0) + 1;
+      if (x.fin) (fin[x.game] ||= {})[m] = (fin[x.game][m] || 0) + 1;
+    }
+    c.local = local; c.fin = fin;
+  }
+  // From the day the Pacific counters exist, they are the day's browsers and visits
+  for (const p of conActivosPt) out[p].activos = out[p].activosPt;
+  for (const p of conEntradasPt) out[p].entradas = out[p].entradasPt;
+  for (const c of Object.values(out)) { delete c.activosPt; delete c.entradasPt; }
+  return out;
+}
+
+/** The moment a Pacific date ends (its next midnight, Pacific time), in ms: 07:00 or 08:00 UTC. */
+export function pacificEndMs(d) {
+  let t = (d + 1) * DAY + 7 * 3600e3;
+  while (pacificDay(t) <= d) t += 3600e3;
+  return t;
+}
+
+/** The first Pacific date whose browsers and visits are by Pacific day (D-561), or null. */
+export function pacificCountersSince(days = {}) {
+  let min = Infinity;
+  for (const b of Object.values(days || {})) for (const p of Object.keys(b?.activosPt || {})) min = Math.min(min, Number(p));
+  return Number.isFinite(min) ? min : null;
+}
 
 /** A UTC day number as "Nov 8, 2026". */
 export const dayLabel = d => new Date(d * DAY).toLocaleDateString('en-US', { timeZone: 'UTC', month: 'short', day: 'numeric', year: 'numeric' });
@@ -53,7 +131,7 @@ export function trend({ days = {}, torneos = {}, flags = {} } = {}, w) {
   const desde = { activos: primerDato('activos'), visitas: Math.min(primerDato('entradas'), primerDato('vistas')) };
   const medido = (col, k) => (desde[k] <= col.to ? undefined : null);
   const filas = cols.map(col => {
-    const fin = (col.to + 1) * DAY, rc = resumenCopas(torneos, col, fin), pd = partidasDominio(days, col), f = finales(days, col);
+    const fin = pacificEndMs(col.to), rc = resumenCopas(torneos, col, fin, { dayFn: pacificDay }), pd = partidasDominio(days, col), f = finales(days, col);
     const salas = Object.values(embudoSalas(days, col)).reduce((k, g) => k + g.terminadas, 0);
     return {
       terminadas: f.terminadas + salas + rc.jugadas, empezadas: pd.grupo.total + pd.individual.total + rc.jugadas,
@@ -74,7 +152,7 @@ export function trend({ days = {}, torneos = {}, flags = {} } = {}, w) {
   const desdeCuando = {}, porCol = cols.map(() => ({}));
   const inicio = Math.min(...cols.map(c => c.from)), fin = w.to;
   for (let d = inicio; d <= fin; d++) {
-    const pd = partidasDominio(days, { from: d, to: d }), rc = resumenCopas(torneos, { from: d, to: d }, (d + 1) * DAY);
+    const pd = partidasDominio(days, { from: d, to: d }), rc = resumenCopas(torneos, { from: d, to: d }, pacificEndMs(d), { dayFn: pacificDay });
     const hoy = {};
     for (const [id, n] of [...Object.entries(pd.grupo.byGame), ...Object.entries(pd.individual.byGame), ...rc.porJuego.map(x => [x.id, x.jugadas])]) {
       if (!esPublico(id, d)) continue;
@@ -95,9 +173,10 @@ export function trend({ days = {}, torneos = {}, flags = {} } = {}, w) {
   return { columnas: cols.map(c => c.titulo), metricas, juegos };
 }
 
-/** The last full week (Sunday to Saturday, UTC days) before `now`, as the weekly email reads it. */
+/** The last full week (Sunday to Saturday, Pacific dates) before `now`, as the weekly email reads it. */
 export function closedWeek(now = Date.now()) {
-  let sat = Math.floor(now / DAY) - 1;
+  // The owner's clock (D-561): the week that ended before today's Pacific date
+  let sat = pacificDay(now) - 1;
   while ((sat + 4) % 7 !== 6) sat--;
   return { from: sat - 6, to: sat };
 }
