@@ -529,7 +529,8 @@ node tools/push/webpush.test.mjs                   # el cifrado y la firma, cont
 ## Reactions and comments (D-562, lab)
 
 Behind the flag `cup-talk`. Each row of the table has a 💬 under the points (`botonCharla`) that opens a
-drawer under that row (`cajonCharla`): the player's result of each day you both played, one at a time. On each (your own too) you leave one reaction of six and one
+drawer under that row (`cajonCharla`): the player's result of today, once you played it; today's first
+comment on a player shows on their row for everyone (`comentarioEnFila`). A tap on a 💬 redraws the board where it was (`tableroEnSuSitio`). On each (your own too) you leave one reaction of six and one
 comment of up to 120 characters; the target can hide a comment on their row, the author can delete theirs.
 The pure part is `talk.js` (`talk.test.mjs`), the drawer is drawn by `pintarCharla` in `game.js`, both stores
 answer `escucharCharla`, `decir` and `ocultar`; offline it is not drawn. Stored in `cupTalk/` and

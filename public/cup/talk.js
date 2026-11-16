@@ -7,11 +7,11 @@
  *   c  one comment of up to MAX_COMMENT characters, cannot be edited, can be deleted
  * cupTalkHidden/<code>/<day>/<target>/<author> = true: the target hid that comment from their row
  * (apart, so the author cannot undo it). The store hands both over as { talk, hidden }.
- * Only after the author played that day, on a result that exists (their own included), while the
- * cup is on. It lives outside `torneos/` so the nightly job deletes it once the cup ends.
+ * Only on the cup's current day (the owner, 2026-11-16: past days are not talked about), after the
+ * author played it, on a result that exists (their own included), while the cup is on. It lives outside `torneos/` so the nightly job deletes it once the cup ends.
  */
 import { nombreOfensivo } from '../assets/js/name-guard.js';
-import { terminada } from './engine.js';
+import { terminada, diaActual } from './engine.js';
 
 /** The reactions, stored by key (the rules accept only these keys). */
 export const REACTIONS = { fire: '🔥', laugh: '😂', clap: '👏', wow: '😮', sad: '😢', crown: '👑' };
@@ -28,17 +28,19 @@ export function commentProblem(s) {
   return null;
 }
 
-/** Whether `author` can react or comment on `target`'s result of day `d`: both played it, the cup is on. */
-export const canTalk = (L, d, author, target, now) => !!L?.meta && !terminada(L.meta, now)
+/** The cup's day that can be talked about: today, while the cup is on; else null. */
+export const talkDay = (L, now) => {
+  if (!L?.meta || terminada(L.meta, now)) return null;
+  const d = diaActual(L.meta, now);
+  return d >= 1 && d <= L.meta.days ? d : null;
+};
+
+/** Whether `author` can react or comment on `target`'s result of day `d`: today, both played it. */
+export const canTalk = (L, d, author, target, now) => d === talkDay(L, now)
   && !!L.results?.[d]?.[author] && !!L.results?.[d]?.[target];
 
-/** The days `author` can talk about, newest first. */
-export const talkDays = (L, author, now) => {
-  if (!L?.meta || terminada(L.meta, now)) return [];
-  const out = [];
-  for (let d = L.meta.days; d >= 1; d--) if (L.results?.[d]?.[author]) out.push(d);
-  return out;
-};
+/** The first comment `target` got on day `d` that is not hidden: shown on their row of the table. */
+export const firstComment = (v, d, target) => rowTalk(v, d, target, null).comments[0] || null;
 
 /**
  * What a target's row of day `d` shows: the reactions counted (in REACTIONS order, only the ones
