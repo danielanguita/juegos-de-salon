@@ -872,10 +872,12 @@ function vistaTabla(filas, { dias, meta, now }) {
       el('b', {}, f.name, f.pid === S.yo ? el('small', { class: 'muted' }, ` (${T.you})`) : null),
       el('div', { class: 'puntitos' }, bloques(f)),
       // Today's first comment, for everyone, even before playing (the owner, 2026-11-16)
-      ...(charla ? comentariosEnFila(f.pid, now) : [])),
+      ),
     // With talk on, the 💬 goes under the points, so the day blocks keep their width
     conCharla ? el('div', { class: 'fila-der' }, el('span', { class: 'total' }, String(f.total), el('small', {}, ` ${T.pts}`)), botonCharla(f.pid, now))
-      : el('span', { class: 'total' }, String(f.total), el('small', {}, ` ${T.pts}`))),
+      : el('span', { class: 'total' }, String(f.total), el('small', {}, ` ${T.pts}`)),
+    // Today's comments as an extra line of the row, under the name: place, arrow and points stay where they were
+    ...(() => { const cs = charla ? comentariosEnFila(f.pid, now) : []; return cs.length ? [el('div', { class: 'fila-comentarios' }, cs)] : []; })()),
   conCharla ? cajonCharla(f.pid, now) : null].filter(Boolean)));
 }
 
@@ -1069,22 +1071,23 @@ function comentariosEnFila(pid, now) {
   return rowTalk(C.v, d, pid, S.yo).comments.map(x => el('p', { class: 'fila-comentario' + (x.h ? ' oculto' : '') },
     el('span', { class: 'fila-comentario-icono', 'aria-hidden': 'true' }, '💬'), el('span', { class: 'fila-comentario-autor' }, nombre(x.author)), `: ${x.c}`,
     x.h ? el('span', { class: 'fila-comentario-nota' }, ` · ${T.talkHidden}`) : null,
-    // The author edits theirs in the same field, already filled (the owner, 2026-11-16), or deletes it
-    x.author === S.yo ? el('button', { type: 'button', class: 'link-btn charla-accion charla-editar', onClick: () => {
+    // The row's player hides another's comment, or shows it again
+    pid === S.yo && x.author !== S.yo ? el('button', { type: 'button', class: 'link-btn charla-accion', onClick: async () => {
+      SFX.tap();
+      try { await store.ocultar(S.code, d, pid, x.author, !x.h); } catch (e) { toast(errorDe(e)); }
+    } }, x.h ? T.talkShow : T.talkHide) : null,
+    // Only its author sees Edit and Delete, on their own line under the comment (the owner, 2026-11-16)
+    x.author === S.yo ? el('span', { class: 'fila-comentario-acciones' }, el('button', { type: 'button', class: 'link-btn charla-accion charla-editar', onClick: () => {
       SFX.tap();
       // A second tap closes it, as the 💬 does
       const cerrar = C.abierto === pid && C.editando;
       C.abierto = cerrar ? null : pid; C.editando = !cerrar; C.borrador = null; tableroEnSuSitio(); C.borrador?.input.focus();
-    } }, T.talkEdit) : null,
-    x.author === S.yo ? el('button', { type: 'button', class: 'link-btn charla-accion', onClick: async () => {
+    } }, T.talkEdit),
+    el('button', { type: 'button', class: 'link-btn charla-accion', onClick: async () => {
       if (!confirm(T.talkDeleteConfirm)) return;
       SFX.tap();
       try { await store.decir(S.code, d, pid, S.yo, {}); } catch (e) { toast(errorDe(e)); }
-    } }, T.talkDelete)
-      : pid === S.yo ? el('button', { type: 'button', class: 'link-btn charla-accion', onClick: async () => {
-        SFX.tap();
-        try { await store.ocultar(S.code, d, pid, x.author, !x.h); } catch (e) { toast(errorDe(e)); }
-      } }, x.h ? T.talkShow : T.talkHide) : null));
+    } }, T.talkDelete)) : null));
 }
 
 /** The 💬 of a row: today, once you played it, while you have not commented on that player yet. */

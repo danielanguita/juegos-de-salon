@@ -716,9 +716,14 @@ body.pantalla-completa #jugar-reglas .reglas[open] > summary { position: sticky;
 .semana-sep { margin: 12px 0 4px; font-size: 0.75rem; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
 /* Comments on each other's results (D-562, lab: #seccion-cup-talk): today's comments stacked on each
    row of the table for everyone; a 💬 under the points opens a text field right under the row */
+/* A line of its own at the bottom of the row, from the name's column to the end */
+.fila-comentarios { grid-column: 3 / -1; }
 .fila-comentario { margin: var(--s-4) 0 0; font-size: var(--fs-85); color: var(--muted); overflow-wrap: anywhere; }
 .fila-comentario.oculto { opacity: 0.6; }
 .fila-comentario-nota { font-size: var(--fs-75); }
+/* The author's Edit and Delete, on their own line under the comment */
+.fila-comentario-acciones { display: flex; gap: var(--s-16); margin-top: var(--s-2); }
+.fila-comentario-acciones .charla-accion { margin: 0; }
 .fila-comentario-icono { margin-right: var(--s-4); }
 .fila-comentario-autor { font-weight: 800; color: var(--ink); }
 .fila-der { display: flex; flex-direction: column; align-items: flex-end; gap: var(--s-4); }
