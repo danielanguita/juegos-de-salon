@@ -277,7 +277,7 @@ bloqueados. Con eso se ve dónde se cae la gente y si el esfuerzo en iPhone vale
 ## Arquitectura
 
 ```
-Celular                                   Realtime Database                 GitHub Actions (cada 15 min)
+Celular                                   Realtime Database                 GitHub Actions (cada 5 min)  
 ───────                                   ─────────────────                 ────────────────────────────
 /sw.js (service worker)                   push/<subId>  (nadie lo lee)      tools/push/notify.mjs
   · evento push → showNotification          endpoint, keys, idioma, zona, uid · token admin (firebase-admin.mjs)

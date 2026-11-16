@@ -401,8 +401,8 @@ Abiertos a todos desde D-228: se ven en cualquier celular que pueda recibirlos, 
   en la dirección (nunca el PIN); la app instalada abre en "Ya estoy inscrito" con ese nombre
   elegido, si iOS la respetara. No la respeta: la app instalada abre en la portada, así que los
   pasos dan el código de la copa (D-227). Dentro de WhatsApp o Instagram, pide abrir el link en Safari.
-- **Lo que llega** (D-224): `.github/workflows/notifications.yml` corre `tools/push/notify.mjs` cada 15
-  minutos, y `tools/push/schedule.mjs` decide con `engine.js` qué toca, en la hora y el idioma
+- **Lo que llega** (D-224, D-564): `.github/workflows/notifications.yml` corre `tools/push/notify.mjs` cada 5
+  minutos (a relay of ~5h40m runs queued by an hourly cron), y `tools/push/schedule.mjs` decide con `engine.js` qué toca, en la hora y el idioma
   del celular y nunca entre las 22:00 y las 8:00: **se abrió el día** (desde las 9:00, si no lo ha
   jugado ni empezado), **se te acaba el plazo** (4 horas antes del cierre, o desde las 20:00 si
   cierra de noche; to whoever already missed the day before, it also says that missing this one leaves them out of the cup, D-347; whoever is out gets nothing more), **La Gran Final** (con su lugar en la tabla; a cup without a final sends the usual "se abrió el día" on its last day, D-438), **terminó la copa** y, al admin
@@ -534,6 +534,8 @@ that row (`cajonCharla`), one comment per author and row. A tap redraws the boar
 The pure part is `talk.js` (`talk.test.mjs`), the drawer is drawn by `pintarCharla` in `game.js`, both stores
 answer `escucharCharla`, `decir` and `ocultar`; offline it is not drawn. Stored in `cupTalk/` and
 `cupTalkHidden/` (firebase/README.md), deleted when the cup ends. End to end: `tools/e2e/cup/talk.mjs`.
+Notification (D-564): the row's player gets «💬 Bea comentó tu resultado» (who, never what; several together; never at night),
+decided by `tools/push/talk.mjs` (`talk.test.mjs`) inside `notify.mjs`, if their ⚙️ Avisos switch «Comentarios» (`charla`) is on.
 
 ## Excepciones a los cánones
 
