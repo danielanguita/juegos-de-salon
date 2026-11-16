@@ -719,6 +719,7 @@ body.pantalla-completa #jugar-reglas .reglas[open] > summary { position: sticky;
 .fila-comentario { margin: var(--s-4) 0 0; font-size: var(--fs-85); color: var(--muted); overflow-wrap: anywhere; }
 .fila-comentario.oculto { opacity: 0.6; }
 .fila-comentario-nota { font-size: var(--fs-75); }
+.fila-comentario-icono { margin-right: var(--s-4); }
 .fila-comentario-autor { font-weight: 800; color: var(--ink); }
 .fila-der { display: flex; flex-direction: column; align-items: flex-end; gap: var(--s-4); }
 /* A 44 px button (U-10) with a smaller pill inside, so it sits under the points */
