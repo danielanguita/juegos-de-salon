@@ -457,7 +457,7 @@ const ES = {
   seeResult: 'Ver resultado',
   // Reactions and comments on the results of the day (D-562, lab)
   talkTitle: '💬 Reacciones',
-  talkHint: 'Reacciona y comenta los resultados de los días que jugaste. Los ven todos en la copa.',
+  talkHint: 'Reacciona y comenta su resultado de hoy. El primer comentario se ve en la tabla.',
   talkDay: 'Día {d}',
   talkReact: 'Reaccionar',
   talkReactions: { fire: 'Fuego', laugh: 'Risa', clap: 'Aplauso', wow: 'Asombro', sad: 'Pena', crown: 'Corona' },
@@ -1374,7 +1374,7 @@ const EN = {
   seeResult: 'See result',
   // Reactions and comments on the results of the day (D-562, lab)
   talkTitle: '💬 Reactions',
-  talkHint: 'React to and comment on the results of the days you played. Everyone in the cup sees them.',
+  talkHint: 'React to and comment on today\'s result. The first comment shows in the table.',
   talkDay: 'Day {d}',
   talkReact: 'React',
   talkReactions: { fire: 'Fire', laugh: 'Laugh', clap: 'Applause', wow: 'Wow', sad: 'Sad', crown: 'Crown' },
@@ -2279,7 +2279,7 @@ const PT = {
   seeResult: 'Ver resultado',
   // Reactions and comments on the results of the day (D-562, lab)
   talkTitle: '💬 Reações',
-  talkHint: 'Reaja e comente os resultados dos dias que você jogou. Todos na copa veem.',
+  talkHint: 'Reaja e comente o resultado de hoje. O primeiro comentário aparece na tabela.',
   talkDay: 'Dia {d}',
   talkReact: 'Reagir',
   talkReactions: { fire: 'Fogo', laugh: 'Risada', clap: 'Aplauso', wow: 'Uau', sad: 'Pena', crown: 'Coroa' },

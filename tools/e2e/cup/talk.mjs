@@ -1,8 +1,10 @@
 // Reactions and comments on each other's results in a cup (D-562, issue #1488), behind the lab flag
-// `cup-talk`: localhost holds the lab key. On the player demo's table: each row ends with a 💬 that
-// opens that player's drawer under it; react, change and take back a reaction, comment on another
-// result and on your own, an offensive comment is stopped, delete your comment, hide and show again a
-// comment someone left on your row; the 💬 counts what a player got; three languages, no sideways scroll.
+// `cup-talk`: localhost holds the lab key. On the player demo's table, once the player played today
+// (only today is talked about): each row ends with a 💬 that opens that player's drawer under it,
+// without moving the page; react, change and take back a reaction, comment on another result and on
+// your own, an offensive comment is stopped, today's first comment shows on the player's row of the
+// table, delete your comment, hide and show again a comment someone left on your row; the 💬 counts
+// what a player got; three languages, no sideways scroll.
 import { output } from '../output.mjs';
 import { launch, sleep } from '../cdp.mjs';
 import { LOCALES } from '../../../public/cup/rules.js';
@@ -28,11 +30,26 @@ const write = async text => {
   await sleep(400);
 };
 
+// The demo's player has not played today: their result of today goes in, as if they had
+const playToday = async () => {
+  await ev(`(()=>{const K='juegos-de-salon:copa:prueba';const db=JSON.parse(localStorage.getItem(K));const code=new URLSearchParams(location.search).keys().toArray().find(k=>/^[A-Z]{5}$/.test(k));
+    const L=db[code], now=Date.now()+(Number(localStorage.getItem('juegos-de-salon:copa:prueba:reloj'))||0);
+    const d=Object.keys(L.meta.win).map(Number).filter(k=>L.meta.win[k].a<=now).sort((a,b)=>b-a)[0];
+    const me=Object.keys(L._seats).find(p=>!Object.keys(L._seats[p])[0].startsWith('otro-'));
+    (L.results[d]||={})[me]={s:50,ms:60000,t:'x',r:'50/100',at:now};localStorage.setItem(K,JSON.stringify(db));})()`);
+  await ev(`location.reload()`); await sleep(2500);
+};
+
 for (const lang of ['es', 'en', 'pt']) {
   await b.go(`${SITE}/cup/?test&demo=player&lang=${lang}`, 2000);
+  await playToday();
   ok(await waitFor(`document.querySelectorAll('.tabla .fila .fila-charla').length >= 2`), `${lang}: each row of the table ends with a 💬`);
   ok(!await ev(`!!${drawer}`), `${lang}: closed until tapped`);
+  await ev(`document.querySelector('.tabla .fila:not(.yo) .fila-charla').scrollIntoView({block:'center'})`);
+  const y0 = await ev('scrollY');
   await open(await ev(other));
+  ok(Math.abs(await ev('scrollY') - y0) < 2, `${lang}: opening a 💬 does not move the page`);
+  ok(!await ev(`!!${drawer}.querySelector('.charla-dias')`), `${lang}: only today, no other days to pick`);
   ok(await ev(`${drawer}.previousElementSibling.querySelector('.fila-charla')?.classList.contains('on')`), `${lang}: the drawer opens right under its row`);
   ok(!await ev(`document.documentElement.scrollWidth>innerWidth`), `${lang}: no sideways scroll`);
 }
@@ -55,6 +72,7 @@ ok(await waitFor(`document.activeElement?.classList.contains('charla-input')`), 
 await write('¡Qué buen día!');
 ok(await waitFor(`(${drawer}.querySelector('.charla-comentario')?.textContent||'').includes('¡Qué buen día!')`), 'the comment shows in the drawer');
 ok(!await ev(`!!${drawer}.querySelector('.charla-comentar')`), 'one comment each: no second Comment');
+ok(await waitFor(`(${button(JSON.stringify(OTHER))}.closest('.fila').querySelector('.fila-comentario')?.textContent||'').includes('¡Qué buen día!')`), "today's first comment shows on the player's row of the table");
 await open(ME);
 ok(await ev(`document.querySelectorAll('#charla').length === 1 && !${button(JSON.stringify(OTHER))}.classList.contains('on')`), 'one drawer at a time');
 await ev(`${drawer}.querySelector('.charla-comentar').click()`);
@@ -67,10 +85,12 @@ ok(await waitFor(`(${drawer}.querySelector('.charla-comentario')?.textContent||'
 await open(OTHER);
 await ev(`window.confirm=()=>true; ${drawer}.querySelector('.charla-comentario .charla-accion').click()`);
 ok(await waitFor(`!${drawer}.querySelector('.charla-comentario') && !!${drawer}.querySelector('.charla-comentar')`), 'the author deletes their comment');
+ok(await waitFor(`!${button(JSON.stringify(OTHER))}.closest('.fila').querySelector('.fila-comentario')`), 'and it leaves the row');
 
 // Someone left a comment on my row: I hide it, then show it again
 await ev(`(()=>{const K='juegos-de-salon:copa:prueba';const db=JSON.parse(localStorage.getItem(K));const code=new URLSearchParams(location.search).keys().toArray().find(k=>/^[A-Z]{5}$/.test(k));
   const me=${JSON.stringify(ME)}, him=${JSON.stringify(OTHER)}, L=db[code], d=Object.keys(L.results).filter(k=>L.results[k][me]&&L.results[k][him]).sort((a,b)=>b-a)[0];
+  (L._talk||={talk:{},hidden:{}}).talk||={};
   ((L._talk.talk[d]||={})[me]||={})[him]={c:'Suerte la próxima',at:Date.now()};localStorage.setItem(K,JSON.stringify(db));})()`);
 await ev(`location.reload()`); await sleep(2500);
 await waitFor(`!!${button(JSON.stringify(ME))}`);
@@ -78,6 +98,7 @@ await open(ME);
 ok(await waitFor(`(${drawer}?.textContent||'').includes('Suerte la próxima')`), "another player's comment shows on my row");
 await ev(`[...${drawer}.querySelectorAll('.charla-comentario')].find(p=>p.textContent.includes('Suerte')).querySelector('.charla-accion').click()`);
 ok(await waitFor(`!![...${drawer}.querySelectorAll('.charla-comentario.oculto')].find(p=>p.textContent.includes('Suerte'))`), 'I hide it: still shown to me, marked hidden');
+ok(!await ev(`(${button(JSON.stringify(ME))}.closest('.fila').querySelector('.fila-comentario')?.textContent||'').includes('Suerte')`), 'and no longer on my row of the table');
 await ev(`${drawer}.previousElementSibling.scrollIntoView({block:'start'})`);
 await b.shot('cup-talk');
 await ev(`${drawer}.querySelector('.charla-comentario.oculto .charla-accion').click()`);

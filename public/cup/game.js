@@ -49,7 +49,7 @@ import { enlaceBuzon, ponerBuzon, sinDoble } from '../assets/js/buzon.js';
 import { cuentaRegresiva as cuentaComun } from '../assets/js/cuenta-regresiva.js';
 import { PANTALLAS, redibujarCon } from './screens.js';
 import { coverWithDialogs, gameTopBar } from '../assets/js/cover-dialogs.js';
-import { REACTIONS, MAX_COMMENT, cleanComment, commentProblem, canTalk, talkDays, rowTalk } from './talk.js';
+import { REACTIONS, MAX_COMMENT, cleanComment, commentProblem, canTalk, talkDay, firstComment, rowTalk } from './talk.js';
 
 // The four new One a Day share grids wait in the lab (D-508). lab: #seccion-uad-share-grids
 let gridsNuevos = false;
@@ -863,7 +863,9 @@ function vistaTabla(filas, { dias, meta, now }) {
     el('span', { class: 'flecha ' + (f.flecha > 0 ? 'sube' : f.flecha < 0 ? 'baja' : '') }, f.flecha > 0 ? '▲' : f.flecha < 0 ? '▼' : ''),
     el('div', { class: 'quien' },
       el('b', {}, f.name, f.pid === S.yo ? el('small', { class: 'muted' }, ` (${T.you})`) : null),
-      el('div', { class: 'puntitos' }, bloques(f))),
+      el('div', { class: 'puntitos' }, bloques(f)),
+      // Today's first comment, for everyone, even before playing (the owner, 2026-11-16)
+      charla ? comentarioEnFila(f.pid, now) : null),
     // With talk on, the 💬 goes under the points, so the day blocks keep their width
     conCharla ? el('div', { class: 'fila-der' }, el('span', { class: 'total' }, String(f.total), el('small', {}, ` ${T.pts}`)), botonCharla(f.pid, now))
       : el('span', { class: 'total' }, String(f.total), el('small', {}, ` ${T.pts}`))),
@@ -1018,7 +1020,7 @@ function desdeAviso() {
 let charla = false;
 flag('cup-talk').then(v => { charla = v; if (v && S.pantalla === 'tablero' && L()?.meta && !composing()) tablero(); });
 /** The talk of the open cup, kept apart from it (cupTalk/), and what is being written. */
-const C = { code: null, off: null, v: { talk: {}, hidden: {} }, abierto: null, dia: null, caja: null, borrador: null, pendiente: false };
+const C = { code: null, off: null, v: { talk: {}, hidden: {} }, abierto: null, caja: null, borrador: null, pendiente: false };
 /** Writing a comment: the board is not redrawn under the keyboard; it is once the field lets go. */
 const composing = () => !!C.borrador && !!document.activeElement?.classList?.contains('charla-input');
 
@@ -1026,34 +1028,51 @@ function seguirCharla() {
   if (!charla || offlineStore() || !store?.escucharCharla || !S.code) return false;
   if (C.code !== S.code) {
     C.off?.();
-    Object.assign(C, { code: S.code, v: { talk: {}, hidden: {} }, abierto: null, dia: null, caja: null, borrador: null, pendiente: false });
+    Object.assign(C, { code: S.code, v: { talk: {}, hidden: {} }, abierto: null, caja: null, borrador: null, pendiente: false });
     // What comes in redraws the board (its 💬 counts), unless a comment is being written
     C.off = store.escucharCharla(S.code, v => {
       C.v = v;
       if (S.pantalla !== 'tablero' || !L()?.meta) return;
-      if (composing()) C.pendiente = true; else tablero();
+      if (composing()) C.pendiente = true; else tableroEnSuSitio();
     });
   }
   return true;
 }
 
-/** The days `S.yo` can see `pid`'s talk on: the ones both played, newest first. */
-const diasCharla = (pid, now) => talkDays(L(), S.yo, now).filter(d => L().results?.[d]?.[pid]);
+/** Today, if `S.yo` and `pid` both played it: the only day talked about (the owner, 2026-11-16). */
+const diaCharla = (pid, now) => { const d = talkDay(L(), now); return d && canTalk(L(), d, S.yo, pid, now) ? d : null; };
+
+/** The board drawn again where it was: a tap on a 💬 or a new comment does not move the page. */
+function tableroEnSuSitio() {
+  const y = scrollY;
+  tablero();
+  scrollTo(0, y);
+}
+
+/** Today's first comment on `pid`, on their row of the table for everyone (the owner, 2026-11-16). */
+function comentarioEnFila(pid, now) {
+  if (!seguirCharla()) return null;
+  const d = talkDay(L(), now);
+  const x = d && L().results?.[d]?.[pid] ? firstComment(C.v, d, pid) : null;
+  if (!x) return null;
+  return el('p', { class: 'fila-comentario' }, el('span', { class: 'fila-comentario-autor' }, L().players?.[x.author]?.name || '?'), `: ${x.c}`);
+}
 
 /** The 💬 button at the end of a row of the table, with how many reactions and comments that player got. */
 function botonCharla(pid, now) {
   if (!seguirCharla()) return null;
-  const dias = diasCharla(pid, now);
-  if (!dias.length) return null;
-  const n = dias.reduce((a, d) => { const x = rowTalk(C.v, d, pid, S.yo); return a + x.reactions.reduce((b, r) => b + r.n, 0) + x.comments.filter(c => !c.h).length; }, 0);
+  const d = diaCharla(pid, now);
+  if (!d) return null;
+  const x = rowTalk(C.v, d, pid, S.yo);
+  const n = x.reactions.reduce((b, r) => b + r.n, 0) + x.comments.filter(c => !c.h).length;
   const abierto = C.abierto === pid;
   return el('button', {
     type: 'button', class: 'fila-charla' + (abierto ? ' on' : ''), 'aria-expanded': String(abierto), 'aria-label': T.talkTitle, 'data-pid': pid,
-    onClick: () => { SFX.tap(); C.abierto = abierto ? null : pid; C.dia = null; C.borrador = null; tablero(); },
+    onClick: () => { SFX.tap(); C.abierto = abierto ? null : pid; C.borrador = null; tableroEnSuSitio(); },
   }, el('span', { class: 'fila-charla-pill' }, '💬', n ? el('span', { class: 'fila-charla-n' }, String(n)) : null));
 }
 
-/** Under the open row: that player's results of the days you both played, one day at a time. */
+/** Under the open row: that player's result of today, with its reactions and comments. */
 function cajonCharla(pid) {
   if (C.abierto !== pid) return null;
   C.caja ||= el('div', { class: 'charla-cajon', id: 'charla' });
@@ -1066,18 +1085,9 @@ function pintarCharla() {
   if (!caja || !C.abierto) return;
   if (composing()) { C.pendiente = true; return; }
   const Lc = L(), now = ahora(), pid = C.abierto;
-  const dias = diasCharla(pid, now);
-  if (!dias.length) { caja.replaceChildren(); return; }
-  if (!dias.includes(C.dia)) C.dia = dias[0];
-  const d = C.dia;
-  caja.replaceChildren(...[
-    el('p', { class: 'muted charla-nota' }, T.talkHint),
-    dias.length > 1 ? el('div', { class: 'charla-dias' }, dias.map(k => el('button', {
-      type: 'button', class: 'chip' + (k === d ? ' chip--hot' : ''), 'aria-pressed': String(k === d), 'data-dia': k,
-      onClick: () => { SFX.tap(); C.dia = k; C.borrador = null; pintarCharla(); },
-    }, fmt(T.talkDay, { d: k })))) : null,
-    filaCharla(Lc, d, pid, now),
-  ].filter(Boolean));
+  const d = diaCharla(pid, now);
+  if (!d) { caja.replaceChildren(); return; }
+  caja.replaceChildren(el('p', { class: 'muted charla-nota' }, T.talkHint), filaCharla(Lc, d, pid, now));
 }
 
 function filaCharla(Lc, d, pid, now) {
@@ -1138,7 +1148,7 @@ function abrirBorrador(d, pid) {
   const cerrar = () => {
     C.borrador = null;
     input.blur();
-    if (C.pendiente && S.pantalla === 'tablero') { C.pendiente = false; tablero(); } else pintarCharla();
+    if (C.pendiente && S.pantalla === 'tablero') { C.pendiente = false; tableroEnSuSitio(); } else pintarCharla();
   };
   const boton = el('button', { type: 'button', class: 'btn btn--cyan btn--sm', onClick: enviar }, T.talkSend);
   input.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); enviar(); } });
@@ -1146,7 +1156,7 @@ function abrirBorrador(d, pid) {
   input.addEventListener('blur', () => setTimeout(() => {
     if (!C.pendiente || composing()) return;
     C.pendiente = false;
-    if (S.pantalla === 'tablero') tablero();
+    if (S.pantalla === 'tablero') tableroEnSuSitio();
   }, 300));
   C.borrador = { d, pid, nodo: el('div', { class: 'charla-borrador' },
     el('div', { class: 'charla-linea' }, input, boton), aviso,
