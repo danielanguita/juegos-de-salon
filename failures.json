@@ -3629,6 +3629,19 @@
         "stat": "2 file(s) +2 −0: README.md, docs/facts.json"
       },
       "flaky": false
+    },
+    {
+      "run": 43942405246,
+      "check": "tests",
+      "pr": 1502,
+      "branch": "microgames-out-of-labs",
+      "commit": "fe30616d49807b09a0fdba727f82bed49cb8be3a",
+      "test": "Social cards up to date",
+      "error": "ERROR · public/index.html fell behind games.js  →  node tools/release/og.mjs cards\nERROR · public/assets/og/menu.jpg was made with another drawing or other texts  →  node tools/release/og.mjs images\nERROR · public/pt/index.html fell behind games.js  →  node tools/release/og.mjs cards",
+      "signature": "40e67038b3",
+      "date": "2026-11-16T19:50:01.681Z",
+      "fix": null,
+      "flaky": false
     }
   ]
 }
