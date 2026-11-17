@@ -1,0 +1,32 @@
+# Tells the owner an outside PR waits only for their Yes (D-568). The contributions agent launches it
+# with `node tools/agents/contributions.mjs ready <n> <why>`; it comments as the workflows bot naming
+# the owner, because GitHub notifies no one of what their own account does (as decide.yml).
+
+name: Contribution ready
+
+on:
+  workflow_dispatch:
+    inputs:
+      pr:
+        description: 'PR number'
+        required: true
+      summary:
+        description: 'One line: what it brings and its risk'
+        required: true
+
+permissions:
+  pull-requests: write
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - env:
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ inputs.pr }}
+          SUMMARY: ${{ inputs.summary }}
+        run: |
+          [[ "$PR" =~ ^[0-9]+$ ]] || exit 1
+          gh pr comment "$PR" -R "$GITHUB_REPOSITORY" --body "@ellokojavi this outside PR is ready and waits only for your Yes (the box at the top of the description).
+
+          $SUMMARY"

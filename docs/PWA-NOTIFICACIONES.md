@@ -244,6 +244,17 @@ modo No molestar, por ejemplo), el botón **Probar los avisos** de la hoja sirve
   día siguiente al cierre; después ya no sale. Whoever had notifications off learns it on the home
   page instead: the recap window of D-423 (in the lab for now; see [games/cup.md](games/cup.md)).
 - Un aviso que el servicio no entrega en 12 horas se descarta (`TTL`).
+- **"💬 They commented on your result" (D-564, in the lab behind `cup-talk-push`)**: when someone
+  else comments on a player's row of the table (D-562), `tools/push/talk.mjs` sends one notification
+  saying who, never what, and it opens the cup's table. Only comments in the last 24 hours, each
+  once (key `charla:<day>:<author>`, so an edit does not notify again), never at night for the
+  recipient, at most one every 30 minutes per cup and phone (the rest go together in the next one),
+  and they do not count toward the cap of 2 a day. With the flag on for everyone, every phone with the
+  cup's notifications gets them unless it turned "Comments" off (`charla: false`); before that, only
+  a phone that turned it on.
+- **The heartbeat (D-564, D-565)**: `notifications.yml` is a relay that checks every 5 minutes;
+  `tools/push/heartbeat.mjs` notes each round's gap by Pacific day and `heartbeat-watch.mjs` opens an
+  issue when it falls behind.
 - **Al terminar la copa** se borran sus suscripciones solas. El permiso del celular queda, así que
   la próxima copa ya viene con avisos (principio 7).
 
@@ -330,6 +341,10 @@ push.js (en la página)                    pushEnviados/<código>/<subId>/<clave
   link en el navegador) en la misma hoja de abajo que los avisos, que por eso vive en `base.css`.
   Los pasos del iPhone dicen lo mismo que los de la campana. Lo prueban `instalar.test.mjs` y
   `tools/e2e/install-prompt.mjs`.
+- **«Instala Juegos de Salón»** (D-571, in the lab behind the flag `install-invite`, same `instalar.js`): the bubble's
+  replacement, an iridescent invitation that appears after a first game, snoozes on ✕ (14 days, then 60),
+  invites again a moment after any game ends (once a week at most) and keeps «📲 Instalar la app» in the
+  home footer. Tested by the same `instalar.test.mjs` and `install-prompt.mjs`.
 
 ### 3. Suscribirse (`public/assets/js/push.js`, `public/cup/avisos.js`) — hecho en el PR 2
 

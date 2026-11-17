@@ -5,7 +5,7 @@ feedback or a report still waiting for its email reply; moved here word for word
 feedback don't load it. It has the same force as the agent file, and a rule for feedback is changed here.
 
 Each report people send from the app arrives as an issue with the
-`feedback` label (uploaded by the Mac mini's `feedback-watch` job every 5 minutes, D-275, D-382).
+`feedback` label (uploaded by the heartbeat's `feedback-watch` every 5 minutes, D-275, D-569).
 Reports from the "💬 Sugerencias y comentarios" inbox (D-341) may also carry the kind the player
 picked, as a second label (`feedback:suggestion`, `feedback:problem`, `feedback:game-idea`,
 `feedback:other`) and a "Kind" row: a hint for triage, not the outcome; you still judge it.

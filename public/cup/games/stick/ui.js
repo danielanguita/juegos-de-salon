@@ -118,6 +118,8 @@ export function montar(raiz, ctx) {
 
   /** The end of the run, before the cup's result: the stamp, the points, how they came, and the button. */
   function fin(e) {
+    // One a Day: the result screen says all of this, with the breakdown folded (lab: #seccion-uad-skip-end)
+    if (ctx.directo) { ctx.terminar(e); return; }
     raiz.replaceChildren(el('div', { class: 'sn-fin' },
       el('p', { class: 'sn-sello', id: 'sn-sello' }, T.snOver),
       el('p', { class: 'score-big', id: 'sn-puntaje' }, String(e.score)),

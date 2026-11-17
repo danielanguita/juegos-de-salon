@@ -18,13 +18,15 @@ check('ids are unique and kebab-case', () => {
 
 check('each job says where, what and why', () => {
   for (const j of list) {
-    assert.ok(['github', 'mac', 'hook'].includes(j.where), `${j.id}: where`);
+    assert.ok(['github', 'mac', 'hook', 'cloud'].includes(j.where), `${j.id}: where`);
     assert.ok(j.what && j.decisions?.length, `${j.id}: what and decisions`);
     if (j.where === 'github') assert.ok(j.workflow && (j.cron || j.trigger), `${j.id}: workflow and cron (or the trigger of an event-driven one)`);
     if (j.where === 'mac' && j.service) assert.ok(!j.every && !j.at && j.command?.length >= 2, `${j.id}: a service has a command and no schedule`);
     else if (j.where === 'mac') assert.ok(((Number.isInteger(j.every) && j.every >= 60) !== !!j.at) && j.command?.length, `${j.id}: every or at, and command`);
     if (j.at) assert.ok(Number.isInteger(j.at.hour) && Number.isInteger(j.at.minute), `${j.id}: at.hour and at.minute`);
     if (j.where === 'hook') assert.ok(j.trigger, `${j.id}: trigger`);
+    // A cloud scheduled task lives outside the repository: its prompt does not, so it can be recreated (D-568)
+    if (j.where === 'cloud') assert.ok(j.cron && j.prompt && existsSync(join(ROOT, j.prompt)), `${j.id}: cron and a prompt file that exists`);
   }
 });
 
@@ -33,7 +35,7 @@ check('every scheduled workflow is in the registry, with its cron', () => {
   for (const f of readdirSync(dir).filter(f => f.endsWith('.yml'))) {
     const crons = [...readFileSync(join(dir, f), 'utf8').matchAll(/^\s*- cron: '([^']+)'/gm)].map(m => m[1]);
     if (!crons.length) continue;
-    const j = list.find(x => x.workflow === f);
+    const j = list.find(x => x.workflow === f && x.cron); // chores riding a heartbeat share its workflow (D-569)
     assert.ok(j, `${f} is scheduled but not in tools/jobs/jobs.json`);
     assert.deepEqual([j.cron], crons, `${f}: cron`);
   }
