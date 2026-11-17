@@ -4,6 +4,7 @@ import { readFileSync, existsSync } from 'node:fs';
 import { validateManifest, catalogEntry, MANIFEST_SCHEMA } from './game-manifest.js';
 import { gameById, MODE_IDS } from './games.js';
 import { manifestFolders, readManifest, renderModule, generatedPath } from '../../../tools/generators/manifests.mjs';
+import { excuses } from '../../../tools/generators/conformance.mjs';
 
 const folders = manifestFolders();
 assert.ok(folders.includes('hangman') && folders.includes('liars-dice'), 'both pilots have a game.json');
@@ -25,7 +26,8 @@ for (const f of folders) {
     assert.deepEqual(own, catalogEntry(m), `${m.id}: the GAMES entry is the manifest's`);
     assert.equal(entry.players, m.players.min === m.players.max ? String(m.players.min) : `${m.players.min}–${m.players.max}`);
   }
-  // Its session key is the one session.js writes (C-6)
+  // Its session key is the one session.js writes (C-6); a game excused from C-2's rules.js has none
+  if (excuses(m, 'C-2', 'rules.js')) continue;
   const rules = readFileSync(new URL(`../../${f}/rules.js`, import.meta.url), 'utf8');
   assert.match(rules, new RegExp(`GAME_ID = '${m.id}'`), `${f}: rules.js GAME_ID is the manifest id`);
 }

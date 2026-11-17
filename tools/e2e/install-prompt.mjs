@@ -12,6 +12,12 @@ const ok = (cond, msg) => { console.log(`${cond ? '✓' : '✗'} ${msg}`); if (!
 
 const b = await launch({ port: 9498, dir: `${OUT}/p`, out: OUT });
 const ev = x => b.evaluate(x);
+// The test pins install-invite itself (D-571): the live flags/ would decide which bubble shows, and on
+// 2026-11-17 its launch to 'all' turned every old-bubble check red on main. flags.json is blocked, so
+// flags.js reads the copy each part leaves on the phone: 'off' for the old bubble, 'all' for the new.
+await b.send('Network.enable');
+await b.send('Network.setBlockedURLs', { urls: ['*firebaseio.com/flags.json*'] });
+const pin = state => `localStorage.setItem('juegos-de-salon:flags',JSON.stringify({'install-invite':{state:'${state}'}}));`;
 const click = sel => ev(`(()=>{const e=document.querySelector(${JSON.stringify(sel)});if(!e)return false;e.click();return true})()`);
 const text = sel => ev(`document.querySelector(${JSON.stringify(sel)})?.innerText || ''`);
 const bubble = () => ev(`document.getElementById('globo-instalar')?.dataset.pasos || null`);
@@ -30,7 +36,7 @@ const as = ua => b.send('Emulation.setUserAgentOverride', { userAgent: ua });
 const home = async (ua, q = '') => {
   await as(ua);
   await b.go(`${SITE}/${q}`, 600);
-  await ev(`(()=>{for(const k of ['no','luego','tras'])localStorage.removeItem('juegos-de-salon:instalar:'+k);localStorage.removeItem('juegos-de-salon:lang');localStorage.setItem('juegos-de-salon:flags-off',JSON.stringify(window.__nuevo?{}:{'install-invite':true}));localStorage.setItem('juegos-de-salon:jugados',window.__jugado===false?'[]':'["ahorcado"]');return 1})()`);
+  await ev(`(()=>{for(const k of ['no','luego','tras'])localStorage.removeItem('juegos-de-salon:instalar:'+k);localStorage.removeItem('juegos-de-salon:lang');localStorage.setItem('juegos-de-salon:flags-off',JSON.stringify(window.__nuevo?{}:{'install-invite':true}));${pin('off')}localStorage.setItem('juegos-de-salon:jugados',window.__jugado===false?'[]':'["ahorcado"]');return 1})()`);
   await b.go(`${SITE}/${q}`, 3400);
 };
 
@@ -125,7 +131,7 @@ const iphone26 = UA.iphone.replace(/OS 18_1/, 'OS 26_1').replace('Version/18.1',
 const nuevo = async (ua, q = '', jugado = true) => {
   await as(ua);
   await b.go(`${SITE}/${q}`, 600);
-  await ev(`(()=>{for(const k of ['no','luego','tras'])localStorage.removeItem('juegos-de-salon:instalar:'+k);localStorage.removeItem('juegos-de-salon:lang');localStorage.removeItem('juegos-de-salon:flags-off');localStorage.setItem('juegos-de-salon:jugados',${jugado ? `'["ahorcado"]'` : `'[]'`});return 1})()`);
+  await ev(`(()=>{for(const k of ['no','luego','tras'])localStorage.removeItem('juegos-de-salon:instalar:'+k);localStorage.removeItem('juegos-de-salon:lang');localStorage.removeItem('juegos-de-salon:flags-off');${pin('all')}localStorage.setItem('juegos-de-salon:jugados',${jugado ? `'["ahorcado"]'` : `'[]'`});return 1})()`);
   await b.go(`${SITE}/${q}`, 3600);
 };
 await nuevo(iphone26, '', false);

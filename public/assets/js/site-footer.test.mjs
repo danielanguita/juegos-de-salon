@@ -2,7 +2,8 @@
 // loose links of its own. Every loose `link-btn` on a player page is listed here with why it may
 // stay; a new one fails until it is either a footer option or added with its reason.
 import assert from 'node:assert/strict';
-import { readFileSync, readdirSync, statSync } from 'node:fs';
+import { readFileSync, readdirSync, statSync, existsSync } from 'node:fs';
+import { excuses } from '../../../tools/generators/conformance.mjs';
 
 const root = new URL('../../', import.meta.url);
 const BRIDGES = /^(ahorcado|copa|minijuegos|minigames)\//;
@@ -43,11 +44,14 @@ const rules = readFileSync(new URL('cup/rules.js', root), 'utf8');
 for (const k of ['reportTile', 'leaveTile']) assert.equal([...rules.matchAll(new RegExp(`^  ${k}: '(\\S+) `, 'gmu'))].length, 3, `${k} in es, en and pt`);
 
 // Every lab game's cover ends with the site footer too (C-17): a page with a game.js either mounts it
-// in its index.html or calls footerInto from its game.js
+// in its index.html or calls footerInto from its game.js, unless its game.json excuses it from C-17's
+// site footer with a reason (a prototype kept whole, which does not load base.css)
 const labs = new URL('labs/', root);
 for (const g of readdirSync(labs)) {
   const dir = new URL(g + '/', labs);
   if (!statSync(new URL(g, labs)).isDirectory() || !readdirSync(dir).includes('game.js')) continue;
+  const manifest = new URL('game.json', dir);
+  if (existsSync(manifest) && excuses(JSON.parse(readFileSync(manifest, 'utf8')), 'C-17', 'site footer')) continue;
   const both = readFileSync(new URL('index.html', dir), 'utf8') + readFileSync(new URL('game.js', dir), 'utf8');
   assert.match(both, /mountFooter\(|footerInto\(/, `labs/${g}: its cover has no site footer (mountFooter in index.html, or footerInto)`);
 }
