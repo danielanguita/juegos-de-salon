@@ -126,6 +126,8 @@
   @keyframes ilHoop { 0%, 68% { stroke: #fff; } 74%, 100% { stroke: #9dff3a; } }
   @keyframes ilOk { 0%, 68% { opacity: 0; } 74%, 100% { opacity: 1; } }
   @media (prefers-reduced-motion: reduce) { #cBody .steps svg * { animation: none !important; } }
+  /* On a touch screen the card does not blur what is behind it (a full-screen blur cost most of a phone's frame): a darker veil instead */
+  @media (pointer: coarse) { #card { -webkit-backdrop-filter: none; backdrop-filter: none; background: rgba(21, 7, 38, 0.84); } }
 </style>
 </head>
   <script type="module">import '../../assets/js/instalable.js';</script>
@@ -1117,11 +1119,19 @@ const sombra = (col, k) => col.map(v => Math.round(v * k));
 const claro = (col, k) => col.map(v => Math.round(v + (255 - v) * k));
 const neonAt = k => { const i = Math.floor(k) % 6, f = k - Math.floor(k), a = NEON[i], b = NEON[(i + 1) % 6]; return a.map((v, j) => Math.round(v + (b[j] - v) * f)); };
 const BASE_COLOR = [58, 20, 100], TRAY = [86, 44, 150], SHADOW = 'rgba(14,2,34,0.62)';
-const cv = $('#cv'), c = cv.getContext('2d');
+const cv = $('#cv');
+/** `c` is the screen canvas, or for a moment a text sprite's while it is made. */
+let c = cv.getContext('2d');
 let dpr = 1, sc = 1, ox = 0, oy = 0, vw = 0, vh = 0, zoom = 1;
+/* ---------- drawing speed (docs/games/wobbles-3d.md, "Performance") ----------
+ * The canvas has at most 2 device pixels per CSS pixel (`RES`); `pace` lowers it to 1.5 and then 1 when
+ * frames come slower than about 42 a second for two seconds while playing. Lab: `?res=3|2|1` fixes it,
+ * `?fps=1` shows a counter. */
+const qp = new URLSearchParams(location.search), RES_PARAM = Number(qp.get('res')) || 0;
+let RES = RES_PARAM || 2;
 function resize() {
   const r = cv.getBoundingClientRect();
-  dpr = window.devicePixelRatio || 1; vw = r.width; vh = r.height;
+  dpr = Math.min(window.devicePixelRatio || 1, RES); vw = r.width; vh = r.height; TEXTS_DRAWN.clear(); heartsWere = '';
   cv.width = Math.round(vw * dpr); cv.height = Math.round(vh * dpr);
   hv.width = Math.round(HEARTS_W * dpr); hv.height = Math.round(HEARTS_H * dpr);
   sc = Math.min(vw / VW, vh / VH); ox = (vw - VW * sc) / 2; oy = (vh - VH * sc) / 2;
@@ -1138,18 +1148,53 @@ const proj = (X, Y, Z) => { const x = X * CAM.c - Z * CAM.s, z = X * CAM.s + Z *
 const facing = (x, y, z) => x * (CAM.c + CAM.s) + y + z * (CAM.c - CAM.s);
 /** A step across the screen plane (right, toward the viewer), as a step over the world's ground. */
 const ground = (xr, zr) => [xr * CAM.c + zr * CAM.s, zr * CAM.c - xr * CAM.s];
-function glow(color, blur, fn) { c.save(); c.shadowColor = color; c.shadowBlur = blur * sc * dpr * zoom; fn(); c.restore(); }
+/** How many blurs were drawn (the lab's check: 0 a frame while playing; only text sprites, made once, have one). */
+let blurs = 0;
+/**
+ * A glow without a blur: the path already made, stroked four times, each wider and fainter, before the line
+ * or shape itself goes on top. `k`: how strong (the line's own alpha); `w`: the line's width.
+ */
+const GLOW = [[1, 0.04], [0.72, 0.06], [0.46, 0.09], [0.22, 0.13]];
+function glowLine(color, blur, k = 1, w = c.lineWidth) {
+  const b = blur / zoom, a = c.globalAlpha * k * (w > 0 ? Math.min(1, 1.6 * w / b) : 1);
+  if (a < 0.004) return;
+  c.save(); c.strokeStyle = color; c.lineJoin = 'round'; c.lineCap = 'round';
+  for (const [r, f] of GLOW) { c.globalAlpha = a * f; c.lineWidth = w + 2 * b * r; c.stroke(); }
+  c.restore();
+}
+/** A glowing text: drawn once with a real blur into a canvas of its own (only once the fonts are in), then only copied. */
+const TEXTS_DRAWN = new Map();
+let fontsIn = !document.fonts;
+if (document.fonts) document.fonts.ready.then(() => { fontsIn = true; TEXTS_DRAWN.clear(); });
+function glowText(s, x, y, size, color, blur) {
+  const k = dpr * sc, key = `${s}|${size}|${color}|${blur}|${k.toFixed(2)}`;
+  let t = TEXTS_DRAWN.get(key);
+  if (!t) {
+    const font = `${size}px ${DISPLAY}`; c.font = font;
+    const pad = blur * 1.5 + 3, w = c.measureText(s).width + 2 * pad, h = size * 1.4 + 2 * pad, el = document.createElement('canvas');
+    el.width = Math.ceil(w * k); el.height = Math.ceil(h * k);
+    const main = c; c = el.getContext('2d');
+    c.setTransform(k, 0, 0, k, 0, 0); c.shadowColor = color; c.shadowBlur = blur * k; blurs++;
+    c.font = font; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillStyle = color; c.fillText(s, w / 2, h / 2);
+    c = main;
+    t = { el, w, h };
+    if (fontsIn) { if (TEXTS_DRAWN.size > 120) TEXTS_DRAWN.clear(); TEXTS_DRAWN.set(key, t); }
+  }
+  c.drawImage(t.el, x - t.w / 2, y - t.h / 2, t.w, t.h);
+}
 /**
  * A soft shadow in the shape of the path that `trace` draws: the shape itself is drawn far off the
  * canvas and only its blurred shadow lands in place (the one blur every browser's canvas has). What it
  * may fall on is whatever clip is set.
  */
 let shadowAlpha = 1;   // how much of the shadow shows (it fades in with the piece that casts it)
+/** The shadow without a blur: the shape filled, with its edge softened by wide faint strokes (a blur here cost most of a phone's frame). */
 function softShadow(trace) {
-  const k = dpr * sc * zoom, far = 30000;
-  c.save();
-  c.globalAlpha *= shadowAlpha; c.shadowColor = SHADOW; c.shadowBlur = 6 * k; c.shadowOffsetX = far; c.shadowOffsetY = 0;
-  c.translate(-far / k, 0); c.beginPath(); trace(); c.closePath(); c.fillStyle = '#000'; c.fill();
+  c.save(); c.globalAlpha *= shadowAlpha; c.beginPath(); trace(); c.closePath();
+  const a = c.globalAlpha; c.fillStyle = c.strokeStyle = SHADOW; c.lineJoin = 'round';
+  c.globalAlpha = a * 0.62; c.fill();
+  c.globalAlpha = a * 0.3; c.lineWidth = 5 / zoom; c.stroke();
+  c.globalAlpha = a * 0.14; c.lineWidth = 11 / zoom; c.stroke();
   c.restore();
 }
 function poly(pts, fill) { c.beginPath(); pts.forEach(([x, y], i) => (i ? c.lineTo(x, y) : c.moveTo(x, y))); c.closePath(); if (fill) { c.fillStyle = fill; c.fill(); } }
@@ -1231,6 +1276,20 @@ function outline(b) {
   return out;
 }
 
+/** The outline on screen of a piece's solids, as one path: the convex hull of each solid's corners (a ball: its circle). */
+function silhouette(looks) {
+  c.beginPath();
+  for (const b of looks) {
+    if (b.shape.ball) { const [x, y] = proj(b.x, b.y, b.z), R = b.shape.r * CAM.u; c.moveTo(x + R, y); c.arc(x, y, R, 0, 7); continue; }
+    const pts = b.px.map((_, i) => proj(b.px[i], b.py[i], b.pz[i])).sort((p, q) => p[0] - q[0] || p[1] - q[1]), out = [];
+    const turn = (o, a, p) => (a[0] - o[0]) * (p[1] - o[1]) - (a[1] - o[1]) * (p[0] - o[0]) <= 0;
+    for (const p of pts) { while (out.length >= 2 && turn(out[out.length - 2], out[out.length - 1], p)) out.pop(); out.push(p); }
+    const base = out.length + 1;
+    for (let i = pts.length - 2; i >= 0; i--) { while (out.length >= base && turn(out[out.length - 2], out[out.length - 1], pts[i])) out.pop(); out.push(pts[i]); }
+    out.pop();
+    out.forEach(([x, y], i) => (i ? c.lineTo(x, y) : c.moveTo(x, y))); c.closePath();
+  }
+}
 /**
  * The order to paint the solids in, far to near. Two convex solids that do not overlap are parted by a
  * plane, and the physics' own test gives it (`meets`: the separating axis, or for a ball the line to its
@@ -1296,7 +1355,7 @@ function drawDisc(pl, level, cast) {
     c.restore();
   }
   const col = level ? '#9dff3a' : '#ffffff';
-  glow(col, level ? 14 : 5, () => { circlePath(r, 0.05, 0); c.fillStyle = col; c.fill(); });
+  circlePath(r, 0.05, 0); c.lineWidth = 0; glowLine(col, level ? 14 : 5, 1, 0); c.fillStyle = col; c.fill();
 }
 /**
  * The level ring: a hoop around the disc that never leans, at the height of the wall's top when the disc
@@ -1314,22 +1373,20 @@ function levelRing(pl, front) {
   c.lineCap = 'round';
   // The hoop
   half((co, si) => proj(co * rr, RIM, si * rr));
-  if (danger > 0) { c.strokeStyle = `rgba(255,46,136,${0.3 + 0.45 * beat})`; c.lineWidth = (1.1 + 1.2 * beat) / zoom; glow('#ff2e88', 3 + 7 * beat, () => c.stroke()); }
+  if (danger > 0) { c.strokeStyle = `rgba(255,46,136,${0.3 + 0.45 * beat})`; c.lineWidth = (1.1 + 1.2 * beat) / zoom; glowLine('#ff2e88', 3 + 7 * beat, 0.3 + 0.45 * beat); c.stroke(); }
   else {
     c.strokeStyle = rgb([255, 255, 255].map((v, k) => Math.round(v + ([190, 255, 120][k] - v) * a)), 0.2 + 0.4 * a); c.lineWidth = (1.1 + 0.5 * a) / zoom;
-    if (a > 0.03) glow('#9dff3a', 3 + 4 * a, () => c.stroke()); else c.stroke();
+    if (a > 0.03) glowLine('#9dff3a', 3 + 4 * a, 0.2 + 0.4 * a); c.stroke();
   }
   // Level: the wall's edge lights up green too
-  if (a > 0.03) glow('#9dff3a', 4 + 5 * a, () => { half((co, si) => onDisc(r, co * RAD, RIM, si * RAD)); c.strokeStyle = `rgba(190,255,120,${0.55 * a})`; c.lineWidth = (1.4 + Math.max(0, verde - 1) * 1.6) / zoom; c.stroke(); });
+  if (a > 0.03) { half((co, si) => onDisc(r, co * RAD, RIM, si * RAD)); c.lineWidth = (1.4 + Math.max(0, verde - 1) * 1.6) / zoom; glowLine('#9dff3a', 4 + 5 * a, 0.55 * a); c.strokeStyle = `rgba(190,255,120,${0.55 * a})`; c.stroke(); }
   // Not level: where the disc is lowest, a pink mark from the hoop down to the wall, longer the more it leans
   if (lean > PERFECT && S.phase === 'play') {
     const dx = pl.ux / lean, dz = pl.uz / lean;
     if ((facing(dx, 0, dz) > 0) === front) {
       const p = proj(dx * rr, RIM, dz * rr), q = onDisc(r, dx * rr, RIM, dz * rr), k = Math.min(1, (lean - PERFECT) / 0.08 + 0.35);
-      glow('#ff2e88', 4, () => {
-        c.strokeStyle = `rgba(255,46,136,${0.7 * k})`; c.lineWidth = 2 / zoom; c.beginPath(); c.moveTo(p[0], p[1]); c.lineTo(q[0], q[1]); c.stroke();
-        c.fillStyle = `rgba(255,46,136,${0.7 * k})`; c.beginPath(); c.arc(q[0], q[1], 3.2 / zoom, 0, 7); c.fill();
-      });
+      c.lineWidth = 2 / zoom; c.beginPath(); c.moveTo(p[0], p[1]); c.lineTo(q[0], q[1]); glowLine('#ff2e88', 4, 0.7 * k); c.strokeStyle = `rgba(255,46,136,${0.7 * k})`; c.stroke();
+      c.beginPath(); c.arc(q[0], q[1], 3.2 / zoom, 0, 7); glowLine('#ff2e88', 4, 0.7 * k, 0); c.fillStyle = `rgba(255,46,136,${0.7 * k})`; c.fill();
     }
   }
 }
@@ -1455,7 +1512,13 @@ function render() {
   c.setTransform(1, 0, 0, 1, 0, 0); c.clearRect(0, 0, cv.width, cv.height);
   c.setTransform(dpr * sc, 0, 0, dpr * sc, dpr * ox, dpr * oy);
   const L0 = -ox / sc, R0 = (vw - ox) / sc, T0 = -oy / sc, B0 = (vh - oy) / sc, t = clock;
-  for (const s of STARS) { c.globalAlpha = 0.3 + 0.4 * Math.sin(t * s.f + s.p) ** 2; c.fillStyle = '#fff'; c.beginPath(); c.arc(s.x, s.y, s.r, 0, 7); c.fill(); }
+  // The stars in five fills, one per level of brightness, not one each
+  c.fillStyle = '#fff';
+  for (let lv = 0; lv < 5; lv++) {
+    c.beginPath();
+    for (const s of STARS) { if (Math.min(4, Math.floor(Math.sin(t * s.f + s.p) ** 2 * 5)) !== lv) continue; c.moveTo(s.x + s.r, s.y); c.arc(s.x, s.y, s.r, 0, 7); }
+    c.globalAlpha = 0.3 + 0.4 * (lv + 0.5) / 5; c.fill();
+  }
   c.globalAlpha = 1;
   if (!S) return;
   const pl = S.plat, level = pl.ux * pl.ux + pl.uz * pl.uz < PERFECT * PERFECT;
@@ -1492,13 +1555,18 @@ function render() {
   for (const q of pl.looks) items.push({ b: q, kind: q.kind, o: { dim: 0.82 } });
   for (const b of S.bodies) { const o = { alpha: b.lost ? Math.max(0, Math.min(1, 1 + (b.y - FALL_Y) / 2.5)) : 1 }; for (const q of b.looks) items.push({ b: q, kind: b.kind, o }); }
   if (S.held) for (const q of hand.looks) items.push({ b: q, kind: S.held.spec.kind, held: true });
+  let haloDone = false;
   for (const it of paintOrder(items)) {
     if (it.disc) {
       drawDisc(pl, level, cast);
       // A perfect drop, as in Babel: a glowing outline that opens around the disc
-      for (const a of anillos) { const k = a.t / 0.6; glow('#9dff3a', 16, () => { circlePath(pl.r, RAD + 0.03 + k * 0.3, 0); c.strokeStyle = `rgba(210,255,160,${1 - k})`; c.lineWidth = 3.5 / zoom; c.stroke(); }); }
+      for (const a of anillos) { const k = a.t / 0.6; circlePath(pl.r, RAD + 0.03 + k * 0.3, 0); c.lineWidth = 3.5 / zoom; glowLine('#9dff3a', 16, 1 - k); c.strokeStyle = `rgba(210,255,160,${1 - k})`; c.stroke(); }
     } else if (it.wall != null) drawSolid(it.b, neonAt(it.wall / 4), { line: 0 }, cast);
-    else if (it.held) glow(rgb(KINDS[it.kind].color, (hand.looks.length > 1 ? 0.45 : 0.8) * cast.a), 10, () => drawPiece(it.kind, it.b, { alpha: cast.a }));
+    else if (it.held) {
+      // Its glow: the outline of the whole piece, once, under its first solid
+      if (!haloDone) { haloDone = true; silhouette(hand.looks); c.lineWidth = 0; glowLine(rgb(KINDS[it.kind].color), 10, (hand.looks.length > 1 ? 0.45 : 0.8) * cast.a, 0); }
+      drawPiece(it.kind, it.b, { alpha: cast.a });
+    }
     else drawPiece(it.kind, it.b, it.o, cast);
   }
   levelRing(pl, true);
@@ -1509,7 +1577,7 @@ function render() {
     c.globalAlpha = cast.a;
     const [fx_, fy] = proj(h.x, hand.maxy + 0.16, h.z), fc = hurry ? '#ff2e88' : '#ffd23f', fr = (9 + (hurry ? Math.sin(t * 22) : 0)) / zoom;
     c.strokeStyle = 'rgba(255,255,255,0.18)'; c.lineWidth = 3 / zoom; c.beginPath(); c.arc(fx_, fy, fr, 0, 7); c.stroke();
-    glow(fc, 8, () => { c.strokeStyle = fc; c.lineWidth = 3 / zoom; c.lineCap = 'round'; c.beginPath(); c.arc(fx_, fy, fr, -1.5708, -1.5708 + 6.2832 * f); c.stroke(); });
+    c.lineWidth = 3 / zoom; c.lineCap = 'round'; c.beginPath(); c.arc(fx_, fy, fr, -1.5708, -1.5708 + 6.2832 * f); glowLine(fc, 8); c.strokeStyle = fc; c.stroke();
     c.globalAlpha = 1;
     if (drag && drag.grab && !drag.twisted) {
       // Being turned: a ball of hoops around the piece: it goes all the way round, every way
@@ -1521,7 +1589,7 @@ function render() {
     }
   }
   for (const s of chispas) { const k = s.t / 0.7, [x, y] = proj(s.x, s.y, s.z), r = (3.5 * (1 - k) + 1) / zoom; c.fillStyle = rgb(s.color, 1 - k); c.fillRect(x - r, y - r, r * 2, r * 2); }
-  for (const f of floats) { const [x, y] = proj(f.x, f.y, f.z); c.globalAlpha = 1 - f.t / 0.9; glow(f.color, 8, () => txt(f.text, x, y - f.t * 40 / zoom, 22 / zoom, f.color)); }
+  for (const f of floats) { const [x, y] = proj(f.x, f.y, f.z); c.globalAlpha = 1 - f.t / 0.9; c.save(); c.translate(x, y - f.t * 40 / zoom); c.scale(1 / zoom, 1 / zoom); const z0 = zoom; zoom = 1; glowText(f.text, 0, 0, 22, f.color, 8); zoom = z0; c.restore(); }
   c.globalAlpha = 1;
   c.restore(); zoom = zoomWas;
 
@@ -1539,21 +1607,21 @@ function render() {
   if (banner) {
     const b = banner, [name, line] = kindText(b.kind), col = rgb(KINDS[b.kind].color), a = Math.min(1, b.t * 5) * Math.min(1, (2.4 - b.t) * 2.5), y = 92;
     c.globalAlpha = a;
-    glow(col, 14, () => txt(ui('b3New', { n: name }), 200, y, 34, col));
+    glowText(ui('b3New', { n: name }), 200, y, 34, col, 14);
     txt(line, 200, y + 28, 14, 'rgba(255,255,255,0.85)', true);
     c.globalAlpha = 1;
   }
-  for (const s of says) { c.globalAlpha = 1 - s.t / 1.3; glow(s.color, 14, () => txt(s.text, 200, 170 - s.t * 26, s.size, s.color)); }
+  for (const s of says) { c.globalAlpha = 1 - s.t / 1.3; glowText(s.text, 200, 170 - s.t * 26, s.size, s.color, 14); }
   c.globalAlpha = 1;
   const dialTop = drawDial(B0), baseY = dialTop - 2, showing = opening != null;
   if (state === 'play' && showing) {
     // The opening shows how the board is turned, once the camera is nearly there: a thumb sliding along the dial as the board turns and, on a touch screen, two fingertips twisting over it. Nothing is said: it ends with the turn
     const mid = dialTop + DIAL.h / 2, tx = 200 + 70 * Math.cos(ok * Math.PI);
     c.globalAlpha = Math.max(0, Math.min(1, (ok - 0.4) / 0.2));
-    glow('#2ee6d6', 10, () => { c.fillStyle = 'rgba(255,255,255,0.4)'; c.strokeStyle = '#fff'; c.lineWidth = 2; c.beginPath(); c.arc(tx, mid, 12, 0, 7); c.fill(); c.stroke(); });
+    c.lineWidth = 2; c.beginPath(); c.arc(tx, mid, 12, 0, 7); glowLine('#2ee6d6', 10); c.fillStyle = 'rgba(255,255,255,0.4)'; c.strokeStyle = '#fff'; c.fill(); c.stroke();
     if (!FINE) {
       const cx = 200, cy = ZY + (MAIN.cy - 150 - ZY) * zoom;
-      for (const g of [1, -1]) glow('#2ee6d6', 8, () => { c.fillStyle = 'rgba(255,255,255,0.35)'; c.strokeStyle = '#fff'; c.lineWidth = 2; c.beginPath(); c.arc(cx + g * 38 * Math.cos(yaw), cy + g * 38 * Math.sin(yaw), 11, 0, 7); c.fill(); c.stroke(); });
+      for (const g of [1, -1]) { c.lineWidth = 2; c.beginPath(); c.arc(cx + g * 38 * Math.cos(yaw), cy + g * 38 * Math.sin(yaw), 11, 0, 7); glowLine('#2ee6d6', 8); c.fillStyle = 'rgba(255,255,255,0.35)'; c.strokeStyle = '#fff'; c.fill(); c.stroke(); }
       c.strokeStyle = 'rgba(46,230,214,0.8)'; c.lineWidth = 2; c.setLineDash([4, 5]); c.beginPath(); c.arc(cx, cy, 38, 0, 7); c.stroke(); c.setLineDash([]);
     }
     c.globalAlpha = 1;
@@ -1647,7 +1715,13 @@ function breakHeart(i, at, wait = 0) {
   heartChips[i] = Array.from({ length: 7 }, (_, k) => { const a = (k + Math.random()) * 2 * Math.PI / 7, v = 45 + 60 * Math.random(); return { vx: v * Math.cos(a), vy: -v * Math.abs(Math.sin(a)) - 25, sz: 0.9 + 1.1 * Math.random(), a, col: k % 3 ? HEART_PINK : claro(HEART_PINK, 0.55) }; });
   if (!STILL) { tone({ freq: 1250, to: 420, type: 'square', dur: 0.07, gain: 0.045, delay: wait + CRACK_S * 0.5 }); tone({ freq: 300, to: 110, type: 'triangle', dur: 0.2, gain: 0.12, delay: wait + CRACK_S }); }
 }
+/** What the hearts' canvas shows: while none is breaking they move 20 times a second, and the canvas is left alone when nothing changed. */
+let heartsWere = '';
 function drawHearts() {
+  const breaking = heartLost.some(a => a != null && clock - a <= BREAK_S + 0.05);
+  const key = !S ? 'none' : breaking || heartFrozen != null ? null : `${S.capsized ? 0 : S.lives}|${STILL ? 0 : Math.floor(clock * 20)}`;
+  if (key !== null && key === heartsWere) return;
+  heartsWere = key || '';
   hc.setTransform(dpr, 0, 0, dpr, 0, 0); hc.clearRect(0, 0, HEARTS_W, HEARTS_H);
   if (!S) { heartLost = [null, null, null]; return; }
   // The hearts go from the right; when the disc goes over, whatever was left goes with it, one after another
@@ -1703,7 +1777,11 @@ function drawHearts() {
     if (t < 0.75) for (const ch of heartChips[i]) solidHeart(CHIP, heartTurn(ch.a + 9 * t, ch.a * 2 + 7 * t, 5 * t), x + ch.vx * t, HEART_Y + ch.vy * t + 230 * t * t, ch.sz, ch.col, { h: 1, bevel: 0, alpha: 1 - t / 0.75, white: 0.5 * Math.max(0, 1 - t / 0.25) });
   }
 }
+let hudWas = null;
 function hud() {
+  const now = S ? `${S.streak}|${S.landed}|${S.capsized ? 0 : S.lives}|${S.score}` : '';
+  if (now === hudWas) return;
+  hudWas = now;
   if (!S) { $('#count').textContent = ''; $('#score').textContent = ''; $('#chip').hidden = true; return; }
   // The lives in the middle, as in the other games; the pieces placed (and the perfect streak) on the left
   $('#count').textContent = S.streak > 1 ? `🧱 ${S.landed} · 🔥 ×${S.streak}` : `🧱 ${S.landed}`;
@@ -1898,8 +1976,23 @@ window.addEventListener('keydown', e => {
 window.addEventListener('keyup', e => keys.delete(e.code));
 document.addEventListener('visibilitychange', () => { if (document.hidden && state === 'play') { state = 'pause'; drag = null; turning = null; twist = null; fingers.clear(); keys.clear(); } });
 
-let last = 0;
+let last = 0, framesUnderCard = 0;
+/** Frames gaps while playing, to lower the resolution when they come slow (see `RES`). */
+let paceMs = 0, paceN = 0, paceSlow = 0;
+function pace(gap) {
+  if (RES_PARAM || gap > 400) return;
+  paceMs += gap; paceN++; if (paceMs < 1000) return;
+  const mean = paceMs / paceN; paceN = paceMs = 0;
+  if (mean <= 24 || dpr <= 1) { paceSlow = 0; return; }
+  if (++paceSlow >= 2) { paceSlow = 0; RES = dpr > 1.5 ? 1.5 : 1; resize(); }
+}
+const fpsEl = qp.has('fps') ? document.body.appendChild(Object.assign(document.createElement('div'), { id: 'fps' })) : null;
+if (fpsEl) fpsEl.style.cssText = 'position:absolute;left:6px;bottom:52px;z-index:9;font:700 11px/1.3 monospace;color:#9dff3a;background:rgba(0,0,0,.55);padding:3px 6px;border-radius:6px;pointer-events:none;white-space:pre';
+let fpsN = 0, fpsFrom = 0, scriptMs = 0;
 function frame(ts) {
+  // A 120 Hz screen: every other call is let through, so the scene is drawn at most about 60 times a second (the game's clock does not change)
+  if (ts - last < 10) { requestAnimationFrame(frame); return; }
+  const t0 = performance.now(), gap = ts - last;
   const dt = Math.min(0.05, (ts - last) / 1000 || 0); last = ts; clock += dt;
   if (S && state === 'play' && opening != null) {
     opening += dt;
@@ -1932,7 +2025,14 @@ function frame(ts) {
     if (acc > DT * 8) acc = 0;
     if (S.done) finish();
   }
-  fx(dt); render(); hud(); drawHearts(); requestAnimationFrame(frame);
+  if (state === 'play' && card.hidden && last && gap > 0) pace(gap);
+  fx(dt);
+  // Under a card only 1 frame in 4 is drawn: the scene only shows through the veil
+  if (card.hidden || S == null || ++framesUnderCard % 4 === 0) render();
+  hud(); drawHearts();
+  scriptMs += performance.now() - t0; fpsN++;
+  if (fpsEl && ts - fpsFrom >= 500) { fpsEl.textContent = `${(fpsN * 1000 / (ts - fpsFrom)).toFixed(0)} fps · script ${(scriptMs / fpsN).toFixed(1)} ms\n${cv.width}×${cv.height} · res ${dpr}`; fpsN = 0; scriptMs = 0; fpsFrom = ts; }
+  requestAnimationFrame(frame);
 }
 $('#cBtn').addEventListener('click', e => { e.currentTarget.blur(); audio(); start(); });
 const muteBtn = $('#mute'), paintMute = () => { muteBtn.textContent = muted ? '🔇' : '🔊'; };
@@ -1941,7 +2041,8 @@ window.addEventListener('resize', resize);
 $('header a').setAttribute('aria-label', ui('b3Back')); muteBtn.setAttribute('aria-label', ui('b3Sound')); $('h1 span').textContent = GAME.nombre;
 paintMute(); resize(); ready(); requestAnimationFrame(frame);
 window.__balanza = { get S() { return S; }, get opening() { return opening; }, get handQ() { return handQ; }, get state() { return state; }, get target() { return target; }, get yaw() { return yaw; }, set yaw(v) { yaw = v; }, finish, newGame, advance, stepWorld, mkBody, mkForm, solid, blocks, formFor, place, weld, sat, meets, collide, params, pieceAt, specialAt, box, ball, KINDS, MASS, LANG, UI, TEXTS, DT, RAD, RIM, CLEAR, REACH, DIAL,
-  show(s, st = 'play') { S = s; state = st; card.hidden = true; for (const e of s.ev) onEvent(e); s.ev.length = 0; }, fx, render, hud, drawHearts, HEART, HALVES, holdHearts(t) { heartFrozen = t; }, get heartLost() { return heartLost; }, get clock() { return clock; } };
+  show(s, st = 'play') { S = s; state = st; card.hidden = true; for (const e of s.ev) onEvent(e); s.ev.length = 0; }, fx, render, hud, drawHearts, HEART, HALVES, holdHearts(t) { heartFrozen = t; }, get heartLost() { return heartLost; }, get clock() { return clock; },
+  get blurs() { return blurs; }, set blurs(v) { blurs = v; }, get res() { return dpr; } };
 </script>
 </body>
 </html>

@@ -85,7 +85,8 @@
   canvas { position: absolute; inset: 0; width: 100%; height: 100%; touch-action: none; display: block; }
   #card {
     position: absolute; inset: 0; display: grid; place-items: center; padding: 14px;
-    background: rgba(21, 7, 38, 0.6); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+    /* No backdrop blur: a full-screen blur cost most of the frame on a phone; the veil is darker instead */
+    background: rgba(21, 7, 38, 0.8);
   }
   #card .in {
     width: min(100%, 400px); max-height: 100%; overflow: auto; text-align: center; padding: 16px;
@@ -853,18 +854,63 @@ document.documentElement.lang = LANG; document.title = `⚖️ ${GAME.nombre}`;
 const DISPLAY = "Bangers, Impact, 'Arial Black', sans-serif", BODY = "Nunito, system-ui, -apple-system, sans-serif";
 const hex = h => [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16));
 const rgba = (h, a = 1) => `rgba(${hex(h).join(',')},${a})`;
-const cv = $('#cv'), c = cv.getContext('2d');
+/* ---------- drawing speed (see docs/games/wobbles.md, "Performance") ----------
+ * A glow (shadowBlur) is a blur, the dearest thing a canvas does. Everything that glows and always looks the
+ * same is drawn once, with its glow, into a small canvas of its own (a sprite), and then only stamped; what
+ * changes shape every frame glows with wide faint strokes under a thin bright one, without a blur. */
+const cv = $('#cv');
+/** `c` is the screen canvas, or for a moment a sprite's while it is made. */
+let c = cv.getContext('2d');
 /** The room the top row takes over the scene, in screen pixels. */
 const TOP = 52;
+const qp = new URLSearchParams(location.search);
+/** At most 2 device pixels per CSS pixel (lab: `?dpr=3` lifts it); `quality` (1, 0.75, 0.5) lowers it further when frames come slow (lab: `?quality=0.5` fixes it). */
+const DPR_MAX = Number(qp.get('dpr')) || 2, QUALITY_FIXED = Number(qp.get('quality')) || 0;
+let quality = QUALITY_FIXED || 1;
 let dpr = 1, sc = 1, ox = 0, oy = 0, vw = 0, vh = 0, zoom = 1;
+/** Device pixels per scene unit at zoom 1: the resolution sprites are made at. */
+let RES = 1;
+const SPR = new Map();
 function resize() {
   const r = cv.getBoundingClientRect();
-  dpr = window.devicePixelRatio || 1; vw = r.width; vh = r.height;
+  dpr = Math.min(window.devicePixelRatio || 1, DPR_MAX) * quality; vw = r.width; vh = r.height;
   cv.width = Math.round(vw * dpr); cv.height = Math.round(vh * dpr);
   sc = Math.min(vw / VW, (vh - TOP) / VH); ox = (vw - VW * sc) / 2; oy = TOP + (vh - TOP - VH * sc) / 2;
+  RES = dpr * sc; SPR.clear(); bgKey = null;
 }
-/** A glow in the shape's own color (the house style's `brilla`); the blur is in screen pixels, so it follows the scale and the camera. */
-function glow(color, blur, fn) { c.save(); c.shadowColor = color; c.shadowBlur = blur * sc * dpr * zoom; fn(); c.restore(); }
+/** How many blurs were drawn outside a sprite (the lab's check: 0 while playing). */
+let blurs = 0, inSprite = false;
+/** A glow in the shape's own color (the house style's `brilla`). Only while a sprite is made; anywhere else it counts in `blurs`. */
+let spriteZ = 1;
+function glow(color, blur, fn) { if (!inSprite) blurs++; c.save(); c.shadowColor = color; c.shadowBlur = blur * (inSprite ? RES * spriteZ : sc * dpr * zoom); fn(); c.restore(); }
+const reach = blur => blur * 1.5 + 3;
+/** The sprite under `key`, made once: `box` = [x0, y0, x1, y1] around its origin, glow included; `draw` paints it at the origin. */
+function sprite(key, box, draw) {
+  let sp = SPR.get(key);
+  if (!sp) {
+    const [x0, y0, x1, y1] = box, el = document.createElement('canvas');
+    el.width = Math.max(1, Math.ceil((x1 - x0) * RES)); el.height = Math.max(1, Math.ceil((y1 - y0) * RES));
+    const main = c; c = el.getContext('2d'); inSprite = true;
+    c.setTransform(RES, 0, 0, RES, -x0 * RES, -y0 * RES);
+    try { draw(); } finally { c = main; inSprite = false; }
+    SPR.set(key, sp = { el, x: x0, y: y0, w: el.width / RES, h: el.height / RES });
+  }
+  return sp;
+}
+function stamp(sp, x = 0, y = 0) { c.drawImage(sp.el, x + sp.x, y + sp.y, sp.w, sp.h); }
+/** A glow without a blur, for what changes shape every frame: the path already made, stroked wide and faint, then thin and bright. */
+function strokeGlow(color, w, spread = 3, strength = 0.7) {
+  const a = c.globalAlpha;
+  c.strokeStyle = color;
+  c.lineWidth = w * spread; c.globalAlpha = a * 0.2 * strength; c.stroke();
+  c.lineWidth = w * (1 + spread) / 2; c.globalAlpha = a * 0.35 * strength; c.stroke();
+  c.lineWidth = w; c.globalAlpha = a; c.stroke();
+}
+/** A round glowing dot, as a sprite. */
+const dotSprite = (color, r, blur) => sprite(`dot|${color}|${r}|${blur}`, [-r - reach(blur), -r - reach(blur), r + reach(blur), r + reach(blur)],
+  () => glow(color, blur, () => { c.fillStyle = color; c.beginPath(); c.arc(0, 0, r, 0, 7); c.fill(); }));
+// A text made before the fonts arrived has the stand-in font: made again once they are here
+if (document.fonts) document.fonts.ready.then(() => SPR.clear());
 function line(ax, ay, bx, by, color, w) { c.strokeStyle = color; c.lineWidth = w; c.lineCap = 'round'; c.beginPath(); c.moveTo(ax, ay); c.lineTo(bx, by); c.stroke(); }
 function txt(s, x, y, size, color = '#fff', body = false, align = 'center') {
   c.font = body ? `900 ${size}px ${BODY}` : `${size}px ${DISPLAY}`;
@@ -872,9 +918,19 @@ function txt(s, x, y, size, color = '#fff', body = false, align = 'center') {
 }
 /** Words over the scene: a dark outline under a glow, so they read over whatever is behind. */
 function shout(s, x, y, size, color, blur = 14, body = false) {
-  c.font = body ? `900 ${size}px ${BODY}` : `${size}px ${DISPLAY}`; c.textAlign = 'center'; c.textBaseline = 'middle'; c.lineJoin = 'round';
-  c.strokeStyle = 'rgba(21,7,38,0.85)'; c.lineWidth = Math.max(3, size * 0.18); c.strokeText(s, x, y);
-  if (blur) glow(color, blur, () => { c.fillStyle = color; c.fillText(s, x, y); }); else { c.fillStyle = color; c.fillText(s, x, y); }
+  const font = body ? `900 ${size}px ${BODY}` : `${size}px ${DISPLAY}`;
+  c.font = font; const hw = c.measureText(s).width / 2 + reach(blur) + size * 0.2, hh = size * 0.75 + reach(blur);
+  stamp(sprite(`shout|${s}|${size}|${color}|${blur}|${body}`, [-hw, -hh, hw, hh], () => {
+    c.font = font; c.textAlign = 'center'; c.textBaseline = 'middle'; c.lineJoin = 'round';
+    c.strokeStyle = 'rgba(21,7,38,0.85)'; c.lineWidth = Math.max(3, size * 0.18); c.strokeText(s, 0, 0);
+    if (blur) glow(color, blur, () => { c.fillStyle = color; c.fillText(s, 0, 0); }); else { c.fillStyle = color; c.fillText(s, 0, 0); }
+  }), x, y);
+}
+/** A glowing text as a sprite, made at `size` and stamped `k` times as big. */
+function glowText(s, x, y, size, color, blur, k = 1) {
+  c.font = `${size}px ${DISPLAY}`; const hw = c.measureText(s).width / 2 + reach(blur), hh = size * 0.7 + reach(blur);
+  const sp = sprite(`gt|${s}|${size}|${color}|${blur}`, [-hw, -hh, hw, hh], () => glow(color, blur, () => txt(s, 0, 0, size, color)));
+  c.drawImage(sp.el, x + sp.x * k, y + sp.y * k, sp.w * k, sp.h * k);
 }
 function pathOf(sh, k = 1) {
   c.beginPath();
@@ -882,9 +938,31 @@ function pathOf(sh, k = 1) {
   else { (sh.p || sh.outline).forEach(([x, y], i) => (i ? c.lineTo(x * k, y * k) : c.moveTo(x * k, y * k))); c.closePath(); }
 }
 /** A piece: a dark tinted body, a glowing outline in its color with a white core, and a mark of its own inside. */
+const pieceKeys = new WeakMap();
+/** A shape's sprite key: its kind and its outline, so pieces of the same shape share one sprite. */
+function pieceKey(kind, sh) {
+  let k = pieceKeys.get(sh);
+  if (!k) {
+    const pts = sh.kind === 'circle' ? [] : (sh.p || sh.outline);
+    k = kind + '|' + (sh.kind === 'circle' ? 'r' + sh.r.toFixed(2) : pts.map(([x, y]) => x.toFixed(1) + ',' + y.toFixed(1)).join(';'));
+    pieceKeys.set(sh, k);
+  }
+  return k;
+}
+function pieceBox(sh) {
+  const m = reach(12) + 2;
+  if (sh.kind === 'circle') return [-sh.r - m, -sh.r - m, sh.r + m, sh.r + m];
+  let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+  for (const [x, y] of (sh.p || sh.outline)) { x0 = Math.min(x0, x); y0 = Math.min(y0, y); x1 = Math.max(x1, x); y1 = Math.max(y1, y); }
+  return [x0 - m, y0 - m, x1 + m, y1 + m];
+}
 function drawPiece(kind, sh, x, y, co, si, k = 1, alpha = 1) {
+  const sp = sprite(pieceKey(kind, sh), pieceBox(sh), () => paintPiece(kind, sh));
+  c.save(); c.globalAlpha *= alpha; c.transform(co * k, si * k, -si * k, co * k, x, y); stamp(sp); c.restore();
+}
+function paintPiece(kind, sh) {
   const col = KINDS[kind].color, soft = rgba(col, 0.55);
-  c.save(); c.globalAlpha = alpha; c.transform(co * k, si * k, -si * k, co * k, x, y); c.lineJoin = 'round';
+  c.save(); c.lineJoin = 'round';
   pathOf(sh);
   c.fillStyle = rgba(col, 0.17); c.fill();
   glow(col, 12, () => { c.strokeStyle = col; c.lineWidth = 3; c.stroke(); });
@@ -913,7 +991,7 @@ let parts = [], floats = [], says = [], banner = null, shake = 0, ring = 0;
 let flash = 0, pulses = [], warnT = 0;
 /** A piece in the water: the rings it leaves ({ x, t }); and, when it cost a life, the broken heart that rises from there and the red that flushes the screen's edges (1 → 0). */
 let ripples = [], lost = [], hurt = 0;
-const QUIETO = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const QUIETO = matchMedia('(prefers-reduced-motion: reduce)').matches, FINE = matchMedia('(pointer: fine)').matches;
 /** How much each loose piece is slipping (0 to 1), eased so its red halo does not flicker. */
 const slip = new WeakMap();
 /** The level's reading (the game's `lean`) where its red and the warnings start and where they are at their fullest: the tipping point, which is each end of the level. */
@@ -1021,32 +1099,49 @@ function under(x) {
   for (const q of pl.parts) if (!q.visual && q.minx <= x && q.maxx >= x && q.miny < y) y = q.miny;
   return y;
 }
+/** The far hills' top at x: a star below it is hidden by them. */
+const hillTop = (x, base, h, k) => base - h * (0.55 + 0.25 * Math.sin(x * 0.011 * k + k) + 0.2 * Math.sin(x * 0.027 * k + 2 * k));
+for (const s of STARS) s.behind = s.y + s.r > hillTop(s.x, WATER_Y, 120, 1);
+let bgEl = null, bgKey = null, bgZ = 0;
+/** The still night (moon, hills, water) in a canvas the size of the screen's, painted again only when the zoom moved past 0.004. */
+function background(z, L, R, T, B) {
+  if (bgKey !== null && Math.abs(z - bgZ) <= 0.004) return bgEl;
+  if (!bgEl || bgEl.width !== cv.width || bgEl.height !== cv.height) { bgEl = document.createElement('canvas'); bgEl.width = cv.width; bgEl.height = cv.height; }
+  bgKey = 1; bgZ = z;
+  const main = c; c = bgEl.getContext('2d'); inSprite = true; spriteZ = z;
+  try {
+    c.setTransform(1, 0, 0, 1, 0, 0); c.clearRect(0, 0, bgEl.width, bgEl.height);
+    c.setTransform(dpr * sc, 0, 0, dpr * sc, dpr * ox, dpr * oy); c.translate(200, VH); c.scale(z, z); c.translate(-200, -VH);
+    const mh = c.createRadialGradient(338, 196, 4, 338, 196, 46); mh.addColorStop(0, 'rgba(255,210,63,0.22)'); mh.addColorStop(1, 'rgba(255,210,63,0)');
+    c.fillStyle = mh; c.beginPath(); c.arc(338, 196, 46, 0, 7); c.fill();
+    c.save(); c.beginPath(); c.arc(338, 196, 14, 0, 7); c.clip();
+    c.fillStyle = 'rgba(255,233,168,0.08)'; c.fillRect(322, 180, 32, 32);
+    c.fillStyle = '#ffe9a8'; c.beginPath(); c.rect(322, 180, 32, 32); c.arc(344.5, 193, 12.5, 0, 7); c.fill('evenodd');
+    c.restore();
+    const hills = (base, h, color, k, edge) => {
+      c.beginPath(); c.moveTo(L, B);
+      for (let x = L; x <= R + 8; x += 8) c.lineTo(x, hillTop(x, base, h, k));
+      c.lineTo(R + 8, B); c.closePath(); c.fillStyle = color; c.fill(); c.strokeStyle = edge; c.lineWidth = 1; c.stroke();
+    };
+    hills(WATER_Y, 120, '#2e1258', 1, 'rgba(190,160,255,0.16)'); hills(WATER_Y, 62, '#1e0a3c', 1.7, 'rgba(190,160,255,0.12)');
+    const wg = c.createLinearGradient(0, WATER_Y, 0, B); wg.addColorStop(0, '#173f7a'); wg.addColorStop(1, '#0a1a3a');
+    c.fillStyle = wg; c.fillRect(L, WATER_Y, R - L, B - WATER_Y + 2);
+    glow('#2ee6d6', 10, () => line(L, WATER_Y, R, WATER_Y, 'rgba(46,230,214,0.8)', 1.5));
+  } finally { c = main; inSprite = false; spriteZ = 1; }
+  return bgEl;
+}
 function render() {
-  c.setTransform(1, 0, 0, 1, 0, 0); c.clearRect(0, 0, cv.width, cv.height);
-  c.setTransform(dpr * sc, 0, 0, dpr * sc, dpr * ox, dpr * oy);
   // The whole scene is drawn through the camera, which zooms about the bottom centre
   const z = S ? zoom : 1, L0 = -ox / sc, R0 = (vw - ox) / sc, T0 = -oy / sc, B0 = (vh - oy) / sc;
   const L = 200 + (L0 - 200) / z, R = 200 + (R0 - 200) / z, T = VH + (T0 - VH) / z, B = VH + (B0 - VH) / z, t = clock;
-  c.save(); c.translate(200, VH); c.scale(z, z); c.translate(-200, -VH);
-
-  // The night: stars, a moon, two ranges of hills and the water
-  for (const s of STARS) { if (s.x < L || s.x > R || s.y < T) continue; c.globalAlpha = 0.35 + 0.45 * Math.sin(t * s.f + s.p) ** 2; c.fillStyle = '#fff'; c.beginPath(); c.arc(s.x, s.y, s.r, 0, 7); c.fill(); }
+  // The night: the moon, the hills and the water are still, so they are painted once into their own canvas
+  // (again only when the camera's zoom moved); the stars, which twinkle, and the water's streaks go on top
+  c.setTransform(1, 0, 0, 1, 0, 0); c.clearRect(0, 0, cv.width, cv.height);
+  c.drawImage(background(z, L, R, T, B), 0, 0);
+  c.setTransform(dpr * sc, 0, 0, dpr * sc, dpr * ox, dpr * oy); c.save(); c.translate(200, VH); c.scale(z, z); c.translate(-200, -VH);
+  c.fillStyle = '#fff';
+  for (const s of STARS) { if (s.x < L || s.x > R || s.y < T || s.behind) continue; c.globalAlpha = 0.35 + 0.45 * Math.sin(t * s.f + s.p) ** 2; c.beginPath(); c.arc(s.x, s.y, s.r, 0, 7); c.fill(); }
   c.globalAlpha = 1;
-  const mh = c.createRadialGradient(338, 196, 4, 338, 196, 46); mh.addColorStop(0, 'rgba(255,210,63,0.22)'); mh.addColorStop(1, 'rgba(255,210,63,0)');
-  c.fillStyle = mh; c.beginPath(); c.arc(338, 196, 46, 0, 7); c.fill();
-  c.save(); c.beginPath(); c.arc(338, 196, 14, 0, 7); c.clip();
-  c.fillStyle = 'rgba(255,233,168,0.08)'; c.fillRect(322, 180, 32, 32);
-  c.fillStyle = '#ffe9a8'; c.beginPath(); c.rect(322, 180, 32, 32); c.arc(344.5, 193, 12.5, 0, 7); c.fill('evenodd');
-  c.restore();
-  const hills = (base, h, color, k, edge) => {
-    c.beginPath(); c.moveTo(L, B);
-    for (let x = L; x <= R + 8; x += 8) c.lineTo(x, base - h * (0.55 + 0.25 * Math.sin(x * 0.011 * k + k) + 0.2 * Math.sin(x * 0.027 * k + 2 * k)));
-    c.lineTo(R + 8, B); c.closePath(); c.fillStyle = color; c.fill(); c.strokeStyle = edge; c.lineWidth = 1; c.stroke();
-  };
-  hills(WATER_Y, 120, '#2e1258', 1, 'rgba(190,160,255,0.16)'); hills(WATER_Y, 62, '#1e0a3c', 1.7, 'rgba(190,160,255,0.12)');
-  const wg = c.createLinearGradient(0, WATER_Y, 0, B); wg.addColorStop(0, '#173f7a'); wg.addColorStop(1, '#0a1a3a');
-  c.fillStyle = wg; c.fillRect(L, WATER_Y, R - L, B - WATER_Y + 2);
-  glow('#2ee6d6', 10, () => line(L, WATER_Y, R, WATER_Y, 'rgba(46,230,214,0.8)', 1.5));
   for (let i = 0; i < 9; i++) { const y = WATER_Y + 8 + i * 6, w = 14 + (i * 37) % 30, x = L + ((i * 131 + t * (10 + i * 3)) % (R - L + 80)) - 40; line(x, y, x + w, y, 'rgba(46,230,214,0.22)', 1.2); }
 
   if (!S) { c.restore(); return; }
@@ -1057,7 +1152,7 @@ function render() {
   // The rock the plank rests on
   const rg = c.createLinearGradient(0, PIV.y, 0, WATER_Y); rg.addColorStop(0, '#2a1458'); rg.addColorStop(1, '#0a0320');
   c.beginPath(); c.moveTo(PIV.x - 7, PIV.y + 4); c.lineTo(PIV.x + 7, PIV.y + 4); c.lineTo(PIV.x + 30, WATER_Y + 40); c.lineTo(PIV.x - 30, WATER_Y + 40); c.closePath();
-  c.fillStyle = rg; c.fill(); glow('#2ee6d6', 6, () => { c.strokeStyle = 'rgba(46,230,214,0.55)'; c.lineWidth = 1.5; c.stroke(); });
+  c.fillStyle = rg; c.fill(); strokeGlow('rgba(46,230,214,0.55)', 1.5);
 
   // The rail and the claw, with its fuse and the piece it holds
   line(PIV.x - P.range - 16, railY, PIV.x + P.range + 16, railY, 'rgba(190,160,255,0.35)', 3);
@@ -1068,33 +1163,40 @@ function render() {
     line(x, railY, x, holdY, 'rgba(46,230,214,0.6)', 1.5);
     drawPiece(kind, h.shape, x, holdY, h.c, h.s);
     const fc = hurry ? '#ff2e88' : '#ffd23f';
-    glow(fc, 8, () => { c.strokeStyle = fc; c.lineWidth = 3; c.lineCap = 'round'; c.beginPath(); c.arc(x, railY, 15 + (hurry ? Math.sin(t * 22) : 0), -1.5708, -1.5708 + 6.2832 * f); c.stroke(); });
+    c.lineCap = 'round'; c.beginPath(); c.arc(x, railY, 15 + (hurry ? Math.sin(t * 22) : 0), -1.5708, -1.5708 + 6.2832 * f); strokeGlow(fc, 3);
     if (S.wind) {
       const d = S.wind > 0 ? 1 : -1, n = Math.abs(S.wind) > 100 ? 3 : 2;
       for (let i = 0; i < n; i++) { const wx = x + d * (34 + i * 12 + (t * 30) % 12), a = 0.7 - i * 0.2; line(wx - d * 5, holdY - 6, wx, holdY, `rgba(255,255,255,${a})`, 2); line(wx - d * 5, holdY + 6, wx, holdY, `rgba(255,255,255,${a})`, 2); }
     }
   }
   // The claw's carriage, there even when empty (it goes back to the left for the next piece)
-  if (S.phase === 'play') glow('#2ee6d6', 8, () => { c.fillStyle = '#2ee6d6'; c.beginPath(); c.roundRect(S.car.x - 11, railY - 6, 22, 12, 5); c.fill(); });
+  if (S.phase === 'play') stamp(sprite('car', [-11 - reach(8), -6 - reach(8), 11 + reach(8), 6 + reach(8)], () => glow('#2ee6d6', 8, () => { c.fillStyle = '#2ee6d6'; c.beginPath(); c.roundRect(-11, -6, 22, 12, 5); c.fill(); })), S.car.x, railY);
 
   // The plank: the title's yellow → pink. A perfect drop flashes it green; leaning too far turns it a pulsing red
   const danger = dangerOf(S.lean), beat = 0.5 + 0.5 * Math.sin(t * (8 + 8 * danger)), low = S.lean > 0 ? 1 : -1;
   c.save(); c.transform(pl.c, pl.s, -pl.s, pl.c, PIV.x, PIV.y);
   const pg = c.createLinearGradient(-HALF, 0, HALF, 0); pg.addColorStop(0, '#ffd23f'); pg.addColorStop(1, '#ff2e88');
   const plank = () => { c.beginPath(); c.roundRect(-HALF, -PLANK_H / 2, HALF * 2, PLANK_H, 6); c.fill(); };
-  glow(flash > 0.2 ? '#9dff3a' : danger > 0.2 ? '#ff2e4a' : '#ff7a4a', 14 + 14 * Math.max(flash, danger * beat), () => { c.fillStyle = pg; plank(); });
-  if (S.lip) for (const s of [-1, 1]) glow(s < 0 ? '#ffd23f' : '#ff2e88', 10, () => { c.fillStyle = s < 0 ? '#ffd23f' : '#ff2e88'; c.beginPath(); c.roundRect(s * (HALF - 4) - 4, -PLANK_H / 2 - S.lip, 8, S.lip + 4, 3); c.fill(); });
+  // Three sprites: the plank with its usual glow, and a red and a green glow laid over it for the warnings
+  const plankSprite = (color, blur, fill) => sprite(`plank|${color}|${blur}`, [-HALF - reach(blur), -PLANK_H / 2 - reach(blur), HALF + reach(blur), PLANK_H / 2 + reach(blur)],
+    () => glow(color, blur, () => { c.fillStyle = fill === 'pg' ? pg : fill; plank(); }));
+  stamp(plankSprite('#ff7a4a', 14, 'pg'));
+  if (danger > 0.02) { c.globalAlpha = danger * beat; stamp(plankSprite('#ff2e4a', 28, 'pg')); c.globalAlpha = 1; }
+  if (S.lip) for (const s of [-1, 1]) {
+    const col = s < 0 ? '#ffd23f' : '#ff2e88', b = reach(10);
+    stamp(sprite(`lip|${col}|${S.lip}`, [-4 - b, -S.lip - b, 4 + b, 4 + b], () => glow(col, 10, () => { c.fillStyle = col; c.beginPath(); c.roundRect(-4, -S.lip, 8, S.lip + 4, 3); c.fill(); })), s * (HALF - 4), -PLANK_H / 2);
+  }
   if (danger > 0) { c.fillStyle = `rgba(255,46,74,${danger * (0.35 + 0.5 * beat)})`; plank(); }
-  if (flash > 0) glow('#9dff3a', 22, () => { c.fillStyle = `rgba(157,255,58,${Math.min(1, flash * 1.3)})`; plank(); });
+  if (flash > 0) { c.globalAlpha = Math.min(1, flash * 1.3); stamp(plankSprite('#9dff3a', 22, '#9dff3a')); c.globalAlpha = 1; }
   line(-HALF + 6, -PLANK_H / 2 + 2.5, HALF - 6, -PLANK_H / 2 + 2.5, 'rgba(255,255,255,0.55)', 1.2);
   c.restore();
   // Past the low end, arrows that point down: this is the side things will go off
   if (danger > 0) for (let i = 0; i < 3; i++) {
     const ex = PIV.x + low * (HALF + 16) * pl.c, ey = PIV.y + low * (HALF + 16) * pl.s + 14 + i * 13, a = danger * (0.35 + 0.65 * (0.5 + 0.5 * Math.sin(t * 12 - i * 1.3)));
-    glow('#ff2e4a', 8, () => { c.strokeStyle = `rgba(255,90,110,${a})`; c.lineWidth = 3; c.lineCap = 'round'; c.lineJoin = 'round'; c.beginPath(); c.moveTo(ex - 8, ey); c.lineTo(ex, ey + 7); c.lineTo(ex + 8, ey); c.stroke(); });
+    c.globalAlpha = a; c.lineCap = 'round'; c.lineJoin = 'round'; c.beginPath(); c.moveTo(ex - 8, ey); c.lineTo(ex, ey + 7); c.lineTo(ex + 8, ey); strokeGlow('rgb(255,90,110)', 3); c.globalAlpha = 1;
   }
   const level = pl.s < PERFECT && pl.s > -PERFECT, kc = level ? '#9dff3a' : danger > 0 ? '#ff5a6e' : '#ffffff';
-  glow(kc, level ? 16 : 6, () => { c.fillStyle = kc; c.beginPath(); c.arc(PIV.x, PIV.y, 6.5, 0, 7); c.fill(); });
+  stamp(dotSprite(kc, 6.5, level ? 16 : 6), PIV.x, PIV.y);
   if (ring > 0) { c.globalAlpha = ring; c.strokeStyle = '#9dff3a'; c.lineWidth = 3 + 3 * ring; c.beginPath(); c.arc(PIV.x, PIV.y, 10 + (1 - ring) * 150, 0, 7); c.stroke(); c.globalAlpha = 1; }
   // The level, on the rock: a bubble that sits in the green middle when the plank is balanced and runs to a red end when it leans
   {
@@ -1102,12 +1204,13 @@ function render() {
     c.fillStyle = 'rgba(10,3,32,0.85)'; c.strokeStyle = 'rgba(255,255,255,0.28)'; c.lineWidth = 1; c.beginPath(); c.roundRect(gx - w - 3, gy - 8, w * 2 + 6, 16, 8); c.fill(); c.stroke();
     for (const s of [-1, 1]) { c.fillStyle = `rgba(255,46,74,${0.3 + 0.45 * (s === low ? danger * beat : 0)})`; c.beginPath(); c.roundRect(gx + s * (w - 6) * DANGER_FROM / GAUGE - (s < 0 ? (w - 6) * (1 - DANGER_FROM / GAUGE) + 3 : -0), gy - 4, (w - 6) * (1 - DANGER_FROM / GAUGE) + 3, 8, 4); c.fill(); }
     const zw = Math.max(5, (w - 6) * PERFECT / GAUGE);
-    glow('#9dff3a', level ? 10 : 0, () => { c.fillStyle = `rgba(157,255,58,${level ? 0.75 + 0.25 * flash : 0.3})`; c.beginPath(); c.roundRect(gx - zw, gy - 5, zw * 2, 10, 5); c.fill(); });
-    glow(kc, 8, () => { c.fillStyle = kc; c.beginPath(); c.arc(bx, gy, 4.5, 0, 7); c.fill(); });
+    if (level) { c.globalAlpha = 0.75 + 0.25 * flash; stamp(sprite(`zone|${zw}`, [-zw - reach(10), -5 - reach(10), zw + reach(10), 5 + reach(10)], () => glow('#9dff3a', 10, () => { c.fillStyle = '#9dff3a'; c.beginPath(); c.roundRect(-zw, -5, zw * 2, 10, 5); c.fill(); })), gx, gy); c.globalAlpha = 1; }
+    else { c.fillStyle = 'rgba(157,255,58,0.3)'; c.beginPath(); c.roundRect(gx - zw, gy - 5, zw * 2, 10, 5); c.fill(); }
+    stamp(dotSprite(kc, 4.5, 8), bx, gy);
   }
 
   // The pile: what is welded to the plank a touch dimmer than the loose pieces on top
-  const halo = (b, color, grow, a, w) => { c.save(); c.globalAlpha = a; c.transform(b.c, b.s, -b.s, b.c, b.x, b.y); pathOf(b.shape, grow); glow(color, 12, () => { c.strokeStyle = color; c.lineWidth = w; c.lineJoin = 'round'; c.stroke(); }); c.restore(); };
+  const halo = (b, color, grow, a, w) => { c.save(); c.globalAlpha = a; c.transform(b.c, b.s, -b.s, b.c, b.x, b.y); pathOf(b.shape, grow); c.lineJoin = 'round'; strokeGlow(color, w, 4); c.restore(); };
   const pulse = b => { for (const p of pulses) if (p.id === b.id) halo(b, '#9dff3a', 1 + 0.55 * p.t / 0.7, 1 - p.t / 0.7, 4); };
   for (const q of pl.parts) if (!q.lip && !q.sub) { drawPiece(q.kind, q.shape, q.x, q.y, q.c, q.s, 1, 0.72); pulse(q); }
   for (const b of S.bodies) {
@@ -1136,7 +1239,7 @@ function render() {
     c.fillText('💔', x + Math.sin(u * 10) * 5 / z, WATER_Y - (18 + 80 * e) / z);
   }
   c.globalAlpha = 1;
-  for (const f of floats) { c.globalAlpha = 1 - f.t / 0.9; glow(f.color, 8, () => txt(f.text, f.x, f.y - f.t * 40, 22 / z, f.color)); }
+  for (const f of floats) { c.globalAlpha = 1 - f.t / 0.9; glowText(f.text, f.x, f.y - f.t * 40, 22, f.color, 8, 1 / z); }
   c.globalAlpha = 1;
   c.restore();
   c.restore();
@@ -1173,7 +1276,7 @@ function render() {
   }
   for (const s of says) { c.globalAlpha = Math.min(1, (1.3 - s.t) * 3); shout(s.text, 200, 232 - s.t * 10, Math.min(s.size, 38), s.color); }
   c.globalAlpha = 1;
-  if (state === 'play' && S.landed < 2 && S.released < 3) txt(matchMedia('(pointer: fine)').matches ? UI.bzTapDesk : UI.bzTap, 200, 585, 14, 'rgba(255,255,255,0.72)', true);
+  if (state === 'play' && S.landed < 2 && S.released < 3) txt(FINE ? UI.bzTapDesk : UI.bzTap, 200, 585, 14, 'rgba(255,255,255,0.72)', true);
   if (state === 'pause') { c.fillStyle = 'rgba(21,7,38,0.72)'; c.fillRect(L0, T0, R0 - L0, B0 - T0); txt(UI.bzPaused, 200, 270, 44); txt(UI.bzResume, 200, 316, 17, 'rgba(255,255,255,0.72)', true); }
 }
 /** The top row: the three lives (a lost one stays in its place, dimmed) and the score. Empty under a card, which says it itself. */
@@ -1201,7 +1304,7 @@ function breakHeart(i) {
 
 /* ---------- the flow ---------- */
 /** Shown small on the start card: which build this is (the lab went through several in a row, and a browser can show a saved one). */
-const BUILD = 'v12';
+const BUILD = 'v13';
 const card = $('#card');
 function showCard(emoji, title, html, btn) { $('#cEmoji').textContent = emoji; $('#cTitle').textContent = title; $('#cBody').innerHTML = html; $('#cBtn').textContent = btn; card.hidden = false; }
 function ready() {
@@ -1268,7 +1371,36 @@ function frame(ts) {
     if (acc > DT * 8) acc = 0;
     if (S.done) finish();
   }
-  fx(dt); render(); hud(); requestAnimationFrame(frame);
+  fx(dt);
+  // Under a card the scene only shows through the veil: drawn 4 times a second instead of every frame
+  const under = !card.hidden && S;
+  if (!under || ts - drawnAt > 250) { drawnAt = ts; render(); }
+  hud(); watchSpeed(ts); requestAnimationFrame(frame);
+}
+let drawnAt = 0;
+/** Adaptive quality: while playing, frames under 48 a second for 1.5 s lower the sharpness one step (1 → 0.75 → 0.5).
+ * Two seconds later it is judged: no 15 % gain undoes it and it is not tried again (a screen held at 30 fps
+ * to save battery gains nothing from fewer pixels). It never goes back up by itself. Lab: `?fps` shows a counter. */
+const speed = { n: 0, from: 0, slowSince: 0, trial: null, done: !!QUALITY_FIXED, fps: 0, worst: 0, worstNow: 0, lastTs: 0 };
+const fpsEl = qp.has('fps') ? document.body.appendChild(Object.assign(document.createElement('div'), { id: 'fps' })) : null;
+if (fpsEl) fpsEl.style.cssText = 'position:absolute;left:6px;bottom:6px;z-index:9;font:700 11px/1.3 monospace;color:#9dff3a;background:rgba(0,0,0,.55);padding:3px 6px;border-radius:6px;pointer-events:none;white-space:pre';
+function watchSpeed(ts) {
+  const gap = speed.lastTs ? ts - speed.lastTs : 0; speed.lastTs = ts;
+  if (gap > 0 && gap < 400) speed.worstNow = Math.max(speed.worstNow, gap);
+  speed.n++;
+  if (ts - speed.from < 500) return;
+  speed.fps = speed.n * 1000 / (ts - speed.from); speed.worst = speed.worstNow; speed.n = 0; speed.from = ts; speed.worstNow = 0;
+  if (fpsEl) fpsEl.textContent = `${speed.fps.toFixed(0)} fps · worst ${speed.worst.toFixed(0)} ms\n${cv.width}×${cv.height} · q ${quality}`;
+  if (speed.done || state !== 'play' || document.hidden) { speed.slowSince = 0; return; }
+  if (speed.trial) {
+    if (ts - speed.trial.at < 2000) return;
+    if (speed.fps < speed.trial.fps * 1.15) { quality = speed.trial.q; resize(); speed.done = true; }
+    speed.trial = null; return;
+  }
+  if (speed.fps >= 48) { speed.slowSince = 0; return; }
+  if (!speed.slowSince) { speed.slowSince = ts; return; }
+  if (ts - speed.slowSince < 1500 || quality <= 0.5) return;
+  speed.trial = { at: ts, fps: speed.fps, q: quality }; quality = quality > 0.75 ? 0.75 : 0.5; speed.slowSince = 0; resize();
 }
 
 /* ---------- input: a touch or a click anywhere, or Space ---------- */
@@ -1288,7 +1420,8 @@ window.addEventListener('resize', resize);
 $('#hud a').setAttribute('aria-label', UI.bzBack); muteBtn.setAttribute('aria-label', UI.bzSound);
 paintMute(); resize(); ready(); requestAnimationFrame(frame);
 window.__balanza = { QUEUE, TIP, tip, breakHeart, LANG, TEXTS, SPECIAL_AT, get S() { return S; }, get state() { return state; }, finish, newGame, advance, stepWorld, mkBody, weld, place, rect, params, KINDS, EVERYDAY, SPECIAL, MASS, shapeFor, specialAt, pieceAt, PIV, DT, HALF, CLAW, WATER_Y,
-  show(s, st = 'play') { S = s; state = st; card.hidden = true; for (const e of s.ev) onEvent(e); s.ev.length = 0; }, fx, render, hud };
+  show(s, st = 'play') { S = s; state = st; card.hidden = true; for (const e of s.ev) onEvent(e); s.ev.length = 0; }, fx, render, hud,
+  get blurs() { return blurs; }, set blurs(v) { blurs = v; }, get quality() { return quality; }, get speed() { return speed; }, get sprites() { return SPR.size; } };
 </script>
 </body>
 </html>

@@ -41,6 +41,8 @@ css='''  #chip { background: none; padding: 0; width: 106px; height: 28px; }
   @keyframes ilHoop { 0%, 68% { stroke: #fff; } 74%, 100% { stroke: #9dff3a; } }
   @keyframes ilOk { 0%, 68% { opacity: 0; } 74%, 100% { opacity: 1; } }
   @media (prefers-reduced-motion: reduce) { #cBody .steps svg * { animation: none !important; } }
+  /* On a touch screen the card does not blur what is behind it (a full-screen blur cost most of a phone's frame): a darker veil instead */
+  @media (pointer: coarse) { #card { -webkit-backdrop-filter: none; backdrop-filter: none; background: rgba(21, 7, 38, 0.84); } }
 '''
 assert head.count('</style>')==1 and head.count('<div id="hud">')==1
 head=head.replace('<div id="hud">','<canvas id="hearts" aria-hidden="true"></canvas>\n  <div id="hud">')

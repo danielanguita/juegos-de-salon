@@ -36,6 +36,26 @@ None: solo, nothing saved but mute (`balanza-lab:muted`) and two one-time hints 
 - `tools/e2e/wobbles-3d/game.mjs`: opens it in es/en/pt, starts a round, ends it on its card.
 - Test hook: `window.__balanza` (the prototype's own).
 
+## Performance
+
+Optimized for phones (the owner's instructions, 2026-11-17): only the view (`view.js`) and one CSS rule
+(`build.py`) changed; `sim.js` is untouched (`build.py` still prints only `imul, max, min, sqrt`).
+
+- **No blur per frame**: `glowLine` strokes the path four times, wider and fainter, for every line glow;
+  `glowText` draws each glowing text once with a real blur and then copies it; the piece in hand's
+  shadow is a filled shape with soft strokes; its halo is drawn once, around its outline (`silhouette`).
+  `__balanza.blurs` counts blurs: only the first time a text is shown.
+- **At most 2 device pixels per CSS pixel**; `pace` lowers it to 1.5 and then 1 when frames come under
+  about 42 a second for two seconds while playing. Lab: `?res=3|2|1` fixes it, `?fps=1` shows a counter.
+- **The hearts** move 20 times a second and their canvas is left alone when nothing changed; a heart
+  breaking is still drawn every frame. The top bar is written only when it changes.
+- **The stars** are 5 fills, not 70. A 120 Hz screen draws every other frame; under a card, 1 in 4.
+- **Cards** on a touch screen have no backdrop blur, a darker veil instead.
+- Measured in headless Chrome with an emulated GPU, 390×812 at 3×, 5 pieces on the disc and one in hand:
+  3 fps before, 60 after; same game with the same seed. Not measured on a real phone yet.
+- Not done from the instructions: caching the paint order of what is fixed to the disc, pre-drawn heart
+  poses, and cutting the shadow to each face with arithmetic instead of `clip()`.
+
 ## Excepciones a los cánones
 
 All with the same root: a prototype kept whole, as the owner asked (listed in `game.json`'s `canonExceptions`).

@@ -36,6 +36,27 @@ None: solo, nothing saved but mute (`balanza-lab:muted`) in `localStorage`.
 - `tools/e2e/wobbles/game.mjs`: opens it in es/en/pt, starts a round, ends it on its card.
 - Test hook: `window.__balanza` (the prototype's own).
 
+## Performance
+
+Optimized for phones (the owner's instructions, 2026-11-17): only the view changed, never the physics.
+
+- **No blur per frame.** Everything that glows the same way every time (pieces, the plank in its three
+  colors, the claw's carriage, the pivot and the level's dots, the texts) is drawn once with its glow into
+  a sprite and then stamped; what changes shape every frame (the fuse, the red and green halos, the
+  arrows, the rock's edge) glows with wide faint strokes, no blur. `__balanza.blurs` counts the blurs
+  drawn outside a sprite: 0 while playing.
+- **The still night** (moon, hills, water) is painted into its own canvas, again only when the camera's
+  zoom moves more than 0.004; the stars that twinkle and the water's streaks go on top.
+- **At most 2 device pixels per CSS pixel**, and adaptive quality: under 48 fps for 1.5 s lowers the
+  sharpness (1 → 0.75 → 0.5); with no 15 % gain two seconds later it is undone and not tried again.
+- **The cards** have no backdrop blur (a darker veil), and under a card the scene is drawn 4 times a second.
+- Lab parameters: `?fps` (a counter: fps, worst frame, canvas size, quality), `?dpr=3` (no cap),
+  `?quality=0.5` (fixed sharpness).
+- Measured in headless Chrome with an emulated GPU, 390×812 at 3×: the whole page went from 11 to
+  60 fps with a 13-piece pile; same results with the same seed. Not measured on a real phone yet.
+- Not done from the instructions: the welded pile as one image, and an opaque canvas painting the
+  page's sky itself (the page already reached 60 fps on the emulated GPU without them).
+
 ## Excepciones a los cánones
 
 All with the same root: a prototype kept whole, as the owner asked (listed in `game.json`'s `canonExceptions`).
