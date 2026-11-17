@@ -104,6 +104,7 @@ function lastRun(j) {
       return r ? `${r.conclusion === 'success' ? '✅' : r.status !== 'completed' ? '⏳' : '❌'} ${ago(r.createdAt)}` : 'never';
     } catch { return '? (gh unavailable)'; }
   }
+  if (j.where === 'cloud') return `a Claude Code cloud scheduled task: see claude.ai/code (prompt in ${j.prompt})`;
   return 'runs on its trigger';
 }
 

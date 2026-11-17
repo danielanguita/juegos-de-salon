@@ -60,6 +60,12 @@ or any other here), launch it and report what it found; do not ask the owner fir
   signatures seen on two PRs or more without a mechanism and the flaky ones apart; `promote <signature> <key>` makes one a
   `processes.mjs pattern`, so `mechanism` closes it; `classify [log]` shows a log's signatures. Records older than 90
   days whose pattern has a mechanism move to the branch's `archive.json`.
+- **Contributions** (D-568): reviews the outside PRs (from a fork or by anyone but the owner) every hour as a Claude Code
+  cloud scheduled task, not on the Mac mini; its prompt is `tools/jobs/prompts/contributions.md`, which says how to recreate the task.
+  `node tools/agents/contributions.mjs check` lists only the PRs with a new commit or comment since its last look (its state is a hidden
+  marker in its own last comment) and ends the round when there are none; it comments what is missing in the contributor's language and,
+  when a PR waits only for the owner's Yes (D-531), `contributions.mjs ready <n> "<why>"` runs `contrib-ready.yml`, whose bot comment
+  emails the owner. It never pushes, approves, merges or runs the PR's code.
 - **Support** (D-318): triages the emails to hola@juegosdesalon.cl, which a Cloudflare Worker
   (`tools/cloudflare/inbox-worker.js`) keeps in Firebase `buzon/`. The `inbox-watch` job on the Mac mini
   launches it headless within 5 minutes of an email (D-365); the processes agent, if `processes.mjs check` still counts emails. It runs only `node tools/agents/inbox.mjs list | ingest <id> - --lang <xx> | skip <id> "<reason>"` (the text on stdin; its session has Bash for that tool and nothing else, #838),
