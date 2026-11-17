@@ -1,9 +1,10 @@
 {
-  "checkedUpTo": "f49b67fc2cba51e414bf52731b348e51991d8215",
+  "checkedUpTo": "b56bec6db321bd723475189a68e2e3bad586f304",
   "pending": [
     "README screenshots stale in 12 sections (portada, cuarto-rey, toque-y-fama, batalla-naval, linea-de-tiempo, dudo, generala, idiomas, ahorcado, julepe, copa, cup-new-games): redo and review on contact sheets",
     "Offline mode (flags 'offline' and 'cup-offline') is in the lab: when the owner publishes it, add it to LO_PRINCIPAL/shareApp.lines (D-271)",
-    "Sudoku launches by flags/sudoku: when published, check docs/games/sudoku.md Resumen (still says lab) and README"
+    "Sudoku launches by flags/sudoku: when published, check docs/games/sudoku.md Resumen (still says lab) and README",
+    "Cup comments (cup-talk, cup-talk-push) are in the lab: when published, consider them for LO_PRINCIPAL (D-271) and drop '(in the lab)' in PWA-NOTIFICACIONES.md"
   ],
   "known": [],
   "rounds": [
@@ -327,6 +328,18 @@
         "README screenshots stale in 12 sections (portada, cuarto-rey, toque-y-fama, batalla-naval, linea-de-tiempo, dudo, generala, idiomas, ahorcado, julepe, copa, cup-new-games): redo and review on contact sheets",
         "Offline mode (flags 'offline' and 'cup-offline') is in the lab: when the owner publishes it, add it to LO_PRINCIPAL/shareApp.lines (D-271)",
         "Sudoku launches by flags/sudoku: when published, check docs/games/sudoku.md Resumen (still says lab) and README"
+      ]
+    },
+    {
+      "date": "2026-11-17",
+      "from": "f49b67fc2cba51e414bf52731b348e51991d8215",
+      "to": "b56bec6db321bd723475189a68e2e3bad586f304",
+      "pr": null,
+      "pending": [
+        "README screenshots stale in 12 sections (portada, cuarto-rey, toque-y-fama, batalla-naval, linea-de-tiempo, dudo, generala, idiomas, ahorcado, julepe, copa, cup-new-games): redo and review on contact sheets",
+        "Offline mode (flags 'offline' and 'cup-offline') is in the lab: when the owner publishes it, add it to LO_PRINCIPAL/shareApp.lines (D-271)",
+        "Sudoku launches by flags/sudoku: when published, check docs/games/sudoku.md Resumen (still says lab) and README",
+        "Cup comments (cup-talk, cup-talk-push) are in the lab: when published, consider them for LO_PRINCIPAL (D-271) and drop '(in the lab)' in PWA-NOTIFICACIONES.md"
       ]
     }
   ],
