@@ -33,6 +33,7 @@ for (let step = 0; step < 6 && await b.active() === 'screen-play'; step++) {
 
 ok(await b.active() === 'screen-result', 'it reaches the result');
 ok(await b.evaluate("!!document.querySelector('#fin-salidas a[href$=\"labs/\"]')"), 'the result goes back to the lab (C-19)');
+ok(await b.evaluate("!!document.getElementById('btn-change-mode') && !!document.querySelector('#result-rank > *') && !!document.querySelector('.rk-contar-solo')"), 'the result has the standard blocks: change mode, «¿Quieres que esta partida cuente?» and the game\'s ranking (C-19)');
 await b.shot('result');
 
 // Signed in, on the felt trial (on by default on localhost), the setup carries the account's name (D-212)
