@@ -21,6 +21,7 @@ try {
     await b.open(`${SITE}/${page}/?test&lang=${lang}`, 2500);
     ok(await b.until(`!!document.getElementById('btn-empezar')`, 6000), `${page} (${lang}): the waiting room`);
     ok(!(await ev(line)), `${page} (${lang}): no mistakes line before playing`);
+    if (board) ok(await b.until(`/45/.test(document.getElementById('como-puntaje')?.textContent || '')`, 4000), `${page} (${lang}): the cover's scoring says the time scores`);
     await ev(`document.getElementById('btn-empezar').click(); 1`);
     ok(await b.until(`!!document.getElementById('regla-errores')`, 9000), `${page} (${lang}): the line comes with the board`);
     ok(want.test(await ev(line)), `${page} (${lang}): it says ${want}`);
