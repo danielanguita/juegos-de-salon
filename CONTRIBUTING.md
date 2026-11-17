@@ -103,6 +103,11 @@ To look at a single screen: `node tools/e2e/look.mjs <game> <screen> --width 320
 - [ ] Player-facing texts in the three languages; buttons ≥ 44 px; no horizontal scroll at 320 px.
 - [ ] Anything new on a player page sits behind its lab flag (`flag('<id>')`, `public/assets/js/flags.js`)
       and is listed in `/labs/` (D-395, D-498): the owner turns it on, not the PR.
+- [ ] A new game in `public/labs/<id>/` comes in with **all** its canons built (D-579), not later:
+      start from `node tools/generators/new-game.mjs <id>` (it is born passing) and keep
+      `node public/labs/canons.test.mjs` and `node public/assets/js/conformance.test.mjs` green.
+      What each canon asks and which test or reviewer checks it: [docs/ADD-GAME.md](docs/ADD-GAME.md),
+      "The entry gate". We check them; we do not build them for you.
 - [ ] If the game changed, its `docs/games/<folder>.md` says so.
 - [ ] The 👁 rules the bot comment lists for your PR are respected (above, "The rules").
 - [ ] All `*.test.mjs` / `*.test.py` pass locally, plus the end-to-end script of the screen you touched.

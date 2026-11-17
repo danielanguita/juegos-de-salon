@@ -107,7 +107,7 @@ Rule 2 is in force: `docs/rules.json` and `rules.test.mjs`. Rules 7, 8, 9 and 10
 | U-40 · Promotional material looks like the app (D-380) | 👁 | docs/USABILIDAD.md | usability agent (.claude/agents/usability.md) |
 | U-41 · Visual proposals come as images | 👁 | docs/USABILIDAD.md | usability agent (.claude/agents/usability.md) |
 | labs-card-icon · Every /labs/ card, game or feature, opens its title with its emoji or the game's drawing, and its index pill carries it | 🤖 | docs/AGENTS.md | `public/labs/index-nav.test.mjs` |
-| labs-canons · A game enters the lab with its canons: game.json (conformance), a measured cover, result exits from salidasFin and its result in the rankings | 🤖📈 | docs/ADD-GAME.md | `public/labs/canons.test.mjs`, debt `docs/labs-canon-debt.json` |
+| labs-canons · A game enters the lab with its canons: the whole CANONS.md checklist before its first merge; canons.test.mjs checks the manifest, measured cover, result exits, rankings, cover dialogs, panel signals, spec and e2e scripts | 🤖📈 | docs/ADD-GAME.md | `public/labs/canons.test.mjs`, debt `docs/labs-canon-debt.json` |
 | double-tap · A double tap counts once: a button that waits on an animation takes the first tap only, and its e2e script double-taps it | 🤖👁 | docs/CANONS.md | `tools/e2e/double-tap.mjs`, `tools/e2e/blackjack/game.mjs`, the session building or changing the game, and the usability agent (.claude/agents/usability.md) |
 
 <!-- rules-index:end -->

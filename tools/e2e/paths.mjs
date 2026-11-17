@@ -7,6 +7,11 @@
  */
 import { SUELTOS, gameById } from '../../public/assets/js/games.js';
 import { CAMPAIGNS } from '../../public/assets/js/splash.js';
+import { existsSync } from 'node:fs';
+
+/** Where a PATHS key opens: its game's path, or a lab folder not yet in games.js (D-579), or `<key>/`. */
+export const routeOf = key => gameById(key)?.path
+  || (existsSync(new URL(`../../public/labs/${key}/index.html`, import.meta.url)) ? `labs/${key}/` : `${key}/`);
 
 /** Uno al día (D-414): six days played up to yesterday on this phone, then the page again. */
 const UAD_SEED = `(()=>{const d={},f=k=>{const t=new Date(Date.now()-k*86400000);return t.getFullYear()+'-'+String(t.getMonth()+1).padStart(2,'0')+'-'+String(t.getDate()).padStart(2,'0')};for(let k=1;k<=6;k++)d[f(k)]={j:'reinas',s:50+k*7,ms:60000,at:Date.now(),n:1};localStorage.setItem('juegos-de-salon:uno-al-dia',JSON.stringify({dias:d}));location.reload();return 1})()`;

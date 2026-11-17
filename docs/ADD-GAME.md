@@ -22,7 +22,8 @@ born (`tools/generators/new-game.test.mjs` proves it on a fresh one, untouched):
   the result's exits from `fin.js` (C-19) and its share through `compartir.js`.
 - `public/assets/js/manifests/labs/<id>.js`, the manifest as a module (`game.js` reads it).
 - Its card in `public/labs/index.html`, first in 🎲 Juegos en prueba (D-409), its title opening with the game's drawing (or its emoji), which the lab's index pill shows too (`index-nav.test.mjs`).
-- `docs/games/<id>.md` with C-13's sections, and `tools/e2e/<id>/game.mjs`, a script that plays it to the result.
+- `docs/games/<id>.md` with C-13's sections, `tools/e2e/<id>/game.mjs`, a script that plays it to the result, and `tools/e2e/<id>/languages.mjs`.
+- Its cover in `tools/e2e/paths.mjs` (`'<id>': { intro: [] }`), so `landing-fold.mjs` measures it; the cover goes through `coverWithDialogs` and the result through `finDePartida` (the rankings).
 
 The game inside is a placeholder (a race to ten). Replace it, keeping what surrounds it:
 
@@ -40,17 +41,55 @@ The game inside is a placeholder (a race to ten). Replace it, keeping what surro
   (`rankings-coverage.test.mjs` fails otherwise), and its e2e script checks the tab on `/records/`.
   The panel names it on its own (`gameById`).
 
-**A game enters the lab with its canons** (D-579): the lab is where a game is tried, not where its canons
-are put off. Before its first PR merges, ours or a contributor's, `node public/labs/canons.test.mjs`
-requires of every `labs/<id>/`:
-- **manifest**: its `game.json`, so the conformance suite below runs over it;
-- **cover**: its landing in `tools/e2e/paths.mjs` with `intro`, so `landing-fold.mjs` measures the cover
-  at 320 and 375 px (the main action above the fold, even margins, C-17);
-- **exits**: the result's exits from `salidasFin` in `fin.js` (C-19);
-- **rankings**: the result in the rankings with `finDePartida`, `bloqueTabla` or `avisoPartida` (C-19).
-A canon the game breaks on purpose is a `canonExceptions` entry naming the subject (`cover`, `fin.js`,
-`rankings`). The lab games older than the rule owe what `docs/labs-canon-debt.json` lists, a ratchet
-that only shrinks; a game pays its debt before it leaves the lab.
+## The entry gate: a game enters the lab with its canons (D-579)
+
+The lab is where a game is **tried**, not where its canons are put off. Before its first PR merges,
+ours or a contributor's, a lab game passes **every** canon of the checklist at the end of
+[CANONS.md](CANONS.md), the same as a published game. A contributor brings them built; the
+contributions agent and the owner only check. The generator's game passes all of this as born, so
+the work is to keep it passing while the placeholder becomes the real game.
+
+`node public/labs/canons.test.mjs` (in the `tests` check) fails a `labs/<id>/` that lacks:
+
+| Subject | What | Canon |
+|---|---|---|
+| `manifest` | its `game.json`, so the conformance suite below runs over it | C-2 |
+| `cover` | its landing in `tools/e2e/paths.mjs` with `intro`, so `landing-fold.mjs` measures the cover at 320 and 375 px | C-17, U-39 |
+| `exits` | the result's exits from `salidasFin` in `fin.js` | C-19 |
+| `rankings` | the result in the rankings: `finDePartida`, `bloqueTabla` or `avisoPartida` | C-19, D-559 |
+| `dialogs` | the cover through `coverWithDialogs`: «📖 Instrucciones» and «👤 Entrar» as dialogs | C-8 |
+| `signals` | `trackStart` and `trackFinish`, so the panel sees it from its first game | C-7, C-16, D-210 |
+| `spec` | its `docs/games/<id>.md`, with its exceptions to the canons | C-13 |
+| `e2e` | `tools/e2e/<id>/` with a script that plays it to the result and its `languages.mjs` | C-12, D-199 |
+
+A canon the game breaks on purpose is a `canonExceptions` entry whose reason names the subject
+(`cover`, `fin.js`, `rankings`, `cover-dialogs`, `trackStart`, `e2e`), copied from its spec. The lab
+games older than the rule owe what `docs/labs-canon-debt.json` lists: a ratchet, each list only
+shrinks, no new game joins it, and a game pays its debt before it leaves the lab.
+
+**Every canon and who checks it.** The rest of the checklist is enforced elsewhere; nothing on it is
+left for "later":
+
+| Checklist item (CANONS.md) | Checked by |
+|---|---|
+| C-2 files, C-3 three languages with the same keys, C-6 memory, sharing through `compartir.js`, exits from `fin.js` | `node public/assets/js/conformance.test.mjs`; in the browser `node tools/e2e/conformance.mjs labs/<id>` (load, languages, back, resume, share, result) |
+| Its name translated or in `SAME_NAME` (C-3) | `game-names.test.mjs` |
+| Styles on the tokens and the shared shell only (C-1, DESIGN.md) | `node tools/agents/design-lint.mjs public/labs/<id>/style.css` = 0 (`design-lint.test.mjs`) |
+| The cover ends with the site footer (C-17) | `site-footer.test.mjs` |
+| Start button above the fold at 320×568 and 375×667, every language (U-39, D-344) | `node tools/e2e/landing-fold.mjs <id>` (its `cover` above puts it there) |
+| Its screens in every language (C-12, D-199) | `node tools/e2e/<id>/languages.mjs` |
+| Watchdog before the stylesheets, `trackVisit()` (C-7, D-251) | `vigia.test.mjs` |
+| The lab's door and `noindex` (D-395) | `labs-puerta.test.mjs` |
+| Its card in `/labs/` with its drawing (D-409) | `index-nav.test.mjs`, `listed.test.mjs` |
+| A score table in `SOLO_TABLES` so Rankings shows it (D-559) | `rankings-coverage.test.mjs` |
+| Instructions per U-18, no clumsy text (C-1, C-8) | `usability-lint.test.mjs`, and the usability agent's short review (D-304) |
+| One tap on a button that waits on an animation, its script double-taps it (C-14, D-576) | `tools/e2e/double-tap.mjs` and the game's script; 👁 the reviewer |
+| Rooms: `tryRoom`, `roomMessage()`, chat module, Firebase rules (C-7, C-14, C-15) | `room-state.test.mjs`, conformance; 👁 the reviewer |
+| URLs in English, one name inside and out (C-18, C-20) | `parametros.test.mjs`, `english.test.mjs`, `identifiers.test.mjs` |
+| Nothing over 5 MB (D-494) | `repo-weight.test.mjs` |
+| Sound and vibration with a mute (C-4), result before the pass (C-9), secrets committed (C-10), each fact said once on the result (C-19) | 👁 judged: the session building it, the usability agent and, for a contributor, the contributions agent |
+
+The 👁 items are as binding as the 🤖 ones: the reviewer names any that fails and the PR waits.
 
 **The conformance suite** checks all of this for every game with a `game.json`:
 `node public/assets/js/conformance.test.mjs` (the files, the languages, the shared modules; in the
@@ -127,5 +166,5 @@ Taking it out of the lab moves its folder to `public/<id>/` (the old path become
 - **The checklist** at the end of the canons, whole; `node public/assets/js/games.test.mjs` counts
   the countable part (C-12).
 
-A game enters the lab with documentation and a short usability review; the PR that takes it out
-carries the full pass (D-304).
+A game enters the lab with its canons built and checked (D-579, above), its documentation and a short
+usability review; the PR that takes it out carries the full usability pass on top (D-304).

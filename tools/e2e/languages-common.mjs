@@ -22,8 +22,7 @@ import { output as outputFolder } from './output.mjs';
 import { mkdirSync } from 'node:fs';
 import { launch, sleep } from './cdp.mjs';
 import { LANGS, EN_LABS, LABS_KEY, COMMON } from '../../public/assets/js/i18n.js';
-import { gameById } from '../../public/assets/js/games.js';
-import { PATHS } from './paths.mjs';
+import { PATHS, routeOf } from './paths.mjs';
 
 const SITE = process.env.SITE || process.env.SITIO || 'http://localhost:8765';
 const MIN_LENGTH = 12;   // a shorter fragment ("Menú", "Listo") can repeat by chance
@@ -86,7 +85,7 @@ export async function checkLanguages(game, { dicts = [], port, screens, allowed 
   mkdirSync(OUT, { recursive: true });
   const paths = PATHS[game];
   if (!paths) throw new Error(`No paths for "${game}" in paths.mjs`);
-  const route = (gameById(game)?.path || `${game}/`) + (query ?? '');
+  const route = routeOf(game) + (query ?? '');
   const shots = screens || Object.keys(paths);
   const all = [...dicts, COMMON];
   const chunks = Object.fromEntries(LANGS.filter(l => l !== 'es')

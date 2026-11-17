@@ -1129,7 +1129,7 @@
   },
   {
    "id": "labs-canons",
-   "title": "A game enters the lab with its canons: game.json (conformance), a measured cover, result exits from salidasFin and its result in the rankings",
+   "title": "A game enters the lab with its canons: the whole CANONS.md checklist before its first merge; canons.test.mjs checks the manifest, measured cover, result exits, rankings, cover dialogs, panel signals, spec and e2e scripts",
    "doc": "docs/ADD-GAME.md",
    "form": [
     "check",

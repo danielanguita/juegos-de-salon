@@ -669,7 +669,7 @@ Reinas, Tango, Babel or Shinobi are games exactly as Ahorcado, Generala or La Co
 
 ## Checklist before calling a game done
 
-A lab game passes this list before its first PR merges, not before it leaves the lab (D-579): `public/labs/canons.test.mjs` fails one without its `game.json`, its measured cover, `salidasFin` and its rankings.
+A lab game passes this whole list before its first PR merges, not before it leaves the lab (D-579), ours or a contributor's. `public/labs/canons.test.mjs` fails one without its `game.json`, its measured cover, `salidasFin`, its rankings, `coverWithDialogs`, the panel's signals, its spec or its e2e scripts; which test or reviewer checks every other line is in [ADD-GAME.md](ADD-GAME.md), "The entry gate".
 
 - [ ] The modes it offers (all three, if it is for two) work and the game can be resumed in **all** of them (C-5, C-6).
 - [ ] The instructions follow U-18: the goal first, at most 3 points, without repeating the example drawing (C-1), and start folded on the cover (C-8, D-550).

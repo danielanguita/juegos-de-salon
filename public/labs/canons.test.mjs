@@ -21,7 +21,7 @@ import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { PATHS } from '../../tools/e2e/paths.mjs';
-import { excuses } from '../../tools/generators/conformance.mjs';
+import { labCanonGaps } from '../../tools/generators/lab-canons.mjs';
 
 const LABS = fileURLToPath(new URL('.', import.meta.url));
 const DOCS = fileURLToPath(new URL('../../docs/games/', import.meta.url));
@@ -39,19 +39,12 @@ const games = readdirSync(LABS, { withFileTypes: true })
 /** What a lab game lacks of its canons. */
 export function missing(folder) {
   const m = read(folder, 'game.json') ? JSON.parse(read(folder, 'game.json')) : null;
-  const game = read(folder, 'game.js');
-  const ok = (canon, subject, pass) => pass || (m && excuses(m, canon, subject));
-  const out = [];
-  if (!m) out.push('manifest');
-  if (!ok('C-17', 'cover', [`labs/${folder}`, folder, m?.id].some(k => k && PATHS[k]?.intro))) out.push('cover');
-  if (!ok('C-19', 'fin.js', /\bsalidasFin\(/.test(game))) out.push('exits');
-  if (!ok('C-19', 'rankings', /\b(finDePartida|bloqueTabla|avisoPartida)\(/.test(game))) out.push('rankings');
-  if (!ok('C-8', 'cover-dialogs', /\bcoverWithDialogs\b/.test(game))) out.push('dialogs');
-  if (!ok('C-7', 'trackStart', /\btrackStart\(/.test(game) && /\btrackFinish\(/.test(game))) out.push('signals');
-  if (!existsSync(join(DOCS, `${folder}.md`))) out.push('spec');
-  if (!ok('C-12', 'e2e', existsSync(join(E2E, folder, 'languages.mjs'))
-    && existsSync(E2E + folder) && readdirSync(join(E2E, folder)).some(f => f !== 'languages.mjs' && f.endsWith('.mjs')))) out.push('e2e');
-  return out;
+  return labCanonGaps({
+    manifest: m, game: read(folder, 'game.js'),
+    inPaths: [`labs/${folder}`, folder, m?.id].some(k => k && PATHS[k]?.intro),
+    hasSpec: existsSync(join(DOCS, `${folder}.md`)),
+    e2e: existsSync(join(E2E, folder)) ? readdirSync(join(E2E, folder)) : [],
+  });
 }
 
 const debt = JSON.parse(readFileSync(DEBT_FILE, 'utf8')).games;
