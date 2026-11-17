@@ -482,3 +482,13 @@ table.wbr thead th { font-size: var(--fs-75); font-weight: 600; opacity: .75; }
 table.wbr tbody th, table.wbr thead th:first-child { position: sticky; left: 0; z-index: 1; text-align: left; background: var(--bg1); font-weight: 600; white-space: normal; min-width: 7.5em; max-width: 34vw; }
 table.wbr .wbr-mes { border-left: 2px solid var(--glass-border); }
 table.wbr td.wbr-ahora { font-weight: 400; }
+
+/* 📱 Screens: the bands with their phones, and the width × height cross */
+.pant-scroll { overflow-x: auto; }
+table.pant { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+table.pant th, table.pant td { text-align: left; padding: var(--s-6) var(--s-8); border-bottom: 1px solid var(--glass-border); vertical-align: top; }
+table.pant th[scope="row"] { white-space: nowrap; }
+table.pant .num { text-align: right; white-space: nowrap; }
+table.pant .pant-barra { display: inline-block; height: 0.6em; vertical-align: middle; }
+table.pant tr.pant-raro { opacity: 0.45; }
+table.pant-cruce td { text-align: center; }

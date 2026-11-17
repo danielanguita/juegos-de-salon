@@ -111,6 +111,8 @@ const SEED_PANEL = view => `(async()=>{const DAY=86400000,now=Date.now(),today=M
       // Offline games with a time (D-140), for a game's card
       // Site traffic (D-208): a week of visits, with origins, tagged links and pages
       for(let k=0;k<7;k++){const d=today-k,f=7-k;days[d]=days[d]||{};Object.assign(days[d],{vistas:{inicio:9*f,cup:6*f,hangman:2*f,connections:f,labs:1},entradas:{inicio:5*f,cup:3*f,hangman:f,connections:1},juegan:{inicio:2*f,cup:2*f,hangman:1},ref:{directo:5*f,google_com:2*f,google_cl:f,instagram_com:f,chatgpt_com:1},via:{link:3*f,instagram:1},retorno:{nueva:4*f,vuelve:5*f},disp:{celular:7*f,computador:2*f},pais:{CL:7*f,AR:f,ES:1}});}
+      // Screens: a week of visits by screen band, phones first, a phone turned sideways and no 320
+      for(let k=0;k<7;k++){const f=7-k;days[today-k].pant={'w360-h640-v':3*f,'w375-h640-v':4*f,'w375-h0-v':f,'w400-h800-v':2*f,'w430-h800-v':f,'w600-h0-h':k%3?0:1,'w1200-h800-h':2*f};}
       // With name and ending since D-210: one playing, one that won, a finished solo game and one without a name
       days[today].live={k3p9aaaaaa:{game:'dudo',mode:'cpu',n:1,co:'CL',l:'es',name:'Javi',v:'0.93.0',at:now-15*60000,beat:now-60000},q8w7aaaaaa:{game:'dudo',mode:'local',n:4,co:'AR',name:'Fran, Leo, Ana, Bia',v:'0.92.1',at:now-5*3600000,beat:now-4*3600000,fin:{at:now-4*3600000,g:'Leo',d:'9 rondas'}},t1t2aaaaaa:{game:'toque-y-fama',mode:'solo',n:1,co:'MX',l:'en',name:'Nico',v:'0.99.0',at:now-3*3600000,beat:now-3*3600000+120000,fin:{at:now-3*3600000+150000,d:'80/100 · 6 intentos · 2:30'}},s0s0aaaaaa:{game:'ahorcado',mode:'solo',n:1,co:'PE',v:'0.90.0',at:now-2*DAY,beat:now-2*DAY+300000}};
       // Cup days also send their signal: the panel doesn't count them among the games' matches
@@ -604,7 +606,7 @@ export const PATHS = {
    */
   panel: {
     ...Object.fromEntries([['data', '/users'], ['now', '/now'], ['summary', '/summary'], ['timeline', '/timeline'], ['tournament', '/cup'], ['games', '/group'], ['group', '/group'], ['individual', '/individual'], ['daily', '/daily'], ['users', '/users'], ['audience', '/users'],
-      ['cup-card', '/cup/OFICI'], ['game-card', '/game/liars-dice'], ['room-card', '/room/CPSV'], ['traffic', '/traffic'], ['health', '/health'], ['wbr', '/wbr'], ['campaigns', '/campaigns'], ['feedback', '/feedback']].map(([shot, view]) => [shot, [SEED_PANEL(view)]])),
+      ['cup-card', '/cup/OFICI'], ['game-card', '/game/liars-dice'], ['room-card', '/room/CPSV'], ['traffic', '/traffic'], ['screens', '/screens'], ['health', '/health'], ['wbr', '/wbr'], ['campaigns', '/campaigns'], ['feedback', '/feedback']].map(([shot, view]) => [shot, [SEED_PANEL(view)]])),
     // 📣 Campaigns' other two tabs (D-477)
     ...Object.fromEntries([['campaigns-features', 1], ['campaigns-skins', 2]].map(([shot, i]) => [shot, [SEED_PANEL('/campaigns'), `document.querySelectorAll('.campanas-tabs button')[${i}].click()`]])),
     // A splash card's Quick look, opened

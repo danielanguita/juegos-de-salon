@@ -11,6 +11,7 @@
 import { deserted } from '../assets/js/transport/dispose.js';
 import { MODE_IDS, isLocalMode, MAX_PLAYERS, gameById, MODO_UNO_AL_DIA } from '../assets/js/games.js';
 import { LATIDO_MS } from '../assets/js/transport/stats.js';
+import { parseBand } from '../assets/js/screen-bands.js';
 
 export const DAY = 24 * 60 * 60 * 1000;
 export const ROOM_TTL = 6 * 60 * 60 * 1000;   // tope duro de una sala (transporte y reglas)
@@ -796,4 +797,32 @@ export function navegadorLabel(k) {
   const m = /^([a-z]+)(\d*)$/.exec(String(k || ''));
   if (!m || !NAVEGADORES[m[1]]) return String(k || '?');
   return `${NAVEGADORES[m[1]]}${m[2] ? ` ${m[2]}` : ''}`;
+}
+
+/* ------------------------------------------------------------------ */
+/* Screens: which viewport sizes play (`pant/`, screen-bands.js)       */
+/* ------------------------------------------------------------------ */
+/**
+ * The visits of the range by screen band: totals per width, per height and per orientation, the
+ * width × height cross, and one row per day (for the timeline). `desde` is the first day with any
+ * band recorded: nothing is counted before the version that writes it.
+ */
+export function pantallas(days, { from, to }) {
+  const ancho = {}, alto = {}, orient = {}, cruce = {};
+  const porDia = [];
+  let total = 0, desde = null;
+  for (let d = from; d <= to; d++) {
+    const b = (days || {})[String(d)] || {};
+    const fila = { day: d, total: 0 };
+    for (const [k, v] of Object.entries(b.pant || {})) {
+      const p = parseBand(k), x = Number(v) || 0;
+      if (!p || !x) continue;
+      add(ancho, p.w, x); add(alto, p.h, x); add(orient, p.o, x); add(cruce, `${p.w}|${p.h}`, x); add(fila, p.w, x);
+      fila.total += x;
+    }
+    if (desde === null && fila.total) desde = d;
+    total += fila.total;
+    porDia.push(fila);
+  }
+  return { total, desde, porDia, ancho, alto, orient, cruce };
 }

@@ -66,6 +66,7 @@ import { getLang } from '../i18n.js';
 import { isLocalMode, MAX_PLAYERS, MODES } from '../games.js';
 import { param, tiene, nombres, normalizarUrl, AVISO_CLAVE } from '../parametros.js';
 import { backGuard } from '../back-guard.js';
+import { screenBand } from '../screen-bands.js';
 
 // 'lab' salió con el laboratorio (D-67); queda en el panel para leer lo que quedó guardado
 export const ENVS = ['prod', 'dev', 'owner'];
@@ -651,7 +652,7 @@ export function dispositivoDe({ ua = '', platform = '', touch = 0 } = {}) {
  * Los contadores que suben al abrir una página. `primera` dice si es la primera página de la
  * visita: solo esa cuenta la entrada, el origen, el canal, si vuelve, el aparato y el país.
  */
-export function visitChanges(fp, { pagina, primera, origen, canal, vuelve, disp, aviso, pwa, now = Date.now() }) {
+export function visitChanges(fp, { pagina, primera, origen, canal, vuelve, disp, pant, aviso, pwa, now = Date.now() }) {
   const c = { [`vistas/${pagina}`]: INC };
   // Un aviso tocado o la app instalada abren una página, sea o no la primera de la visita (D-233)
   if (aviso) c[`aviso/${aviso}`] = INC;
@@ -663,6 +664,8 @@ export function visitChanges(fp, { pagina, primera, origen, canal, vuelve, disp,
   if (canal) c[`via/${canal}`] = INC;
   c[`retorno/${vuelve ? 'vuelve' : 'nueva'}`] = INC;
   c[`disp/${disp}`] = INC;
+  // The screen's band, not its size (screen-bands.js): which screens to design and test for
+  if (pant) c[`pant/${pant}`] = INC;
   c[`pais/${fp.co || 'desconocido'}`] = INC;
   return c;
 }
@@ -678,7 +681,7 @@ const sacar = (st, k) => { try { st?.removeItem(k); } catch (_) { /* nada */ } }
  */
 export function noteVisit(api, fp, {
   loc = globalThis.location, doc = globalThis.document, nav = globalThis.navigator,
-  sesion = globalThis.sessionStorage, local = globalThis.localStorage, now = Date.now(), hist = globalThis.history,
+  sesion = globalThis.sessionStorage, local = globalThis.localStorage, now = Date.now(), hist = globalThis.history, win = globalThis,
 } = {}) {
   const pagina = paginaDe(loc?.pathname);
   if (pagina === 'panel') return Promise.resolve();
@@ -698,6 +701,7 @@ export function noteVisit(api, fp, {
       origen: origenDe(puente ?? doc?.referrer, loc?.hostname),
       canal: canalDe(loc?.search),
       disp: dispositivoDe({ ua: nav?.userAgent, platform: nav?.platform, touch: nav?.maxTouchPoints }),
+      pant: screenBand({ w: win?.innerWidth, h: win?.innerHeight }),
     };
     poner(sesion, VISITA_KEY, pagina);
     if (datos.canal) poner(sesion, VIA_KEY, datos.canal);

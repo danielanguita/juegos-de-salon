@@ -161,7 +161,7 @@ The **key margins** (DESIGN.md §3 rule 7) are measured on every `b.shot()` too 
 The **space between a cover's blocks** (DESIGN.md §3 rule 6) is measured by `cover-gaps.mjs`: the panels, stage and ranking of a game's first screen sit 12 px from the next. `conformance.mjs` runs it as each game's `spacing` check, and ¡Al toque!'s `in-a-flash/page.mjs` too.
 `--height`, `--notches` (a phone with a notch), `--chat` (mounts the room chat's 💬 bubble and names any button it covers, C-15) and `--out <folder>` are the other options. The
 panel is viewed with seeded data: `look.mjs panel <shot>`, with `data`, `now`, `tournament`, `games`,
-`audience`, `traffic`, `health` (D-251), `cup-card`, `cup-days`, `cup-history`, `game-card` or `room-card` (D-207); `tournament` also brings a week of seeded notifications (D-233). The
+`audience`, `traffic`, `screens`, `health` (D-251), `cup-card`, `cup-days`, `cup-history`, `game-card` or `room-card` (D-207); `tournament` also brings a week of seeded notifications (D-233). The
 paths to each screen are in [`paths.mjs`](paths.mjs), which it shares with the language tests.
 
 `contact-sheet.mjs` isn't one either: it builds a sheet with **all** the README screenshots of a section,
