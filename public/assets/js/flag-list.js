@@ -39,6 +39,7 @@ export const FLAGS = {
   'routes-hint': '🚇 Broken Routes: a 💡 Hint button on its own page (one player, never La Copa) marks one rectangle of a shortest solution, −3 points each (#1381)',
   'uad-skip-end': '📅 Uno al día: Shinobi and Aletazo go straight to the result, without their own end screen',
   'mistakes-rule': '❌ Logic puzzles: what a mistake costs, in one line under the title while playing (Tango −10, Reinas nothing…)',
+  'blackjack-felt': '♠️ Blackjack: a felt table, bigger fanned cards with corner indices, the bet as a chip, the shoe as a bar with its red card, each hand\'s result as a stamp',
   'pm-pick-brush': '🖌️ Pintaminas: a game starts with no brush chosen; a tap on the board first asks to pick one, so nobody paints by mistake',
   'cover-dialogs': '🎮 Game covers: under Empezar, Instrucciones and Entrar (or your name) open as dialogs, the rankings open below; no «Volver al menú» and no game name chip on top, ‹ Menú as tall as the icons',
   'install-invite': '📲 Install the app: «Instala Juegos de Salón» in an iridescent card that waits for a first finished game, a ✕ that snoozes 14 then 60 days, an invitation from the top a moment after a game (once a week), iPhone steps that draw Safari\'s buttons with an arrow at its toolbar, and a 📲 tile in the home footer',

@@ -177,6 +177,7 @@ node tools/e2e/contact-sheet.mjs cuarto-rey --out /tmp/contact-sheet
 | `landing-fold.mjs` | Every game's landing (the `intro` path of each game in `paths.mjs`) at 320×568 and 375×667 in every language: the start button, or the first mode, is above the fold, also each game opened from Uno al día (`?today`) and a cup's day cover (U-39, D-344) |
 | `fourth-king/lab.mjs` | Cuarto Rey in La Bodega (D-420): not on the home page, in the lab's La Bodega folded to its title, a tap shows Play; `/fourth-king/` and `/cuarto-rey/` lead to `/labs/fourth-king/`, which loads behind the lab's door and is not indexed |
 | `fourth-king/game.mjs` | At `/labs/fourth-king/` (D-420): sound button, full deck up to the fourth king and the menu in English; that the table is exactly the script's names, even if the remembered table brings more rows |
+| `blackjack/game.mjs` | ♠️ Blackjack at `/labs/blackjack/`: a solo game against the house to the result and back to the lab (C-19); with the flag `blackjack-felt` on, the felt table (the bet a chip on its spot, the shoe a bar), and switched off in the tester tab, the table as before |
 | `bulls-and-cows/local.mjs` | One phone and playing solo (twice, to see the record), up to the result |
 | `bulls-and-cows/choose-box.mjs` | Playing solo with a lab key: tapping a box chooses where the next digit goes (#604) |
 | `bulls-and-cows/online.mjs` | Two phones against real Firebase: joining by URL, reload midway, rematch |

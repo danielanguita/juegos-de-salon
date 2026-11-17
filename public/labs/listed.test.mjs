@@ -10,8 +10,12 @@ import { fileURLToPath } from 'node:url';
 const PUBLIC = fileURLToPath(new URL('..', import.meta.url));
 const labs = readFileSync(join(PUBLIC, 'labs/index.html'), 'utf8');
 const walk = dir => readdirSync(dir).flatMap(f => { const p = join(dir, f); return statSync(p).isDirectory() ? walk(p) : [p]; });
-const files = walk(PUBLIC).filter(p => /\.(js|html)$/.test(p)).map(p => relative(PUBLIC, p))
-  .filter(p => !p.startsWith('labs/') && p !== 'assets/js/lab-access.js' && p !== 'assets/js/flags.js' && !p.endsWith('.test.mjs'));
+const all = walk(PUBLIC).filter(p => /\.(js|html)$/.test(p)).map(p => relative(PUBLIC, p))
+  .filter(p => p !== 'assets/js/lab-access.js' && p !== 'assets/js/flags.js' && !p.endsWith('.test.mjs'));
+// A lab game (labs/<game>/) sits behind the lab's door already, so its labAccess() needs no card; a flag it asks
+// (a treatment tried inside the lab game, like Blackjack's felt table) does, like any other
+const inLabGame = p => /^labs\/[\w-]+\//.test(p);
+const files = all.filter(p => !p.startsWith('labs/') || inLabGame(p));
 const { FLAGS } = await import('../assets/js/flag-list.js');
 const asked = new Set();
 
@@ -23,7 +27,7 @@ for (const f of files) {
     assert.ok(FLAGS[id], `${f} asks flag('${id}'), which is not a row of FLAGS in assets/js/flag-list.js (D-498)`);
     assert.ok(labs.includes(`id="seccion-${id}"`), `${f} asks flag('${id}'), but public/labs/index.html has no card #seccion-${id}`);
   }
-  if (!/\b(labAccess|flag)\(/.test(src)) continue;
+  if (!/\b(labAccess|flag)\(/.test(src) || (inLabGame(f) && !/\bflag\(/.test(src))) continue;
   checked++;
   const ids = [...src.matchAll(/\blab: #([\w-]+)/g)].map(m => m[1]);
   assert.ok(ids.length, `${f} asks labAccess() or flag() but names no card: add a "lab: #<id>" comment and the card in public/labs/index.html (D-409)`);

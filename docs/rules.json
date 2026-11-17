@@ -1111,6 +1111,21 @@
     "marketing/**",
     "docs/design/**"
    ]
+  },
+  {
+   "id": "labs-card-icon",
+   "title": "Every /labs/ card, game or feature, opens its title with its emoji or the game's drawing, and its index pill carries it",
+   "doc": "docs/AGENTS.md",
+   "form": [
+    "check"
+   ],
+   "enforcedBy": [
+    "public/labs/index-nav.test.mjs"
+   ],
+   "applies": [
+    "public/labs/index.html",
+    "public/labs/index-nav.js"
+   ]
   }
  ]
 }
