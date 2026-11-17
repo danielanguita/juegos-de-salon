@@ -11,7 +11,7 @@
  */
 const ES = {
   juego: {
-    nombre: 'Tembleque 3D', habilidad: 'espacial',
+    nombre: 'Tembleque', habilidad: 'espacial',
     como: [
       'Arrastra la pieza sobre el disco y suéltala: su sombra muestra dónde cae. Antes de soltarla puedes girarla.',
       'Gira el tablero para mirar la pila por todos lados y reparte el peso: si el disco se inclina demasiado, se vuelca y se acaba.',
@@ -78,7 +78,7 @@ const ES = {
 
 const EN = {
   juego: {
-    nombre: 'The Wobbles 3D', habilidad: 'spatial',
+    nombre: 'The Wobbles', habilidad: 'spatial',
     como: [
       'Drag the piece over the disc and let go: its shadow shows where it lands. Before letting go you can turn it.',
       'Turn the board to look at the pile from every side and spread the weight: if the disc leans too far, it tips over and the game ends.',
@@ -145,7 +145,7 @@ const EN = {
 
 const PT = {
   juego: {
-    nombre: 'Tremelique 3D', habilidad: 'espacial',
+    nombre: 'Tremelique', habilidad: 'espacial',
     como: [
       'Arraste a peça sobre o disco e solte: a sombra mostra onde ela cai. Antes de soltar você pode girá-la.',
       'Gire o tabuleiro para ver a pilha de todos os lados e distribua o peso: se o disco inclinar demais, ele vira e o jogo acaba.',

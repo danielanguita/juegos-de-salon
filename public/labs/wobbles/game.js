@@ -61,8 +61,10 @@ const PIC_3D = `<svg class="wb-3d" viewBox="0 0 200 140" aria-hidden="true">
   <g class="wb-hover"><ellipse cx="100" cy="86" rx="14" ry="7" fill="#0e0222" opacity="0.45"/>${cube(100, 18, 14, ROSE)}</g>
 </svg>`;
 
+/** The picture and how to play follow the lever. */
 function drawPicture() {
   $('#pic').classList.toggle('hard', chosen === 'hard');
+  $('#how').replaceChildren(...L.como[chosen].map(step => el('li', {}, step)));
 }
 
 /* ---------------- The level lever: Sudoku's (Pintaminas' electric switch), as is ---------------- */
@@ -128,7 +130,6 @@ function renderModes() {
   const play = () => { SFX.tap(); location.href = (chosen === 'hard' ? 'hard/' : 'easy/') + location.search; };
   $('#modes').replaceChildren(lever,
     el('button', { class: 'btn btn--yellow', id: 'btn-play', 'data-mode': 'solo', onClick: play }, T.play));
-  $('#how').replaceChildren(...L.como.map(step => el('li', {}, step)));
   if (hard) startFlicker(lever);
   setTheme(); drawPicture();
 }

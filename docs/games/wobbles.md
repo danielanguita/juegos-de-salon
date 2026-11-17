@@ -32,7 +32,9 @@ as after N pieces); on the hard one also `?spin=0` (skip the opening turn).
 The level lever is Sudoku's, which is Pintaminas' hard-mode switch, copied as is (the owner: "exactly the
 same"): down and green is easy, up and red is hard, with its wave, flash, sparks and the cover turning
 red. The picture above it is the level it shows, moving (2D: the claw and the rocking plank; 3D: the
-tipping disc and a hovering piece); it starts on easy, as in Sudoku.
+tipping disc and a hovering piece), and so is how to play (each level's own three steps, from its page);
+it starts on easy, as in Sudoku. The player never reads "2D" or "3D" (the owner): only easy and hard,
+and the hard level's name is plain Tembleque too.
 
 
 Cover (a moving picture of the level, the level lever, ¡A jugar!, how to play, the site footer with 💬) → a level: its card (how to play, ▶ Play) →

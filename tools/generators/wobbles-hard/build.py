@@ -10,7 +10,7 @@ N=os.path.dirname(os.path.abspath(__file__))+'/'
 neon=open(N+'template.html').read()
 head=neon[:neon.index("<script>\n")+len("<script>\n")]
 assert head.count('<title>⚖️ La Balanza</title>')==1 and head.count('<span>La Balanza</span>')==1
-head=head.replace('<title>⚖️ La Balanza</title>','<title>⚖️ Tembleque 3D</title>').replace('<span>La Balanza</span>','<span>Tembleque 3D</span>')
+head=head.replace('<title>⚖️ La Balanza</title>','<title>⚖️ Tembleque</title>').replace('<span>La Balanza</span>','<span>Tembleque</span>')
 # this game's own touches on the shared look: the lives sit in the middle of the top bar, and the instructions are a short list with icons
 css='''  #chip { background: none; padding: 0; width: 106px; height: 28px; }
   /* The three hearts: a canvas of their own over the middle of the top bar, tall enough for the pieces of a broken one to fall */

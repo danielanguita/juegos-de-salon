@@ -13,9 +13,12 @@ const ok = (cond, msg) => { console.log((cond ? '✓ ' : '✗ ') + msg); if (!co
 await b.go(SITE + '/labs/wobbles/'); await sleep(600);
 ok(await b.evaluate("window.__wobbles.level === 'easy' && document.getElementById('btn-level').getAttribute('aria-checked') === 'false' && !document.getElementById('pic').classList.contains('hard')"), 'the lever starts on easy, with the 2D picture');
 await b.shot('cover-easy');
+const howEasy = await b.evaluate("document.getElementById('how').textContent");
+ok(!/\b[23]D\b/.test(await b.evaluate('document.body.innerText')), 'the cover never says 2D or 3D');
 await b.evaluate("document.getElementById('btn-level').click(); 1"); await sleep(700);
 ok(await b.evaluate("window.__wobbles.level === 'hard' && document.getElementById('btn-level').getAttribute('aria-checked') === 'true' && document.getElementById('pic').classList.contains('hard') && document.body.classList.contains('wb-hard')"), 'flipping the lever shows hard, the 3D picture and the red cover');
 await b.shot('cover-hard');
+ok(await b.evaluate("document.getElementById('how').textContent") !== howEasy, 'how to play changes with the lever');
 await b.evaluate("document.getElementById('btn-play').click(); 1"); await sleep(900);
 ok(await b.evaluate('location.pathname') === '/labs/wobbles/hard/', '¡A jugar! opens the level the lever shows');
 

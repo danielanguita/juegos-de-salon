@@ -9,9 +9,9 @@ export default {
     "pt": "Tremelique"
   },
   "tagline": {
-    "es": "Apila piezas en la balanza sin que se caigan: fácil en 2D, difícil en 3D.",
-    "en": "Stack pieces on the scale without letting them fall: easy in 2D, hard in 3D.",
-    "pt": "Empilhe peças na balança sem deixá-las cair: fácil em 2D, difícil em 3D."
+    "es": "Apila piezas en la balanza sin que se caigan, en modo fácil o difícil.",
+    "en": "Stack pieces on the scale without letting them fall, in easy or hard mode.",
+    "pt": "Empilhe peças na balança sem deixá-las cair, no modo fácil ou difícil."
   },
   "keywords": {
     "es": [
