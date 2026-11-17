@@ -652,6 +652,16 @@ function renderSeats() {
       el('span', { class: 'bj-seat-coins' }, ...coins(statusBadge)),
     ));
 
+    // On the felt, a seat waiting for the deal keeps its place laid out (score slot, empty row, the bet's spot):
+    // the table has its playing size from the first bet on, and the next round does not shrink it
+    if (felt && p.hands.length === 0 && !isOut) {
+      const betting = state.phase === 'betting' && state.bettingIndex === pi;
+      seat.append(el('div', { class: 'bj-hands' }, el('div', { class: 'bj-hand' },
+        el('div', { class: 'bj-hand-meta' }, el('span', { class: 'score-pill slot', 'aria-hidden': 'true' }, '0')),
+        el('div', { class: 'cards-row' }),
+        el('div', { class: 'bet-spot' + (betting ? '' : ' empty') }, chipSpotSvg(), el('b', { class: 'pending-bet' }, String(betting ? pendingBet : 0))))));
+    }
+
     if (p.hands.length > 0) {
       const handsWrap = el('div', { class: 'bj-hands' });
       p.hands.forEach((h, hi) => {
@@ -665,10 +675,12 @@ function renderSeats() {
         const metaLeft = label + fmt(T.betNow, { n: h.bet });
         const metaRight = showOutcome
           ? el('span', { class: 'outcome-tag ' + h.outcome }, outcomeText(h))
-          : (val ? el('span', { class: 'score-pill' + (val.isBust ? ' bust' : (val.isBlackjack ? ' bj' : '')) }, String(val.total)) : '');
+          : (val ? el('span', { class: 'score-pill' + (val.isBust ? ' bust' : (val.isBlackjack ? ' bj' : '')) }, String(val.total))
+            : (felt ? el('span', { class: 'score-pill slot', 'aria-hidden': 'true' }, '0') : ''));
 
         handEl.append(el('div', { class: 'bj-hand-meta' }, el('span', { class: 'bet-text' }, ...coins(metaLeft)), metaRight));
-        if (shownCards.length > 0) {
+        // On the felt the row is there from the bet on, empty: the table opens at its full size and each card lands in its place
+        if (shownCards.length > 0 || felt) {
           handEl.append(el('div', { class: 'cards-row' },
             ...shownCards.map((c, ci) => cardEl(c, {
               small: state.players.length > 2,
@@ -717,6 +729,7 @@ function renderActionBox() {
       bumpDenom = n;
       renderActionBox();
     };
+    $$('#seats-box .pending-bet').forEach(b => { b.textContent = String(pendingBet); });
     box.replaceChildren(
       el('p', { class: 'lead center' }, fmt(T.bettingTurn, { name: p.name })),
       renderBetStage(p, minReq),
@@ -807,6 +820,8 @@ function renderPlay() {
   alertEl.hidden = !state.redCardOut;
   alertEl.textContent = T.redCardAlert;
 
+  // One player alone needs no «Turno de Ana» over the buttons (the felt hides it, to keep the screen in one view)
+  $('#screen-play').classList.toggle('solo', state.players.length === 1);
   renderDealer();
   renderSeats();
   renderActionBox();
@@ -1018,7 +1033,7 @@ async function animateTransition(prev, next) {
         freshCardKey = `p-${pi}-0-${pass}`;
         SFX.flip();
         SFX.reveal();
-        morph(renderPlay); // the table grows to take the card: it glides, not jumps
+        renderPlay();
       }
       await wait(650);
       if (token !== animToken) return;
@@ -1026,7 +1041,7 @@ async function animateTransition(prev, next) {
       freshCardKey = `d-${pass}`;
       SFX.flip();
       if (pass === 0) SFX.reveal(); // hole card stays suspensefully face down
-      morph(renderPlay);
+      renderPlay();
     }
 
     if (next.phase === 'roundEnd') {
@@ -1082,6 +1097,14 @@ async function animateTransition(prev, next) {
 function dispatch(act, extra = {}) {
   disarm();
   SFX.tap();
+  // On the felt, the dealt cards and stamps fade off the table before the next round's bets
+  const table = $('.bj-table');
+  if (felt && act === 'next' && !(mode === 'online' && online) && table && !table.classList.contains('clearing')
+      && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    table.classList.add('clearing');
+    setTimeout(() => { table.classList.remove('clearing'); dispatch(act, extra); }, 320);
+    return;
+  }
   if (mode === 'online' && online) {
     online.transport.send({ t: 'bj', from: online.role, act, ...extra });
     return;
