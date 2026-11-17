@@ -1184,6 +1184,8 @@
     "public/assets/js/manifests/labs/fourth-king.js",
     "public/assets/js/manifests/labs/julep.js",
     "public/assets/js/manifests/labs/transfer.js",
+    "public/assets/js/manifests/labs/wobbles-3d.js",
+    "public/assets/js/manifests/labs/wobbles.js",
     "public/assets/js/manifests/liars-dice.js",
     "public/assets/js/manifests/timeline.js",
     "public/assets/js/month-end.js",
@@ -1413,6 +1415,8 @@
     "public/labs/transfer/engine.js",
     "public/labs/transfer/game.js",
     "public/labs/transfer/rules.js",
+    "public/labs/wobbles-3d/game.js",
+    "public/labs/wobbles/game.js",
     "public/liars-dice/engine.js",
     "public/liars-dice/game.js",
     "public/liars-dice/rules.js",
@@ -1833,7 +1837,9 @@
     "timeline/verdict.mjs",
     "transfer/game.mjs",
     "versioning.mjs",
-    "visual.mjs"
+    "visual.mjs",
+    "wobbles-3d/game.mjs",
+    "wobbles/game.mjs"
   ],
   "documents": [
     {
@@ -2079,6 +2085,14 @@
     {
       "path": "docs/games/where.md",
       "title": "📍 Where Is It? (¿Dónde queda?)"
+    },
+    {
+      "path": "docs/games/wobbles-3d.md",
+      "title": "⚖️ The Wobbles 3D (Tembleque 3D; lab, in Juegos en prueba)"
+    },
+    {
+      "path": "docs/games/wobbles.md",
+      "title": "⚖️ The Wobbles (Tembleque; lab, in Juegos en prueba)"
     },
     {
       "path": "docs/games/word.md",
