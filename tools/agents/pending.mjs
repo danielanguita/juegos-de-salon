@@ -89,7 +89,7 @@ const TAKEOVER_AFTER = 2; // hours after the comment, still on the same commit
  * nudge is two hours old and nothing moved; otherwise null. A push makes a new commit, so it starts over.
  */
 export function stall({ author, draft, red = [], pushedAt, nudgedAt = null }, now = Date.now()) {
-  if (author !== OWNER || draft || !red.length) return null;
+  if (![OWNER, 'github-actions[bot]'].includes(author) || draft || !red.length) return null;
   if (nudgedAt) return (now - Date.parse(nudgedAt)) / HOUR >= TAKEOVER_AFTER ? 'takeover' : null;
   return (now - Date.parse(pushedAt)) / HOUR >= NUDGE_AFTER ? 'nudge' : null;
 }
@@ -141,7 +141,7 @@ export function gather(now = Date.now()) {
 /** The owner's red PRs with what to do now (nudge or takeover). */
 export function gatherStalls(now = Date.now()) {
   const out = [];
-  for (const p of pages(`repos/${REPO}/pulls`).filter(p => p.state === 'open' && p.user.login === OWNER && !p.draft)) {
+  for (const p of pages(`repos/${REPO}/pulls`).filter(p => p.state === 'open' && [OWNER, 'github-actions[bot]'].includes(p.user.login) && !p.draft)) {
     const red = redChecks(p.head.sha);
     if (!red.length) continue;
     const pushedAt = api(`repos/${REPO}/commits/${p.head.sha}`).commit.committer.date;

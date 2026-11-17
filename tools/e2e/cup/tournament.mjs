@@ -227,7 +227,9 @@ const playTango = async level => {
       await t(other);
       ok(await clashCount() === 0, 'Tango: a sun left in place is not marked the instant another cell is tapped');
       await sleep(1700);
-      ok(await clashCount() > 0 && /1/.test(await counter()), 'Tango: a sun left in place is marked and counted 1.5 s after another cell is tapped');
+      // Scored by time (lab flag tango-time, never in a cup: the hint says +15 s) there is no mistakes counter (D-572)
+      const byTime = await ev(`/\\+15 s/.test(document.getElementById('btn-pista')?.textContent || '')`);
+      ok(await clashCount() > 0 && (byTime || /1/.test(await counter())), 'Tango: a sun left in place is marked and counted 1.5 s after another cell is tapped');
     }
     // Clear all (two taps) and a hint (two taps), the helpers of D-103; Undo brings back what Clear all erased (D-342)
     await t(free[0]);
@@ -736,7 +738,7 @@ if (runs('labs')) {
   // when the improvement is how it behaves on any visit (`../`, the one-window gate, D-431), or a real
   // page with the demo that shows it without setting it up (`../cup/?test&lab&demo=resumed`, D-433)
   const sections = await ev(`JSON.stringify([...document.querySelectorAll('section.seccion')].map(x => [x.id, x.querySelector('a.btn')?.getAttribute('href')]))`).then(JSON.parse);
-  ok(sections.length >= 1 && sections.some(([id, h]) => id === 'seccion-caso' && h === 'case/') && sections.every(([, h]) => /^(\.\.\/)?[a-z-]+\/([a-z-]+\/)?(\?[a-z=&-]+)?$/.test(h || '') || /^\.\.\/(\?[a-z=&-]+)?$/.test(h || '')) && !await ev(`!!document.getElementById('minis')`),
+  ok(sections.length >= 1 && sections.some(([id, h]) => id === 'seccion-caso' && h === 'case/') && sections.every(([, h]) => /^(\.\.\/)?[a-z0-9-]+\/([a-z0-9-]+\/)?(\?[a-z=&-]+)?$/.test(h || '') || /^\.\.\/(\?[a-z=&-]+)?$/.test(h || '')) && !await ev(`!!document.getElementById('minis')`),
     `the lab offers only prototypes, each in its folder (${sections.map(([, h]) => h).join(' ')})`);
   await b.shot('10-labs');
   // A link from before D-266, with the parameters in Spanish: still arrives, and in English

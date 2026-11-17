@@ -198,6 +198,26 @@ export function estado(p, jugadas) {
   return { g, errores, pistas, fijas, mal, pendiente, deshacibles: previos.length, fin: g.every(Boolean) && mal.size === 0 };
 }
 
-/** 100 menos 10 por jugada que rompe una regla y 15 por pista, con piso de 10. */
-export const puntaje = e => (e.fin && !e.rendido ? Math.max(10, 100 - 10 * e.errores - COSTO_PISTA * (e.pistas || 0)) : 0);
-export const tarjeta = e => e.rendido ? '☀️🌙 🏳️' : `☀️🌙${'❌'.repeat(e.errores)}${'💡'.repeat(e.pistas || 0)}✅`;
+/**
+ * Lab flag `tango-time` (lab: #seccion-tango-time), only outside La Copa so no running cup changes
+ * its rule: the time scores, as in Queens (D-107), and mistakes cost nothing. 100 up to `RAPIDO_MS`,
+ * then evenly down to 10 at `LENTO_MS`; each hint adds `PISTA_MS` to the time. The page marks the
+ * final state with `porTiempo` and `ms`, so the score and its breakdown read it from the state.
+ */
+export const RAPIDO_MS = 45000;
+export const LENTO_MS = 300000;
+export const PISTA_MS = 15000;
+export const timeWithHints = e => (e.ms || 0) + PISTA_MS * (e.pistas || 0);
+export function pointsForTime(ms) {
+  const t = Math.min(Math.max(ms || 0, RAPIDO_MS), LENTO_MS);
+  return Math.round(100 - (90 * (t - RAPIDO_MS)) / (LENTO_MS - RAPIDO_MS));
+}
+
+/** 100 menos 10 por jugada que rompe una regla y 15 por pista, con piso de 10 (with `porTiempo`, the time). */
+export const puntaje = e => (!e.fin || e.rendido ? 0
+  : e.porTiempo ? pointsForTime(timeWithHints(e))
+  : Math.max(10, 100 - 10 * e.errores - COSTO_PISTA * (e.pistas || 0)));
+const reloj = ms => { const s = Math.round((ms || 0) / 1000); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`; };
+export const tarjeta = e => e.rendido ? '☀️🌙 🏳️'
+  : e.porTiempo ? `☀️🌙 ⏱ ${reloj(e.ms)}${'💡'.repeat(e.pistas || 0)} ✅`
+  : `☀️🌙${'❌'.repeat(e.errores)}${'💡'.repeat(e.pistas || 0)}✅`;

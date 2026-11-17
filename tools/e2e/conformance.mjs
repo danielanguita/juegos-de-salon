@@ -102,10 +102,12 @@ for (const folder of chosen) {
   // back: a registered game goes home, a lab one to /labs/
   await fresh();
   const parent = gameById(m.id) ? '/' : '/labs/';
-  const href = await b.evaluate(`document.querySelector('a.back') ? new URL(document.querySelector('a.back').getAttribute('href'), location.href).pathname : null`);
+  // A page excused from C-2's a.back header (a prototype with its own HUD) is checked on its first link
+  const back = skip('C-2', 'a.back') ? 'a[href]' : 'a.back';
+  const href = await b.evaluate(`document.querySelector('${back}') ? new URL(document.querySelector('${back}').getAttribute('href'), location.href).pathname : null`);
   ok(href === parent, `${folder} · back: the header ‹ goes to ${parent}${href === parent ? '' : ` (it goes to ${href})`}`);
   if (href) {
-    await b.evaluate(`document.querySelector('a.back').click(); 1`); await sleep(1200);
+    await b.evaluate(`document.querySelector('${back}').click(); 1`); await sleep(1200);
     const at = await b.evaluate(`location.pathname`);
     ok(at === parent, `${folder} · back: tapping it lands on ${parent}${at === parent ? '' : ` (on ${at})`}`);
   }

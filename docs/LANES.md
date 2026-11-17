@@ -34,13 +34,17 @@ retries. A session that edits the PR description keeps that block as it is. For 
 
 A session never turns on auto-merge for a 🔴 PR; it says in the PR that it waits for the owner (whose Yes merges it).
 Exception (D-540): when the owner asked for the work directly in that session's dialogue, the session ticks
-the box itself (it acts as the owner on GitHub) once the head is final, and says so in the PR. A 🔴 PR
+the box itself (it acts as the owner on GitHub) once the head is final, and says so in the PR:
+`node tools/agents/lanes.mjs tick <n>` does both (D-575).
+A push that only merges main into an approved commit (GitHub's "Update branch") keeps the tick: the
+lane job checks the merge is clean and brings nothing else, sets `owner-approval` green and turns on
+auto-merge (D-575). Any other push asks again. A 🔴 PR
 from an agent's round, a job or a session's own initiative still waits for the owner.
 Storing something new about players is 🔴 too even when no red file changes: the privacy page
 changes in the same PR (CLAUDE.md), which makes it red.
 
 **An outside PR is 🔴 whatever its files** (#1249 step 4): one from a fork, or opened by anyone but
-the owner (`INSIDERS` in `lanes.mjs`; sessions act as the owner), never takes the lane of its files,
+the owner (`INSIDERS` in `lanes.mjs`; sessions act as the owner, and the repo's own workflows, `github-actions[bot]`, are insiders, D-575), never takes the lane of its files,
 so it never auto-merges. `lanes.test.mjs` simulates both. On a fork the `lane` job's token cannot
 write the status, so `owner-approval` stays missing and the PR cannot merge without the owner either way.
 

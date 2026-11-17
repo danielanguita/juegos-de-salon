@@ -18,6 +18,7 @@
  */
 import * as motor from './engine.js';
 import { botonDeshacer } from '../deshacer.js';
+import { flag } from '../../../assets/js/flags.js';
 
 const ICONO = { [motor.SOL]: '☀️', [motor.LUNA]: '🌙' };
 const CLASE = { [motor.SOL]: 'sol', [motor.LUNA]: 'luna' };
@@ -64,6 +65,12 @@ export function montar(raiz, ctx) {
   let erroresVistos = 0;      // the error count already shown
   let rojoTimer = null, sonar = false;
   const { n } = p;
+
+  // Played on its own (never in La Copa, so no running cup changes its rule): the time scores and a
+  // hint adds PISTA_MS instead of taking off points (lab: #seccion-tango-time)
+  let porTiempo = false;
+  if (ctx.suelto) flag('tango-time').then(on => { porTiempo = !!on; if (porTiempo && raiz.isConnected) dibujar(false, false); }, () => {});
+  const final = e => (porTiempo ? { ...e, porTiempo: true, ms: ctx.tiempo?.() } : e);
 
   const avisar = () => { SFX.error(); vibrate([40, 40, 40]); };
 
@@ -129,7 +136,7 @@ export function montar(raiz, ctx) {
       mal = visto; errores = erroresVistos;
     }
     // Terminado el tablero, el tiempo se detiene aquí y no al tocar el botón (D-130)
-    if (e.fin) ctx.pararReloj?.(e);
+    if (e.fin) ctx.pararReloj?.(final(e));
     raiz.innerHTML = '';
     const caja = el('div', { class: 'stack tango-juego' });
     const grilla = el('div', { class: 'tan-grid' + (e.fin ? ' fin' : ''), 'data-tablero': 'tango', style: `grid-template-columns: repeat(${n}, 1fr)` });
@@ -151,11 +158,11 @@ export function montar(raiz, ctx) {
     }
     if (e.fin) {
       caja.append(el('div', { class: 'notice notice--' + (e.rendido ? 'bad' : 'good') }, e.rendido ? T.queensGaveUp : `🎉 ${T.tangoOk}`),
-        el('button', { class: 'btn btn--yellow', id: 'btn-fin', onClick: () => { SFX.tap(); ctx.terminar(e); } }, ctx.textoFin || T.seeResults));
+        el('button', { class: 'btn btn--yellow', id: 'btn-fin', onClick: () => { SFX.tap(); ctx.terminar(final(e)); } }, ctx.textoFin || T.seeResults));
     }
     caja.append(grilla);
     if (mal.size && !e.fin) caja.append(el('div', { class: 'notice notice--bad' }, T.tangoClash));
-    if (errores || e.pistas) caja.append(el('p', { class: 'muted center', style: 'margin:0' }, fmt(T.tangoCount, { e: errores, p: e.pistas })));
+    if (!porTiempo && (errores || e.pistas)) caja.append(el('p', { class: 'muted center', style: 'margin:0' }, fmt(T.tangoCount, { e: errores, p: e.pistas })));
     if (!e.fin) {
       caja.append(el('div', { class: 'btn-row tango-acciones' },
         // Undo is not a cell tap: it neither sounds a clash nor restarts the red wait's count
@@ -164,7 +171,8 @@ export function montar(raiz, ctx) {
           jugadas.push(motor.DESHACER); ctx.guardar(jugadas); dibujar();
         } }),
         conConfirmacion('borrar', `🧹 ${T.clearAll}`, T.clearAllSure, () => { SFX.splash(); jugar(motor.BORRAR); }, { id: 'btn-borrar' }),
-        conConfirmacion('pista', `💡 ${fmt(T.hintCost, { n: motor.COSTO_PISTA })}`, fmt(T.hintSure, { n: motor.COSTO_PISTA }), () => {
+        conConfirmacion('pista', `💡 ${porTiempo ? fmt(T.hintTime, { n: motor.PISTA_MS / 1000 }) : fmt(T.hintCost, { n: motor.COSTO_PISTA })}`,
+          porTiempo ? fmt(T.hintTimeSure, { n: motor.PISTA_MS / 1000 }) : fmt(T.hintSure, { n: motor.COSTO_PISTA }), () => {
           const i = motor.pista(p, e.g, e.fijas);
           if (i < 0) return;
           SFX.reveal(); jugar({ h: i });
