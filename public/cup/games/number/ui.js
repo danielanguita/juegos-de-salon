@@ -7,6 +7,7 @@
  * antes de las notas) se lee como los intentos.
  */
 import * as motor from './engine.js';
+import { flag } from '../../../assets/js/flags.js';
 import { teclado, CIFRAS } from '../../../assets/js/teclado.js';
 import { LOCALES as TYF_LOCALES } from '../../../bulls-and-cows/rules.js';
 
@@ -56,7 +57,8 @@ export function tablero(el, { filas, largo, titulo, valor = f => f.v, completa =
 
 /** A finished board: ⚠️ on each ruled-out guess and, under it, what each one cost (D-453). */
 export function tableroFin(el, e, opciones) {
-  const nota = tyf(opciones.lang).discardedNote.replace('{c}', motor.PENA_DESCARTE);
+  const L = tyf(opciones.lang);
+  const nota = L.discardedNote.replace('{c}', motor.PENA_DESCARTE) + (motor.cifraNueva() ? ' ' + L.newDigitFree : '');
   return tablero(el, { ...opciones, filas: e.filas, marcar: true, notas: e.descartados ? [nota] : [] });
 }
 
@@ -67,6 +69,8 @@ export function montar(raiz, ctx) {
   const J = leerJugadas(ctx.jugadas);
   const notas = new Set(J.n);
   const guardar = () => ctx.guardar({ i: J.i, n: [...notas] });
+  // A guess with a new digit is exploring, not wasted (lab: #seccion-number-new-digit; asked here, on the phone, not in node)
+  flag('number-new-digit').then(motor.usarCifraNueva, () => {});
 
   // Choosing the box (#604): on for everyone, in Toque y Fama and in La Copa (tried in the lab, D-409)
   const elegible = pad => { pad.activarElegir(); return pad; };

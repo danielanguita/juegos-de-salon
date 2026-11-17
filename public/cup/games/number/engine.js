@@ -27,7 +27,17 @@ export const responder = (intento, secreto) => score(intento, secreto);
 export const descartado = (intento, anteriores) => anteriores.some(f => {
   const s = responder(intento, f.v);
   return s.famas !== f.famas || s.toques !== f.toques;
-});
+}) && !(CIFRA_NUEVA && traeCifraNueva(intento, anteriores));
+
+/**
+ * Lab flag `number-new-digit` (lab: #seccion-number-new-digit): a guess that tries at least one digit no earlier guess had is
+ * exploring, not wasted, so it is not counted as ruled out even when it could not be the number
+ * (5678 after 1234 gave two cows). Set once by the page from `flag()`; off by default.
+ */
+let CIFRA_NUEVA = false;
+export const usarCifraNueva = on => { CIFRA_NUEVA = !!on; };
+export const cifraNueva = () => CIFRA_NUEVA;
+const traeCifraNueva = (intento, anteriores) => [...intento].some(d => !anteriores.some(f => f.v.includes(d)));
 
 /** El estado a partir de la lista de intentos. Each row also says whether it was ruled out (D-453). */
 export function estado(p, intentos, max = MAX_INTENTOS) {

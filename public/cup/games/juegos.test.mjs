@@ -1010,3 +1010,15 @@ else {
   console.log(`copa/juegos: ${counts.reduce((a, b) => a + b, 0)} tests OK`);
 }
 
+
+// Lab flag number-new-digit: a ruled-out guess with a digit never tried before is exploring, not wasted
+{
+  const p = { cifras: 4, secreto: '9345' };
+  const g = ['1234', '5678', '9245', '9246', '9215', '9345'];
+  assert.equal(numero.puntaje(numero.estado(p, g)), 40, 'the old rule: four ruled out');
+  numero.usarCifraNueva(true);
+  const e = numero.estado(p, g);
+  assert.deepEqual(e.filas.map(f => f.descartado), [false, false, false, true, true, false]);
+  assert.equal(numero.puntaje(e), 70);
+  numero.usarCifraNueva(false);
+}
