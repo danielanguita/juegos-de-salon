@@ -51,6 +51,9 @@ let online = null; // { transport, code, role, config, match }
 let animToken = 0;
 let dealReveal = null; // { players: [[n, ...]], dealer: n, holeRevealed: bool, showOutcomes: bool }
 let freshCardKey = null;
+let clearing = false;
+// The felt is cleared before a new hand: the cards slide off towards the dealer and fade, one after another (style.css)
+const CLEAR_MS = 620;
 // The felt table, a visual treatment on trial (lab: #seccion-blackjack-felt): cards with corner indices, the bet as a chip,
 // the shoe as a bar with its red card, each hand's result as a stamp
 let felt = false;
@@ -120,6 +123,8 @@ function save() {
 
 function showScreen(id) {
   $$('.screen').forEach(s => s.classList.toggle('active', s.id === id));
+  // The red room of a defeat covers the whole view, and only on its result
+  document.documentElement.classList.toggle('bj-defeat', id === 'screen-result' && $('#screen-result').classList.contains('defeat'));
   window.scrollTo({ top: 0, behavior: 'instant' });
 }
 
@@ -243,6 +248,8 @@ function startCpu() {
   animToken++;
   dealReveal = null;
   freshCardKey = null;
+  clearing = false;
+  $('.bj-table')?.classList.remove('clearing');
   nameStore.setList([name]);
   state = E.newGame([name], setupConfig);
   syncPendingBet();
@@ -652,6 +659,16 @@ function renderSeats() {
       el('span', { class: 'bj-seat-coins' }, ...coins(statusBadge)),
     ));
 
+    // On the felt, a seat waiting for the deal keeps its place laid out (score slot, empty row, the bet's spot):
+    // the table has its playing size from the first bet on, and the next round does not shrink it
+    if (felt && p.hands.length === 0 && !isOut) {
+      const betting = state.phase === 'betting' && state.bettingIndex === pi;
+      seat.append(el('div', { class: 'bj-hands' }, el('div', { class: 'bj-hand' },
+        el('div', { class: 'bj-hand-meta' }, el('span', { class: 'score-pill slot', 'aria-hidden': 'true' }, '0')),
+        el('div', { class: 'cards-row' }),
+        el('div', { class: 'bet-spot' + (betting ? '' : ' empty') }, chipSpotSvg(), el('b', { class: 'pending-bet' }, String(betting ? pendingBet : 0))))));
+    }
+
     if (p.hands.length > 0) {
       const handsWrap = el('div', { class: 'bj-hands' });
       p.hands.forEach((h, hi) => {
@@ -665,10 +682,12 @@ function renderSeats() {
         const metaLeft = label + fmt(T.betNow, { n: h.bet });
         const metaRight = showOutcome
           ? el('span', { class: 'outcome-tag ' + h.outcome }, outcomeText(h))
-          : (val ? el('span', { class: 'score-pill' + (val.isBust ? ' bust' : (val.isBlackjack ? ' bj' : '')) }, String(val.total)) : '');
+          : (val ? el('span', { class: 'score-pill' + (val.isBust ? ' bust' : (val.isBlackjack ? ' bj' : '')) }, String(val.total))
+            : (felt ? el('span', { class: 'score-pill slot', 'aria-hidden': 'true' }, '0') : ''));
 
         handEl.append(el('div', { class: 'bj-hand-meta' }, el('span', { class: 'bet-text' }, ...coins(metaLeft)), metaRight));
-        if (shownCards.length > 0) {
+        // On the felt the row is there from the bet on, empty: the table opens at its full size and each card lands in its place
+        if (shownCards.length > 0 || felt) {
           handEl.append(el('div', { class: 'cards-row' },
             ...shownCards.map((c, ci) => cardEl(c, {
               small: state.players.length > 2,
@@ -717,6 +736,7 @@ function renderActionBox() {
       bumpDenom = n;
       renderActionBox();
     };
+    $$('#seats-box .pending-bet').forEach(b => { b.textContent = String(pendingBet); });
     box.replaceChildren(
       el('p', { class: 'lead center' }, fmt(T.bettingTurn, { name: p.name })),
       renderBetStage(p, minReq),
@@ -807,13 +827,30 @@ function renderPlay() {
   alertEl.hidden = !state.redCardOut;
   alertEl.textContent = T.redCardAlert;
 
+  // One player alone needs no «Turno de Ana» over the buttons (the felt hides it, to keep the screen in one view)
+  $('#screen-play').classList.toggle('solo', state.players.length === 1);
   renderDealer();
   renderSeats();
   renderActionBox();
   showScreen('screen-play');
+  fitPlay();
 }
 
 /* ---------------- The felt table (lab: #seccion-blackjack-felt) ---------------- */
+/**
+ * The felt fills the phone's height: the play screen is given exactly what is left of the view under the top bar,
+ * and the table (a flex child, style.css) takes all of it the bar, the buttons and «Cómo se juega» do not use.
+ */
+function fitPlay() {
+  const s = $('#screen-play');
+  if (!felt || !s?.classList.contains('active')) { if (s) s.style.minHeight = ''; return; }
+  s.style.minHeight = '';
+  const top = s.getBoundingClientRect().top + scrollY;
+  const below = document.documentElement.scrollHeight - (s.getBoundingClientRect().bottom + scrollY);
+  s.style.minHeight = Math.max(0, innerHeight - top - below) + 'px';
+}
+addEventListener('resize', () => fitPlay());
+
 /** A text with 🪙: on the felt (flag blackjack-felt) each 🪙 becomes the table's yellow chip, which iPhone drew as a grey moon. */
 function coins(text) {
   if (!felt || !String(text).includes('🪙')) return [text];
@@ -842,8 +879,8 @@ function renderFeltBits(shoeLeft) {
   const arc = $('#felt-arc');
   if (arc.dataset.lang === lang) return;
   arc.dataset.lang = lang;
-  arc.replaceChildren(parseSvg(`<svg viewBox="0 0 340 64">
-    <path id="felt-p1" d="M20 6 Q170 50 320 6" fill="none"/><path id="felt-p2" d="M40 26 Q170 66 300 26" fill="none"/>
+  arc.replaceChildren(parseSvg(`<svg viewBox="0 0 340 70">
+    <path id="felt-p1" d="M20 6 Q170 50 320 6" fill="none"/><path id="felt-p2" d="M40 31 Q170 71 300 31" fill="none"/>
     <text text-anchor="middle"><textPath href="#felt-p1" startOffset="50%"></textPath></text>
     <text class="sub" text-anchor="middle"><textPath href="#felt-p2" startOffset="50%"></textPath></text>
   </svg>`));
@@ -1002,86 +1039,117 @@ async function animateTransition(prev, next) {
   const token = ++animToken;
   freshCardKey = null;
 
-  // 1. Entering deal (betting -> playing or immediate roundEnd)
-  if (prev.phase === 'betting' && (next.phase === 'playing' || next.phase === 'roundEnd')) {
-    const pCounts = next.players.map(p => p.hands.map(() => 0));
-    dealReveal = { players: pCounts, dealer: 0, holeRevealed: false, showOutcomes: false };
-    // The bet goes down: the felt table opens up and the betting box folds away in one smooth move
-    await morph(renderPlay);
+  try {
+    // 1. Entering deal (betting -> playing or immediate roundEnd)
+    if (prev.phase === 'betting' && (next.phase === 'playing' || next.phase === 'roundEnd')) {
+      clearing = false;
+      $('.bj-table')?.classList.remove('clearing');
+      const pCounts = next.players.map(p => p.hands.map(() => 0));
+      dealReveal = { players: pCounts, dealer: 0, holeRevealed: false, showOutcomes: false };
+      // The bet goes down: the felt table opens up and the betting box folds away in one smooth move
+      await morph(renderPlay);
 
-    for (let pass = 0; pass < 2; pass++) {
-      for (let pi = 0; pi < next.players.length; pi++) {
-        if (next.players[pi].hands.length === 0) continue;
+      for (let pass = 0; pass < 2; pass++) {
+        for (let pi = 0; pi < next.players.length; pi++) {
+          if (next.players[pi].hands.length === 0) continue;
+          await wait(650);
+          if (token !== animToken) return;
+          pCounts[pi][0] = pass + 1;
+          freshCardKey = `p-${pi}-0-${pass}`;
+          SFX.flip();
+          SFX.reveal();
+          renderPlay();
+        }
         await wait(650);
         if (token !== animToken) return;
-        pCounts[pi][0] = pass + 1;
-        freshCardKey = `p-${pi}-0-${pass}`;
+        dealReveal.dealer = pass + 1;
+        freshCardKey = `d-${pass}`;
         SFX.flip();
-        SFX.reveal();
-        morph(renderPlay); // the table grows to take the card: it glides, not jumps
+        if (pass === 0) SFX.reveal(); // hole card stays suspensefully face down
+        renderPlay();
       }
-      await wait(650);
-      if (token !== animToken) return;
-      dealReveal.dealer = pass + 1;
-      freshCardKey = `d-${pass}`;
-      SFX.flip();
-      if (pass === 0) SFX.reveal(); // hole card stays suspensefully face down
-      morph(renderPlay);
-    }
-
-    if (next.phase === 'roundEnd') {
-      await runDealerReveal(token, next);
-      return;
-    }
-    await wait(450);
-    if (token !== animToken) return;
-    dealReveal = null;
-    freshCardKey = null;
-    SFX.turn();
-    renderPlay();
-    return;
-  }
-
-  // 2. Player drew a card (hit / double / split)
-  if (prev.phase === 'playing') {
-    const pi = prev.turnPlayer;
-    const hi = prev.turnHand;
-    const nextHand = next.players[pi]?.hands[hi];
-    const prevLen = prev.players[pi]?.hands[hi]?.cards.length ?? 0;
-
-    if (nextHand && nextHand.cards.length > prevLen) {
-      const drawnIdx = nextHand.cards.length - 1;
-      freshCardKey = `p-${pi}-${hi}-${drawnIdx}`;
-      SFX.flip();
-      SFX.reveal();
 
       if (next.phase === 'roundEnd') {
-        // Show player's new card before flipping dealer hole card
-        dealReveal = {
-          players: next.players.map(p => p.hands.map(h => h.cards.length)),
-          dealer: 2,
-          holeRevealed: false,
-          showOutcomes: false,
-        };
-        renderPlay();
-        await wait(750);
-        if (token !== animToken) return;
         await runDealerReveal(token, next);
         return;
       }
-    } else if (next.phase === 'roundEnd') {
-      await runDealerReveal(token, next);
+      await wait(450);
+      if (token !== animToken) return;
+      dealReveal = null;
+      freshCardKey = null;
+      SFX.turn();
+      renderPlay();
       return;
     }
-  }
 
-  dealReveal = null;
-  renderPlay();
+    // 2. Player drew a card (hit / double / split)
+    if (prev.phase === 'playing') {
+      const pi = prev.turnPlayer;
+      const hi = prev.turnHand;
+      const nextHand = next.players[pi]?.hands[hi];
+      const prevLen = prev.players[pi]?.hands[hi]?.cards.length ?? 0;
+
+      if (nextHand && nextHand.cards.length > prevLen) {
+        const drawnIdx = nextHand.cards.length - 1;
+        freshCardKey = `p-${pi}-${hi}-${drawnIdx}`;
+        SFX.flip();
+        SFX.reveal();
+
+        if (next.phase === 'roundEnd') {
+          // Show player's new card before flipping dealer hole card
+          dealReveal = {
+            players: next.players.map(p => p.hands.map(h => h.cards.length)),
+            dealer: 2,
+            holeRevealed: false,
+            showOutcomes: false,
+          };
+          renderPlay();
+          await wait(750);
+          if (token !== animToken) return;
+          await runDealerReveal(token, next);
+          return;
+        }
+      } else if (next.phase === 'roundEnd') {
+        await runDealerReveal(token, next);
+        return;
+      }
+    }
+
+    dealReveal = null;
+    renderPlay();
+  } finally {
+    if (token === animToken && dealReveal) {
+      dealReveal = null;
+      freshCardKey = null;
+      renderPlay();
+    }
+  }
 }
 
 function dispatch(act, extra = {}) {
+  if (clearing) return;
+  if (!(mode === 'online' && online) && dealReveal) return;
   disarm();
   SFX.tap();
+  // On the felt, the dealt cards and stamps fade off the table before the next round's bets
+  const table = $('.bj-table');
+  if (felt && act === 'next' && !(mode === 'online' && online) && table
+      && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    clearing = true;
+    const btn = $('#btn-next-round');
+    if (btn) btn.disabled = true;
+    table.classList.add('clearing');
+    setTimeout(() => {
+      clearing = false;
+      table.classList.remove('clearing');
+      commitDispatch(act, extra);
+    }, CLEAR_MS);
+    return;
+  }
+  commitDispatch(act, extra);
+}
+
+function commitDispatch(act, extra = {}) {
   if (mode === 'online' && online) {
     online.transport.send({ t: 'bj', from: online.role, act, ...extra });
     return;
@@ -1135,6 +1203,12 @@ function renderResult() {
   const title = resultHeading();
   $('#result-title').textContent = title;
   $('#result-reason').textContent = endReasonText();
+  // On the felt, the house's win is not celebrated: a player who ends with fewer coins than they sat down with
+  // (alone, or this phone's player online) gets a red room and a sinking 💸 instead of confetti; even, neither
+  const me = mode === 'online' ? state.players[myPlayerIndex()] : (state.players.length === 1 ? state.players[0] : null);
+  const outcome = !felt || !me ? 'won' : me.coins < state.startingCoins ? 'lost' : me.coins === state.startingCoins ? 'even' : 'won';
+  $('#screen-result').classList.toggle('defeat', outcome === 'lost');
+  $('#screen-result .trophy').textContent = outcome === 'lost' ? '💸' : outcome === 'even' ? '🤝' : '🏆';
 
   const sorted = [...state.players].sort((a, b) =>
     (b.coins - a.coins) || ((b.handsWon || 0) - (a.handsWon || 0)) || ((b.blackjacks || 0) - (a.blackjacks || 0)));
@@ -1161,6 +1235,8 @@ function renderResult() {
         animToken++;
         dealReveal = null;
         freshCardKey = null;
+        clearing = false;
+        $('.bj-table')?.classList.remove('clearing');
         state = E.newGame(
           state.players.map(p => p.name),
           { decks: state.decks, maxRounds: state.maxRounds, startingCoins: state.startingCoins, minBet: state.minBet },
@@ -1181,7 +1257,8 @@ function renderResult() {
     }),
   );
   $('#result-exits').replaceChildren(salidasFin('lab', { lang, raiz: '../../' }));
-  confetti();
+  if (outcome === 'won') confetti();
+  else if (outcome === 'lost') { SFX.hang(); vibrate([90, 40, 140]); }
   showScreen('screen-result');
 }
 

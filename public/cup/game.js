@@ -2115,9 +2115,11 @@ function practica(id, varianteElegida = null) {
     // How to play goes after Empezar, so the button is seen without scrolling on a small phone (U-39),
     // and starts folded, as on every cover (C-8): the cover shows what matters
     el('details', { class: 'panel' }, el('summary', { id: 'como-titulo' }, `🧠 ${T.howToPlay}`), dibujo(id, variante), el('ol', { class: 'como' }, Jr.como.map(x => el('li', {}, x))),
-      el('p', { class: 'lead', style: 'margin:10px 0 4px' }, T.scoring), el('p', { class: 'muted' }, puntajeTexto(Jr, false))),
+      el('p', { class: 'lead', style: 'margin:10px 0 4px' }, T.scoring), el('p', { class: 'muted', id: 'como-puntaje' }, puntajeTexto(Jr, false))),
     rankea(id) ? bloqueRanking({ juego: tablaRk(id, variante), titulo: tituloRk(J), pestanas: varianteRk(id, variante) ? ['semana', 'siempre', 'amigos'] : ['semana', 'siempre', 'amigos', 'copa'], alTocar: () => SFX.tap() }) : null));
   pieComentario({ juego: id, semilla, pantalla: 'antesala' });
+  // Tango scored by time outside La Copa: the cover says so too (lab: #seccion-tango-time, D-572)
+  if (Jr.puntajeTiempo) flag('tango-time').then(on => { const x = on && document.getElementById('como-puntaje'); if (x) x.textContent = Jr.puntajeTiempo; }, () => {});
   // A game's own page: Instrucciones and Entrar as dialogs, no game chip on top (lab: #seccion-cover-dialogs)
   if (SUELTO) coverWithDialogs(body, { lang: LANG, alTocar: () => SFX.tap() });
   // The first attempt counts from its start (D-433): the line says so, an attempt left halfway goes
