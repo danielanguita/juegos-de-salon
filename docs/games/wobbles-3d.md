@@ -46,7 +46,7 @@ Optimized for phones (the owner's instructions, 2026-11-17): only the view (`vie
   shadow is a filled shape with soft strokes; its halo is drawn once, around its outline (`silhouette`).
   `__balanza.blurs` counts blurs: only the first time a text is shown.
 - **At most 2 device pixels per CSS pixel**; `pace` lowers it to 1.5 and then 1 when frames come under
-  about 42 a second for two seconds while playing. Lab: `?res=3|2|1` fixes it, `?fps=1` shows a counter.
+  about 42 a second for two seconds while playing. Lab: `?res=3|2|1` fixes it.
 - **The hearts** move 20 times a second and their canvas is left alone when nothing changed; a heart
   breaking is still drawn every frame. The top bar is written only when it changes.
 - **The stars** are 5 fills, not 70. A 120 Hz screen draws every other frame; under a card, 1 in 4.

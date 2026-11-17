@@ -1125,8 +1125,7 @@ let c = cv.getContext('2d');
 let dpr = 1, sc = 1, ox = 0, oy = 0, vw = 0, vh = 0, zoom = 1;
 /* ---------- drawing speed (docs/games/wobbles-3d.md, "Performance") ----------
  * The canvas has at most 2 device pixels per CSS pixel (`RES`); `pace` lowers it to 1.5 and then 1 when
- * frames come slower than about 42 a second for two seconds while playing. Lab: `?res=3|2|1` fixes it,
- * `?fps=1` shows a counter. */
+ * frames come slower than about 42 a second for two seconds while playing. Lab: `?res=3|2|1` fixes it. */
 const qp = new URLSearchParams(location.search), RES_PARAM = Number(qp.get('res')) || 0;
 let RES = RES_PARAM || 2;
 function resize() {
@@ -1986,13 +1985,10 @@ function pace(gap) {
   if (mean <= 24 || dpr <= 1) { paceSlow = 0; return; }
   if (++paceSlow >= 2) { paceSlow = 0; RES = dpr > 1.5 ? 1.5 : 1; resize(); }
 }
-const fpsEl = qp.has('fps') ? document.body.appendChild(Object.assign(document.createElement('div'), { id: 'fps' })) : null;
-if (fpsEl) fpsEl.style.cssText = 'position:absolute;left:6px;bottom:52px;z-index:9;font:700 11px/1.3 monospace;color:#9dff3a;background:rgba(0,0,0,.55);padding:3px 6px;border-radius:6px;pointer-events:none;white-space:pre';
-let fpsN = 0, fpsFrom = 0, scriptMs = 0;
 function frame(ts) {
   // A 120 Hz screen: every other call is let through, so the scene is drawn at most about 60 times a second (the game's clock does not change)
   if (ts - last < 10) { requestAnimationFrame(frame); return; }
-  const t0 = performance.now(), gap = ts - last;
+  const gap = ts - last;
   const dt = Math.min(0.05, (ts - last) / 1000 || 0); last = ts; clock += dt;
   if (S && state === 'play' && opening != null) {
     opening += dt;
@@ -2030,8 +2026,6 @@ function frame(ts) {
   // Under a card only 1 frame in 4 is drawn: the scene only shows through the veil
   if (card.hidden || S == null || ++framesUnderCard % 4 === 0) render();
   hud(); drawHearts();
-  scriptMs += performance.now() - t0; fpsN++;
-  if (fpsEl && ts - fpsFrom >= 500) { fpsEl.textContent = `${(fpsN * 1000 / (ts - fpsFrom)).toFixed(0)} fps · script ${(scriptMs / fpsN).toFixed(1)} ms\n${cv.width}×${cv.height} · res ${dpr}`; fpsN = 0; scriptMs = 0; fpsFrom = ts; }
   requestAnimationFrame(frame);
 }
 $('#cBtn').addEventListener('click', e => { e.currentTarget.blur(); audio(); start(); });

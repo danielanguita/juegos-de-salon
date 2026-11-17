@@ -1380,17 +1380,14 @@ function frame(ts) {
 let drawnAt = 0;
 /** Adaptive quality: while playing, frames under 48 a second for 1.5 s lower the sharpness one step (1 → 0.75 → 0.5).
  * Two seconds later it is judged: no 15 % gain undoes it and it is not tried again (a screen held at 30 fps
- * to save battery gains nothing from fewer pixels). It never goes back up by itself. Lab: `?fps` shows a counter. */
+ * to save battery gains nothing from fewer pixels). It never goes back up by itself. */
 const speed = { n: 0, from: 0, slowSince: 0, trial: null, done: !!QUALITY_FIXED, fps: 0, worst: 0, worstNow: 0, lastTs: 0 };
-const fpsEl = qp.has('fps') ? document.body.appendChild(Object.assign(document.createElement('div'), { id: 'fps' })) : null;
-if (fpsEl) fpsEl.style.cssText = 'position:absolute;left:6px;bottom:6px;z-index:9;font:700 11px/1.3 monospace;color:#9dff3a;background:rgba(0,0,0,.55);padding:3px 6px;border-radius:6px;pointer-events:none;white-space:pre';
 function watchSpeed(ts) {
   const gap = speed.lastTs ? ts - speed.lastTs : 0; speed.lastTs = ts;
   if (gap > 0 && gap < 400) speed.worstNow = Math.max(speed.worstNow, gap);
   speed.n++;
   if (ts - speed.from < 500) return;
   speed.fps = speed.n * 1000 / (ts - speed.from); speed.worst = speed.worstNow; speed.n = 0; speed.from = ts; speed.worstNow = 0;
-  if (fpsEl) fpsEl.textContent = `${speed.fps.toFixed(0)} fps · worst ${speed.worst.toFixed(0)} ms\n${cv.width}×${cv.height} · q ${quality}`;
   if (speed.done || state !== 'play' || document.hidden) { speed.slowSince = 0; return; }
   if (speed.trial) {
     if (ts - speed.trial.at < 2000) return;

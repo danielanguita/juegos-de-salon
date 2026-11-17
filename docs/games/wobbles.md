@@ -50,7 +50,7 @@ Optimized for phones (the owner's instructions, 2026-11-17): only the view chang
 - **At most 2 device pixels per CSS pixel**, and adaptive quality: under 48 fps for 1.5 s lowers the
   sharpness (1 → 0.75 → 0.5); with no 15 % gain two seconds later it is undone and not tried again.
 - **The cards** have no backdrop blur (a darker veil), and under a card the scene is drawn 4 times a second.
-- Lab parameters: `?fps` (a counter: fps, worst frame, canvas size, quality), `?dpr=3` (no cap),
+- Lab parameters: `?dpr=3` (no cap),
   `?quality=0.5` (fixed sharpness).
 - Measured in headless Chrome with an emulated GPU, 390×812 at 3×: the whole page went from 11 to
   60 fps with a 13-piece pile; same results with the same seed. Not measured on a real phone yet.
