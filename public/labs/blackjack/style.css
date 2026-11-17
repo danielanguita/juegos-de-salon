@@ -305,6 +305,15 @@
 /* The hand's score centred over its cards, like the dealer's (its bet line is the chip below) */
 .bj-felt .bj-hand-meta { justify-content: center; }
 .bj-felt .bj-hand-meta .bet-text { display: none; }
+/* Placing the bet (flag blackjack-felt): the table and the action box morph to their playing size */
+.bj-felt .bj-table { view-transition-name: bj-table; }
+.bj-felt #action-box { view-transition-name: bj-action; }
+::view-transition-group(bj-table), ::view-transition-group(bj-action) { animation-duration: 0.55s; animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1); }
+::view-transition-old(bj-action) { animation: bjFold 0.3s ease-in both; }
+@keyframes bjFold { to { opacity: 0; transform: scaleY(0.85); } }
 /* The setup's coin options carry the table's chip (DESIGN.md rule 9): 🪙 drew as a grey moon on iPhone */
 .seg-chip { display: inline-flex; width: 1.15em; height: 1.15em; margin-right: var(--s-4); vertical-align: -0.2em; }
 .seg-chip svg { width: 100%; height: 100%; }
+/* The signed-in player's name as a block, with «Cambiar» to type another (flag blackjack-felt) */
+.bj-felt .signed-name { padding: var(--s-10) 0; font-weight: 800; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.name-change { position: relative; min-height: 44px; padding: 0 var(--s-4); font: inherit; font-weight: 800; color: var(--yellow); background: none; border: 0; text-decoration: underline; cursor: pointer; }
