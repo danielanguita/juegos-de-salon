@@ -3646,6 +3646,19 @@
         "stat": "9 file(s) +26 −21: public/assets/og/huellas.json, public/assets/og/menu-en.jpg, public/assets/og/menu-pt.jpg, public/assets/og/menu.jpg, public/en/index.html, …"
       },
       "flaky": false
+    },
+    {
+      "run": 43989575325,
+      "check": "end-to-end",
+      "pr": 1507,
+      "branch": "cup-talk-hint-look",
+      "commit": "6acef32cfc15565939e8f2bc6436379479415583",
+      "test": "cup/rejoin.mjs",
+      "error": "✗ the board shows the same for Javi (\"2Javi (tú)8810•26 pts | Día 1: Javi iba 2ºDía 2: Javi iba 2ºDía 3: Javi iba 2ºJavi 2º | Javi (tú)\" → \"2Javi (tú)8810•26 pts | Día 1: Javi iba 2ºDía 2: Javi iba 2º",
+      "signature": "8de641d276",
+      "date": "2026-11-17T00:51:40.873Z",
+      "fix": null,
+      "flaky": false
     }
   ]
 }
