@@ -65,7 +65,9 @@ the work is to keep it passing while the placeholder becomes the real game.
 A canon the game breaks on purpose is a `canonExceptions` entry whose reason names the subject
 (`cover`, `fin.js`, `rankings`, `cover-dialogs`, `trackStart`, `e2e`), copied from its spec. The lab
 games older than the rule owe what `docs/labs-canon-debt.json` lists: a ratchet, each list only
-shrinks, no new game joins it, and a game pays its debt before it leaves the lab.
+shrinks, no new game joins it, and a game pays its debt before it leaves the lab. **La Bodega is
+parked work, not maintained**: its games are outside the gate and owe nothing; one that comes back
+out of La Bodega passes the gate then.
 
 **Every canon and who checks it.** The rest of the checklist is enforced elsewhere; nothing on it is
 left for "later":

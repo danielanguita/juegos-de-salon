@@ -32,9 +32,15 @@ const FROZEN = ['artifacts', 'blackjack', 'chameleon', 'code', 'dominorama', 'ex
   'julep', 'memory', 'stack', 'sudoku', 'transfer', 'wobbles', 'wobbles-3d'];
 
 const read = (...p) => existsSync(join(LABS, ...p)) ? readFileSync(join(LABS, ...p), 'utf8') : '';
+// La Bodega is parked work, kept so it is not thrown away; it needs no maintenance (the owner,
+// 2026-11-17), so its games are outside the gate. A game that comes back out of it passes the gate then.
+const labsHtml = readFileSync(join(LABS, 'index.html'), 'utf8');
+const bodegaStart = labsHtml.indexOf('id="bodega-juegos"');
+const bodegaHtml = bodegaStart < 0 ? '' : labsHtml.slice(bodegaStart, labsHtml.indexOf('id="bodega-mejoras"', bodegaStart));
+export const PARKED = [...bodegaHtml.matchAll(/href="([a-z0-9-]+)\/"/g)].map(x => x[1]);
 const games = readdirSync(LABS, { withFileTypes: true })
   .filter(d => d.isDirectory() && existsSync(join(LABS, d.name, 'index.html')) && existsSync(join(LABS, d.name, 'game.js')))
-  .map(d => d.name).sort();
+  .map(d => d.name).filter(g => !PARKED.includes(g)).sort();
 
 /** What a lab game lacks of its canons. */
 export function missing(folder) {
@@ -67,4 +73,4 @@ for (const [g, d] of Object.entries(debt)) {
 // The check catches what it claims to: a folder with nothing has no manifest, cover, exits or rankings
 assert.deepEqual(missing('no-such-game'), ['manifest', 'cover', 'exits', 'rankings', 'dialogs', 'signals', 'spec', 'e2e']);
 
-console.log(`lab canons: ${games.length} lab game(s), ${Object.keys(debt).length} with debt`);
+console.log(`lab canons: ${games.length} lab game(s), ${Object.keys(debt).length} with debt, ${PARKED.length} parked in La Bodega`);
