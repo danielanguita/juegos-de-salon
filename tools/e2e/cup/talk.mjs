@@ -46,6 +46,12 @@ for (const lang of ['es', 'en', 'pt']) {
     await b.shot('cup-talk-hint');
     await ev(`document.querySelector('.charla-pista-x').click()`);
     ok(!await ev(`!!document.querySelector('.charla-pista')`), 'es: ✕ closes it');
+    // The tester tab (T) brings it back (the owner, D-566), then it is closed again for the rest
+    const again = `[...document.querySelectorAll('.tr-ctx button')].find(x => x.textContent === ${JSON.stringify(LOCALES.es.talkHintAgain)})`;
+    ok(await ev(`!!${again} && !${again}.disabled`), 'es: the tester tab offers to show it again');
+    await ev(`${again}.click()`);
+    ok(await waitFor(`!!document.querySelector('.charla-pista')`), 'es: and it comes back');
+    await ev(`document.querySelector('.charla-pista-x').click()`);
   } else ok(!await ev(`!!document.querySelector('.charla-pista')`), `${lang}: once closed, it never comes back`);
   ok(!!OTHER && await ev(`!!${row(ME)}.querySelector('.fila-charla')`), `${lang}: a 💬 under the points, your own row too`);
   ok(!await ev(`!!document.getElementById('charla')`), `${lang}: no field until tapped`);
