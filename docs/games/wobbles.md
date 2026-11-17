@@ -29,7 +29,13 @@ as after N pieces); on the hard one also `?spin=0` (skip the opening turn).
 
 ## Flujo
 
-Cover (the two levels, how to play, the site footer with 💬) → a level: its card (how to play, ▶ Play) →
+The level lever is Sudoku's, which is Pintaminas' hard-mode switch, copied as is (the owner: "exactly the
+same"): down and green is easy, up and red is hard, with its wave, flash, sparks and the cover turning
+red. The picture above it is the level it shows, moving (2D: the claw and the rocking plank; 3D: the
+tipping disc and a hovering piece); it starts on easy, as in Sudoku.
+
+
+Cover (a moving picture of the level, the level lever, ¡A jugar!, how to play, the site footer with 💬) → a level: its card (how to play, ▶ Play) →
 the round (its HUD: ‹ back to the cover, lives, score, mute) → its game-over card with ↻ Again.
 
 ## Protocolo de mensajes

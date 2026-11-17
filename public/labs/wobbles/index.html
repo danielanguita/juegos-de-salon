@@ -50,15 +50,17 @@
   <main class="app" id="app">
     <div class="topbar">
       <a class="back" href="../" id="btn-menu" data-i18n="menu">‹ Laboratorio</a>
-      <div class="tools"><span class="chip" data-i18n="gameChip">⚖️ Tembleque</span></div>
+      <div class="tools"><span class="chip" data-i18n="gameChip">⚖️ Tembleque</span><span id="sound-slot"></span></div>
     </div>
 
     <!-- ============ COVER: the two levels ============ -->
     <section class="screen stack active" id="screen-intro">
       <div class="intro-hero">
         <span class="icon">⚖️</span>
-        <h1 class="display display--xl rainbow" data-i18n="title">Tembleque</h1>
+        <h1 class="display display--xl rainbow wb-title" data-i18n="title">Tembleque</h1>
         <p class="lead" data-i18n="lead"></p>
+        <!-- The cover's picture: the level the lever shows, moving (2D, the plank; 3D, the disc) -->
+        <div class="wb-pic" id="pic"></div>
         <div id="lang-slot"></div>
       </div>
       <div class="stack">

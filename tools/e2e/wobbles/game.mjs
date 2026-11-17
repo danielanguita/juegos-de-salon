@@ -1,4 +1,4 @@
-// Tembleque (lab): the cover offers the two levels; each (the owner's prototype kept whole,
+// Tembleque (lab): the cover's lever picks the level and its picture follows; each (the owner's prototype kept whole,
 // docs/games/wobbles.md) starts a round from its card and ends on its game-over card, in es/en/pt,
 // and its ‹ comes back to the cover.
 import { output } from '../output.mjs';
@@ -11,10 +11,13 @@ let failures = 0;
 const ok = (cond, msg) => { console.log((cond ? '✓ ' : '✗ ') + msg); if (!cond) failures++; };
 
 await b.go(SITE + '/labs/wobbles/'); await sleep(600);
-ok(await b.evaluate("[...document.querySelectorAll('#modes .mode')].map(a => a.dataset.href).join() === 'easy/,hard/'"), 'the cover offers the easy and the hard level');
-await b.shot('cover');
-await b.evaluate("document.querySelector('#modes .mode[data-mode=hard]').click(); 1"); await sleep(900);
-ok(await b.evaluate('location.pathname') === '/labs/wobbles/hard/', 'tapping Hard opens the 3D level');
+ok(await b.evaluate("window.__wobbles.level === 'easy' && document.getElementById('btn-level').getAttribute('aria-checked') === 'false' && !document.getElementById('pic').classList.contains('hard')"), 'the lever starts on easy, with the 2D picture');
+await b.shot('cover-easy');
+await b.evaluate("document.getElementById('btn-level').click(); 1"); await sleep(700);
+ok(await b.evaluate("window.__wobbles.level === 'hard' && document.getElementById('btn-level').getAttribute('aria-checked') === 'true' && document.getElementById('pic').classList.contains('hard') && document.body.classList.contains('wb-hard')"), 'flipping the lever shows hard, the 3D picture and the red cover');
+await b.shot('cover-hard');
+await b.evaluate("document.getElementById('btn-play').click(); 1"); await sleep(900);
+ok(await b.evaluate('location.pathname') === '/labs/wobbles/hard/', '¡A jugar! opens the level the lever shows');
 
 for (const level of ['easy', 'hard']) {
   for (const lang of ['es', 'en', 'pt']) {
