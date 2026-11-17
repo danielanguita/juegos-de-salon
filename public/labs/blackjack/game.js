@@ -52,6 +52,8 @@ let animToken = 0;
 let dealReveal = null; // { players: [[n, ...]], dealer: n, holeRevealed: bool, showOutcomes: bool }
 let freshCardKey = null;
 let clearing = false;
+// The felt is cleared before a new hand: the cards slide off towards the dealer and fade, one after another (style.css)
+const CLEAR_MS = 620;
 // The felt table, a visual treatment on trial (lab: #seccion-blackjack-felt): cards with corner indices, the bet as a chip,
 // the shoe as a bar with its red card, each hand's result as a stamp
 let felt = false;
@@ -880,8 +882,8 @@ function renderFeltBits(shoeLeft) {
   const arc = $('#felt-arc');
   if (arc.dataset.lang === lang) return;
   arc.dataset.lang = lang;
-  arc.replaceChildren(parseSvg(`<svg viewBox="0 0 340 64">
-    <path id="felt-p1" d="M20 6 Q170 50 320 6" fill="none"/><path id="felt-p2" d="M40 26 Q170 66 300 26" fill="none"/>
+  arc.replaceChildren(parseSvg(`<svg viewBox="0 0 340 70">
+    <path id="felt-p1" d="M20 6 Q170 50 320 6" fill="none"/><path id="felt-p2" d="M40 31 Q170 71 300 31" fill="none"/>
     <text text-anchor="middle"><textPath href="#felt-p1" startOffset="50%"></textPath></text>
     <text class="sub" text-anchor="middle"><textPath href="#felt-p2" startOffset="50%"></textPath></text>
   </svg>`));
@@ -1144,7 +1146,7 @@ function dispatch(act, extra = {}) {
       clearing = false;
       table.classList.remove('clearing');
       commitDispatch(act, extra);
-    }, 320);
+    }, CLEAR_MS);
     return;
   }
   commitDispatch(act, extra);

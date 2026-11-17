@@ -409,3 +409,24 @@ html.bj-defeat #app { position: relative; z-index: 1; }
 @keyframes bjHintNudge { 50% { transform: translateY(3px); } }
 @keyframes bjSpotBreathe { 50% { box-shadow: 0 0 0 var(--s-6) rgb(var(--yellow-rgb) / 0.16), 0 0 18px rgb(var(--yellow-rgb) / 0.35); } }
 @media (prefers-reduced-motion: reduce) { .bj-felt .bet-hint, .bj-felt .bet-hint i, .bj-felt .bj-hand:has(.bet-hint) .bet-spot { animation: none; } }
+
+/* Clearing the felt for a new hand (flag blackjack-felt): each card slides off towards the dealer's side, turning
+   a little and fading, one after another; the stamps and scores fade with them (game.js waits CLEAR_MS) */
+.bj-felt .bj-table.clearing .pcard { opacity: 1; animation: bjSweep 0.45s cubic-bezier(0.55, 0, 0.75, 0.2) both; }
+.bj-felt .bj-table.clearing .pcard:nth-child(2) { animation-delay: 0.05s; }
+.bj-felt .bj-table.clearing .pcard:nth-child(3) { animation-delay: 0.1s; }
+.bj-felt .bj-table.clearing .pcard:nth-child(n+4) { animation-delay: 0.15s; }
+.bj-felt .bj-table.clearing .bj-seats .pcard { animation-name: bjSweepUp; }
+@keyframes bjSweep { to { opacity: 0; transform: translate(var(--s-32), calc(-1 * var(--s-16))) rotate(14deg) scale(0.86); } }
+@keyframes bjSweepUp { to { opacity: 0; transform: translate(var(--s-32), calc(-3 * var(--s-24))) rotate(18deg) scale(0.86); } }
+@media (prefers-reduced-motion: reduce) { .bj-felt .bj-table.clearing .pcard { animation: none; opacity: 0; } }
+
+/* The table's words are printed in the felt: bigger, soft, a touch blurred and sunk into the cloth */
+.bj-felt .felt-arc text { font-size: 15px; letter-spacing: 3px; fill: rgb(var(--yellow-rgb) / 0.42); filter: blur(0.4px); }
+.bj-felt .felt-arc text.sub { font-size: 11.5px; letter-spacing: 2.2px; fill: rgb(var(--yellow-rgb) / 0.26); }
+.bj-felt .felt-arc svg { mix-blend-mode: screen; }
+.bj-felt .felt-arc svg { height: clamp(40px, 7.5svh, 76px); }
+.bj-felt .felt-arc text { font-size: 17px; }
+.bj-felt .felt-arc text.sub { font-size: 12.5px; }
+.bj-felt .felt-arc svg { height: clamp(34px, 6.2svh, 76px); }
+.bj-felt .felt-arc svg { height: clamp(30px, 5.4svh, 76px); }
