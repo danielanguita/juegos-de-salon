@@ -61,6 +61,9 @@ let pillCopa = false;
 flag('cup-back-board').then(v => { pillCopa = v; rotuloMenu(); });
 // The board's report and leave links as tiles of the site footer (U-38), lab: #seccion-cup-footer
 let pieCopa = false;
+// One a Day goes straight to its result when a game's end screen only repeats it (lab: #seccion-uad-skip-end)
+let saltarFin = false;
+flag('uad-skip-end').then(v => { saltarFin = v; });
 flag('cup-footer').then(v => { pieCopa = v; if (v && S.pantalla === 'tablero') tablero(); });
 
 // Cuenta la visita al abrir la página, aunque nadie llegue a jugar (D-208)
@@ -2253,6 +2256,8 @@ async function jugarSinPuntaje(id, p, alTerminar, { ensayo = false, guardado = n
   mod.montar(body, {
     p, jugadas: guardado?.jugadas, T, fmt, el, SFX, vibrate, lang: LANG, pantallaCompleta,
     textoFin: ensayo ? T.trialEnd : undefined,
+    // One a Day: a game whose end screen only repeats the result skips it (lab: #seccion-uad-skip-end)
+    directo: HOY && !ensayo && saltarFin,
     // No cuenta para nada; solo un juego `diario` lo guarda en el celular, para seguir al recargar
     guardar(jugadas) { ultimas = jugadas; guardado?.guardar(jugadas, Math.round(reloj.leer(rel, Date.now()))); },
     tiempo: () => Math.round(reloj.leer(rel, Date.now())),
