@@ -235,9 +235,11 @@ export function mount(raiz, ctx) {
     decir(motivo === 'tope' ? T.flTrialDone : T.flOver);
     aviso.classList.add('final');
     juego.classList.add('terminado');
-    fin.replaceChildren(
+    fin.replaceChildren(...[
       el('p', { class: 'fl-veredicto', id: 'fl-veredicto' }, T.flVerdicts[verdictOf(e.score)]),
-      el('button', { type: 'button', class: 'btn btn--yellow', id: 'btn-fin', onClick: () => ctx.terminar(estado()) }, ctx.textoFin || T.flContinue));
+      // One a Day: the fall and the verdict are seen, then the result, with no button (lab: #seccion-uad-skip-end)
+      ctx.directo ? null : el('button', { type: 'button', class: 'btn btn--yellow', id: 'btn-fin', onClick: () => ctx.terminar(estado()) }, ctx.textoFin || T.flContinue)].filter(Boolean));
+    if (ctx.directo) { setTimeout(() => ctx.terminar(estado()), recien ? 1800 : 0); return; }
     if (!recien) return;
     requestAnimationFrame(() => fin.scrollIntoView?.({ block: 'nearest', behavior: QUIETO() ? 'auto' : 'smooth' }));
   }
