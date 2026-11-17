@@ -28,6 +28,7 @@ import { rankingsVisibles, leerYo } from '../assets/js/jugador.js';
 import { createSessionStore, createNameStore } from '../assets/js/session.js';
 import { codigoAlAzar } from '../cup/code.js';
 import * as numero from '../cup/games/number/engine.js';
+import { flag } from '../assets/js/flags.js';
 import * as uiNumero from '../cup/games/number/ui.js';
 import { jugarSolo, crearRecord, mmss } from '../cup/games/solo.js';
 import { renderQr } from '../assets/js/qr.js';
@@ -662,12 +663,14 @@ function soloIntro() {
       el('p', { class: 'lead', style: 'margin-bottom:6px' }, T.howTitle),
       el('ol', { class: 'como' }, ...T.soloHow.map(x => el('li', {}, x))),
       el('p', { class: 'lead', style: 'margin:12px 0 4px' }, T.scoringTitle),
-      el('p', { class: 'muted', style: 'margin:0' }, T.soloScoring),
+      el('p', { class: 'muted', style: 'margin:0' }, T.soloScoring, el('span', { id: 'solo-new-digit' })),
       antes ? el('p', { class: 'muted', style: 'margin:8px 0 0;font-weight:900' }, recordTexto(antes)) : null),
     el('button', { class: 'btn btn--yellow', id: 'btn-solo-empezar', onClick: () => { SFX.tap(); soloNueva(); } }, T.soloStart),
     // El ranking de jugar solo (D-212), debajo de Empezar
     bloqueTabla({ tabla: TABLA_SOLO, titulo: fmt(COMMON[lang].rk.titleOf, { game: T.title }), alTocar: () => SFX.tap() }),
   );
+  // lab: #seccion-number-new-digit, a guess with a new digit does not count as ruled out
+  flag('number-new-digit').then(v => { numero.usarCifraNueva(v); const s = $('#solo-new-digit'); if (v && s) s.textContent = ' ' + T.newDigitFree; }, () => {});
 }
 
 /** La tabla de jugar solo en los rankings (D-212): `toque-y-fama_solo`. */
