@@ -56,3 +56,13 @@ Solo mode runs locally on one phone and persists full state after every move via
 ## Excepciones a los cánones
 
 None.
+
+## Result screen and rankings
+
+The result follows C-19 like every game: the hero, the signed-in player's ranking notice under it (`avisoPartida`), the
+actions (again or rematch, share, change mode), «¿Quieres que esta partida cuente?» when no one is signed in, the exit
+to the lab, the game's ranking (`bloqueTabla`), and the feedback link last. Alone, the score is the coins left
+(table `blackjack_solo`); online, the win counts in the victories (`finDePartida`). While in the lab, Rankings
+(`/records/`) has no Blackjack tab: **when it launches, add `blackjack: 'blackjack_solo'` to `SOLO_TABLES` in
+`games.js`** (D-559, `rankings-coverage.test.mjs`).
+
