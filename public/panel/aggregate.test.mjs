@@ -1,7 +1,7 @@
 // Ejecutar: node public/panel/aggregate.test.mjs
 import assert from 'node:assert/strict';
 import { MODE_IDS } from '../assets/js/games.js';
-import { DAY, roomLog, paginate, flagOf, whenLabel, RANGOS, rangeOf, hoyUtcLabel, groupDays, periodLabel, ROOM_TTL, liveRooms, esJugada, connections, summarize, top, tzLabel, ago, dayLabel, codesOfDays, splitByEnv, liveLocal, VIVA_SIN_RED_MS, ZONA_PANEL, horaLabel, fechaLabel, diaPanel, localLog, paisesDeSalas, paisesDelRango, salaDe, mediana, trafico, origenLabel, origenesAgrupados, idiomasDeSalas, idiomasDelRango, avisosDelRango, vueltaAtrasada, latidoDelRango, salud, compararVersion, navegadorLabel } from './aggregate.js';
+import { DAY, roomLog, paginate, flagOf, whenLabel, RANGOS, rangeOf, hoyUtcLabel, groupDays, periodLabel, ROOM_TTL, liveRooms, esJugada, connections, summarize, top, tzLabel, ago, dayLabel, codesOfDays, splitByEnv, liveLocal, VIVA_SIN_RED_MS, ZONA_PANEL, horaLabel, fechaLabel, diaPanel, localLog, paisesDeSalas, paisesDelRango, salaDe, mediana, trafico, origenLabel, origenesAgrupados, idiomasDeSalas, idiomasDelRango, avisosDelRango, vueltaAtrasada, latidoDelRango, salud, compararVersion, navegadorLabel, pantallas } from './aggregate.js';
 import { ZONA as ZONA_COPA } from '../cup/engine.js';
 
 const now = 20342 * DAY + 15 * 60 * 60 * 1000; // día 20342, 15:00 UTC
@@ -508,4 +508,17 @@ console.log('aggregate.test.mjs: todo en verde');
   assert.equal(tercero.m, '(sin detalle)', 'una cuenta sin detalle igual se muestra');
   const v = salud({}, { from: 1, to: 3 });
   assert.equal(v.desde, null); assert.equal(v.total.cargas, 0); assert.deepEqual(v.errores, []);
+}
+
+{
+  // Screens: totals per band, the cross, one row per day, junk keys ignored
+  const days = { 100: { pant: { 'w375-h640-v': 3, 'w600-h0-h': 1, 'basura': 9 } }, 101: { pant: { 'w375-h640-v': 2 } } };
+  const p = pantallas(days, { from: 99, to: 101 });
+  assert.equal(p.total, 6);
+  assert.equal(p.desde, 100);
+  assert.deepEqual(p.ancho, { w375: 5, w600: 1 });
+  assert.deepEqual(p.orient, { v: 5, h: 1 });
+  assert.equal(p.cruce['w375|h640'], 5);
+  assert.equal(p.porDia[2].w375, 2);
+  assert.equal(pantallas({}, { from: 1, to: 2 }).desde, null, 'nothing recorded: said so');
 }

@@ -285,6 +285,8 @@ assert.equal(dispositivoDe({ ua: 'Mozilla/5.0 (Macintosh)', platform: 'MacIntel'
   assert.deepEqual(visitChanges(fp, { pagina: 'cup', primera: true, origen: 'google_com', canal: 'link', vuelve: true, disp: 'celular' }),
     { 'vistas/cup': INC, 'entradas/cup': INC, [`entradasPt/${pacificDayOf(Date.now())}/cup`]: INC, 'ref/google_com': INC, 'via/link': INC, 'retorno/vuelve': INC, 'disp/celular': INC, 'pais/CL': INC });
   assert.deepEqual(visitChanges({ env: 'prod' }, { pagina: 'x', primera: true, disp: 'celular' })['pais/desconocido'], INC);
+  assert.deepEqual(visitChanges(fp, { pagina: 'x', primera: true, disp: 'celular', pant: 'w375-h640-v' })['pant/w375-h640-v'], INC, 'the screen band, on the first page');
+  assert.equal(visitChanges(fp, { pagina: 'x', primera: false, pant: 'w375-h640-v' })['pant/w375-h640-v'], undefined, 'not on later pages');
 }
 {
   const almacen = () => { const m = new Map(); return { getItem: k => (m.has(k) ? m.get(k) : null), setItem: (k, v) => m.set(k, String(v)), removeItem: k => m.delete(k), m }; };

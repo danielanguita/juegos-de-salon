@@ -559,6 +559,12 @@
                 ".validate": "newData.isNumber() && ((!data.exists() && newData.val() == 1) || newData.val() == data.val() + 1)"
               }
             },
+            "pant": {
+              "$pant": {
+                ".write": "$env.matches(/^[a-z]{2,10}$/) && $day.matches(/^[0-9]{5}$/) && $pant.matches(/^w(320|360|375|400|430|600|900|1200)-h(0|640|800)-[vh]$/)",
+                ".validate": "newData.isNumber() && ((!data.exists() && newData.val() == 1) || newData.val() == data.val() + 1)"
+              }
+            },
             "pais": {
               "$pais": {
                 ".write": "$env.matches(/^[a-z]{2,10}$/) && $day.matches(/^[0-9]{5}$/) && $pais.matches(/^([A-Z]{2}|desconocido)$/)",

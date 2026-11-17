@@ -579,6 +579,7 @@ node public/assets/js/rankings-rest.test.mjs
 node public/assets/js/records.test.mjs
 node public/assets/js/region-patterns.test.mjs
 node public/assets/js/room-state.test.mjs
+node public/assets/js/screen-bands.test.mjs
 node public/assets/js/search.test.mjs
 node public/assets/js/season.test.mjs
 node public/assets/js/share-grid.test.mjs

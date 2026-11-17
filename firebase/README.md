@@ -487,6 +487,9 @@ stats/prod/push/dias/2026-11-16: { vueltas, maxHueco, uad }   the heartbeat per 
   be 1 or 2 and never go down. Nothing else goes with it. `activosPt/<day>/<id>` and
   `entradasPt/<day>/<page>` (D-561) repeat `activos/` and `entradas/` filed by Pacific date (the day
   number by shape), with the same values and rules (`firebase/stats-pacific.test.mjs`).
+- Screens: `pant/<band>` is a counter like the others, one per visit on its first page; the band
+  (`w<width>-h<height>-<v|h>`) is validated by list, the same as `BAND_RULE` in
+  `public/assets/js/screen-bands.js` (`screen-bands.test.mjs` keeps them equal). Never the exact size.
 - Support (D-448): `support/<event>` is a counter like the others, uploaded by `support.js`; unlike
   the categories above, the event is validated **by list** (`shown`, `open`, `pay`, `thanks`), so a
   new step does force touching the rules. Only counts: nothing says who supported or how much.
