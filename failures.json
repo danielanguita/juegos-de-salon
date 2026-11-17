@@ -3657,7 +3657,11 @@
       "error": "✗ the board shows the same for Javi (\"2Javi (tú)8810•26 pts | Día 1: Javi iba 2ºDía 2: Javi iba 2ºDía 3: Javi iba 2ºJavi 2º | Javi (tú)\" → \"2Javi (tú)8810•26 pts | Día 1: Javi iba 2ºDía 2: Javi iba 2º",
       "signature": "8de641d276",
       "date": "2026-11-17T00:51:40.873Z",
-      "fix": null,
+      "fix": {
+        "commit": "bae55472a34b4fcd8cad666ec438d49438847df8",
+        "date": "2026-11-17T01:16:47.467Z",
+        "stat": "2 file(s) +15 −2: changelog/cup-talk-hint-look.md, public/cup/game.js"
+      },
       "flaky": false
     }
   ]
