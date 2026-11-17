@@ -1,5 +1,5 @@
-# The 🐞 feedback as issues (D-275): by hand only, a fallback. The Mac mini's `feedback-watch` job
-# uploads them every 5 minutes (D-382), since GitHub ran the 15-minute schedule about 4 times a day.
+# The 🐞 feedback as issues (D-275): by hand only, a fallback. The heartbeat (notifications.yml)
+# uploads them every 5 minutes (D-569; the Mac mini did it before, D-382), since GitHub ran the 15-minute schedule about 4 times a day.
 # It uploads to GitHub the new reports of
 # `feedback/` in Firebase, with the `feedback` label, so the processes agent handles them in its
 # round. As an issue, each report reaches the owner by email and stays linked to its reply and its

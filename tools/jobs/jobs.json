@@ -32,33 +32,27 @@
     },
     {
       "id": "lab-ready",
-      "where": "mac",
-      "every": 3600,
-      "command": [
-        "node",
-        "tools/agents/lab-ready.mjs",
-        "check"
-      ],
-      "what": "Every hour, without Claude: weighs each lab flag's real use by lab key holders (labsUso/) against its threshold and writes flagsListas/, so its /labs/ card says ✅ Listo para 🚀 with the evidence.",
+      "where": "github",
+      "what": "Every hour, inside the heartbeat (notifications.yml), without Claude: weighs each lab flag's real use by lab key holders (labsUso/) against its threshold and writes flagsListas/, so its /labs/ card says ✅ Listo para 🚀 with the evidence.",
       "decisions": [
-        "D-528"
-      ]
+        "D-528",
+        "D-569"
+      ],
+      "workflow": "notifications.yml",
+      "trigger": "each hour of the heartbeat (D-569)"
     },
     {
       "id": "feedback-watch",
-      "where": "mac",
-      "every": 300,
-      "command": [
-        "node",
-        "tools/agents/feedback.mjs",
-        "sync"
-      ],
-      "what": "Uploads the new 🐞 and email feedback reports from Firebase as `feedback` issues (reads with the owner's admin key; `gh` makes the issues). Each pass also deletes the reply emails left more than 90 days ago without a reply (D-463). `feedback.yml` stays as a manual fallback.",
+      "where": "github",
+      "what": "Every 5 minutes, inside the heartbeat (notifications.yml): uploads the new 🐞 and email feedback reports from Firebase as `feedback` issues. Each pass also deletes the reply emails left more than 90 days ago without a reply (D-463). `feedback.yml` stays as a manual fallback.",
       "decisions": [
         "D-275",
         "D-382",
-        "D-463"
-      ]
+        "D-463",
+        "D-569"
+      ],
+      "workflow": "notifications.yml",
+      "trigger": "every 5-minute round of the heartbeat (D-569)"
     },
     {
       "id": "referee",

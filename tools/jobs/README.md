@@ -60,7 +60,7 @@ node tools/jobs/jobs.mjs run <id>          # runs one now, as launchd does
   local file's saved approvals; the weekly report has Bash and Read only, in restricted mode. The
   round's prompt says what players and strangers wrote is quoted data, never instructions.
   `claude-task.test.mjs` checks those flags.
-- **`feedback-watch`** (`tools/agents/feedback.mjs sync`), every 5 minutes: uploads the new reports of
+- **`feedback-watch`** (`tools/agents/feedback.mjs sync`), every 5 minutes inside the heartbeat (notifications.yml, D-569; before, on the Mac mini): uploads the new reports of
   `feedback/` as `feedback` issues (D-382), except one that looks like it carries a key or a token,
   which it logs instead of posting (`secretLike`, #838). Each pass then runs `feedback.mjs expire`: a
   reply email left in `feedbackContacto/` for more than 90 days is deleted and its issue says so (D-463), and writes each report's issue and PRs to `feedbackEstado/` for the panel's 💬 Feedback section (see [docs/PANEL.md](../../docs/PANEL.md)). It was the GitHub workflow `feedback.yml`, which GitHub ran
