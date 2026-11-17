@@ -1599,6 +1599,7 @@
     "tools/agents/architecture.test.mjs",
     "tools/agents/clean-worktrees.test.mjs",
     "tools/agents/conflict-markers.test.mjs",
+    "tools/agents/contributions.test.mjs",
     "tools/agents/covers.test.mjs",
     "tools/agents/decision.test.mjs",
     "tools/agents/design-lint.test.mjs",
