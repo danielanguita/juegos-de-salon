@@ -40,6 +40,18 @@ The game inside is a placeholder (a race to ten). Replace it, keeping what surro
   (`rankings-coverage.test.mjs` fails otherwise), and its e2e script checks the tab on `/records/`.
   The panel names it on its own (`gameById`).
 
+**A game enters the lab with its canons** (D-579): the lab is where a game is tried, not where its canons
+are put off. Before its first PR merges, ours or a contributor's, `node public/labs/canons.test.mjs`
+requires of every `labs/<id>/`:
+- **manifest**: its `game.json`, so the conformance suite below runs over it;
+- **cover**: its landing in `tools/e2e/paths.mjs` with `intro`, so `landing-fold.mjs` measures the cover
+  at 320 and 375 px (the main action above the fold, even margins, C-17);
+- **exits**: the result's exits from `salidasFin` in `fin.js` (C-19);
+- **rankings**: the result in the rankings with `finDePartida`, `bloqueTabla` or `avisoPartida` (C-19).
+A canon the game breaks on purpose is a `canonExceptions` entry naming the subject (`cover`, `fin.js`,
+`rankings`). The lab games older than the rule owe what `docs/labs-canon-debt.json` lists, a ratchet
+that only shrinks; a game pays its debt before it leaves the lab.
+
 **The conformance suite** checks all of this for every game with a `game.json`:
 `node public/assets/js/conformance.test.mjs` (the files, the languages, the shared modules; in the
 `tests` check) and `node tools/e2e/conformance.mjs labs/<id>` in the browser (load, languages, back,

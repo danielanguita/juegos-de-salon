@@ -31,6 +31,9 @@ not be reviewed until that is removed, and the owner is told with `ready`, the r
   for CSS, [docs/USABILIDAD.md](../../docs/USABILIDAD.md) U-1, U-8, U-18 for player text, the
   three languages (C-3), a `changelog/<branch>.md` entry (D-300), new work behind the lab (D-395),
   nothing over 5 MB (D-494), [CONTRIBUTING.md](../../CONTRIBUTING.md).
+- A new or changed lab game comes with its canons (D-579): `node public/labs/canons.test.mjs`
+  (manifest, cover, exits, rankings) and its conformance pass; the contributor builds them, we only
+  check. Name what is missing with the file to add it in ([docs/ADD-GAME.md](../../docs/ADD-GAME.md)).
 - Conflicts with `main`.
 
 ## How you answer

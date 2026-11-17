@@ -1,0 +1,86 @@
+{
+  "about": "Lab games that came in before D-579 without all of their canons: manifest (game.json, so the conformance suite runs), cover (a landing in tools/e2e/paths.mjs that landing-fold.mjs measures), exits (salidasFin, C-19), rankings (finDePartida, bloqueTabla or avisoPartida, C-19). A ratchet: public/labs/canons.test.mjs lets each list only shrink and no new game join; a game pays its debt before it leaves the lab.",
+  "games": {
+    "artifacts": {
+      "missing": [
+        "manifest",
+        "rankings"
+      ]
+    },
+    "blackjack": {
+      "missing": [
+        "cover",
+        "rankings"
+      ]
+    },
+    "chameleon": {
+      "missing": [
+        "manifest",
+        "cover",
+        "rankings"
+      ]
+    },
+    "code": {
+      "missing": [
+        "manifest",
+        "cover",
+        "rankings"
+      ]
+    },
+    "dominorama": {
+      "missing": [
+        "manifest",
+        "rankings"
+      ]
+    },
+    "exploding-numbers": {
+      "missing": [
+        "manifest",
+        "rankings"
+      ]
+    },
+    "flap": {
+      "missing": [
+        "manifest"
+      ]
+    },
+    "fourth-king": {
+      "missing": [
+        "rankings"
+      ]
+    },
+    "memory": {
+      "missing": [
+        "manifest",
+        "rankings"
+      ]
+    },
+    "stack": {
+      "missing": [
+        "manifest",
+        "rankings"
+      ]
+    },
+    "sudoku": {
+      "missing": [
+        "manifest"
+      ]
+    },
+    "transfer": {
+      "missing": [
+        "cover",
+        "rankings"
+      ]
+    },
+    "wobbles": {
+      "missing": [
+        "rankings"
+      ]
+    },
+    "wobbles-3d": {
+      "missing": [
+        "rankings"
+      ]
+    }
+  }
+}

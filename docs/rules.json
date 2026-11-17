@@ -1126,6 +1126,22 @@
     "public/labs/index.html",
     "public/labs/index-nav.js"
    ]
+  },
+  {
+   "id": "labs-canons",
+   "title": "A game enters the lab with its canons: game.json (conformance), a measured cover, result exits from salidasFin and its result in the rankings",
+   "doc": "docs/ADD-GAME.md",
+   "form": [
+    "check",
+    "ratchet"
+   ],
+   "enforcedBy": [
+    "public/labs/canons.test.mjs"
+   ],
+   "applies": [
+    "public/labs/"
+   ],
+   "debt": "docs/labs-canon-debt.json"
   }
  ]
 }

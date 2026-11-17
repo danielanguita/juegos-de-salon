@@ -1567,6 +1567,7 @@
     "public/labs/artifacts/engine.test.mjs",
     "public/labs/blackjack/engine.test.mjs",
     "public/labs/bodega.test.mjs",
+    "public/labs/canons.test.mjs",
     "public/labs/chameleon/engine.test.mjs",
     "public/labs/code/engine-palabra.test.mjs",
     "public/labs/code/engine.test.mjs",
