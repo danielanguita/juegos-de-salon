@@ -645,6 +645,7 @@ export const LAB_NAMES = {
   clave: { emoji: '🔐', name: { es: 'La clave', en: 'The Code', pt: 'A senha' } },
   camaleon: { emoji: '🦎', name: { es: 'El Camaleón', en: 'Chameleon', pt: 'Camaleão' } },
   transfer: { emoji: '🚉', name: { es: 'Transbordo', en: 'Transfer', pt: 'Baldeação' } },
+  wobbles: { emoji: '⚖️', name: { es: 'Tembleque', en: 'The Wobbles', pt: 'Tremelique' } },
   'numeros-explosivos': { emoji: '💥', name: { es: 'Números explosivos', en: 'Exploding Numbers', pt: 'Números explosivos' } },
 };
 

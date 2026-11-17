@@ -2,6 +2,7 @@
 // every language (tools/e2e/conformance.mjs).
 import { output } from '../output.mjs';
 import { launch, sleep } from '../cdp.mjs';
+import { doubleTap } from '../double-tap.mjs';
 
 const SITE = process.env.SITE || 'http://localhost:8765';
 const OUT = output();
@@ -55,12 +56,37 @@ const firstHand = async () => {
   return b.evaluate("document.documentElement.classList.contains('bj-felt') && !!document.querySelector('#seats-box .bet-spot') && !!document.querySelector('#shoe-chip .shoe-bar')");
 };
 await b.evaluate('localStorage.clear(); 1');
+await b.go(SITE + '/labs/blackjack/'); await sleep(600);
+await b.evaluate("document.querySelector('.mode[data-mode=\"cpu\"]').click(); 1"); await sleep(300);
+await b.evaluate("const i = document.querySelector('#setup-form input'); i.value = 'Ana'; i.dispatchEvent(new Event('input', { bubbles: true })); document.getElementById('btn-start').click(); 1"); await sleep(400);
+ok(await b.evaluate("(document.querySelector('#seats-box .bet-hint')?.textContent || '').includes('↓')"), 'on the empty felt, the first step is printed where the cards will land');
 ok(await firstHand(), 'the felt table: the bet is a chip on its spot and the shoe a bar');
 ok(await b.evaluate("!!document.querySelector('.bj-seat-coins .seg-chip') && !document.querySelector('#screen-play').textContent.includes('🪙')"), 'on the felt, every coin is the table chip, no 🪙');
 await b.shot('felt');
 await b.evaluate("localStorage.clear(); localStorage.setItem('juegos-de-salon:flags-off', JSON.stringify({ 'blackjack-felt': true })); 1");
 ok(!(await firstHand()) && !(await b.evaluate("!!document.querySelector('.bet-spot')")), 'switched off in the tester tab, the table is as before');
 ok(await b.evaluate("!document.querySelector('#screen-play .seg-chip') && document.querySelector('.bj-seat-coins').textContent.includes('🪙')"), 'switched off, the coins keep the 🪙 text');
+// A double tap on a button that waits on an animation counts once (C-14, D-576): «Apostar» deals one hand,
+// «Siguiente ronda» (which fades the felt off first) moves one round, and the table is never left without cards
+await b.evaluate("localStorage.clear(); 1");
+await b.go(SITE + '/labs/blackjack/'); await sleep(600);
+await b.evaluate("document.querySelector('.mode[data-mode=\"cpu\"]').click(); 1"); await sleep(300);
+await b.evaluate("const i = document.querySelector('#setup-form input'); i.value = 'Ana'; i.dispatchEvent(new Event('input', { bubbles: true })); 1");
+await b.evaluate("document.getElementById('btn-start').click(); 1"); await sleep(300);
+const round = () => b.evaluate("document.getElementById('round-chip').textContent");
+const r1 = await round();
+await doubleTap(b, '#btn-bet');
+await b.until("document.getElementById('btn-stand') || document.getElementById('btn-next-round')", 12000); await sleep(300);
+ok(await b.evaluate("document.querySelectorAll('#seats-box .bj-hand .pcard').length === 2 && document.querySelectorAll('#dealer-box .pcard').length === 2"), 'a double tap on «Apostar» deals one hand: two cards each');
+if (await b.evaluate("!!document.getElementById('btn-stand')")) {
+  await b.evaluate("document.getElementById('btn-stand').click(); 1");
+  await b.until("document.getElementById('btn-next-round') || document.querySelector('#screen-result.active')", 14000);
+}
+await doubleTap(b, '#btn-next-round');
+await b.until("document.getElementById('btn-bet')", 6000); await sleep(800);
+const r2 = await round();
+ok(r1.replace(/\d+/, n => +n + 1) === r2 && await b.evaluate("!!document.getElementById('btn-bet') && !document.querySelector('.bj-table.clearing')"), `a double tap on «Siguiente ronda» moves one round (${r1} → ${r2}) and leaves the bets open`);
+
 ok(!b.errors.length, 'no console errors' + (b.errors.length ? ': ' + b.errors[0].slice(0, 160) : ''));
 b.close();
 process.exit(failures ? 1 : 0);
