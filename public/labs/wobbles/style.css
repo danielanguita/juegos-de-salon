@@ -85,12 +85,20 @@ body.wb-hard .wb-title { background: linear-gradient(90deg, var(--wb-knob-hard),
 .wb-pic.hard .wb-2d { opacity: 0; transform: scale(0.92); }
 .wb-pic.hard .wb-3d { opacity: 1; transform: none; }
 /* 2D: the plank rocks on its rock, the claw goes along its rail and lets the piece fall */
-.wb-plank { transform-origin: 100px 98px; animation: wb-rock 4s ease-in-out infinite; }
-.wb-claw { animation: wb-claw 4s ease-in-out infinite; }
-.wb-drop { animation: wb-drop 4s ease-in infinite; }
-@keyframes wb-rock { 0%, 100% { transform: rotate(-5deg); } 50% { transform: rotate(4deg); } 70% { transform: rotate(0deg); } }
-@keyframes wb-claw { 0% { transform: translateX(-46px); } 45%, 100% { transform: translateX(14px); } }
-@keyframes wb-drop { 0%, 45% { transform: translateY(0); opacity: 1; } 62% { transform: translateY(46px); opacity: 1; } 63%, 100% { opacity: 0; transform: translateY(46px); } }
+.wb-plank { transform-origin: 100px 98px; animation: wb-rock 6s linear infinite; }
+.wb-claw { animation: wb-claw 6s ease-in-out infinite; }
+.wb-drop { animation: wb-drop 6s infinite; }
+.wb-landed { transform-origin: 116px 94px; animation: wb-landed 6s infinite; }
+.wb-stars circle { animation: wb-twinkle 2.4s ease-in-out infinite; }
+.wb-stars circle:nth-child(2) { animation-delay: 0.6s; } .wb-stars circle:nth-child(3) { animation-delay: 1.3s; } .wb-stars circle:nth-child(4) { animation-delay: 1.9s; }
+/* one beat: the claw carries the piece over the plank, drops it, the plank tips under the weight and wobbles back to level, the claw goes home */
+@keyframes wb-claw { 0% { transform: translateX(-46px); } 30%, 44% { transform: translateX(16px); } 80%, 100% { transform: translateX(-46px); } }
+@keyframes wb-drop { 0%, 32% { transform: translateY(0); opacity: 1; animation-timing-function: cubic-bezier(.5, 0, 1, .6); } 42% { transform: translateY(51px); opacity: 1; } 42.01%, 99% { opacity: 0; transform: translateY(51px); } 100% { opacity: 0; transform: translateY(0); } }
+@keyframes wb-landed { 0%, 41.99% { opacity: 0; } 42% { opacity: 1; transform: scale(1.15, 0.8); } 46% { transform: scale(0.95, 1.06); } 50%, 90% { opacity: 1; transform: none; } 97%, 100% { opacity: 0; transform: none; } }
+@keyframes wb-rock { 0% { transform: rotate(-1.5deg); animation-timing-function: ease-in-out; } 21% { transform: rotate(1deg); animation-timing-function: ease-in-out; } 42% { transform: rotate(-1deg); animation-timing-function: ease-out; }
+  50% { transform: rotate(7deg); animation-timing-function: ease-in-out; } 60% { transform: rotate(-4deg); animation-timing-function: ease-in-out; } 69% { transform: rotate(2.2deg); animation-timing-function: ease-in-out; }
+  77% { transform: rotate(-1deg); animation-timing-function: ease-in-out; } 85%, 92% { transform: rotate(0deg); animation-timing-function: ease-in-out; } 100% { transform: rotate(-1.5deg); } }
+@keyframes wb-twinkle { 0%, 100% { opacity: 0.15; } 50% { opacity: 0.9; } }
 /* 3D: the disc tips on its pivot, a piece hovers and its shadow follows, and the hoop turns green when it is level */
 .wb-disc { transform-origin: 100px 92px; animation: wb-tip 4.4s ease-in-out infinite; }
 .wb-hover { animation: wb-hover 4.4s ease-in-out infinite; }
@@ -103,5 +111,5 @@ body.wb-hard .wb-title { background: linear-gradient(90deg, var(--wb-knob-hard),
   .wb-arm, .wb-lever { transition: none; }
   .wb-lever.on .wb-bolt { animation: none; opacity: 1; }
   .wb-lever.zap .wb-plate { animation: none; }
-  .wb-plank, .wb-claw, .wb-drop, .wb-disc, .wb-hover, .wb-hoop { animation: none; }
+  .wb-plank, .wb-claw, .wb-drop, .wb-landed, .wb-stars circle, .wb-disc, .wb-hover, .wb-hoop { animation: none; }
 }
