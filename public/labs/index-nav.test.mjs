@@ -21,4 +21,9 @@ assert.ok(!GROUPS.includes('bodega'));
 const html = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
 assert.match(html, /<nav[^>]+id="indice"/);
 assert.match(html, /moved\.then\(\(\) => import\('\.\/index-nav\.js'\)\)/);
-console.log('✓ labs index: one link per card being tried, with the drawing its title opens with, La Bodega left out');
+// Every card in the lab, game or feature, opens its title with its emoji or the game's drawing (the owner,
+// 2026-11-17), so its pill in the index carries it too (docs/AGENTS.md, the lab)
+const bare = [...html.matchAll(/<section class="panel seccion[^"]*" id="([^"]+)"[^>]*>\s*<h2>([\s\S]*?)<\/h2>/g)]
+  .filter(([, , t]) => !/^\s*(<img\b|[^\x00-\x7F\p{L}])/u.test(t)).map(([, id, t]) => `${id}: «${t.trim().slice(0, 40)}»`);
+assert.deepEqual(bare, [], 'a /labs/ card whose title does not open with its emoji or the game\'s drawing');
+console.log('✓ labs index: one link per card being tried, each card titled with its emoji or drawing, carried by its pill, La Bodega left out');
