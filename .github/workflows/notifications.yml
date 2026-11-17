@@ -14,7 +14,7 @@
 # group), so another always takes over. Every round is measured (tools/push/heartbeat.mjs: rounds and
 # the longest gap of each Pacific day), the panel shows it and round-watch.yml opens an issue when it
 # falls behind. Since D-569 it also uploads the 🐞 feedback as issues every round and weighs the lab
-# flags' readiness every hour, which the Mac mini did before. All on GitHub (owner, D-564): the repo is public, the minutes are free. A manual run
+# flags' readiness every hour, which the Mac mini did before; since D-573 it nudges red PRs their session left, each hour. All on GitHub (owner, D-564): the repo is public, the minutes are free. A manual run
 # checks once.
 
 name: Notifications
@@ -36,6 +36,9 @@ on:
 
 permissions:
   contents: read
+  # pending.mjs nudge comments on red PRs its session left (D-573)
+  pull-requests: write
+  checks: read
   # feedback.mjs sync opens the 🐞 reports as issues (D-569)
   issues: write
 
@@ -83,6 +86,7 @@ jobs:
             if [ $(( $(date +%s) - last_uad )) -ge 3600 ]; then
               bash tools/jobs/uad-hourly.sh --apply || echo "::warning::the Uno al día rebuild failed; the next hour tries again"
               node tools/agents/lab-ready.mjs check || echo "::warning::lab readiness failed; the next hour tries again"
+              node tools/agents/pending.mjs nudge || echo "::warning::the stalled-PR nudge failed; the next hour tries again"
               last_uad=$(date +%s)
             fi
             [ $(( $(date +%s) + 300 )) -lt "$end" ] || break
