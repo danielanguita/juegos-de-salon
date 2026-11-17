@@ -163,6 +163,12 @@
           <p class="muted" style="margin:0">En la portada de un juego, desliza el dedo a la izquierda para ir al siguiente y a la derecha para volver al anterior, en el orden de la lista desde donde llegaste: las tarjetas de la portada, con el filtro o la búsqueda que tenías. A los lados de la pantalla hay dos pestañas chicas con el juego de cada lado, que también se pueden tocar. Solo en la portada del juego: cuando empiezas a jugar, el deslizar es del juego.</p>
           <a class="btn btn--yellow" id="btn-game-swipe" href="../">🏠 Probar desde la portada</a>
         </section>
+        <section class="panel seccion" id="seccion-install-invite">
+          <h2>📲 Instala Juegos de Salón</h2>
+          <p class="muted" style="margin:0">La invitación a instalar la app en el celular, nueva. Dice «Instala Juegos de Salón» en una tarjeta tornasol, con un borde que gira por los colores de la marca y un brillo que la cruza. Sale en la portada recién cuando el celular terminó su primera partida, y la ✕ solo la pospone: vuelve en 14 días, y después en 60. Un momento después de terminar una partida, sale desde arriba (una vez por semana como máximo) y se va sola. En el iPhone, los pasos dibujan los botones de Safari, y una flecha apunta a la barra donde hay que tocar. Y en el pie de la portada queda siempre el botón «📲 Instalar la app», para quien la cerró. Junto al título, «sin instalar» pasa a «sin descargas». Para probarlo: abre la portada en un iPhone o Android desde Safari o Chrome, sin la app instalada.</p>
+          <button class="btn btn--ghost" type="button" id="btn-install-invite-reset">🔄 Volver a mostrarla en este celular</button>
+          <a class="btn btn--yellow" id="btn-install-invite" href="../">🏠 Ir a la portada</a>
+        </section>
         <section class="panel seccion" id="seccion-cover-share">
           <h2>📤 Compartir un juego desde su portada</h2>
           <p class="muted" style="margin:0">En la portada de cada juego, arriba junto al idioma y el sonido, aparece el botón de compartir. Manda el link del juego con su nombre y una línea que invita a jugarlo; en un computador, el mensaje queda copiado.</p>
@@ -202,6 +208,11 @@
           <h2>🖌️ Pintaminas: elige el pincel primero</h2>
           <p class="muted" style="margin:0">Una partida nueva parte sin ningún pincel elegido. Si tocas el tablero antes de elegir uno, no se pinta nada: abajo dice «Primero elige un pincel abajo.» y los pinceles brillan en amarillo. Así nadie pinta por error al partir. Una partida retomada sigue con el último pincel que usaste.</p>
           <a class="btn btn--yellow" id="btn-pm-pick-brush" href="../paint-mines/">🖌️ Jugar Pintaminas</a>
+        </section>
+        <section class="panel seccion" id="seccion-blackjack-felt">
+          <h2>♠️ Blackjack: mesa de fieltro</h2>
+          <p class="muted" style="margin:0">La mesa de Blackjack pasa a ser un paño turquesa con borde dorado y, en arco, «Blackjack paga 3 a 2» y «El crupier se planta en 17». En la portada, una mano se reparte sola hasta un Blackjack. Las cartas son más grandes, en abanico, con el número en la esquina. La apuesta es una ficha sobre su círculo, el zapato es una barra con la carta roja marcada y el resultado de cada mano aparece como un sello. Apágalo y préndelo para comparar.</p>
+          <a class="btn btn--yellow" id="btn-blackjack-felt" href="blackjack/">♠️ Jugar Blackjack</a>
         </section>
         <section class="panel seccion" id="seccion-routes-hint">
           <h2>🚇 Rutas rotas: 💡 Pista</h2>
@@ -908,6 +919,11 @@
     moved.then(() => import('./index-nav.js')).then(m => m.draw()).catch(() => {});
     moved.then(() => import('./bodega.js')).then(m => m.start());
     moved.then(() => import('./publish.js')).then(m => m.start());
+    // Install invitation: forget this phone's ✕, «ya la instalé», snooze and weekly mark, so it shows again
+    document.getElementById('btn-install-invite-reset')?.addEventListener('click', e => {
+      for (const k of ['no', 'luego', 'tras']) { try { localStorage.removeItem(`juegos-de-salon:instalar:${k}`); } catch (_) { /* nothing kept */ } }
+      e.currentTarget.textContent = '✅ Listo: vuelve a salir';
+    });
     // Offline mode's tester switch (D-538, PR 3): forces the mode on this phone only, and shows what
     // the app detects. Players never see it
     import('../assets/js/connection.js').then(({ connection }) => {

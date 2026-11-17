@@ -1069,9 +1069,23 @@ if (runs('weekend')) {
     await ev(`([...document.querySelectorAll('#crear-body .opcion')].find(x=>/Copa de fin de semana/.test(x.textContent)).click(), 1)`); await sleep(200);
     ok(await ev(`!document.getElementById('crear-finde').hidden && document.getElementById('crear-juegos').hidden`), 'choosing it shows its three days instead of the week');
     ok(await ev(`[...document.querySelectorAll('#finde-dias .finde-dia')].map(x=>x.dataset.juegos.split(',').length).join()`) === '3,3,3', 'three games on each of the three days');
-    // The 🎲 until every game is one this script knows how to play
+    // The 🎲 must land on games this script knows how to play. With every game in the pool (C-21) about
+    // one draw in a thousand does, so rerolling ran out of tries: the page's own engine finds a seed whose
+    // draw is all playable, the 🎲 is tapped once with crypto replaying that seed, and crypto comes back.
     const KNOWN = ['linea', 'numero', 'agentes', 'reinas', 'letras', 'anio', 'zip', 'tango', 'donde', 'desenredo'];
-    const rolled = await ev(`(()=>{for(let k=0;k<3000;k++){const ids=[...document.querySelectorAll('#finde-dias .finde-dia')].flatMap(x=>x.dataset.juegos.split(','));if(ids.every(id=>${JSON.stringify(KNOWN)}.includes(id)))return ids.length===9&&new Set(ids).size===9;document.getElementById('btn-dado-finde').click()}return false})()`);
+    const rolled = await ev(`(async()=>{
+      const { findeAlAzar } = await import('/cup/engine.js'), { JUEGOS_COPA } = await import('/cup/rules.js');
+      const K = ${JSON.stringify(KNOWN)}, familia = id => JUEGOS_COPA[id].habilidad;
+      const prng = s => () => { s = (s + 0x6D2B79F5) | 0; let t = Math.imul(s ^ (s >>> 15), 1 | s); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+      let seed = -1;
+      for (let s = 1; s < 200000 && seed < 0; s++) if (findeAlAzar({ rand: prng(s), familia }).flatMap(x => x.split('+')).every(x => K.includes(x.split(':')[0]))) seed = s;
+      if (seed < 0) return false;
+      const real = crypto.getRandomValues.bind(crypto), next = prng(seed);
+      crypto.getRandomValues = a => { for (let i = 0; i < a.length; i++) a[i] = Math.floor(next() * 4294967296); return a; };
+      try { document.getElementById('btn-dado-finde').click(); } finally { crypto.getRandomValues = real; }
+      const ids = [...document.querySelectorAll('#finde-dias .finde-dia')].flatMap(x => x.dataset.juegos.split(','));
+      return ids.length === 9 && new Set(ids).size === 9 && ids.every(id => K.includes(id));
+    })()`);
     ok(rolled, '🎲 draws nine different games of the pool');
     await ev(`(()=>{const i=[...document.querySelectorAll('#crear-body input:not(.fecha):not(#crear-link)')];i[0].value='Finde';i[1].value='Cata';i[2].value='1111';i[3].value='1111';return 1})()`);
     await ev(`([...document.querySelectorAll('#crear-body .opcion')].find(x=>/^Hoy/.test(x.textContent)).click(), 1)`);

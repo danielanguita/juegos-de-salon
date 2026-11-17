@@ -21,7 +21,7 @@ born (`tools/generators/new-game.test.mjs` proves it on a fresh one, untouched):
   `game.js` with the session store (C-6), the panel signal `trackStart` / `trackFinish` (C-7, D-210),
   the result's exits from `fin.js` (C-19) and its share through `compartir.js`.
 - `public/assets/js/manifests/labs/<id>.js`, the manifest as a module (`game.js` reads it).
-- Its card in `public/labs/index.html`, first in 🎲 Juegos en prueba (D-409).
+- Its card in `public/labs/index.html`, first in 🎲 Juegos en prueba (D-409), its title opening with the game's drawing (or its emoji), which the lab's index pill shows too (`index-nav.test.mjs`).
 - `docs/games/<id>.md` with C-13's sections, and `tools/e2e/<id>/game.mjs`, a script that plays it to the result.
 
 The game inside is a placeholder (a race to ten). Replace it, keeping what surrounds it:

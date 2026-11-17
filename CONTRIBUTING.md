@@ -62,7 +62,7 @@ many as you need.
 
 <!-- generated: rules (node tools/agents/rules.mjs contributing) -->
 
-71 rules are registered in `docs/rules.json` (index in [docs/RULES.md](docs/RULES.md)): 41 🤖 checked and 8 📈 ratcheted by tests, 51 👁 judged by a reviewer. A bot comment on your PR lists the 👁 rules its files touch. They live in:
+72 rules are registered in `docs/rules.json` (index in [docs/RULES.md](docs/RULES.md)): 42 🤖 checked and 8 📈 ratcheted by tests, 51 👁 judged by a reviewer. A bot comment on your PR lists the 👁 rules its files touch. They live in:
 
 - [docs/RULES.md](docs/RULES.md): R-10, R-8, R-9
 - [docs/DESIGN.md](docs/DESIGN.md): visual-measured
