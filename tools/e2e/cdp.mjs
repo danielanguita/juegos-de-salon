@@ -179,7 +179,7 @@ export async function launch({ port: requested, dir, out, width = 390, height = 
         }
         if (pairs.length) console.log(`✗ ${name}: buttons on top of each other (U-12): ${pairs.join(', ')}`);
       } catch (_) { /* no page */ }
-      // And the design system's key margins (DESIGN.md §3 rule 7, M-1…M-3): centered column, even padding, even media
+      // And the design system's key margins (DESIGN.md §3 rule 7, M-1…M-4): centered column, even padding, even media, nothing covering the next block
       try {
         const off = JSON.parse(await api.evaluate(measureMargins));
         if (off.length) console.log(`✗ ${name}: uneven margins (DESIGN.md rule 7): ${off.join(', ')}`);

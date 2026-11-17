@@ -677,6 +677,7 @@ Reinas, Tango, Babel or Shinobi are games exactly as Ahorcado, Generala or La Co
 - [ ] There is sound and vibration on the key actions, with a mute button (C-4).
 - [ ] On its landing the start button (or the first mode) is above the fold at 320×568 and 375×667 in every language, with the rules below it, also when it opens from Uno al día or a cup's day: `node tools/e2e/landing-fold.mjs` green (U-39, D-344).
 - [ ] Buttons are 44 px, the end buttons show without scrolling and there is no horizontal scroll (C-8).
+- [ ] Every screen whose look changed is shot by its e2e script and measured with `look.mjs` at 390 and 320 px: margins even (M-1…M-4, nothing covers the next block), its gaps even with the neighbouring games, and the PR lists what was measured (DESIGN.md rule 10, D-570).
 - [ ] Its result screen follows C-19: the exits from `fin.js` for each context it is played in, none built by hand (`salidasFin('lab')` from the lab), the header's ‹ naming its logical parent, and each fact said once (score, time, winner, name), the long detail folded or after the exits, Sign in in one line, one share button (D-343, D-353).
 - [ ] On one phone, the result shows before the pass, and what is secret is covered (C-9).
 - [ ] Secrets are committed and verified (C-10).

@@ -9,9 +9,17 @@
  * - **M-3 Even media:** a picture or clip that opens a card (its first child) is flush with the card on
  *   top and both sides, or keeps the same gap above as on each side (rule 7, `splash/margins.mjs`).
  *
+ * - **M-4 Nothing covers the next block:** in a column, a block in the page's flow (a picture, a demo, a
+ *   panel, a title, a text) never starts more than OVERLAP px above the bottom of the visible block before
+ *   it, so a picture never sits on its title and a title never on its text (D-570). Side by side (a row of
+ *   cards, a fan) is not a column; what floats on purpose (absolute, fixed, sticky: a stamp, a badge) is not
+ *   in the flow. The shared title's -9 px under a game's emoji icon is within OVERLAP: the emoji has air of its own.
+ *
  * An element marked `data-margins-ok` (a deliberate exception, with its reason next to it) is left out.
  */
 export const TOLERANCE = 1;
+/** M-4: how far a block may start above the bottom of the one before it (the title under the emoji icon: 2 px). */
+export const OVERLAP = 4;
 export const CARDS = '.panel, .notice, .mode, .hoja, .splash, .splash-item, .splash-item-cuerpo';
 
 /** Code to evaluate in the page: JSON with one line per margin that breaks a rule. */
@@ -49,6 +57,20 @@ export const measureMargins = `(()=>{
     }
     if (Math.abs(left - right) > T || Math.abs(top - (left + right) / 2) > T)
       off.push('M-3 ' + name(m) + ' in ' + name(c) + ': ' + Math.round(top) + ' px above, ' + Math.round(left) + ' / ' + Math.round(right) + ' px at the sides');
+  }
+  // M-4
+  const O = ${OVERLAP};
+  const inFlow = e => { const s = getComputedStyle(e); return !['absolute', 'fixed', 'sticky'].includes(s.position) && s.float === 'none'; };
+  const root = document.querySelector('.screen.active') || document.querySelector('.app') || document.body;
+  for (const e of root.querySelectorAll('*')) {
+    if (!visible(e) || skip(e) || !inFlow(e) || e.closest('svg') && e.tagName.toLowerCase() !== 'svg') continue;
+    let p = e.previousElementSibling;
+    while (p && (!visible(p) || !inFlow(p))) p = p.previousElementSibling;
+    if (!p || skip(p)) continue;
+    const a = p.getBoundingClientRect(), b = e.getBoundingClientRect();
+    const below = b.top >= a.top + a.height / 2;
+    const across = Math.min(a.right, b.right) - Math.max(a.left, b.left) > 0;
+    if (below && across && a.bottom - b.top > O) off.push('M-4 ' + name(e) + ' covers ' + name(p) + ' by ' + Math.round(a.bottom - b.top) + ' px');
   }
   return JSON.stringify(off);
 })()`;
