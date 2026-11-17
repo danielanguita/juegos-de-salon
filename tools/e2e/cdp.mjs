@@ -7,6 +7,8 @@ import { measureMargins } from './margins-common.mjs';
 import { isFolder as isFolder } from './output.mjs';
 // CHROME: another path to the browser (Linux, a cloud session)
 const CHROME = process.env.CHROME || '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
+import { snapshot } from './flags-snapshot.mjs';
+const SNAPSHOT = snapshot();
 export const sleep = ms => new Promise(r => setTimeout(r, ms));
 
 /**
@@ -77,22 +79,31 @@ export async function launch({ port: requested, dir, out, width = 390, height = 
   }
   const ws = new WebSocket(targets.find(t => t.type === 'page').webSocketDebuggerUrl);
   await new Promise(r => ws.onopen = r);
+  const flagOverrides = {};
   let id = 0; const pending = new Map(); const errors = []; const logs = [];
   let loads = 0; const onLoad = new Set(); // Page.loadEventFired: how many so far, and who waits for the next one
   ws.onmessage = e => {
     const m = JSON.parse(e.data);
     if (m.method === 'Page.loadEventFired') { loads++; for (const r of onLoad) r(); onLoad.clear(); }
     if (m.id && pending.has(m.id)) { pending.get(m.id)(m); pending.delete(m.id); }
+    // The flags the page asks Firebase for come from the snapshot (D-578), plus what the script set
+    if (m.method === 'Fetch.requestPaused') {
+      const body = Buffer.from(JSON.stringify({ ...SNAPSHOT, ...flagOverrides })).toString('base64');
+      send('Fetch.fulfillRequest', { requestId: m.params.requestId, responseCode: 200, responseHeaders: [{ name: 'Content-Type', value: 'application/json' }, { name: 'Access-Control-Allow-Origin', value: '*' }], body });
+    }
     if (m.method === 'Runtime.exceptionThrown') errors.push(m.params.exceptionDetails.text + ' ' + (m.params.exceptionDetails.exception?.description || ''));
     if (m.method === 'Runtime.consoleAPICalled' && (m.params.type === 'error' || m.params.type === 'warning')) logs.push(m.params.args.map(a => a.value ?? a.description).join(' '));
   };
   const send = (method, params = {}) => new Promise(r => { const i = ++id; pending.set(i, r); ws.send(JSON.stringify({ id: i, method, params })); });
   await send('Page.enable'); await send('Runtime.enable');
+  await send('Fetch.enable', { patterns: [{ urlPattern: '*firebaseio.com/flags.json*' }] });
   await send('Emulation.setDeviceMetricsOverride', { width, height, deviceScaleFactor: 2, mobile: true });
   const api = {
     errors, logs,
     port, // the Chrome port actually used (the one the system chose, or CDP_PORT's)
     dir,
+    /** Sets flag states for this browser on top of the snapshot (D-578): `flags({ 'my-flag': 'all' })`; the next load sees them. */
+    flags: states => { for (const [id, state] of Object.entries(states)) flagOverrides[id] = { state }; },
     send, // raw CDP, for what has no helper (for example cutting Firebase off the network)
     evaluate: async expr => { const r = await send('Runtime.evaluate', { expression: expr, awaitPromise: true, returnByValue: true }); if (r.result?.exceptionDetails) throw new Error(r.result.exceptionDetails.text + ' ' + (r.result.exceptionDetails.exception?.description || '')); return r.result?.result?.value; },
     go: async (url, wait = 1800) => { await send('Page.navigate', { url }); await sleep(wait); },

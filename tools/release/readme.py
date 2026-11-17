@@ -135,7 +135,11 @@ def block_languages(F, C):
 
 
 def block_tests(F, C):
-    return '\n'.join(['```bash'] + [f'node {t}' for t in test_order(F['tests'])] + ['```']) + '\n'
+    # One loop, not one line per test (D-578): a new test no longer makes this block stale
+    return ('```bash\n'
+            '# every unit test; each one stands alone\n'
+            "for f in $(git ls-files '*.test.mjs'); do node \"$f\" >/dev/null || echo \"FAIL $f\"; done\n"
+            '```\n')
 
 
 def test_order(tests):
@@ -414,6 +418,10 @@ def cmd_check():
             if root == 'version':  # the version is the CHANGELOG's (D-205); the README does not quote it
                 continue
             where = SECTIONS.get(root, 'the README')
+            # A test or an e2e script that appears or goes is not prose to reread: a nudge, not an error (D-578)
+            if root in ('tests', 'e2e'):
+                warnings.append(f'{tell(path, before, now)} (reread {where} if it should be named there)')
+                continue
             problems.append(f'{tell(path, before, now)}\n'
                             f'           reread {where}; then: python3 tools/release/readme.py seal')
 
