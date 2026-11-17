@@ -35,7 +35,7 @@ check('every scheduled workflow is in the registry, with its cron', () => {
   for (const f of readdirSync(dir).filter(f => f.endsWith('.yml'))) {
     const crons = [...readFileSync(join(dir, f), 'utf8').matchAll(/^\s*- cron: '([^']+)'/gm)].map(m => m[1]);
     if (!crons.length) continue;
-    const j = list.find(x => x.workflow === f);
+    const j = list.find(x => x.workflow === f && x.cron); // chores riding a heartbeat share its workflow (D-569)
     assert.ok(j, `${f} is scheduled but not in tools/jobs/jobs.json`);
     assert.deepEqual([j.cron], crons, `${f}: cron`);
   }
