@@ -166,6 +166,8 @@ const TYF_RESULT = [
 ];
 
 export const PATHS = {
+  // Blackjack (lab): its cover, measured by landing-fold.mjs (D-579)
+  blackjack: { intro: [] },
   /**
    * 🕵️ Agentes (D-421): the board, the end (every clue passed, Terminar confirmed) and its result.
    * AG_FINISH passes each clue as soon as its button comes back (a clue takes about a second to

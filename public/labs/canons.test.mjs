@@ -3,7 +3,7 @@
 // contributor's. A lab game (labs/<folder>/ with an index.html and a game.js) needs:
 //   manifest  its game.json, so the conformance suite runs over it (C-2, C-3, C-6, C-7, C-19's exits:
 //             public/assets/js/conformance.test.mjs and, in the browser, tools/e2e/conformance.mjs)
-//   cover     its landing in tools/e2e/paths.mjs with `intro`, so landing-fold.mjs measures its cover at
+//   cover-measured  its landing in tools/e2e/paths.mjs with `intro`, so landing-fold.mjs measures its cover at
 //             320 and 375 px: the main action above the fold, even margins (C-17)
 //   exits     its result exits from salidasFin in fin.js (C-19)
 //   rankings  its result in the rankings: finDePartida, bloqueTabla or avisoPartida from ranking.js (C-19)
@@ -35,18 +35,27 @@ const read = (...p) => existsSync(join(LABS, ...p)) ? readFileSync(join(LABS, ..
 // La Bodega is parked work, kept so it is not thrown away; it needs no maintenance (the owner,
 // 2026-11-17), so its games are outside the gate. A game that comes back out of it passes the gate then.
 const labsHtml = readFileSync(join(LABS, 'index.html'), 'utf8');
-const bodegaStart = labsHtml.indexOf('id="bodega-juegos"');
-const bodegaHtml = bodegaStart < 0 ? '' : labsHtml.slice(bodegaStart, labsHtml.indexOf('id="bodega-mejoras"', bodegaStart));
-export const PARKED = [...bodegaHtml.matchAll(/href="([a-z0-9-]+)\/"/g)].map(x => x[1]);
+// The whole of La Bodega: its games and, under its launched improvements, the lab prototypes of games
+// already published (Aletazo, Babel, Sudoku). A game also linked from an active group is not parked.
+const section = (from, to) => { const a = labsHtml.indexOf(from); return a < 0 ? '' : labsHtml.slice(a, to ? labsHtml.indexOf(to, a) : undefined); };
+const bodegaHtml = section('<section class="grupo" id="bodega">', '</main>');
+const activeHtml = labsHtml.replace(bodegaHtml, '');
+const hrefs = html => [...html.matchAll(/href="([a-z0-9-]+)\/"/g)].map(x => x[1]);
+export const PARKED = [...new Set(hrefs(bodegaHtml))].filter(g => !hrefs(activeHtml).includes(g));
 const games = readdirSync(LABS, { withFileTypes: true })
   .filter(d => d.isDirectory() && existsSync(join(LABS, d.name, 'index.html')) && existsSync(join(LABS, d.name, 'game.js')))
   .map(d => d.name).filter(g => !PARKED.includes(g)).sort();
+
+/** All the code of a lab game: every .js and .html in its folder and below (a game split in modules, or
+ * with its code inline in a page), tests left out. */
+const code = dir => !existsSync(dir) ? "" : readdirSync(dir, { withFileTypes: true }).map(d => d.isDirectory() ? code(join(dir, d.name))
+  : /\.(js|html)$/.test(d.name) && !d.name.includes('.test.') ? readFileSync(join(dir, d.name), 'utf8') : '').join('\n');
 
 /** What a lab game lacks of its canons. */
 export function missing(folder) {
   const m = read(folder, 'game.json') ? JSON.parse(read(folder, 'game.json')) : null;
   return labCanonGaps({
-    manifest: m, game: read(folder, 'game.js'),
+    manifest: m, game: code(join(LABS, folder)),
     inPaths: [`labs/${folder}`, folder, m?.id].some(k => k && PATHS[k]?.intro),
     hasSpec: existsSync(join(DOCS, `${folder}.md`)),
     e2e: existsSync(join(E2E, folder)) ? readdirSync(join(E2E, folder)) : [],
@@ -71,6 +80,6 @@ for (const [g, d] of Object.entries(debt)) {
 }
 
 // The check catches what it claims to: a folder with nothing has no manifest, cover, exits or rankings
-assert.deepEqual(missing('no-such-game'), ['manifest', 'cover', 'exits', 'rankings', 'dialogs', 'signals', 'spec', 'e2e']);
+assert.deepEqual(missing('no-such-game'), ['manifest', 'cover-measured', 'exits', 'rankings', 'dialogs', 'signals', 'spec', 'e2e']);
 
 console.log(`lab canons: ${games.length} lab game(s), ${Object.keys(debt).length} with debt, ${PARKED.length} parked in La Bodega`);

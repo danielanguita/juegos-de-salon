@@ -54,7 +54,7 @@ the work is to keep it passing while the placeholder becomes the real game.
 | Subject | What | Canon |
 |---|---|---|
 | `manifest` | its `game.json`, so the conformance suite below runs over it | C-2 |
-| `cover` | its landing in `tools/e2e/paths.mjs` with `intro`, so `landing-fold.mjs` measures the cover at 320 and 375 px | C-17, U-39 |
+| `cover-measured` | the cover exists is not enough: its landing in `tools/e2e/paths.mjs` with `intro`, so `landing-fold.mjs` measures the cover at 320 and 375 px | C-17, U-39 |
 | `exits` | the result's exits from `salidasFin` in `fin.js` | C-19 |
 | `rankings` | the result in the rankings: `finDePartida`, `bloqueTabla` or `avisoPartida` | C-19, D-559 |
 | `dialogs` | the cover through `coverWithDialogs`: «📖 Instrucciones» and «👤 Entrar» as dialogs | C-8 |
@@ -65,7 +65,9 @@ the work is to keep it passing while the placeholder becomes the real game.
 A canon the game breaks on purpose is a `canonExceptions` entry whose reason names the subject
 (`cover`, `fin.js`, `rankings`, `cover-dialogs`, `trackStart`, `e2e`), copied from its spec. The lab
 games older than the rule owe what `docs/labs-canon-debt.json` lists: a ratchet, each list only
-shrinks, no new game joins it, and a game pays its debt before it leaves the lab. **La Bodega is
+shrinks, no new game joins it, and a game pays its debt before it leaves the lab. The check reads all of
+a game's code (every `.js` and `.html` in its folder, inline scripts included), and accepts any of the
+rankings' blocks (`finDePartida`, `avisoPartida`, `bloqueTabla`, `bloqueRanking`, `bloqueVictorias`). **La Bodega is
 parked work, not maintained**: its games are outside the gate and owe nothing; one that comes back
 out of La Bodega passes the gate then.
 
