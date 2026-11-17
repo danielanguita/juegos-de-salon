@@ -305,3 +305,9 @@
 /* The hand's score centred over its cards, like the dealer's (its bet line is the chip below) */
 .bj-felt .bj-hand-meta { justify-content: center; }
 .bj-felt .bj-hand-meta .bet-text { display: none; }
+/* Placing the bet (flag blackjack-felt): the table and the action box morph to their playing size */
+.bj-felt .bj-table { view-transition-name: bj-table; }
+.bj-felt #action-box { view-transition-name: bj-action; }
+::view-transition-group(bj-table), ::view-transition-group(bj-action) { animation-duration: 0.55s; animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1); }
+::view-transition-old(bj-action) { animation: bjFold 0.3s ease-in both; }
+@keyframes bjFold { to { opacity: 0; transform: scaleY(0.85); } }

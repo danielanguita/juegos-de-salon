@@ -972,6 +972,12 @@ function showBlackjackFx(kind) {
   setTimeout(() => overlay.remove(), 1900);
 }
 
+/** Paints with a view transition on the felt table (flag blackjack-felt); at once without it, or under reduced motion. */
+function morph(paint) {
+  if (!felt || !document.startViewTransition || matchMedia('(prefers-reduced-motion: reduce)').matches) { paint(); return Promise.resolve(); }
+  return document.startViewTransition(paint).updateCallbackDone.catch(() => {});
+}
+
 async function animateTransition(prev, next) {
   const token = ++animToken;
   freshCardKey = null;
@@ -980,7 +986,8 @@ async function animateTransition(prev, next) {
   if (prev.phase === 'betting' && (next.phase === 'playing' || next.phase === 'roundEnd')) {
     const pCounts = next.players.map(p => p.hands.map(() => 0));
     dealReveal = { players: pCounts, dealer: 0, holeRevealed: false, showOutcomes: false };
-    renderPlay();
+    // The bet goes down: the felt table opens up and the betting box folds away in one smooth move
+    await morph(renderPlay);
 
     for (let pass = 0; pass < 2; pass++) {
       for (let pi = 0; pi < next.players.length; pi++) {
@@ -991,7 +998,7 @@ async function animateTransition(prev, next) {
         freshCardKey = `p-${pi}-0-${pass}`;
         SFX.flip();
         SFX.reveal();
-        renderPlay();
+        morph(renderPlay); // the table grows to take the card: it glides, not jumps
       }
       await wait(650);
       if (token !== animToken) return;
@@ -999,7 +1006,7 @@ async function animateTransition(prev, next) {
       freshCardKey = `d-${pass}`;
       SFX.flip();
       if (pass === 0) SFX.reveal(); // hole card stays suspensefully face down
-      renderPlay();
+      morph(renderPlay);
     }
 
     if (next.phase === 'roundEnd') {
