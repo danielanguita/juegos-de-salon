@@ -736,7 +736,7 @@ if (runs('labs')) {
   // when the improvement is how it behaves on any visit (`../`, the one-window gate, D-431), or a real
   // page with the demo that shows it without setting it up (`../cup/?test&lab&demo=resumed`, D-433)
   const sections = await ev(`JSON.stringify([...document.querySelectorAll('section.seccion')].map(x => [x.id, x.querySelector('a.btn')?.getAttribute('href')]))`).then(JSON.parse);
-  ok(sections.length >= 1 && sections.some(([id, h]) => id === 'seccion-caso' && h === 'case/') && sections.every(([, h]) => /^(\.\.\/)?[a-z-]+\/([a-z-]+\/)?(\?[a-z=&-]+)?$/.test(h || '') || /^\.\.\/(\?[a-z=&-]+)?$/.test(h || '')) && !await ev(`!!document.getElementById('minis')`),
+  ok(sections.length >= 1 && sections.some(([id, h]) => id === 'seccion-caso' && h === 'case/') && sections.every(([, h]) => /^(\.\.\/)?[a-z0-9-]+\/([a-z0-9-]+\/)?(\?[a-z=&-]+)?$/.test(h || '') || /^\.\.\/(\?[a-z=&-]+)?$/.test(h || '')) && !await ev(`!!document.getElementById('minis')`),
     `the lab offers only prototypes, each in its folder (${sections.map(([, h]) => h).join(' ')})`);
   await b.shot('10-labs');
   // A link from before D-266, with the parameters in Spanish: still arrives, and in English
