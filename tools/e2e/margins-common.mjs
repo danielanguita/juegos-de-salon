@@ -66,9 +66,11 @@ export const measureMargins = `(()=>{
   const heroIcon = x => { const c = x.getAttribute('class') || ''; return /(^|[\\s-])(icon|crown|crown-big)([\\s-]|$)/.test(c) || /-icon(\\s|$)/.test(c); };
   // Two siblings placed in the same grid cell on purpose (a card's pips and corners) are layers, not a column
   const placed = x => { const s = getComputedStyle(x); return s.gridRowStart !== 'auto' || s.gridArea.split('/')[0].trim() !== 'auto'; };
+  // A playing card's face (its corners and pips) is a drawing, not a column of blocks
+  const cardFace = x => x.parentElement?.closest('.face, .pcard');
   const root = document.querySelector('.screen.active') || document.querySelector('.app') || document.body;
   for (const e of root.querySelectorAll('*')) {
-    if (!visible(e) || skip(e) || !inFlow(e) || e.closest('svg') && e.tagName.toLowerCase() !== 'svg') continue;
+    if (!visible(e) || skip(e) || !inFlow(e) || cardFace(e) || e.closest('svg') && e.tagName.toLowerCase() !== 'svg') continue;
     let p = e.previousElementSibling;
     while (p && (!visible(p) || !inFlow(p))) p = p.previousElementSibling;
     if (!p || skip(p) || heroIcon(p)) continue;
