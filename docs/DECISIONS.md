@@ -53,9 +53,9 @@ Where today's rule is and which decisions explain it: those in force that still 
 | Agents (usability, documentation, processes, support, ideas) | [USABILIDAD.md](USABILIDAD.md) | D-132, D-135, D-172, D-204, D-206, D-213, D-218, D-252, D-273, D-275, D-276, D-279, D-301, D-303, D-304, D-306, D-313, D-315, D-317, D-318, D-341, D-360, D-361, D-365, D-382, D-383, D-394, D-400, D-401, D-409, D-411, D-413, D-429, D-440, D-441, D-443, D-451, D-452, D-459, D-463, D-472, D-480, D-486, D-497, D-518, D-519, D-520, D-522, D-527, D-531, D-532, D-533, D-540, D-541, D-547, D-553, D-554, D-555, D-558, D-568, D-569, D-573 |
 | Rankings and player (name and PIN) | C-7 | D-96, D-212, D-215, D-217, D-219, D-220, D-230, D-236, D-249, D-336, D-357, D-358, D-359, D-412, D-414, D-415, D-416, D-424, D-436, D-450, D-455, D-464, D-465, D-470, D-476, D-478, D-492, D-499, D-500, D-513, D-559, D-563 |
 | Marketing | `marketing/README.md` | D-178, D-380, D-410, D-454, D-456, D-494, D-505, D-529 |
-| Installable app and phone notifications | C-2, [PWA-NOTIFICACIONES.md](PWA-NOTIFICACIONES.md) | D-221, D-222, D-223, D-224, D-225, D-227, D-228, D-229, D-230, D-232, D-233, D-504, D-538, D-544, D-545, D-546, D-564, D-565, D-571 |
+| Installable app and phone notifications | C-2, [PWA-NOTIFICACIONES.md](PWA-NOTIFICACIONES.md) | D-221, D-222, D-223, D-224, D-225, D-227, D-228, D-229, D-230, D-232, D-233, D-504, D-538, D-544, D-545, D-546, D-564, D-565, D-571, D-574 |
 
-## In force (556)
+## In force (557)
 
 | D | Title | Status |
 |---|---|---|
@@ -606,7 +606,7 @@ Where today's rule is and which decisions explain it: those in force that still 
 | [D-561](decisions/D-561.md) | The owner's timeframes are Pacific time: the WBR, the weekly email and every period the owner reads | current |
 | [D-562](decisions/D-562.md) | La Copa: a reaction and a comment on each result, kept only while the cup lasts | current |
 | [D-563](decisions/D-563.md) | Uno al día's month table is the same on every phone: every reader adds every player's uncounted days | current |
-| [D-564](decisions/D-564.md) | La Copa: a notification when someone comments on your row, and notifications checked every 5 minutes by a relay on GitHub | amended by D-565 |
+| [D-564](decisions/D-564.md) | La Copa: a notification when someone comments on your row, and notifications checked every 5 minutes by a relay on GitHub | amended by D-565, D-574 |
 | [D-565](decisions/D-565.md) | The heartbeat: GitHub's frequent jobs in one relay, measured, with a watchdog | current |
 | [D-566](decisions/D-566.md) | La Copa: a balloon tells players they can comment, once per phone | current |
 | [D-567](decisions/D-567.md) | Lab features get an on/off switch in the «T» tab; launched ones lose it | current |
@@ -615,6 +615,7 @@ Where today's rule is and which decisions explain it: those in force that still 
 | [D-571](decisions/D-571.md) | «Instala Juegos de Salón»: the invitation snoozes instead of leaving for good, and is always in the footer | current |
 | [D-572](decisions/D-572.md) | Tango scores time, not mistakes, as Reinas does (outside La Copa first) | current |
 | [D-573](decisions/D-573.md) | A red PR its session left is nudged within the hour, and taken over by a cloud task two hours later | current |
+| [D-574](decisions/D-574.md) | Each heartbeat relay starts the next one itself | current |
 
 ## No longer in force (12)
 
