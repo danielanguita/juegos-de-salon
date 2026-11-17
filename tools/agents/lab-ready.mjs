@@ -6,7 +6,7 @@
  * `flag-list.js`, `READY_BY` per flag) and writes `flagsListas/<id>` with the evidence; the flag's
  * /labs/ card reads it and says ✅ Listo para 🚀 with the numbers. The owner still presses 🚀 (D-480).
  *
- *   node tools/agents/lab-ready.mjs check     weighs every flag in lab, writes flagsListas/ (the hourly mac job)
+ *   node tools/agents/lab-ready.mjs check     weighs every flag in lab, writes flagsListas/ (hourly, in the heartbeat, D-569)
  *   node tools/agents/lab-ready.mjs list      what flagsListas/ says, without writing
  *   node tools/agents/lab-ready.mjs news      the flags ready and not yet told to the processes round,
  *                                             then marks them told (exit 0 if some, 3 if none)

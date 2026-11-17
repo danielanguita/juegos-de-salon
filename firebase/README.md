@@ -283,7 +283,7 @@ used to enter, up to 24; never the key, D-306), `contexto` (JSON, up to 500), op
 It is written only once and **read only by the owner** (D-459, which amends D-104): `node tools/firebase/reports.mjs`
 shows them with the admin key (`--days 3` for recent ones), and the panel reads them signed in as the owner.
 They carry no PIN or account data.
-Every 5 minutes, the Mac mini's `feedback-watch` job (`tools/agents/feedback.mjs sync`, D-382) uploads the new ones as
+Every 5 minutes, the heartbeat's `feedback-watch` (notifications.yml, D-569) (`tools/agents/feedback.mjs sync`, D-382) uploads the new ones as
 GitHub issues with the `feedback` label (plus `feedback:suggestion`, `feedback:problem`,
 `feedback:game-idea` or `feedback:other` when it carries a `tipo`, D-341), with the name masked (`C******* A*******`, D-279, D-366) and the key (D-306) and without the
 browser, and the processes agent handles them (D-275).
