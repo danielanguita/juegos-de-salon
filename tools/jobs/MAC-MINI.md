@@ -11,8 +11,6 @@ machine needs. `machine.test.mjs` fails if a `mac` job, or a file under
 |---|---|---|---|
 | `inbox-watch` | launchd (`cl.juegosdesalon.inbox-watch`) | every 5 min | `node tools/jobs/jobs.mjs install` |
 | `lab-publish-watch` | launchd (`cl.juegosdesalon.lab-publish-watch`) | every 5 min | `node tools/jobs/jobs.mjs install` |
-| `lab-ready` | launchd (`cl.juegosdesalon.lab-ready`) | hourly | `node tools/jobs/jobs.mjs install` (D-528) |
-| `feedback-watch` | launchd (`cl.juegosdesalon.feedback-watch`) | every 5 min | `node tools/jobs/jobs.mjs install` |
 | `processes-round` | launchd (`cl.juegosdesalon.processes-round`), a headless `claude -p` | 4:30 Pacific, daily | `node tools/jobs/jobs.mjs install` (D-451) |
 | `referee` | launchd (`cl.juegosdesalon.referee`), a service kept alive | always | `node tools/jobs/jobs.mjs install`; Ollama and the Cloudflare tunnel by hand: [tools/referee/README.md](../referee/README.md) (piece 6, D-532) |
 | `weekly-report` | launchd (`cl.juegosdesalon.weekly-report`), a headless `claude -p` | Sundays 08:00 Pacific | `node tools/jobs/jobs.mjs install` (D-451) |

@@ -13,7 +13,8 @@
 # uad-rebuild.yml also runs by hand). The hourly cron queues the next run behind it (the concurrency
 # group), so another always takes over. Every round is measured (tools/push/heartbeat.mjs: rounds and
 # the longest gap of each Pacific day), the panel shows it and round-watch.yml opens an issue when it
-# falls behind. All on GitHub (owner, D-564): the repo is public, the minutes are free. A manual run
+# falls behind. Since D-569 it also uploads the 🐞 feedback as issues every round and weighs the lab
+# flags' readiness every hour, which the Mac mini did before. All on GitHub (owner, D-564): the repo is public, the minutes are free. A manual run
 # checks once.
 
 name: Notifications
@@ -35,6 +36,8 @@ on:
 
 permissions:
   contents: read
+  # feedback.mjs sync opens the 🐞 reports as issues (D-569)
+  issues: write
 
 # One round at a time: two together could send the same notification twice
 concurrency:
@@ -50,8 +53,9 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 24
-      - name: Notifications every 5 minutes, Uno al día every hour
+      - name: Notifications and feedback every 5 minutes, Uno al día and lab readiness every hour
         env:
+          GH_TOKEN: ${{ github.token }}
           KEY_JSON: ${{ secrets.FIREBASE_ADMIN_JSON }}
           # The secret keeps its Spanish name (owner's decision, D-316)
           VAPID_PRIVADA: ${{ secrets.VAPID_PRIVADA }}
@@ -68,6 +72,8 @@ jobs:
           printf '%s' "$KEY_JSON" > "$RUNNER_TEMP/key.json"
           export FIREBASE_KEY="$RUNNER_TEMP/key.json"
           notify() { [ -n "$VAPID_PRIVADA" ] || return 0; node tools/push/notify.mjs $DRY_RUN ${TEST:+--test "$TEST"} || echo "::warning::a notifications round failed; the next one tries again"; }
+          # The chores that were on the Mac mini (D-569): the 🐞 reports as issues every round, lab readiness each hour
+          feedback() { node tools/agents/feedback.mjs sync || echo "::warning::the feedback upload failed; the next round tries again"; }
           notify
           [ -z "$RELAY" ] && exit 0
           # The relay: 5h40m, a round every 5 minutes and a rebuild each hour, starting now
@@ -76,9 +82,11 @@ jobs:
           while :; do
             if [ $(( $(date +%s) - last_uad )) -ge 3600 ]; then
               bash tools/jobs/uad-hourly.sh --apply || echo "::warning::the Uno al día rebuild failed; the next hour tries again"
+              node tools/agents/lab-ready.mjs check || echo "::warning::lab readiness failed; the next hour tries again"
               last_uad=$(date +%s)
             fi
             [ $(( $(date +%s) + 300 )) -lt "$end" ] || break
+            feedback
             sleep 300
             notify
           done
