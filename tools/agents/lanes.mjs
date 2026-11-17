@@ -6,6 +6,7 @@
  *   node tools/agents/lanes.mjs check [base]     # this branch against base (origin/main)
  *   node tools/agents/lanes.mjs check --pr <n>   # a PR on GitHub, open or merged
  *   node tools/agents/lanes.mjs ci               # the `lane` job in tests.yml (GitHub Actions only)
+ *   node tools/agents/lanes.mjs tick <n>         # D-540: the session ticks Yes on a 🔴 PR the owner asked for in its dialogue
  *
  * It prints the lane, the files that set it, what the lane requires and, for the review agents,
  * the stage of covers.mjs (D-304: lab only, a game leaving the lab, the site). The rules are in
@@ -16,7 +17,8 @@
  *
  * In CI, a 🔴 PR gets the `needs-owner` label, a red `owner-approval` status on its head commit and
  * a one-tap decision at the top of its own description (D-531) whose Yes is `approve-pr` (approve.mjs) for that commit; 🟢/🟡 get a
- * green `owner-approval` at once. A push after the owner's tick asks again.
+ * green `owner-approval` at once. A push after the owner's tick asks again, except one that only merges
+ * main into the branch (GitHub's "Update branch", D-575): the tick carries over and auto-merge goes on.
  */
 import { execFileSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
@@ -41,7 +43,9 @@ export function laneOf(file, rules = RULES) {
 }
 
 /** The authors whose PRs take the lane of their files: the owner (sessions act as the owner). */
-export const INSIDERS = ['ellokojavi'];
+// The repo's own workflows (github-actions[bot], e.g. the weekly popularity, D-547) are insiders too: only
+// a workflow of this repository can push as it, a fork cannot (D-575)
+export const INSIDERS = ['ellokojavi', 'github-actions[bot]'];
 
 /** Lab game owners (D-553): game folder → GitHub login of the contributor who brought it in. */
 export const LAB_OWNERS = JSON.parse(readFileSync(join(ROOT, 'tools/agents/lab-owners.json'), 'utf8')).owners;
@@ -120,6 +124,16 @@ export function withApproval(body = '', block) {
   return body.trim() ? `${block}\n\n${body}` : block;
 }
 
+/** The description with the Yes of its approval block ticked (D-540), or null if there is none to tick. */
+export function ticked(body = '', n) {
+  const a = body.indexOf(APPROVAL_START), b = body.indexOf(APPROVAL_END);
+  if (a < 0 || b < a) return null;
+  const block = body.slice(a, b), yes = `- [ ] Yes: merges #${n}`;
+  if (!block.includes(yes)) return null;
+  const note = '\n\nTicked by the session itself (D-540): the owner asked for this work in its dialogue.';
+  return body.slice(0, a) + block.replace(yes, `- [x] Yes: merges #${n}`) + body.slice(b) + (body.includes(note.trim()) ? '' : note);
+}
+
 /* ------------------------------------------------------------------ */
 
 const run = (cmd, args, opts = {}) => execFileSync(cmd, args, { cwd: ROOT, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], ...opts });
@@ -131,6 +145,20 @@ async function stageOf(base) {
   const files = git('diff', '--name-only', `${base}...HEAD`).split('\n').filter(Boolean);
   const exits = labsExits(git('diff', `${base}...HEAD`, '--', ...LABS_PATHS), git('diff', '--name-status', '-M', `${base}...HEAD`));
   return STAGES[stage(files, exits)](exits);
+}
+
+/**
+ * Whether an approval carries from the commit before (D-575): `head` merges main into an approved
+ * commit and changes nothing else. `parents` are head's, `approved(sha)` whether the owner approved
+ * that commit, `onMain(sha)` whether it is in main's history, `cleanTree(a, b)` the tree a clean merge
+ * of a and b gives (null on a conflict), `tree` head's own. Pure, for the test.
+ */
+export function carries({ parents = [], tree, approved, onMain, cleanTree }) {
+  if (parents.length !== 2) return null;
+  const [mine, theirs] = parents;
+  if (!approved(mine) || !onMain(theirs)) return null;
+  const clean = cleanTree(mine, theirs);
+  return clean && clean === tree ? mine : null;
 }
 
 const prOf = n => JSON.parse(gh('api', `repos/{owner}/{repo}/pulls/${n}`));
@@ -152,6 +180,25 @@ async function ci() {
   const statuses = JSON.parse(gh('api', `repos/${repo}/commits/${sha}/statuses`));
   if (statuses.find(s => s.context === STATUS)?.state === 'success' && statuses.find(s => s.context === STATUS)?.description === 'Approved by the owner') {
     console.log('The owner already approved this commit.');
+    return;
+  }
+  // "Update branch" (main merged in, nothing else): the owner's tick carries, and it merges on its own
+  const carried = (() => {
+    try {
+      git('fetch', '--quiet', '--depth=200', 'origin', sha, '+main:refs/remotes/origin/main');
+      const head = JSON.parse(gh('api', `repos/${repo}/commits/${sha}`));
+      return carries({
+        parents: head.parents.map(p => p.sha), tree: head.commit.tree.sha,
+        approved: s => JSON.parse(gh('api', `repos/${repo}/commits/${s}/statuses`)).some(x => x.context === STATUS && x.state === 'success' && /^Approved by the owner/.test(x.description)),
+        onMain: s => { try { git('merge-base', '--is-ancestor', s, 'refs/remotes/origin/main'); return true; } catch { return false; } },
+        cleanTree: (a, b) => { try { git('fetch', '--quiet', '--depth=200', 'origin', a, b); return git('merge-tree', '--write-tree', a, b).split('\n')[0].trim(); } catch { return null; } },
+      });
+    } catch (e) { console.log(`Could not check for a carried approval: ${e.message}`); return null; }
+  })();
+  if (carried) {
+    status('success', `Approved by the owner (carried from ${carried.slice(0, 7)}: only main merged in, D-575)`);
+    try { gh('pr', 'merge', String(n), '-R', repo, '--auto', '--merge'); } catch (e) { console.log(`Auto-merge not turned on: ${e.message}`); }
+    console.log(`The owner's approval of ${carried.slice(0, 7)} carries: this push only merged main.`);
     return;
   }
   try { gh('label', 'create', LABEL, '-R', repo, '--color', 'B60205', '--description', 'Red lane: needs the owner\'s approval (docs/LANES.md)'); } catch { /* exists */ }
@@ -182,11 +229,23 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const [cmd, ...args] = process.argv.slice(2);
   try {
     if (cmd === 'ci') await ci();
+    else if (cmd === 'tick') {
+      const n = Number(args[0]);
+      if (!n) throw new Error('Usage: node tools/agents/lanes.mjs tick <pr>');
+      // The block is written by the lane job a minute after the push: wait for it
+      let body = null;
+      for (let i = 0; i < 40 && !(body = ticked(JSON.parse(gh('api', `repos/{owner}/{repo}/issues/${n}`)).body || '', n)); i++) run('sleep', ['15']);
+      if (!body) throw new Error(`#${n} has no unticked Yes (not 🔴, already ticked, or the lane job has not run)`);
+      gh('api', '-X', 'PATCH', `repos/{owner}/{repo}/issues/${n}`, '-f', `body=${body}`);
+      console.log(`Ticked Yes on #${n}: approve.yml approves and merges it once its checks pass.`);
+    }
     else if (cmd === 'check' && args[0] === '--pr') { const files = prFiles(Number(args[1])); console.log(report(laneOfPr(files, { outside: outsideReason(prOf(Number(args[1])), files) }))); }
     else if (cmd === 'check') {
       const base = args[0] || 'origin/main';
       const files = git('diff', '--name-only', `${base}...HEAD`).split('\n').filter(Boolean);
-      console.log(report(laneOfPr(files), await stageOf(base)));
+      const r = laneOfPr(files);
+      console.log(report(r, await stageOf(base)));
+      if (r.lane === 'red') console.log('If the owner asked for this work in your dialogue (D-540), once the PR is open and its head final: node tools/agents/lanes.mjs tick <pr>');
       // D-553: a session is told it touches a contributor's lab game, so it can expect their changes there;
       // the owner's PRs never wait for a contributor's approval
       const theirs = [...new Set(files.map(f => Object.keys(LAB_OWNERS).find(g => GAME_PATHS(g).slice(0, 3).some(x => globRe(x).test(f)))).filter(Boolean))];

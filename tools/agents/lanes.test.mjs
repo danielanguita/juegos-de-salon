@@ -134,3 +134,26 @@ assert.ok(INSIDERS.includes(OWNER), 'the owner is an insider');
   for (const [g, who] of Object.entries(LAB_OWNERS)) assert.ok(/^[\w-]+$/.test(g) && /^[\w-]+$/.test(who), g);
 }
 console.log('lab owners ok');
+
+// D-575: "Update branch" keeps the owner's tick; anything else asks again
+{
+  const { carries, outsideReason: out } = await import('./lanes.mjs');
+  const base = { parents: ['mine', 'main1'], tree: 'T', approved: s => s === 'mine', onMain: s => s === 'main1', cleanTree: () => 'T' };
+  assert.equal(carries(base), 'mine', 'main merged into an approved commit, cleanly: the tick carries');
+  assert.equal(carries({ ...base, parents: ['mine'] }), null, 'an ordinary push asks again');
+  assert.equal(carries({ ...base, approved: () => false }), null, 'nothing approved before: nothing to carry');
+  assert.equal(carries({ ...base, onMain: () => false }), null, 'merging a branch that is not main asks again');
+  assert.equal(carries({ ...base, cleanTree: () => 'OTHER' }), null, 'a merge that also changed files asks again');
+  assert.equal(carries({ ...base, cleanTree: () => null }), null, 'a conflict resolved by hand asks again');
+  const { ticked, approvalBlock: ab } = await import('./lanes.mjs');
+  const body = ab('- [ ] Yes: merges #7 <!-- op:1:si -->\n- [ ] No <!-- op:1:no -->') + '\n\nWhat it does.';
+  const t = ticked(body, 7);
+  assert.match(t, /- \[x\] Yes: merges #7/, 'tick ticks the Yes');
+  assert.match(t, /- \[ \] No/, 'and leaves the No');
+  assert.match(t, /D-540/, 'and says the session ticked it');
+  assert.equal(ticked(t, 7), null, 'nothing to tick twice');
+  assert.equal(ticked('no block', 7), null, 'a PR without the block is not ticked');
+  const repo = { full_name: 'ellokojavi/juegos-de-salon' };
+  assert.equal(out({ head: { repo }, base: { repo }, user: { login: 'github-actions[bot]' } }), null, "the repo's own workflows are insiders (weekly popularity)");
+  assert.match(out({ head: { repo: { full_name: 'x/fork' } }, base: { repo }, user: { login: 'github-actions[bot]' } }), /fork/, 'a fork is outside whoever opened it');
+}
