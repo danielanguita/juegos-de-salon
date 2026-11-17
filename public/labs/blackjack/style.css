@@ -379,3 +379,17 @@ html.bj-defeat #app { position: relative; z-index: 1; }
 @keyframes bjDefeatRoom { from { opacity: 0; } }
 @keyframes bjDefeatSink { 0% { opacity: 0; transform: translateY(-24px) scale(1.15); } 60% { opacity: 1; transform: translateY(8px) rotate(-6deg); } 100% { transform: translateY(4px) rotate(-4deg); } }
 @media (prefers-reduced-motion: reduce) { html.bj-defeat body::before, #screen-result.defeat .trophy { animation: none; } }
+
+/* The felt fills the phone's height (flag blackjack-felt): game.js gives the play screen what is left of the view, the
+   table takes all of it the bar, the buttons and «Cómo se juega» do not; the dealer's half and the player's half
+   share it evenly, with the arc between them, and the cards grow with the view's height (46 to 78 px wide) */
+.bj-felt .bj-table { --bj-card: clamp(46px, 7svh, 78px); flex: 1 0 auto; grid-template-rows: 1fr auto 1fr; align-items: center; }
+.bj-felt .bj-table .pcard { width: var(--bj-card); }
+.bj-felt .bj-table .cards-row { min-height: calc(var(--bj-card) * 1.5); padding-left: calc(50% - var(--bj-card) * 0.7); }
+.bj-felt .bj-table .pcard + .pcard { margin-left: calc(var(--bj-card) * -0.6); }
+.bj-felt .bj-table .pcard:not(.back) .s { font-size: calc(var(--bj-card) * 0.42); }
+.bj-felt .bj-table .pcard:not(.back) .r { font-size: calc(var(--bj-card) * 0.28); }
+.bj-felt .felt-arc svg { height: clamp(30px, 4.6svh, 60px); }
+.bj-felt .bj-table .bet-spot { bottom: auto; top: calc(50% - 28px); }
+/* The same table in every phase: the box under it keeps the betting box's height, so the felt never resizes */
+.bj-felt #screen-play.solo #action-box { min-height: 174px; justify-content: center; }
