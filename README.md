@@ -617,6 +617,7 @@ node public/hangman/fuzz.test.mjs
 node public/hangman/replay.test.mjs
 node public/home-preload.test.mjs
 node public/labs/bodega.test.mjs
+node public/labs/canons.test.mjs
 node public/labs/code/engine-palabra.test.mjs
 node public/labs/index-nav.test.mjs
 node public/labs/launched.test.mjs

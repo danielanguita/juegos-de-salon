@@ -12,6 +12,8 @@
  *   public/labs/index.html                    its card in 🎲 Juegos en prueba (D-409)
  *   docs/games/<id>.md                        the spec with C-13's sections
  *   tools/e2e/<id>/game.mjs                   an end-to-end stub that plays it to the result
+ *   tools/e2e/<id>/languages.mjs              its screens in every language (C-12, D-199)
+ *   tools/e2e/paths.mjs                       its cover, so landing-fold.mjs measures it (C-17)
  *
  * The game itself is a placeholder to replace: a race to TARGET on one phone, two to six players,
  * each turn adds 1 or 2 (a pure state machine in engine.js). Around it is everything the canons ask:
@@ -56,6 +58,7 @@ export function newGameFiles(id, { nameEs, nameEn, namePt, emoji = '🎯' } = {}
     [`public/labs/${id}/game.js`]: fill(GAME),
     [`docs/games/${id}.md`]: fill(DOC),
     [`tools/e2e/${id}/game.mjs`]: fill(E2E),
+    [`tools/e2e/${id}/languages.mjs`]: fill(LANGUAGES),
   };
 }
 
@@ -90,8 +93,29 @@ export async function generate(id, opts = {}, root = REPO) {
     writeFileSync(labs, html.replace(ANCHOR, ANCHOR + labCard(id, m.emoji, m.name.es)));
     written.push('public/labs/index.html');
   }
+  // Its name for the panel and the signals until it is in games.js (game-labels.test.mjs)
+  const gamesJs = join(root, 'public/assets/js/games.js');
+  if (existsSync(gamesJs)) {
+    const js = readFileSync(gamesJs, 'utf8');
+    if (!js.includes(NAMES_ANCHOR)) throw new Error('public/assets/js/games.js lost its "export const LAB_NAMES = {" line');
+    const m = JSON.parse(files[`public/labs/${id}/game.json`]);
+    const q = v => `'${String(v).replace(/\\/g, '\\\\').replace(/'/g, "\\'")}'`;
+    writeFileSync(gamesJs, js.replace(NAMES_ANCHOR, NAMES_ANCHOR + `  '${id}': { emoji: ${q(m.emoji)}, name: { es: ${q(m.name.es)}, en: ${q(m.name.en)}, pt: ${q(m.name.pt)} } },\n`));
+    written.push('public/assets/js/games.js');
+  }
+  // Its cover in the e2e paths, so landing-fold.mjs measures it and languages.mjs looks at it (C-17, D-579)
+  const paths = join(root, 'tools/e2e/paths.mjs');
+  if (existsSync(paths)) {
+    const js = readFileSync(paths, 'utf8');
+    if (!js.includes(PATHS_ANCHOR)) throw new Error('tools/e2e/paths.mjs lost its "export const PATHS = {" line');
+    writeFileSync(paths, js.replace(PATHS_ANCHOR, PATHS_ANCHOR + `  '${id}': { intro: [] },\n`));
+    written.push('tools/e2e/paths.mjs');
+  }
   return written;
 }
+
+const PATHS_ANCHOR = 'export const PATHS = {\n';
+const NAMES_ANCHOR = 'export const LAB_NAMES = {\n';
 
 /* ------------------------------------------------------------------ */
 /* The templates: __ID__, __HOOK__, __EMOJI__, __NAME_xx__ are filled */
@@ -140,6 +164,7 @@ const INDEX = `<!DOCTYPE html>
   <link rel="preload" href="../../assets/fonts/nunito-latin.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="../../assets/fonts/bangers-latin.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="../../assets/css/base.css">
+  <link rel="stylesheet" href="../../assets/css/ranking.css">
   <link rel="stylesheet" href="style.css">
   <link rel="apple-touch-icon" href="../../assets/icons/apple-touch-icon.png">
   <meta name="apple-mobile-web-app-title" content="Juegos de Salón">
@@ -202,6 +227,8 @@ const INDEX = `<!DOCTYPE html>
   <div class="handoff" id="handoff" hidden></div>
 
   <script type="module">import './game.js';</script>
+  <!-- The cover ends with the site footer (C-17, site-footer.test.mjs) -->
+  <script type="module">import('../../assets/js/site-footer.js').then(m => m.mountFooter(document.getElementById('screen-intro'), { screen: '__ID__-cover' }));</script>
 </body>
 </html>
 `;
@@ -337,6 +364,8 @@ import { SFX, soundToggle, initSound } from '../../assets/js/sound.js';
 import { createSessionStore, createNameStore } from '../../assets/js/session.js';
 import { trackStart, trackVisit, trackFinish } from '../../assets/js/transport/stats.js';
 import { salidasFin } from '../../assets/js/fin.js';
+import { coverWithDialogs } from '../../assets/js/cover-dialogs.js';
+import { finDePartida } from '../../assets/js/ranking.js';
 import { botonCompartir, cabecera } from '../../assets/js/compartir.js';
 import { GAME_ID, MIN_PLAYERS, MAX_PLAYERS, DEFAULT_CONFIG, LOCALES } from './rules.js';
 import * as E from './engine.js';
@@ -435,6 +464,8 @@ function renderResult() {
       armar: async () => ({ titulo: T.title, url: location.origin + location.pathname, texto: [cabecera({ emoji: manifest.emoji, titulo: T.title, contexto: T.shareContext }), fmt(T.winner, { name })].join('\\n\\n') }),
     }));
   $('#result-exits').replaceChildren(salidasFin('lab', { lang, raiz: '../../' }));
+  // The result in the rankings (C-19): a played game counts for the signed-in player
+  finDePartida({ juego: GAME_ID, modo: 'local', ganadores: [String(state.winner)], nombres: Object.fromEntries(state.players.map((p, i) => [String(i), p.name])), alTocar: () => SFX.tap() });
   confetti();
   showScreen('screen-result');
 }
@@ -447,6 +478,8 @@ function init() {
   $('#lang-slot').append(coverLangToggle());
   $('#sound-slot').append(soundToggle());
   initSound();
+  // Instrucciones and Entrar as dialogs behind the lab flag cover-dialogs (C-8)
+  coverWithDialogs($('#screen-intro'), { lang, alTocar: () => SFX.tap() });
   $('#btn-start').addEventListener('click', () => { SFX.tap(); start(); });
   renderModes();
   renderResumeSlot();
@@ -498,6 +531,14 @@ None: one phone, no room. The whole state is saved after every move (\`createSes
 None.
 `;
 
+const LANGUAGES = `// __NAME_EN__ in every offered language (D-199): each screen in paths.mjs, in each one, against
+// Spanish. Usage: node tools/e2e/__ID__/languages.mjs <output-folder>. Born from tools/generators/new-game.mjs.
+import { checkLanguages } from '../languages-common.mjs';
+import { LOCALES } from '../../../public/labs/__ID__/rules.js';
+
+await checkLanguages('__ID__', { dicts: [LOCALES] });
+`;
+
 const E2E = `// __NAME_EN__ (lab): plays a game on one phone to the result, then the conformance checks run it in
 // every language (tools/e2e/conformance.mjs). Born from tools/generators/new-game.mjs.
 import { output } from '../output.mjs';
@@ -532,3 +573,4 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   for (const f of written) console.log('wrote ' + f);
   console.log('\nNext: node public/assets/js/conformance.test.mjs, then make it a game (docs/ADD-GAME.md).');
 }
+
