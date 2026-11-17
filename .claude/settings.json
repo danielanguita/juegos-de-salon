@@ -59,6 +59,18 @@
           }
         ]
       }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cd \"$CLAUDE_PROJECT_DIR\" && [ -f tools/agents/pr-created.mjs ] && node tools/agents/pr-created.mjs || true",
+            "timeout": 10
+          }
+        ]
+      }
     ]
   }
 }

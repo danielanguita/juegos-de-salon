@@ -6,6 +6,8 @@
 //   - README.md generated blocks (ERROR lines)   → python3 tools/release/readme.py update
 //   - stylesheets against the design-lint gate    → node tools/agents/design-lint.mjs --gate
 //     (signature design-lint-gate: red `tests` on #1244 and #1245)
+//   - a branch that brings changes but no changelog/<branch>.md entry (D-300)
+//     → node tools/release/changelog.mjs new [patch|minor]
 // Exit 2 blocks the push and tells the session what to run; anything unexpected lets it through.
 import { spawnSync } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
@@ -44,7 +46,21 @@ export function problems(cwd, run = (cmd, args) => spawnSync(cmd, args, { cwd, e
     const r = run('node', ['tools/agents/design-lint.mjs', '--gate']);
     if (r.status === 1) out.push('a stylesheet breaks the design-lint gate: node tools/agents/design-lint.mjs --gate, then use the token or allowlist the hit with its reason (docs/DESIGN.md §4)');
   }
+  out.push(...missingChangelog(run));
   return out;
+}
+
+/** A topic branch that brings changes must bring its changelog entry (D-300). Silent when git
+ *  cannot answer (no origin/main, detached HEAD) or on main itself. */
+export function missingChangelog(run) {
+  const branch = run('git', ['rev-parse', '--abbrev-ref', 'HEAD']);
+  const name = (branch.stdout || '').trim();
+  if (branch.status !== 0 || !name || name === 'HEAD' || name === 'main') return [];
+  const diff = run('git', ['diff', '--name-only', 'origin/main...HEAD']);
+  if (diff.status !== 0) return [];
+  const files = (diff.stdout || '').split('\n').filter(Boolean);
+  if (!files.length || files.some(f => /^changelog\/[^/]+\.md$/.test(f) && f !== 'changelog/README.md')) return [];
+  return [`the branch has no changelog entry (D-300): node tools/release/changelog.mjs new [patch|minor], write it, then commit it`];
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {
