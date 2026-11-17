@@ -56,7 +56,8 @@ export function tablero(el, { filas, largo, titulo, valor = f => f.v, completa =
 
 /** A finished board: ⚠️ on each ruled-out guess and, under it, what each one cost (D-453). */
 export function tableroFin(el, e, opciones) {
-  const nota = tyf(opciones.lang).discardedNote.replace('{c}', motor.PENA_DESCARTE);
+  const L = tyf(opciones.lang);
+  const nota = L.discardedNote.replace('{c}', motor.PENA_DESCARTE) + ' ' + L.newDigitFree;
   return tablero(el, { ...opciones, filas: e.filas, marcar: true, notas: e.descartados ? [nota] : [] });
 }
 

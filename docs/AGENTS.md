@@ -29,12 +29,12 @@ or any other here), launch it and report what it found; do not ask the owner fir
   time on the owner's Mac mini (a launchd job that runs a headless Claude session, D-451, its instructions in
   `tools/jobs/prompts/processes-round.md`; `round-watch.yml` opens the "Processes round missed" issue
   when `main` goes more than a day unreviewed, `node tools/agents/round-watch.mjs check | notify`, D-440, and the "Heartbeat behind" issue when notifications.yml's heartbeat stops or had gaps yesterday, `tools/push/heartbeat-watch.mjs`, D-565; `pending-watch.yml` keeps the "Pending work" issue with the stuck PRs and
-  the branches whose commits have no PR, `node tools/agents/pending.mjs check | notify`, D-441, and first sweeps the answered `processes` issues: closes the done ones, settles a question asked again, lists answered tasks nobody carried out, `node tools/agents/sweep.mjs`, D-555): it launches the documentation
+  the branches whose commits have no PR, `node tools/agents/pending.mjs check | notify`, D-441, while each hour the heartbeat nudges a red PR its session left and the `stalled-takeover` cloud task fixes it two hours later, `pending.mjs nudge | stalled`, D-573, and first sweeps the answered `processes` issues: closes the done ones, settles a question asked again, lists answered tasks nobody carried out, `node tools/agents/sweep.mjs`, D-555): it launches the documentation
   and usability agents when there is something to review, and the game-ideas agent once a week, not while its last issue still waits for the owner's answers
   (D-360, D-440; `processes.mjs check` says which)
   and reviews what they deliver. The owner's requests that another agent carries out ("revisa la frescura del
   README", check how fresh the README is) are asked of it: it decides who, launches them, checks and replies. It handles the 🐞 feedback and the "💬 Sugerencias y comentarios" inbox at the end of every game (D-341),
-  which the Mac mini's `feedback-watch` job uploads every 5 minutes (D-382) as `feedback` issues (`tools/agents/feedback.mjs`,
+  which the heartbeat (notifications.yml) uploads every 5 minutes (`feedback-watch`, D-569) as `feedback` issues (`tools/agents/feedback.mjs`,
   with the name the player entered and without their browser, D-279; each pass also writes the issue and PRs of every report to `feedbackEstado/`, shown in the panel's 💬 Feedback section); a player who left an email gets a
   templated reply in their language when the report is resolved (`feedback.mjs reply <n>[,<n>…] <answer.txt> --lang <xx>`, one email per player for all their comments, grouped by `feedback.mjs pending`,
   through `send-mail.py`, always from hola@juegosdesalon.cl and checked in Gmail's Sent folder, or nothing is sent (D-443), then comments the quoted answer on each issue, labels it `replied` and closes it; a reply for a built suggestion goes out only once the change is live, in three parts: thanks, what changed, what stayed; `forget` only deletes the address of destructive feedback, and `expire`, which every `sync` pass runs, deletes one left unanswered for 90 days (D-463); D-317, D-368); a bug report (`feedback:problem`) starts with a failing test named after the issue, committed before the fix and recorded with `feedback.mjs repro <n> <test>`, and `reply` refuses it without one or `--no-repro "<why>"`, D-527). It works the owner's
@@ -60,6 +60,12 @@ or any other here), launch it and report what it found; do not ask the owner fir
   signatures seen on two PRs or more without a mechanism and the flaky ones apart; `promote <signature> <key>` makes one a
   `processes.mjs pattern`, so `mechanism` closes it; `classify [log]` shows a log's signatures. Records older than 90
   days whose pattern has a mechanism move to the branch's `archive.json`.
+- **Contributions** (D-568): reviews the outside PRs (from a fork or by anyone but the owner) every hour as a Claude Code
+  cloud scheduled task, not on the Mac mini; its prompt is `tools/jobs/prompts/contributions.md`, which says how to recreate the task.
+  `node tools/agents/contributions.mjs check` lists only the PRs with a new commit or comment since its last look (its state is a hidden
+  marker in its own last comment) and ends the round when there are none; it comments what is missing in the contributor's language and,
+  when a PR waits only for the owner's Yes (D-531), `contributions.mjs ready <n> "<why>"` runs `contrib-ready.yml`, whose bot comment
+  emails the owner. It never pushes, approves, merges or runs the PR's code.
 - **Support** (D-318): triages the emails to hola@juegosdesalon.cl, which a Cloudflare Worker
   (`tools/cloudflare/inbox-worker.js`) keeps in Firebase `buzon/`. The `inbox-watch` job on the Mac mini
   launches it headless within 5 minutes of an email (D-365); the processes agent, if `processes.mjs check` still counts emails. It runs only `node tools/agents/inbox.mjs list | ingest <id> - --lang <xx> | skip <id> "<reason>"` (the text on stdin; its session has Bash for that tool and nothing else, #838),
@@ -82,11 +88,14 @@ or any other here), launch it and report what it found; do not ask the owner fir
 - **Everything in development sits behind the lab** (D-395, the owner's rule): lab games under `/labs/`, and
   anything tried on a page players visit turns on only for a lab key holder: it asks its runtime
   flag, `flag('<id>')` (`public/assets/js/flags.js`, D-498; its name a row of `FLAGS` in `flag-list.js`, D-515), *lab* until the owner flips Firebase
-  `flags/<id>` to *all* (on its `/labs/` card: 🧪 / 🚀 / ⚪), with no PR; previews keep `labAccess()`. It goes to production for everyone only once validated in the lab.
+  `flags/<id>` to *all* (on its `/labs/` card: 🧪 / 🚀 / ⚪), with no PR; previews keep `labAccess()`. While *lab*, a key holder can switch it on or off on their own phone from the «T» tester tab, which lists every flag the page asks (D-567). It goes to production for everyone only once validated in the lab.
   A flag or a splash campaign can also be switched at a set hour: the `launch` workflow (`tools/firebase/launch.mjs`, D-529), dispatched by a scheduled task. Its uses: 🥷 Shinobi and 🗼 Babel (flags `stick`, `stack`, splash `shinobi-babel`, 2026-11-02) 🐤 Aletazo (flag `aletazo`, splash `aletazo-ya`, not before 2026-11-09T08:00:00Z), and #️⃣ Sudoku (flag `sudoku`, splash `sudoku-ya` first, `--off aletazo-ya`: Aletazo's promotion ends as Sudoku's starts, not before 2026-11-12T05:00:00Z, 21:00 Pacific).
   A whole finished game can wait the same way: `lanza: '<flag>'` in its manifest entry hides it until the flag is *all* (D-517, [ADD-GAME](ADD-GAME.md) step 2).
   **Every change goes to Labs first** unless the owner says otherwise (D-409), and is listed in `/labs/`:
-  the code that asks `flag()` or `labAccess()` names its card (`lab: #<id>`, `public/labs/listed.test.mjs`). The
+  the code that asks `flag()` or `labAccess()` names its card (`lab: #<id>`, `public/labs/listed.test.mjs`). A lab game needs no card for itself, but a treatment tried inside it asks its own flag like any page,
+  with its card and `FLAGS` row (first: Blackjack's `blackjack-felt`). **Every card, game or feature, opens its
+  title with its emoji, or the game's drawing when it has one** (the owner, 2026-11-17), so its pill in the index at the
+  top of `/labs/` carries it too (`public/labs/index-nav.js`; `index-nav.test.mjs` fails a bare title). The
   owner's decisions answer **Yes, in Labs**, **Yes, and publish** or **No**.
   What launches for everyone moves its card to La Bodega in the same PR (D-479); a flag flipped to *all* moves it on its own when `/labs/` opens (`public/labs/launched.js`, D-534), keeping its switch (D-510); the cleanup PR that removes the gate moves its HTML for good. The owner sends a
   feature live from its own card: **🚀 Publicar para todos**, signed in as owner on `/labs/`, which the
@@ -95,7 +104,7 @@ or any other here), launch it and report what it found; do not ask the owner fir
   one more session to bring it up to date, rerun or fix it (at most twice), or fails the request after an hour (D-486).
   **Lab readiness is measured** (D-528): a flag on for a lab key holder counts its loads, finished loads, loads with
   a failure and distinct keys (aggregate, `labsUso/`, `public/assets/js/lab-usage.js`; a page may call `flagDone(id)`
-  when its flagged path is used to the end). The Mac mini's hourly `lab-ready` job (`node tools/agents/lab-ready.mjs check | list | news`)
+  when its flagged path is used to the end). The heartbeat's hourly `lab-ready` job (notifications.yml, D-569) (`node tools/agents/lab-ready.mjs check | list | news`)
   weighs them against `READY` / `READY_BY` in `flag-list.js` (default ≥5 finished by ≥2 keys over ≥3 days, 0 errors,
   since the flag was last switched) and writes `flagsListas/`; the card then says **✅ Listo para 🚀** with the numbers.
   The processes round tells the owner once (`news`); the owner still presses 🚀.

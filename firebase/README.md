@@ -283,7 +283,7 @@ used to enter, up to 24; never the key, D-306), `contexto` (JSON, up to 500), op
 It is written only once and **read only by the owner** (D-459, which amends D-104): `node tools/firebase/reports.mjs`
 shows them with the admin key (`--days 3` for recent ones), and the panel reads them signed in as the owner.
 They carry no PIN or account data.
-Every 5 minutes, the Mac mini's `feedback-watch` job (`tools/agents/feedback.mjs sync`, D-382) uploads the new ones as
+Every 5 minutes, the heartbeat's `feedback-watch` (notifications.yml, D-569) (`tools/agents/feedback.mjs sync`, D-382) uploads the new ones as
 GitHub issues with the `feedback` label (plus `feedback:suggestion`, `feedback:problem`,
 `feedback:game-idea` or `feedback:other` when it carries a `tipo`, D-341), with the name masked (`C******* A*******`, D-279, D-366) and the key (D-306) and without the
 browser, and the processes agent handles them (D-275).
@@ -487,6 +487,9 @@ stats/prod/push/dias/2026-11-16: { vueltas, maxHueco, uad }   the heartbeat per 
   be 1 or 2 and never go down. Nothing else goes with it. `activosPt/<day>/<id>` and
   `entradasPt/<day>/<page>` (D-561) repeat `activos/` and `entradas/` filed by Pacific date (the day
   number by shape), with the same values and rules (`firebase/stats-pacific.test.mjs`).
+- Screens: `pant/<band>` is a counter like the others, one per visit on its first page; the band
+  (`w<width>-h<height>-<v|h>`) is validated by list, the same as `BAND_RULE` in
+  `public/assets/js/screen-bands.js` (`screen-bands.test.mjs` keeps them equal). Never the exact size.
 - Support (D-448): `support/<event>` is a counter like the others, uploaded by `support.js`; unlike
   the categories above, the event is validated **by list** (`shown`, `open`, `pay`, `thanks`), so a
   new step does force touching the rules. Only counts: nothing says who supported or how much.

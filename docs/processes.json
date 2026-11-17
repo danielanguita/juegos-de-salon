@@ -1,5 +1,5 @@
 {
-  "checkedUpTo": "f49b67fc2cba51e414bf52731b348e51991d8215",
+  "checkedUpTo": "b56bec6db321bd723475189a68e2e3bad586f304",
   "patterns": [
     {
       "key": "version-hacia-atras",
@@ -737,12 +737,12 @@
   ],
   "dispatches": {
     "documentation": {
-      "date": "2026-11-16",
-      "to": "f49b67fc2cba51e414bf52731b348e51991d8215"
+      "date": "2026-11-17",
+      "to": "b56bec6db321bd723475189a68e2e3bad586f304"
     },
     "usability": {
-      "date": "2026-11-16",
-      "to": "f49b67fc2cba51e414bf52731b348e51991d8215"
+      "date": "2026-11-17",
+      "to": "b56bec6db321bd723475189a68e2e3bad586f304"
     },
     "ideas": {
       "date": "2026-11-11",
@@ -965,6 +965,14 @@
       "issue": null,
       "pr": null,
       "note": "dispatched docs+usability; queue #1435 and #1381 recorded done; collected 17 changelog entries"
+    },
+    {
+      "date": "2026-11-17",
+      "from": "f49b67fc2cba51e414bf52731b348e51991d8215",
+      "to": "b56bec6db321bd723475189a68e2e3bad586f304",
+      "issue": null,
+      "pr": null,
+      "note": "dispatched docs (#1515) + usability; collected 26 changelog entries; D-501 marked unused (branch delete denied); groups measured"
     }
   ],
   "ownerDecisions": [

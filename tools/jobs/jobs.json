@@ -32,33 +32,27 @@
     },
     {
       "id": "lab-ready",
-      "where": "mac",
-      "every": 3600,
-      "command": [
-        "node",
-        "tools/agents/lab-ready.mjs",
-        "check"
-      ],
-      "what": "Every hour, without Claude: weighs each lab flag's real use by lab key holders (labsUso/) against its threshold and writes flagsListas/, so its /labs/ card says ✅ Listo para 🚀 with the evidence.",
+      "where": "github",
+      "what": "Every hour, inside the heartbeat (notifications.yml), without Claude: weighs each lab flag's real use by lab key holders (labsUso/) against its threshold and writes flagsListas/, so its /labs/ card says ✅ Listo para 🚀 with the evidence.",
       "decisions": [
-        "D-528"
-      ]
+        "D-528",
+        "D-569"
+      ],
+      "workflow": "notifications.yml",
+      "trigger": "each hour of the heartbeat (D-569)"
     },
     {
       "id": "feedback-watch",
-      "where": "mac",
-      "every": 300,
-      "command": [
-        "node",
-        "tools/agents/feedback.mjs",
-        "sync"
-      ],
-      "what": "Uploads the new 🐞 and email feedback reports from Firebase as `feedback` issues (reads with the owner's admin key; `gh` makes the issues). Each pass also deletes the reply emails left more than 90 days ago without a reply (D-463). `feedback.yml` stays as a manual fallback.",
+      "where": "github",
+      "what": "Every 5 minutes, inside the heartbeat (notifications.yml): uploads the new 🐞 and email feedback reports from Firebase as `feedback` issues. Each pass also deletes the reply emails left more than 90 days ago without a reply (D-463). `feedback.yml` stays as a manual fallback.",
       "decisions": [
         "D-275",
         "D-382",
-        "D-463"
-      ]
+        "D-463",
+        "D-569"
+      ],
+      "workflow": "notifications.yml",
+      "trigger": "every 5-minute round of the heartbeat (D-569)"
     },
     {
       "id": "referee",
@@ -104,7 +98,9 @@
       "workflow": "traction.yml",
       "cron": "37 8 * * *",
       "what": "Every day: counts the games finished and the different browsers up to yesterday with the panel's functions and writes only those five totals and their date to controls/traction, which the making-of page reads (tools/firebase/traction.mjs).",
-      "decisions": ["D-554"]
+      "decisions": [
+        "D-554"
+      ]
     },
     {
       "id": "firebase-archive",
@@ -229,6 +225,37 @@
       "decisions": [
         "D-218",
         "D-252"
+      ]
+    },
+    {
+      "id": "stalled-nudge",
+      "where": "github",
+      "what": "Every hour, inside the heartbeat (notifications.yml), without Claude: one comment on each of the owner's PRs left red with no push for an hour, which wakes its cloud session.",
+      "decisions": [
+        "D-441",
+        "D-573"
+      ],
+      "workflow": "notifications.yml",
+      "trigger": "each hour of the heartbeat (D-569)"
+    },
+    {
+      "id": "contributions",
+      "where": "cloud",
+      "cron": "0 * * * *",
+      "prompt": "tools/jobs/prompts/contributions.md",
+      "what": "Every hour, a Claude Code cloud scheduled task (Sonnet): the contributions agent reviews the outside PRs that changed since its last look and comments what is missing; when one waits only for the owner's Yes, contrib-ready.yml tells the owner. Ends at once when nothing changed.",
+      "decisions": [
+        "D-568"
+      ]
+    },
+    {
+      "id": "stalled-takeover",
+      "where": "cloud",
+      "cron": "30 * * * *",
+      "prompt": "tools/jobs/prompts/stalled-takeover.md",
+      "what": "Every hour, a Claude Code cloud scheduled task: takes over the PRs nudged two hours ago and still red on the same commit, and fixes them on their branch. Ends at once when there are none.",
+      "decisions": [
+        "D-573"
       ]
     }
   ]

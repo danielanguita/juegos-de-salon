@@ -30,7 +30,7 @@ import { copaDe, copasEnCurso, resumenCopas, bitacoraCopas, fichaCopa, paisDe, p
 import {
   DAY, ROOM_TTL, liveRooms, connections, summarize, top, tzLabel, ago, dayOf, codesOfDays, splitByEnv, liveLocal, roomLog,
   paginate, flagOf, whenLabel, horaLabel, fechaLabel, diaPanel, ZONA_PANEL, ZONA_NOMBRE, RANGOS, RANGO_POR_DEFECTO, rangeOf, hoyUtcLabel,
-  groupDays, periodLabel, localLog, paisesDeSalas, paisesDelRango, salaDe, mediana, idiomasDeSalas, idiomasDelRango, trafico, origenesAgrupados, origenLabel, dayLabel,
+  groupDays, periodLabel, localLog, paisesDeSalas, paisesDelRango, salaDe, mediana, idiomasDeSalas, idiomasDelRango, trafico, pantallas, origenesAgrupados, origenLabel, dayLabel,
   avisosDelRango, AVISO_TIPOS, vueltaAtrasada, latidoDelRango, unoAlDiaDelRango, salud, TRAMOS, navegadorLabel,
 } from './aggregate.js';
 import { keyEvents, periods as periodosClave, periodOf, byHour, countKinds, KINDS, pacificRange } from './timeline.js';
@@ -44,6 +44,7 @@ import { publicGameCheck, withoutLabGames, withoutLabCups } from './public-games
 import { trend, trendStart, weekOf, isoDay, highlights, toPacificDays, pacificDay, dayLabel as wbrDay } from './wbr.js';
 import { FLAGS } from '../assets/js/flag-list.js';
 import { SECCIONES, leerRuta, rutaA, rutaEnIngles, seccionDe } from './rutas.js';
+import { WIDTH_BANDS, HEIGHT_BANDS } from '../assets/js/screen-bands.js';
 import { wireReleasePush } from './release-push.js';
 import { labelProblem, newKey, linkOf, fingerprint, keyRows, ACTIVE_DAYS } from './lab-keys.js';
 import {
@@ -1239,6 +1240,86 @@ function vistaAudiencia(now) {
 }
 
 /* ------------------------------------------------------------------ */
+/* Screens: which viewport sizes play (screen-bands.js)                */
+/* ------------------------------------------------------------------ */
+const C_ANCHO = { w320: 'var(--red)', w360: 'var(--pink-deep)', w375: 'var(--pink)', w400: 'var(--orange)', w430: 'var(--yellow)', w600: 'var(--lime)', w900: 'var(--cyan)', w1200: 'var(--purple)' };
+/** Below this share over the range, a band is not worth a design of its own. */
+const RARO = 0.01;
+
+function vistaPantallas() {
+  const rango = rangeOf(S.range);
+  const p = pantallas(ptDays(), { from: rango.from, to: rango.to });
+  const nota = 'The browser window of each visit, counted once on its first page, in CSS pixels: what the page really has, with the browser\'s bars already out. Only the band is kept, never the exact size. UTC days, like Traffic. For the whole history pick "1 year" or "This year".';
+  if (p.desde === null) {
+    return [...titulo(`📱 Screens · ${tituloRango()}`, nota),
+      el('p', { class: 'empty' }, S.daysLoaded ? 'No screens recorded in this range yet: counting started on 2026-11-16, before that there is no record.' : 'Loading…'),
+      bloque('The bands', 'What each band holds, with real phones in it.', tablaBandas({}, 0))];
+  }
+  const pct = (v, t = p.total) => (t ? `${(v / t * 100).toLocaleString(LOCALE, { maximumFractionDigits: v / t < 0.1 ? 1 : 0 })}%` : '—');
+  // The bands that together hold 80% of visits, from the most used: what to test first
+  const orden = WIDTH_BANDS.filter(b => p.ancho[b.id]).sort((a, b) => p.ancho[b.id] - p.ancho[a.id]);
+  const prioridad = []; let acum = 0;
+  for (const b of orden) { if (acum >= 0.8 * p.total) break; prioridad.push(b); acum += p.ancho[b.id]; }
+  const raros = WIDTH_BANDS.filter(b => (p.ancho[b.id] || 0) < RARO * p.total);
+  const periodos = groupDays(p.porDia, rango.grano);
+  const leyenda = el('p', { class: 'muted small leyenda' }, ...WIDTH_BANDS.flatMap((b, i) => [i ? ' · ' : '', el('span', { style: `color:${C_ANCHO[b.id]}` }, '■'), ` ${b.label}`]));
+  const maxH = Math.max(0, ...HEIGHT_BANDS.map(b => p.alto[b.id] || 0));
+  return [
+    ...titulo(`📱 Screens · ${tituloRango()}`, nota),
+    p.desde > rango.from ? el('p', { class: 'muted small' }, `Counted since ${dayLabel(p.desde)}: no screens are recorded before that.`) : null,
+    el('div', { class: 'tiles' },
+      tile(p.total, 'visits with their screen'),
+      tile(`${prioridad.length} of ${WIDTH_BANDS.length}`, `width bands hold ${pct(acum)} of visits: test these first (★ below)`),
+      tile(pct(p.orient.h || 0), 'played sideways'),
+      tile(`${raros.length} of ${WIDTH_BANDS.length}`, `width bands under ${RARO * 100}% each: not worth a design of their own (greyed below)`),
+    ),
+    bloque('Width', 'Share of visits per band, and from the narrowest up how many a design for that width and wider would leave out.',
+      tablaBandas(p.ancho, p.total, new Set(prioridad.map(b => b.id)))),
+    bloque({ dia: 'Width per day', semana: 'Width per week', mes: 'Width per month' }[rango.grano],
+      `Each bar is 100% of that period's visits, split by width band; the number is the visits.${rango.grano === 'semana' ? ' The date is the Monday of each week.' : ''}`,
+      leyenda,
+      lista(periodos.filter(d => d.total).map(d => bar(d.label, WIDTH_BANDS.map(b => ({ color: C_ANCHO[b.id], value: (d[b.id] || 0) / d.total * 100, title: `${b.label}: ${pct(d[b.id] || 0, d.total)}` })), 100, { cifra: d.total })), 'Nothing yet.', 'bars')),
+    el('div', { class: 'grid2' },
+      bloque('Height', 'What is left for the page: below 640 px a start button low on the screen may need scrolling (U-39).',
+        lista(HEIGHT_BANDS.map(b => bar(b.label, [seg(C_TOTAL, p.alto[b.id] || 0)], maxH, { detail: `${pct(p.alto[b.id] || 0)} · ${b.eg}` })), 'Nothing yet.', 'bars')),
+      bloque('Width × height', 'Share of all visits in each pair: where the screens really are.', tablaCruce(p, pct)),
+    ),
+  ];
+}
+
+/** Every width band with its examples; with counts, its share and the share left out below it. */
+function tablaBandas(ancho, total, primero = new Set()) {
+  let debajo = 0;
+  const filas = WIDTH_BANDS.map(b => {
+    const v = ancho[b.id] || 0;
+    const fuera = total ? `${(debajo / total * 100).toLocaleString(LOCALE, { maximumFractionDigits: 1 })}%` : '';
+    debajo += v;
+    const share = total ? v / total : 0;
+    return el('tr', { class: total && share < RARO ? 'pant-raro' : null },
+      el('th', { scope: 'row' }, el('span', { style: `color:${C_ANCHO[b.id]}` }, '■ '), b.label, primero.has(b.id) ? el('span', { title: 'Test this first: among the bands that hold 80% of visits' }, ' ★') : null),
+      el('td', {}, b.eg),
+      total ? el('td', { class: 'num' }, n(v)) : null,
+      total ? el('td', { class: 'num' }, el('span', { class: 'pant-barra', style: `width:${(share * 4).toFixed(2)}rem;background:${C_ANCHO[b.id]}` }), ` ${(share * 100).toLocaleString(LOCALE, { maximumFractionDigits: share < 0.1 ? 1 : 0 })}%`) : null,
+      total ? el('td', { class: 'num' }, fuera) : null);
+  });
+  return el('div', { class: 'pant-scroll' }, el('table', { class: 'pant' },
+    el('thead', {}, el('tr', {}, el('th', {}, 'Width'), el('th', {}, 'Phones in it'),
+      total ? el('th', { class: 'num' }, 'Visits') : null, total ? el('th', { class: 'num' }, 'Share') : null,
+      total ? el('th', { class: 'num', title: 'Visits on narrower screens than this band: who a design starting here would leave out' }, 'Narrower') : null)),
+    el('tbody', {}, ...filas)));
+}
+
+/** The width × height cross, each cell its share of all visits; empty cells stay blank. */
+function tablaCruce(p, pct) {
+  const max = Math.max(1, ...Object.values(p.cruce));
+  return el('div', { class: 'pant-scroll' }, el('table', { class: 'pant pant-cruce' },
+    el('thead', {}, el('tr', {}, el('th', {}, ''), ...HEIGHT_BANDS.map(h => el('th', { class: 'num' }, h.label)))),
+    el('tbody', {}, ...WIDTH_BANDS.filter(w => p.ancho[w.id]).map(w => el('tr', {},
+      el('th', { scope: 'row' }, w.label),
+      ...HEIGHT_BANDS.map(h => { const v = p.cruce[`${w.id}|${h.id}`] || 0; return el('td', { class: 'num', style: v ? `background:color-mix(in srgb, var(--cyan) ${Math.round(v / max * 60)}%, transparent)` : null, title: v ? `${n(v)} visits` : null }, v ? pct(v) : ''); }))))));
+}
+
+/* ------------------------------------------------------------------ */
 /* Salud: lo que le falla a quien juega (D-251)                        */
 /* ------------------------------------------------------------------ */
 const TIPO_FALLA = {
@@ -1289,6 +1370,8 @@ const pctFino = (a, b) => (!b ? '—' : a && a / b < 0.01 ? `${((a / b) * 100).t
  * The headline and the top 10 games over the week, the four before it, this month so far and the
  * two before; lab plays out. On a phone the tables scroll sideways with the names pinned.
  */
+let memoTrend = {};
+const SIN_FLAGS = {};
 function vistaWbr(now) {
   const w = weekOf(S.ruta.args[0], now);
   const nota = 'The closed week (Sunday to Saturday, Pacific time) against the four before and the last three months, like the Sunday email. Lab plays left out (D-560). Browsers and visits before Nov 16 follow UTC days (D-561).';
@@ -1297,7 +1380,10 @@ function vistaWbr(now) {
       el('a', { class: 'btn btn--sm btn--ghost', href: ir('wbr', [isoDay(w.to - 7)]) }, '‹ Week before'),
       w.to < weekOf(null, now).to ? el('a', { class: 'btn btn--sm btn--ghost', href: ir('wbr', [isoDay(w.to + 7)]) }, 'Week after ›') : null)];
   if (!S.daysLoaded || !S.torneosLoaded) return [...cabeza, el('p', { class: 'empty' }, 'Loading…')];
-  const t = trend({ days: wbrDays(), torneos: playerCups(), flags: S.flags || {} }, w);
+  // Kept until its data or week changes: every Firebase answer and the 30 s tick redraw the panel (it froze)
+  const dias = wbrDays(), copas = playerCups(), flags = S.flags || SIN_FLAGS;
+  if (memoTrend.days !== dias || memoTrend.copas !== copas || memoTrend.flags !== flags || memoTrend.to !== w.to) memoTrend = { days: dias, copas, flags, to: w.to, out: trend({ days: dias, torneos: copas, flags }, w) };
+  const t = memoTrend.out;
   const fmt = (v, dec) => (v === null ? 'n/a' : dec ? v.toFixed(1) : n(v));
   const cambioTxt = c => (c === null || c === undefined ? '' : ` (${c > 0 ? '+' : c < 0 ? '−' : '±'}${Math.abs(c)}%)`);
   const tabla = (filas, cabezaCol) => el('div', { class: 'wbr-scroll' }, el('table', { class: 'wbr' },
@@ -2151,6 +2237,7 @@ const SECCION = {
   feedback: ['💬', 'Feedback'],
   campanas: ['📣', 'Campaigns'],
   llaves: ['🔑', 'Lab keys'],
+  pantallas: ['📱', 'Screens'],
 };
 
 /* 🔑 Lab keys (D-345): `labsLlaves/<fingerprint>` = label, the same the terminal's labs-key.mjs writes */
@@ -2222,7 +2309,7 @@ function vistaLlaves(now) {
  * A computer keeps the whole column.
  */
 const NAV_TABS = ['resumen', 'wbr', 'timeline', 'feedback'];
-const NAV_GROUPS = [['Players', ['grupo', 'individuales', 'usuarios']], ['Games', ['torneo', 'unoaldia']], ['Owner', ['trafico', 'salud', 'campanas', 'llaves', 'labs']]];
+const NAV_GROUPS = [['Players', ['grupo', 'individuales', 'usuarios']], ['Games', ['torneo', 'unoaldia']], ['Owner', ['trafico', 'pantallas', 'salud', 'campanas', 'llaves', 'labs']]];
 // Every section is on the bar or under ☰ More: one left out of both could not be reached on a phone
 for (const sec of SECCIONES) if (!NAV_TABS.includes(sec) && !NAV_GROUPS.some(([, secs]) => secs.includes(sec))) console.error(`panel: ${sec} is neither a tab nor under More`);
 flag('panel-nav-more').then(on => { S.navMore = on; if (S.user) render(); }).catch(() => {});
@@ -2325,6 +2412,7 @@ function render() {
   else if (sec === 'ahora') nodos = vistaAhora(now);
   else if (sec === 'trafico') nodos = vistaTrafico(now);
   else if (sec === 'salud') nodos = vistaSalud(now);
+  else if (sec === 'pantallas') nodos = vistaPantallas(now);
   else if (sec === 'wbr') nodos = vistaWbr(now);
   else if (sec === 'timeline') nodos = vistaTimeline(now);
   else if (sec === 'feedback') nodos = vistaFeedback(now);

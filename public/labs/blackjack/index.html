@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+  <meta name="theme-color" content="#150726">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>Blackjack ♠️ · Juegos de Salón</title>
+  <!-- A lab game (D-395): behind the lab's door (D-281) and not indexed -->
+  <script src="../../assets/js/labs-puerta.js"></script>
+  <meta name="robots" content="noindex, nofollow">
+  <!-- No language flash (D-194): the page waits for the chosen language's texts, 1.5 s at most -->
+  <script>
+    (function () {
+      try {
+        var u = (new URLSearchParams(location.search).get('lang') || '').toLowerCase();
+        var l = u || localStorage.getItem('juegos-de-salon:lang') || 'es';
+        if (l === 'es') return;
+        var h = document.documentElement, listo = function () { h.classList.remove('i18n-pendiente'); };
+        h.classList.add('i18n-pendiente');
+        document.addEventListener('DOMContentLoaded', listo);
+        setTimeout(listo, 1500);
+      } catch (_) { /* no storage: it paints as always */ }
+    })();
+  </script>
+  <meta name="description" content="Mesa de Blackjack estilo Las Vegas contra la casa, solo o con hasta 6 jugadores.">
+  <link rel="manifest" href="../../manifest.webmanifest">
+  <script>
+    // The chosen language's manifest, before the browser reads it (D-222)
+    (function () {
+      try {
+        var l = (new URLSearchParams(location.search).get('lang') || localStorage.getItem('juegos-de-salon:lang') || '').toLowerCase();
+        var m = document.querySelector('link[rel="manifest"]');
+        if (m && /^(en|pt)$/.test(l)) m.href = m.href.replace(/manifest\.webmanifest$/, 'manifest.' + l + '.webmanifest');
+      } catch (_) { /* the Spanish one stays */ }
+    })();
+  </script>
+  <link rel="icon" href="../../assets/icon.svg" type="image/svg+xml">
+  <script src="../../assets/js/vigia.js"></script>
+  <link rel="preload" href="../../assets/fonts/nunito-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="../../assets/fonts/bangers-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="../../assets/css/base.css">
+  <link rel="stylesheet" href="../../assets/css/ranking.css">
+  <link rel="stylesheet" href="style.css">
+  <link rel="apple-touch-icon" href="../../assets/icons/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-title" content="Juegos de Salón">
+  <script type="module">import '../../assets/js/instalable.js';</script>
+</head>
+<body>
+  <main class="app" id="app">
+    <div class="topbar">
+      <a class="back" href="../" id="btn-menu" data-i18n="menu">‹ Laboratorio</a>
+      <div class="tools"><span class="chip"><img class="bj-icon" src="icon.svg" alt=""><span data-i18n="gameChip">Blackjack</span></span><span id="sound-slot"></span></div>
+    </div>
+
+    <!-- ============ INTRO ============ -->
+    <section class="screen stack active" id="screen-intro">
+      <div class="intro-hero">
+        <img class="icon bj-logo" src="icon.svg" alt="Blackjack" width="96" height="96">
+        <!-- The cover's demo, a hand dealt to a Blackjack (flag blackjack-felt, lab: #seccion-blackjack-felt): drawn by game.js in place of the icon -->
+        <div class="bj-demo" id="bj-demo" aria-hidden="true" hidden></div>
+        <h1 class="display display--xl rainbow" data-i18n="title">Blackjack</h1>
+        <p class="lead" data-i18n="lead"></p>
+        <div id="lang-slot"></div>
+      </div>
+      <div class="stack">
+        <div id="resume-slot"></div>
+        <div class="modes" id="modes"></div>
+        <!-- The rules go after the main action (U-39): folded by default, goal first and three points (U-18) -->
+        <details class="panel">
+          <summary><span><img class="bj-icon" src="icon.svg" alt=""> <span data-i18n="howTitle"></span></span></summary>
+          <ol class="how" id="how"></ol>
+        </details>
+        <!-- The player's account (D-212): no ranking table while in the lab, only signing in, the cover's «👤 Entrar» (C-8) -->
+        <div class="stack" id="rk-slot"></div>
+      </div>
+    </section>
+
+    <!-- ============ SETUP ============ -->
+    <section class="screen stack" id="screen-setup">
+      <h2 class="display display--lg center" data-i18n="whoPlays"></h2>
+      <p class="setup-hint" data-i18n="setupHint"></p>
+      <div id="setup-form"></div>
+      <div class="stack" id="setup-options"></div>
+      <div class="form-error" id="form-error"></div>
+      <div class="stack" id="setup-actions">
+        <button class="btn btn--yellow" id="btn-start" data-i18n="start"></button>
+      </div>
+    </section>
+
+    <!-- ============ LOBBY (online) ============ -->
+    <section class="screen stack" id="screen-lobby">
+      <div class="panel stack center" id="lobby-box"></div>
+    </section>
+
+    <!-- ============ PLAY ============ -->
+    <section class="screen stack" id="screen-play">
+      <div class="bj-bar">
+        <span class="chip" id="round-chip"></span>
+        <span class="chip" id="shoe-chip"></span>
+      </div>
+      <div class="red-alert" id="red-alert" hidden></div>
+
+      <!-- The felt table (flag blackjack-felt, lab: #seccion-blackjack-felt): .bj-table and #felt-arc only take a look under html.bj-felt -->
+      <div class="bj-table">
+        <section class="panel bj-dealer" id="dealer-box" data-tablero="blackjack"></section>
+        <div class="felt-arc" id="felt-arc" aria-hidden="true"></div>
+        <section class="bj-seats" id="seats-box"></section>
+      </div>
+
+      <section class="panel stack" id="action-box"></section>
+
+      <!-- Rules below the board (U-16): folded so controls stay uncluttered -->
+      <details class="panel">
+        <summary><span><img class="bj-icon" src="icon.svg" alt=""> <span data-i18n="howTitle"></span></span></summary>
+        <ol class="how" id="how-play"></ol>
+      </details>
+    </section>
+
+    <!-- ============ RESULT (C-19) ============ -->
+    <section class="screen stack" id="screen-result">
+      <div class="result-hero">
+        <span class="trophy">🏆</span>
+        <div class="display display--md" id="result-title">—</div>
+        <p class="setup-hint" id="result-reason"></p>
+      </div>
+      <ol class="standings" id="standings"></ol>
+      <div class="stack" id="result-actions"></div>
+      <div id="result-exits"></div>
+    </section>
+  </main>
+
+  <div class="handoff" id="handoff" hidden></div>
+
+  <script type="module">import './game.js';</script>
+  <!-- The site's footer at the end of the cover, never while playing (C-17) -->
+  <script type="module">import('../../assets/js/site-footer.js').then(m => m.mountFooter(document.getElementById('screen-intro'), { screen: 'blackjack-cover' }));</script>
+</body>
+</html>

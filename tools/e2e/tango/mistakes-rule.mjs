@@ -1,5 +1,6 @@
 // ❌ What a mistake costs, under the play head (lab flag `mistakes-rule`; localhost holds the lab key):
-// Tango says each one takes off 10, Reinas that they cost nothing, in Spanish and English. Prints ✗ if anything fails.
+// Reinas says they cost nothing, and so does Tango on its own page with the lab flag tango-time
+// (lab: #seccion-tango-time; La Copa keeps 10 a mistake), with its hint at +15 s, in Spanish and English. Prints ✗ if anything fails.
 import { output } from '../output.mjs';
 import { launch } from '../cdp.mjs';
 
@@ -13,9 +14,9 @@ const ev = e => b.evaluate(e);
 const line = `document.getElementById('regla-errores')?.textContent || ''`;
 try {
   for (const [page, lang, want, board] of [
-    ['tango', 'es', /Cada error resta 10/, 'tango'],
+    ['tango', 'es', /Equivocarse no resta/, 'tango'],
     ['queens', 'es', /Equivocarte no resta/, null],
-    ['tango', 'en', /Each mistake takes off 10/, 'tango'],
+    ['tango', 'en', /Mistakes cost nothing/, 'tango'],
   ]) {
     await b.open(`${SITE}/${page}/?test&lang=${lang}`, 2500);
     ok(await b.until(`!!document.getElementById('btn-empezar')`, 6000), `${page} (${lang}): the waiting room`);
@@ -24,6 +25,7 @@ try {
     ok(await b.until(`!!document.getElementById('regla-errores')`, 9000), `${page} (${lang}): the line comes with the board`);
     ok(want.test(await ev(line)), `${page} (${lang}): it says ${want}`);
     ok(await ev(`document.getElementById('jugar-head').nextElementSibling?.id === 'regla-errores'`), `${page} (${lang}): right under the title`);
+    if (board) ok(/\+15 s/.test(await ev(`document.getElementById('btn-pista')?.textContent || ''`)), `${page} (${lang}): the hint adds 15 s`);
     if (board) ok(await ev(`!!document.querySelector('[data-tablero="${board}"]')`), `${page} (${lang}): with the board`);
     await b.shot(`${page}-${lang}`);
   }

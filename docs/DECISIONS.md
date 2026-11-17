@@ -23,7 +23,7 @@ Where today's rule is and which decisions explain it: those in force that still 
 
 | Topic | Today's rule | Decisions |
 |---|---|---|
-| Structure and paths | C-2, C-18 | D-1, D-2, D-3, D-24, D-192, D-198, D-214, D-256, D-266, D-269, D-270, D-280, D-281, D-284, D-286, D-289, D-293, D-297, D-310, D-311, D-316, D-372, D-420, D-422, D-434, D-468, D-479, D-480, D-498, D-509, D-510, D-511, D-515, D-516, D-517, D-528, D-529, D-532, D-534, D-535, D-542, D-550, D-556 |
+| Structure and paths | C-2, C-18 | D-1, D-2, D-3, D-24, D-192, D-198, D-214, D-256, D-266, D-269, D-270, D-280, D-281, D-284, D-286, D-289, D-293, D-297, D-310, D-311, D-316, D-372, D-420, D-422, D-434, D-468, D-479, D-480, D-498, D-509, D-510, D-511, D-515, D-516, D-517, D-528, D-529, D-532, D-534, D-535, D-542, D-550, D-556, D-567 |
 | Identity and texts | C-1 | D-11, D-30, D-49, D-177, D-184, D-324, D-457, D-488, D-533, D-535 |
 | Dated card decks | `docs/games/timeline.md` | D-37, D-277, D-278, D-314 |
 | 🕵️ Agentes (board, clues in four languages, traps) | `docs/games/agents.md` | D-286, D-287, D-288, D-421, D-442 |
@@ -49,13 +49,13 @@ Where today's rule is and which decisions explain it: those in force that still 
 | Publishing and version | C-11 | D-22, D-122, D-189, D-192, D-205, D-213, D-216, D-218, D-300, D-302, D-308, D-323, D-400, D-419, D-429, D-441, D-467, D-486, D-496, D-497, D-504, D-506, D-519, D-530, D-531, D-540, D-543, D-553, D-560 |
 | README and screenshots | C-13 | D-51, D-76, D-78, D-213, D-316, D-506 |
 | Tests | C-12 | D-143, D-193, D-199, D-204, D-216, D-299, D-307, D-315, D-377, D-378, D-388, D-391, D-392, D-401, D-428, D-460, D-484, D-494, D-496, D-506, D-515, D-516, D-518, D-541, D-551, D-558, D-559 |
-| La Copa (tournament, days, score) | `docs/games/cup.md` | D-94, D-95, D-96, D-97, D-99, D-106, D-113, D-118, D-150, D-161, D-163, D-170, D-175, D-187, D-212, D-220, D-234, D-250, D-257, D-258, D-259, D-260, D-261, D-262, D-263, D-264, D-267, D-268, D-282, D-285, D-325, D-326, D-331, D-332, D-336, D-347, D-359, D-376, D-379, D-384, D-416, D-417, D-418, D-421, D-423, D-425, D-426, D-427, D-433, D-437, D-438, D-439, D-444, D-450, D-453, D-456, D-460, D-464, D-468, D-476, D-478, D-481, D-492, D-499, D-517, D-521, D-525, D-544, D-562, D-564 |
-| Agents (usability, documentation, processes, support, ideas) | [USABILIDAD.md](USABILIDAD.md) | D-132, D-135, D-172, D-204, D-206, D-213, D-218, D-252, D-273, D-275, D-276, D-279, D-301, D-303, D-304, D-306, D-313, D-315, D-317, D-318, D-341, D-360, D-361, D-365, D-382, D-383, D-394, D-400, D-401, D-409, D-411, D-413, D-429, D-440, D-441, D-443, D-451, D-452, D-459, D-463, D-472, D-480, D-486, D-497, D-518, D-519, D-520, D-522, D-527, D-531, D-532, D-533, D-540, D-541, D-547, D-553, D-554, D-555, D-558 |
+| La Copa (tournament, days, score) | `docs/games/cup.md` | D-94, D-95, D-96, D-97, D-99, D-106, D-113, D-118, D-150, D-161, D-163, D-170, D-175, D-187, D-212, D-220, D-234, D-250, D-257, D-258, D-259, D-260, D-261, D-262, D-263, D-264, D-267, D-268, D-282, D-285, D-325, D-326, D-331, D-332, D-336, D-347, D-359, D-376, D-379, D-384, D-416, D-417, D-418, D-421, D-423, D-425, D-426, D-427, D-433, D-437, D-438, D-439, D-444, D-450, D-453, D-456, D-460, D-464, D-468, D-476, D-478, D-481, D-492, D-499, D-517, D-521, D-525, D-544, D-562, D-564, D-566, D-572 |
+| Agents (usability, documentation, processes, support, ideas) | [USABILIDAD.md](USABILIDAD.md) | D-132, D-135, D-172, D-204, D-206, D-213, D-218, D-252, D-273, D-275, D-276, D-279, D-301, D-303, D-304, D-306, D-313, D-315, D-317, D-318, D-341, D-360, D-361, D-365, D-382, D-383, D-394, D-400, D-401, D-409, D-411, D-413, D-429, D-440, D-441, D-443, D-451, D-452, D-459, D-463, D-472, D-480, D-486, D-497, D-518, D-519, D-520, D-522, D-527, D-531, D-532, D-533, D-540, D-541, D-547, D-553, D-554, D-555, D-558, D-568, D-569, D-573 |
 | Rankings and player (name and PIN) | C-7 | D-96, D-212, D-215, D-217, D-219, D-220, D-230, D-236, D-249, D-336, D-357, D-358, D-359, D-412, D-414, D-415, D-416, D-424, D-436, D-450, D-455, D-464, D-465, D-470, D-476, D-478, D-492, D-499, D-500, D-513, D-559, D-563 |
 | Marketing | `marketing/README.md` | D-178, D-380, D-410, D-454, D-456, D-494, D-505, D-529 |
-| Installable app and phone notifications | C-2, [PWA-NOTIFICACIONES.md](PWA-NOTIFICACIONES.md) | D-221, D-222, D-223, D-224, D-225, D-227, D-228, D-229, D-230, D-232, D-233, D-504, D-538, D-544, D-545, D-546, D-564, D-565 |
+| Installable app and phone notifications | C-2, [PWA-NOTIFICACIONES.md](PWA-NOTIFICACIONES.md) | D-221, D-222, D-223, D-224, D-225, D-227, D-228, D-229, D-230, D-232, D-233, D-504, D-538, D-544, D-545, D-546, D-564, D-565, D-571, D-574 |
 
-## In force (549)
+## In force (557)
 
 | D | Title | Status |
 |---|---|---|
@@ -282,7 +282,7 @@ Where today's rule is and which decisions explain it: those in force that still 
 | [D-229](decisions/D-229.md) | Notifications: cap of 2 per day, ties in plural, the exact day, buttons and cups together | amended by D-266 |
 | [D-230](decisions/D-230.md) | Uno al día: one game per day, the same for everyone, with a streak and notifications the player requests | amended by D-239, D-262, D-266, D-421, D-433, D-475 |
 | [D-231](decisions/D-231.md) | The language selector always carries the flags | amended by D-244, D-524, D-537 |
-| [D-232](decisions/D-232.md) | A globe on the home page invites adding the app to the home screen (first in the lab; for everyone since v0.121.0) | amended by D-262 |
+| [D-232](decisions/D-232.md) | A globe on the home page invites adding the app to the home screen (first in the lab; for everyone since v0.121.0) | amended by D-262, D-571 |
 | [D-233](decisions/D-233.md) | Notifications are measured in the panel: sent, tapped, the installed app and the last round | amended by D-266, D-565 |
 | [D-234](decisions/D-234.md) | "Tus copas" marks the finished ones and hides them behind a switch | amended by D-336 |
 | [D-236](decisions/D-236.md) | Changing the PIN goes in "Juegas como", not in the rankings | current |
@@ -427,7 +427,7 @@ Where today's rule is and which decisions explain it: those in force that still 
 | [D-379](decisions/D-379.md) | No cup clock while playing: the time shows only at the end | amended by D-384 |
 | [D-380](decisions/D-380.md) | Promotional material follows the app's design | current |
 | [D-381](decisions/D-381.md) | Pips: a dominoes puzzle in Juegos en prueba | amended by D-385, D-386 |
-| [D-382](decisions/D-382.md) | The feedback upload runs on the Mac mini every 5 minutes | current |
+| [D-382](decisions/D-382.md) | The feedback upload runs on the Mac mini every 5 minutes | amended by D-569 |
 | [D-383](decisions/D-383.md) | The repo describes the Mac mini, so it can move to another machine | current |
 | [D-384](decisions/D-384.md) | A game whose speed scores, and that has no countdown, shows the elapsed time | current |
 | [D-385](decisions/D-385.md) | Pips: the rule's diamond inside its cell, the zone lights up, and dominoes drag | current |
@@ -570,7 +570,7 @@ Where today's rule is and which decisions explain it: those in force that still 
 | [D-525](decisions/D-525.md) | Babel and Shinobi score with no cap; Babel rewards streaks | amended by D-526 |
 | [D-526](decisions/D-526.md) | Uno al día scores Babel and Shinobi on a soft curve, not a cap | current |
 | [D-527](decisions/D-527.md) | A bug report starts with a failing test | current |
-| [D-528](decisions/D-528.md) | Lab readiness is measured: a flag's card says when it is ready to publish | current |
+| [D-528](decisions/D-528.md) | Lab readiness is measured: a flag's card says when it is ready to publish | amended by D-569 |
 | [D-529](decisions/D-529.md) | A launch can be scheduled: the `launch` workflow flips flags and splash at the hour | current |
 | [D-530](decisions/D-530.md) | Version 1.0: from here the three numbers mean major, minor and patch | current |
 | [D-531](decisions/D-531.md) | A red PR is approved in its own description | current |
@@ -606,8 +606,16 @@ Where today's rule is and which decisions explain it: those in force that still 
 | [D-561](decisions/D-561.md) | The owner's timeframes are Pacific time: the WBR, the weekly email and every period the owner reads | current |
 | [D-562](decisions/D-562.md) | La Copa: a reaction and a comment on each result, kept only while the cup lasts | current |
 | [D-563](decisions/D-563.md) | Uno al día's month table is the same on every phone: every reader adds every player's uncounted days | current |
-| [D-564](decisions/D-564.md) | La Copa: a notification when someone comments on your row, and notifications checked every 5 minutes by a relay on GitHub | amended by D-565 |
+| [D-564](decisions/D-564.md) | La Copa: a notification when someone comments on your row, and notifications checked every 5 minutes by a relay on GitHub | amended by D-565, D-574 |
 | [D-565](decisions/D-565.md) | The heartbeat: GitHub's frequent jobs in one relay, measured, with a watchdog | current |
+| [D-566](decisions/D-566.md) | La Copa: a balloon tells players they can comment, once per phone | current |
+| [D-567](decisions/D-567.md) | Lab features get an on/off switch in the «T» tab; launched ones lose it | current |
+| [D-568](decisions/D-568.md) | Outside PRs are reviewed by a cloud agent every hour, and the owner is told only when their Yes is the last step | current |
+| [D-569](decisions/D-569.md) | The Mac mini's chores without Claude ride the heartbeat: feedback upload and lab readiness | current |
+| [D-571](decisions/D-571.md) | «Instala Juegos de Salón»: the invitation snoozes instead of leaving for good, and is always in the footer | current |
+| [D-572](decisions/D-572.md) | Tango scores time, not mistakes, as Reinas does (outside La Copa first) | current |
+| [D-573](decisions/D-573.md) | A red PR its session left is nudged within the hour, and taken over by a cloud task two hours later | current |
+| [D-574](decisions/D-574.md) | Each heartbeat relay starts the next one itself | current |
 
 ## No longer in force (12)
 
@@ -626,4 +634,4 @@ Where today's rule is and which decisions explain it: those in force that still 
 | [D-269](decisions/D-269.md) | Trick riddles, a prototype in the lab | revoked |
 | [D-483](decisions/D-483.md) | Toque y Fama's deduction notes: a ✏️ Notes toggle under the keypad (lab) | revoked |
 
-Numbers never used: D-180, D-330, D-523.
+Numbers never used: D-180, D-330, D-501, D-523.

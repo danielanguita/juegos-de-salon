@@ -80,10 +80,12 @@ test('número: the ruled-out rule (D-453)', () => {
   const dirty = numero.estado(p, ['5678', '5678', '9012', '1234']);
   assert.deepEqual(dirty.filas.map(f => f.descartado), [false, true, false, false]);
   assert.equal(numero.puntaje(dirty), 85);
-  // '0234' cannot be it: against '1239' it would give 2 bulls, and '1239' got 3
-  const two = numero.estado(p, ['1239', '0234', '1234']);
+  // '2139' cannot be it (against '1239' it gives 2 bulls, and '1239' got 3) and tries no new digit
+  const two = numero.estado(p, ['1239', '2139', '1234']);
   assert.equal(two.descartados, 1);
   assert.equal(numero.puntaje(two), 85);
+  // '0234' cannot be it either, but tries the 0: exploring costs nothing
+  assert.equal(numero.estado(p, ['1239', '0234', '1234']).descartados, 0);
   // Solved never below 10; unsolved is 0
   assert.equal(numero.puntaje(numero.estado(p, [...Array(9).fill('5678'), '1234'])), 10);
   assert.equal(numero.puntaje(numero.estado(p, Array(10).fill('5678'))), 0);
@@ -1010,3 +1012,26 @@ else {
   console.log(`copa/juegos: ${counts.reduce((a, b) => a + b, 0)} tests OK`);
 }
 
+
+// A ruled-out guess with a digit never tried before is exploring, not wasted
+{
+  const p = { cifras: 4, secreto: '9345' };
+  const g = ['1234', '5678', '9245', '9246', '9215', '9345'];
+  const e = numero.estado(p, g);
+  assert.deepEqual(e.filas.map(f => f.descartado), [false, false, false, true, true, false]);
+  assert.equal(numero.puntaje(e), 70);
+}
+
+// Lab flag tango-time (outside La Copa only): the time scores, mistakes cost nothing, a hint adds 15 s
+{
+  assert.equal(tango.pointsForTime(30000), 100);
+  assert.equal(tango.pointsForTime(45000), 100);
+  assert.equal(tango.pointsForTime(300000), 10);
+  assert.equal(tango.pointsForTime(900000), 10);
+  const base = { fin: true, errores: 5, pistas: 0 };
+  assert.equal(tango.puntaje(base), 50, 'the old rule, in La Copa');
+  assert.equal(tango.puntaje({ ...base, porTiempo: true, ms: 40000 }), 100, 'mistakes cost nothing');
+  assert.equal(tango.puntaje({ ...base, porTiempo: true, ms: 40000, pistas: 2 }), tango.pointsForTime(70000), 'a hint adds 15 s');
+  assert.equal(tango.puntaje({ ...base, porTiempo: true, ms: 40000, rendido: true }), 0);
+  assert.match(tango.tarjeta({ ...base, porTiempo: true, ms: 83000 }), /⏱ 1:23/);
+}

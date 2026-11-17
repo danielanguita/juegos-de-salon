@@ -11,9 +11,11 @@
 # ran every 4-10 hours, an hourly one about 4 times a day), so one scheduled run stays up ~5h40m:
 # notifications every 5 minutes, Uno al día's rebuild every hour (tools/jobs/uad-hourly.sh, which
 # uad-rebuild.yml also runs by hand). The hourly cron queues the next run behind it (the concurrency
-# group), so another always takes over. Every round is measured (tools/push/heartbeat.mjs: rounds and
+# group), so another always takes over. Since D-574 each relay also starts the next itself before it
+# ends (GitHub left 3-hour holes between relays), so the cron is only the backup. Every round is measured (tools/push/heartbeat.mjs: rounds and
 # the longest gap of each Pacific day), the panel shows it and round-watch.yml opens an issue when it
-# falls behind. All on GitHub (owner, D-564): the repo is public, the minutes are free. A manual run
+# falls behind. Since D-569 it also uploads the 🐞 feedback as issues every round and weighs the lab
+# flags' readiness every hour, which the Mac mini did before; since D-573 it nudges red PRs their session left, each hour. All on GitHub (owner, D-564): the repo is public, the minutes are free. A manual run
 # checks once.
 
 name: Notifications
@@ -32,9 +34,20 @@ on:
         description: 'Code of a cup (5 letters): sends a test notification to each phone with notifications in it'
         type: string
         default: ''
+      relay:
+        description: 'Start a relay (5h40m of rounds that then starts the next one), as the schedule does'
+        type: boolean
+        default: false
 
 permissions:
   contents: read
+  # pending.mjs nudge comments on red PRs its session left (D-573)
+  pull-requests: write
+  checks: read
+  # feedback.mjs sync opens the 🐞 reports as issues (D-569)
+  issues: write
+  # Each relay starts the next one itself before it ends (D-574)
+  actions: write
 
 # One round at a time: two together could send the same notification twice
 concurrency:
@@ -50,14 +63,15 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 24
-      - name: Notifications every 5 minutes, Uno al día every hour
+      - name: Notifications and feedback every 5 minutes, Uno al día and lab readiness every hour
         env:
+          GH_TOKEN: ${{ github.token }}
           KEY_JSON: ${{ secrets.FIREBASE_ADMIN_JSON }}
           # The secret keeps its Spanish name (owner's decision, D-316)
           VAPID_PRIVADA: ${{ secrets.VAPID_PRIVADA }}
           DRY_RUN: ${{ inputs.dry_run && '--dry-run' || '' }}
           TEST: ${{ inputs.test }}
-          RELAY: ${{ github.event_name == 'schedule' && '1' || '' }}
+          RELAY: ${{ (github.event_name == 'schedule' || inputs.relay) && '1' || '' }}
         run: |
           if [ -z "$KEY_JSON" ]; then
             echo "::warning::The FIREBASE_ADMIN_JSON secret is missing: nothing to do"
@@ -68,6 +82,8 @@ jobs:
           printf '%s' "$KEY_JSON" > "$RUNNER_TEMP/key.json"
           export FIREBASE_KEY="$RUNNER_TEMP/key.json"
           notify() { [ -n "$VAPID_PRIVADA" ] || return 0; node tools/push/notify.mjs $DRY_RUN ${TEST:+--test "$TEST"} || echo "::warning::a notifications round failed; the next one tries again"; }
+          # The chores that were on the Mac mini (D-569): the 🐞 reports as issues every round, lab readiness each hour
+          feedback() { node tools/agents/feedback.mjs sync || echo "::warning::the feedback upload failed; the next round tries again"; }
           notify
           [ -z "$RELAY" ] && exit 0
           # The relay: 5h40m, a round every 5 minutes and a rebuild each hour, starting now
@@ -76,9 +92,16 @@ jobs:
           while :; do
             if [ $(( $(date +%s) - last_uad )) -ge 3600 ]; then
               bash tools/jobs/uad-hourly.sh --apply || echo "::warning::the Uno al día rebuild failed; the next hour tries again"
+              node tools/agents/lab-ready.mjs check || echo "::warning::lab readiness failed; the next hour tries again"
+              node tools/agents/pending.mjs nudge || echo "::warning::the stalled-PR nudge failed; the next hour tries again"
               last_uad=$(date +%s)
             fi
             [ $(( $(date +%s) + 300 )) -lt "$end" ] || break
+            feedback
             sleep 300
             notify
           done
+          # Hand-off (D-574): start the next relay now; it queues behind this one in the concurrency group and
+          # begins the moment this ends, so the heartbeat never waits for GitHub's late schedule. The hourly
+          # cron stays as the backup if a hand-off is ever lost.
+          gh workflow run notifications.yml -R "$GITHUB_REPOSITORY" -f relay=true || echo "::warning::the hand-off failed; the hourly schedule takes over"

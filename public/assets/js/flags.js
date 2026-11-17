@@ -11,6 +11,11 @@
  * Each id is a card of /labs/ (`seccion-<id>`), and is listed in FLAGS in flag-list.js (the panel's 🧪 Labs link counts them);
  * `public/labs/listed.test.mjs` checks both. Read once per page and kept on the device, so an
  * answer that does not come in time is the last one this phone saw.
+ *
+ * The tester tab's switches (D-567): every flag a page asks while it is 'lab' and the visitor holds
+ * the key is listed in `labHere`, and the tester tab (T) shows a switch for each, to turn it off and
+ * on on this phone only (`juegos-de-salon:flags-off`). A launched flag ('all') is not listed: what
+ * left the lab needs no switch.
  */
 import { labAccess } from './lab-access.js';
 
@@ -48,11 +53,32 @@ export function loadFlags({ fetchFn = globalThis.fetch, store = globalThis.local
   return pending;
 }
 
+const OFF = 'juegos-de-salon:flags-off';
+/** The lab flags this phone's tester turned off in the tester tab: { <id>: true }. */
+export function labOffList(store = globalThis.localStorage) {
+  try { const v = JSON.parse(store?.getItem(OFF) || '{}'); return v && typeof v === 'object' ? v : {}; } catch (_) { return {}; }
+}
+/** Turns a lab flag off (or back on) on this phone only. */
+export function setLabOff(id, off, store = globalThis.localStorage) {
+  const v = labOffList(store);
+  if (off) v[id] = true; else delete v[id];
+  try { store?.setItem(OFF, JSON.stringify(v)); } catch (_) { /* not remembered */ }
+}
+/** The lab flags this page asked, with the key held: the tester tab lists them. */
+export const labHere = new Set();
+const announce = id => {
+  if (labHere.has(id)) return;
+  labHere.add(id);
+  globalThis.dispatchEvent?.(new CustomEvent('lab-flag', { detail: id }));
+};
+
 /** For the page: true when this visitor gets the feature behind flag `id`. The lab key is asked only for 'lab'. */
-export async function flag(id, { load = loadFlags, lab = labAccess } = {}) {
+export async function flag(id, { load = loadFlags, lab = labAccess, store = globalThis.localStorage } = {}) {
   const state = stateOf(await load(), id);
   if (state !== 'lab') return flagOn(state, false);
-  const on = flagOn(state, await lab());
+  const key = await lab();
+  if (key && load === loadFlags) announce(id);
+  const on = flagOn(state, key) && !labOffList(store)[id];
   // what the lab uses is counted, to tell the owner when it is ready (D-528); not for the tests' own loaders
   if (on && id !== 'lab-ready' && load === loadFlags) import('./lab-usage.js').then(m => m.exposed(id)).catch(() => {});
   return on;

@@ -9,14 +9,15 @@
 /** The groups listed, in page order. */
 export const GROUPS = ['activos', 'mejoras'];
 
-/** The entries for `doc`: [{ group, title, items: [{ id, label }] }], only visible cards with an id and a title. Pure, for the test. */
+/** The entries for `doc`: [{ group, title, items: [{ id, label, icon }] }] (`icon`: the drawing a card's title opens with, as a game's
+ * drawing stands for its emoji on screen, DESIGN.md rule 9), only visible cards with an id and a title. Pure, for the test. */
 export function entries(doc) {
   return GROUPS.map(g => doc.getElementById(g)).filter(Boolean).map(group => ({
     group: group.id,
     title: group.querySelector(':scope > h2')?.textContent.trim() || '',
     items: [...group.querySelectorAll(':scope > section.seccion[id]')]
       .filter(s => !s.hidden && s.querySelector(':scope > h2'))
-      .map(s => ({ id: s.id, label: s.querySelector(':scope > h2').textContent.trim() })),
+      .map(s => { const h = s.querySelector(':scope > h2'); return { id: s.id, label: h.textContent.trim(), icon: h.querySelector(':scope > img')?.getAttribute('src') || null }; }),
   })).filter(g => g.items.length);
 }
 
@@ -40,6 +41,12 @@ export function draw(doc = globalThis.document) {
       a.className = 'chip-btn';
       a.href = `#${it.id}`;
       a.textContent = it.label;
+      if (it.icon) {
+        const img = doc.createElement('img');
+        img.src = it.icon; img.alt = ''; img.width = 16; img.height = 16;
+        img.style.cssText = 'width:1.1em;height:1.1em;vertical-align:-0.15em;margin-right:0.3em';
+        a.prepend(img);
+      }
       chips.append(a);
     }
     block.append(h, chips);

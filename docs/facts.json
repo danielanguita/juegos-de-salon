@@ -14,7 +14,7 @@
     "en": 150,
     "pt": 150
   },
-  "commonKeys": 53,
+  "commonKeys": 54,
   "games": [
     {
       "id": "copa",
@@ -1180,6 +1180,7 @@
     "public/assets/js/manifests/cup.js",
     "public/assets/js/manifests/generala.js",
     "public/assets/js/manifests/hangman.js",
+    "public/assets/js/manifests/labs/blackjack.js",
     "public/assets/js/manifests/labs/fourth-king.js",
     "public/assets/js/manifests/labs/julep.js",
     "public/assets/js/manifests/labs/transfer.js",
@@ -1204,6 +1205,7 @@
     "public/assets/js/rng.js",
     "public/assets/js/room-flow.js",
     "public/assets/js/room-state.js",
+    "public/assets/js/screen-bands.js",
     "public/assets/js/search.js",
     "public/assets/js/season.js",
     "public/assets/js/session.js",
@@ -1369,6 +1371,9 @@
     "public/labs/artifacts/game.js",
     "public/labs/artifacts/levels.js",
     "public/labs/artifacts/scene.js",
+    "public/labs/blackjack/engine.js",
+    "public/labs/blackjack/game.js",
+    "public/labs/blackjack/rules.js",
     "public/labs/bodega.js",
     "public/labs/bridges/trains/sheet.js",
     "public/labs/bridges/visitors/sheet.js",
@@ -1505,6 +1510,7 @@
     "public/assets/js/records.test.mjs",
     "public/assets/js/region-patterns.test.mjs",
     "public/assets/js/room-state.test.mjs",
+    "public/assets/js/screen-bands.test.mjs",
     "public/assets/js/search.test.mjs",
     "public/assets/js/season.test.mjs",
     "public/assets/js/share-grid.test.mjs",
@@ -1555,6 +1561,7 @@
     "public/hangman/replay.test.mjs",
     "public/home-preload.test.mjs",
     "public/labs/artifacts/engine.test.mjs",
+    "public/labs/blackjack/engine.test.mjs",
     "public/labs/bodega.test.mjs",
     "public/labs/chameleon/engine.test.mjs",
     "public/labs/code/engine-palabra.test.mjs",
@@ -1592,6 +1599,7 @@
     "tools/agents/architecture.test.mjs",
     "tools/agents/clean-worktrees.test.mjs",
     "tools/agents/conflict-markers.test.mjs",
+    "tools/agents/contributions.test.mjs",
     "tools/agents/covers.test.mjs",
     "tools/agents/decision.test.mjs",
     "tools/agents/design-lint.test.mjs",
@@ -1683,6 +1691,7 @@
     "battleship/online.mjs",
     "battleship/placement.mjs",
     "battleship/salvo.mjs",
+    "blackjack/game.mjs",
     "bridges/game.mjs",
     "bulls-and-cows/chat.mjs",
     "bulls-and-cows/choose-box.mjs",
@@ -1942,6 +1951,10 @@
     {
       "path": "docs/games/battleship.md",
       "title": "Diseño: Batalla Naval"
+    },
+    {
+      "path": "docs/games/blackjack.md",
+      "title": "♠️ Blackjack (lab, in Juegos en prueba)"
     },
     {
       "path": "docs/games/bridges.md",

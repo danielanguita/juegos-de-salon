@@ -33,6 +33,10 @@ export function desglose(id, e, { T, fmt, mmss, copa = true, lang = 'es' }) {
     case 'reinas': if (e.rendido) return [T.bdGaveUp];
       return e.fin ? [fmt(T.bdQueensTime, { t: mmss(e.ms || 0) }), T.bdQueensScale] : [T.bdNotSolved];
     case 'tango': if (e.rendido) return [T.bdGaveUp];
+      // Lab flag tango-time, outside La Copa only: the time, plus 15 s a hint (lab: #seccion-tango-time)
+      if (e.fin && e.porTiempo) return [fmt(T.bdQueensTime, { t: mmss(e.ms || 0) }),
+        e.pistas ? fmt(e.pistas === 1 ? T.bdTangoHintTimeOne : T.bdTangoHintTime, { n: e.pistas, t: mmss(tango.timeWithHints(e)) }) : null,
+        T.bdTangoScale].filter(Boolean);
       return e.fin ? [
       T.bdStart100,
       resta('bdRuleBreaks', e.errores, { pts: 10 * e.errores }) || T.bdNoRuleBreaks,

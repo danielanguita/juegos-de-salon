@@ -9,6 +9,8 @@
  *
  *   node tools/agents/pending.mjs check    # lists stuck PRs and stranded branches (exit 0 either way)
  *   node tools/agents/pending.mjs notify   # pending-watch.yml: keeps the "Pending work" issue current, closes it when empty
+ *   node tools/agents/pending.mjs nudge    # the heartbeat, each hour (D-573): one comment on each red PR its session left
+ *   node tools/agents/pending.mjs stalled  # the takeover task: the PRs nudged 2 h ago and still not moving
  *
  * Only the REST API (`gh api`), so it works on GitHub, on the Mac mini and in a cloud session alike.
  */
@@ -74,6 +76,29 @@ export function issueBody({ prs, branches, stale = [] }) {
   return lines.join('\n');
 }
 
+/** The owner's PRs only: a contributor's PR is the contributions agent's (D-568). */
+export const OWNER = 'ellokojavi';
+/** The hidden mark of a nudge, with the commit it was about: one nudge per push. */
+export const MARK = sha => `<!-- stalled-nudge ${sha} -->`;
+const NUDGE_AFTER = 1;   // hours red without a push before the comment
+const TAKEOVER_AFTER = 2; // hours after the comment, still on the same commit
+
+/**
+ * What the hourly check does with an open PR (D-573): 'nudge' when the owner's non-draft PR has a red
+ * required check and no push for an hour and was not nudged for this commit yet; 'takeover' when the
+ * nudge is two hours old and nothing moved; otherwise null. A push makes a new commit, so it starts over.
+ */
+export function stall({ author, draft, red = [], pushedAt, nudgedAt = null }, now = Date.now()) {
+  if (author !== OWNER || draft || !red.length) return null;
+  if (nudgedAt) return (now - Date.parse(nudgedAt)) / HOUR >= TAKEOVER_AFTER ? 'takeover' : null;
+  return (now - Date.parse(pushedAt)) / HOUR >= NUDGE_AFTER ? 'nudge' : null;
+}
+
+/** The comment: the cloud session subscribed to its PR wakes on it (CLAUDE.md, D-522). */
+export function nudgeBody(sha, red) {
+  return `${MARK(sha)}\n⏰ Red with no push for over an hour (${red.join(', ')}). The session that opened this PR: fix the check (or rerun it if it was flaky), push, and drive it to merge. If nothing moves within ${TAKEOVER_AFTER} h, the stalled-PR takeover task picks it up (D-573).`;
+}
+
 const api = (path, ...args) => JSON.parse(execFileSync('gh', ['api', ...args, path], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], maxBuffer: 64 * 1024 * 1024 }));
 
 /** Every page of a list (by number: `--paginate` follows links some proxies refuse). */
@@ -113,6 +138,29 @@ export function gather(now = Date.now()) {
   return { prs, branches };
 }
 
+/** The owner's red PRs with what to do now (nudge or takeover). */
+export function gatherStalls(now = Date.now()) {
+  const out = [];
+  for (const p of pages(`repos/${REPO}/pulls`).filter(p => p.state === 'open' && p.user.login === OWNER && !p.draft)) {
+    const red = redChecks(p.head.sha);
+    if (!red.length) continue;
+    const pushedAt = api(`repos/${REPO}/commits/${p.head.sha}`).commit.committer.date;
+    const nudge = pages(`repos/${REPO}/issues/${p.number}/comments`).find(c => c.body.includes(MARK(p.head.sha)));
+    const action = stall({ author: p.user.login, draft: p.draft, red, pushedAt, nudgedAt: nudge?.created_at }, now);
+    if (action) out.push({ number: p.number, title: p.title, branch: p.head.ref, sha: p.head.sha, red, action });
+  }
+  return out;
+}
+
+function nudge() {
+  const found = gatherStalls().filter(s => s.action === 'nudge');
+  for (const s of found) {
+    execFileSync('gh', ['pr', 'comment', String(s.number), '-R', REPO, '--body', nudgeBody(s.sha, s.red)]);
+    console.log(`nudged #${s.number} ${s.title}: ${s.red.join(', ')}`);
+  }
+  if (!found.length) console.log('No red PR left by its session.');
+}
+
 function print({ prs, branches }) {
   for (const p of prs) console.log(`- PR #${p.number} ${p.title}: ${p.why.join('; ')}`);
   for (const b of branches) console.log(`- branch ${b.name}: ${b.why}`);
@@ -139,5 +187,11 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const [command] = process.argv.slice(2);
   if (command === 'check') print(gather());
   else if (command === 'notify') notify();
-  else { console.error('Usage: node tools/agents/pending.mjs check | notify'); process.exit(2); }
+  else if (command === 'nudge') nudge();
+  else if (command === 'stalled') {
+    const t = gatherStalls().filter(s => s.action === 'takeover');
+    for (const s of t) console.log(`#${s.number} ${s.branch} ${s.title}: ${s.red.join(', ')}`);
+    if (!t.length) console.log('NOTHING');
+  }
+  else { console.error('Usage: node tools/agents/pending.mjs check | notify | nudge | stalled'); process.exit(2); }
 }

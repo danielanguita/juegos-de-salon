@@ -1,0 +1,59 @@
+// Blackjack (lab): plays a solo game against the house to the result, then conformance checks run it in
+// every language (tools/e2e/conformance.mjs).
+import { output } from '../output.mjs';
+import { launch, sleep } from '../cdp.mjs';
+
+const SITE = process.env.SITE || 'http://localhost:8765';
+const OUT = output();
+const b = await launch({ port: 0, dir: OUT + '/p', out: OUT });
+let failures = 0;
+const ok = (cond, msg) => { console.log((cond ? '✓ ' : '✗ ') + msg); if (!cond) failures++; };
+
+await b.go(SITE + '/labs/blackjack/'); await b.evaluate('localStorage.clear(); 1'); await b.go(SITE + '/labs/blackjack/');
+await b.evaluate("document.querySelector('.mode[data-mode=\"cpu\"]').click(); 1"); await sleep(300);
+await b.evaluate("const i = document.querySelector('#setup-form input'); i.value = 'Ana'; i.dispatchEvent(new Event('input', { bubbles: true })); 1");
+await b.evaluate("document.getElementById('btn-start').click(); 1"); await sleep(300);
+ok(await b.active() === 'screen-play', 'the game starts');
+
+for (let step = 0; step < 6 && await b.active() === 'screen-play'; step++) {
+  if (await b.evaluate("!!document.getElementById('btn-bet')")) {
+    await b.evaluate("document.getElementById('btn-bet').click(); 1");
+    await b.until("document.getElementById('btn-stand') || document.getElementById('btn-next-round') || document.querySelector('#screen-result.active')", 12000);
+  }
+  if (await b.evaluate("!!document.getElementById('btn-stand')")) {
+    await b.evaluate("document.getElementById('btn-stand').click(); 1");
+    await b.until("document.getElementById('btn-next-round') || document.querySelector('#screen-result.active')", 14000);
+  }
+  if (await b.evaluate("!!document.getElementById('btn-next-round')")) {
+    await b.evaluate("document.getElementById('btn-next-round').click(); 1");
+    await sleep(300);
+  }
+}
+
+ok(await b.active() === 'screen-result', 'it reaches the result');
+ok(await b.evaluate("!!document.querySelector('#fin-salidas a[href$=\"labs/\"]')"), 'the result goes back to the lab (C-19)');
+await b.shot('result');
+
+// Signed in, the setup carries the account's name (D-212): nobody types it again
+await b.go(SITE + '/labs/blackjack/'); await b.evaluate("localStorage.clear(); localStorage.setItem('juegos-de-salon:jugador', JSON.stringify({ jid: 'abcd1234', n: 'Luz' })); 1");
+await b.go(SITE + '/labs/blackjack/'); await b.evaluate("document.querySelector('.mode[data-mode=\"cpu\"]').click(); 1"); await sleep(300);
+ok(await b.evaluate("document.querySelector('#setup-form input').value") === 'Luz', 'signed in, the setup has the account name');
+
+// The felt table (flag blackjack-felt): on by default on localhost (a 'lab' flag with the door open), off from the tester tab's switch
+const firstHand = async () => {
+  await b.go(SITE + '/labs/blackjack/'); await sleep(600);
+  await b.evaluate("document.querySelector('.mode[data-mode=\"cpu\"]').click(); 1"); await sleep(300);
+  await b.evaluate("const i = document.querySelector('#setup-form input'); i.value = 'Ana'; i.dispatchEvent(new Event('input', { bubbles: true })); 1");
+  await b.evaluate("document.getElementById('btn-start').click(); 1"); await sleep(300);
+  await b.evaluate("document.getElementById('btn-bet').click(); 1");
+  await b.until("document.getElementById('btn-stand') || document.getElementById('btn-next-round')", 12000); await sleep(300);
+  return b.evaluate("document.documentElement.classList.contains('bj-felt') && !!document.querySelector('#seats-box .bet-spot') && !!document.querySelector('#shoe-chip .shoe-bar')");
+};
+await b.evaluate('localStorage.clear(); 1');
+ok(await firstHand(), 'the felt table: the bet is a chip on its spot and the shoe a bar');
+await b.shot('felt');
+await b.evaluate("localStorage.clear(); localStorage.setItem('juegos-de-salon:flags-off', JSON.stringify({ 'blackjack-felt': true })); 1");
+ok(!(await firstHand()) && !(await b.evaluate("!!document.querySelector('.bet-spot')")), 'switched off in the tester tab, the table is as before');
+ok(!b.errors.length, 'no console errors' + (b.errors.length ? ': ' + b.errors[0].slice(0, 160) : ''));
+b.close();
+process.exit(failures ? 1 : 0);

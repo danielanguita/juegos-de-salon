@@ -18,7 +18,7 @@ import { SFX, soundToggle, initSound } from '../assets/js/sound.js';
 import { trackStart, versionOf, releaseOf, countryOf, trackVisit, trackFinish } from '../assets/js/transport/stats.js';
 import { gameIcon, withIcon, textWithIcon } from '../assets/js/game-icon.js';
 import { gameById, MODO_UNO_AL_DIA, slugDe, idDeSlug, esNuevo } from '../assets/js/games.js';
-import { flag } from '../assets/js/flags.js';
+import { flag, labHere } from '../assets/js/flags.js';
 import { factsLine } from '../assets/js/how-to-play-facts.js';
 import { shareGrid } from '../assets/js/share-grid.js';
 import { backGuard } from '../assets/js/back-guard.js';
@@ -49,6 +49,7 @@ import { enlaceBuzon, ponerBuzon, sinDoble } from '../assets/js/buzon.js';
 import { cuentaRegresiva as cuentaComun } from '../assets/js/cuenta-regresiva.js';
 import { PANTALLAS, redibujarCon } from './screens.js';
 import { coverWithDialogs, gameTopBar } from '../assets/js/cover-dialogs.js';
+import { setTesterContext } from '../assets/js/tester-ribbon.js';
 import { MAX_COMMENT, cleanComment, commentProblem, canTalk, talkDay, rowTalk } from './talk.js';
 
 // The four new One a Day share grids wait in the lab (D-508). lab: #seccion-uad-share-grids
@@ -60,6 +61,9 @@ let pillCopa = false;
 flag('cup-back-board').then(v => { pillCopa = v; rotuloMenu(); });
 // The board's report and leave links as tiles of the site footer (U-38), lab: #seccion-cup-footer
 let pieCopa = false;
+// One a Day goes straight to its result when a game's end screen only repeats it (lab: #seccion-uad-skip-end)
+let saltarFin = false;
+flag('uad-skip-end').then(v => { saltarFin = v; });
 flag('cup-footer').then(v => { pieCopa = v; if (v && S.pantalla === 'tablero') tablero(); });
 
 // Cuenta la visita al abrir la página, aunque nadie llegue a jugar (D-208)
@@ -232,6 +236,8 @@ function mostrar(id) {
   if (!PANTALLAS.includes(id)) console.error(`La Copa: unknown screen "${id}"`);
   S.pantalla = id;
   S.antesala = false;
+  // The tester tab's control for the board (the balloon, D-566) only while the board shows
+  if (id !== 'tablero' && S.ctxTester) { S.ctxTester = null; setTesterContext(null); }
   rotuloMenu();
   // Cada juego a pantalla completa (¿Dónde queda?) la pide de nuevo al montarse
   pantallaCompleta(false);
@@ -857,7 +863,12 @@ function vistaTabla(filas, { dias, meta, now }) {
   };
   // Reactions and comments (D-562, lab): a 💬 at the end of each row, its drawer under it
   const conCharla = charla && !!talkDay(L(), now) && !!L().results?.[talkDay(L(), now)]?.[S.yo] && !!seguirCharla();
-  return el('div', { class: 'tabla' + (conCharla ? ' con-charla' : '') }, filas.flatMap(f => [el('div', { class: 'fila' + (f.pid === S.yo ? ' yo' : '') + (f.fuera ? ' fuera' : ''), 'data-pid': f.pid },
+  // Once, the first time a 💬 shows: a balloon that says comments exist (D-566, lab)
+  const pista = conCharla && pistaCharla && !cuenta.pistaCharla.leer()
+    ? el('div', { class: 'charla-pista', role: 'note' }, el('span', {}, T.talkHint),
+      el('button', { type: 'button', class: 'charla-pista-x', 'aria-label': T.talkHintClose, onClick: () => { SFX.tap(); cerrarPista(); tableroEnSuSitio(); } }, '✕'))
+    : null;
+  return el('div', { class: 'tabla' + (conCharla ? ' con-charla' : '') }, pista, ...filas.flatMap(f => [el('div', { class: 'fila' + (f.pid === S.yo ? ' yo' : '') + (f.fuera ? ' fuera' : ''), 'data-pid': f.pid },
     // Out of the cup (D-347): a door instead of a place, and faded (D-376)
     el('span', { class: 'lugar', title: f.fuera ? fmt(T.outAdmin, { a: f.fuera.desde, b: f.fuera.hasta }) : null }, f.fuera ? '🚪' : String(f.lugar)),
     el('span', { class: 'flecha ' + (f.flecha > 0 ? 'sube' : f.flecha < 0 ? 'baja' : '') }, f.flecha > 0 ? '▲' : f.flecha < 0 ? '▼' : ''),
@@ -1021,6 +1032,11 @@ function desdeAviso() {
 // Behind its flag until the owner launches it from /labs/
 let charla = false;
 flag('cup-talk').then(v => { charla = v; if (v && S.pantalla === 'tablero' && L()?.meta && !composing()) tablero(); });
+// The balloon that tells comments exist (D-566, lab: #seccion-cup-talk-hint)
+let pistaCharla = false;
+flag('cup-talk-hint').then(v => { pistaCharla = v; if (v && S.pantalla === 'tablero' && L()?.meta && !composing()) tablero(); });
+/** Closed with ✕ or by using a 💬: never again on this phone. */
+const cerrarPista = () => { if (!cuenta.pistaCharla.leer()) cuenta.pistaCharla.guardar(); document.querySelector('.charla-pista')?.remove(); };
 /** The talk of the open cup, kept apart from it (cupTalk/), and what is being written. */
 const C = { code: null, off: null, v: { talk: {}, hidden: {} }, abierto: null, borrador: null, pendiente: false };
 /** Writing a comment: the board is not redrawn under the keyboard; it is once the field lets go. */
@@ -1032,10 +1048,14 @@ function seguirCharla() {
     C.off?.();
     Object.assign(C, { code: S.code, v: { talk: {}, hidden: {} }, abierto: null, borrador: null, pendiente: false });
     // What comes in redraws the board (its 💬 counts), unless a comment is being written
+    // A store that answers at once (the local one) would redraw the board while it is being drawn,
+    // appending the table twice: the redraw waits for the drawing to end
     C.off = store.escucharCharla(S.code, v => {
       C.v = v;
-      if (S.pantalla !== 'tablero' || !L()?.meta) return;
-      if (composing()) C.pendiente = true; else tableroEnSuSitio();
+      queueMicrotask(() => {
+        if (S.pantalla !== 'tablero' || !L()?.meta) return;
+        if (composing()) C.pendiente = true; else tableroEnSuSitio();
+      });
     });
   }
   return true;
@@ -1091,7 +1111,7 @@ function botonCharla(pid, now) {
   const abierto = C.abierto === pid;
   return el('button', {
     type: 'button', class: 'fila-charla' + (abierto ? ' on' : ''), 'aria-expanded': String(abierto), 'aria-label': pid === S.yo ? T.talkCommentOwn : T.talkComment, 'data-pid': pid,
-    onClick: () => { SFX.tap(); C.abierto = abierto ? null : pid; C.editando = false; C.borrador = null; tableroEnSuSitio(); if (!abierto) C.borrador?.input.focus(); },
+    onClick: () => { SFX.tap(); cerrarPista(); C.abierto = abierto ? null : pid; C.editando = false; C.borrador = null; tableroEnSuSitio(); if (!abierto) C.borrador?.input.focus(); },
   }, el('span', { class: 'fila-charla-pill' }, '💬'));
 }
 
@@ -1135,7 +1155,15 @@ function borrador(d, pid, inicial = '') {
 }
 
 let buzonPodio;   // the inbox link under the podium, decided once per page (D-345)
+/** The board, never drawn inside its own drawing: a redraw asked meanwhile comes right after (two tables otherwise). */
+let dibujando = false;
 function tablero() {
+  if (dibujando) { queueMicrotask(tablero); return; }
+  dibujando = true;
+  try { dibujarTablero(); } finally { dibujando = false; }
+}
+
+function dibujarTablero() {
   const Lc = L();
   if (!Lc || !S.yo) return;
   // Writing a comment (D-562): not under the keyboard; drawn once the field lets go
@@ -1244,6 +1272,16 @@ function tablero() {
 
   clearInterval(S.tic);
   S.tic = setInterval(() => { if (S.pantalla === 'tablero' && !document.hidden) tablero(); }, 60000);
+
+  // The tester tab (T): show the comments balloon again after closing it (the owner, D-566); set
+  // only when it changes, since setting it folds the tab and the board redraws every minute
+  // Only while it is in the lab: what was launched needs no tester control (D-567)
+  const ctx = pistaCharla && charla && labHere.has('cup-talk-hint') ? (cuenta.pistaCharla.leer() ? 'cerrado' : 'visible') : null;
+  if (ctx !== S.ctxTester) {
+    S.ctxTester = ctx;
+    setTesterContext(ctx ? el('div', { class: 'tr-sim' }, el('small', {}, T.talkHintTester),
+      el('button', { type: 'button', class: 'btn btn--yellow', disabled: ctx === 'visible', onClick: () => { cuenta.pistaCharla.borrar(); tableroEnSuSitio(); } }, T.talkHintAgain)) : null);
+  }
 }
 
 /* ------------------------------------------------------------------ */
@@ -1692,9 +1730,11 @@ function panelReglas(id, { copa = true, prueba = false, variante = null } = {}) 
   // puzzles and was hard to keep in mind (player feedback, 2026-11-12). lab: #seccion-mistakes-rule
   if (J.errores) {
     const juego = S.juego;
-    flag('mistakes-rule').then(on => {
+    // Tango scored by time says mistakes cost nothing, outside La Copa only (lab: #seccion-tango-time)
+    const porTiempo = !copa && J.erroresTiempo ? flag('tango-time').catch(() => false) : Promise.resolve(false);
+    Promise.all([flag('mistakes-rule'), porTiempo]).then(([on, tiempo]) => {
       if (!on || S.juego !== juego || document.getElementById('regla-errores')) return;
-      $('#jugar-head').after(el('p', { class: 'muted regla-errores', id: 'regla-errores' }, J.errores));
+      $('#jugar-head').after(el('p', { class: 'muted regla-errores', id: 'regla-errores' }, tiempo ? J.erroresTiempo : J.errores));
     });
   }
   poner(caja, el('details', { class: 'panel reglas', id: 'reglas' },
@@ -1709,6 +1749,15 @@ function panelReglas(id, { copa = true, prueba = false, variante = null } = {}) 
     id === 'trio' ? [el('p', { class: 'lead' }, T.trioGames), listaRondas()] : null,
     el('p', { class: 'lead' }, T.scoring),
     el('p', { class: 'muted' }, puntajeTexto(J, copa))));
+  // Tango scored by time, outside La Copa only so no running cup changes its rule (lab: #seccion-tango-time)
+  if (!copa && J.puntajeTiempo) {
+    const juego = S.juego;
+    flag('tango-time').then(on => {
+      if (!on || S.juego !== juego) return;
+      const reglas = document.querySelector('#reglas > p.muted:last-child');
+      if (reglas) reglas.textContent = J.puntajeTiempo;
+    }, () => {});
+  }
 }
 
 /**
@@ -2218,6 +2267,10 @@ async function jugarSinPuntaje(id, p, alTerminar, { ensayo = false, guardado = n
   mod.montar(body, {
     p, jugadas: guardado?.jugadas, T, fmt, el, SFX, vibrate, lang: LANG, pantallaCompleta,
     textoFin: ensayo ? T.trialEnd : undefined,
+    // Played on its own, not in a cup: a game may try a rule change here first (Tango, lab: #seccion-tango-time)
+    suelto: true,
+    // One a Day: a game whose end screen only repeats the result skips it (lab: #seccion-uad-skip-end)
+    directo: HOY && !ensayo && saltarFin,
     // No cuenta para nada; solo un juego `diario` lo guarda en el celular, para seguir al recargar
     guardar(jugadas) { ultimas = jugadas; guardado?.guardar(jugadas, Math.round(reloj.leer(rel, Date.now()))); },
     tiempo: () => Math.round(reloj.leer(rel, Date.now())),
