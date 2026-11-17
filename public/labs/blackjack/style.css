@@ -394,19 +394,18 @@ html.bj-defeat #app { position: relative; z-index: 1; }
 /* The same table in every phase: the box under it keeps the betting box's height, so the felt never resizes */
 .bj-felt #screen-play.solo #action-box { min-height: 174px; justify-content: center; }
 
-/* The first step on an empty felt (flag blackjack-felt): where the cards will land, two short lines in chalk on the
-   cloth and a soft chevron breathing towards the chips below; the bet's spot breathes too. Gone once the deal starts */
+/* The first step on an empty felt (flag blackjack-felt): one line in chalk, stitched like the bet's dashed spot beside it,
+   its ↓ bobbing towards the chips in the spot's breathing rhythm; gone once the deal starts */
 .bj-felt .bet-hint {
-  display: grid; gap: var(--s-4); justify-items: center; align-self: center; width: 100%; margin: 0 0 0 calc(-1 * var(--bj-card) * 0.2);
-  font: 800 var(--fs-90) var(--font-body); color: rgb(var(--yellow-rgb) / 0.78); text-align: center; line-height: 1.25;
-  text-shadow: 0 0 10px rgb(var(--yellow-rgb) / 0.25); animation: bjHintIn 0.6s ease-out 0.3s both;
+  display: inline-flex; align-items: center; gap: var(--s-8); align-self: center; margin: 0 0 0 calc(var(--s-32) * 2);
+  padding: var(--s-4) var(--s-12); border: 1.5px dashed rgb(var(--yellow-rgb) / 0.4); border-radius: var(--r-pill);
+  font: 800 var(--fs-90) var(--font-body); white-space: nowrap; color: rgb(var(--yellow-rgb) / 0.85);
+  text-shadow: 0 0 6px rgb(var(--yellow-rgb) / 0.35), 0 1px 0 var(--well-deep); animation: bjHintIn 0.6s ease-out 0.3s both;
 }
 .bj-felt .bj-table .cards-row:has(.bet-hint) { padding-left: 0; justify-content: center; }
-.bj-felt .bet-hint .seg-chip { vertical-align: -0.15em; }
-.bj-felt .bet-hint i { font-style: normal; font-size: var(--fs-140); line-height: 0.6; color: rgb(var(--yellow-rgb) / 0.6); animation: bjHintNudge 1.6s ease-in-out infinite; }
+.bj-felt .bet-hint i { font-style: normal; display: inline-block; animation: bjHintNudge 1.6s ease-in-out infinite; }
 .bj-felt .bj-hand:has(.bet-hint) .bet-spot { animation: bjSpotBreathe 1.6s ease-in-out infinite; }
 @keyframes bjHintIn { from { opacity: 0; transform: translateY(var(--s-6)); } }
-@keyframes bjHintNudge { 50% { transform: translateY(var(--s-6)); opacity: 1; } }
+@keyframes bjHintNudge { 50% { transform: translateY(3px); } }
 @keyframes bjSpotBreathe { 50% { box-shadow: 0 0 0 var(--s-6) rgb(var(--yellow-rgb) / 0.16), 0 0 18px rgb(var(--yellow-rgb) / 0.35); } }
 @media (prefers-reduced-motion: reduce) { .bj-felt .bet-hint, .bj-felt .bet-hint i, .bj-felt .bj-hand:has(.bet-hint) .bet-spot { animation: none; } }
-.bj-felt .bet-hint { margin: 0; padding-left: calc(var(--s-32) * 2); }
