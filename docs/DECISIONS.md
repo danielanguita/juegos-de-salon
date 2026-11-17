@@ -628,4 +628,4 @@ Where today's rule is and which decisions explain it: those in force that still 
 | [D-269](decisions/D-269.md) | Trick riddles, a prototype in the lab | revoked |
 | [D-483](decisions/D-483.md) | Toque y Fama's deduction notes: a ✏️ Notes toggle under the keypad (lab) | revoked |
 
-Numbers never used: D-180, D-330, D-523.
+Numbers never used: D-180, D-330, D-501, D-523.
