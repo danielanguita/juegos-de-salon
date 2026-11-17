@@ -228,6 +228,17 @@
       ]
     },
     {
+      "id": "stalled-nudge",
+      "where": "github",
+      "what": "Every hour, inside the heartbeat (notifications.yml), without Claude: one comment on each of the owner's PRs left red with no push for an hour, which wakes its cloud session.",
+      "decisions": [
+        "D-441",
+        "D-573"
+      ],
+      "workflow": "notifications.yml",
+      "trigger": "each hour of the heartbeat (D-569)"
+    },
+    {
       "id": "contributions",
       "where": "cloud",
       "cron": "0 * * * *",
@@ -235,6 +246,16 @@
       "what": "Every hour, a Claude Code cloud scheduled task (Sonnet): the contributions agent reviews the outside PRs that changed since its last look and comments what is missing; when one waits only for the owner's Yes, contrib-ready.yml tells the owner. Ends at once when nothing changed.",
       "decisions": [
         "D-568"
+      ]
+    },
+    {
+      "id": "stalled-takeover",
+      "where": "cloud",
+      "cron": "30 * * * *",
+      "prompt": "tools/jobs/prompts/stalled-takeover.md",
+      "what": "Every hour, a Claude Code cloud scheduled task: takes over the PRs nudged two hours ago and still red on the same commit, and fixes them on their branch. Ends at once when there are none.",
+      "decisions": [
+        "D-573"
       ]
     }
   ]

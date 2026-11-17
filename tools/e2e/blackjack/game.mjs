@@ -33,6 +33,22 @@ for (let step = 0; step < 6 && await b.active() === 'screen-play'; step++) {
 ok(await b.active() === 'screen-result', 'it reaches the result');
 ok(await b.evaluate("!!document.querySelector('#fin-salidas a[href$=\"labs/\"]')"), 'the result goes back to the lab (C-19)');
 await b.shot('result');
+
+// The felt table (flag blackjack-felt): on by default on localhost (a 'lab' flag with the door open), off from the tester tab's switch
+const firstHand = async () => {
+  await b.go(SITE + '/labs/blackjack/'); await sleep(600);
+  await b.evaluate("document.querySelector('.mode[data-mode=\"cpu\"]').click(); 1"); await sleep(300);
+  await b.evaluate("const i = document.querySelector('#setup-form input'); i.value = 'Ana'; i.dispatchEvent(new Event('input', { bubbles: true })); 1");
+  await b.evaluate("document.getElementById('btn-start').click(); 1"); await sleep(300);
+  await b.evaluate("document.getElementById('btn-bet').click(); 1");
+  await b.until("document.getElementById('btn-stand') || document.getElementById('btn-next-round')", 12000); await sleep(300);
+  return b.evaluate("document.documentElement.classList.contains('bj-felt') && !!document.querySelector('#seats-box .bet-spot') && !!document.querySelector('#shoe-chip .shoe-bar')");
+};
+await b.evaluate('localStorage.clear(); 1');
+ok(await firstHand(), 'the felt table: the bet is a chip on its spot and the shoe a bar');
+await b.shot('felt');
+await b.evaluate("localStorage.clear(); localStorage.setItem('juegos-de-salon:flags-off', JSON.stringify({ 'blackjack-felt': true })); 1");
+ok(!(await firstHand()) && !(await b.evaluate("!!document.querySelector('.bet-spot')")), 'switched off in the tester tab, the table is as before');
 ok(!b.errors.length, 'no console errors' + (b.errors.length ? ': ' + b.errors[0].slice(0, 160) : ''));
 b.close();
 process.exit(failures ? 1 : 0);
