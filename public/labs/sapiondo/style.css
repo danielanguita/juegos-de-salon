@@ -1,0 +1,240 @@
+/* Sapiondo (lab). Tokens and shared shell live in assets/css/base.css (DESIGN.md). */
+
+:root {
+  --sapiondo-stage-bg: #101524;
+  --sapiondo-pad-bg: rgba(16, 22, 40, 0.56);
+  --sapiondo-pad-active: rgba(46, 230, 214, 0.34);
+  --sapiondo-shadow: rgba(0, 0, 0, 0.55);
+}
+
+.sapiondo-logo {
+  display: block;
+  margin-inline: auto;
+  border-radius: var(--r-16);
+  box-shadow: var(--shadow-panel);
+  animation: sapiondo-hop 2s ease-in-out infinite;
+}
+@keyframes sapiondo-hop {
+  0%, 100% { transform: translateY(0) scale(1); }
+  45% { transform: translateY(-4px) scale(1.03); }
+}
+
+.best-line {
+  margin: 0;
+  text-align: center;
+  font-size: var(--fs-90);
+  font-weight: 800;
+  color: var(--muted);
+}
+.best-line b { color: var(--yellow); }
+
+.pie { text-align: center; }
+
+/* ---------------- Play stage ---------------- */
+#screen-play.active {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.stage {
+  position: relative;
+  height: calc(100svh - 76px);
+  min-height: 400px;
+  overflow: hidden;
+  border-radius: var(--radius);
+  border: 1px solid var(--glass-border);
+  background: var(--sapiondo-stage-bg);
+  box-shadow: var(--shadow-panel);
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  outline: none;
+}
+
+#canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* Top compact HUD */
+.hud {
+  position: absolute;
+  top: var(--s-10);
+  left: var(--s-10);
+  right: var(--s-10);
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--s-8);
+  pointer-events: none;
+}
+
+.hud-pill {
+  display: grid;
+  gap: var(--s-2);
+  padding: var(--s-6) var(--s-10);
+  border-radius: var(--r-12);
+  background: rgb(var(--bg1-rgb) / 0.72);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  font-size: var(--fs-85);
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.15;
+}
+.hud-pill small {
+  font-size: var(--fs-75);
+  font-weight: 700;
+  color: var(--muted);
+}
+
+.hud-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--s-4);
+}
+.hud-score {
+  font: 900 var(--fs-200)/1 var(--font-num);
+  font-variant-numeric: tabular-nums;
+  color: var(--yellow);
+  text-shadow: 0 3px 0 var(--sapiondo-shadow);
+}
+.hud-combo {
+  padding: var(--s-2) var(--s-8);
+  border-radius: var(--r-pill);
+  background: var(--pink);
+  color: var(--ink);
+  font-size: var(--fs-75);
+  font-weight: 900;
+}
+
+.hud-right {
+  display: flex;
+  align-items: center;
+  gap: var(--s-6);
+  text-align: right;
+}
+.hud-pause {
+  pointer-events: auto;
+  min-width: 36px;
+  min-height: 36px;
+  border-radius: var(--r-10);
+  border: 1px solid var(--glass-border);
+  background: rgb(var(--bg1-rgb) / 0.72);
+  color: var(--ink);
+  font-size: var(--fs-90);
+  cursor: pointer;
+}
+
+/* 3 bottom overlay buttons + Dash pill */
+.controls {
+  position: absolute;
+  left: var(--s-12);
+  right: var(--s-12);
+  bottom: var(--s-12);
+  display: grid;
+  gap: var(--s-8);
+  justify-items: center;
+  pointer-events: none;
+}
+
+.pad-row {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr 1.35fr 1fr;
+  gap: var(--s-10);
+}
+
+.pad-btn {
+  pointer-events: auto;
+  height: 58px;
+  border-radius: var(--r-16);
+  border: 1px solid var(--glass-border);
+  background: var(--sapiondo-pad-bg);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: var(--ink);
+  font: 900 var(--fs-140)/1 var(--font-body);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--s-6);
+  cursor: pointer;
+  touch-action: none;
+  box-shadow: var(--shadow-panel);
+  transition: transform 0.06s ease, background-color 0.08s ease;
+}
+.pad-btn:active, .pad-btn.pressed {
+  transform: scale(0.95);
+  background: var(--sapiondo-pad-active);
+  border-color: var(--cyan);
+}
+.pad-up {
+  border-color: rgb(var(--cyan-rgb) / 0.45);
+}
+
+.pad-dash {
+  height: 40px;
+  padding: 0 var(--s-18);
+  border-radius: var(--r-pill);
+  font-size: var(--fs-90);
+  border-color: rgb(var(--yellow-rgb) / 0.55);
+  color: var(--yellow);
+}
+.pad-dash.cooldown {
+  opacity: 0.55;
+  color: var(--muted);
+  border-color: var(--glass-border);
+}
+
+.pause-layer {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  gap: var(--s-6);
+  text-align: center;
+  cursor: pointer;
+  background: rgb(var(--bg1-rgb) / 0.78);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+/* ---------------- Result breakdown ---------------- */
+.score-card {
+  display: grid;
+  gap: var(--s-8);
+}
+.score-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: var(--fs-90);
+}
+.score-row b {
+  font-variant-numeric: tabular-nums;
+}
+.score-sep {
+  margin: var(--s-4) 0;
+  border: 0;
+  border-top: 1px solid var(--glass-border);
+}
+.score-total {
+  font-size: var(--fs-120);
+  font-weight: 900;
+}
+.score-total b { color: var(--yellow); }
+.score-meta {
+  margin: var(--s-4) 0 0;
+  font-size: var(--fs-85);
+  text-align: center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sapiondo-logo { animation: none; }
+}

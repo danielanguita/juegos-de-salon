@@ -1,0 +1,56 @@
+// Generated from game.json by node tools/generators/manifests.mjs: do not edit by hand.
+export default {
+  "id": "sapiondo",
+  "path": "labs/sapiondo/",
+  "slug": "sapiondo",
+  "emoji": "🐸",
+  "name": {
+    "es": "Sapiondo",
+    "en": "Sapiondo",
+    "pt": "Sapiondo"
+  },
+  "tagline": {
+    "es": "Cruza la autopista esquivando autos, agarra frutas y haz dash con estilo.",
+    "en": "Cross the highway dodging cars, grab bonus fruit, and dash past danger.",
+    "pt": "Atravesse a rodovia desviando de carros, pegue frutas e dê dash com estilo."
+  },
+  "keywords": {
+    "es": [
+      "sapiondo",
+      "rana",
+      "autopista"
+    ],
+    "en": [
+      "sapiondo",
+      "frog",
+      "highway"
+    ],
+    "pt": [
+      "sapiondo",
+      "sapo",
+      "rodovia"
+    ]
+  },
+  "players": {
+    "min": 1,
+    "max": 1
+  },
+  "duration": "1–2",
+  "tipos": [
+    "skill"
+  ],
+  "labs": true,
+  "available": false,
+  "modes": [
+    "solo"
+  ],
+  "ai": false,
+  "memory": "juegos-de-salon:sapiondo:session",
+  "languages": [
+    "es",
+    "en",
+    "pt"
+  ],
+  "firebasePaths": [],
+  "canonExceptions": []
+};

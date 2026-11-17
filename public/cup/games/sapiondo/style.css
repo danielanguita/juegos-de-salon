@@ -1,0 +1,188 @@
+/* Sapiondo in La Copa. Loaded by ui.js; all classes start with `sp-`. Tokens only (DESIGN.md). */
+
+:root {
+  --sapiondo-stage: #101524;
+  --sapiondo-pad: rgba(16, 22, 40, 0.56);
+  --sapiondo-pad-on: rgba(46, 230, 214, 0.34);
+  --sapiondo-shadow: rgba(0, 0, 0, 0.55);
+}
+
+.sp-cabeza {
+  display: grid;
+  gap: var(--s-4);
+  justify-items: center;
+  text-align: center;
+}
+.sp-titulo {
+  display: flex;
+  align-items: center;
+  gap: var(--s-10);
+  margin: 0;
+}
+.sp-lema {
+  margin: 0;
+  color: var(--muted);
+  font-weight: 700;
+  font-size: var(--fs-90);
+}
+
+.sp-portada {
+  border-radius: var(--radius);
+  overflow: hidden;
+  border: 1px solid var(--glass-border);
+  background: var(--sapiondo-stage);
+}
+.sp-demo {
+  display: block;
+  width: 100%;
+  height: 220px;
+}
+
+.sp-juego {
+  display: grid;
+  gap: var(--s-12);
+}
+
+.sp-escenario {
+  position: relative;
+  height: calc(100svh - 140px);
+  min-height: 380px;
+  overflow: hidden;
+  border-radius: var(--radius);
+  border: 1px solid var(--glass-border);
+  background: var(--sapiondo-stage);
+  box-shadow: var(--shadow-panel);
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  outline: none;
+}
+
+.sp-lienzo {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.sp-hud {
+  position: absolute;
+  top: var(--s-10);
+  left: var(--s-10);
+  right: var(--s-10);
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--s-8);
+  pointer-events: none;
+}
+.sp-pill {
+  display: grid;
+  gap: var(--s-2);
+  padding: var(--s-6) var(--s-10);
+  border-radius: var(--r-12);
+  background: rgb(var(--bg1-rgb) / 0.72);
+  border: 1px solid var(--glass-border);
+  font-size: var(--fs-85);
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.15;
+}
+.sp-pill small {
+  font-size: var(--fs-75);
+  font-weight: 700;
+  color: var(--muted);
+}
+.sp-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--s-4);
+}
+.sp-score {
+  font: 900 var(--fs-200)/1 var(--font-num);
+  font-variant-numeric: tabular-nums;
+  color: var(--yellow);
+  text-shadow: 0 3px 0 var(--sapiondo-shadow);
+}
+.sp-combo {
+  padding: var(--s-2) var(--s-8);
+  border-radius: var(--r-pill);
+  background: var(--pink);
+  color: var(--ink);
+  font-size: var(--fs-75);
+  font-weight: 900;
+}
+
+.sp-controls {
+  position: absolute;
+  left: var(--s-12);
+  right: var(--s-12);
+  bottom: var(--s-12);
+  display: grid;
+  gap: var(--s-8);
+  justify-items: center;
+  pointer-events: none;
+}
+.sp-pad-row {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr 1.35fr 1fr;
+  gap: var(--s-10);
+}
+.sp-pad-btn {
+  pointer-events: auto;
+  height: 56px;
+  border-radius: var(--r-16);
+  border: 1px solid var(--glass-border);
+  background: var(--sapiondo-pad);
+  color: var(--ink);
+  font: 900 var(--fs-140)/1 var(--font-body);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--s-6);
+  cursor: pointer;
+  touch-action: none;
+  box-shadow: var(--shadow-panel);
+}
+.sp-pad-btn:active, .sp-pad-btn.pressed {
+  transform: scale(0.95);
+  background: var(--sapiondo-pad-on);
+  border-color: var(--cyan);
+}
+.sp-pad-up { border-color: rgb(var(--cyan-rgb) / 0.45); }
+.sp-pad-dash {
+  height: 40px;
+  padding: 0 var(--s-18);
+  border-radius: var(--r-pill);
+  font-size: var(--fs-90);
+  border-color: rgb(var(--yellow-rgb) / 0.55);
+  color: var(--yellow);
+}
+.sp-pad-dash.cooldown {
+  opacity: 0.55;
+  color: var(--muted);
+  border-color: var(--glass-border);
+}
+
+.sp-pausa {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  gap: var(--s-6);
+  text-align: center;
+  cursor: pointer;
+  background: rgb(var(--bg1-rgb) / 0.78);
+}
+
+.sp-fin {
+  display: grid;
+  gap: var(--s-10);
+  text-align: center;
+}
+.sp-veredicto {
+  margin: 0;
+  font: 900 var(--fs-120)/1.25 var(--font-body);
+}

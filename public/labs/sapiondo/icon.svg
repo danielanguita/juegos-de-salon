@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Sapiondo">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#1e1142"/>
+      <stop offset="100%" stop-color="#0b1f38"/>
+    </linearGradient>
+    <linearGradient id="frog" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#7ef25a"/>
+      <stop offset="100%" stop-color="#2ea836"/>
+    </linearGradient>
+    <clipPath id="shirt-clip">
+      <path d="M32 75c4-9 17-13 32-13s28 4 32 13l7 26c1 5-3 9-8 9H33c-5 0-9-4-8-9z"/>
+    </clipPath>
+  </defs>
+  <rect width="128" height="128" rx="28" fill="url(#bg)"/>
+  <!-- Subtle asphalt road lines -->
+  <path d="M0 98h128M0 116h128" stroke="#ffffff" stroke-opacity="0.12" stroke-width="2" stroke-dasharray="10 10"/>
+  <!-- Frog arms -->
+  <ellipse cx="27" cy="90" rx="9" ry="14" transform="rotate(22 27 90)" fill="#37b93f"/>
+  <ellipse cx="101" cy="90" rx="9" ry="14" transform="rotate(-22 101 90)" fill="#37b93f"/>
+  <!-- Chilean flag t-shirt -->
+  <g clip-path="url(#shirt-clip)">
+    <rect x="24" y="60" width="80" height="27" fill="#f7f9fc"/>
+    <rect x="24" y="87" width="80" height="26" fill="#d52b1e"/>
+    <rect x="24" y="60" width="38" height="27" fill="#0039a6"/>
+    <!-- 5-point star -->
+    <polygon points="43,66 45.1,72.2 51.6,72.2 46.4,76 48.3,82.2 43,78.5 37.7,82.2 39.6,76 34.4,72.2 40.9,72.2" fill="#ffffff"/>
+  </g>
+  <!-- T-shirt collar -->
+  <path d="M46 65c5 6 31 6 36 0" fill="none" stroke="#18233a" stroke-opacity="0.28" stroke-width="3" stroke-linecap="round"/>
+  <!-- Frog head -->
+  <ellipse cx="64" cy="50" rx="34" ry="23" fill="url(#frog)"/>
+  <!-- Eye bumps -->
+  <circle cx="44" cy="30" r="14" fill="#63df49"/>
+  <circle cx="84" cy="30" r="14" fill="#63df49"/>
+  <!-- Eyes -->
+  <circle cx="44" cy="30" r="9.5" fill="#ffffff"/>
+  <circle cx="84" cy="30" r="9.5" fill="#ffffff"/>
+  <circle cx="45.5" cy="29.5" r="5" fill="#13192c"/>
+  <circle cx="85.5" cy="29.5" r="5" fill="#13192c"/>
+  <circle cx="47.5" cy="27.5" r="2" fill="#ffffff"/>
+  <circle cx="87.5" cy="27.5" r="2" fill="#ffffff"/>
+  <!-- Cheeks & smile -->
+  <ellipse cx="38" cy="51" rx="6" ry="3.6" fill="#ff7aa8" fill-opacity="0.65"/>
+  <ellipse cx="90" cy="51" rx="6" ry="3.6" fill="#ff7aa8" fill-opacity="0.65"/>
+  <path d="M48 53c5 6 27 6 32 0" fill="none" stroke="#144d1a" stroke-width="3.4" stroke-linecap="round"/>
+  <!-- Nostrils -->
+  <circle cx="58" cy="43" r="1.8" fill="#144d1a"/>
+  <circle cx="70" cy="43" r="1.8" fill="#144d1a"/>
+</svg>

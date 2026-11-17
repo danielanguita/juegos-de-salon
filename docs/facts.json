@@ -136,6 +136,11 @@
         "public/cup/games/routes/style.css",
         "public/cup/games/routes/texts.js",
         "public/cup/games/routes/ui.js",
+        "public/cup/games/sapiondo/engine.js",
+        "public/cup/games/sapiondo/scene.js",
+        "public/cup/games/sapiondo/style.css",
+        "public/cup/games/sapiondo/texts.js",
+        "public/cup/games/sapiondo/ui.js",
         "public/cup/games/semilla.js",
         "public/cup/games/solo.js",
         "public/cup/games/stack/engine.js",
@@ -714,6 +719,37 @@
       "files": [
         "public/fourth-king/index.html"
       ]
+    },
+    {
+      "id": "sapiondo",
+      "emoji": "🐸",
+      "name": {
+        "es": "Sapiondo",
+        "en": "Sapiondo",
+        "pt": "Sapiondo"
+      },
+      "players": "1",
+      "duration": "1–2",
+      "available": false,
+      "labs": true,
+      "status": null,
+      "modes": [
+        {
+          "key": "modeSolo",
+          "es": "Cruzar la autopista",
+          "en": "Cross the highway"
+        }
+      ],
+      "variants": [],
+      "screens": [
+        "intro",
+        "play",
+        "result"
+      ],
+      "chat": false,
+      "files": [
+        "public/sapiondo/index.html"
+      ]
     }
   ],
   "standalone": [
@@ -1183,6 +1219,7 @@
     "public/assets/js/manifests/labs/blackjack.js",
     "public/assets/js/manifests/labs/fourth-king.js",
     "public/assets/js/manifests/labs/julep.js",
+    "public/assets/js/manifests/labs/sapiondo.js",
     "public/assets/js/manifests/labs/transfer.js",
     "public/assets/js/manifests/labs/wobbles.js",
     "public/assets/js/manifests/liars-dice.js",
@@ -1312,6 +1349,10 @@
     "public/cup/games/routes/engine.js",
     "public/cup/games/routes/texts.js",
     "public/cup/games/routes/ui.js",
+    "public/cup/games/sapiondo/engine.js",
+    "public/cup/games/sapiondo/scene.js",
+    "public/cup/games/sapiondo/texts.js",
+    "public/cup/games/sapiondo/ui.js",
     "public/cup/games/semilla.js",
     "public/cup/games/solo.js",
     "public/cup/games/stack/engine.js",
@@ -1405,6 +1446,10 @@
     "public/labs/memory/rules.js",
     "public/labs/memory/sprites.js",
     "public/labs/publish.js",
+    "public/labs/sapiondo/engine.js",
+    "public/labs/sapiondo/game.js",
+    "public/labs/sapiondo/rules.js",
+    "public/labs/sapiondo/scene.js",
     "public/labs/stack/engine.js",
     "public/labs/stack/game.js",
     "public/labs/stack/scene.js",
@@ -1547,6 +1592,7 @@
     "public/cup/games/paint-mines/engine.test.mjs",
     "public/cup/games/plots/engine.test.mjs",
     "public/cup/games/routes/engine.test.mjs",
+    "public/cup/games/sapiondo/engine.test.mjs",
     "public/cup/games/stack/engine.test.mjs",
     "public/cup/games/stick/engine.test.mjs",
     "public/cup/games/stick/issue-1103.test.mjs",
@@ -1579,6 +1625,7 @@
     "public/labs/launched.test.mjs",
     "public/labs/listed.test.mjs",
     "public/labs/memory/engine.test.mjs",
+    "public/labs/sapiondo/engine.test.mjs",
     "public/labs/stack/engine.test.mjs",
     "public/labs/sudoku/engine.test.mjs",
     "public/labs/transfer/engine.test.mjs",
@@ -1809,6 +1856,8 @@
     "room-error.mjs",
     "rooms/online.mjs",
     "routes/game.mjs",
+    "sapiondo/game.mjs",
+    "sapiondo/languages.mjs",
     "scope-guard.test.mjs",
     "scope.test.mjs",
     "share-home.mjs",
@@ -2060,6 +2109,10 @@
       "title": "🚇 Rutas rotas (Broken Routes)"
     },
     {
+      "path": "docs/games/sapiondo.md",
+      "title": "🐸 Sapiondo (lab, in Juegos en prueba)"
+    },
+    {
       "path": "docs/games/stack.md",
       "title": "🗼 Babel (La Copa game, launched by flag; Stack in the lab)"
     },
@@ -2153,6 +2206,7 @@
     "generala": 8,
     "batalla-naval": 7,
     "julepe": 10,
-    "cuarto-rey": 12
+    "cuarto-rey": 12,
+    "sapiondo": 0
   }
 }

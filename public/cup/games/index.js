@@ -77,6 +77,7 @@ const CODE = {
   aletazo: () => Promise.all([import('./flap/engine.js'), import('./flap/ui.js')]),
   sudoku: () => Promise.all([import('./sudoku/engine.js'), import('./sudoku/ui.js')]),
   microgames: () => Promise.all([import('./microgames/engine.js'), import('./microgames/ui.js')]),
+  sapiondo: () => Promise.all([import('./sapiondo/engine.js'), import('./sapiondo/ui.js')]),
   final: () => Promise.all([import('./final/engine.js'), import('./final/ui.js')]),
 };
 CODE.trio = CODE.final;
@@ -129,6 +130,10 @@ const BUILD = {
   microgames: ([m, ui]) => delLab('microgames', { generarDia: m.generateDay, puntajeDia: m.dayScore }, {
     portada: ui.cover, titulo: ui.title, montar: ui.mount, resultado: ui.result, desglose: ui.breakdown,
   }),
+  // 🐸 Sapiondo, arcade highway crossing (in the lab, not in POZO yet)
+  sapiondo: ([m, ui]) => delLab('sapiondo', {
+    generarDia: m.generateDay, puntajeDia: m.dayScore,
+  }, { portada: ui.cover, titulo: ui.title, montar: ui.mount, resultado: ui.result, desglose: ui.breakdown }),
   final: ([final, uiFinal]) => ({
     ...juego(final, uiFinal),
     // A round with no short version is the game whole, built with its own generator for the final

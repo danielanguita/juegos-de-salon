@@ -16,6 +16,7 @@ const SAME_NAME = {
   stick: { en: 'a Japanese word, the same everywhere', pt: 'a Japanese word, the same everywhere' },
   stack: { en: 'a proper name (the tower)', pt: 'a proper name (the tower)' },
   sudoku: { en: 'the puzzle\'s own name, the same everywhere', pt: 'the puzzle\'s own name, the same everywhere' },
+  sapiondo: { en: 'a proper name (the frog)', pt: 'a proper name (the frog)' },
 };
 
 const bad = [];
