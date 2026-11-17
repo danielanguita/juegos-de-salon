@@ -51,11 +51,10 @@ juego 🔢 de La Copa, con sus reglas, su pantalla y su puntaje, pero en el idio
   below 10 if solved, 0 if not (`puntaje` in `public/cup/games/number/engine.js`). The finished board
   marks each ruled-out guess with ⚠️ and says what each one cost; never while playing. Until D-453 it
   was 100 on the first guess and 10 less for each one after it (D-113).
-  In the lab (flag `number-new-digit`, off by default): a guess that tries at least one digit no
-  earlier guess had is exploring, not wasted, so it is not counted as ruled out and costs nothing
-  (5678 after 1234 gave two cows); `descartado()` checks `cifraNueva()`, set once by the page with
-  `usarCifraNueva(flag(...))`. Same for La Copa's Número and the Final's number round; the previa
-  explains it (`newDigitFree`). Publishing it changes how D-453 counts.
+  Since 2026-11-16 (the owner's request, after a game where 5678 cost 15): a guess that tries at
+  least one digit no earlier guess had is exploring, not wasted, so it is not counted as ruled out and
+  costs nothing (5678 after 1234 gave two cows). Same for La Copa's Número and the Final's number round;
+  the finished board's note says it (`newDigitFree`). Scores recorded before keep the stricter count.
 - **Número:** sale de un código de 5 letras al azar (`codigoAlAzar` de `public/cup/code.js`, D-377) con
   `numero.generar(codigo, 1)`. No hay secreto que guardar ni que verificar.
 - **Pantallas:** una previa con “Cómo se juega” (3 puntos), cómo se calcula el puntaje, el récord y
