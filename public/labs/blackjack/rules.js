@@ -15,7 +15,7 @@ export const COIN_OPTIONS = [100, 250, 500, 1000];
 
 const ES = {
   ui: {
-    docTitle: 'Blackjack ♠️ · Juegos de Salón', gameChip: '♠️ Blackjack', menu: '‹ Laboratorio',
+    docTitle: 'Blackjack ♠️ · Juegos de Salón', gameChip: 'Blackjack', menu: '‹ Laboratorio',
     title: 'Blackjack', lead: 'Mesa estilo Las Vegas contra la casa: juega solo o con hasta 6 amigos.',
     howTitle: 'Cómo se juega',
     modeSolo: '🤖 Contra la casa', modeSoloHint: 'Tú solo contra el crupier.',
@@ -64,7 +64,7 @@ const ES = {
 
 const EN = {
   ui: {
-    docTitle: 'Blackjack ♠️ · Parlor Games', gameChip: '♠️ Blackjack', menu: '‹ Lab',
+    docTitle: 'Blackjack ♠️ · Parlor Games', gameChip: 'Blackjack', menu: '‹ Lab',
     title: 'Blackjack', lead: 'Vegas-style table against the house: play solo or with up to 6 friends.',
     howTitle: 'How to play',
     modeSolo: '🤖 Versus the house', modeSoloHint: 'Just you against the dealer.',
@@ -113,7 +113,7 @@ const EN = {
 
 const PT = {
   ui: {
-    docTitle: 'Blackjack ♠️ · Jogos de Salão', gameChip: '♠️ Blackjack', menu: '‹ Laboratório',
+    docTitle: 'Blackjack ♠️ · Jogos de Salão', gameChip: 'Blackjack', menu: '‹ Laboratório',
     title: 'Blackjack', lead: 'Mesa estilo Las Vegas contra a casa: jogue sozinho ou com até 6 amigos.',
     howTitle: 'Como se joga',
     modeSolo: '🤖 Contra a casa', modeSoloHint: 'Só você contra o crupiê.',
