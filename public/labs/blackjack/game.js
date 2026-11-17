@@ -19,7 +19,7 @@ import { param } from '../../assets/js/parametros.js';
 import { flag } from '../../assets/js/flags.js';
 import { onScreen } from '../../assets/js/on-screen.js';
 import { coverWithDialogs } from '../../assets/js/cover-dialogs.js';
-import { bloqueJugador } from '../../assets/js/ranking.js';
+import { bloqueJugador, conBandera } from '../../assets/js/ranking.js';
 import { leerYo } from '../../assets/js/jugador.js';
 import { salidasFin } from '../../assets/js/fin.js';
 import { botonCompartir, botonInvitar, cabecera } from '../../assets/js/compartir.js';
@@ -198,6 +198,23 @@ function renderSetupOptions() {
   );
 }
 
+/**
+ * The setup's name row. On the felt trial a signed-in player sees their account as a block, flag and name,
+ * with «Cambiar» to type another one instead; the input stays in the row, hidden, holding the name.
+ */
+function nameRow(num, input) {
+  const yo = felt ? leerYo() : null;
+  if (!yo?.n || input.value !== yo.n) return el('div', { class: 'player-row' }, el('span', { class: 'num' }, num), input);
+  input.hidden = true;
+  const shown = el('span', { class: 'signed-name' }, conBandera(yo.co, yo.n));
+  const change = el('button', {
+    type: 'button', class: 'name-change', onClick: () => {
+      SFX.tap(); shown.remove(); change.remove(); input.hidden = false; input.focus(); input.select();
+    },
+  }, T.changeName);
+  return el('div', { class: 'player-row signed' }, el('span', { class: 'num' }, num), shown, input, change);
+}
+
 function openSetupCpu() {
   mode = 'cpu';
   setupConfig = { ...DEFAULT_CONFIG };
@@ -205,12 +222,10 @@ function openSetupCpu() {
   $('#screen-setup h2').textContent = T.whoPlays;
   $('.setup-hint').textContent = T.setupHint;
   $('#setup-form').replaceChildren(
-    el('div', { class: 'player-row' },
-      el('span', { class: 'num' }, '1'),
-      el('input', {
-        type: 'text', value: (felt && leerYo()?.n) || remembered[0] || '', maxlength: 14, autocomplete: 'off',
-        placeholder: fmt(T.playerPlaceholder, { n: 1 }),
-      })),
+    nameRow('1', el('input', {
+      type: 'text', value: (felt && leerYo()?.n) || remembered[0] || '', maxlength: 14, autocomplete: 'off',
+      placeholder: fmt(T.playerPlaceholder, { n: 1 }),
+    })),
   );
   renderSetupOptions();
   $('#form-error').textContent = '';
@@ -252,13 +267,11 @@ function renderSetupOnline(inviteCode = '') {
   clearRoomError(err);
 
   $('#setup-form').replaceChildren(
-    el('div', { class: 'player-row' },
-      el('span', { class: 'num' }, '👤'),
-      el('input', {
-        type: 'text', value: myName, maxlength: 14, autocomplete: 'off',
-        placeholder: T.yourNameLabel,
-        onInput: e => { myName = e.target.value; },
-      })),
+    nameRow('👤', el('input', {
+      type: 'text', value: myName, maxlength: 14, autocomplete: 'off',
+      placeholder: T.yourNameLabel,
+      onInput: e => { myName = e.target.value; },
+    })),
   );
 
   if (invited) {

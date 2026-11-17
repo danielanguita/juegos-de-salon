@@ -38,6 +38,10 @@ await b.shot('result');
 await b.go(SITE + '/labs/blackjack/'); await b.evaluate("localStorage.clear(); localStorage.setItem('juegos-de-salon:jugador', JSON.stringify({ jid: 'abcd1234', n: 'Luz' })); 1");
 await b.go(SITE + '/labs/blackjack/'); await b.evaluate("document.querySelector('.mode[data-mode=\"cpu\"]').click(); 1"); await sleep(300);
 ok(await b.evaluate("document.querySelector('#setup-form input').value") === 'Luz', 'signed in, the setup has the account name');
+ok(await b.evaluate("document.querySelector('#setup-form .signed-name')?.textContent === 'Luz' && document.querySelector('#setup-form input').hidden"), 'the name shows as a block, not an input');
+await b.shot('signed');
+await b.evaluate("document.querySelector('#setup-form .name-change').click(); 1");
+ok(await b.evaluate("!document.querySelector('#setup-form input').hidden && !document.querySelector('#setup-form .signed-name')"), '«Cambiar» opens the input to type another name');
 
 // The felt table (flag blackjack-felt): on by default on localhost (a 'lab' flag with the door open), off from the tester tab's switch
 const firstHand = async () => {
