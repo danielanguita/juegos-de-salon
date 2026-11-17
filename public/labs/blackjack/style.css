@@ -317,3 +317,16 @@
 /* The signed-in player's name as a block, with «Cambiar» to type another (flag blackjack-felt) */
 .bj-felt .signed-name { padding: var(--s-10) 0; font-weight: 800; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .name-change { position: relative; min-height: 44px; padding: 0 var(--s-4); font: inherit; font-weight: 800; color: var(--yellow); background: none; border: 0; text-decoration: underline; cursor: pointer; }
+/* A table that does not move (flag blackjack-felt): from the bet on, the rows are there at their full height and empty,
+   the first card sits a little left of the middle and the next ones land to its right, the way a dealer places them;
+   nothing already on the felt moves when another lands. Off the table, things fade. */
+.bj-felt .bj-table .cards-row { width: 100%; justify-content: flex-start; flex-wrap: nowrap; min-height: 104px; }
+.bj-felt .bj-table .cards-row:has(.pcard--sm) { min-height: 80px; }
+.bj-felt .score-pill.slot { visibility: hidden; }
+.bj-felt .score-pill, .bj-felt .stamp { transition: opacity 0.3s ease; }
+.bj-felt .bj-table.clearing .pcard, .bj-felt .bj-table.clearing .stamp, .bj-felt .bj-table.clearing .score-pill, .bj-felt .bj-table.clearing .outcome-tag { opacity: 0; transition: opacity 0.3s ease; }
+/* In the table, a tighter fan (26 px a card) so five cards fit at 320 px with the first ones never moving */
+.bj-felt .bj-table .pcard + .pcard { margin-left: calc(-1 * (var(--s-32) + var(--s-8))); }
+.bj-felt .bj-table .cards-row { padding-left: calc(50% - 46px); }
+.bj-felt .bj-table .pcard--sm + .pcard--sm { margin-left: calc(-1 * var(--s-24)); }
+.bj-felt .bj-table .cards-row:has(.pcard--sm) { padding-left: calc(50% - 37px); }

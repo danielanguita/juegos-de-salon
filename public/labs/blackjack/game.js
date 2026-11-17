@@ -665,10 +665,12 @@ function renderSeats() {
         const metaLeft = label + fmt(T.betNow, { n: h.bet });
         const metaRight = showOutcome
           ? el('span', { class: 'outcome-tag ' + h.outcome }, outcomeText(h))
-          : (val ? el('span', { class: 'score-pill' + (val.isBust ? ' bust' : (val.isBlackjack ? ' bj' : '')) }, String(val.total)) : '');
+          : (val ? el('span', { class: 'score-pill' + (val.isBust ? ' bust' : (val.isBlackjack ? ' bj' : '')) }, String(val.total))
+            : (felt ? el('span', { class: 'score-pill slot', 'aria-hidden': 'true' }, '0') : ''));
 
         handEl.append(el('div', { class: 'bj-hand-meta' }, el('span', { class: 'bet-text' }, ...coins(metaLeft)), metaRight));
-        if (shownCards.length > 0) {
+        // On the felt the row is there from the bet on, empty: the table opens at its full size and each card lands in its place
+        if (shownCards.length > 0 || felt) {
           handEl.append(el('div', { class: 'cards-row' },
             ...shownCards.map((c, ci) => cardEl(c, {
               small: state.players.length > 2,
@@ -1018,7 +1020,7 @@ async function animateTransition(prev, next) {
         freshCardKey = `p-${pi}-0-${pass}`;
         SFX.flip();
         SFX.reveal();
-        morph(renderPlay); // the table grows to take the card: it glides, not jumps
+        renderPlay();
       }
       await wait(650);
       if (token !== animToken) return;
@@ -1026,7 +1028,7 @@ async function animateTransition(prev, next) {
       freshCardKey = `d-${pass}`;
       SFX.flip();
       if (pass === 0) SFX.reveal(); // hole card stays suspensefully face down
-      morph(renderPlay);
+      renderPlay();
     }
 
     if (next.phase === 'roundEnd') {
@@ -1082,6 +1084,14 @@ async function animateTransition(prev, next) {
 function dispatch(act, extra = {}) {
   disarm();
   SFX.tap();
+  // On the felt, the dealt cards and stamps fade off the table before the next round's bets
+  const table = $('.bj-table');
+  if (felt && act === 'next' && !(mode === 'online' && online) && table && !table.classList.contains('clearing')
+      && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    table.classList.add('clearing');
+    setTimeout(() => { table.classList.remove('clearing'); dispatch(act, extra); }, 320);
+    return;
+  }
   if (mode === 'online' && online) {
     online.transport.send({ t: 'bj', from: online.role, act, ...extra });
     return;
