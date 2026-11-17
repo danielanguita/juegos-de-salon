@@ -341,6 +341,10 @@ push.js (en la página)                    pushEnviados/<código>/<subId>/<clave
   link en el navegador) en la misma hoja de abajo que los avisos, que por eso vive en `base.css`.
   Los pasos del iPhone dicen lo mismo que los de la campana. Lo prueban `instalar.test.mjs` y
   `tools/e2e/install-prompt.mjs`.
+- **«Instala Juegos de Salón»** (D-571, in the lab behind the flag `install-invite`, same `instalar.js`): the bubble's
+  replacement, an iridescent invitation that appears after a first game, snoozes on ✕ (14 days, then 60),
+  invites again a moment after any game ends (once a week at most) and keeps «📲 Instalar la app» in the
+  home footer. Tested by the same `instalar.test.mjs` and `install-prompt.mjs`.
 
 ### 3. Suscribirse (`public/assets/js/push.js`, `public/cup/avisos.js`) — hecho en el PR 2
 

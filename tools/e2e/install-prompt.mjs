@@ -30,7 +30,7 @@ const as = ua => b.send('Emulation.setUserAgentOverride', { userAgent: ua });
 const home = async (ua, q = '') => {
   await as(ua);
   await b.go(`${SITE}/${q}`, 600);
-  await ev(`(()=>{localStorage.removeItem('juegos-de-salon:instalar:no');localStorage.removeItem('juegos-de-salon:lang');return 1})()`);
+  await ev(`(()=>{for(const k of ['no','luego','tras'])localStorage.removeItem('juegos-de-salon:instalar:'+k);localStorage.removeItem('juegos-de-salon:lang');localStorage.setItem('juegos-de-salon:flags-off',JSON.stringify(window.__nuevo?{}:{'install-invite':true}));localStorage.setItem('juegos-de-salon:jugados',window.__jugado===false?'[]':'["ahorcado"]');return 1})()`);
   await b.go(`${SITE}/${q}`, 3400);
 };
 
@@ -117,6 +117,62 @@ for (const lang of IDIOMAS) {
   const h = await ev(`(()=>{const p=document.querySelector('.hoja');return p?{scroll:document.documentElement.scrollWidth,width:innerWidth,height:p.scrollHeight,seen:p.clientHeight}:null})()`);
   ok(h && h.scroll <= h.width, `${lang}: the sheet fits at 320 px`);
   if (lang === 'pt') await b.shot('sheet-320-pt');
+}
+
+/* ---------- The new invitation (flag install-invite, D-571) ---------- */
+await b.send('Emulation.setDeviceMetricsOverride', { width: 390, height: 844, deviceScaleFactor: 2, mobile: true });
+const iphone26 = UA.iphone.replace(/OS 18_1/, 'OS 26_1').replace('Version/18.1', 'Version/26.1');
+const nuevo = async (ua, q = '', jugado = true) => {
+  await as(ua);
+  await b.go(`${SITE}/${q}`, 600);
+  await ev(`(()=>{for(const k of ['no','luego','tras'])localStorage.removeItem('juegos-de-salon:instalar:'+k);localStorage.removeItem('juegos-de-salon:lang');localStorage.removeItem('juegos-de-salon:flags-off');localStorage.setItem('juegos-de-salon:jugados',${jugado ? `'["ahorcado"]'` : `'[]'`});return 1})()`);
+  await b.go(`${SITE}/${q}`, 3600);
+};
+await nuevo(iphone26, '', false);
+ok(await bubble() === null, 'new: a phone that never finished a game is not invited on the home page');
+await nuevo(iphone26);
+ok(await ev(`document.getElementById('globo-instalar')?.classList.contains('globo-instalar--tornasol')`), 'new: after a game it shows, iridescent');
+ok((await text('#globo-instalar')).includes('Instala Juegos de Salón') && /Instalar/i.test(await text('#btn-globo-agregar')), 'new: «Instala Juegos de Salón» with «Instalar»');
+ok(await text('.sub-free') === COMMON.es.ins2.appFree, 'new: «sin descargas» beside the title');
+await b.shot('new-bubble');
+await click('#btn-globo-agregar'); await sleep(500);
+const pasos = await text('.hoja');
+ok(await ev(`document.querySelectorAll('.hoja .hoja-paso').length`) === 3 && /⋯/.test(pasos) && /Agregar a inicio/.test(pasos), "new: iOS 26's steps, from ⋯");
+ok(await ev(`!!document.querySelector('.hoja .glifo-agregar') && !!document.querySelector('.instalar-flecha--derecha')`), "new: Safari's blue Add drawn, and the arrow at the right of the toolbar");
+ok(await ev(`(()=>{const p=document.querySelector('.hoja');return p.scrollWidth<=p.clientWidth})()`), 'new: the steps fit the sheet');
+await b.shot('new-sheet');
+await click('.hoja-fondo'); await sleep(300);
+await click('#btn-globo-cerrar'); await sleep(400);
+const luego = JSON.parse(await ev(`localStorage.getItem('juegos-de-salon:instalar:luego')`) || 'null');
+ok(await bubble() === null && luego?.n === 1 && luego.until > Date.now() + 13 * 864e5, 'new: the ✕ snoozes it 14 days');
+ok(await ev(`localStorage.getItem('juegos-de-salon:instalar:no')`) === null, 'new: and does not turn it off for good');
+await b.go(`${SITE}/`, 3600);
+ok(await bubble() === null, 'new: not back while snoozed');
+ok(await ev(`!!document.getElementById('btn-instalar-pie')`), 'new: the footer keeps «📲 Instalar la app»');
+await click('#btn-instalar-pie'); await sleep(500);
+ok(await sheet() === 'hoja-agregar', 'new: the footer tile opens the steps');
+await click('.hoja-fondo'); await sleep(300);
+// After a game: the invitation from the top, once a week
+await ev(`localStorage.removeItem('juegos-de-salon:instalar:luego')`);
+await b.go(`${SITE}/hangman/`, 1500);
+await ev(`import('/assets/js/instalar.js').then(m=>m.invitarTrasPartida())`);
+await sleep(2600);
+ok(await ev(`document.getElementById('globo-instalar')?.classList.contains('globo-instalar--arriba')`), 'new: a moment after a game it invites from the top');
+ok(/Te gustó/.test(await text('#globo-instalar')), 'new: «¿Te gustó?»');
+await b.shot('new-after-game');
+await b.go(`${SITE}/hangman/`, 1500);
+ok(await ev(`import('/assets/js/instalar.js').then(m=>m.invitarTrasPartida())`) === false, 'new: not twice in a week');
+// Android: the same card, and Chrome's own steps
+await nuevo(UA.android);
+ok(await bubble() === 'android', 'new: Android with Chrome too');
+await b.send('Emulation.setDeviceMetricsOverride', { width: 320, height: 640, deviceScaleFactor: 2, mobile: true });
+for (const lang of IDIOMAS) {
+  await nuevo(iphone26, `?lang=${lang}`);
+  const m = await ev(`(()=>{const g=document.getElementById('globo-instalar');if(!g)return null;const r=g.getBoundingClientRect();return {left:r.left,right:r.right,width:innerWidth,scroll:document.documentElement.scrollWidth}})()`);
+  ok(m && m.left >= 0 && m.right <= m.width && m.scroll <= m.width && (await text('#globo-instalar')).includes(COMMON[lang].ins2.title), `new ${lang}: «${COMMON[lang].ins2.title}» fits at 320 px`);
+  await click('#btn-globo-agregar'); await sleep(400);
+  ok(await ev(`(()=>{const p=document.querySelector('.hoja');return !!p&&p.scrollWidth<=p.clientWidth&&document.documentElement.scrollWidth<=innerWidth})()`), `new ${lang}: the steps fit at 320 px`);
+  if (lang === 'en') await b.shot('new-sheet-320-en');
 }
 
 const errors = b.errors.filter(e => !/firebase|gstatic/i.test(e));

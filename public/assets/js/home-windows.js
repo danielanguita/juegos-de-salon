@@ -20,7 +20,7 @@ import { queue, seenIds, readProfile, playedIds, PLAYED_KEY, SEEN_KEY as SPLASH_
 import { flag } from './flags.js';
 import { dueCup, startRecap, MINE_KEY, SEEN_KEY as CUP_SEEN_KEY } from './recap.js';
 import { dueSeason, DAILY_KEY, SEASON_SEEN_KEY, localDate } from './daily-recap.js';
-import { INSTALAR_NO_KEY, pasosDe, globoInstalar } from './instalar.js';
+import { INSTALAR_NO_KEY, pasosDe, globoInstalar, pospuesto } from './instalar.js';
 import { param, tiene } from './parametros.js';
 
 /** The order, first wins. A new window the home page opens on its own goes in here. */
@@ -71,7 +71,9 @@ export function candidates(pending) {
  */
 export async function startHomeWindows({ lang = 'es', T, url, tap, search = globalThis.location?.search ?? '' } = {}) {
   const recap = () => startRecap({ lang, search }).catch(() => false);
-  const install = () => { try { return !!globoInstalar({ T, url, tap }); } catch (_) { return false; } };
+  // The new invitation (flag install-invite, lab: #seccion-install-invite): iridescent, its ✕ snoozes, and it waits for a first finished game
+  const installNew = await flag('install-invite').catch(() => false);
+  const install = () => { try { return !!globoInstalar({ T, url, tap, nuevo: installNew }); } catch (_) { return false; } };
   // ☕ The support card or its thank-you (`?support=`, support.js, D-449) is this visit's window
   if (param('support', search) !== null) return null;
   // A preview is the owner looking at one window: it opens that one and nothing else. `?splash=`
@@ -88,7 +90,8 @@ export async function startHomeWindows({ lang = 'es', T, url, tap, search = glob
   const get = k => { try { return globalThis.localStorage?.getItem(k) ?? null; } catch (_) { return null; } };
   // The campaigns on right now are the panel's, in Firebase (D-454); the scripts never ask
   const active = automated ? [] : await loadActive();
-  const pending = readPending({ get, active, installable: !!pasosDe(), automated, newsOnce });
+  const installable = !!pasosDe() && (!installNew || (playedIds(get(PLAYED_KEY)).length > 0 && !pospuesto()));
+  const pending = readPending({ get, active, installable, automated, newsOnce });
   for (const w of candidates(pending)) {
     if (w.kind === 'recap' && await recap()) return w;
     // After the home page has drawn its list, so the window lands on a page that is already there
