@@ -330,3 +330,37 @@
 .bj-felt .bj-table .cards-row { padding-left: calc(50% - 46px); }
 .bj-felt .bj-table .pcard--sm + .pcard--sm { margin-left: calc(-1 * var(--s-24)); }
 .bj-felt .bj-table .cards-row:has(.pcard--sm) { padding-left: calc(50% - 37px); }
+
+/* The play screen fits a phone without scrolling, «Cómo se juega» folded included (flag blackjack-felt):
+   a lower table, smaller cards on it, the bet's spot beside the cards instead of under them, a tighter betting box */
+.bj-felt .bj-table { gap: var(--s-4); padding: var(--s-8) var(--s-10) var(--s-14); border-radius: var(--r-22) var(--r-22) 40% 40% / var(--r-22) var(--r-22) 14% 14%; }
+.bj-felt .felt-arc svg { height: 40px; }
+.bj-felt .felt-arc { margin-top: calc(-1 * var(--s-8)); }
+.bj-felt .bj-table .pcard { width: 54px; }
+.bj-felt .bj-table .cards-row { min-height: 84px; padding-left: calc(50% - 38px); }
+.bj-felt .bj-table .pcard + .pcard { margin-left: calc(-1 * var(--s-32)); }
+.bj-felt .bj-table .pcard:not(.back) .s { font-size: var(--fs-140); }
+.bj-felt .bj-table .pcard:not(.back) .r { font-size: var(--fs-90); }
+.bj-felt .bj-table .bet-spot { position: absolute; left: var(--s-4); bottom: var(--s-14); width: 56px; height: 56px; margin: 0; }
+.bj-felt .bj-table .bet-spot svg { width: 38px; height: 38px; }
+.bj-felt .bj-table .bet-spot.empty svg, .bj-felt .bj-table .bet-spot.empty b { visibility: hidden; }
+.bj-felt .bj-seat { gap: var(--s-4); }
+.bj-felt .bet-stage .setup-hint { display: none; }
+.bj-felt .chip-stacks { min-height: 76px; }
+.bj-felt .chip-stack-svg { height: 70px; }
+/* On the felt the bet is the chip on its spot, with its amount: the betting box keeps only the chips to add and its buttons */
+.bj-felt #action-box .bet-stage { display: none; }
+.bj-felt .bj-table .bj-dealer { padding: var(--s-4) var(--s-8); }
+.bj-felt .bj-table .bj-seats, .bj-felt .bj-table .bj-seat, .bj-felt .bj-table .bj-hands, .bj-felt .bj-table .bj-hand { padding-block: 0; }
+.bj-felt .felt-arc svg { height: 34px; }
+.bj-felt #action-box { padding-block: var(--s-10); gap: var(--s-8); }
+.bj-felt #action-box > .lead { margin: 0; font-size: var(--fs-100); }
+.bj-felt .felt-arc { margin-block: calc(-1 * var(--s-12)) calc(-1 * var(--s-6)); }
+.bj-felt .casino-chip svg { width: 48px; height: 48px; }
+.bj-felt .actions-grid .btn { min-height: 48px; padding-block: var(--s-8); }
+.bj-felt .chips-row .bet-chip { min-height: 40px; padding-block: var(--s-6); }
+.bj-felt .actions-grid .btn { white-space: nowrap; font-size: var(--fs-110); }
+.bj-felt .casino-chips { gap: var(--s-14); }
+.bj-felt .casino-chip { padding: 0; }
+.bj-felt .casino-chip { width: 48px; height: 48px; }
+.bj-felt #screen-play.solo #action-box > .lead { display: none; }

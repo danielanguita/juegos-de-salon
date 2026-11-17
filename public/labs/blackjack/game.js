@@ -652,6 +652,16 @@ function renderSeats() {
       el('span', { class: 'bj-seat-coins' }, ...coins(statusBadge)),
     ));
 
+    // On the felt, a seat waiting for the deal keeps its place laid out (score slot, empty row, the bet's spot):
+    // the table has its playing size from the first bet on, and the next round does not shrink it
+    if (felt && p.hands.length === 0 && !isOut) {
+      const betting = state.phase === 'betting' && state.bettingIndex === pi;
+      seat.append(el('div', { class: 'bj-hands' }, el('div', { class: 'bj-hand' },
+        el('div', { class: 'bj-hand-meta' }, el('span', { class: 'score-pill slot', 'aria-hidden': 'true' }, '0')),
+        el('div', { class: 'cards-row' }),
+        el('div', { class: 'bet-spot' + (betting ? '' : ' empty') }, chipSpotSvg(), el('b', { class: 'pending-bet' }, String(betting ? pendingBet : 0))))));
+    }
+
     if (p.hands.length > 0) {
       const handsWrap = el('div', { class: 'bj-hands' });
       p.hands.forEach((h, hi) => {
@@ -719,6 +729,7 @@ function renderActionBox() {
       bumpDenom = n;
       renderActionBox();
     };
+    $$('#seats-box .pending-bet').forEach(b => { b.textContent = String(pendingBet); });
     box.replaceChildren(
       el('p', { class: 'lead center' }, fmt(T.bettingTurn, { name: p.name })),
       renderBetStage(p, minReq),
@@ -809,6 +820,8 @@ function renderPlay() {
   alertEl.hidden = !state.redCardOut;
   alertEl.textContent = T.redCardAlert;
 
+  // One player alone needs no «Turno de Ana» over the buttons (the felt hides it, to keep the screen in one view)
+  $('#screen-play').classList.toggle('solo', state.players.length === 1);
   renderDealer();
   renderSeats();
   renderActionBox();
