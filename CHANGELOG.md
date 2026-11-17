@@ -1,5 +1,87 @@
 # Changelog
 
+## 1.17.2 — 2026-11-16
+- 🔢 **Toque y Fama and La Copa's Número: exploring costs nothing, for everyone.** A guess the clues had already ruled out no longer takes off 15 points if it tries a digit no earlier guess had. The rules texts say it in every language, and its card moved to La Bodega.
+
+## 1.17.1 — 2026-11-16
+- 🧪 **Toque y Fama and La Copa's Número, in the lab: exploring costs nothing.** A guess the clues had already ruled out no longer takes off 15 points if it tries a digit no earlier guess had (5678 after 1234 gave two cows). Behind the `number-new-digit` flag, with its card in /labs/.
+
+## 1.17.0 — 2026-11-17
+- **Panel: 📱 Screens.** A new section under ☰ More › Owner shows which screen sizes play Juegos de Salón, to decide what to design and test for: visits by width band, each with real phones in it (≤ 340 px is the iPhone SE 1st gen, 375–399 px the iPhone 12–16, 412 px the Pixel…), the bands that hold 80% of visits, the ones under 1% that are not worth a design of their own, the width split over time, and height and width × height. Each visit now counts its screen band once, never its exact size; the privacy page says so in all three languages.
+
+## 1.16.10 — 2026-11-16
+- **Testers: every feature in the lab has an on/off switch in the «T» tab**, on that phone only, to try the page with and without it; launched features drop out of it (D-567).
+
+## 1.16.9 — 2026-11-16
+- **La Copa, in the lab: the tester tab (T) shows the comments balloon again** after closing it, to try it once more (D-566).
+
+## 1.16.8 — 2026-11-16
+- **La Copa, in the lab: the comments balloon looks like one**: a yellow-to-orange gradient, a tail pointing at the table and a soft pop when it appears (D-566).
+- **La Copa: the table no longer shows up twice** when the comments arrive while the board is being drawn (coming back to a cup, for example).
+
+## 1.16.7 — 2026-11-16
+- **La Copa, in the lab: the comments balloon now invites you to comment** («💬 ¡Ahora puedes comentar la ronda del día! …») (D-566).
+
+## 1.16.6 — 2026-11-16
+- **La Copa, in the lab: a balloon on the table says you can comment on today's results**, once per phone; ✕ or using a 💬 closes it for good (D-566).
+
+## 1.16.5 — 2026-11-16
+- **The panel's 📋 WBR no longer freezes the page**: its trend is kept until its data or week changes, and La Copa's plays are read in one pass over the cups instead of one per day.
+
+## 1.16.4 — 2026-11-16
+- **⚡ ¡Al toque! leaves the lab for good**: its /labs/ card, the `microgames` flag row, its gate in La Copa (`LANZA`) and the splash's `requires` go; the game is out for everyone (D-498).
+
+## 1.16.3 — 2026-11-16
+- **Uno al día's ranking catches up every hour again**: its hourly rebuild runs inside the notifications' heartbeat on GitHub, which really runs (the separate hourly schedule ran about 4 times a day) (D-565).
+- **The panel shows whether the heartbeat beats**: the longest gap between rounds and how many there were, and an issue opens on its own when it falls behind (D-565).
+
+## 1.16.2 — 2026-11-16
+- **La Copa, in the lab: a notification when someone comments on your row** («💬 Bea comentó tu resultado»): who, never what, several together, never at night, with its own «Comentarios» switch in ⚙️ Avisos (D-564).
+- **Every notification arrives within about 5 minutes**: GitHub checks every 5 minutes with a relay of long runs, instead of a 15-minute schedule that really ran every few hours (D-564).
+
+## 1.16.1 — 2026-11-16
+- **🐤 Aletazo in La Copa, for everyone:** at equal points the day goes to whoever went through the middle of a hoop 🎯 more often; with the same centers too, the place and its points are shared. The `flap-tiebreak` flag is gone and its card is in La Bodega.
+
+## 1.16.0 — 2026-11-16
+- **⚡ ¡Al toque! joins La Copa and Uno al día**: its page /in-a-flash/ becomes La Copa's screen (`public/cup/games/microgames/`, D-456's way, as Aletazo and Sudoku): a cup can draw it (pozo 18) and Uno al día deals it from 2026-11-16. Everyone on the same day plays the same ten microgames, each dealt the same; the cup counts the points, Uno al día and the Gran Final the run's 0–100 (`d100`, also read by final/ui.js and `puntajeDia`).
+
+## 1.15.13 — 2026-11-16
+- **La Copa, in the lab: Edit and Delete on their own line** under your comment in the table, seen only by you (D-562).
+- **La Copa, in the lab: comments as an extra line at the bottom of the row**, so the place, the arrow and the points stay aligned with the name and the day blocks (D-562).
+
+## 1.15.12 — 2026-11-16
+- **🐤 Aletazo in La Copa, in the lab (`flap-tiebreak`):** at equal points the day goes to whoever went through the middle 🎯 more often, not to a millisecond less of flying time; with the same centers too, the place and its points are shared. A cup result may now carry its own tiebreak `d` (Firebase rules: a number 0–1000).
+
+## 1.15.11 — 2026-11-16
+- **La Copa, in the lab: a 💬 before the name of who wrote each comment** in the table (D-562).
+
+## 1.15.10 — 2026-11-16
+- **La Copa, in the lab: edit your comment** (D-562). Next to your comment in the table, «Editar» opens the field with it already written, to change it.
+
+## 1.15.9 — 2026-11-16
+- **La Copa, in the lab: comments straight in the table** (D-562). Today's comments on a player stack on their row, in the order they came, with nothing to open; the 💬 opens just a text field (emojis go in the text). The reaction buttons and the day label are gone.
+
+## 1.15.8 — 2026-11-16
+- **🏓 ¡Rebota! in neon.** A neon court, paddle, ball and glowing aliens, and a shorter court, higher on the screen, so the ball comes back more often. Hit all three and they come back to dance in party hats.
+
+## 1.15.7 — 2026-11-16
+- **La Copa, in the lab: reactions and comments only for today, and the first comment in the table** (D-562). Tapping a 💬 no longer jumps the page to the top; only today's result can be reacted to and commented on; and the first comment a player gets today shows on their row of the table, for everyone.
+
+## 1.15.6 — 2026-11-16
+- **Uno al día: every phone shows the same month table.** Each player's points of the day count for everyone at once, not only on their own phone, and the ranking under the result already includes today's points and streak bonus (D-563).
+
+## 1.15.5 — 2026-11-16
+- **La Copa, in the lab: reactions and comments move into the table** (D-562). Each player's row has a 💬 under their points, with how many reactions and comments they got; tapping it opens their results right under the row, to react and comment there.
+
+## 1.15.4 — 2026-11-16
+- **La Copa, in the lab: reactions and comments on each other's results** (D-562, from a player's suggestion, [#1488](https://github.com/ellokojavi/juegos-de-salon/issues/1488)). Under the cup's table, each day you played shows everyone's result; on each one, your own too, you can leave one reaction (🔥 😂 👏 😮 😢 👑) and a short comment. Whoever gets a comment can hide it, the author can delete it, and everything is deleted when the cup ends. Behind the flag `cup-talk`, card in `/labs/`.
+
+## 1.15.3 — 2026-11-16
+- **Panel on Pacific time** (D-561): every view in the owner's panel (Summary, Group, Individual, One a Day, Users, Traffic, Health, Campaigns, the logs and "today") now cuts days, weeks and months at Pacific midnight instead of UTC. Counters with no time keep their UTC day. Nothing changes for players.
+
+## 1.15.2 — 2026-11-16
+- **WBR and the weekly email on Pacific time.** Days, weeks and months are now Pacific dates, not UTC ones (D-561): a game played on a Saturday evening counts on that Saturday and in that week. Games are regrouped by the moment they were played (from Oct 4, when that moment started being recorded), cups by their results, and from today the site also records active browsers and visits by Pacific day, so those are exact from now on (earlier weeks keep UTC days, as the WBR and the PDF say). Finished games before Oct 18 now include the offline games that recorded their ending.
+
 ## 1.15.1 — 2026-11-15
 - **Panel: Timeline back on the phone's bar.** The bar reads Summary, WBR, Timeline, Feedback and ☰ More. Health moves under More (it was left out of More's groups, as Timeline was, so neither could be reached on a phone), and its alert dot shows on ☰ More while Health is in there. The panel now reports any section that is neither on the bar nor under More.
 
