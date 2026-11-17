@@ -365,19 +365,31 @@
 .bj-felt .casino-chip { width: 48px; height: 48px; }
 .bj-felt #screen-play.solo #action-box > .lead { display: none; }
 
+/* Losing to the house (flag blackjack-felt): the room turns red from its edges, the 💸 sinks instead of popping,
+   the title goes red and the standings lose their colour; no confetti (game.js) */
+html.bj-defeat body::before {
+  content: ''; position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background: radial-gradient(ellipse at 50% 40%, transparent 35%, rgb(var(--red-rgb) / 0.5) 100%), rgb(var(--red-rgb) / 0.14);
+  animation: bjDefeatRoom 0.9s ease-out both;
+}
+html.bj-defeat #app { position: relative; z-index: 1; }
+#screen-result.defeat .trophy { animation: bjDefeatSink 1.1s cubic-bezier(0.4, 0, 0.2, 1) both; filter: grayscale(0.5); }
+#screen-result.defeat #result-title { color: var(--red); text-shadow: 0 0 18px rgb(var(--red-rgb) / 0.45); }
+#screen-result.defeat .standings { filter: saturate(0.35); }
+@keyframes bjDefeatRoom { from { opacity: 0; } }
+@keyframes bjDefeatSink { 0% { opacity: 0; transform: translateY(-24px) scale(1.15); } 60% { opacity: 1; transform: translateY(8px) rotate(-6deg); } 100% { transform: translateY(4px) rotate(-4deg); } }
+@media (prefers-reduced-motion: reduce) { html.bj-defeat body::before, #screen-result.defeat .trophy { animation: none; } }
+
 /* The felt fills the phone's height (flag blackjack-felt): game.js gives the play screen what is left of the view, the
    table takes all of it the bar, the buttons and «Cómo se juega» do not; the dealer's half and the player's half
-   share it evenly, with the arc between them, and the cards grow with the view's height (54 to 78 px wide) */
-.bj-felt .bj-table { --bj-card: clamp(54px, 9svh, 78px); flex: 1 0 auto; grid-template-rows: 1fr auto 1fr; align-items: center; }
+   share it evenly, with the arc between them, and the cards grow with the view's height (46 to 78 px wide) */
+.bj-felt .bj-table { --bj-card: clamp(46px, 7svh, 78px); flex: 1 0 auto; grid-template-rows: 1fr auto 1fr; align-items: center; }
 .bj-felt .bj-table .pcard { width: var(--bj-card); }
 .bj-felt .bj-table .cards-row { min-height: calc(var(--bj-card) * 1.5); padding-left: calc(50% - var(--bj-card) * 0.7); }
 .bj-felt .bj-table .pcard + .pcard { margin-left: calc(var(--bj-card) * -0.6); }
 .bj-felt .bj-table .pcard:not(.back) .s { font-size: calc(var(--bj-card) * 0.42); }
 .bj-felt .bj-table .pcard:not(.back) .r { font-size: calc(var(--bj-card) * 0.28); }
-.bj-felt .felt-arc svg { height: clamp(34px, 7svh, 64px); }
+.bj-felt .felt-arc svg { height: clamp(30px, 4.6svh, 60px); }
 .bj-felt .bj-table .bet-spot { bottom: auto; top: calc(50% - 28px); }
 /* The same table in every phase: the box under it keeps the betting box's height, so the felt never resizes */
-.bj-felt .bj-table { --bj-card: clamp(48px, 7.4svh, 78px); }
 .bj-felt #screen-play.solo #action-box { min-height: 174px; justify-content: center; }
-.bj-felt .felt-arc svg { height: clamp(30px, 4.6svh, 60px); }
-.bj-felt .bj-table { --bj-card: clamp(46px, 7svh, 78px); }
