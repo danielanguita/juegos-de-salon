@@ -1730,9 +1730,11 @@ function panelReglas(id, { copa = true, prueba = false, variante = null } = {}) 
   // puzzles and was hard to keep in mind (player feedback, 2026-11-12). lab: #seccion-mistakes-rule
   if (J.errores) {
     const juego = S.juego;
-    flag('mistakes-rule').then(on => {
+    // Tango scored by time says mistakes cost nothing, outside La Copa only (lab: #seccion-tango-time)
+    const porTiempo = !copa && J.erroresTiempo ? flag('tango-time').catch(() => false) : Promise.resolve(false);
+    Promise.all([flag('mistakes-rule'), porTiempo]).then(([on, tiempo]) => {
       if (!on || S.juego !== juego || document.getElementById('regla-errores')) return;
-      $('#jugar-head').after(el('p', { class: 'muted regla-errores', id: 'regla-errores' }, J.errores));
+      $('#jugar-head').after(el('p', { class: 'muted regla-errores', id: 'regla-errores' }, tiempo ? J.erroresTiempo : J.errores));
     });
   }
   poner(caja, el('details', { class: 'panel reglas', id: 'reglas' },
@@ -1747,6 +1749,15 @@ function panelReglas(id, { copa = true, prueba = false, variante = null } = {}) 
     id === 'trio' ? [el('p', { class: 'lead' }, T.trioGames), listaRondas()] : null,
     el('p', { class: 'lead' }, T.scoring),
     el('p', { class: 'muted' }, puntajeTexto(J, copa))));
+  // Tango scored by time, outside La Copa only so no running cup changes its rule (lab: #seccion-tango-time)
+  if (!copa && J.puntajeTiempo) {
+    const juego = S.juego;
+    flag('tango-time').then(on => {
+      if (!on || S.juego !== juego) return;
+      const reglas = document.querySelector('#reglas > p.muted:last-child');
+      if (reglas) reglas.textContent = J.puntajeTiempo;
+    }, () => {});
+  }
 }
 
 /**
@@ -2256,6 +2267,8 @@ async function jugarSinPuntaje(id, p, alTerminar, { ensayo = false, guardado = n
   mod.montar(body, {
     p, jugadas: guardado?.jugadas, T, fmt, el, SFX, vibrate, lang: LANG, pantallaCompleta,
     textoFin: ensayo ? T.trialEnd : undefined,
+    // Played on its own, not in a cup: a game may try a rule change here first (Tango, lab: #seccion-tango-time)
+    suelto: true,
     // One a Day: a game whose end screen only repeats the result skips it (lab: #seccion-uad-skip-end)
     directo: HOY && !ensayo && saltarFin,
     // No cuenta para nada; solo un juego `diario` lo guarda en el celular, para seguir al recargar
