@@ -6,10 +6,10 @@
 <meta name="theme-color" content="#150726">
 <title>⚖️ Tembleque 3D</title>
   <!-- A lab game (D-395): behind the lab's door (D-281) and not indexed. The game below is the owner's
-       prototype as delivered, kept whole: see docs/games/wobbles-3d.md -->
-  <script src="../../assets/js/labs-puerta.js"></script>
+       prototype as delivered, kept whole: the hard level of docs/games/wobbles.md -->
+  <script src="../../../assets/js/labs-puerta.js"></script>
   <meta name="robots" content="noindex, nofollow">
-  <link rel="manifest" href="../../manifest.webmanifest">
+  <link rel="manifest" href="../../../manifest.webmanifest">
   <script>
     // The chosen language's manifest, before the browser reads it (D-222)
     (function () {
@@ -20,18 +20,18 @@
       } catch (_) { /* the Spanish one stays */ }
     })();
   </script>
-  <link rel="icon" href="../../assets/icon.svg" type="image/svg+xml">
-  <script src="../../assets/js/vigia.js"></script>
+  <link rel="icon" href="../../../assets/icon.svg" type="image/svg+xml">
+  <script src="../../../assets/js/vigia.js"></script>
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Juegos de Salón">
-  <link rel="apple-touch-icon" href="../../assets/icons/apple-touch-icon.png">
-<link rel="preload" href="../../assets/fonts/nunito-latin.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="preload" href="../../assets/fonts/bangers-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="apple-touch-icon" href="../../../assets/icons/apple-touch-icon.png">
+<link rel="preload" href="../../../assets/fonts/nunito-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="../../../assets/fonts/bangers-latin.woff2" as="font" type="font/woff2" crossorigin>
 <style>
   /* The site's fonts and palette (assets/css/base.css), copied here so the prototype stands alone */
-  @font-face { font-family: 'Bangers'; font-weight: 400; font-display: swap; src: url('../../assets/fonts/bangers-latin.woff2') format('woff2'); }
-  @font-face { font-family: 'Nunito'; font-weight: 400 900; font-display: swap; src: url('../../assets/fonts/nunito-latin.woff2') format('woff2'); }
+  @font-face { font-family: 'Bangers'; font-weight: 400; font-display: swap; src: url('../../../assets/fonts/bangers-latin.woff2') format('woff2'); }
+  @font-face { font-family: 'Nunito'; font-weight: 400 900; font-display: swap; src: url('../../../assets/fonts/nunito-latin.woff2') format('woff2'); }
   :root {
     --bg1: #150726; --bg2: #2a0a4a; --bg3: #0b1e3f;
     --pink: #ff2e88; --yellow: #ffd23f; --cyan: #2ee6d6; --lime: #9dff3a; --purple: #8a4dff;
@@ -130,8 +130,7 @@
   @media (pointer: coarse) { #card { -webkit-backdrop-filter: none; backdrop-filter: none; background: rgba(21, 7, 38, 0.84); } }
 </style>
 </head>
-  <script type="module">import '../../assets/js/instalable.js';</script>
-  <script type="module">import './game.js';</script>
+  <script type="module">import '../../../assets/js/instalable.js';</script>
 <body>
 <header>
   <a href="../" aria-label="Volver a los prototipos">‹</a>
