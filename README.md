@@ -617,6 +617,7 @@ node public/hangman/fuzz.test.mjs
 node public/hangman/replay.test.mjs
 node public/home-preload.test.mjs
 node public/labs/bodega.test.mjs
+node public/labs/canons.test.mjs
 node public/labs/code/engine-palabra.test.mjs
 node public/labs/index-nav.test.mjs
 node public/labs/launched.test.mjs
@@ -924,7 +925,6 @@ These documents are being moved to English (D-316); the ones with a Spanish titl
 - [🚉 Transbordo (Transfer, lab, in Juegos en prueba)](docs/games/transfer.md)
 - [🧶 Untangle (Desenredo)](docs/games/untangle.md)
 - [📍 Where Is It? (¿Dónde queda?)](docs/games/where.md)
-- [⚖️ The Wobbles 3D (Tembleque 3D; lab, in Juegos en prueba)](docs/games/wobbles-3d.md)
 - [⚖️ The Wobbles (Tembleque; lab, in Juegos en prueba)](docs/games/wobbles.md)
 - [🔤 Bulls and Cows: Word (Toque y Fama: Palabra)](docs/games/word.md)
 - [📅 What Year? (¿En qué año?)](docs/games/year.md)

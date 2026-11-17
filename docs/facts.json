@@ -1184,7 +1184,6 @@
     "public/assets/js/manifests/labs/fourth-king.js",
     "public/assets/js/manifests/labs/julep.js",
     "public/assets/js/manifests/labs/transfer.js",
-    "public/assets/js/manifests/labs/wobbles-3d.js",
     "public/assets/js/manifests/labs/wobbles.js",
     "public/assets/js/manifests/liars-dice.js",
     "public/assets/js/manifests/timeline.js",
@@ -1415,8 +1414,8 @@
     "public/labs/transfer/engine.js",
     "public/labs/transfer/game.js",
     "public/labs/transfer/rules.js",
-    "public/labs/wobbles-3d/game.js",
     "public/labs/wobbles/game.js",
+    "public/labs/wobbles/rules.js",
     "public/liars-dice/engine.js",
     "public/liars-dice/game.js",
     "public/liars-dice/rules.js",
@@ -1567,6 +1566,7 @@
     "public/labs/artifacts/engine.test.mjs",
     "public/labs/blackjack/engine.test.mjs",
     "public/labs/bodega.test.mjs",
+    "public/labs/canons.test.mjs",
     "public/labs/chameleon/engine.test.mjs",
     "public/labs/code/engine-palabra.test.mjs",
     "public/labs/code/engine.test.mjs",
@@ -1738,6 +1738,7 @@
     "daily.mjs",
     "design/page.mjs",
     "dominorama/lab.mjs",
+    "double-tap.mjs",
     "exploding-numbers/lab.mjs",
     "favorites.mjs",
     "feedback-prod.mjs",
@@ -1838,7 +1839,6 @@
     "transfer/game.mjs",
     "versioning.mjs",
     "visual.mjs",
-    "wobbles-3d/game.mjs",
     "wobbles/game.mjs"
   ],
   "documents": [
@@ -2085,10 +2085,6 @@
     {
       "path": "docs/games/where.md",
       "title": "📍 Where Is It? (¿Dónde queda?)"
-    },
-    {
-      "path": "docs/games/wobbles-3d.md",
-      "title": "⚖️ The Wobbles 3D (Tembleque 3D; lab, in Juegos en prueba)"
     },
     {
       "path": "docs/games/wobbles.md",
