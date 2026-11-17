@@ -51,6 +51,7 @@ export function createCuenta({ prueba = false } = {}) {
     pistaCharla: {
       leer: () => !!leer(`${p}pista-charla`),
       guardar: () => escribir(`${p}pista-charla`, true),
+      borrar: () => borrar(`${p}pista-charla`),
     },
     /** Las copas en que este celular participa, para ofrecerlas en la portada. */
     mias() {

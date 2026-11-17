@@ -49,6 +49,7 @@ import { enlaceBuzon, ponerBuzon, sinDoble } from '../assets/js/buzon.js';
 import { cuentaRegresiva as cuentaComun } from '../assets/js/cuenta-regresiva.js';
 import { PANTALLAS, redibujarCon } from './screens.js';
 import { coverWithDialogs, gameTopBar } from '../assets/js/cover-dialogs.js';
+import { setTesterContext } from '../assets/js/tester-ribbon.js';
 import { MAX_COMMENT, cleanComment, commentProblem, canTalk, talkDay, rowTalk } from './talk.js';
 
 // The four new One a Day share grids wait in the lab (D-508). lab: #seccion-uad-share-grids
@@ -232,6 +233,8 @@ function mostrar(id) {
   if (!PANTALLAS.includes(id)) console.error(`La Copa: unknown screen "${id}"`);
   S.pantalla = id;
   S.antesala = false;
+  // The tester tab's control for the board (the balloon, D-566) only while the board shows
+  if (id !== 'tablero' && S.ctxTester) { S.ctxTester = null; setTesterContext(null); }
   rotuloMenu();
   // Cada juego a pantalla completa (¿Dónde queda?) la pide de nuevo al montarse
   pantallaCompleta(false);
@@ -860,7 +863,7 @@ function vistaTabla(filas, { dias, meta, now }) {
   // Once, the first time a 💬 shows: a balloon that says comments exist (D-566, lab)
   const pista = conCharla && pistaCharla && !cuenta.pistaCharla.leer()
     ? el('div', { class: 'charla-pista', role: 'note' }, el('span', {}, T.talkHint),
-      el('button', { type: 'button', class: 'charla-pista-x', 'aria-label': T.talkHintClose, onClick: () => { SFX.tap(); cerrarPista(); } }, '✕'))
+      el('button', { type: 'button', class: 'charla-pista-x', 'aria-label': T.talkHintClose, onClick: () => { SFX.tap(); cerrarPista(); tableroEnSuSitio(); } }, '✕'))
     : null;
   return el('div', { class: 'tabla' + (conCharla ? ' con-charla' : '') }, pista, ...filas.flatMap(f => [el('div', { class: 'fila' + (f.pid === S.yo ? ' yo' : '') + (f.fuera ? ' fuera' : ''), 'data-pid': f.pid },
     // Out of the cup (D-347): a door instead of a place, and faded (D-376)
@@ -1266,6 +1269,15 @@ function dibujarTablero() {
 
   clearInterval(S.tic);
   S.tic = setInterval(() => { if (S.pantalla === 'tablero' && !document.hidden) tablero(); }, 60000);
+
+  // The tester tab (T): show the comments balloon again after closing it (the owner, D-566); set
+  // only when it changes, since setting it folds the tab and the board redraws every minute
+  const ctx = pistaCharla && charla ? (cuenta.pistaCharla.leer() ? 'cerrado' : 'visible') : null;
+  if (ctx !== S.ctxTester) {
+    S.ctxTester = ctx;
+    setTesterContext(ctx ? el('div', { class: 'tr-sim' }, el('small', {}, T.talkHintTester),
+      el('button', { type: 'button', class: 'btn btn--yellow', disabled: ctx === 'visible', onClick: () => { cuenta.pistaCharla.borrar(); tableroEnSuSitio(); } }, T.talkHintAgain)) : null);
+  }
 }
 
 /* ------------------------------------------------------------------ */
