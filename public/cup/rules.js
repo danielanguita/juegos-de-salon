@@ -1077,7 +1077,7 @@ const EN = {
       ],
       puntaje: 'You start with 100. Each mistake, leaving a square that breaks a rule, takes off 10, and each hint 15, even if you undo. The minimum is 10; giving up is 0.',
       errores: '❌ Each mistake takes off 10, even if you undo it.',
-      puntajeTiempo: 'Speed scores: up to 45 seconds is 100 points and then it goes down steadily to 10 at 5 minutes. Mistakes cost nothing; each hint adds 15 seconds to your time. Giving up is 0.',
+      puntajeTiempo: 'Speed scores: up to 45 seconds is 100 points and then it goes down steadily to 10 at 5 minutes. Mistakes cost nothing; each hint adds 15 seconds to your time. Giving up scores 0 points.',
       erroresTiempo: '✅ Mistakes cost nothing: only the time counts, and each hint adds 15 seconds.',
       desempate: 'On a tie, the faster player wins.',
     },
