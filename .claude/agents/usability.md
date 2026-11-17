@@ -121,7 +121,7 @@ before and after screenshots at 390 and 320 px and the intended differences list
    lint's (U-2, U-4 to U-6, U-17): you start from its output, you don't hunt for them.
 4. **Share messages** exactly as they come out (the script prints them: invitation, reminder,
    partial table, card, final summary) against U-30 to U-32.
-5. **Interactions:** timers, disabled buttons, confirmations, back and forth between screens.
+5. **Interactions:** timers, disabled buttons, confirmations, back and forth between screens. A button that waits on an animation (a fade, a deal) takes one tap only, and the game's e2e script double-taps it (C-14, D-576): if it does not, say so.
 6. **Marketing material** (U-34, U-40): it must look like the app (its colors, Bangers and Nunito, never a look-alike font, D-380). `node tools/agents/marketing.mjs check` compares each asset in
    `marketing/log.json` with the home page and today's version, and lists the commits that touched
    the games it shows. Read the asset's memory (its README) and, if needed, look at its
