@@ -120,6 +120,8 @@ function save() {
 
 function showScreen(id) {
   $$('.screen').forEach(s => s.classList.toggle('active', s.id === id));
+  // The red room of a defeat covers the whole view, and only on its result
+  document.documentElement.classList.toggle('bj-defeat', id === 'screen-result' && $('#screen-result').classList.contains('defeat'));
   window.scrollTo({ top: 0, behavior: 'instant' });
 }
 
@@ -1158,6 +1160,12 @@ function renderResult() {
   const title = resultHeading();
   $('#result-title').textContent = title;
   $('#result-reason').textContent = endReasonText();
+  // On the felt, the house's win is not celebrated: a player who ends with fewer coins than they sat down with
+  // (alone, or this phone's player online) gets a red room and a sinking 💸 instead of confetti; even, neither
+  const me = mode === 'online' ? state.players[myPlayerIndex()] : (state.players.length === 1 ? state.players[0] : null);
+  const outcome = !felt || !me ? 'won' : me.coins < state.startingCoins ? 'lost' : me.coins === state.startingCoins ? 'even' : 'won';
+  $('#screen-result').classList.toggle('defeat', outcome === 'lost');
+  $('#screen-result .trophy').textContent = outcome === 'lost' ? '💸' : outcome === 'even' ? '🤝' : '🏆';
 
   const sorted = [...state.players].sort((a, b) =>
     (b.coins - a.coins) || ((b.handsWon || 0) - (a.handsWon || 0)) || ((b.blackjacks || 0) - (a.blackjacks || 0)));
@@ -1204,7 +1212,8 @@ function renderResult() {
     }),
   );
   $('#result-exits').replaceChildren(salidasFin('lab', { lang, raiz: '../../' }));
-  confetti();
+  if (outcome === 'won') confetti();
+  else if (outcome === 'lost') { SFX.hang(); vibrate([90, 40, 140]); }
   showScreen('screen-result');
 }
 
