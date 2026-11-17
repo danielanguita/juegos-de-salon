@@ -55,6 +55,10 @@ const firstHand = async () => {
   return b.evaluate("document.documentElement.classList.contains('bj-felt') && !!document.querySelector('#seats-box .bet-spot') && !!document.querySelector('#shoe-chip .shoe-bar')");
 };
 await b.evaluate('localStorage.clear(); 1');
+await b.go(SITE + '/labs/blackjack/'); await sleep(600);
+await b.evaluate("document.querySelector('.mode[data-mode=\"cpu\"]').click(); 1"); await sleep(300);
+await b.evaluate("const i = document.querySelector('#setup-form input'); i.value = 'Ana'; i.dispatchEvent(new Event('input', { bubbles: true })); document.getElementById('btn-start').click(); 1"); await sleep(400);
+ok(await b.evaluate("(document.querySelector('#seats-box .bet-hint')?.textContent || '').includes('↓')"), 'on the empty felt, the first step is printed where the cards will land');
 ok(await firstHand(), 'the felt table: the bet is a chip on its spot and the shoe a bar');
 ok(await b.evaluate("!!document.querySelector('.bj-seat-coins .seg-chip') && !document.querySelector('#screen-play').textContent.includes('🪙')"), 'on the felt, every coin is the table chip, no 🪙');
 await b.shot('felt');

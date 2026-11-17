@@ -665,7 +665,10 @@ function renderSeats() {
       const betting = state.phase === 'betting' && state.bettingIndex === pi;
       seat.append(el('div', { class: 'bj-hands' }, el('div', { class: 'bj-hand' },
         el('div', { class: 'bj-hand-meta' }, el('span', { class: 'score-pill slot', 'aria-hidden': 'true' }, '0')),
-        el('div', { class: 'cards-row' }),
+        // The first step, printed on the felt where the cards will land, in the first round only (U-18): one stitched line pointing at the chips below; the button is the next step on its own
+        el('div', { class: 'cards-row' }, betting && state.round === 1 && (mode !== 'online' || myPlayerIndex() === pi)
+          ? el('p', { class: 'bet-hint' }, T.betHint, el('i', { 'aria-hidden': 'true' }, '↓'))
+          : ''),
         el('div', { class: 'bet-spot' + (betting ? '' : ' empty') }, chipSpotSvg(), el('b', { class: 'pending-bet' }, String(betting ? pendingBet : 0))))));
     }
 
