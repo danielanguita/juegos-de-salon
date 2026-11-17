@@ -34,7 +34,7 @@ ok(await b.active() === 'screen-result', 'it reaches the result');
 ok(await b.evaluate("!!document.querySelector('#fin-salidas a[href$=\"labs/\"]')"), 'the result goes back to the lab (C-19)');
 await b.shot('result');
 
-// Signed in, the setup carries the account's name (D-212): nobody types it again
+// Signed in, on the felt trial (on by default on localhost), the setup carries the account's name (D-212)
 await b.go(SITE + '/labs/blackjack/'); await b.evaluate("localStorage.clear(); localStorage.setItem('juegos-de-salon:jugador', JSON.stringify({ jid: 'abcd1234', n: 'Luz' })); 1");
 await b.go(SITE + '/labs/blackjack/'); await b.evaluate("document.querySelector('.mode[data-mode=\"cpu\"]').click(); 1"); await sleep(300);
 ok(await b.evaluate("document.querySelector('#setup-form input').value") === 'Luz', 'signed in, the setup has the account name');
@@ -51,9 +51,11 @@ const firstHand = async () => {
 };
 await b.evaluate('localStorage.clear(); 1');
 ok(await firstHand(), 'the felt table: the bet is a chip on its spot and the shoe a bar');
+ok(await b.evaluate("!!document.querySelector('.bj-seat-coins .seg-chip') && !document.querySelector('#screen-play').textContent.includes('🪙')"), 'on the felt, every coin is the table chip, no 🪙');
 await b.shot('felt');
 await b.evaluate("localStorage.clear(); localStorage.setItem('juegos-de-salon:flags-off', JSON.stringify({ 'blackjack-felt': true })); 1");
 ok(!(await firstHand()) && !(await b.evaluate("!!document.querySelector('.bet-spot')")), 'switched off in the tester tab, the table is as before');
+ok(await b.evaluate("!document.querySelector('#screen-play .seg-chip') && document.querySelector('.bj-seat-coins').textContent.includes('🪙')"), 'switched off, the coins keep the 🪙 text');
 ok(!b.errors.length, 'no console errors' + (b.errors.length ? ': ' + b.errors[0].slice(0, 160) : ''));
 b.close();
 process.exit(failures ? 1 : 0);

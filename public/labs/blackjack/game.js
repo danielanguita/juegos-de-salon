@@ -170,9 +170,10 @@ function renderModes() {
       el('span', {}, el('b', {}, T.modeOnline), el('small', {}, T.modeOnlineHint)),
       el('span', { class: 'go' }, '›')),
   );
-  for (const sel of ['#how', '#how-play']) {
-    $(sel)?.replaceChildren(...L.como.map(step => el('li', {}, step)));
-  }
+  fillHow();
+}
+function fillHow() {
+  for (const sel of ['#how', '#how-play']) $(sel)?.replaceChildren(...L.como.map(step => el('li', {}, ...coins(step))));
 }
 
 /* ---------------- Setup (shared options) ---------------- */
@@ -193,7 +194,7 @@ function renderSetupOptions() {
   $('#setup-options').replaceChildren(
     renderSegmented(T.decksLabel, DECK_OPTIONS, setupConfig.decks, v => String(v), v => { setupConfig.decks = v; }),
     renderSegmented(T.roundsLabel, ROUND_OPTIONS, setupConfig.maxRounds, v => (v === 0 ? T.unlimitedRounds : String(v)), v => { setupConfig.maxRounds = v; }),
-    renderSegmented(T.coinsLabel, COIN_OPTIONS, setupConfig.startingCoins, v => [el('span', { class: 'seg-chip' }, chipSpotSvg(5)), String(v)], v => { setupConfig.startingCoins = v; }),
+    renderSegmented(T.coinsLabel, COIN_OPTIONS, setupConfig.startingCoins, v => coins('🪙 ' + v), v => { setupConfig.startingCoins = v; }),
   );
 }
 
@@ -207,7 +208,7 @@ function openSetupCpu() {
     el('div', { class: 'player-row' },
       el('span', { class: 'num' }, '1'),
       el('input', {
-        type: 'text', value: leerYo()?.n || remembered[0] || '', maxlength: 14, autocomplete: 'off',
+        type: 'text', value: (felt && leerYo()?.n) || remembered[0] || '', maxlength: 14, autocomplete: 'off',
         placeholder: fmt(T.playerPlaceholder, { n: 1 }),
       })),
   );
@@ -245,8 +246,8 @@ function renderSetupOnline(inviteCode = '') {
   $('.setup-hint').textContent = invited ? T.invitedHint : T.onlineHint;
 
   const remembered = nameStore.list() || [];
-  // The signed-in player plays under their account's name, not typed again (D-212)
-  let myName = leerYo()?.n || remembered[0] || '';
+  // On the felt trial, the signed-in player plays under their account's name, not typed again (D-212)
+  let myName = (felt && leerYo()?.n) || remembered[0] || '';
   const err = $('#form-error');
   clearRoomError(err);
 
@@ -565,9 +566,9 @@ function renderBetStage(player, minReq) {
     });
 
   return el('div', { class: 'bet-stage' },
-    el('div', { class: 'bet-amount' + (bump ? ' bump' : '') }, fmt(T.betNow, { n: pendingBet })),
+    el('div', { class: 'bet-amount' + (bump ? ' bump' : '') }, ...coins(fmt(T.betNow, { n: pendingBet }))),
     el('div', { class: 'chip-stacks' }, ...towers),
-    el('p', { class: 'setup-hint' }, fmt(T.coinsNow, { n: player.coins })),
+    el('p', { class: 'setup-hint' }, ...coins(fmt(T.coinsNow, { n: player.coins }))),
   );
 }
 
@@ -635,7 +636,7 @@ function renderSeats() {
     const statusBadge = p.left ? T.outLeft : (p.bustedOut && p.hands.length === 0 ? T.outBroke : fmt(T.coinsNow, { n: p.coins }));
     seat.append(el('div', { class: 'bj-seat-top' },
       el('span', { class: 'bj-seat-name' }, p.name),
-      el('span', { class: 'bj-seat-coins' }, statusBadge),
+      el('span', { class: 'bj-seat-coins' }, ...coins(statusBadge)),
     ));
 
     if (p.hands.length > 0) {
@@ -653,7 +654,7 @@ function renderSeats() {
           ? el('span', { class: 'outcome-tag ' + h.outcome }, outcomeText(h))
           : (val ? el('span', { class: 'score-pill' + (val.isBust ? ' bust' : (val.isBlackjack ? ' bj' : '')) }, String(val.total)) : '');
 
-        handEl.append(el('div', { class: 'bj-hand-meta' }, el('span', { class: 'bet-text' }, metaLeft), metaRight));
+        handEl.append(el('div', { class: 'bj-hand-meta' }, el('span', { class: 'bet-text' }, ...coins(metaLeft)), metaRight));
         if (shownCards.length > 0) {
           handEl.append(el('div', { class: 'cards-row' },
             ...shownCards.map((c, ci) => cardEl(c, {
@@ -800,6 +801,12 @@ function renderPlay() {
 }
 
 /* ---------------- The felt table (lab: #seccion-blackjack-felt) ---------------- */
+/** A text with 🪙: on the felt (flag blackjack-felt) each 🪙 becomes the table's yellow chip, which iPhone drew as a grey moon. */
+function coins(text) {
+  if (!felt || !String(text).includes('🪙')) return [text];
+  return String(text).split('🪙').flatMap((part, i) => i ? [el('span', { class: 'seg-chip' }, chipSpotSvg(5)), part.replace(/^ /, '')] : [part]).filter(x => x !== '');
+}
+
 function chipSpotSvg(value = 10) {
   const c = CHIP_PALETTE[value];
   return parseSvg(`<svg viewBox="0 0 56 56" aria-hidden="true">
@@ -1124,7 +1131,7 @@ function renderResult() {
     const label = `${i + 1}. ${p.name} · ✋ ${p.handsWon || 0}`;
     return el('li', { class: isTop ? 'top' : '' },
       el('span', {}, label),
-      el('b', {}, `🪙 ${p.coins}`));
+      el('b', {}, ...coins(`🪙 ${p.coins}`)));
   }));
 
   const shareCtx = mode === 'cpu' ? T.shareContextSolo : T.shareContextOnline;
@@ -1178,7 +1185,7 @@ function init() {
   flag('blackjack-felt').then(on => {
     felt = on;
     document.documentElement.classList.toggle('bj-felt', on);
-    if (on) startCoverDemo();
+    if (on) { startCoverDemo(); fillHow(); }
     if (state && $('#screen-play').classList.contains('active')) renderPlay();
   }).catch(() => {});
   $('#rk-slot')?.append(bloqueJugador({ alTocar: () => SFX.tap() }));
