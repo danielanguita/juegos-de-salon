@@ -49,3 +49,34 @@ assert.equal(descartado(roto), false);
 assert.doesNotThrow(() => descartar(true, roto));
 
 console.log('instalar: los pasos de cada celular y la ✕ para siempre');
+
+// The new invitation (flag install-invite): the ✕ snoozes 14 days, then 60; the after-game one, once a week
+{
+  const { pospuesto, posponer, puedeInvitarTras, iosNuevo, TRAS_KEY } = await import('./instalar.js');
+  const DIA = 864e5, t0 = Date.UTC(2026, 10, 17);
+  const m = almacen();
+  assert.equal(pospuesto(t0, m), false);
+  assert.equal(posponer(t0, m), 14, 'the first ✕ waits 14 days');
+  assert.equal(pospuesto(t0 + 13 * DIA, m), true);
+  assert.equal(pospuesto(t0 + 15 * DIA, m), false, 'and it comes back');
+  assert.equal(posponer(t0 + 15 * DIA, m), 60, 'the second ✕ waits 60');
+  assert.equal(posponer(t0 + 80 * DIA, m), 60, 'and every one after it');
+  assert.equal(pospuesto(t0, roto), false);
+  assert.doesNotThrow(() => posponer(t0, roto));
+
+  const n = almacen();
+  assert.equal(puedeInvitarTras({ now: t0, storage: n, pasos: null }), false, 'a computer is not invited');
+  assert.equal(puedeInvitarTras({ now: t0, storage: n, pasos: 'ios-safari' }), true);
+  n.setItem(TRAS_KEY, String(t0 - 3 * DIA));
+  assert.equal(puedeInvitarTras({ now: t0, storage: n, pasos: 'ios-safari' }), false, 'not twice in a week');
+  n.setItem(TRAS_KEY, String(t0 - 8 * DIA));
+  assert.equal(puedeInvitarTras({ now: t0, storage: n, pasos: 'ios-safari' }), true);
+  posponer(t0, n);
+  assert.equal(puedeInvitarTras({ now: t0, storage: n, pasos: 'ios-safari' }), false, 'not while snoozed');
+  descartar(true, n);
+  assert.equal(puedeInvitarTras({ now: t0 + 400 * DIA, storage: n, pasos: 'ios-safari' }), false, 'never once installed');
+
+  assert.equal(iosNuevo(UA.iphone), false, 'iOS 18: Share in the middle of the bar');
+  assert.equal(iosNuevo(UA.iphone.replace('18_1', '26_1')), true, 'iOS 26: inside ⋯ at the right');
+  console.log('install-invite: snooze 14 → 60 days, after-game once a week');
+}
