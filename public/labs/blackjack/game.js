@@ -20,6 +20,7 @@ import { flag } from '../../assets/js/flags.js';
 import { onScreen } from '../../assets/js/on-screen.js';
 import { coverWithDialogs } from '../../assets/js/cover-dialogs.js';
 import { bloqueJugador } from '../../assets/js/ranking.js';
+import { leerYo } from '../../assets/js/jugador.js';
 import { salidasFin } from '../../assets/js/fin.js';
 import { botonCompartir, botonInvitar, cabecera } from '../../assets/js/compartir.js';
 import {
@@ -206,7 +207,7 @@ function openSetupCpu() {
     el('div', { class: 'player-row' },
       el('span', { class: 'num' }, '1'),
       el('input', {
-        type: 'text', value: remembered[0] || '', maxlength: 14, autocomplete: 'off',
+        type: 'text', value: leerYo()?.n || remembered[0] || '', maxlength: 14, autocomplete: 'off',
         placeholder: fmt(T.playerPlaceholder, { n: 1 }),
       })),
   );
@@ -244,7 +245,8 @@ function renderSetupOnline(inviteCode = '') {
   $('.setup-hint').textContent = invited ? T.invitedHint : T.onlineHint;
 
   const remembered = nameStore.list() || [];
-  let myName = remembered[0] || '';
+  // The signed-in player plays under their account's name, not typed again (D-212)
+  let myName = leerYo()?.n || remembered[0] || '';
   const err = $('#form-error');
   clearRoomError(err);
 
@@ -862,7 +864,14 @@ function startCoverDemo() {
       const s = DEMO_STEPS[++shown];
       if (s.win) { box.classList.add('win'); continue; }
       const card = s.card ? cardEl(s.card, { dealing: true }) : cardEl(null, { hidden: true, dealing: true });
-      (s.who === 'p' ? player : dealer).append(card);
+      // The row is centred, so a new card shifts the ones already dealt: they glide there (FLIP), not jump
+      const row = s.who === 'p' ? player : dealer;
+      const before = [...row.children].map(c => [c, c.getBoundingClientRect().left]);
+      row.append(card);
+      for (const [c, x] of before) {
+        const dx = x - c.getBoundingClientRect().left;
+        if (dx && !matchMedia('(prefers-reduced-motion: reduce)').matches) c.animate?.([{ translate: dx + 'px 0' }, { translate: '0 0' }], { duration: 380, easing: 'cubic-bezier(0.22, 1, 0.36, 1)' });
+      }
       if (s.who === 'p') {
         const cards = DEMO_STEPS.slice(0, shown + 1).filter(x => x.who === 'p').map(x => x.card);
         score.hidden = false;
