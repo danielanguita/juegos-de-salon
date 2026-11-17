@@ -71,10 +71,12 @@ LAB=r'''  <!-- A lab game (D-395): behind the lab's door (D-281) and not indexed
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Juegos de Salón">
   <link rel="apple-touch-icon" href="../../assets/icons/apple-touch-icon.png">
-  <script type="module">import '../../assets/js/instalable.js';</script>
-  <script type="module">import './game.js';</script>
 '''
 out=out.replace('<link rel="preload"',LAB+'<link rel="preload"',1)
+MODS='''  <script type="module">import '../../assets/js/instalable.js';</script>
+  <script type="module">import './game.js';</script>
+'''
+out=out.replace('</head>\n','</head>\n'+MODS,1)
 open(N+'../../../public/labs/wobbles-3d/index.html','w').write(out)
 simpart=out[out.index('/* Physics: bodies made of'):out.index('/* The texts, in the site')]
 print(len(out),'bytes; Math calls in the simulation:',sorted(set(re.findall(r'Math\.\w+',simpart))))
