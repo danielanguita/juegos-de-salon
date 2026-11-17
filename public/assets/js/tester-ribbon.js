@@ -4,15 +4,16 @@
  * what the key gives: (i) the tester sheet, a link to Labs, and the control the current screen
  * registers with `setTesterContext` (Babel's «Simular final»), and while the flag `offline` is on, a
  * switch that forces offline mode on this phone (connection.js), so testing it needs no airplane mode. It replaces the home page's «tester»
- * chip and Babel's 🧪 tab on the left edge. On every screen (tester-boot.js), hidden while playing. Texts in the three languages (C-3). lab: #seccion-tester-ribbon
+ * chip and Babel's 🧪 tab on the left edge. (ii) A switch for every lab flag this page asked (D-567), to try
+ * the page with and without it, on this phone only; a launched flag has none. On every screen (tester-boot.js), hidden while playing. Texts in the three languages (C-3). lab: #seccion-tester-ribbon
  */
 import { el } from './ui.js';
 import { openTesterSheet } from './tester-badge.js';
 
 const T = {
-  es: { tab: 'Tester', info: 'Qué es ser tester', labs: 'Ir a Labs', offline: '📴 Modo sin conexión', offlineHint: 'Solo en este celular' },
-  en: { tab: 'Tester', info: 'What being a tester means', labs: 'Go to Labs', offline: '📴 Offline mode', offlineHint: 'On this phone only' },
-  pt: { tab: 'Tester', info: 'O que é ser tester', labs: 'Ir para o Labs', offline: '📴 Modo sem conexão', offlineHint: 'Só neste celular' },
+  es: { tab: 'Tester', info: 'Qué es ser tester', labs: 'Ir a Labs', offline: '📴 Modo sin conexión', offlineHint: 'Solo en este celular', flags: 'En prueba aquí', flagsHint: 'Solo en este celular; la página se recarga' },
+  en: { tab: 'Tester', info: 'What being a tester means', labs: 'Go to Labs', offline: '📴 Offline mode', offlineHint: 'On this phone only', flags: 'In the lab here', flagsHint: 'On this phone only; the page reloads' },
+  pt: { tab: 'Tester', info: 'O que é ser tester', labs: 'Ir para o Labs', offline: '📴 Modo sem conexão', offlineHint: 'Só neste celular', flags: 'Em teste aqui', flagsHint: 'Só neste celular; a página recarrega' },
 };
 export const RIBBON_TEXTS = T;
 
@@ -47,6 +48,11 @@ html[data-en-juego] .tr:not(.con-ctx), body.jugando .tr:not(.con-ctx) { display:
 .tr-off { border-top: 1px solid var(--glass-border); padding-top: 10px; }
 .tr-off .toggle-row { padding: var(--s-8) var(--s-10); }
 .tr-off[hidden] { display: none; }
+.tr-flags { border-top: 1px solid var(--glass-border); padding-top: 10px; display: flex; flex-direction: column; gap: 6px; max-height: 50vh; overflow-y: auto; }
+.tr-flags[hidden] { display: none; }
+.tr-flags > small { color: var(--muted); font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; font-size: 0.68rem; }
+.tr-flags .toggle-row { padding: var(--s-6) var(--s-8); }
+.tr-flags .txt small { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 .tr-ctx { border-top: 1px solid var(--glass-border); padding-top: 10px; display: flex; flex-direction: column; gap: 8px; }
 .tr-sim { display: flex; flex-direction: column; gap: 8px; }
 .tr-ctx small { color: var(--muted); font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; font-size: 0.68rem; }
@@ -92,6 +98,7 @@ export function testerRibbon({ lang = 'es', labsUrl = new URL('../../labs/', imp
       el('button', { type: 'button', class: 'tr-info', id: 'tr-info', 'aria-label': t.info, onClick: () => openTesterSheet(lang, labsUrl) }, 'i')),
     el('a', { class: 'tr-labs', id: 'tr-labs', href: labsUrl }, t.labs, el('span', { 'aria-hidden': 'true' }, '›')),
     el('div', { class: 'tr-off', id: 'tr-off', hidden: true }),
+    el('div', { class: 'tr-flags', id: 'tr-flags', hidden: true }),
     el('div', { class: 'tr-ctx', id: 'tr-ctx' }));
   ribbon = el('div', { class: 'tr', id: 'tester-ribbon' }, el('div', { class: 'tr-tab-wrap' }, tab, el('span', { class: 'tr-punto', 'aria-hidden': 'true' })), panel);
   const toggle = open => { ribbon.classList.toggle('abierto', open); tab.setAttribute('aria-expanded', String(open)); };
@@ -102,6 +109,7 @@ export function testerRibbon({ lang = 'es', labsUrl = new URL('../../labs/', imp
   document.body.append(ribbon);
   drawContext(); place();
   offlineSwitch(panel.querySelector('.tr-off'));
+  labSwitches(panel.querySelector('.tr-flags'));
   addEventListener('resize', placeSoon);
   addEventListener('scroll', placeSoon, { passive: true });
   document.fonts?.ready.then(place);
@@ -128,6 +136,31 @@ export async function offlineSwitch(box, {
   box.hidden = false;
   draw();
   return sw;
+}
+
+/**
+ * A switch per lab flag this page asked (D-567): off turns the feature off on this phone, and the
+ * page reloads to draw without it. Flags asked later (a screen that opens) are added as they come.
+ */
+export async function labSwitches(box, { flags = () => import('./flags.js'), list = () => import('./flag-list.js') } = {}) {
+  if (!box) return;
+  const [{ labHere, labOffList, setLabOff }, { FLAGS }] = await Promise.all([flags(), list()]);
+  const shown = new Set();
+  const add = id => {
+    if (shown.has(id)) return;
+    shown.add(id);
+    const off = !!labOffList()[id];
+    const sw = el('button', { type: 'button', class: 'switch' + (off ? '' : ' on'), role: 'switch', 'aria-checked': String(!off), 'aria-label': id, 'data-flag': id,
+      onClick: () => { setLabOff(id, !labOffList()[id]); location.reload(); } });
+    if (!box.childElementCount) box.append(el('small', {}, t.flags));
+    box.append(el('div', { class: 'toggle-row' }, el('div', { class: 'txt' }, el('b', {}, id), el('small', { title: FLAGS[id] || '' }, FLAGS[id] || t.flagsHint)), sw));
+    box.hidden = false;
+  };
+  // Turned off here, a flag is still asked (and listed), so it can be turned back on. Not the tab's own
+  // flag: off, the tab would go with it
+  const keep = id => id !== 'tester-ribbon' && id !== 'lab-ready' && add(id);
+  for (const id of labHere) keep(id);
+  addEventListener('lab-flag', e => keep(e.detail));
 }
 
 /** The current screen's control (a node), or null when it has none. Folds the ribbon when it changes. */
