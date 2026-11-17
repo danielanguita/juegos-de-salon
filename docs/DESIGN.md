@@ -224,9 +224,12 @@ its copy wins the cascade meanwhile, so nothing changes for it. Ahorcado was the
    - **M-4 Nothing covers the next block** (D-570): in a column, a picture, a demo, a panel, a title or
      a text never starts more than 4 px above the bottom of the block before it. A drawing on its title,
      a title on its text, a panel on the panel above: all fail. Side by side (a fan of cards, a row of
-     chips) is not a column, and what floats on purpose (absolute, fixed, sticky: a stamp, a badge) is
-     outside the flow. The shared title's −9 px under a game's emoji is within the 4: the emoji brings
-     its own air; a drawing or a box in its place does not, and gets its own margin.
+     chips) is not a column; what floats on purpose (absolute, fixed, sticky: a stamp, a badge) and
+     inline text are outside the flow; two siblings set in the same grid cell (a card's pips and
+     corners) are layers. A title rising under a hero's emoji or glyph (`.icon`, a crown, `*-icon`) is
+     the shared design, the emoji bringing its own air; a demo, a picture or a box in its place does not,
+     and gets its own margin. An overlap made on purpose elsewhere carries `data-margins-ok` with its
+     reason (Babel's end rising over its tower on the tour).
    - With them: blocks 12 px apart (rule 6) and the board's 24 px of air before its buttons (U-11, D-309).
    A deliberate exception is marked `data-margins-ok` on the element, with its reason in a comment
    beside it. A new kind of card joins `CARDS` in `margins-common.mjs` in the PR that creates it.

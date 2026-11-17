@@ -214,7 +214,9 @@ export function montar(raiz, ctx) {
     // The emoji outside the rainbow: a gradient clipped to text paints an emoji as a colored square
     el('span', { class: 'sk-titulo-pausa' }, el('span', { 'aria-hidden': 'true' }, '⏸️'), el('span', { class: 'display rainbow' }, T.skPaused)), el('span', {}, T.skResume));
   const escenario = el('div', { class: 'sk-escenario', id: 'sk-escenario', role: 'button', tabindex: 0, 'aria-label': T.skTap }, lienzo, marcador, aviso, cartel);
-  const fin = el('div', { class: 'sk-fin', id: 'sk-fin' });
+  // data-margins-ok: on the tour (.gira) the end rises 110 px over the tower on purpose, under a gradient, so the
+  // tower is still seen behind it (DESIGN.md rule 7, M-4)
+  const fin = el('div', { class: 'sk-fin', id: 'sk-fin', 'data-margins-ok': '' });
   const juego = el('div', { class: 'sk-juego' }, escenario, fin);
   raiz.append(juego);
   const sc = escena(lienzo);
