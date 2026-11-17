@@ -1737,6 +1737,7 @@
     "daily.mjs",
     "design/page.mjs",
     "dominorama/lab.mjs",
+    "double-tap.mjs",
     "exploding-numbers/lab.mjs",
     "favorites.mjs",
     "feedback-prod.mjs",
