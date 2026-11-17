@@ -18,7 +18,7 @@ import { SFX, soundToggle, initSound } from '../assets/js/sound.js';
 import { trackStart, versionOf, releaseOf, countryOf, trackVisit, trackFinish } from '../assets/js/transport/stats.js';
 import { gameIcon, withIcon, textWithIcon } from '../assets/js/game-icon.js';
 import { gameById, MODO_UNO_AL_DIA, slugDe, idDeSlug, esNuevo } from '../assets/js/games.js';
-import { flag } from '../assets/js/flags.js';
+import { flag, labHere } from '../assets/js/flags.js';
 import { factsLine } from '../assets/js/how-to-play-facts.js';
 import { shareGrid } from '../assets/js/share-grid.js';
 import { backGuard } from '../assets/js/back-guard.js';
@@ -1272,7 +1272,8 @@ function dibujarTablero() {
 
   // The tester tab (T): show the comments balloon again after closing it (the owner, D-566); set
   // only when it changes, since setting it folds the tab and the board redraws every minute
-  const ctx = pistaCharla && charla ? (cuenta.pistaCharla.leer() ? 'cerrado' : 'visible') : null;
+  // Only while it is in the lab: what was launched needs no tester control (D-567)
+  const ctx = pistaCharla && charla && labHere.has('cup-talk-hint') ? (cuenta.pistaCharla.leer() ? 'cerrado' : 'visible') : null;
   if (ctx !== S.ctxTester) {
     S.ctxTester = ctx;
     setTesterContext(ctx ? el('div', { class: 'tr-sim' }, el('small', {}, T.talkHintTester),

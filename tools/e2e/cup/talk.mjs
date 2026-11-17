@@ -51,6 +51,12 @@ for (const lang of ['es', 'en', 'pt']) {
     ok(await ev(`!!${again} && !${again}.disabled`), 'es: the tester tab offers to show it again');
     await ev(`${again}.click()`);
     ok(await waitFor(`!!document.querySelector('.charla-pista')`), 'es: and it comes back');
+    // Every lab flag the page asked has its switch in the tester tab (D-567), on
+    ok(await waitFor(`document.querySelector('.tr-flags [data-flag="cup-talk-hint"]')?.getAttribute('aria-checked')==='true'`), 'es: the tester tab has a switch for each lab flag of the page');
+    await ev(`document.querySelector('.tr-flags [data-flag="cup-talk-hint"]').click()`); await sleep(2500);
+    ok(await waitFor(`document.querySelector('.tr-flags [data-flag="cup-talk-hint"]')?.getAttribute('aria-checked')==='false'`) && !await ev(`!!document.querySelector('.charla-pista')`), 'es: switched off, the page reloads without the balloon, its switch still there');
+    await ev(`document.querySelector('.tr-flags [data-flag="cup-talk-hint"]').click()`); await sleep(2500);
+    ok(await waitFor(`!!document.querySelector('.charla-pista')`), 'es: switched on again, it is back');
     await ev(`document.querySelector('.charla-pista-x').click()`);
   } else ok(!await ev(`!!document.querySelector('.charla-pista')`), `${lang}: once closed, it never comes back`);
   ok(!!OTHER && await ev(`!!${row(ME)}.querySelector('.fila-charla')`), `${lang}: a 💬 under the points, your own row too`);

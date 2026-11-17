@@ -1,6 +1,6 @@
 // The lab's runtime flags (D-498), as a page reads them.
 import assert from 'node:assert/strict';
-import { flag, flagOn, stateOf, cachedFlags, loadFlags } from './flags.js';
+import { flag, flagOn, stateOf, cachedFlags, loadFlags, labOffList, setLabOff } from './flags.js';
 
 assert.equal(stateOf({}, 'bn-salva'), 'lab', 'nothing saved: the lab, as before flags');
 assert.equal(stateOf({ 'bn-salva': { state: 'all' } }, 'bn-salva'), 'all');
@@ -23,3 +23,14 @@ assert.deepEqual(await loadFlags({ store: s, fetchFn: async () => ({ ok: true, j
 assert.deepEqual(cachedFlags(s), val, 'kept on the device');
 assert.deepEqual(cachedFlags({ getItem: () => 'nope' }), {}, 'a broken copy is nothing');
 console.log('✓ flags');
+
+// The tester tab's switch (D-567): a lab flag turned off on this phone only; a launched one is not affected
+const mem = () => { const m = new Map(); return { getItem: k => m.get(k) ?? null, setItem: (k, v) => m.set(k, v) }; };
+const st = mem();
+setLabOff('bn-salva', true, st);
+assert.deepEqual(labOffList(st), { 'bn-salva': true });
+assert.equal(await flag('bn-salva', { load: async () => ({}), lab: lab(true), store: st }), false, 'turned off in the tab: off for this tester');
+assert.equal(await flag('bn-salva', { load: async () => ({ 'bn-salva': { state: 'all' } }), lab: lab(true), store: st }), true, 'launched: the switch no longer counts');
+setLabOff('bn-salva', false, st);
+assert.equal(await flag('bn-salva', { load: async () => ({}), lab: lab(true), store: st }), true, 'and back on');
+console.log('✓ the tester tab switches lab flags');
