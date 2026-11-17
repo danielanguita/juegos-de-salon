@@ -15,11 +15,11 @@ export const COIN_OPTIONS = [100, 250, 500, 1000];
 
 const ES = {
   ui: {
-    docTitle: 'Blackjack ♠️ · Juegos de Salón', gameChip: 'Blackjack', menu: '‹ Laboratorio',
+    docTitle: 'Blackjack ♠️ · Juegos de Salón', gameChip: '♠️ Blackjack', menu: '‹ Laboratorio',
     title: 'Blackjack', lead: 'Mesa estilo Las Vegas contra la casa: juega solo o con hasta 6 amigos.',
     howTitle: 'Cómo se juega',
-    modeSolo: 'Solo contra la casa', modeSoloHint: '1 jugador vs. el crupier',
-    modeOnline: 'Cada uno en su celular', modeOnlineHint: 'Sala para 2 a 6 jugadores',
+    modeSolo: '🤖 Contra la casa', modeSoloHint: 'Tú solo contra el crupier.',
+    modeOnline: '📡 Varios celulares', modeOnlineHint: 'De 2 a 6 jugadores, cada uno en su celular.',
     whoPlays: 'Arma tu mesa', setupHint: 'Fija mazos, rondas y fichas iniciales (sin dinero real).',
     setupOnline: 'Mesa en varios celulares', onlineHint: 'Crea una sala o únete con el código de 4 letras.',
     invitedTitle: 'Te invitaron a la mesa', invitedHint: 'Escribe tu nombre para sentarte a jugar.',
@@ -64,11 +64,11 @@ const ES = {
 
 const EN = {
   ui: {
-    docTitle: 'Blackjack ♠️ · Parlor Games', gameChip: 'Blackjack', menu: '‹ Lab',
+    docTitle: 'Blackjack ♠️ · Parlor Games', gameChip: '♠️ Blackjack', menu: '‹ Lab',
     title: 'Blackjack', lead: 'Vegas-style table against the house: play solo or with up to 6 friends.',
     howTitle: 'How to play',
-    modeSolo: 'Solo vs. the house', modeSoloHint: '1 player vs. croupier',
-    modeOnline: 'Each on their phone', modeOnlineHint: 'Room for 2 to 6 players',
+    modeSolo: '🤖 Versus the house', modeSoloHint: 'Just you against the dealer.',
+    modeOnline: '📡 Several phones', modeOnlineHint: '2 to 6 players, each on their own phone.',
     whoPlays: 'Set up your table', setupHint: 'Pick decks, rounds, and starting chips (simulation only).',
     setupOnline: 'Multi-phone table', onlineHint: 'Create a room or join with the 4-letter code.',
     invitedTitle: 'You\'re invited to the table', invitedHint: 'Enter your name to take a seat.',
@@ -113,11 +113,11 @@ const EN = {
 
 const PT = {
   ui: {
-    docTitle: 'Blackjack ♠️ · Jogos de Salão', gameChip: 'Blackjack', menu: '‹ Laboratório',
+    docTitle: 'Blackjack ♠️ · Jogos de Salão', gameChip: '♠️ Blackjack', menu: '‹ Laboratório',
     title: 'Blackjack', lead: 'Mesa estilo Las Vegas contra a casa: jogue sozinho ou com até 6 amigos.',
     howTitle: 'Como se joga',
-    modeSolo: 'Sozinho contra a casa', modeSoloHint: '1 jogador vs. crupiê',
-    modeOnline: 'Cada um no seu celular', modeOnlineHint: 'Sala para 2 a 6 jogadores',
+    modeSolo: '🤖 Contra a casa', modeSoloHint: 'Só você contra o crupiê.',
+    modeOnline: '📡 Vários celulares', modeOnlineHint: 'De 2 a 6 jogadores, cada um no seu celular.',
     whoPlays: 'Monte sua mesa', setupHint: 'Escolha baralhos, rodadas e fichas iniciais (sem dinheiro real).',
     setupOnline: 'Mesa em vários celulares', onlineHint: 'Crie uma sala ou entre com o código de 4 letras.',
     invitedTitle: 'Convidaram você para a mesa', invitedHint: 'Digite seu nome para sentar e jogar.',
@@ -132,7 +132,7 @@ const PT = {
     start: 'Dar cartas!', formError: 'Faltam nomes',
     roundBadge: 'Rodada {r}/{max}', roundOpen: 'Rodada {r}',
     shoeInfo: 'Sapato: {n}/{total} cartas', redCardAlert: '🟥 Saiu a carta vermelha! Última mão.',
-    feltPays: 'BLACKJACK PAGA 3 PARA 2', feltStands: 'O CRUPIÊ PARA NO 17',
+    feltPays: 'BLACKJACK PAGA 3 PARA 2', feltStands: 'O CRUPIÊ PARA EM 17',
     dealerLabel: 'Crupiê (Casa)', dealerHidden: '?',
     bettingTurn: 'Aposta de {name}', waitBet: 'Esperando a aposta de {name}…',
     coinsNow: '🪙 {n}', betNow: 'Aposta: 🪙 {n}',

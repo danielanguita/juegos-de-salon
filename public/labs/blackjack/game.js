@@ -17,6 +17,9 @@ import { roomMessage, roomPhase } from '../../assets/js/room-state.js';
 import { renderQr } from '../../assets/js/qr.js';
 import { param } from '../../assets/js/parametros.js';
 import { flag } from '../../assets/js/flags.js';
+import { onScreen } from '../../assets/js/on-screen.js';
+import { coverWithDialogs } from '../../assets/js/cover-dialogs.js';
+import { bloqueJugador } from '../../assets/js/ranking.js';
 import { salidasFin } from '../../assets/js/fin.js';
 import { botonCompartir, botonInvitar, cabecera } from '../../assets/js/compartir.js';
 import {
@@ -827,6 +830,52 @@ function renderFeltBits(shoeLeft) {
   b.textContent = T.feltStands;
 }
 
+/* ---------------- The cover's demo (lab: #seccion-blackjack-felt) ---------------- */
+// A hand dealt on the cover, over and over: the player's two cards and the dealer's, then a Blackjack.
+// Steps on a clock of DEMO_MS; drawn through onScreen, so it sleeps while scrolled away (C-1, #883)
+const DEMO_MS = 5200;
+const DEMO_STEPS = [
+  { at: 300, who: 'p', card: { rank: 'A', suit: '♠' } },
+  { at: 750, who: 'd', card: { rank: '7', suit: '♥' } },
+  { at: 1200, who: 'p', card: { rank: 'K', suit: '♦' } },
+  { at: 1650, who: 'd', card: null },
+  { at: 2200, win: true },
+];
+function startCoverDemo() {
+  const box = $('#bj-demo');
+  if (!box || box.dataset.on) return;
+  box.dataset.on = '1';
+  box.hidden = false;
+  $('.intro-hero .bj-logo')?.setAttribute('hidden', '');
+  const dealer = el('div', { class: 'cards-row' });
+  const player = el('div', { class: 'cards-row' });
+  const score = el('span', { class: 'score-pill' }, '');
+  const banner = el('div', { class: 'bj-demo-win' }, T.outBlackjack.replace(/\s*\+\{n\}/, ''));
+  box.replaceChildren(dealer, el('div', { class: 'bj-demo-player' }, player, score), banner);
+  let shown = -1, t0 = null;
+  const reset = () => { dealer.replaceChildren(); player.replaceChildren(); score.textContent = ''; score.hidden = true; box.classList.remove('win'); shown = -1; };
+  const frame = now => {
+    t0 ??= now;
+    const t = (now - t0) % DEMO_MS;
+    if (t < 200 && shown >= 0) reset();
+    while (shown + 1 < DEMO_STEPS.length && DEMO_STEPS[shown + 1].at <= t) {
+      const s = DEMO_STEPS[++shown];
+      if (s.win) { box.classList.add('win'); continue; }
+      const card = s.card ? cardEl(s.card, { dealing: true }) : cardEl(null, { hidden: true, dealing: true });
+      (s.who === 'p' ? player : dealer).append(card);
+      if (s.who === 'p') {
+        const cards = DEMO_STEPS.slice(0, shown + 1).filter(x => x.who === 'p').map(x => x.card);
+        score.hidden = false;
+        score.textContent = String(E.handValue(cards).total);
+      }
+    }
+    next();
+  };
+  const next = onScreen(box, frame);
+  reset();
+  next();
+}
+
 /* ---------------- Actions & Casino Deal Sequences ---------------- */
 function applyAction(prev, act, extra = {}) {
   if (act === 'bet') return E.placeBet(prev, extra.amount);
@@ -1113,8 +1162,11 @@ function init() {
   flag('blackjack-felt').then(on => {
     felt = on;
     document.documentElement.classList.toggle('bj-felt', on);
+    if (on) startCoverDemo();
     if (state && $('#screen-play').classList.contains('active')) renderPlay();
   }).catch(() => {});
+  $('#rk-slot')?.append(bloqueJugador({ alTocar: () => SFX.tap() }));
+  coverWithDialogs($('#screen-intro'), { lang, alTocar: () => SFX.tap() });
 
   const roomCode = (param('room') || '').toUpperCase();
   if (/^[A-Z]{4}$/.test(roomCode)) {

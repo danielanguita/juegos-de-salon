@@ -41,6 +41,7 @@
   <link rel="preload" href="../../assets/fonts/nunito-latin.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="../../assets/fonts/bangers-latin.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="../../assets/css/base.css">
+  <link rel="stylesheet" href="../../assets/css/ranking.css">
   <link rel="stylesheet" href="style.css">
   <link rel="apple-touch-icon" href="../../assets/icons/apple-touch-icon.png">
   <meta name="apple-mobile-web-app-title" content="Juegos de Salón">
@@ -50,13 +51,15 @@
   <main class="app" id="app">
     <div class="topbar">
       <a class="back" href="../" id="btn-menu" data-i18n="menu">‹ Laboratorio</a>
-      <div class="tools"><span class="chip"><img class="bj-icon" src="icon.svg" alt=""><span data-i18n="gameChip">Blackjack</span></span><span id="sound-slot"></span></div>
+      <div class="tools"><span class="chip" data-i18n="gameChip">♠️ Blackjack</span><span id="sound-slot"></span></div>
     </div>
 
     <!-- ============ INTRO ============ -->
     <section class="screen stack active" id="screen-intro">
       <div class="intro-hero">
         <img class="icon bj-logo" src="icon.svg" alt="Blackjack" width="96" height="96">
+        <!-- The cover's demo, a hand dealt to a Blackjack (flag blackjack-felt, lab: #seccion-blackjack-felt): drawn by game.js in place of the icon -->
+        <div class="bj-demo" id="bj-demo" aria-hidden="true" hidden></div>
         <h1 class="display display--xl rainbow" data-i18n="title">Blackjack</h1>
         <p class="lead" data-i18n="lead"></p>
         <div id="lang-slot"></div>
@@ -69,6 +72,8 @@
           <summary><span><img class="bj-icon" src="icon.svg" alt=""> <span data-i18n="howTitle"></span></span></summary>
           <ol class="how" id="how"></ol>
         </details>
+        <!-- The player's account (D-212): no ranking table while in the lab, only signing in, the cover's «👤 Entrar» (C-8) -->
+        <div class="stack" id="rk-slot"></div>
       </div>
     </section>
 

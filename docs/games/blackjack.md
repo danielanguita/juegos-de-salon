@@ -49,7 +49,8 @@ Solo mode runs locally on one phone and persists full state after every move via
 - **The felt table** (flag `blackjack-felt`, card `#seccion-blackjack-felt` in `/labs/`): `html.bj-felt` turns the
   dealer and the seats into one felt table (`.bj-table`, with the table's two lines in `#felt-arc`), the cards bigger
   and fanned with a corner index (`.c`), the bet a chip on its spot (`.bet-spot`), the shoe a bar with the red card
-  marked, and each hand's result a stamp (`.stamp`). Off, the page is as before. A lab game is behind the lab's door
+  marked, and each hand's result a stamp (`.stamp`). On the cover, the same flag draws a hand dealt to a Blackjack over and over (`#bj-demo`, through `onScreen`)
+  in place of the icon. Off, the page is as before. A lab game is behind the lab's door
   already, so this is the first flag asked inside one: `public/labs/listed.test.mjs` now reads `labs/<game>/` for flags.
 
 ## Excepciones a los cánones
