@@ -499,6 +499,7 @@ node public/cup/games/sudoku/engine.test.mjs
 node public/generala/engine.test.mjs
 node public/hangman/engine.test.mjs
 node public/labs/artifacts/engine.test.mjs
+node public/labs/blackjack/engine.test.mjs
 node public/labs/chameleon/engine.test.mjs
 node public/labs/code/engine.test.mjs
 node public/labs/dominorama/engine.test.mjs
@@ -890,6 +891,7 @@ These documents are being moved to English (D-316); the ones with a Spanish titl
 - [🕵️ Agentes](docs/games/agents.md)
 - [⚙️ Artefactos (lab prototype, in Juegos en prueba)](docs/games/artifacts.md)
 - [Diseño: Batalla Naval](docs/games/battleship.md)
+- [♠️ Blackjack (lab, in Juegos en prueba)](docs/games/blackjack.md)
 - [🚅 Tren en Vilo (bridge builder)](docs/games/bridges.md)
 - [Toque y Fama: estudio de factibilidad y propuesta de mecánica](docs/games/bulls-and-cows-factibilidad.md)
 - [Especificación: Toque y Fama](docs/games/bulls-and-cows.md)
