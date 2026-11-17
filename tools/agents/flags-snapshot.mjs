@@ -13,7 +13,7 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 
-export const FILE = fileURLToPath(new URL('./flags-snapshot.json', import.meta.url));
+export const FILE = fileURLToPath(new URL('../e2e/flags-snapshot.json', import.meta.url));
 const REMOTE = 'https://juegos-de-salon-default-rtdb.firebaseio.com/flags.json';
 
 /** Only each flag's state, sorted, so the file changes only when a state does. */

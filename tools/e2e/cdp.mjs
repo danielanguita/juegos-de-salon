@@ -7,7 +7,7 @@ import { measureMargins } from './margins-common.mjs';
 import { isFolder as isFolder } from './output.mjs';
 // CHROME: another path to the browser (Linux, a cloud session)
 const CHROME = process.env.CHROME || '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
-import { snapshot } from './flags-snapshot.mjs';
+import { snapshot } from '../agents/flags-snapshot.mjs';
 const SNAPSHOT = snapshot();
 export const sleep = ms => new Promise(r => setTimeout(r, ms));
 
