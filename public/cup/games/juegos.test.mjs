@@ -1021,3 +1021,17 @@ else {
   assert.deepEqual(e.filas.map(f => f.descartado), [false, false, false, true, true, false]);
   assert.equal(numero.puntaje(e), 70);
 }
+
+// Lab flag tango-time (outside La Copa only): the time scores, mistakes cost nothing, a hint adds 15 s
+{
+  assert.equal(tango.pointsForTime(30000), 100);
+  assert.equal(tango.pointsForTime(45000), 100);
+  assert.equal(tango.pointsForTime(300000), 10);
+  assert.equal(tango.pointsForTime(900000), 10);
+  const base = { fin: true, errores: 5, pistas: 0 };
+  assert.equal(tango.puntaje(base), 50, 'the old rule, in La Copa');
+  assert.equal(tango.puntaje({ ...base, porTiempo: true, ms: 40000 }), 100, 'mistakes cost nothing');
+  assert.equal(tango.puntaje({ ...base, porTiempo: true, ms: 40000, pistas: 2 }), tango.pointsForTime(70000), 'a hint adds 15 s');
+  assert.equal(tango.puntaje({ ...base, porTiempo: true, ms: 40000, rendido: true }), 0);
+  assert.match(tango.tarjeta({ ...base, porTiempo: true, ms: 83000 }), /⏱ 1:23/);
+}
