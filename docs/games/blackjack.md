@@ -44,6 +44,14 @@ Solo mode runs locally on one phone and persists full state after every move via
 - `public/labs/blackjack/game.json`: the manifest (#1249), `rules.js`: data and `LOCALES`, `engine.js`: pure state machine, `engine.test.mjs`: unit tests, `game.js`: screens and DOM, `style.css`: tokens-only table & card styles.
 - `tools/e2e/blackjack/game.mjs`: plays it to the result; `node tools/e2e/conformance.mjs labs/blackjack` checks the canons.
 
+## On trial in the lab
+
+- **The felt table** (flag `blackjack-felt`, card `#seccion-blackjack-felt` in `/labs/`): `html.bj-felt` turns the
+  dealer and the seats into one felt table (`.bj-table`, with the table's two lines in `#felt-arc`), the cards bigger
+  and fanned with a corner index (`.c`), the bet a chip on its spot (`.bet-spot`), the shoe a bar with the red card
+  marked, and each hand's result a stamp (`.stamp`). Off, the page is as before. A lab game is behind the lab's door
+  already, so this is the first flag asked inside one: `public/labs/listed.test.mjs` now reads `labs/<game>/` for flags.
+
 ## Excepciones a los cánones
 
 None.

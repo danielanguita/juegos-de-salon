@@ -38,6 +38,7 @@ export const FLAGS = {
   'news-once': '📣 Each piece of news told once: no home window on a visit from a notification, no splash for games already played, an ended cup seen on its board is not recapped again (D-546)',
   'routes-hint': '🚇 Broken Routes: a 💡 Hint button on its own page (one player, never La Copa) marks one rectangle of a shortest solution, −3 points each (#1381)',
   'mistakes-rule': '❌ Logic puzzles: what a mistake costs, in one line under the title while playing (Tango −10, Reinas nothing…)',
+  'blackjack-felt': '♠️ Blackjack: a felt table, bigger fanned cards with corner indices, the bet as a chip, the shoe as a bar with its red card, each hand\'s result as a stamp',
   'pm-pick-brush': '🖌️ Pintaminas: a game starts with no brush chosen; a tap on the board first asks to pick one, so nobody paints by mistake',
   'cover-dialogs': '🎮 Game covers: under Empezar, Instrucciones and Entrar (or your name) open as dialogs, the rankings open below; no «Volver al menú» and no game name chip on top, ‹ Menú as tall as the icons',
   'lab-ready': '✅ Labs: lab use of each flag is counted, and its card says when it is ready to 🚀 (D-528)',

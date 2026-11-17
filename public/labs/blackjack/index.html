@@ -97,9 +97,12 @@
       </div>
       <div class="red-alert" id="red-alert" hidden></div>
 
-      <section class="panel bj-dealer" id="dealer-box" data-tablero="blackjack"></section>
-
-      <section class="bj-seats" id="seats-box"></section>
+      <!-- The felt table (flag blackjack-felt, lab: #seccion-blackjack-felt): .bj-table and #felt-arc only take a look under html.bj-felt -->
+      <div class="bj-table">
+        <section class="panel bj-dealer" id="dealer-box" data-tablero="blackjack"></section>
+        <div class="felt-arc" id="felt-arc" aria-hidden="true"></div>
+        <section class="bj-seats" id="seats-box"></section>
+      </div>
 
       <section class="panel stack" id="action-box"></section>
 

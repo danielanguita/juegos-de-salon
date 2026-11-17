@@ -16,6 +16,7 @@ import { roomFlow } from '../../assets/js/room-flow.js';
 import { roomMessage, roomPhase } from '../../assets/js/room-state.js';
 import { renderQr } from '../../assets/js/qr.js';
 import { param } from '../../assets/js/parametros.js';
+import { flag } from '../../assets/js/flags.js';
 import { salidasFin } from '../../assets/js/fin.js';
 import { botonCompartir, botonInvitar, cabecera } from '../../assets/js/compartir.js';
 import {
@@ -46,6 +47,9 @@ let online = null; // { transport, code, role, config, match }
 let animToken = 0;
 let dealReveal = null; // { players: [[n, ...]], dealer: n, holeRevealed: bool, showOutcomes: bool }
 let freshCardKey = null;
+// The felt table, a visual treatment on trial (lab: #seccion-blackjack-felt): cards with corner indices, the bet as a chip,
+// the shoe as a bar with its red card, each hand's result as a stamp
+let felt = false;
 let armedAction = null;
 let armedContext = '';
 let armedTimer = null;
@@ -444,6 +448,7 @@ function cardEl(card, { hidden = false, small = false, dealing = false } = {}) {
   return el('div', { class: cls },
     el('span', { class: 'r' }, card.rank),
     el('span', { class: 's' }, card.suit),
+    felt ? el('span', { class: 'c', 'aria-hidden': 'true' }, card.rank + card.suit) : '',
   );
 }
 
@@ -643,13 +648,17 @@ function renderSeats() {
           ? el('span', { class: 'outcome-tag ' + h.outcome }, outcomeText(h))
           : (val ? el('span', { class: 'score-pill' + (val.isBust ? ' bust' : (val.isBlackjack ? ' bj' : '')) }, String(val.total)) : '');
 
-        handEl.append(el('div', { class: 'bj-hand-meta' }, el('span', {}, metaLeft), metaRight));
+        handEl.append(el('div', { class: 'bj-hand-meta' }, el('span', { class: 'bet-text' }, metaLeft), metaRight));
         if (shownCards.length > 0) {
           handEl.append(el('div', { class: 'cards-row' },
             ...shownCards.map((c, ci) => cardEl(c, {
               small: state.players.length > 2,
               dealing: freshCardKey === `p-${pi}-${hi}-${ci}`,
             }))));
+        }
+        if (felt) {
+          handEl.append(el('div', { class: 'bet-spot' }, chipSpotSvg(), el('b', {}, String(h.bet))));
+          if (showOutcome) handEl.append(el('div', { class: 'stamp ' + h.outcome }, outcomeText(h)));
         }
         handsWrap.append(handEl);
       });
@@ -772,7 +781,9 @@ function renderPlay() {
   $('#round-chip').textContent = state.maxRounds > 0
     ? fmt(T.roundBadge, { r: state.round, max: state.maxRounds })
     : fmt(T.roundOpen, { r: state.round });
-  $('#shoe-chip').textContent = fmt(T.shoeInfo, { n: visibleShoeRemaining(), total: state.shoe.length });
+  const shoeLeft = visibleShoeRemaining();
+  $('#shoe-chip').textContent = fmt(T.shoeInfo, { n: shoeLeft, total: state.shoe.length });
+  if (felt) renderFeltBits(shoeLeft);
   const alertEl = $('#red-alert');
   alertEl.hidden = !state.redCardOut;
   alertEl.textContent = T.redCardAlert;
@@ -781,6 +792,39 @@ function renderPlay() {
   renderSeats();
   renderActionBox();
   showScreen('screen-play');
+}
+
+/* ---------------- The felt table (lab: #seccion-blackjack-felt) ---------------- */
+function chipSpotSvg() {
+  const c = CHIP_PALETTE[10];
+  return parseSvg(`<svg viewBox="0 0 56 56" aria-hidden="true">
+    <ellipse cx="28" cy="32" rx="24" ry="22" fill="${c.side}"/>
+    <circle cx="28" cy="26" r="23" fill="${c.face}" stroke="${c.rim}" stroke-width="1.5"/>
+    <circle cx="28" cy="26" r="20" fill="none" stroke="rgba(255,255,255,0.82)" stroke-width="3" stroke-dasharray="6 5"/>
+    <circle cx="28" cy="26" r="15" fill="none" stroke="${c.rim}" stroke-width="1.2"/>
+  </svg>`);
+}
+
+/** The shoe as a bar that empties, with the red card's place marked, and the table's two lines in an arc. */
+function renderFeltBits(shoeLeft) {
+  const total = state.shoe.length;
+  const cutAt = 100 * (1 - state.cutIndex / total);
+  $('#shoe-chip').replaceChildren(el('span', { class: 'shoe' },
+    el('span', {}, fmt(T.shoeInfo, { n: shoeLeft, total })),
+    el('span', { class: 'shoe-bar', role: 'presentation' },
+      el('i', { style: `width:${(100 * shoeLeft / total).toFixed(1)}%` }),
+      el('u', { style: `left:${cutAt.toFixed(1)}%` }))));
+  const arc = $('#felt-arc');
+  if (arc.dataset.lang === lang) return;
+  arc.dataset.lang = lang;
+  arc.replaceChildren(parseSvg(`<svg viewBox="0 0 340 64">
+    <path id="felt-p1" d="M20 6 Q170 50 320 6" fill="none"/><path id="felt-p2" d="M40 26 Q170 66 300 26" fill="none"/>
+    <text text-anchor="middle"><textPath href="#felt-p1" startOffset="50%"></textPath></text>
+    <text class="sub" text-anchor="middle"><textPath href="#felt-p2" startOffset="50%"></textPath></text>
+  </svg>`));
+  const [a, b] = arc.querySelectorAll('textPath');
+  a.textContent = T.feltPays;
+  b.textContent = T.feltStands;
 }
 
 /* ---------------- Actions & Casino Deal Sequences ---------------- */
@@ -1066,6 +1110,11 @@ function init() {
   initSound();
   renderModes();
   renderResumeSlot();
+  flag('blackjack-felt').then(on => {
+    felt = on;
+    document.documentElement.classList.toggle('bj-felt', on);
+    if (state && $('#screen-play').classList.contains('active')) renderPlay();
+  }).catch(() => {});
 
   const roomCode = (param('room') || '').toUpperCase();
   if (/^[A-Z]{4}$/.test(roomCode)) {
