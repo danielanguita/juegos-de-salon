@@ -826,9 +826,24 @@ function renderPlay() {
   renderSeats();
   renderActionBox();
   showScreen('screen-play');
+  fitPlay();
 }
 
 /* ---------------- The felt table (lab: #seccion-blackjack-felt) ---------------- */
+/**
+ * The felt fills the phone's height: the play screen is given exactly what is left of the view under the top bar,
+ * and the table (a flex child, style.css) takes all of it the bar, the buttons and «Cómo se juega» do not use.
+ */
+function fitPlay() {
+  const s = $('#screen-play');
+  if (!felt || !s?.classList.contains('active')) { if (s) s.style.minHeight = ''; return; }
+  s.style.minHeight = '';
+  const top = s.getBoundingClientRect().top + scrollY;
+  const below = document.documentElement.scrollHeight - (s.getBoundingClientRect().bottom + scrollY);
+  s.style.minHeight = Math.max(0, innerHeight - top - below) + 'px';
+}
+addEventListener('resize', () => fitPlay());
+
 /** A text with 🪙: on the felt (flag blackjack-felt) each 🪙 becomes the table's yellow chip, which iPhone drew as a grey moon. */
 function coins(text) {
   if (!felt || !String(text).includes('🪙')) return [text];
