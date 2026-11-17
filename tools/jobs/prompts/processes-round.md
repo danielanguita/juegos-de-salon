@@ -38,7 +38,7 @@ tasks kept pointing at `procesos.md` after it was renamed, D-440).
    test or a check that fails before the mistake lands; a line in a doc is the weaker mechanism, used
    only when no test can catch it, and the report says so. A 🎲 flaky signature is its own pattern:
    fix the test or quarantine it, never just rerun.
-8. **The end-to-end flags snapshot** (D-578). Run `node tools/e2e/flags-snapshot.mjs check`: if the owner
+8. **The end-to-end flags snapshot** (D-578). Run `node tools/agents/flags-snapshot.mjs check`: if the owner
    flipped flags since the last refresh, run `refresh` and include `tools/e2e/flags-snapshot.json` in the
    round's PR, so a test that the flip breaks shows up there, once, and is fixed in that PR.
 9. End with the report that `processes.md` asks for (3 to 8 lines, with links).

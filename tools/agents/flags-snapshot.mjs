@@ -7,8 +7,8 @@
  * refresh, and a flip reaches the tests only through a PR that refreshes this file, where a test it
  * breaks is fixed once.
  *
- *   node tools/e2e/flags-snapshot.mjs check     # says whether Firebase differs from the snapshot (exit 3 if it does)
- *   node tools/e2e/flags-snapshot.mjs refresh   # rewrites the snapshot from Firebase (then a PR)
+ *   node tools/agents/flags-snapshot.mjs check     # says whether Firebase differs from the snapshot (exit 3 if it does)
+ *   node tools/agents/flags-snapshot.mjs refresh   # rewrites the snapshot from Firebase (then a PR)
  */
 import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';

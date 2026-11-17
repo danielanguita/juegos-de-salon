@@ -43,7 +43,7 @@ flag to *all* on /labs/, with no PR (D-498). The tests do **not** read them live
 `cdp.mjs` answers every request for `flags.json` with `tools/e2e/flags-snapshot.json`, so a flip never
 turns open PRs red at once (it did, five PRs on 2026-11-17). A script that needs another state sets
 it with `browser.flags({ '<id>': 'all' })` before loading the page. The processes round refreshes the
-snapshot when it differs (`node tools/e2e/flags-snapshot.mjs check | refresh`) in its own PR, where a
+snapshot when it differs (`node tools/agents/flags-snapshot.mjs check | refresh`) in its own PR, where a
 test that the launch breaks fails once and is fixed.
 
 ## Test levels (D-346)
