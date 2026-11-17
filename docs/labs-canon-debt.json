@@ -1,85 +1,110 @@
 {
-  "about": "Lab games that came in before D-579 without all of their canons: manifest (game.json, so the conformance suite runs), cover (a landing in tools/e2e/paths.mjs that landing-fold.mjs measures), exits (salidasFin, C-19), rankings (finDePartida, bloqueTabla or avisoPartida, C-19). A ratchet: public/labs/canons.test.mjs lets each list only shrink and no new game join; a game pays its debt before it leaves the lab.",
+  "about": "Lab games that came in before D-579 without all of their canons, as public/labs/canons.test.mjs names them: manifest (game.json, so the conformance suite runs), cover (a landing in tools/e2e/paths.mjs that landing-fold.mjs measures), exits (salidasFin, C-19), rankings (finDePartida, bloqueTabla or avisoPartida, C-19), dialogs (coverWithDialogs, C-8), signals (trackStart and trackFinish, C-7), spec (docs/games/<folder>.md, C-13), e2e (a play script and languages.mjs in tools/e2e/<folder>/, C-12). A ratchet: each list only shrinks and no new game joins; a game pays its debt before it leaves the lab.",
   "games": {
     "artifacts": {
       "missing": [
         "manifest",
-        "rankings"
+        "rankings",
+        "dialogs",
+        "e2e"
       ]
     },
     "blackjack": {
       "missing": [
         "cover",
-        "rankings"
+        "rankings",
+        "e2e"
       ]
     },
     "chameleon": {
       "missing": [
         "manifest",
         "cover",
-        "rankings"
+        "rankings",
+        "dialogs",
+        "e2e"
       ]
     },
     "code": {
       "missing": [
         "manifest",
         "cover",
-        "rankings"
+        "rankings",
+        "dialogs",
+        "e2e"
       ]
     },
     "dominorama": {
       "missing": [
         "manifest",
-        "rankings"
+        "rankings",
+        "dialogs",
+        "e2e"
       ]
     },
     "exploding-numbers": {
       "missing": [
         "manifest",
-        "rankings"
+        "rankings",
+        "dialogs",
+        "e2e"
       ]
     },
     "flap": {
       "missing": [
-        "manifest"
+        "manifest",
+        "dialogs",
+        "e2e"
       ]
     },
     "fourth-king": {
       "missing": [
-        "rankings"
+        "rankings",
+        "dialogs"
+      ]
+    },
+    "julep": {
+      "missing": [
+        "dialogs"
       ]
     },
     "memory": {
       "missing": [
         "manifest",
-        "rankings"
+        "rankings",
+        "dialogs",
+        "e2e"
       ]
     },
     "stack": {
       "missing": [
         "manifest",
-        "rankings"
+        "rankings",
+        "dialogs",
+        "e2e"
       ]
     },
     "sudoku": {
       "missing": [
-        "manifest"
+        "manifest",
+        "dialogs",
+        "e2e"
       ]
     },
     "transfer": {
       "missing": [
         "cover",
-        "rankings"
+        "rankings",
+        "dialogs",
+        "e2e"
       ]
     },
     "wobbles": {
       "missing": [
-        "rankings"
-      ]
-    },
-    "wobbles-3d": {
-      "missing": [
-        "rankings"
+        "cover",
+        "rankings",
+        "dialogs",
+        "e2e"
       ]
     }
   }

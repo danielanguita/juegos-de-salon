@@ -1142,6 +1142,25 @@
     "public/labs/"
    ],
    "debt": "docs/labs-canon-debt.json"
+  },
+  {
+   "id": "double-tap",
+   "title": "A double tap counts once: a button that waits on an animation takes the first tap only, and its e2e script double-taps it",
+   "doc": "docs/CANONS.md",
+   "form": [
+    "check",
+    "judged"
+   ],
+   "enforcedBy": [
+    "tools/e2e/double-tap.mjs",
+    "tools/e2e/blackjack/game.mjs"
+   ],
+   "applies": [
+    "public/**/game.js",
+    "tools/e2e/**"
+   ],
+   "reviewer": "the session building or changing the game, and the usability agent (.claude/agents/usability.md)",
+   "why": "Which buttons wait on an animation is a reading of each game's code; the check runs where a script double-taps the button, and the reviewer makes sure each such button has one."
   }
  ]
 }

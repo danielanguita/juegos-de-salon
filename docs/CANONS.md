@@ -327,6 +327,7 @@ rule: whoever changes something documents it in the same PR.
 - External libraries (QR) are loaded on demand and their failure does not break the screen. The room QR is drawn by the shared module `public/assets/js/qr.js` (`renderQr`), which loads a copy of the library served by the site itself (`public/assets/js/vendor/qrcode.js`, qrcode-generator 1.4.4, unchanged), never from a CDN; a game does not carry its own copy of that code.
 - Each game exposes a read-only `window.__…` hook for automated tests, named in the game's spec (D-213).
 - The screen does not turn off while playing (`keepAwake()`).
+- **A double tap counts once** (D-576): a button whose action waits on an animation, a fade or a deal takes the first tap and ignores the rest until it is done (a flag, the button disabled), so an impatient thumb never runs it twice or strands the screen half drawn. The game's e2e script double-taps each such button with `doubleTap()` (`tools/e2e/double-tap.mjs`) and checks the screen after.
 - An animation that runs on its own (a cover's demo) draws through `onScreen` (`public/assets/js/on-screen.js`), so it stops asking for frames while scrolled off screen; a loop bounded in time or tied to a turn does not need it (#883).
 - Foreseeable errors are shown to the player in their language, with a clear way out; never a blank screen.
 - **The message does not invent the cause.** If the browser cannot tell two causes apart (losing signal and hitting the connection cap look the same), the text names both instead of picking one. False precision is worse than honest vagueness (D-40).
@@ -678,6 +679,7 @@ A lab game passes this list before its first PR merges, not before it leaves the
 - [ ] Its screens are in `tools/e2e/paths.mjs` and its `languages.mjs` passes in every language (C-12, D-199).
 - [ ] There is sound and vibration on the key actions, with a mute button (C-4).
 - [ ] On its landing the start button (or the first mode) is above the fold at 320×568 and 375×667 in every language, with the rules below it, also when it opens from Uno al día or a cup's day: `node tools/e2e/landing-fold.mjs` green (U-39, D-344).
+- [ ] Every button that waits on an animation before it acts takes one tap only, and its e2e script double-taps it with `doubleTap()` (C-14, D-576).
 - [ ] Buttons are 44 px, the end buttons show without scrolling and there is no horizontal scroll (C-8).
 - [ ] Its result screen follows C-19: the exits from `fin.js` for each context it is played in, none built by hand (`salidasFin('lab')` from the lab), the header's ‹ naming its logical parent, and each fact said once (score, time, winner, name), the long detail folded or after the exits, Sign in in one line, one share button (D-343, D-353).
 - [ ] On one phone, the result shows before the pass, and what is secret is covered (C-9).

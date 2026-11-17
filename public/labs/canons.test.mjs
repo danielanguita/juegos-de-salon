@@ -7,6 +7,12 @@
 //             320 and 375 px: the main action above the fold, even margins (C-17)
 //   exits     its result exits from salidasFin in fin.js (C-19)
 //   rankings  its result in the rankings: finDePartida, bloqueTabla or avisoPartida from ranking.js (C-19)
+//   dialogs   its cover through coverWithDialogs (cover-dialogs.js): Instrucciones and Entrar as dialogs (C-8)
+//   signals   the panel's trackStart and trackFinish (C-7, D-210), so the panel sees it from day one (C-16)
+//   spec      its docs/games/<folder>.md, with its exceptions to the canons (C-13)
+//   e2e       tools/e2e/<folder>/ with a script that plays it and its languages.mjs (C-12, D-199)
+// The rest of the canons (conformance's files, languages, memory, sharing; design-lint; the footer;
+// the watchdog; double tap) have their own tests; the whole map is in docs/ADD-GAME.md.
 // A canonException in its game.json whose reason names the subject excuses one, as in conformance.
 // The lab games that came before this rule are debt in docs/labs-canon-debt.json, a ratchet: an entry
 // lists exactly what its game still lacks, it only shrinks, and no new game may join it.
@@ -18,6 +24,8 @@ import { PATHS } from '../../tools/e2e/paths.mjs';
 import { excuses } from '../../tools/generators/conformance.mjs';
 
 const LABS = fileURLToPath(new URL('.', import.meta.url));
+const DOCS = fileURLToPath(new URL('../../docs/games/', import.meta.url));
+const E2E = fileURLToPath(new URL('../../tools/e2e/', import.meta.url));
 const DEBT_FILE = new URL('../../docs/labs-canon-debt.json', import.meta.url);
 // The games in the lab when the rule came in (2026-11-17): only these may carry debt
 const FROZEN = ['artifacts', 'blackjack', 'chameleon', 'code', 'dominorama', 'exploding-numbers', 'flap', 'fourth-king',
@@ -38,6 +46,11 @@ export function missing(folder) {
   if (!ok('C-17', 'cover', [`labs/${folder}`, folder, m?.id].some(k => k && PATHS[k]?.intro))) out.push('cover');
   if (!ok('C-19', 'fin.js', /\bsalidasFin\(/.test(game))) out.push('exits');
   if (!ok('C-19', 'rankings', /\b(finDePartida|bloqueTabla|avisoPartida)\(/.test(game))) out.push('rankings');
+  if (!ok('C-8', 'cover-dialogs', /\bcoverWithDialogs\b/.test(game))) out.push('dialogs');
+  if (!ok('C-7', 'trackStart', /\btrackStart\(/.test(game) && /\btrackFinish\(/.test(game))) out.push('signals');
+  if (!existsSync(join(DOCS, `${folder}.md`))) out.push('spec');
+  if (!ok('C-12', 'e2e', existsSync(join(E2E, folder, 'languages.mjs'))
+    && existsSync(E2E + folder) && readdirSync(join(E2E, folder)).some(f => f !== 'languages.mjs' && f.endsWith('.mjs')))) out.push('e2e');
   return out;
 }
 
@@ -59,6 +72,6 @@ for (const [g, d] of Object.entries(debt)) {
 }
 
 // The check catches what it claims to: a folder with nothing has no manifest, cover, exits or rankings
-assert.deepEqual(missing('no-such-game'), ['manifest', 'cover', 'exits', 'rankings']);
+assert.deepEqual(missing('no-such-game'), ['manifest', 'cover', 'exits', 'rankings', 'dialogs', 'signals', 'spec', 'e2e']);
 
 console.log(`lab canons: ${games.length} lab game(s), ${Object.keys(debt).length} with debt`);

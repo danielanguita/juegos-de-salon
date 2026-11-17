@@ -62,11 +62,11 @@ many as you need.
 
 <!-- generated: rules (node tools/agents/rules.mjs contributing) -->
 
-72 rules are registered in `docs/rules.json` (index in [docs/RULES.md](docs/RULES.md)): 42 🤖 checked and 9 📈 ratcheted by tests, 50 👁 judged by a reviewer. A bot comment on your PR lists the 👁 rules its files touch. They live in:
+73 rules are registered in `docs/rules.json` (index in [docs/RULES.md](docs/RULES.md)): 43 🤖 checked and 9 📈 ratcheted by tests, 51 👁 judged by a reviewer. A bot comment on your PR lists the 👁 rules its files touch. They live in:
 
 - [docs/RULES.md](docs/RULES.md): R-10, R-8, R-9
 - [CLAUDE.md](CLAUDE.md): flags
-- [docs/CANONS.md](docs/CANONS.md): C-1, C-2, C-3, C-4, C-5, C-6, C-7, C-8, C-8b, C-9, C-10, C-13, C-14, C-15, C-17, C-19, C-20, C-21
+- [docs/CANONS.md](docs/CANONS.md): C-1, C-2, C-3, C-4, C-5, C-6, C-7, C-8, C-8b, C-9, C-10, C-13, C-14, C-15, C-17, C-19, C-20, C-21, double-tap
 - [docs/USABILIDAD.md](docs/USABILIDAD.md): U-1, U-3, U-5, U-6, U-7, U-8, U-18, U-36, U-12, U-13, U-14, U-15, U-16, U-17, U-20, U-21, U-22, U-23, U-37, U-38, U-30, U-33, U-31, U-32, U-35, U-34, U-40, U-41
 
 <!-- /generated: rules -->
@@ -103,10 +103,6 @@ To look at a single screen: `node tools/e2e/look.mjs <game> <screen> --width 320
 - [ ] Player-facing texts in the three languages; buttons ≥ 44 px; no horizontal scroll at 320 px.
 - [ ] Anything new on a player page sits behind its lab flag (`flag('<id>')`, `public/assets/js/flags.js`)
       and is listed in `/labs/` (D-395, D-498): the owner turns it on, not the PR.
-- [ ] A new game in `public/labs/<id>/` comes with its canons built (D-579): its `game.json`, its cover
-      measured (`tools/e2e/paths.mjs`), its result exits from `salidasFin` and its result in the rankings.
-      `node public/labs/canons.test.mjs` and `node public/assets/js/conformance.test.mjs` must pass;
-      the steps are in [docs/ADD-GAME.md](docs/ADD-GAME.md). We check them; we do not build them for you.
 - [ ] If the game changed, its `docs/games/<folder>.md` says so.
 - [ ] The 👁 rules the bot comment lists for your PR are respected (above, "The rules").
 - [ ] All `*.test.mjs` / `*.test.py` pass locally, plus the end-to-end script of the screen you touched.

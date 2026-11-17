@@ -2,15 +2,15 @@
 
 The page's shell (markup, shared CSS) and the sound code come from template.html; the game is
 sim.js (physics and rules), texts.js (es/en/pt) and view.js (drawing, sound, input, cards).
-Writes public/labs/wobbles-3d/index.html, with the lab's head (door, noindex, manifest, panel
-signal) and the site's fonts; from the repo root: python3 tools/generators/wobbles-3d/build.py
+Writes public/labs/wobbles/hard/index.html, with the lab's head (door, noindex, manifest, panel
+signal) and the site's fonts; from the repo root: python3 tools/generators/wobbles-hard/build.py
 """
 import os, re
 N=os.path.dirname(os.path.abspath(__file__))+'/'
 neon=open(N+'template.html').read()
 head=neon[:neon.index("<script>\n")+len("<script>\n")]
 assert head.count('<title>⚖️ La Balanza</title>')==1 and head.count('<span>La Balanza</span>')==1
-head=head.replace('<title>⚖️ La Balanza</title>','<title>⚖️ Tembleque 3D</title>').replace('<span>La Balanza</span>','<span>Tembleque 3D</span>')
+head=head.replace('<title>⚖️ La Balanza</title>','<title>⚖️ Tembleque</title>').replace('<span>La Balanza</span>','<span>Tembleque</span>')
 # this game's own touches on the shared look: the lives sit in the middle of the top bar, and the instructions are a short list with icons
 css='''  #chip { background: none; padding: 0; width: 106px; height: 28px; }
   /* The three hearts: a canvas of their own over the middle of the top bar, tall enough for the pieces of a broken one to fall */
@@ -51,12 +51,12 @@ sound=neon[neon.index("/* ---------- sound: synthesized"):neon.index("/** What t
 sim=open(N+'sim.js').read()+open(N+'texts.js').read(); view=open(N+'view.js').read()
 assert view.count('/*__SOUND__*/')==1
 out=head+sim+view.replace('/*__SOUND__*/',sound)
-out=out.replace('href="fonts/','href="../../assets/fonts/').replace("url('fonts/","url('../../assets/fonts/")
+out=out.replace('href="fonts/','href="../../../assets/fonts/').replace("url('fonts/","url('../../../assets/fonts/")
 LAB=r'''  <!-- A lab game (D-395): behind the lab's door (D-281) and not indexed. The game below is the owner's
-       prototype as delivered, kept whole: see docs/games/wobbles-3d.md -->
-  <script src="../../assets/js/labs-puerta.js"></script>
+       prototype as delivered, kept whole: the hard level of docs/games/wobbles.md -->
+  <script src="../../../assets/js/labs-puerta.js"></script>
   <meta name="robots" content="noindex, nofollow">
-  <link rel="manifest" href="../../manifest.webmanifest">
+  <link rel="manifest" href="../../../manifest.webmanifest">
   <script>
     // The chosen language's manifest, before the browser reads it (D-222)
     (function () {
@@ -67,18 +67,17 @@ LAB=r'''  <!-- A lab game (D-395): behind the lab's door (D-281) and not indexed
       } catch (_) { /* the Spanish one stays */ }
     })();
   </script>
-  <link rel="icon" href="../../assets/icon.svg" type="image/svg+xml">
-  <script src="../../assets/js/vigia.js"></script>
+  <link rel="icon" href="../../../assets/icon.svg" type="image/svg+xml">
+  <script src="../../../assets/js/vigia.js"></script>
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Juegos de Salón">
-  <link rel="apple-touch-icon" href="../../assets/icons/apple-touch-icon.png">
+  <link rel="apple-touch-icon" href="../../../assets/icons/apple-touch-icon.png">
 '''
 out=out.replace('<link rel="preload"',LAB+'<link rel="preload"',1)
-MODS='''  <script type="module">import '../../assets/js/instalable.js';</script>
-  <script type="module">import './game.js';</script>
+MODS='''  <script type="module">import '../../../assets/js/instalable.js';</script>
 '''
 out=out.replace('</head>\n','</head>\n'+MODS,1)
-open(N+'../../../public/labs/wobbles-3d/index.html','w').write(out)
+open(N+'../../../public/labs/wobbles/hard/index.html','w').write(out)
 simpart=out[out.index('/* Physics: bodies made of'):out.index('/* The texts, in the site')]
 print(len(out),'bytes; Math calls in the simulation:',sorted(set(re.findall(r'Math\.\w+',simpart))))
