@@ -665,10 +665,7 @@ function renderSeats() {
       const betting = state.phase === 'betting' && state.bettingIndex === pi;
       seat.append(el('div', { class: 'bj-hands' }, el('div', { class: 'bj-hand' },
         el('div', { class: 'bj-hand-meta' }, el('span', { class: 'score-pill slot', 'aria-hidden': 'true' }, '0')),
-        // The first step, printed on the felt where the cards will land, in the first round only (U-18): one stitched line pointing at the chips below; the button is the next step on its own
-        el('div', { class: 'cards-row' }, betting && state.round === 1 && (mode !== 'online' || myPlayerIndex() === pi)
-          ? el('p', { class: 'bet-hint' }, T.betHint, el('i', { 'aria-hidden': 'true' }, '↓'))
-          : ''),
+        el('div', { class: 'cards-row' }),
         el('div', { class: 'bet-spot' + (betting ? '' : ' empty') }, chipSpotSvg(), el('b', { class: 'pending-bet' }, String(betting ? pendingBet : 0))))));
     }
 
@@ -705,6 +702,9 @@ function renderSeats() {
       });
       seat.append(handsWrap);
     }
+    // On the felt the plate rides with the first hand's bet spot, right above it (style.css), whatever the seat's height
+    const firstHand = felt && seat.querySelector('.bj-hand');
+    if (firstHand) firstHand.append(seat.querySelector('.bj-seat-top'));
     return seat;
   });
 
@@ -743,6 +743,8 @@ function renderActionBox() {
     box.replaceChildren(
       el('p', { class: 'lead center' }, fmt(T.bettingTurn, { name: p.name })),
       renderBetStage(p, minReq),
+      // The first step, in the first round only (U-18): one stitched line right above the chips it points at; the button is the next step on its own
+      felt && state.round === 1 ? el('p', { class: 'bet-hint' }, T.betHint, el('i', { 'aria-hidden': 'true' }, '↓')) : '',
       el('div', { class: 'casino-chips' },
         ...[10, 20, 50, 100].map(n => el('button', {
           type: 'button',
@@ -1279,6 +1281,17 @@ function init() {
     felt = on;
     document.documentElement.classList.toggle('bj-felt', on);
     if (on) { startCoverDemo(); fillHow(); }
+    // The table fills the height the actions leave it: the actions box keeps the tallest height it has had at this
+    // width, so a turn's shorter buttons never stretch the table and every seat stays where it was
+    if (on && 'ResizeObserver' in window) {
+      let tallest = 0, width = innerWidth;
+      new ResizeObserver(([e]) => {
+        const box = e.target;
+        if (innerWidth !== width) { width = innerWidth; tallest = 0; box.style.minHeight = ''; return; }
+        const h = box.getBoundingClientRect().height;
+        if (h > tallest) { tallest = h; box.style.minHeight = h + 'px'; }
+      }).observe($('#action-box'));
+    }
     if (state && $('#screen-play').classList.contains('active')) renderPlay();
   }).catch(() => {});
   $('#rk-slot')?.append(bloqueJugador({ alTocar: () => SFX.tap() }));
