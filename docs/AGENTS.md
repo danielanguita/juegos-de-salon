@@ -66,6 +66,7 @@ or any other here), launch it and report what it found; do not ask the owner fir
   marker in its own last comment) and ends the round when there are none; it comments what is missing in the contributor's language and,
   when a PR waits only for the owner's Yes (D-531), `contributions.mjs ready <n> "<why>"` runs `contrib-ready.yml`, whose bot comment
   emails the owner. It never pushes, approves, merges or runs the PR's code.
+- **Session sweep** (D-577): a daily Claude Code scheduled task wakes the cloud session «🧹 Session sweeper», which proposes in a push notification archiving the owner's finished sessions of every project (completed and idle over 2 days; review-ready or failed over 7), never one working or waiting on the owner, and archives them when the owner answers «sí» there. Its prompt, and how to recreate it, is `tools/jobs/prompts/session-sweep.md`.
 - **Support** (D-318): triages the emails to hola@juegosdesalon.cl, which a Cloudflare Worker
   (`tools/cloudflare/inbox-worker.js`) keeps in Firebase `buzon/`. The `inbox-watch` job on the Mac mini
   launches it headless within 5 minutes of an email (D-365); the processes agent, if `processes.mjs check` still counts emails. It runs only `node tools/agents/inbox.mjs list | ingest <id> - --lang <xx> | skip <id> "<reason>"` (the text on stdin; its session has Bash for that tool and nothing else, #838),

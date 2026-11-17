@@ -257,6 +257,16 @@
       "decisions": [
         "D-573"
       ]
+    },
+    {
+      "id": "session-sweep",
+      "where": "cloud",
+      "cron": "CRON_TZ=America/Los_Angeles 41 3 * * *",
+      "prompt": "tools/jobs/prompts/session-sweep.md",
+      "what": "Every day, a Claude Code cloud scheduled task (cheapest model, no repository): archives the owner's sessions of every project that are completed and idle over 2 days, or review-ready or failed and idle over 7; lists those waiting on the owner in a push notification.",
+      "decisions": [
+        "D-577"
+      ]
     }
   ]
 }
