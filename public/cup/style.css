@@ -752,3 +752,5 @@ body.pantalla-completa #jugar-reglas .reglas[open] > summary { position: sticky;
 /* 16 px exactly, or iOS zooms in (as the room chat, D-28) */
 .charla-input { flex: 1; min-width: 0; min-height: 44px; font: inherit; font-size: 16px; color: var(--ink); background: var(--glass); border: 1px solid var(--glass-border); border-radius: var(--r-12); padding: 0 var(--s-10); }
 .charla-aviso { display: block; min-height: 1em; color: var(--ink-bad); font-size: var(--fs-85); }
+/* The account tip goes on its own line under the PIN hint, never glued to it (U-10). */
+#consejo-jugador { display: block; margin-top: var(--s-6); }
