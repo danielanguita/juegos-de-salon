@@ -295,3 +295,13 @@
 .bj-felt .bj-demo.win .bj-demo-win { animation: bjStampDemo 0.35s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
 @keyframes bjStampDemo { to { opacity: 1; transform: translate(-50%, -50%) rotate(-10deg) scale(1); } }
 @media (prefers-reduced-motion: reduce) { .bj-felt .bj-demo .pcard.dealing, .bj-felt .bj-demo.win .bj-demo-win { animation: none; opacity: 1; } }
+
+/* Spacing (DESIGN.md §6): the cover's title sits 12 px under the demo (the shared -9 px margin is for an
+   emoji's own air, which the demo's felt does not have); an empty resume slot takes no gap of the stack */
+#resume-slot:empty { display: none; }
+.bj-felt .intro-hero .bj-demo:not([hidden]) + h1 { margin-top: var(--s-12); }
+/* The arc's two lines sit evenly between the dealer's cards and the player's name */
+.bj-felt .felt-arc { margin-top: calc(-1 * var(--s-16)); }
+/* The hand's score centred over its cards, like the dealer's (its bet line is the chip below) */
+.bj-felt .bj-hand-meta { justify-content: center; }
+.bj-felt .bj-hand-meta .bet-text { display: none; }
