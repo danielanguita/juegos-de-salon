@@ -27,7 +27,8 @@ for (let step = 0; step < 6 && await b.active() === 'screen-play'; step++) {
   }
   if (await b.evaluate("!!document.getElementById('btn-next-round')")) {
     await b.evaluate("document.getElementById('btn-next-round').click(); 1");
-    await sleep(300);
+    // the felt is cleared first (CLEAR_MS): wait for the next bets or the result
+    await b.until("document.getElementById('btn-bet') || document.querySelector('#screen-result.active')", 4000);
   }
 }
 

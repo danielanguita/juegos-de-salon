@@ -10,7 +10,8 @@
  * Either way the red, its sound and the counter wait ROJO_MS (1.5 s) after the tap that brings them.
  *
  * Además (D-103): **borrar todo**, que pide un segundo toque para confirmar; una **pista** que
- * revela una casilla y cuesta 15 puntos, también con segundo toque; y **consejos** para cuando
+ * revela una casilla y cuesta 15 puntos (outside La Copa with `tango-time`, 15 s added to the time,
+ * D-572), también con segundo toque; y **consejos** para cuando
  * uno se queda atascado. Las jugadas son los índices tocados, 'C' (borrar todo) y { h } (pista).
  * ↩️ Undo (D-342) takes back the last tap or Clear all, one per tap; it is a play too ('U'), so an
  * error already counted stays counted and a hint stays revealed.
