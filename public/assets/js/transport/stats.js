@@ -770,6 +770,8 @@ export function trackFinish(info) {
     try { noteSplashStep('finish'); } catch (_) { /* best effort */ }
     // Which games this phone finished, by id (D-546): a splash announcing only those is not news to it
     try { if (prev?.game) { const l = globalThis.localStorage, k = 'juegos-de-salon:jugados'; let v = []; try { v = JSON.parse(l?.getItem(k) || '[]'); } catch (_) { v = []; } if (Array.isArray(v) && !v.includes(prev.game)) l?.setItem(k, JSON.stringify([...v, prev.game].slice(-200))); } } catch (_) { /* no storage */ }
+    // A moment after the game, the invitation to install, once a week at most (flag install-invite, lab: #seccion-install-invite)
+    if (typeof document !== 'undefined') import('../instalar.js').then(m => m.invitarTrasPartida()).catch(() => {});
     if (prev?.game && isLocalMode(prev.mode)) {
       const st = stats();
       quiet(() => st.api.patch(dayPath(st.fp.env, dayOf(Date.now())), finChanges(prev)));

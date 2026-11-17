@@ -1,7 +1,7 @@
 // Pending work nobody is watching (D-441): which open PRs count as stuck and which branches as
 // stranded. A PR its session is still working on, and a branch about to get its PR, are left alone.
 import assert from 'node:assert/strict';
-import { stuck, stranded, issueBody, TITLE } from './pending.mjs';
+import { stuck, stranded, issueBody, TITLE, stall, nudgeBody, MARK } from './pending.mjs';
 
 const now = Date.parse('2026-10-24T17:00:00Z');
 const ago = h => new Date(now - h * 3600 * 1000).toISOString();
@@ -31,5 +31,15 @@ assert.match(body, /compare\/main\.\.\.claude%2Fa-b/, 'each branch links to what
 assert.match(body, /closes itself/);
 assert.doesNotMatch(issueBody({ prs: [], branches: [] }), /Stuck PRs|Branches/);
 assert.equal(TITLE, 'Pending work', 'processes.mjs keeps this title out of the owner\'s backlog');
+
+const st = o => stall({ author: 'ellokojavi', draft: false, red: ['end-to-end'], pushedAt: ago(2), ...o }, now);
+assert.equal(st({}), 'nudge', 'red with no push for two hours: nudge its session');
+assert.equal(st({ pushedAt: ago(0.5) }), null, 'pushed half an hour ago: its session is on it');
+assert.equal(st({ red: [] }), null, 'green: nothing to do');
+assert.equal(st({ draft: true }), null, 'a draft is left alone');
+assert.equal(st({ author: 'Chanicua' }), null, "a contributor's PR is the contributions agent's (D-568)");
+assert.equal(st({ nudgedAt: ago(1) }), null, 'nudged an hour ago: give the session time');
+assert.equal(st({ nudgedAt: ago(3) }), 'takeover', 'nudged three hours ago and the same commit: take it over');
+assert.ok(nudgeBody('abc', ['tests']).startsWith(MARK('abc')), 'the mark ties the nudge to its commit, so a push starts over');
 
 console.log('✓ pending: stuck PRs and stranded branches, with a grace period for work in progress');
