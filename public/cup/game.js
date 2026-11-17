@@ -1042,10 +1042,14 @@ function seguirCharla() {
     C.off?.();
     Object.assign(C, { code: S.code, v: { talk: {}, hidden: {} }, abierto: null, borrador: null, pendiente: false });
     // What comes in redraws the board (its 💬 counts), unless a comment is being written
+    // A store that answers at once (the local one) would redraw the board while it is being drawn,
+    // appending the table twice: the redraw waits for the drawing to end
     C.off = store.escucharCharla(S.code, v => {
       C.v = v;
-      if (S.pantalla !== 'tablero' || !L()?.meta) return;
-      if (composing()) C.pendiente = true; else tableroEnSuSitio();
+      queueMicrotask(() => {
+        if (S.pantalla !== 'tablero' || !L()?.meta) return;
+        if (composing()) C.pendiente = true; else tableroEnSuSitio();
+      });
     });
   }
   return true;
@@ -1145,7 +1149,15 @@ function borrador(d, pid, inicial = '') {
 }
 
 let buzonPodio;   // the inbox link under the podium, decided once per page (D-345)
+/** The board, never drawn inside its own drawing: a redraw asked meanwhile comes right after (two tables otherwise). */
+let dibujando = false;
 function tablero() {
+  if (dibujando) { queueMicrotask(tablero); return; }
+  dibujando = true;
+  try { dibujarTablero(); } finally { dibujando = false; }
+}
+
+function dibujarTablero() {
   const Lc = L();
   if (!Lc || !S.yo) return;
   // Writing a comment (D-562): not under the keyboard; drawn once the field lets go
