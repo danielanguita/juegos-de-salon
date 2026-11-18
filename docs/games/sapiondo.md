@@ -17,6 +17,7 @@ Cross 33 rows across three escalating sectors (Suburb Ave, City Highway, Night E
 - **Lives & Ghost Mode:** `3` lives (`❤️❤️❤️`); getting hit deducts 1 life (`-1` point) and grants `1.5 s` of pulsing transparent ghost invulnerability.
 - **Fruits:** Strawberries, Mangoes, and Golden Starfruit spawn on road lanes, award `+1` point each, and restore `+1 ⚡` Dash charge.
 - **Scoring:** `+1` per lane progressed, `+10` on reaching the finish, `+1` per fruit taken, `-1` per life lost (clamped `>= 0`). In La Copa, ties among finishers break by faster completion time; crashed runs tie-break by distance reached.
+- **Seasonal Shirts:** The frog's shirt adapts by calendar date (`halloween`, `thanksgiving`, `christmas`, `newyear`, `winter`, `summer`, or default arcade jersey; overridable via `?season=<id>` and disabled under `?test`).
 
 ## Modes
 

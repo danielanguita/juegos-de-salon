@@ -11,6 +11,33 @@ const SEDAN_PALETTE = {
   lime: { body: '#7be04a', roof: '#a7f082', dark: '#459421' },
 };
 
+const SEASON_SHIRTS = {
+  halloween: { base: '#5b1fb8', band: '#ff7a1a', trim: '#1e1b4b', accent: '#fde047' },
+  thanksgiving: { base: '#b45309', band: '#78350f', trim: '#fef3c7', accent: '#fbbf24' },
+  christmas: { base: '#d62828', band: '#198754', trim: '#f8fafc', accent: '#ffd94a' },
+  newyear: { base: '#1e293b', band: '#334155', trim: '#f8fafc', accent: '#ffd94a' },
+  winter: { base: '#2563eb', band: '#60a5fa', trim: '#f8fafc', accent: '#e0f2fe' },
+  summer: { base: '#06b6d4', band: '#fb7185', trim: '#fef08a', accent: '#fde047' },
+  default: { base: '#0ea5e9', band: '#ffd94a', trim: '#f8fafc', accent: '#ffffff' },
+};
+
+function pickShirtTheme(date = new Date()) {
+  try {
+    const q = new URLSearchParams(globalThis.location?.search ?? '');
+    const asked = q.get('season');
+    if (asked === 'off' || q.has('test')) return SEASON_SHIRTS.default;
+    if (asked && SEASON_SHIRTS[asked]) return SEASON_SHIRTS[asked];
+  } catch (_) { /* ignore */ }
+  const md = `${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+  if (md >= '10-26' && md <= '10-31') return SEASON_SHIRTS.halloween;
+  if (md >= '11-20' && md <= '11-30') return SEASON_SHIRTS.thanksgiving;
+  if (md >= '12-15' && md <= '12-26') return SEASON_SHIRTS.christmas;
+  if (md >= '12-27' || md <= '01-03') return SEASON_SHIRTS.newyear;
+  if (md >= '12-01' || md <= '02-29') return SEASON_SHIRTS.winter;
+  if (md >= '06-21' && md <= '09-21') return SEASON_SHIRTS.summer;
+  return SEASON_SHIRTS.default;
+}
+
 function drawRoundedRect(ctx, x, y, w, h, r) {
   const rad = Math.min(r, w / 2, h / 2);
   ctx.beginPath();
@@ -437,7 +464,8 @@ export function createScene(canvas) {
     ctx.ellipse(tile * 0.27, -tile * 0.04, tile * 0.08, tile * 0.12, 0.3, 0, Math.PI * 2);
     ctx.fill();
 
-    // Torso wearing festive Christmas sweater
+    // Torso wearing seasonal sweater/shirt
+    const shirtTheme = pickShirtTheme();
     const shirtW = tile * 0.46;
     const shirtH = tile * 0.38;
     const sx = -shirtW / 2;
@@ -450,18 +478,14 @@ export function createScene(canvas) {
       ctx.save();
       drawRoundedRect(ctx, sx, sy, shirtW, shirtH, tile * 0.14);
       ctx.clip();
-      // Christmas red sweater base
-      ctx.fillStyle = '#d62828';
+      ctx.fillStyle = shirtTheme.base;
       ctx.fillRect(sx, sy, shirtW, shirtH);
-      // Forest-green festive middle band
-      ctx.fillStyle = '#198754';
+      ctx.fillStyle = shirtTheme.band;
       ctx.fillRect(sx, sy + shirtH * 0.36, shirtW, shirtH * 0.36);
-      // White fuzzy collar & hem trim
-      ctx.fillStyle = '#f8fafc';
+      ctx.fillStyle = shirtTheme.trim;
       ctx.fillRect(sx, sy, shirtW, shirtH * 0.18);
       ctx.fillRect(sx, sy + shirtH * 0.84, shirtW, shirtH * 0.18);
-      // Gold star ornament in the center
-      ctx.fillStyle = '#ffd94a';
+      ctx.fillStyle = shirtTheme.accent;
       drawStar(ctx, 0, sy + shirtH * 0.54, tile * 0.07, tile * 0.032);
       ctx.fill();
       ctx.restore();
