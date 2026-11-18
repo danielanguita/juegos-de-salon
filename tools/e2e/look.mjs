@@ -21,7 +21,7 @@
 import { launch, sleep } from './cdp.mjs';
 import { EN_LABS, LABS_KEY } from '../../public/assets/js/i18n.js';
 import { gameById } from '../../public/assets/js/games.js';
-import { PATHS } from './paths.mjs';
+import { PATHS, routeOf } from './paths.mjs';
 import { measureSpacing, lacksSpacing, MIN_SPACING } from './spacing-common.mjs';
 import { measureOverlap } from './spacing-common.mjs';
 import { measureMargins } from './margins-common.mjs';
@@ -52,7 +52,7 @@ if (!game) {
 const path = PATHS[game]?.[screen];
 // It is asked for by id ('ahorcado') and opens its folder ('/hangman/'): they are not the same (D-192).
 // What is not a game (the panel) is its own folder.
-const route = gameById(game)?.path || `${game}/`;
+const route = routeOf(game);
 if (!path) {
   const known = Object.keys(PATHS[game] || {});
   console.error(known.length ? `Unknown screen "${screen}". There are: ${known.join(', ')}` : `Unknown game "${game}". There are: ${Object.keys(PATHS).join(', ')}`);

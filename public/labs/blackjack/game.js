@@ -1236,7 +1236,10 @@ function renderResult() {
   $('#standings').hidden = state.players.length === 1;
 
   const shareCtx = mode === 'cpu' ? T.shareContextSolo : T.shareContextOnline;
-  const shareBody = title;
+  // The message carries the table (U-30, U-31): one line per player by coins; alone, the title already says them
+  const shareBody = state.players.length > 1
+    ? [title, ...sorted.map((p, i) => `${['🥇', '🥈', '🥉'][i] || `${i + 1}.`} ${p.name} 🪙 ${p.coins}`)].join('\n')
+    : title;
   $('#result-actions').replaceChildren(
     el('button', {
       class: 'btn btn--yellow', id: 'btn-again',
