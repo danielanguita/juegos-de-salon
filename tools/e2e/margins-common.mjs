@@ -68,12 +68,14 @@ export const measureMargins = `(()=>{
   const placed = x => { const s = getComputedStyle(x); return s.gridRowStart !== 'auto' || s.gridArea.split('/')[0].trim() !== 'auto'; };
   // A playing card's face (its corners and pips) is a drawing, not a column of blocks
   const cardFace = x => x.parentElement?.closest('.face, .pcard');
+  // A tilted or animated sticker (Nuevo, Popular) is drawn turned: its box is not where the layout put it
+  const turned = x => getComputedStyle(x).transform !== 'none';
   const root = document.querySelector('.screen.active') || document.querySelector('.app') || document.body;
   for (const e of root.querySelectorAll('*')) {
     if (!visible(e) || skip(e) || !inFlow(e) || cardFace(e) || e.closest('svg') && e.tagName.toLowerCase() !== 'svg') continue;
     let p = e.previousElementSibling;
     while (p && (!visible(p) || !inFlow(p))) p = p.previousElementSibling;
-    if (!p || skip(p) || heroIcon(p)) continue;
+    if (!p || skip(p) || heroIcon(p) || turned(p) || turned(e)) continue;
     if (getComputedStyle(e.parentElement).display.includes('grid') && (placed(e) || placed(p))) continue;
     const a = p.getBoundingClientRect(), b = e.getBoundingClientRect();
     const below = b.top >= a.top + a.height / 2;
