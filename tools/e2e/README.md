@@ -197,8 +197,8 @@ node tools/e2e/contact-sheet.mjs cuarto-rey --out /tmp/contact-sheet
 | `fourth-king/game.mjs` | At `/labs/fourth-king/` (D-420): sound button, full deck up to the fourth king and the menu in English; that the table is exactly the script's names, even if the remembered table brings more rows |
 | `blackjack/game.mjs` | ♠️ Blackjack at `/labs/blackjack/`: a solo game against the house to the result and back to the lab (C-19); with the flag `blackjack-felt` on, the felt table (the bet a chip on its spot, the shoe a bar), and switched off in the tester tab, the table as before; a double tap on «Apostar» and «Siguiente ronda» counts once (`doubleTap()`, D-576) |
 | `blackjack/languages.mjs` | Blackjack's screens in every offered language, against Spanish (D-199) |
-| `dash-hopper/game.mjs` | Dash Hopper / Saporín (lab): starts a seeded run, advances with the overlay controls and checks the result screen |
-| `dash-hopper/languages.mjs` | Dash Hopper's screens in every offered language, against Spanish (D-199) |
+| `croc/game.mjs` | Croc! (lab): starts a seeded run, advances with the overlay controls and checks the result screen |
+| `croc/languages.mjs` | Croc!'s screens in every offered language, against Spanish (D-199) |
 | `wobbles/game.mjs` | Tembleque at `/labs/wobbles/`: the cover's lever picks the level and its picture follows; each level starts a round from its card and ends on its game-over card, in es/en/pt, and its ‹ comes back to the cover |
 | `wobbles/languages.mjs` | Tembleque's cover in every offered language, against Spanish (D-199) |
 | `bulls-and-cows/local.mjs` | One phone and playing solo (twice, to see the record), up to the result |

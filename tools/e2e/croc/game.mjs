@@ -1,4 +1,4 @@
-// Dash Hopper (lab): starts a seeded run, advances with the overlay controls, and verifies result screen.
+// Croc! (lab): starts a seeded run, advances with the overlay controls, and verifies result screen.
 import { output } from '../output.mjs';
 import { launch, sleep } from '../cdp.mjs';
 
@@ -8,9 +8,9 @@ const b = await launch({ port: 0, dir: OUT + '/p', out: OUT });
 let failures = 0;
 const ok = (cond, msg) => { console.log((cond ? '✓ ' : '✗ ') + msg); if (!cond) failures++; };
 
-await b.go(`${SITE}/labs/dash-hopper/?seed=4821`);
+await b.go(`${SITE}/labs/croc/?seed=4821`);
 await b.evaluate('localStorage.clear(); 1');
-await b.go(`${SITE}/labs/dash-hopper/?seed=4821`);
+await b.go(`${SITE}/labs/croc/?seed=4821`);
 await b.evaluate("document.querySelector('.mode[data-mode=solo]').click(); 1");
 await sleep(450);
 ok(await b.active() === 'screen-play', 'the game starts');
@@ -18,11 +18,11 @@ await b.shot('play');
 
 // Play forward until either win or crash
 await b.evaluate(`(() => {
-  const g = window.__dashHopper.state();
+  const g = window.__croc.state();
   if (g) for (const l of g.lanes) l.vehicles = [];
 })()`);
 for (let i = 0; i < 40 && await b.active() === 'screen-play'; i++) {
-  await b.evaluate("window.__dashHopper.act('up'); 1");
+  await b.evaluate("window.__croc.act('up'); 1");
   await sleep(125);
 }
 await sleep(800);

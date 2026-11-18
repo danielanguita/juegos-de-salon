@@ -1,0 +1,3 @@
+level: minor
+
+- **Croc! (lab): new name, water canal with boats, Dash/boat cover demo and electric difficulty lever**: the lab's highway-crossing frog game (Sapiondo) is now **Croc!** in all three languages, inside and out (`/labs/croc/`, id `croc`, its La Copa game, tests and docs; the phone's `sapiondo` record and settings carry over once on load, C-20). It adds a water canal with passing boats at row 22, after a safe riverbank at row 21, crossed by Dashing over it or hopping onto a boat; a looping cover animation that shows Dash and boat-riding; and Tembleque's electric lever for the difficulty, explaining normal vs. heavy traffic. By Daniel (danielanguita).

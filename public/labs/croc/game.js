@@ -1,5 +1,5 @@
 /**
- * Dash Hopper: screens, touch/keyboard input, audio synth, session resume (C-6), sharing (C-7),
+ * Croc!: screens, touch/keyboard input, audio synth, session resume (C-6), sharing (C-7),
  * and result exits (C-19). Simulation is in engine.js; rendering is in scene.js.
  */
 import { $, $$, el, vibrate, confetti } from '../../assets/js/ui.js';
@@ -16,11 +16,11 @@ import { rankingsVisibles } from '../../assets/js/jugador.js';
 import { GAME_ID, FINISH_ROW, DEFAULT_CONFIG, LOCALES } from './rules.js';
 import * as E from './engine.js';
 import { createScene } from './scene.js';
-import manifest from '../../assets/js/manifests/labs/dash-hopper.js';
+import manifest from '../../assets/js/manifests/labs/croc.js';
 
 trackVisit();
 
-// C-20 / D-535 one-time localStorage migration from sapiondo -> dash-hopper
+// C-20 / D-535 one-time localStorage migration from the old id sapiondo
 try {
   for (const suffix of ['best', 'diff', 'session']) {
     const oldK = `juegos-de-salon:sapiondo:${suffix}`;
@@ -479,7 +479,7 @@ function renderIntro() {
 
   renderResumeSlot();
   startDashDemo();
-  footerInto($('#pie'), { screen: 'dash-hopper-cover', inbox: false, lang });
+  footerInto($('#pie'), { screen: 'croc-cover', inbox: false, lang });
   coverWithDialogs($('#screen-intro'), { lang, alTocar: () => SFX.tap() });
 }
 
@@ -774,7 +774,7 @@ function init() {
 }
 
 // Hook for end-to-end tests (C-14)
-window.__dashHopper = {
+window.__croc = {
   state: () => g,
   act: action => triggerAction(action),
   start: seed => startRun(seed || currentSeed),

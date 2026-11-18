@@ -105,11 +105,11 @@
         "public/cup/games/connections/grillas-pt.js",
         "public/cup/games/connections/grillas.js",
         "public/cup/games/connections/ui.js",
-        "public/cup/games/dash-hopper/engine.js",
-        "public/cup/games/dash-hopper/scene.js",
-        "public/cup/games/dash-hopper/style.css",
-        "public/cup/games/dash-hopper/texts.js",
-        "public/cup/games/dash-hopper/ui.js",
+        "public/cup/games/croc/engine.js",
+        "public/cup/games/croc/scene.js",
+        "public/cup/games/croc/style.css",
+        "public/cup/games/croc/texts.js",
+        "public/cup/games/croc/ui.js",
         "public/cup/games/deshacer.js",
         "public/cup/games/final/engine.js",
         "public/cup/games/final/ui.js",
@@ -724,12 +724,12 @@
       ]
     },
     {
-      "id": "dash-hopper",
+      "id": "croc",
       "emoji": "🐸",
       "name": {
-        "es": "Saporín",
-        "en": "Dash Hopper",
-        "pt": "Sapichão"
+        "es": "Croc!",
+        "en": "Croc!",
+        "pt": "Croc!"
       },
       "players": "1",
       "duration": "1–2",
@@ -751,7 +751,7 @@
       ],
       "chat": false,
       "files": [
-        "public/dash-hopper/index.html"
+        "public/croc/index.html"
       ]
     }
   ],
@@ -1221,7 +1221,7 @@
     "public/assets/js/manifests/generala.js",
     "public/assets/js/manifests/hangman.js",
     "public/assets/js/manifests/labs/blackjack.js",
-    "public/assets/js/manifests/labs/dash-hopper.js",
+    "public/assets/js/manifests/labs/croc.js",
     "public/assets/js/manifests/labs/fourth-king.js",
     "public/assets/js/manifests/labs/julep.js",
     "public/assets/js/manifests/labs/transfer.js",
@@ -1326,10 +1326,10 @@
     "public/cup/games/connections/grillas-pt.js",
     "public/cup/games/connections/grillas.js",
     "public/cup/games/connections/ui.js",
-    "public/cup/games/dash-hopper/engine.js",
-    "public/cup/games/dash-hopper/scene.js",
-    "public/cup/games/dash-hopper/texts.js",
-    "public/cup/games/dash-hopper/ui.js",
+    "public/cup/games/croc/engine.js",
+    "public/cup/games/croc/scene.js",
+    "public/cup/games/croc/texts.js",
+    "public/cup/games/croc/ui.js",
     "public/cup/games/deshacer.js",
     "public/cup/games/final/engine.js",
     "public/cup/games/final/ui.js",
@@ -1431,10 +1431,10 @@
     "public/labs/code/engine-palabra.js",
     "public/labs/code/engine.js",
     "public/labs/code/game.js",
-    "public/labs/dash-hopper/engine.js",
-    "public/labs/dash-hopper/game.js",
-    "public/labs/dash-hopper/rules.js",
-    "public/labs/dash-hopper/scene.js",
+    "public/labs/croc/engine.js",
+    "public/labs/croc/game.js",
+    "public/labs/croc/rules.js",
+    "public/labs/croc/scene.js",
     "public/labs/dominorama/engine.js",
     "public/labs/dominorama/game.js",
     "public/labs/exploding-numbers/engine.js",
@@ -1591,7 +1591,7 @@
     "public/cup/games/agents/palette.test.mjs",
     "public/cup/games/bridges/contrast.test.mjs",
     "public/cup/games/bridges/physics.test.mjs",
-    "public/cup/games/dash-hopper/engine.test.mjs",
+    "public/cup/games/croc/engine.test.mjs",
     "public/cup/games/deshacer.test.mjs",
     "public/cup/games/flap/engine.test.mjs",
     "public/cup/games/juegos.test.mjs",
@@ -1624,7 +1624,7 @@
     "public/labs/chameleon/engine.test.mjs",
     "public/labs/code/engine-palabra.test.mjs",
     "public/labs/code/engine.test.mjs",
-    "public/labs/dash-hopper/engine.test.mjs",
+    "public/labs/croc/engine.test.mjs",
     "public/labs/dominorama/engine.test.mjs",
     "public/labs/exploding-numbers/engine.test.mjs",
     "public/labs/flap/engine.test.mjs",
@@ -1780,6 +1780,8 @@
     "conformance.mjs",
     "contact-sheet.mjs",
     "cover-gaps.mjs",
+    "croc/game.mjs",
+    "croc/languages.mjs",
     "cup-games/languages.mjs",
     "cup/again.mjs",
     "cup/archived.mjs",
@@ -1805,8 +1807,6 @@
     "daily-player.mjs",
     "daily-variants.mjs",
     "daily.mjs",
-    "dash-hopper/game.mjs",
-    "dash-hopper/languages.mjs",
     "design/page.mjs",
     "dominorama/lab.mjs",
     "double-tap.mjs",
@@ -2065,12 +2065,12 @@
       "title": "🔗 Connections (Conexiones)"
     },
     {
-      "path": "docs/games/cup.md",
-      "title": "La Copa"
+      "path": "docs/games/croc.md",
+      "title": "🐸 Croc! (lab, in Juegos en prueba)"
     },
     {
-      "path": "docs/games/dash-hopper.md",
-      "title": "🐸 Saporín (lab, in Juegos en prueba)"
+      "path": "docs/games/cup.md",
+      "title": "La Copa"
     },
     {
       "path": "docs/games/design.md",
@@ -2231,6 +2231,6 @@
     "batalla-naval": 7,
     "julepe": 10,
     "cuarto-rey": 12,
-    "dash-hopper": 0
+    "croc": 0
   }
 }

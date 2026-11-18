@@ -1,10 +1,10 @@
-# 🐸 Saporín (lab, in Juegos en prueba)
+# 🐸 Croc! (lab, in Juegos en prueba)
 
 A solo arcade highway crossing built for mobile touch controls and deterministic Cup play.
 
 ## Summary
 
-- **Where:** `/labs/dash-hopper/`, behind the lab's door (D-281, D-395), `noindex`, listed in `/labs/` under 🎲 Juegos en prueba. Not in `games.js` while in the lab. Id `dash-hopper` in stats and `localStorage` (`juegos-de-salon:dash-hopper:session`, `juegos-de-salon:dash-hopper:best`, `juegos-de-salon:dash-hopper:diff`, migrated once from `juegos-de-salon:sapiondo:*`). Facts live in `game.json`.
+- **Where:** `/labs/croc/`, behind the lab's door (D-281, D-395), `noindex`, listed in `/labs/` under 🎲 Juegos en prueba. Not in `games.js` while in the lab. Id `croc` in stats and `localStorage` (`juegos-de-salon:croc:session`, `juegos-de-salon:croc:best`, `juegos-de-salon:croc:diff`, migrated once from `juegos-de-salon:sapiondo:*`). Facts live in `game.json`.
 - **For whom:** 1 player, seeded tracks (`?seed=<n>`) for repeatable competition. Languages: es, en, pt (C-3).
 
 ## Rules
@@ -34,8 +34,8 @@ None: single-player. Active runs are serialized (`serialize` / `hydrate`) into `
 
 ## Files
 
-- `public/labs/dash-hopper/`: `game.json`, `index.html`, `style.css`, `rules.js`, `engine.js`, `engine.test.mjs`, `scene.js`, `game.js`.
-- `tools/e2e/dash-hopper/game.mjs`: end-to-end play script (`window.__dashHopper`).
+- `public/labs/croc/`: `game.json`, `index.html`, `style.css`, `rules.js`, `engine.js`, `engine.test.mjs`, `scene.js`, `game.js`.
+- `tools/e2e/croc/game.mjs`: end-to-end play script (`window.__croc`).
 
 ## Exceptions to the canons
 

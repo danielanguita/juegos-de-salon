@@ -33,7 +33,7 @@ assert.equal(maxMinutes({ duration: '7', durationUnit: { es: 'días' } }), Infin
 // The ranking a sheet shows: wins for a game played in a room, else its solo table (as /records/)
 assert.deepEqual(rankingOf({ id: 'dudo', jugadas: true }), { table: 'dudo_victorias', wins: true });
 assert.deepEqual(rankingOf({ id: 'reinas' }), { table: 'reinas', wins: false });
-assert.deepEqual(rankingOf({ id: 'dash-hopper' }), { table: SOLO_TABLES['dash-hopper'], wins: false });
+assert.deepEqual(rankingOf({ id: 'croc' }), { table: SOLO_TABLES['croc'], wins: false });
 // The cover animation's page: only for La Copa's games (the others have none), with the game and the language
 assert.equal(demoUrl({ id: 'reinas' }, 'pt', 'https://x.cl/assets/js/home-carousels.js'), 'https://x.cl/cup/cover/?game=reinas&lang=pt');
 assert.equal(demoUrl({ id: 'dudo' }, 'es', 'https://x.cl/assets/js/home-carousels.js'), null);

@@ -1,5 +1,5 @@
 /**
- * Dash Hopper: pure, deterministic game engine (no DOM, fixed timestep, seeded RNG).
+ * Croc!: pure, deterministic game engine (no DOM, fixed timestep, seeded RNG).
  * Designed for repeatable Cup play: identical seed + identical inputs produce identical runs.
  */
 

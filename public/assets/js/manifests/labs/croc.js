@@ -1,13 +1,13 @@
 // Generated from game.json by node tools/generators/manifests.mjs: do not edit by hand.
 export default {
-  "id": "dash-hopper",
-  "path": "labs/dash-hopper/",
-  "slug": "dash-hopper",
+  "id": "croc",
+  "path": "labs/croc/",
+  "slug": "croc",
   "emoji": "🐸",
   "name": {
-    "es": "Saporín",
-    "en": "Dash Hopper",
-    "pt": "Sapichão"
+    "es": "Croc!",
+    "en": "Croc!",
+    "pt": "Croc!"
   },
   "tagline": {
     "es": "Cruza la autopista esquivando autos, agarra frutas y haz dash con estilo.",
@@ -16,17 +16,17 @@ export default {
   },
   "keywords": {
     "es": [
-      "saporin",
+      "croc",
       "rana",
       "autopista"
     ],
     "en": [
-      "dash hopper",
+      "croc",
       "frog",
       "highway"
     ],
     "pt": [
-      "sapichao",
+      "croc",
       "sapo",
       "rodovia"
     ]
@@ -45,7 +45,7 @@ export default {
     "solo"
   ],
   "ai": false,
-  "memory": "juegos-de-salon:dash-hopper:session",
+  "memory": "juegos-de-salon:croc:session",
   "languages": [
     "es",
     "en",

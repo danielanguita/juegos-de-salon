@@ -1,9 +1,9 @@
 /**
- * Dash Hopper: game constants and player-facing texts in es, en, and pt (C-2, C-3).
+ * Croc!: game constants and player-facing texts in es, en, and pt (C-2, C-3).
  * No logic here; the pure simulation lives in engine.js.
  */
 
-export const GAME_ID = 'dash-hopper';
+export const GAME_ID = 'croc';
 export const MIN_PLAYERS = 1;
 export const MAX_PLAYERS = 1;
 export const COLS = 7;
@@ -12,10 +12,10 @@ export const DEFAULT_CONFIG = { finishRow: FINISH_ROW };
 
 const ES = {
   ui: {
-    docTitle: 'Saporín 🐸 · Juegos de Salón',
-    gameChip: '🐸 Saporín',
+    docTitle: 'Croc! 🐸 · Juegos de Salón',
+    gameChip: '🐸 Croc!',
     menu: '‹ Laboratorio',
-    title: 'Saporín',
+    title: 'Croc!',
     lead: 'Cruza la autopista sin mirar atrás: esquiva autos, agarra frutas y salta el peligro con tu dash.',
     howTitle: '🐸 Cómo se juega',
     demoHint: 'Desliza largo ▲ · Salta 2 carriles',
@@ -53,8 +53,8 @@ const ES = {
     againNew: 'Nueva pista',
     shareRotulo: '📤 Compartir',
     shareContext: 'Cruce',
-    shareLineWin: '🐸 ¡Saporín cruzó los {total} carriles en {time}s! {score} pts',
-    shareLineCrash: '🐸 Saporín llegó al carril {lanes}/{total} con {score} pts',
+    shareLineWin: '🐸 Croc!: crucé los {total} carriles en {time}s. {score} pts',
+    shareLineCrash: '🐸 Croc!: llegué al carril {lanes}/{total} con {score} pts',
   },
   como: [
     '👆 Desliza adelante, izquierda o derecha en cualquier parte del tablero (sin retroceder).',
@@ -65,10 +65,10 @@ const ES = {
 
 const EN = {
   ui: {
-    docTitle: 'Dash Hopper 🐸 · Parlor Games',
-    gameChip: '🐸 Dash Hopper',
+    docTitle: 'Croc! 🐸 · Parlor Games',
+    gameChip: '🐸 Croc!',
     menu: '‹ Lab',
-    title: 'Dash Hopper',
+    title: 'Croc!',
     lead: 'Cross the highway with no turning back: dodge traffic, snatch fruit, and dash over danger.',
     howTitle: '🐸 How to play',
     demoHint: 'Long swipe ▲ · Leap 2 lanes',
@@ -106,8 +106,8 @@ const EN = {
     againNew: 'New track',
     shareRotulo: '📤 Share',
     shareContext: 'Highway run',
-    shareLineWin: '🐸 Dash Hopper cleared all {total} lanes in {time}s! {score} pts',
-    shareLineCrash: '🐸 Dash Hopper reached lane {lanes}/{total} with {score} pts',
+    shareLineWin: '🐸 Croc!: I cleared all {total} lanes in {time}s. {score} pts',
+    shareLineCrash: '🐸 Croc!: I reached lane {lanes}/{total} with {score} pts',
   },
   como: [
     '👆 Swipe forward, left, or right anywhere on the board (no going back).',
@@ -118,10 +118,10 @@ const EN = {
 
 const PT = {
   ui: {
-    docTitle: 'Sapichão 🐸 · Jogos de Salão',
-    gameChip: '🐸 Sapichão',
+    docTitle: 'Croc! 🐸 · Jogos de Salão',
+    gameChip: '🐸 Croc!',
     menu: '‹ Laboratório',
-    title: 'Sapichão',
+    title: 'Croc!',
     lead: 'Atravesse a rodovia sem olhar para trás: desvie dos carros, pegue frutas e salte o perigo com Dash.',
     howTitle: '🐸 Como se joga',
     demoHint: 'Deslize longo ▲ · Salte 2 faixas',
@@ -159,8 +159,8 @@ const PT = {
     againNew: 'Nova pista',
     shareRotulo: '📤 Compartilhar',
     shareContext: 'Travessia',
-    shareLineWin: '🐸 Sapichão cruzou todas as {total} faixas em {time}s! {score} pts',
-    shareLineCrash: '🐸 Sapichão chegou à faixa {lanes}/{total} com {score} pts',
+    shareLineWin: '🐸 Croc!: cruzei as {total} faixas em {time}s. {score} pts',
+    shareLineCrash: '🐸 Croc!: cheguei à faixa {lanes}/{total} com {score} pts',
   },
   como: [
     '👆 Deslize para frente, esquerda ou direita em qualquer lugar do tabuleiro (sem voltar).',

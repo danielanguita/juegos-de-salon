@@ -1,5 +1,5 @@
 /**
- * Dash Hopper in La Copa: pure, deterministic highway-crossing engine (no DOM).
+ * Croc! in La Copa: pure, deterministic highway-crossing engine (no DOM).
  * Uses hash32(code:day) so every player in the same Cup gets the exact same traffic & fruits.
  */
 import { hash32 } from '../semilla.js';

@@ -15,6 +15,7 @@ const SAME_NAME = {
   agentes: { pt: 'the same word in Portuguese' },
   stick: { en: 'a Japanese word, the same everywhere', pt: 'a Japanese word, the same everywhere' },
   stack: { en: 'a proper name (the tower)', pt: 'a proper name (the tower)' },
+  croc: { en: 'a frog\'s croak, the same sound in every language', pt: 'a frog\'s croak, the same sound in every language' },
   sudoku: { en: 'the puzzle\'s own name, the same everywhere', pt: 'the puzzle\'s own name, the same everywhere' },
 };
 

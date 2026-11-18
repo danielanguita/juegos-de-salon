@@ -33,7 +33,7 @@ The games with their own section below come first; after them, the one-player ga
 | ⚓ [Battleship / Batalla Naval / Batalha Naval](#-battleship-batalla-naval) | 1 to 2 | One phone · Two phones · Versus the phone | v0.6 |
 | 🍹 [Julep / Julepe / Paga o Bolo](#-julep-julepe) | 1 to 6 | One phone · Several phones · Versus the phone | 🧪 lab |
 | 👑 [Fourth King / Cuarto Rey / Quarto Rei](#-fourth-king-cuarto-rey) | 4 to 6 | One phone | 🧪 lab |
-| 🐸 [Dash Hopper / Saporín / Sapichão](#-dash-hopper-saporín) | 1 | Cross the highway | 🧪 lab |
+| 🐸 [Croc!](#-croc) | 1 | Cross the highway | 🧪 lab |
 | 🔗 [Connections / Conexiones / Conexões](https://juegosdesalon.cl/connections/) | 1 | Play alone | 📦 La Bodega |
 | 🔤 [Bulls and Cows: Word / Toque y Fama: Palabra / Toque e Fama: Palavra](https://juegosdesalon.cl/word/) | 1 | Play alone | Also in The Cup |
 | 📅 [What Year? / ¿En qué año? / Em que ano?](https://juegosdesalon.cl/year/) | 1 | Play alone | Also in The Cup |
@@ -553,7 +553,7 @@ The whole app is translated, Portuguese as spoken in Brazil (German left in D-51
 | Batalla Naval | Battleship | Batalha Naval |
 | Julepe | Julep | Paga o Bolo |
 | Cuarto Rey | Fourth King | Quarto Rei |
-| Saporín | Dash Hopper | Sapichão |
+| Croc! | Croc! | Croc! |
 | Conexiones | Connections | Conexões |
 | Toque y Fama: Palabra | Bulls and Cows: Word | Toque e Fama: Palavra |
 | ¿En qué año? | What Year? | Em que ano? |
@@ -672,8 +672,8 @@ These documents are being moved to English (D-316); the ones with a Spanish titl
 - [🦎 El Camaleón (lab prototype, in Juegos en prueba)](docs/games/chameleon.md)
 - [🔐 La clave (prototipo del laboratorio, en La Bodega)](docs/games/code.md)
 - [🔗 Connections (Conexiones)](docs/games/connections.md)
+- [🐸 Croc! (lab, in Juegos en prueba)](docs/games/croc.md)
 - [La Copa](docs/games/cup.md)
-- [🐸 Saporín (lab, in Juegos en prueba)](docs/games/dash-hopper.md)
 - [🎨 The components page (the design system, in the lab)](docs/games/design.md)
 - [🎲 Dominorama (lab prototype, in Juegos en prueba)](docs/games/dominorama.md)
 - [💥 Números explosivos (prototipo del laboratorio, en Juegos en prueba)](docs/games/exploding-numbers.md)

@@ -1,5 +1,5 @@
 /**
- * Dash Hopper in La Copa: 2.5D top-down HTML5 Canvas renderer (self-contained per D-378).
+ * Croc! in La Copa: 2.5D top-down HTML5 Canvas renderer (self-contained per D-378).
  */
 import { COLS, sectorOf } from './engine.js';
 
