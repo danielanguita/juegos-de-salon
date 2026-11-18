@@ -19,7 +19,7 @@ for (const [lang, file] of [['es', 'clues.js'], ['en', 'clues-en.js'], ['pt', 'c
   const hits = PISTAS.flatMap(x => checkClue(x).map(h => `${x.pista} ${h.id}: ${h.msg}`)).sort();
   for (const h of hits) assert.ok(known[lang].includes(h), `${lang}: new defect ${h}`);
   const { bad, n } = m3Rate(lang, 60);
-  assert.ok(bad < n, `${lang}: M3 measured`);
+  assert.equal(bad, 0, `${lang}: ${bad} of ${n} boards break M3, which generar enforces (D-583)`);
 }
 
 // The eval cases: the owner's 20 labels exist in the deck, and each bad case breaks what it says

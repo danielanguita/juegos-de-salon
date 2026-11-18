@@ -95,7 +95,8 @@ The numbers come from `numbers.js` (`CUANTAS`, `NEUTRALES`, `RESTA_NEUTRAL`, `RE
   or temptation of another) and, at random, the one with an agent less; the agents of each (3, or 2
   the short one) that are not of another chosen clue; the assassin from the temptations, not an agent of
   any, and the 3 neutrals from the temptations too, preferably of another clue than the assassin's. The
-  assassin and the neutrals carry `tienta`, the clue they look like. No clue is on its own board.
+  assassin and the neutrals carry `tienta`, the clue they look like. No clue is on its own board, and no clue
+  has as many temptations on the board as agents (M3, D-583): its number always picks one group.
   `generarDia(código, día, { sal, palabras, aud, ensayo })` is La Copa's (D-331). `estado(t, jugadas)`
   rebuilds the game from the moves (`{i}` or `{pasar:true}`).
 - `ui.js`: the screen (`montar`), the waiting room's title and drawing, the result and the breakdown.

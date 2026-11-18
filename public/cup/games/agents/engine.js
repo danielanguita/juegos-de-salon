@@ -84,6 +84,9 @@ export function generar(semilla, { lang = 'es', aud = null, cuantas = CUANTAS, n
     const neutrales = [...quedan.filter(w => tientaA(w) !== tientaA(asesino)), ...quedan.filter(w => tientaA(w) === tientaA(asesino))].slice(0, nNeutrales);
     if (neutrales.length < nNeutrales) continue;
     for (const w of neutrales) { usadas.add(w); cartas.push({ w, tipo: 'neutral', p: null, tienta: tientaA(w) }); }
+    // M3 (D-583): no clue has as many of its temptations on the board as agents, or its number
+    // could not pick the group and the player would guess instead of deduce
+    if (elegidas.some((_, p) => cartas.filter(c => c.tipo !== 'agente' && c.tienta === p).length >= cuantos(p))) continue;
     return { pistas: elegidas.map((x, p) => ({ pista: x.pista, n: cuantos(p) })), cartas: barajar(cartas, r) };
   }
   throw new Error('no se pudo armar un tablero');

@@ -26,7 +26,7 @@ Where today's rule is and which decisions explain it: those in force that still 
 | Structure and paths | C-2, C-18 | D-1, D-2, D-3, D-24, D-192, D-198, D-214, D-256, D-266, D-269, D-270, D-280, D-281, D-284, D-286, D-289, D-293, D-297, D-310, D-311, D-316, D-372, D-420, D-422, D-434, D-468, D-479, D-480, D-498, D-509, D-510, D-511, D-515, D-516, D-517, D-528, D-529, D-532, D-534, D-535, D-542, D-550, D-556, D-567, D-579 |
 | Identity and texts | C-1 | D-11, D-30, D-49, D-177, D-184, D-324, D-457, D-488, D-533, D-535, D-570, D-576 |
 | Dated card decks | `docs/games/timeline.md` | D-37, D-277, D-278, D-314 |
-| 🕵️ Agentes (board, clues in four languages, traps) | `docs/games/agents.md` | D-286, D-287, D-288, D-421, D-442 |
+| 🕵️ Agentes (board, clues in four languages, traps) | `docs/games/agents.md` | D-286, D-287, D-288, D-421, D-442, D-583 |
 | 🖌️ Pintaminas, the lab's colour Minesweeper (drawings and their colours, brushes, no-guess board, hard mode, help, giving up) | `docs/games/paint-mines.md` | D-289, D-290, D-291, D-292, D-296, D-298, D-332 |
 | 🚇 Rutas rotas (formerly Rutas), the lab's metro map (rectangle turns, exact minimum, five stages, 7-minute clock and layered score) | `docs/games/routes.md` | D-293, D-294, D-295, D-332 |
 | 💥 Números explosivos, the lab's number solitaire (equal pairs or pairs adding to 10, rows that clear, ➕, a board with a way out, explosions) | `docs/games/exploding-numbers.md` | D-297 |
@@ -55,7 +55,7 @@ Where today's rule is and which decisions explain it: those in force that still 
 | Marketing | `marketing/README.md` | D-178, D-380, D-410, D-454, D-456, D-494, D-505, D-529 |
 | Installable app and phone notifications | C-2, [PWA-NOTIFICACIONES.md](PWA-NOTIFICACIONES.md) | D-221, D-222, D-223, D-224, D-225, D-227, D-228, D-229, D-230, D-232, D-233, D-504, D-538, D-544, D-545, D-546, D-564, D-565, D-571, D-574 |
 
-## In force (566)
+## In force (567)
 
 | D | Title | Status |
 |---|---|---|
@@ -625,6 +625,7 @@ Where today's rule is and which decisions explain it: those in force that still 
 | [D-580](decisions/D-580.md) | A PR in conflict only because of generated files brings itself up to date | current |
 | [D-581](decisions/D-581.md) | One a Day ends on one page | current |
 | [D-582](decisions/D-582.md) | Each agent runs on the model and effort its work needs | current |
+| [D-583](decisions/D-583.md) | Agentes' boards follow M3, and its decks lose their give-aways | current |
 
 ## No longer in force (12)
 
