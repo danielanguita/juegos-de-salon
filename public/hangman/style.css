@@ -49,7 +49,7 @@
   display: flex; align-items: center; justify-content: center; gap: var(--s-10);
   background: rgb(var(--bg1-rgb) / 0.86); border-radius: var(--r-16);
   backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px);
-  animation: flashPop 1s ease-out both;
+  animation: flashPop 3s ease-out both;
 }
 .flash b { font-family: var(--font-display); font-size: clamp(1.3rem, 6vw, 1.8rem); letter-spacing: 0.04em; }
 .flash span { font-family: var(--font-display); font-size: clamp(2.2rem, 11vw, 3rem); line-height: 1; }
@@ -58,8 +58,8 @@
 .flash.buy b, .flash.buy span { color: var(--yellow); text-shadow: 0 4px 0 rgb(var(--bg1-rgb) / 0.4), 0 0 28px rgb(var(--yellow-rgb) / 0.75); }
 @keyframes flashPop {
   0%   { opacity: 0; }
-  12%  { opacity: 1; }
-  72%  { opacity: 1; }
+  4%   { opacity: 1; }
+  90%  { opacity: 1; }
   100% { opacity: 0; }
 }
 /* Lo que se infla es el texto, no el velo: el velo solo aparece y se va */
@@ -72,9 +72,9 @@
 }
 /* Sin animación, el cartel igual aparece y se va: es información, no adorno */
 @media (prefers-reduced-motion: reduce) {
-  .flash { animation: flashFade 1s linear both; }
+  .flash { animation: flashFade 3s linear both; }
   .flash b, .flash span { animation: none; }
-  @keyframes flashFade { 0%, 85% { opacity: 1; } 100% { opacity: 0; } }
+  @keyframes flashFade { 0%, 90% { opacity: 1; } 100% { opacity: 0; } }
 }
 
 .board { position: relative; display: grid; grid-template-columns: 124px 1fr; gap: var(--s-10); align-items: start; margin: var(--s-2) 0 0; }

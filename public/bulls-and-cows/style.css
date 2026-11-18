@@ -77,3 +77,8 @@
 .variantes .opcion b { font-size: var(--fs-100); }
 /* A short phone (320×568): a smaller icon makes room for the Número / Palabra toggle, so the first mode stays above the fold */
 @media (max-height: 600px) { .intro-hero .icon { font-size: 3.2rem; } }
+/* A short phone: the solo rules ran 70-114 px past 320×568 and hid «Empezar»; it goes right under the title */
+@media (max-height: 640px) {
+  #solo-intro > h2 { order: -2; }
+  #btn-solo-empezar { order: -1; }
+}

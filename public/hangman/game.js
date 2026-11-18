@@ -46,8 +46,12 @@ const ALPHA = ALPHABETS[lang] || ALPHABETS.es;
 /** Cuántas palabras del mazo se le ofrecen a quien escribe (D-62). */
 const SUGGEST_N = 6;
 /** Cuánto dura el cartel de acierto o error (D-63). Dos segundos y no uno: con uno la jugada
- *  pasaba antes de que el jugador levantara la vista del teclado. */
-const FLASH_MS = 2000;
+ *  pasaba antes de que el jugador levantara la vista del teclado. Three, not two: the CSS showed it
+ *  whole for only 0.6 s of its 1 s animation, too short to read «HIT · E»; now it is whole for 2.6 s. */
+const FLASH_MS = 3000;
+/** How long a letter's verdict stays when it closes on its own (one phone, the last one playing):
+ *  a title, a sentence and the word; 1.7 s cut the sentence mid-read. */
+const VERDICT_MS = 2800;
 const store = createSessionStore(GAME_ID);
 const nameStore = createNameStore(GAME_ID);
 /** Uno al día (D-230): con `?today`, la palabra del día con el mazo del celular, sin elegir modo. */
@@ -321,7 +325,7 @@ function showTurnVerdict(v) {
   const gen = (S.verdictGen = (S.verdictGen || 0) + 1);
   const seguir = showHandoff([stage], () => { S.uiRole = view().current; onChange(); }, { tapAdvances: !siguiente });
   // El resultado de una letra sin pase de por medio se cierra solo: es el último que queda jugando
-  if (!siguiente && !cerrado) setTimeout(() => { if (S.verdictGen === gen && !$('#handoff').hidden) seguir(); }, 1700);
+  if (!siguiente && !cerrado) setTimeout(() => { if (S.verdictGen === gen && !$('#handoff').hidden) seguir(); }, VERDICT_MS);
   return true;
 }
 
