@@ -1,3 +1,4 @@
+import { rows as factoryRows } from './factory.mjs';
 /**
  * The weekly report as one printable HTML page (D-352): what `weekly.mjs` turns into a PDF. Pure:
  * it takes what `semana()` returns and gives back the page.
@@ -118,7 +119,8 @@ ${tabla(['Entry page', 'Visits that started here', 'Played', 'Views'], r.trafico
 <section><h2>🩺 Health</h2><p>Loads with a failure: <b>${pctTxt(r.salud.fallas)}</b> ${r.salud.fallas !== null && r.salud.fallasAntes !== null ? cambio(r.salud.fallas - r.salud.fallasAntes, true) : ''} · loads that did not start: <b>${num(r.salud.noArranco)}</b></p>
 ${tabla(['Top errors', 'Pages', 'Loads'], r.salud.errores.map(e => [esc(e.mensaje).slice(0, 110), esc(e.pagina), num(e.veces)]))}</section>
 
-<section><h2>🗓️ Events of the week</h2>
+${r.fabrica ? `<section><h2>🏭 The factory</h2>${tabla(['Metric', 'This week'], factoryRows(r.fabrica).map(([k, v]) => [esc(k), esc(v)]))}</section>
+` : ''}<section><h2>🗓️ Events of the week</h2>
 ${eventosVersiones(r.eventos.versiones)}
 <p>Cups created: ${r.eventos.copasNuevas.length ? r.eventos.copasNuevas.map(c => `${esc(c.nombre)} (${c.dias} days${c.lab ? ', lab' : ''})`).join(', ') : 'none'} · player reports: <b>${num(r.eventos.reportes)}</b></p></section>
 

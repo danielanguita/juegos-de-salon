@@ -1687,6 +1687,7 @@
     "tools/release/precache.test.mjs",
     "tools/release/syntax.test.mjs",
     "tools/release/version.test.mjs",
+    "tools/reports/factory.test.mjs",
     "tools/reports/weekly-data.test.mjs"
   ],
   "e2e": [
