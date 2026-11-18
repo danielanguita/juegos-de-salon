@@ -1665,6 +1665,7 @@
     "tools/firebase/uad-index.test.mjs",
     "tools/firebase/uad-points-backfill.test.mjs",
     "tools/firebase/unnoted-rooms.test.mjs",
+    "tools/generators/clues/clues.test.mjs",
     "tools/generators/manifests.test.mjs",
     "tools/generators/new-game.test.mjs",
     "tools/jobs/claude-task.test.mjs",
