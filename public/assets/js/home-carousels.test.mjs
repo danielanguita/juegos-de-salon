@@ -1,6 +1,6 @@
 // The home page's carousels (lab flag home-carousels): which rows there are and what each holds.
 import assert from 'node:assert/strict';
-import { shelves, maxMinutes, rankingOf, TEXTS, QUICK_MINUTES } from './home-carousels.js';
+import { shelves, maxMinutes, rankingOf, demoUrl, TEXTS, QUICK_MINUTES } from './home-carousels.js';
 import { PORTADA, TIPOS, SOLO_TABLES } from './games.js';
 
 const games = PORTADA.filter(g => g.id !== 'letras');
@@ -34,6 +34,9 @@ assert.equal(maxMinutes({ duration: '7', durationUnit: { es: 'días' } }), Infin
 assert.deepEqual(rankingOf({ id: 'dudo', jugadas: true }), { table: 'dudo_victorias', wins: true });
 assert.deepEqual(rankingOf({ id: 'reinas' }), { table: 'reinas', wins: false });
 assert.deepEqual(rankingOf({ id: 'sapiondo' }), { table: SOLO_TABLES.sapiondo, wins: false });
+// The cover animation's page: only for La Copa's games (the others have none), with the game and the language
+assert.equal(demoUrl({ id: 'reinas' }, 'pt', 'https://x.cl/assets/js/home-carousels.js'), 'https://x.cl/cup/cover/?game=reinas&lang=pt');
+assert.equal(demoUrl({ id: 'dudo' }, 'es', 'https://x.cl/assets/js/home-carousels.js'), null);
 // The same texts in every language (C-3)
 for (const l of ['en', 'pt']) assert.deepEqual(Object.keys(TEXTS[l]), Object.keys(TEXTS.es), `${l}: the same keys as es`);
 console.log(`✓ home-carousels: ${rows.length} rows, ${inRows.size} games, every one in a row`);

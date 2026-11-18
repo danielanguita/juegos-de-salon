@@ -17,8 +17,8 @@
 .shelf-row::-webkit-scrollbar { display: none; }
 .shelf-row > [role="listitem"] { flex: 0 0 124px; display: flex; scroll-snap-align: start; }
 
-/* A game: the home card's glass, its icon in the same well, the name in the display font and what
-   it takes underneath. The whole tile is one button */
+/* A game: the home card's glass, its icon in the same well and its name in the display font, nothing else.
+   The whole tile is one button */
 .shelf-tile {
   position: relative; flex: 1; min-width: 0; min-height: 44px; display: flex; flex-direction: column; align-items: center; gap: var(--s-6);
   padding: var(--s-12) var(--s-8); text-align: center; cursor: pointer;
@@ -32,10 +32,6 @@
   background: linear-gradient(180deg, rgb(var(--ink-rgb) / 0.18), rgb(var(--ink-rgb) / 0.05)); border-radius: var(--r-16);
 }
 .shelf-tile .name { font-family: var(--font-display); font-size: var(--fs-120); letter-spacing: 0.04em; line-height: 1.05; text-transform: uppercase; overflow-wrap: anywhere; }
-.shelf-tile .meta { margin-top: auto; display: flex; flex-wrap: wrap; justify-content: center; gap: var(--s-2) var(--s-8); font-size: var(--fs-75); font-weight: 800; color: var(--muted); }
-.shelf-tile .meta > span { white-space: nowrap; }
-/* "jugadores" is said to a screen reader only: beside 👥 the number is enough to the eye (as on La Copa's card) */
-.shelf-tile .unidad { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 
 /* The game's sheet: the bottom sheet (.hoja) with its body scrolling between the tabs and ▶ Jugar,
    so the button stays in sight under a long ranking (U-39) */
@@ -43,6 +39,9 @@
 .game-sheet .hoja-cabeza h2 { flex: 1; min-width: 0; overflow-wrap: anywhere; }
 .game-sheet-icon { flex: none; font-size: var(--fs-200); line-height: 1; }
 .game-sheet-body { flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
+/* The game's cover animation, framed (cup/cover/): as wide as the sheet's text, as tall as its page says; nothing in it is tapped */
+.game-sheet-demo { display: block; width: 100%; height: 0; border: 0; background: none; color-scheme: normal; pointer-events: none; }
+.game-sheet-demo:not(.on) { position: absolute; visibility: hidden; }
 .game-sheet-fav { color: var(--muted); }
 .game-sheet-fav.on { color: var(--yellow); }
 .game-sheet > .btn { flex: none; }

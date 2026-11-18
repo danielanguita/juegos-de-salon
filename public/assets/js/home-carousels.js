@@ -3,14 +3,15 @@
  * `home-carousels`, lab: #seccion-home-carousels). The top of the page stays as it is: bar, title,
  * tagline, the dice, La Copa and Uno al día. Under them, one row per way of choosing, each sliding
  * sideways: favourites (once one is marked), popular, new, with friends, quick, and one per type.
- * A game says its icon, its name and how long it takes (how many play too, when more than one can),
- * never a label: the row it is in already says it. A tap opens a sheet with what the game is, its
- * ranking and ▶ Jugar; the ⭐ lives there too.
+ * A game says its icon and its name, nothing else (the owner, 2026-11-18): the row it is in already says what
+ * kind it is, and how long it takes and how many play are in its sheet. A tap opens a sheet with what the game is, its
+ * ranking and ▶ Jugar; the ⭐ lives there too. On top of the details, the game's cover animation plays (the demo
+ * of its waiting room, or its "how to play" drawing), in a frame of `cup/cover/`: it shows how the game is played.
  *
  * It reads the same games the list does (`PORTADA` without Toque y Fama: Palabra), so a game that
  * reaches the home page reaches a carousel (C-21). Only the home page loads this file.
  */
-import { TIPOS, SOLO_TABLES, rangoJugadores, esNuevo, populares } from './games.js';
+import { TIPOS, SOLO_TABLES, SUELTOS, rangoJugadores, esNuevo, populares } from './games.js';
 import { el } from './ui.js';
 import { gameIcon } from './game-icon.js';
 import { pickLang } from './i18n.js';
@@ -52,6 +53,13 @@ export function shelves(games, { favs = [], top = populares(), isNew = esNuevo }
 /** The table a game's sheet shows: its wins when it is played in a room, else its solo scores (as /records/ does). */
 export const rankingOf = g => (g.jugadas ? { table: `${g.id}_victorias`, wins: true } : { table: SOLO_TABLES[g.id] || g.id, wins: false });
 
+/**
+ * The page that draws a game's cover animation alone (cup/cover/), for the sheet's frame; null for a game
+ * that is not one of La Copa's, which has none. In a frame, so the home page loads no game's code or styles (D-378).
+ */
+const SOLO_IDS = new Set(SUELTOS.map(g => g.id));
+export const demoUrl = (g, lang, base = import.meta.url) => (SOLO_IDS.has(g.id) ? new URL(`../../cup/cover/?game=${g.id}&lang=${lang}`, base).href : null);
+
 const fmt = (s, v) => String(s).replace(/\{(\w+)\}/g, (_, k) => v[k] ?? `{${k}}`);
 
 /**
@@ -74,7 +82,7 @@ export async function drawCarousels({ lang, T, games, tap = () => {}, doc = docu
   doc.getElementById('games').after(box);
 
   /* ---------------- the sheet ---------------- */
-  let layer = null, before = null, pinned = null;
+  let layer = null, before = null, pinned = null, onDemo = null;
   const onKey = e => {
     if (e.key === 'Escape') return close();
     // A modal dialog keeps Tab inside it: the page behind is not reachable while the sheet is open
@@ -100,6 +108,7 @@ export async function drawCarousels({ lang, T, games, tap = () => {}, doc = docu
   function close() {
     if (!layer) return;
     layer.remove(); layer = null;
+    if (onDemo) { doc.defaultView.removeEventListener('message', onDemo); onDemo = null; }
     unpin();
     doc.removeEventListener('keydown', onKey);
     // The tile may have been drawn again meanwhile (a ⭐ marked): the one in its place takes the focus
@@ -118,7 +127,21 @@ export async function drawCarousels({ lang, T, games, tap = () => {}, doc = docu
     fav.addEventListener('click', () => { tap(); alternarFavorito(g.id); paintFav(); doc.dispatchEvent(new CustomEvent('favoritos')); });
     paintFav();
 
+    // The game's cover animation, in a frame that takes the height its page says; put away if the game has none.
+    // It starts with no height (never `hidden`: a demo measures its width to draw) and nothing in it is tapped
+    const src = demoUrl(g, lang);
+    const demo = src && el('iframe', { class: 'game-sheet-demo', id: 'game-sheet-demo', src, title: name, tabindex: '-1', 'aria-hidden': 'true', scrolling: 'no' });
+    if (demo) {
+      const win = doc.defaultView;
+      onDemo = e => {
+        if (e.origin !== win.location.origin || e.source !== demo.contentWindow || e.data?.type !== 'cover-demo' || e.data.game !== g.id) return;
+        const h = Number(e.data.height) || 0;
+        if (h > 0) { demo.style.height = `${Math.min(h, 320)}px`; demo.classList.add('on'); } else demo.remove();
+      };
+      win.addEventListener('message', onDemo);
+    }
     const details = el('div', { class: 'stack', id: 'game-sheet-details' },
+      demo,
       el('p', {}, pickLang(g.tagline, lang)),
       el('div', { class: 'chips' },
         el('span', { class: 'chip' }, `👥 ${g.players} ${max === 1 ? T.player : T.players}`),
@@ -191,13 +214,9 @@ export async function drawCarousels({ lang, T, games, tap = () => {}, doc = docu
     box.replaceChildren(...shelves(games, { favs: favoritos() }).map(s => {
       const paths = s.games.map(g => new URL(g.path, doc.baseURI).href);
       const row = el('div', { class: 'shelf-row', 'data-shelf': s.id, role: 'list' }, s.games.map(g => {
-        const [, max] = rangoJugadores(g.players);
         return el('div', { role: 'listitem' }, el('button', { type: 'button', class: 'shelf-tile', 'data-id': g.id, 'aria-haspopup': 'dialog', onClick: () => { tap(); open(g, s.id, paths); } },
           el('span', { class: 'emoji', 'aria-hidden': 'true' }, gameIcon(g, { size: 1 })),
-          el('span', { class: 'name' }, pickLang(g.name, lang)),
-          el('span', { class: 'meta' },
-            el('span', {}, `⏱ ${g.duration} ${unit(g)}`),
-            max > 1 && el('span', {}, `👥 ${g.players}`, el('span', { class: 'unidad' }, ` ${T.players}`)))));
+          el('span', { class: 'name' }, pickLang(g.name, lang))));
       }));
       const section = el('section', { class: 'shelf', 'aria-labelledby': `shelf-${s.id}` },
         el('h2', { class: 'display display--sm', id: `shelf-${s.id}` }, el('span', { 'aria-hidden': 'true' }, `${s.emoji} `), titleOf(s.id)), row);

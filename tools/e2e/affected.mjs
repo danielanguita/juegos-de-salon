@@ -370,8 +370,9 @@ export function affectedJobs(jobs, changes, shared) {
 /* ------------------------------------------------------------------ */
 
 // La Copa's own pages besides its screens (which load cup/game.js, that plays the games La Copa is made
-// of): the three that show its data
-const SHOWS_CUP = new Set(['today', 'records', 'panel']);
+// of): the three that show its data, and the one that draws a game's cover animation alone (cup/cover/, which
+// the home page's game sheet frames)
+const SHOWS_CUP = new Set(['today', 'records', 'panel', 'cup/cover']);
 // Small modules every page may load, though they live in a game's folder
 export const SHARED = {
   'cup/reportes.js': 'the 🐞 reports and the inbox, from every page (D-341)',
