@@ -21,9 +21,13 @@
   <link rel="stylesheet" href="../style.css">
   <style>
     /* Framed: the sheet behind shows through, and the drawing fills the frame's width with no page padding */
-    html, body { background: transparent; margin: 0; padding: 0; overflow: hidden; }
+    html, body { background: transparent; margin: 0; padding: 0; overflow: hidden; height: 100%; }
+    /* In a frame taller than the drawing, the drawing sits in the middle */
+    body { display: grid; grid-template-columns: minmax(0, 1fr); align-content: center; }
     #demo { display: grid; grid-template-columns: minmax(0, 1fr); justify-items: center; }
     #demo .intro-hero { width: 100%; margin: 0; }
+    /* A credit line with its link (Agentes' «Inspirado en Codenames») stays on the game's own page: nothing in a frame is tapped */
+    #demo p:has(a) { display: none; }
   </style>
 </head>
 <body>

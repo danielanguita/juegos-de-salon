@@ -2,7 +2,8 @@
  * A game's cover animation alone in a page (cup/cover/, see its index.html): `?game=<id>` mounts the
  * game's `portada` (the demo that plays itself on its waiting room) or, without one, its `ejemplo` (the
  * "how to play" drawing), and tells the framing page its height: `{ type: 'cover-demo', game, height }`,
- * with height 0 when the game brings neither (the frame is then put away).
+ * with height 0 when the game brings neither (the frame is then put away). That height is the drawing's own; when
+ * the frame is made taller than it, the drawing grows to fill the frame, centred.
  */
 import { el } from '../../assets/js/ui.js';
 import { getLang } from '../../assets/js/i18n.js';
@@ -14,6 +15,10 @@ const game = param('game') || '';
 /** The tallest an example drawing shows in the frame, in px. */
 export const MAX_EXAMPLE = 260;
 const ZOOMS = [1, 0.9, 0.8];
+/** How many times its own size a drawing may grow to fill a taller frame. */
+export const MAX_GROW = 2;
+/** …and how small it may get when the frame is shorter than it. */
+export const MIN_FIT = 0.5;
 const tell = height => { if (parent !== window) parent.postMessage({ type: 'cover-demo', game, height }, location.origin); };
 
 /** What a game draws to show itself: its animated cover first, else its example. Pure but for the game's own nodes. */
@@ -33,14 +38,31 @@ if (typeof document !== 'undefined') {
     // The drawing's height, now and whenever it changes (a stylesheet arriving, a caption wrapping). An example
     // drawn for a whole panel (Tango's, Zip's) is shrunk towards MAX_EXAMPLE px, so the sheet keeps room for its text
     let last = -1;
+    const height = () => box.getBoundingClientRect().height;
+    const zoom = z => { box.style.zoom = Math.abs(z - 1) < 0.01 ? '' : String(z); };
     const measure = () => {
-      if (demo.kind === 'example') {
-        // The largest step that fits (its figures may go side by side as it shrinks), never under MIN_ZOOM: its captions stay readable
-        for (const z of ZOOMS) { box.style.zoom = z === 1 ? '' : String(z); if (box.getBoundingClientRect().height <= MAX_EXAMPLE) break; }
-      }
-      const h = Math.ceil(box.getBoundingClientRect().height);
+      // Its own size first: an example at the largest step that fits (its figures may go side by side as it
+      // shrinks), never under the last step, so its captions stay readable; a cover demo as its game draws it
+      let base = 1;
+      if (demo.kind === 'example') for (const z of ZOOMS) { base = z; zoom(z); if (height() <= MAX_EXAMPLE) break; }
+      else zoom(1);
+      const h = Math.ceil(height());
       if (h !== last) { last = h; tell(h); }
+      // Then it grows into the room the frame gives (the sheet keeps one height for its two tabs, and the frame
+      // takes what the details leave): up to MAX_GROW times, and never wider or taller than the frame
+      // …and on a short screen, where the frame gets less than the drawing's size, it shrinks to fit, down to MIN_FIT
+      const room = innerHeight;
+      if (h <= 0 || room <= 0 || Math.abs(room - h) < h * 0.03) return;
+      let z = Math.max(MIN_FIT, Math.min(MAX_GROW, room / h));
+      for (let i = 0; i < 3; i++) {
+        zoom(base * z);
+        const right = Math.max(0, ...[box, ...box.querySelectorAll('*')].map(n => n.getBoundingClientRect().right));
+        const over = Math.max(height() / room, right / innerWidth);
+        if (over <= 1.01) break;
+        z = Math.max(MIN_FIT, z / over);
+      }
     };
+    addEventListener('resize', measure);
     new ResizeObserver(measure).observe(box);
     measure();
   }).catch(() => tell(0));

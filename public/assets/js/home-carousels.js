@@ -82,12 +82,12 @@ export async function drawCarousels({ lang, T, games, tap = () => {}, doc = docu
   doc.getElementById('games').after(box);
 
   /* ---------------- the sheet ---------------- */
-  let layer = null, before = null, pinned = null, onDemo = null;
+  let layer = null, before = null, pinned = null, onDemo = null, kept = null;
   const onKey = e => {
     if (e.key === 'Escape') return close();
     // A modal dialog keeps Tab inside it: the page behind is not reachable while the sheet is open
     if (e.key !== 'Tab' || !layer) return;
-    const all = [...layer.querySelectorAll('button, a[href], [tabindex]:not([tabindex="-1"])')].filter(n => !n.closest('[hidden]') && n.tabIndex >= 0);
+    const all = [...layer.querySelectorAll('button, a[href], [tabindex]:not([tabindex="-1"])')].filter(n => !n.closest('[hidden], [inert]') && n.tabIndex >= 0);
     if (!all.length) return;
     const first = all[0], last = all[all.length - 1], at = doc.activeElement;
     if (e.shiftKey && (at === first || !layer.contains(at))) { e.preventDefault(); last.focus(); }
@@ -109,6 +109,7 @@ export async function drawCarousels({ lang, T, games, tap = () => {}, doc = docu
     if (!layer) return;
     layer.remove(); layer = null;
     if (onDemo) { doc.defaultView.removeEventListener('message', onDemo); onDemo = null; }
+    kept?.disconnect(); kept = null;
     unpin();
     doc.removeEventListener('keydown', onKey);
     // The tile may have been drawn again meanwhile (a ⭐ marked): the one in its place takes the focus
@@ -136,21 +137,26 @@ export async function drawCarousels({ lang, T, games, tap = () => {}, doc = docu
       onDemo = e => {
         if (e.origin !== win.location.origin || e.source !== demo.contentWindow || e.data?.type !== 'cover-demo' || e.data.game !== g.id) return;
         const h = Number(e.data.height) || 0;
-        if (h > 0) { demo.style.height = `${Math.min(h, 320)}px`; demo.classList.add('on'); } else demo.remove();
+        // Its own height: the frame also takes whatever the sheet has left over (the two tabs share one height), and its page grows the drawing to fill it
+        // On a short screen it gives way first, down to half, so the game's line stays in sight under it
+        if (h > 0) { demo.style.flexBasis = `${Math.min(h, 320)}px`; demo.style.minHeight = `${Math.round(Math.min(h, 320) / 2)}px`; demo.classList.add('on'); } else demo.remove();
       };
       win.addEventListener('message', onDemo);
     }
-    const details = el('div', { class: 'stack', id: 'game-sheet-details' },
+    const details = el('div', { class: 'game-sheet-details', id: 'game-sheet-details' },
       demo,
       el('p', {}, pickLang(g.tagline, lang)),
       el('div', { class: 'chips' },
         el('span', { class: 'chip' }, `👥 ${g.players} ${max === 1 ? T.player : T.players}`),
         el('span', { class: 'chip' }, `⏱ ${g.duration} ${unit(g)}`),
         (g.tipos || []).filter(id => TIPOS[id]).map(id => el('span', { class: 'chip' }, `${TIPOS[id].emoji} ${pickLang(TIPOS[id].name, lang)}`))));
-    const ranking = el('div', { id: 'game-sheet-ranking', hidden: true });
+    const ranking = el('div', { id: 'game-sheet-ranking' });
     const body = el('div', { class: 'game-sheet-body', role: 'tabpanel', id: 'game-sheet-panel' }, details, ranking);
 
-    // The ranking is read the first time its tab is opened, never before: most taps only want to play
+    // One height for both tabs (the owner, 2026-11-18): Detalles and Ranking are laid one over the other in the same
+    // cell, so the sheet is as tall as the taller of the two (up to what the screen gives) and does not move when the
+    // tab changes; the one not shown is invisible and inert. The height only grows while the sheet is open (a longer
+    // table arriving, Semana to Siempre). So the ranking is read as the sheet opens, not when its tab is first tapped
     let asked = false;
     const showRanking = () => {
       if (asked) return;
@@ -169,8 +175,7 @@ export async function drawCarousels({ lang, T, games, tap = () => {}, doc = docu
       tab = k;
       tabs.querySelectorAll('button').forEach(b => { const on = b.dataset.k === k; b.setAttribute('aria-selected', String(on)); b.classList.toggle('on', on); b.tabIndex = on ? 0 : -1; });
       body.setAttribute('aria-labelledby', `game-sheet-tab-${k}`);
-      details.hidden = k !== 'details'; ranking.hidden = k !== 'ranking';
-      if (k === 'ranking') showRanking();
+      for (const [id, pane] of [['details', details], ['ranking', ranking]]) { const off = id !== k; pane.classList.toggle('off', off); pane.inert = off; pane.setAttribute('aria-hidden', String(off)); }
     };
     for (const [k, label] of TABS) {
       const b = el('button', { type: 'button', role: 'tab', class: 'hoja-pestana', 'data-k': k, id: `game-sheet-tab-${k}`, 'aria-controls': 'game-sheet-panel' }, label);
@@ -202,6 +207,10 @@ export async function drawCarousels({ lang, T, games, tap = () => {}, doc = docu
     layer = el('div', { class: 'hoja-capa', id: 'game-sheet-layer' }, el('div', { class: 'hoja-fondo', onClick: close }), panel);
     doc.body.append(layer);
     show('details');
+    showRanking();
+    let tallest = 0;
+    kept = new ResizeObserver(() => { const h = Math.ceil(body.getBoundingClientRect().height); if (h > tallest) { tallest = h; body.style.minHeight = `${h}px`; } });
+    kept.observe(body);
     pin();
     doc.addEventListener('keydown', onKey);
     play.focus();
