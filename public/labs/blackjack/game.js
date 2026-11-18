@@ -751,8 +751,8 @@ function renderActionBox() {
     box.replaceChildren(
       el('p', { class: 'lead center' }, fmt(T.bettingTurn, { name: p.name })),
       renderBetStage(p, minReq),
-      // The first step, in the first round only (U-18): one stitched line right above the chips it points at; the button is the next step on its own
-      felt && state.round === 1 ? el('p', { class: 'bet-hint' }, T.betHint, el('i', { 'aria-hidden': 'true' }, '↓')) : '',
+      // The first step, every betting round: one stitched line right above the chips it points at; the button is the next step on its own
+      felt ? el('p', { class: 'bet-hint' }, T.betHint, el('i', { 'aria-hidden': 'true' }, '↓')) : '',
       el('div', { class: 'casino-chips' },
         ...[10, 20, 50, 100].map(n => el('button', {
           type: 'button',

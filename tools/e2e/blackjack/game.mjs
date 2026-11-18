@@ -87,6 +87,7 @@ await doubleTap(b, '#btn-next-round');
 await b.until("document.getElementById('btn-bet')", 6000); await sleep(800);
 const r2 = await round();
 ok(r1.replace(/\d+/, n => +n + 1) === r2 && await b.evaluate("!!document.getElementById('btn-bet') && !document.querySelector('.bj-table.clearing')"), `a double tap on «Siguiente ronda» moves one round (${r1} → ${r2}) and leaves the bets open`);
+ok(await b.evaluate("(document.querySelector('#action-box .bet-hint')?.textContent || '').includes('↓')"), 'the next round shows the bet hint again');
 
 ok(!b.errors.length, 'no console errors' + (b.errors.length ? ': ' + b.errors[0].slice(0, 160) : ''));
 b.close();
