@@ -99,7 +99,7 @@ export function mount(raiz, ctx) {
     onEnd: marks => { if (vez !== partidas) return; S.marks = marks; acabar(); } });
   // For the end-to-end script: the run as the cup gets it
   window.__alToque = { S, estado, acabar };
-  // Testers only, in the T tab (never on the cover, which stays as players see it): play any one game on its own.
+  // Testers only (lab: #seccion-tester-ribbon), in the T tab (never on the cover, which stays as players see it): play any one game on its own.
   // It is a try-out: nothing is saved or sent to the cup, and the run it replaces is dropped
   labAccess().then(ok => {
     if (!ok || !juego.isConnected) return;
