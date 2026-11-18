@@ -34,6 +34,7 @@ for (let step = 0; step < 6 && await b.active() === 'screen-play'; step++) {
 
 ok(await b.active() === 'screen-result', 'it reaches the result');
 ok(await b.evaluate("!!document.querySelector('#fin-salidas a[href$=\"labs/\"]')"), 'the result goes back to the lab (C-19)');
+ok(await b.evaluate("!!document.getElementById('btn-change-mode') && !!document.querySelector('#result-rank > *') && !!document.querySelector('.rk-contar-solo')"), 'the result has the standard blocks: change mode, «¿Quieres que esta partida cuente?» and the game\'s ranking (C-19)');
 await b.shot('result');
 
 // Signed in, on the felt trial (on by default on localhost), the setup carries the account's name (D-212)
@@ -59,7 +60,7 @@ await b.evaluate('localStorage.clear(); 1');
 await b.go(SITE + '/labs/blackjack/'); await sleep(600);
 await b.evaluate("document.querySelector('.mode[data-mode=\"cpu\"]').click(); 1"); await sleep(300);
 await b.evaluate("const i = document.querySelector('#setup-form input'); i.value = 'Ana'; i.dispatchEvent(new Event('input', { bubbles: true })); document.getElementById('btn-start').click(); 1"); await sleep(400);
-ok(await b.evaluate("(document.querySelector('#seats-box .bet-hint')?.textContent || '').includes('↓')"), 'on the empty felt, the first step is printed where the cards will land');
+ok(await b.evaluate("(document.querySelector('#action-box .bet-hint')?.textContent || '').includes('↓')"), 'on the felt, the first step sits right above the chips');
 ok(await firstHand(), 'the felt table: the bet is a chip on its spot and the shoe a bar');
 ok(await b.evaluate("!!document.querySelector('.bj-seat-coins .seg-chip') && !document.querySelector('#screen-play').textContent.includes('🪙')"), 'on the felt, every coin is the table chip, no 🪙');
 await b.shot('felt');

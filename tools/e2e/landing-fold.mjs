@@ -20,8 +20,7 @@ import { mkdirSync } from 'node:fs';
 import { launch, sleep } from './cdp.mjs';
 import { output } from './output.mjs';
 import { LANGS, EN_LABS, LABS_KEY } from '../../public/assets/js/i18n.js';
-import { gameById } from '../../public/assets/js/games.js';
-import { PATHS } from './paths.mjs';
+import { PATHS, routeOf } from './paths.mjs';
 import { JUEGOS_DIA } from '../../public/assets/js/uno-al-dia.js';
 import { rutaHoy } from '../../public/assets/js/uno-al-dia-ui.js';
 
@@ -42,7 +41,7 @@ const OPEN_DAY = [`document.querySelector('button[data-dia]').click()`];
 // The cup's day cover with each of its shapes: a game with a drawing (Reinas), the final, the wildcard's notice, a day of three
 const CUP_DAYS = ['player', 'final', 'last-day', 'last-day-three'];
 const LANDINGS = [
-  ...games.map(g => ({ name: g, route: gameById(g)?.path || `${g}/`, steps: PATHS[g].intro })),
+  ...games.map(g => ({ name: g, route: routeOf(g), steps: PATHS[g].intro })),
   ...JUEGOS_DIA.map(j => j.id || j).filter(id => !only.length || only.includes(id))
     .map(id => ({ name: `${id} today`, route: rutaHoy(id), steps: [] })),
   ...(!only.length || only.includes('copa') ? CUP_DAYS.map(s => ({ name: `copa day:${s}`, route: `cup/?test&demo=${s}`, steps: OPEN_DAY, fresh: 'cup/' })) : []),

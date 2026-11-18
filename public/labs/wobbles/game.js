@@ -39,9 +39,11 @@ const PIC_2D = `<svg class="wb-2d" viewBox="0 0 200 140" aria-hidden="true">
   <line x1="40" y1="14" x2="160" y2="14" stroke="#bea0ff" stroke-opacity="0.45" stroke-width="2" stroke-linecap="round"/>
   <g class="wb-claw"><rect x="93" y="9" width="14" height="10" rx="3" fill="#2ee6d6" filter="url(#wb-glow)"/><line x1="100" y1="19" x2="100" y2="27" stroke="#2ee6d6" stroke-width="1.2"/>
     <g class="wb-drop">${neon(92, 27, 16, 16, '#ffd23f')}</g></g>
+  <g class="wb-stars" fill="#fff"><circle cx="30" cy="30" r="1"/><circle cx="62" cy="44" r="0.8"/><circle cx="142" cy="40" r="1"/><circle cx="186" cy="52" r="0.8"/></g>
   <g class="wb-plank" filter="url(#wb-glow)">
     <rect x="40" y="94" width="120" height="7" rx="3.5" fill="url(#wb-plank)"/>
-    ${neon(62, 76, 18, 18, '#2ee6d6')}${neon(84, 76, 18, 18, '#2ee6d6')}${neon(64, 64, 36, 11, '#ff2e88')}<circle cx="132" cy="85" r="9" fill="#9dff3a" fill-opacity="0.18" stroke="#9dff3a" stroke-width="2.2"/>
+    ${neon(62, 76, 18, 18, '#2ee6d6')}${neon(84, 76, 18, 18, '#2ee6d6')}${neon(64, 64, 36, 11, '#ff2e88')}<circle cx="142" cy="85" r="9" fill="#9dff3a" fill-opacity="0.18" stroke="#9dff3a" stroke-width="2.2"/>
+    <g class="wb-landed">${neon(108, 78, 16, 16, '#ffd23f')}</g>
   </g>
   <circle cx="100" cy="98" r="3.4" fill="#9dff3a" filter="url(#wb-glow)"/>
 </svg>`;

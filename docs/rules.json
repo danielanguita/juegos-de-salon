@@ -1128,6 +1128,22 @@
    ]
   },
   {
+   "id": "labs-canons",
+   "title": "A game enters the lab with its canons: the whole CANONS.md checklist before its first merge; canons.test.mjs checks the manifest, measured cover, result exits, rankings, cover dialogs, panel signals, spec and e2e scripts",
+   "doc": "docs/ADD-GAME.md",
+   "form": [
+    "check",
+    "ratchet"
+   ],
+   "enforcedBy": [
+    "public/labs/canons.test.mjs"
+   ],
+   "applies": [
+    "public/labs/"
+   ],
+   "debt": "docs/labs-canon-debt.json"
+  },
+  {
    "id": "double-tap",
    "title": "A double tap counts once: a button that waits on an animation takes the first tap only, and its e2e script double-taps it",
    "doc": "docs/CANONS.md",
