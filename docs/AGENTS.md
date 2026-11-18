@@ -17,6 +17,13 @@ or any other here), launch it and report what it found; do not ask the owner fir
   It owns **the design system** (D-533, `docs/DESIGN.md`): the tokens and shared classes in `base.css`, the design lint
   (`node tools/agents/design-lint.mjs [--summary|--all|--gate|<file.css>]`: colours, corners, distances and text sizes off the tokens (a `font-size` or the size inside a `font:` shorthand; a token colour at an alpha is named as `rgb(var(--x-rgb) / a)`), classes copied from `base.css` (the game shell among them, phase 4); `docs/design-allowlist.json` with a reason per entry; since phase 6 a gate: `design-lint.test.mjs` fails the `tests` check on any hit not allowlisted) and the components page (`/labs/design/`, phase 3); a PR that
   adds a token, a scale step or a shared class is reviewed by it; every stylesheet is migrated (phases 5 and 7), and a later visual change follows DESIGN.md §6.
+- **Feedback**: dispatched by the processes round when 🐞 reports or email replies wait (`processes.mjs check`).
+  It reproduces each report on the site, fixes clear bugs and texts in their own PR, turns ideas into one-tap
+  decisions, closes duplicates and answers each player once, following `docs/FEEDBACK-TRIAGE.md`.
+- **CI health**: dispatched once a week by the processes round (`dispatch ci-health <commit>`). It reads the
+  failure signatures (`failures.mjs check`), the flaky tests, the test levels and the weekly cost numbers
+  (`costs.mjs`, D-558), and builds at most one mechanism so the same red run does not come back. It never
+  drops a test or a check to go faster.
 - **Player**: on every PR that changes a game, it plays the touched games on the preview like a first-time
   player (phone size, Spanish and one other language, a full game to the result) and comments the friction it met
   with steps and screenshots. It reports only: it never edits or pushes, and it does not re-report what `look.mjs`

@@ -703,7 +703,7 @@ These documents are being moved to English (D-316); the ones with a Spanish titl
 - [The architecture boundary (#1249 step 5)](docs/ARCHITECTURE.md)
 - [What the factory costs, and the levers (D-558)](docs/COSTS.md)
 - [The design system](docs/DESIGN.md)
-- [Handling 🐞 feedback: step 3 of the processes round](docs/FEEDBACK-TRIAGE.md)
+- [Handling 🐞 feedback: the feedback agent's guide (step 3 of the processes round)](docs/FEEDBACK-TRIAGE.md)
 - [Merge lanes (D-519)](docs/LANES.md)
 - [The learning programme: AI in the game, and what the owner learns building it](docs/LEARNING.md)
 - [Merging and publishing](docs/MERGING.md)

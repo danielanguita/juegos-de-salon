@@ -177,8 +177,8 @@ export function waits(pr, now = Date.now()) {
   return m;
 }
 
-/** The executors (D-276; `ideas` since D-360). */
-export const EXECUTORS = ['documentation', 'usability', 'ideas'];
+/** The executors (D-276; `ideas` since D-360; `ci-health` and `feedback` split out of the round). */
+export const EXECUTORS = ['documentation', 'usability', 'ideas', 'ci-health', 'feedback'];
 
 /**
  * Whom to dispatch today and why: `[{ agent, reason }]`. `documentation` gets the main commits
@@ -187,9 +187,10 @@ export const EXECUTORS = ['documentation', 'usability', 'ideas'];
  * `support`, the emails waiting in the hola@ inbox (D-318). `ideas`, the days since its last
  * round (`null` if never): once a week, no more (D-360), and not while its last issue still has
  * questions the owner has not ticked (`ideasWaiting`, that issue's number, D-440): the round would
- * only find that out and open nothing.
+ * only find that out and open nothing. `feedback`, when 🐞 reports or email replies wait
+ * (`feedbackWaiting`). `ci-health`, the days since its last round (`null` if never): once a week.
  */
-export function toDispatch({ docCommits, publicCommits, usabilityDays, emails = 0, ideasDays = 0, ideasWaiting = null }) {
+export function toDispatch({ docCommits, publicCommits, usabilityDays, emails = 0, ideasDays = 0, ideasWaiting = null, feedbackWaiting = 0, ciDays = 0 }) {
   const res = [];
   // D-318: the support agent only when hola@ left emails in the inbox
   if (emails > 0) res.push({ agent: 'support', reason: `${emails} email(s) in the hola@ inbox` });
@@ -200,6 +201,9 @@ export function toDispatch({ docCommits, publicCommits, usabilityDays, emails = 
   // D-360: the game-ideas agent once a week, whatever changed; its round is the owner's time
   if (ideasDays === null) res.push({ agent: 'ideas', reason: 'it was never dispatched' });
   else if (ideasDays >= 7 && !ideasWaiting) res.push({ agent: 'ideas', reason: `a week since its last round (${ideasDays} days)` });
+  if (feedbackWaiting > 0) res.push({ agent: 'feedback', reason: `${feedbackWaiting} 🐞 report(s) or reply(ies) waiting` });
+  if (ciDays === null) res.push({ agent: 'ci-health', reason: 'it was never dispatched' });
+  else if (ciDays >= 7) res.push({ agent: 'ci-health', reason: `a week since its last round (${ciDays} days)` });
   return res;
 }
 
@@ -332,9 +336,11 @@ async function check() {
     usabilityDays: lastUsability ? Math.floor((Date.now() - Date.parse(lastUsability.date)) / DAY) : null,
     ideasDays: m.dispatches.ideas ? Math.floor((Date.now() - Date.parse(m.dispatches.ideas.date)) / DAY) : null,
     ideasWaiting: ideasWaiting(issues),
+    feedbackWaiting: feedback.length + unanswered.length,
+    ciDays: m.dispatches['ci-health'] ? Math.floor((Date.now() - Date.parse(m.dispatches['ci-health'].date)) / DAY) : null,
     emails: await import('./inbox.mjs').then(i => i.count()).catch(e => { console.log(`- (the hola@ inbox could not be read: ${e.message})`); return 0; }),
   });
-  for (const d of plan) console.log(`- ${d.agent}: ${d.reason}${d.agent === 'support' ? '' : ` (when launching it: dispatch ${d.agent} ${tip.slice(0, 7)})`}`);
+  for (const d of plan) console.log(`- ${d.agent}: ${d.reason}${d.agent === 'support' || d.agent === 'feedback' ? '' : ` (when launching it: dispatch ${d.agent} ${tip.slice(0, 7)})`}`);
   if (!plan.length) console.log('Nobody: nothing changed that needs a review.');
   const waiting = ideasWaiting(issues);
   if (waiting) console.log(`- ideas: not this week, #${waiting} still has questions the owner has not answered (D-440)`);
