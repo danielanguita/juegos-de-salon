@@ -19,9 +19,13 @@ await b.shot('play');
 // Play forward until either win or crash
 await b.evaluate(`(() => {
   const g = window.__croc.state();
-  if (g) for (const l of g.lanes) l.vehicles = [];
+  // No cars, and the canal still, under one boat as wide as the road: the frog walks across
+  if (g) for (const l of g.lanes) {
+    if (l.kind === "water") { l.speed = 0; l.vehicles = [{ id: "e2e-boat", type: "boat", len: 99, color: "boatA", x: -40, grazed: false }]; }
+    else l.vehicles = [];
+  }
 })()`);
-for (let i = 0; i < 40 && await b.active() === 'screen-play'; i++) {
+for (let i = 0; i < 90 && await b.active() === 'screen-play'; i++) {
   await b.evaluate("window.__croc.act('up'); 1");
   await sleep(125);
 }
