@@ -100,8 +100,16 @@ test('users (D-349): active, played, new, unique by week and month', () => {
 
 test('the counters with no id, and the order of their bands', () => {
   const s = senales(days, { from: 100, to: 101 });
-  assert.equal(s.compartidos, 3);
+  assert.equal(s.compartidos + s.appOmitidos, 3, 'days 100-101 fall in the skipped range for app');
   assert.deepEqual(ordenTramos(s.vuelta).map(([k]) => k), ['nueva', 'd1', 'd2-7']);
+});
+
+test('home-page shares written by the tests (up to 2026-11-15) are skipped and said', () => {
+  const d = { 20772: { comparte: { app: 350, copa: 2 } }, 20773: { comparte: { app: 1, copa: 1 } } };
+  const s = senales(d, { from: 20772, to: 20773 });
+  assert.deepEqual(s.comparte, { copa: 3, app: 1 });
+  assert.equal(s.compartidos, 4);
+  assert.equal(s.appOmitidos, 350);
 });
 
 test('La Copa step by step, with who was left out', () => {

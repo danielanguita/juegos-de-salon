@@ -49,7 +49,7 @@ import { wireReleasePush } from './release-push.js';
 import { labelProblem, newKey, linkOf, fingerprint, keyRows, ACTIVE_DAYS } from './lab-keys.js';
 import {
   rangoAnterior, variacion, partidasDominio, finales, embudoSalas, dificultad, versiones, versionesEn, usuarios, cohortes,
-  senales, ordenTramos, embudoCopas, aCsv,
+  senales, SHARES_APP_NOTE, ordenTramos, embudoCopas, aCsv,
 } from './dominios.js';
 
 const app = initializeApp(firebaseConfig);
@@ -1112,7 +1112,7 @@ function bloqueCompartidos(rango) {
   const que = Object.entries(sg.comparte).sort((a, b) => b[1] - a[1]);
   const max = Math.max(0, ...que.map(([, v]) => v));
   const llegan = t.via.link || 0;
-  return conCsv(bloque('What gets shared', `Shares completed. Each one brought ${sg.compartidos ? (llegan / sg.compartidos).toLocaleString(LOCALE, { maximumFractionDigits: 2 }) : '—'} visits with the link\'s mark: the viral factor.`,
+  return conCsv(bloque('What gets shared', `Shares completed. Each one brought ${sg.compartidos ? (llegan / sg.compartidos).toLocaleString(LOCALE, { maximumFractionDigits: 2 }) : '—'} visits with the link\'s mark: the viral factor.${sg.appOmitidos ? ` Note: ${sg.appOmitidos} ${SHARES_APP_NOTE}.` : ''}`,
     lista(que.map(([k, v]) => bar(k, [seg(C_TORNEO, v)], max)), 'Nothing shared in this range.', 'bars')), 'compartidos', que.map(([k, v]) => ({ que: k, veces: v })));
 }
 

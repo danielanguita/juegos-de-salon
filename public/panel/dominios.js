@@ -268,14 +268,27 @@ export function cohortes(days, { hoy }) {
  */
 export function senales(days, { from, to }) {
   const vuelta = {}, frec = {}, comparte = {};
+  let appOmitidos = 0;
   for (let d = from; d <= to; d++) {
     const b = bucketOf(days, d);
     for (const [k, v] of Object.entries(b.vuelta || {})) add(vuelta, k, num(v));
     for (const [k, v] of Object.entries(b.frec || {})) add(frec, k, num(v));
-    for (const [k, v] of Object.entries(b.comparte || {})) add(comparte, k, num(v));
+    for (const [k, v] of Object.entries(b.comparte || {})) {
+      if (k === 'app' && d <= SHARES_APP_POLLUTED_TO) { appOmitidos += num(v); continue; }
+      add(comparte, k, num(v));
+    }
   }
-  return { vuelta, frec, comparte, compartidos: Object.values(comparte).reduce((s, v) => s + v, 0) };
+  return { vuelta, frec, comparte, compartidos: Object.values(comparte).reduce((s, v) => s + v, 0), appOmitidos };
 }
+
+/**
+ * The last day (2026-11-15) whose `comparte/app` is not real: until PR #1478 every run of
+ * compartir.test.mjs, locally and in CI, wrote five `comparte/app` to stats/prod (17,000 in four
+ * weeks). The data is left as it is; the readers skip `app` up to this day and say how many they
+ * skipped (`appOmitidos`). Real home-page shares of those days are lost with them.
+ */
+export const SHARES_APP_POLLUTED_TO = 20772;
+export const SHARES_APP_NOTE = 'home-page shares (app) up to 2026-11-15 are skipped: they were our own tests (PR #1478)';
 
 /** Order of the bands, by their number: `d1`, `d2-7`, `d8-30`, `d31`; `nueva` first. */
 export const ordenTramos = obj => Object.entries(obj).sort((a, b) => {
