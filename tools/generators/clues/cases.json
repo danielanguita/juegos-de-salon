@@ -1,0 +1,294 @@
+{
+  "_": "Eval cases for Agentes clues (learning piece 1, step 1.2). labelled: the owner's 20 labels of 2026-11-04 (Spanish deck, read from clues.js by name). bad: entries made wrong on purpose, each with the criterion it breaks, so the judge (1.3) is tested on failures. The rest of each deck is unlabelled.",
+  "labelled": [
+    {
+      "lang": "es",
+      "pista": "MAR",
+      "label": "so-so"
+    },
+    {
+      "lang": "es",
+      "pista": "HOSPITAL",
+      "label": "good"
+    },
+    {
+      "lang": "es",
+      "pista": "NOCHE",
+      "label": "good"
+    },
+    {
+      "lang": "es",
+      "pista": "CINE",
+      "label": "good"
+    },
+    {
+      "lang": "es",
+      "pista": "OFICINA",
+      "label": "so-so"
+    },
+    {
+      "lang": "es",
+      "pista": "ROJO",
+      "label": "good"
+    },
+    {
+      "lang": "es",
+      "pista": "AUTO",
+      "label": "good"
+    },
+    {
+      "lang": "es",
+      "pista": "BODA",
+      "label": "good"
+    },
+    {
+      "lang": "es",
+      "pista": "SELVA",
+      "label": "good"
+    },
+    {
+      "lang": "es",
+      "pista": "BOMBERO",
+      "label": "good"
+    },
+    {
+      "lang": "es",
+      "pista": "RESTAURANTE",
+      "label": "good"
+    },
+    {
+      "lang": "es",
+      "pista": "VAMPIRO",
+      "label": "good"
+    },
+    {
+      "lang": "es",
+      "pista": "ABUELA",
+      "label": "good"
+    },
+    {
+      "lang": "es",
+      "pista": "DENTISTA",
+      "label": "good"
+    },
+    {
+      "lang": "es",
+      "pista": "ACUARIO",
+      "label": "good"
+    },
+    {
+      "lang": "es",
+      "pista": "FERIA",
+      "label": "good"
+    },
+    {
+      "lang": "es",
+      "pista": "MIEDO",
+      "label": "good"
+    },
+    {
+      "lang": "es",
+      "pista": "AMOR",
+      "label": "good"
+    },
+    {
+      "lang": "es",
+      "pista": "ALTURA",
+      "label": "so-so"
+    },
+    {
+      "lang": "es",
+      "pista": "PAZ",
+      "label": "so-so"
+    }
+  ],
+  "bad": [
+    {
+      "lang": "es",
+      "label": "bad",
+      "breaks": "M2",
+      "entry": {
+        "pista": "FUEGO",
+        "si": [
+          "FUEGOS",
+          "LLAMA",
+          "HUMO",
+          "CENIZA",
+          "LEÑA",
+          "CALOR",
+          "FÓSFORO",
+          "CHISPA",
+          "BRASA"
+        ],
+        "casi": [
+          "AGUA",
+          "HIELO",
+          "VAPOR"
+        ]
+      }
+    },
+    {
+      "lang": "es",
+      "label": "bad",
+      "breaks": "M1",
+      "entry": {
+        "pista": "PLAYA",
+        "si": [
+          "ARENA",
+          "SOL",
+          "TOALLA",
+          "QUITASOL"
+        ],
+        "casi": [
+          "DESIERTO",
+          "PISCINA",
+          "PARQUE"
+        ]
+      }
+    },
+    {
+      "lang": "es",
+      "label": "bad",
+      "breaks": "J1",
+      "entry": {
+        "pista": "ESCUELA",
+        "si": [
+          "PROFESOR",
+          "PIZARRA",
+          "RECREO",
+          "MOCHILA",
+          "CUADERNO",
+          "CAMPANA",
+          "EXAMEN",
+          "NAVE",
+          "TORNILLO"
+        ],
+        "casi": [
+          "UNIVERSIDAD",
+          "JARDÍN",
+          "BIBLIOTECA"
+        ]
+      }
+    },
+    {
+      "lang": "es",
+      "label": "bad",
+      "breaks": "J3",
+      "entry": {
+        "pista": "PERRO",
+        "si": [
+          "LADRIDO",
+          "HUESO",
+          "CORREA",
+          "COLA",
+          "CACHORRO",
+          "COLLAR",
+          "PATA",
+          "CASUCHA",
+          "PULGA"
+        ],
+        "casi": [
+          "CANIL",
+          "VETERINARIO",
+          "PELOTA"
+        ]
+      }
+    },
+    {
+      "lang": "es",
+      "label": "bad",
+      "breaks": "J2",
+      "entry": {
+        "pista": "FRÍO",
+        "si": [
+          "HIELO",
+          "NIEVE",
+          "BUFANDA",
+          "PINGÜINO",
+          "INVIERNO",
+          "GUANTE",
+          "ESTUFA",
+          "TIRITAR",
+          "POLAR"
+        ],
+        "casi": [
+          "CALOR",
+          "TIBIO",
+          "FUEGO"
+        ]
+      }
+    },
+    {
+      "lang": "es",
+      "label": "bad",
+      "breaks": "J4",
+      "entry": {
+        "pista": "COCINA",
+        "si": [
+          "OLLA",
+          "SARTÉN",
+          "HORNO",
+          "CUCHARA",
+          "RECETA",
+          "DELANTAL",
+          "REFRIGERADOR",
+          "FUENTE",
+          "LAVAPLATOS"
+        ],
+        "casi": [
+          "MONTAÑA",
+          "AVIÓN",
+          "GUITARRA"
+        ]
+      }
+    },
+    {
+      "lang": "en",
+      "label": "bad",
+      "breaks": "M2",
+      "entry": {
+        "pista": "SNOW",
+        "si": [
+          "SNOWMAN",
+          "SLED",
+          "SKI",
+          "FLAKE",
+          "WINTER",
+          "BOOTS",
+          "SCARF",
+          "COLD",
+          "ICE"
+        ],
+        "casi": [
+          "RAIN",
+          "HAIL",
+          "FOG"
+        ]
+      }
+    },
+    {
+      "lang": "pt",
+      "label": "bad",
+      "breaks": "J3",
+      "entry": {
+        "pista": "PRAIA",
+        "si": [
+          "AREIA",
+          "ONDA",
+          "SOL",
+          "CONCHA",
+          "TOALHA",
+          "GUARDA-SOL",
+          "SURFE",
+          "SIRI",
+          "MAR"
+        ],
+        "casi": [
+          "SALVA-VIDAS",
+          "BIQUÍNI",
+          "PROTETOR"
+        ]
+      }
+    }
+  ]
+}
