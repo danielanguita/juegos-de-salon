@@ -187,6 +187,21 @@ export function playRun({ order: list, seed, done = [], onGame = () => {}, onEnd
   const EQUILIBRA_INTRO = () => { const plate = '<span class="dg-plate"><i style="--w:1.5rem;--h:0.9rem;--c:#ff4d5e"></i><i style="--w:1.1rem;--h:0.8rem;--c:#4d8bff"></i><i style="--w:0.8rem;--h:0.7rem;--c:#3ddc84"></i></span><span class="dg-stick"></span><span class="dg-handle"></span>';
     return DRAG_INTRO('equilibra', `<span class="dg-ghost l">${plate}</span><span class="dg-ghost r">${plate}</span>
     <span class="dg-mover"><span class="dg-item">${plate}</span><span class="dg-thumb">👆<i></i></span></span>`); };
+  // The same for the five "swipe" (purple) games: a small drawing of what the finger does, looping at the stage's bottom edge.
+  // SVG with its own animation, so the thumb really travels (reduced motion: the still drawing only)
+  const thumb = (path, d, keys = 'keyPoints="0;1;1" keyTimes="0;0.7;1"', lag = 0) => `<g><g transform="translate(-4 -3)"><text x="0" y="22" font-size="22" text-anchor="middle">👆</text></g>${reduce ? '' : `<animateMotion path="${path}" dur="${d}s" begin="${lag}s" repeatCount="indefinite" calcMode="linear" ${keys}/>`}</g>`;
+  const trail = (path, d, cls = '') => `<path d="${path}" pathLength="100" class="sw-trail ${cls}" fill="none" stroke-dasharray="100" stroke-dashoffset="${reduce ? 0 : 100}">${reduce ? '' : `<animate attributeName="stroke-dashoffset" values="100;0;0" keyTimes="0;0.7;1" dur="${d}s" repeatCount="indefinite"/>`}</path>`;
+  const SWIPE_INTRO = (kind, inner) => `<div class="dg-intro swipe ${kind}" aria-hidden="true"><svg viewBox="0 0 200 64" preserveAspectRatio="xMidYMid meet">${inner}</svg></div>`;
+  const CUT = 'M30 52 L170 14', ROLL = 'M18 50 C58 2 88 62 118 30 S170 10 184 36', HEART = 'M100 56 C58 32 68 4 100 20 C132 4 142 32 100 56 Z', CHASE = 'M30 44 L76 12 L108 50 L156 18 L174 46';
+  const CORTA_INTRO = FOOD => SWIPE_INTRO('corta', `<text x="100" y="42" font-size="34" text-anchor="middle">${FOOD}</text>
+    <path d="${CUT}" class="sw-dash" fill="none"/>${trail(CUT, 2.6)}${thumb(CUT, 2.6)}`);
+  const CRUZA_INTRO = () => SWIPE_INTRO('cruza', `<path d="${ROLL}" class="sw-road" fill="none"/><circle cx="18" cy="50" r="7" class="sw-start"/><text x="184" y="30" font-size="16" text-anchor="middle">🏁</text>
+    <g><circle r="5" class="sw-ball"/>${reduce ? '' : `<animateMotion path="${ROLL}" dur="2.6s" repeatCount="indefinite" calcMode="linear" keyPoints="0;1;1" keyTimes="0;0.7;1"/>`}</g>${thumb(ROLL, 2.6)}`);
+  const DIBUJA_INTRO = () => SWIPE_INTRO('dibuja', `<path d="${HEART}" class="sw-dash" fill="none"/>${trail(HEART, 3)}${thumb(HEART, 3)}`);
+  const SIGUE_INTRO = () => SWIPE_INTRO('sigue', `<path d="${CHASE}" class="sw-dash" fill="none"/>
+    <g><text x="0" y="8" font-size="22" text-anchor="middle">🐀</text>${reduce ? '' : `<animateMotion path="${CHASE}" dur="3s" repeatCount="indefinite" calcMode="linear" keyPoints="0;1;1" keyTimes="0;0.85;1"/>`}</g>${thumb(CHASE, 3, 'keyPoints="0;1;1" keyTimes="0;0.85;1"', 0.12)}`);
+  const LIMPIA_INTRO = () => { const Z = 'M30 14 H170 L30 28 H170 L30 42 H170';
+    return SWIPE_INTRO('limpia', `<rect x="24" y="8" width="152" height="42" rx="8" class="sw-dirt">${reduce ? '' : '<animate attributeName="opacity" values="0.75;0.75;0.08;0.08" keyTimes="0;0.05;0.7;1" dur="3s" repeatCount="indefinite"/>'}</rect>${thumb(Z, 3)}`); };
   const GAMES = {
     // ¡ENCUENTRA!: a theme of lookalikes in the same colors; the command shows which one to find
     // ¡CRUZA!: a smooth, curvy bridge of even width. Chevrons along it point the way and the crossed part lights up.
@@ -279,7 +294,7 @@ export function playRun({ order: list, seed, done = [], onGame = () => {}, onEnd
         const LIMIT = T(Math.max(6000, LEN / 120 * 1000)), tStart = performance.now(), rc = $id('rc');
         animate(() => { rc.textContent = `⏱ ${Math.max(0, (LIMIT - (performance.now() - tStart)) / 1000).toFixed(1)}`; });
         arm(); runTimer(LIMIT, () => finish(0, t('¡Se acabó el tiempo!')));
-      }, '<span class="example"><i class="ballicon"></i> → <i class="chkicon"></i></span>', t('llega a tiempo · cada toque al borde: −★ · 3 toques y pierdes'));
+      }, '<span class="example"><i class="ballicon"></i> → <i class="chkicon"></i></span>', t('llega a tiempo · cada toque al borde: −★ · 3 toques y pierdes'), '', 1400, CRUZA_INTRO());
     },
     // ¡ESPERA… YA!: red, then green; tap on green, never before
     espera() {
@@ -528,7 +543,7 @@ export function playRun({ order: list, seed, done = [], onGame = () => {}, onEnd
         demo.addEventListener('pointerdown', down); demo.addEventListener('pointermove', move); addEventListener('pointerup', up);
         cleanup = () => { demo.removeEventListener('pointerdown', down); demo.removeEventListener('pointermove', move); removeEventListener('pointerup', up); };
         arm(); runTimer(T(4000), () => finish(0, t('¡Se acabó el tiempo!')));
-      }, `✂️ ${FOOD}`, t('corta por la línea'));
+      }, `✂️ ${FOOD}`, t('corta por la línea'), '', 1400, CORTA_INTRO(FOOD));
     },
     // ¡ORDENA!: four in a column, made for a phone held upright. The spots shrink from top to bottom (the top one
     // twice the bottom one), and whatever sits in a spot takes its size: drag them up and down until the biggest is on top
@@ -753,7 +768,7 @@ export function playRun({ order: list, seed, done = [], onGame = () => {}, onEnd
         cleanup = () => { demo.removeEventListener('pointerdown', down); demo.removeEventListener('pointermove', move); removeEventListener('pointerup', up); };
         arm(); t0 = performance.now();
         runTimer(T(6000), () => finish(0, t('Quedó {n} % limpio', { n: Math.round((1 - left / (N * N)) * 100) })));
-      }, `🧽 ${SURF.icon}`, SURF.hint);
+      }, `🧽 ${SURF.icon}`, SURF.hint, '', 1400, LIMPIA_INTRO());
     },
     // 2 ¡PARA!: a radar beam sweeps round lighting up colored lights; tap to stop it inside the green slice
     para() {
@@ -1310,7 +1325,7 @@ export function playRun({ order: list, seed, done = [], onGame = () => {}, onEnd
           move: e => { if (on) go(e); },
           up: () => { on = false; prev = null; if (line.length) ends.push(line[line.length - 1]); if (active && seen.size / S.length >= 0.6) partial(t('Te faltó cerrarla')); } });
         arm(); runTimer(T(6500), () => partial(t('Se acabó el tiempo')));
-      }, '✏️ ⭐', t('repasa la figura sin salirte'));
+      }, '✏️ ⭐', t('repasa la figura sin salirte'), '', 1400, DIBUJA_INTRO());
     },
     // 19 ¡SIGUE!: a drawn little rat scurries around, turning now and then; keep your finger on it
     sigue() {
@@ -1365,7 +1380,7 @@ export function playRun({ order: list, seed, done = [], onGame = () => {}, onEnd
               for (let i = 0; i < 4; i++) { const nt = mk(lay, 'span', 'obj note', pick(['♪', '♫'])); place(nt, parseFloat(mo.style.left) + (i - 1.5) * 30, parseFloat(mo.style.top) - 50); nt.style.animationDelay = `${i * 0.25}s`; } }
             finish(n, t('La seguiste el {n} %', { n: Math.round(k * 100) }), n >= 2 ? 1900 : 800); return false; } });
         arm(); runTimer(T(8000), () => finish(0, started ? null : t('No pusiste el dedo')));
-      }, '👆 🐀', t('pon el dedo en la ratita y no la sueltes'));
+      }, '👆 🐀', t('pon el dedo en la ratita y no la sueltes'), '', 1400, SIGUE_INTRO());
     },
     // 21 ¡REPITE!: the pads light up in order; repeat it
     repite() {
