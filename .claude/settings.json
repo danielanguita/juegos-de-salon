@@ -4,6 +4,23 @@
       "Bash(node tools/firebase/rules.mjs:*)",
       "Bash(node tools/firebase/in-progress.mjs:*)",
       "Bash(node tools/firebase/reports.mjs:*)",
+      "Bash(node tools/agents/wait-pr.mjs *)",
+      "Bash(node tools/agents/lanes.mjs check)",
+      "Bash(node tools/agents/lanes.mjs check *)",
+      "Bash(node tools/agents/preview-ready.mjs)",
+      "Bash(node tools/agents/preview-ready.mjs *)",
+      "Bash(node tools/agents/design-lint.mjs)",
+      "Bash(node tools/agents/design-lint.mjs *)",
+      "Bash(node tools/agents/usability-lint.mjs)",
+      "Bash(node tools/agents/covers.mjs check *)",
+      "Bash(node tools/agents/pending.mjs check)",
+      "Bash(node tools/agents/processes.mjs check)",
+      "Bash(node tools/agents/document.mjs check *)",
+      "Bash(node tools/agents/costs.mjs *)",
+      "Bash(node tools/agents/failures.mjs check)",
+      "Bash(node tools/jobs/jobs.mjs status)",
+      "Bash(node tools/release/run-tests.mjs)",
+      "Bash(node tools/release/run-tests.mjs *)",
       "WebFetch(domain:juegos-de-salon-default-rtdb.firebaseio.com)"
     ]
   },
@@ -30,6 +47,16 @@
             "timeout": 60
           }
         ]
+      },
+      {
+        "matcher": "Edit|Write|NotebookEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cd \"$CLAUDE_PROJECT_DIR\" && [ -f tools/agents/worktree-guard.mjs ] && node tools/agents/worktree-guard.mjs || true",
+            "timeout": 10
+          }
+        ]
       }
     ],
     "UserPromptSubmit": [
@@ -38,6 +65,18 @@
           {
             "type": "command",
             "command": "cd \"$CLAUDE_PROJECT_DIR\" && [ -f tools/agents/session-length.mjs ] && node tools/agents/session-length.mjs || true",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cd \"$CLAUDE_PROJECT_DIR\" && [ -f tools/agents/pr-created.mjs ] && node tools/agents/pr-created.mjs || true",
             "timeout": 10
           }
         ]

@@ -19,8 +19,9 @@ import { param } from '../../assets/js/parametros.js';
 import { flag } from '../../assets/js/flags.js';
 import { onScreen } from '../../assets/js/on-screen.js';
 import { coverWithDialogs } from '../../assets/js/cover-dialogs.js';
-import { bloqueJugador, conBandera } from '../../assets/js/ranking.js';
-import { leerYo } from '../../assets/js/jugador.js';
+import { bloqueJugador, conBandera, avisoPartida, bloqueTabla, finDePartida } from '../../assets/js/ranking.js';
+import { ponerBuzon } from '../../assets/js/buzon.js';
+import { leerYo, rankingsVisibles } from '../../assets/js/jugador.js';
 import { salidasFin } from '../../assets/js/fin.js';
 import { botonCompartir, botonInvitar, cabecera } from '../../assets/js/compartir.js';
 import {
@@ -52,6 +53,9 @@ let animToken = 0;
 let dealReveal = null; // { players: [[n, ...]], dealer: n, holeRevealed: bool, showOutcomes: bool }
 let freshCardKey = null;
 let clearing = false;
+// When this table's game started, for the ranking's time; and the last result already recorded, so a redraw does not count it twice
+let startedAt = Date.now();
+let recorded = '';
 // The felt is cleared before a new hand: the cards slide off towards the dealer and fade, one after another (style.css)
 const CLEAR_MS = 620;
 // The felt table, a visual treatment on trial (lab: #seccion-blackjack-felt): cards with corner indices, the bet as a chip,
@@ -251,6 +255,7 @@ function startCpu() {
   clearing = false;
   $('.bj-table')?.classList.remove('clearing');
   nameStore.setList([name]);
+  startedAt = Date.now();
   state = E.newGame([name], setupConfig);
   syncPendingBet();
   save();
@@ -702,6 +707,9 @@ function renderSeats() {
       });
       seat.append(handsWrap);
     }
+    // On the felt the plate rides with the first hand's bet spot, right above it (style.css), whatever the seat's height
+    const firstHand = felt && seat.querySelector('.bj-hand');
+    if (firstHand) firstHand.append(seat.querySelector('.bj-seat-top'));
     return seat;
   });
 
@@ -740,6 +748,8 @@ function renderActionBox() {
     box.replaceChildren(
       el('p', { class: 'lead center' }, fmt(T.bettingTurn, { name: p.name })),
       renderBetStage(p, minReq),
+      // The first step, in the first round only (U-18): one stitched line right above the chips it points at; the button is the next step on its own
+      felt && state.round === 1 ? el('p', { class: 'bet-hint' }, T.betHint, el('i', { 'aria-hidden': 'true' }, '↓')) : '',
       el('div', { class: 'casino-chips' },
         ...[10, 20, 50, 100].map(n => el('button', {
           type: 'button',
@@ -1201,7 +1211,8 @@ function endReasonText() {
 
 function renderResult() {
   const title = resultHeading();
-  $('#result-title').textContent = title;
+  // The hero's emoji is said once (D-353): the big trophy or 💸 above, so the title on screen drops its own (the shared text keeps it)
+  $('#result-title').textContent = title.replace(/^\p{Extended_Pictographic}\uFE0F?\s*/u, '');
   $('#result-reason').textContent = endReasonText();
   // On the felt, the house's win is not celebrated: a player who ends with fewer coins than they sat down with
   // (alone, or this phone's player online) gets a red room and a sinking 💸 instead of confetti; even, neither
@@ -1221,6 +1232,9 @@ function renderResult() {
       el('b', {}, ...coins(`🪙 ${p.coins}`)));
   }));
 
+  // Alone, the hero already says the coins: no one-row table repeating them (D-353)
+  $('#standings').hidden = state.players.length === 1;
+
   const shareCtx = mode === 'cpu' ? T.shareContextSolo : T.shareContextOnline;
   const shareBody = title;
   $('#result-actions').replaceChildren(
@@ -1237,6 +1251,7 @@ function renderResult() {
         freshCardKey = null;
         clearing = false;
         $('.bj-table')?.classList.remove('clearing');
+        startedAt = Date.now();
         state = E.newGame(
           state.players.map(p => p.name),
           { decks: state.decks, maxRounds: state.maxRounds, startingCoins: state.startingCoins, minBet: state.minBet },
@@ -1255,11 +1270,52 @@ function renderResult() {
         texto: [cabecera({ emoji: manifest.emoji, titulo: T.title, contexto: shareCtx }), shareBody].join('\n\n'),
       }),
     }),
+    // Change mode (C-19): back to the cover's modes
+    el('button', { class: 'btn btn--ghost btn--sm', id: 'btn-change-mode', onClick: () => { SFX.tap(); showScreen('screen-intro'); } }, T.changeMode),
   );
   $('#result-exits').replaceChildren(salidasFin('lab', { lang, raiz: '../../' }));
+  resultRankings();
   if (outcome === 'won') confetti();
   else if (outcome === 'lost') { SFX.hang(); vibrate([90, 40, 140]); }
   showScreen('screen-result');
+}
+
+/**
+ * The rankings of a result (C-19, D-212): alone against the house, the coins left are the score (blackjack_solo):
+ * a signed-in player's notice under the hero, otherwise «¿Quieres que esta partida cuente?» after the buttons,
+ * and the game's table after the exits; online, the win goes to the victories (finDePartida). The feedback link
+ * last. Recorded once per game, not on each redraw.
+ */
+function resultRankings() {
+  const key = [online?.code || 'cpu', state.round, ...state.players.map(p => p.name + ':' + p.coins)].join('|');
+  const first = key !== recorded;
+  recorded = key;
+  const podio = $('#result-podio'), rank = $('#result-rank');
+  if (mode === 'online' && online) {
+    podio.replaceChildren(); rank.replaceChildren();
+    if (first) {
+      const roles = online.match.players;
+      finDePartida({ juego: GAME_ID, modo: 'online', rol: online.role, ganadores: (state.winner?.winners || []).map(i => roles[i]), nombres: online.match.names, alTocar: () => SFX.tap() });
+    }
+    return;
+  }
+  if (!first) return;
+  const me = state.players[0];
+  const s = Math.max(0, me.coins), ms = Math.max(0, Date.now() - startedAt);
+  const table = bloqueTabla({ tabla: `${GAME_ID}_solo`, titulo: fmt(C.rk.titleOf, { game: T.title }), alTocar: () => SFX.tap(), entrar: false });
+  rank.replaceChildren(table);
+  $('#screen-result .rk-contar-solo')?.remove();
+  if (rankingsVisibles() && leerYo()) {
+    podio.replaceChildren(avisoPartida({ juego: GAME_ID, variante: 'solo', s, ms, alAnotar: () => table.recargar() }));
+  } else {
+    podio.replaceChildren();
+    if (rankingsVisibles()) {
+      const offer = avisoPartida({ juego: GAME_ID, variante: 'solo', s, ms, alAnotar: () => table.recargar(), nombre: me.name, alTocar: () => SFX.tap() });
+      offer.classList.add('rk-contar-solo');
+      $('#result-actions').after(offer);
+    }
+  }
+  ponerBuzon($('#screen-result'), { juego: GAME_ID });
 }
 
 /* ---------------- Init ---------------- */
@@ -1276,6 +1332,17 @@ function init() {
     felt = on;
     document.documentElement.classList.toggle('bj-felt', on);
     if (on) { startCoverDemo(); fillHow(); }
+    // The table fills the height the actions leave it: the actions box keeps the tallest height it has had at this
+    // width, so a turn's shorter buttons never stretch the table and every seat stays where it was
+    if (on && 'ResizeObserver' in window) {
+      let tallest = 0, width = innerWidth;
+      new ResizeObserver(([e]) => {
+        const box = e.target;
+        if (innerWidth !== width) { width = innerWidth; tallest = 0; box.style.minHeight = ''; return; }
+        const h = box.getBoundingClientRect().height;
+        if (h > tallest) { tallest = h; box.style.minHeight = h + 'px'; }
+      }).observe($('#action-box'));
+    }
     if (state && $('#screen-play').classList.contains('active')) renderPlay();
   }).catch(() => {});
   $('#rk-slot')?.append(bloqueJugador({ alTocar: () => SFX.tap() }));

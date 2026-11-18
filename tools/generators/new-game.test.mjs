@@ -2,13 +2,14 @@
 // It generates one into a temp folder that mirrors the repo's paths, untouched, and runs on it the
 // conformance node checks, its engine test, the design lint and the usability lint.
 import assert from 'node:assert/strict';
-import { mkdtempSync, mkdirSync, copyFileSync, readFileSync, existsSync, rmSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, copyFileSync, readFileSync, readdirSync, existsSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, dirname } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { execFileSync } from 'node:child_process';
 import { generate, newGameFiles } from './new-game.mjs';
 import { staticConformance } from './conformance.mjs';
+import { labCanonGaps } from './lab-canons.mjs';
 import { renderModule } from './manifests.mjs';
 import { lintCss, tokens, sharedClasses } from '../agents/design-lint.mjs';
 import { lint as usabilityLint, walk, LANGS } from '../agents/usability-lint.mjs';
@@ -19,6 +20,8 @@ try {
   // What the generated files import from the site: the shared modules and the lab's index
   mkdirSync(join(root, 'public/labs'), { recursive: true });
   copyFileSync(join(REPO, 'public/labs/index.html'), join(root, 'public/labs/index.html'));
+  // The two lists it writes itself into: its cover in the e2e paths and its name in LAB_NAMES
+  for (const f of ['tools/e2e/paths.mjs', 'public/assets/js/games.js']) { mkdirSync(dirname(join(root, f)), { recursive: true }); copyFileSync(join(REPO, f), join(root, f)); }
 
   const id = 'sample-race';
   const written = await generate(id, { nameEs: 'Carrera', nameEn: 'Race', namePt: 'Corrida', emoji: '🏁' }, root);
@@ -32,6 +35,16 @@ try {
   const m = JSON.parse(readFileSync(join(dir, 'game.json'), 'utf8'));
   assert.equal(readFileSync(join(root, `public/assets/js/manifests/labs/${id}.js`), 'utf8'), renderModule(m), 'its manifest module is fresh');
   assert.equal(m.labs, true, 'born in the lab (D-395)');
+
+  // The lab's entry gate (D-579): everything public/labs/canons.test.mjs asks, as born
+  assert.deepEqual(labCanonGaps({
+    manifest: m, game: readFileSync(join(dir, 'game.js'), 'utf8'),
+    inPaths: readFileSync(join(root, 'tools/e2e/paths.mjs'), 'utf8').includes(`  '${id}': { intro: [] },`),
+    hasSpec: existsSync(join(root, `docs/games/${id}.md`)),
+    e2e: readdirSync(join(root, 'tools/e2e', id)),
+  }), [], 'passes the lab entry gate as born (D-579)');
+
+  assert.match(readFileSync(join(root, 'public/assets/js/games.js'), 'utf8'), new RegExp(`'${id}': \\{ emoji: '🏁', name: \\{ es: 'Carrera'`), 'its name in LAB_NAMES');
 
   // Its engine test passes
   execFileSync(process.execPath, [join(dir, 'engine.test.mjs')], { stdio: 'pipe' });

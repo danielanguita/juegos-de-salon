@@ -1145,6 +1145,41 @@
     "public/labs/index.html",
     "public/labs/index-nav.js"
    ]
+  },
+  {
+   "id": "labs-canons",
+   "title": "A game enters the lab with its canons: the whole CANONS.md checklist before its first merge; canons.test.mjs checks the manifest, measured cover, result exits, rankings, cover dialogs, panel signals, spec and e2e scripts",
+   "doc": "docs/ADD-GAME.md",
+   "form": [
+    "check",
+    "ratchet"
+   ],
+   "enforcedBy": [
+    "public/labs/canons.test.mjs"
+   ],
+   "applies": [
+    "public/labs/"
+   ],
+   "debt": "docs/labs-canon-debt.json"
+  },
+  {
+   "id": "double-tap",
+   "title": "A double tap counts once: a button that waits on an animation takes the first tap only, and its e2e script double-taps it",
+   "doc": "docs/CANONS.md",
+   "form": [
+    "check",
+    "judged"
+   ],
+   "enforcedBy": [
+    "tools/e2e/double-tap.mjs",
+    "tools/e2e/blackjack/game.mjs"
+   ],
+   "applies": [
+    "public/**/game.js",
+    "tools/e2e/**"
+   ],
+   "reviewer": "the session building or changing the game, and the usability agent (.claude/agents/usability.md)",
+   "why": "Which buttons wait on an animation is a reading of each game's code; the check runs where a script double-taps the button, and the reviewer makes sure each such button has one."
   }
  ]
 }

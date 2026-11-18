@@ -617,6 +617,7 @@ node public/hangman/fuzz.test.mjs
 node public/hangman/replay.test.mjs
 node public/home-preload.test.mjs
 node public/labs/bodega.test.mjs
+node public/labs/canons.test.mjs
 node public/labs/code/engine-palabra.test.mjs
 node public/labs/index-nav.test.mjs
 node public/labs/launched.test.mjs
@@ -660,6 +661,7 @@ node tools/agents/marketing.test.mjs
 node tools/agents/memory.test.mjs
 node tools/agents/pending.test.mjs
 node tools/agents/popularity.test.mjs
+node tools/agents/pr-created.test.mjs
 node tools/agents/processes.test.mjs
 node tools/agents/push-guard.test.mjs
 node tools/agents/repo-weight.test.mjs
@@ -668,9 +670,11 @@ node tools/agents/rules.test.mjs
 node tools/agents/session-length.test.mjs
 node tools/agents/structure.test.mjs
 node tools/agents/sweep.test.mjs
+node tools/agents/sync-pr.test.mjs
 node tools/agents/tokens-rgb.test.mjs
 node tools/agents/usability-lint.test.mjs
 node tools/agents/wait-pr.test.mjs
+node tools/agents/worktree-guard.test.mjs
 node tools/cloudflare/inbox-worker.test.mjs
 node tools/e2e/affected.test.mjs
 node tools/e2e/already-tested.test.mjs
@@ -924,7 +928,6 @@ These documents are being moved to English (D-316); the ones with a Spanish titl
 - [🚉 Transbordo (Transfer, lab, in Juegos en prueba)](docs/games/transfer.md)
 - [🧶 Untangle (Desenredo)](docs/games/untangle.md)
 - [📍 Where Is It? (¿Dónde queda?)](docs/games/where.md)
-- [⚖️ The Wobbles 3D (Tembleque 3D; lab, in Juegos en prueba)](docs/games/wobbles-3d.md)
 - [⚖️ The Wobbles (Tembleque; lab, in Juegos en prueba)](docs/games/wobbles.md)
 - [🔤 Bulls and Cows: Word (Toque y Fama: Palabra)](docs/games/word.md)
 - [📅 What Year? (¿En qué año?)](docs/games/year.md)

@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { isPush, problems, pushDir } from './push-guard.mjs';
+import { isPush, problems, pushDir, missingChangelog } from './push-guard.mjs';
 
 test('isPush sees a git push, not other commands', () => {
   assert.ok(isPush('git push -u origin x'));
@@ -47,4 +47,15 @@ test('pushDir checks the worktree a cd moved to, not the session folder (#1416, 
   assert.equal(pushDir('cd /x && cd y; git push', '/repo'), '/x/y');
   assert.equal(pushDir('git -C ../wt push origin b', '/repo'), '/wt');
   assert.equal(pushDir('git push && cd /elsewhere', '/repo'), '/repo');
+});
+
+test('missingChangelog asks for the entry only on a topic branch that brings changes without one (D-300)', () => {
+  const git = (branch, diff, status = 0) => (cmd, args) => args[0] === 'rev-parse' ? { status: 0, stdout: `${branch}\n` } : { status, stdout: diff };
+  assert.equal(missingChangelog(git('topic', 'public/a.js\n')).length, 1);
+  assert.match(missingChangelog(git('topic', 'public/a.js\n'))[0], /changelog\.mjs new/);
+  assert.deepEqual(missingChangelog(git('topic', 'public/a.js\nchangelog/topic.md\n')), []);
+  assert.equal(missingChangelog(git('topic', 'changelog/README.md\n')).length, 1);
+  assert.deepEqual(missingChangelog(git('topic', '')), []);
+  assert.deepEqual(missingChangelog(git('main', 'public/a.js\n')), []);
+  assert.deepEqual(missingChangelog(git('topic', 'x', 128)), []);
 });

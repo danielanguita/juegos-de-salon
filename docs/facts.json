@@ -1184,7 +1184,6 @@
     "public/assets/js/manifests/labs/fourth-king.js",
     "public/assets/js/manifests/labs/julep.js",
     "public/assets/js/manifests/labs/transfer.js",
-    "public/assets/js/manifests/labs/wobbles-3d.js",
     "public/assets/js/manifests/labs/wobbles.js",
     "public/assets/js/manifests/liars-dice.js",
     "public/assets/js/manifests/timeline.js",
@@ -1415,8 +1414,8 @@
     "public/labs/transfer/engine.js",
     "public/labs/transfer/game.js",
     "public/labs/transfer/rules.js",
-    "public/labs/wobbles-3d/game.js",
     "public/labs/wobbles/game.js",
+    "public/labs/wobbles/rules.js",
     "public/liars-dice/engine.js",
     "public/liars-dice/game.js",
     "public/liars-dice/rules.js",
@@ -1567,6 +1566,7 @@
     "public/labs/artifacts/engine.test.mjs",
     "public/labs/blackjack/engine.test.mjs",
     "public/labs/bodega.test.mjs",
+    "public/labs/canons.test.mjs",
     "public/labs/chameleon/engine.test.mjs",
     "public/labs/code/engine-palabra.test.mjs",
     "public/labs/code/engine.test.mjs",
@@ -1623,6 +1623,7 @@
     "tools/agents/memory.test.mjs",
     "tools/agents/pending.test.mjs",
     "tools/agents/popularity.test.mjs",
+    "tools/agents/pr-created.test.mjs",
     "tools/agents/processes.test.mjs",
     "tools/agents/push-guard.test.mjs",
     "tools/agents/repo-weight.test.mjs",
@@ -1631,9 +1632,11 @@
     "tools/agents/session-length.test.mjs",
     "tools/agents/structure.test.mjs",
     "tools/agents/sweep.test.mjs",
+    "tools/agents/sync-pr.test.mjs",
     "tools/agents/tokens-rgb.test.mjs",
     "tools/agents/usability-lint.test.mjs",
     "tools/agents/wait-pr.test.mjs",
+    "tools/agents/worktree-guard.test.mjs",
     "tools/cloudflare/inbox-worker.test.mjs",
     "tools/e2e/affected.test.mjs",
     "tools/e2e/already-tested.test.mjs",
@@ -1738,6 +1741,7 @@
     "daily.mjs",
     "design/page.mjs",
     "dominorama/lab.mjs",
+    "double-tap.mjs",
     "exploding-numbers/lab.mjs",
     "favorites.mjs",
     "feedback-prod.mjs",
@@ -1838,7 +1842,6 @@
     "transfer/game.mjs",
     "versioning.mjs",
     "visual.mjs",
-    "wobbles-3d/game.mjs",
     "wobbles/game.mjs"
   ],
   "documents": [
@@ -2085,10 +2088,6 @@
     {
       "path": "docs/games/where.md",
       "title": "📍 Where Is It? (¿Dónde queda?)"
-    },
-    {
-      "path": "docs/games/wobbles-3d.md",
-      "title": "⚖️ The Wobbles 3D (Tembleque 3D; lab, in Juegos en prueba)"
     },
     {
       "path": "docs/games/wobbles.md",
