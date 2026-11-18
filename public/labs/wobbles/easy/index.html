@@ -1361,14 +1361,55 @@ function ready() {
 const query = new URLSearchParams(location.search), seedParam = query.get('seed');
 /** Lab only: `?from=30` starts as hard as if 30 pieces were already down (on an empty plank), to try the late pieces. */
 const fromParam = Math.max(0, Math.floor(Number(query.get('from')) || 0));
+/* ---------- Lab: the pieces a game starts with (the «T» tester tab) ---------- */
+/**
+ * A tester sets on the cover's «T» tab, with − and +, how many pieces the plank starts with; the next game (▶ Jugar or ↻ Otra vez)
+ * starts with them. The same number as the hard level's (one key on the phone). They are the game's own
+ * first pieces, in their order: the claw stops over spots spread along the plank (from the middle out, 24 px
+ * apart, one side then the other, swapped to the high side when the plank leans) and lets each go, with the real
+ * physics. The plank keeps its first stiffness and the claw its first speed while they are laid; they count
+ * as nothing (no points, no lives, the time starts after them), and the game goes on as hard as a new one.
+ */
+const START_KEY = 'balanza-lab:start-pieces', START_MAX = 40;
+let startPieces = 0, timeFrom = 0;
+try { startPieces = Math.max(0, Math.min(START_MAX, parseInt(localStorage.getItem(START_KEY), 10) || 0)); } catch (_) { /* no storage */ }
+function seedPile(S, n) {
+  const firm = () => { S.P = params(0); S.K = S.P.K; S.wind = 0; }, R = 100;
+  const go = (tap) => { firm(); advance(S, tap); S.ev.length = 0; };
+  for (let i = 0; i < n && S.phase === 'play'; i++) {
+    for (let k = 0; k < 600 && !S.held && S.phase === 'play'; k++) go(false);
+    if (!S.held) break;
+    // The i-th spot: the middle first, then out, one side and the other; on the low side, the one opposite
+    const step = Math.ceil(i / 2), side = i % 2 ? 1 : -1;
+    let x = PIV.x + side * Math.min(R, step * 24);
+    if ((x - PIV.x) * S.lean > 0) x = 2 * PIV.x - x;
+    for (let k = 0; k < 1200 && S.held && Math.abs(S.car.x - x) > 3; k++) go(false);
+    if (S.held) go(true);
+    for (let k = 0; k < 180 && S.phase === 'play'; k++) go(false);
+  }
+  for (let k = 0; k < 360 && S.phase === 'play'; k++) go(false);
+  if (S.phase !== 'play') return false;
+  // They were set up, not played: the game starts from here, as hard as a new one
+  S.score = 0; S.landed = 0; S.perfects = 0; S.streak = 0; S.best = 0; S.lives = 3; S.ev.length = 0;
+  for (const b of S.bodies) { b.judged = true; b.counted = false; }
+  S.released = 0; S.P = params(S.skip); S.K = S.P.K;
+  timeFrom = S.t;
+  return true;
+}
+
 function start() {
-  S = newGame(seedParam != null ? Number(seedParam) | 0 : Date.now() | 0, fromParam);
+  const seed = seedParam != null ? Number(seedParam) | 0 : Date.now() | 0;
+  S = newGame(seed, fromParam);
+  timeFrom = 0;
+  // More pieces than the plank holds tip it while they are laid: then it starts over with fewer, down to what fits
+  for (let n = startPieces; n > 0 && !seedPile(S, n); n -= 2) S = newGame(seed, fromParam);
+  if (S.phase !== 'play') S = newGame(seed, fromParam);
   state = 'play'; acc = 0; tapQ = false; parts = []; floats = []; says = []; banner = null; pulses = []; flash = 0; ripples = []; lost = []; hurt = 0; zoom = 1; card.hidden = true; document.dispatchEvent(new Event('wobbles:clear'));
 }
 const plural = (n, f) => f[n === 1 ? 1 : n ? 2 : 0];
 function finish() {
   state = 'over';
-  const s = Math.round(S.t), t = `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`, m = (S.peak / 40).toLocaleString(LANG, { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+  const s = Math.round(S.t - timeFrom), t = `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`, m = (S.peak / 40).toLocaleString(LANG, { minimumFractionDigits: 1, maximumFractionDigits: 1 });
   const lines = [fmt(plural(S.landed, UI.bzBdPieces), { n: S.landed }), fmt(plural(S.perfects, UI.bzBdPerfects), { n: S.perfects }), fmt(UI.bzBdHeight, { m }), fmt(UI.bzBdTime, { t })];
   showCard('⚖️', S.tipped ? UI.bzTipped : UI.bzOver, `<p class="big">${S.score}</p>`, UI.bzAgain);
   // The rankings, the exits and the breakdown come from ../game.js, in C-19's order
@@ -1429,7 +1470,7 @@ muteBtn.addEventListener('click', () => { muted = !muted; try { localStorage.set
 window.addEventListener('resize', resize);
 $('#hud a').setAttribute('aria-label', UI.bzBack); muteBtn.setAttribute('aria-label', UI.bzSound);
 paintMute(); resize(); ready(); requestAnimationFrame(frame);
-window.__balanza = { QUEUE, TIP, tip, breakHeart, LANG, TEXTS, SPECIAL_AT, get S() { return S; }, get state() { return state; }, finish, newGame, advance, stepWorld, mkBody, weld, place, rect, params, KINDS, EVERYDAY, SPECIAL, MASS, shapeFor, specialAt, pieceAt, PIV, DT, HALF, CLAW, WATER_Y,
+window.__balanza = { get startPieces() { return startPieces; }, seedPile, QUEUE, TIP, tip, breakHeart, LANG, TEXTS, SPECIAL_AT, get S() { return S; }, get state() { return state; }, finish, newGame, advance, stepWorld, mkBody, weld, place, rect, params, KINDS, EVERYDAY, SPECIAL, MASS, shapeFor, specialAt, pieceAt, PIV, DT, HALF, CLAW, WATER_Y,
   show(s, st = 'play') { S = s; state = st; card.hidden = true; for (const e of s.ev) onEvent(e); s.ev.length = 0; }, fx, render, hud,
   get blurs() { return blurs; }, set blurs(v) { blurs = v; }, get quality() { return quality; }, get speed() { return speed; }, get sprites() { return SPR.size; } };
 </script>

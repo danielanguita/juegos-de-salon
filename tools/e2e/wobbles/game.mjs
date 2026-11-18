@@ -37,6 +37,20 @@ for (const level of ['easy', 'hard']) {
   }
   ok(await b.evaluate("new URL(document.querySelector('a[href=\"../\"]').href).pathname === '/labs/wobbles/'"), `${level}: its ‹ goes back to the cover`);
 }
+// Lab: the cover's «T» tab sets the pieces both levels start with (on localhost the lab is open)
+await b.go(SITE + '/labs/wobbles/'); await b.evaluate("localStorage.removeItem('balanza-lab:start-pieces'); 1"); await b.go(SITE + '/labs/wobbles/'); await sleep(1200);
+await b.evaluate("document.querySelector('.tr-tab')?.click(); [1, 2, 3].forEach(() => document.querySelector('.tr-sim button[aria-label=\"+1\"]')?.click()); 1"); await sleep(300);
+ok(await b.evaluate("document.getElementById('tr-piezas')?.textContent === '3' && localStorage.getItem('balanza-lab:start-pieces') === '3'"), 'the cover\'s tester tab sets the starting pieces');
+// Lab: the hard level starts with the pieces the tester tab asks for, spread on the disc, and they count as nothing
+await b.go(SITE + '/labs/wobbles/hard/?seed=7&spin=0'); await b.evaluate("localStorage.setItem('balanza-lab:start-pieces', '8'); 1");
+await b.go(SITE + '/labs/wobbles/hard/?seed=7&spin=0'); await sleep(600);
+await b.evaluate("document.getElementById('cBtn').click(); 1"); await sleep(800);
+ok(await b.evaluate("(() => { const S = window.__balanza.S; return S.phase === 'play' && S.plat.looks.length + S.bodies.length >= 6 && S.score === 0 && S.lives === 3; })()"), 'hard: a game starts with the tester\'s pieces on the disc, no points, 3 lives');
+await b.go(SITE + '/labs/wobbles/easy/?seed=7'); await b.evaluate("localStorage.setItem('balanza-lab:start-pieces', '6'); 1");
+await b.go(SITE + '/labs/wobbles/easy/?seed=7'); await sleep(600);
+await b.evaluate("document.getElementById('cBtn').click(); 1"); await sleep(800);
+ok(await b.evaluate("(() => { const S = window.__balanza.S; return S.phase === 'play' && S.plank.parts.filter(q => !q.lip).length + S.bodies.length >= 4 && S.score === 0 && S.lives === 3; })()"), 'easy: a game starts with the tester\'s pieces on the plank, no points, 3 lives');
+await b.evaluate("localStorage.removeItem('balanza-lab:start-pieces'); 1");
 ok(!b.errors.length, 'no console errors' + (b.errors.length ? ': ' + b.errors[0].slice(0, 160) : ''));
 b.close();
 process.exit(failures ? 1 : 0);
