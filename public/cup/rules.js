@@ -175,6 +175,8 @@ const ES = {
         'Juegas una ronda de cada juego de la copa, una tras otra. Antes de cada una verás cómo se juega.',
       ],
       puntaje: 'Tu puntaje es el promedio de las rondas.',
+      // A final by places (D-587)
+      puntajeLugares: 'Cada ronda reparte puntos por lugar, como un día de la copa (10 al mejor, 8 al segundo…), y gana la final quien suma más.',
       // Outside a cup there is no week: the five fixed short rounds (D-418)
       comoSuelta: ['Son 5 rondas cortas seguidas, y antes de cada una verás cómo se juega.'],
       puntajeSuelto: 'Tu puntaje es el promedio de las 5 rondas.',
@@ -929,6 +931,7 @@ const ES = {
   roundNext: 'Siguiente ronda',
   roundDone: 'Ronda terminada: {pts} puntos.',
   finalSoFar: 'Vas con {pts} de 100: el promedio de tus rondas hasta ahora.',
+  finalRoundPts: '{n} pts en rondas',
   seeResults: 'Ver resultado',
 
   // Avisos al celular (D-223)
@@ -1109,6 +1112,7 @@ const EN = {
         'You play one round of each game of the cup, one after another. Before each one you\'ll see how it\'s played.',
       ],
       puntaje: 'Your score is the average of the rounds.',
+      puntajeLugares: 'Each round hands out points by place, like a day of the cup (10 for the best, 8 for second…), and whoever adds up the most wins the final.',
       // Outside a cup there is no week: the five fixed short rounds (D-418)
       comoSuelta: ['Five short rounds in a row, and before each one you\'ll see how it\'s played.'],
       puntajeSuelto: 'Your score is the average of the 5 rounds.',
@@ -1845,6 +1849,7 @@ const EN = {
   roundNext: 'Next round',
   roundDone: 'Round over: {pts} points.',
   finalSoFar: 'You\'re at {pts} out of 100: the average of your rounds so far.',
+  finalRoundPts: '{n} pts in rounds',
   seeResults: 'See result',
 
   // Phone notifications (D-223)
@@ -2025,6 +2030,7 @@ const PT = {
         'Você joga uma rodada de cada jogo da copa, uma atrás da outra. Antes de cada uma você vai ver como se joga.',
       ],
       puntaje: 'Sua pontuação é a média das rodadas.',
+      puntajeLugares: 'Cada rodada distribui pontos por posição, como um dia da copa (10 para o melhor, 8 para o segundo…), e vence a final quem somar mais.',
       // Outside a cup there is no week: the five fixed short rounds (D-418)
       comoSuelta: ['São 5 rodadas curtas seguidas, e antes de cada uma você vai ver como se joga.'],
       puntajeSuelto: 'Sua pontuação é a média das 5 rodadas.',
@@ -2761,6 +2767,7 @@ const PT = {
   roundNext: 'Próxima rodada',
   roundDone: 'Rodada terminada: {pts} pontos.',
   finalSoFar: 'Você está com {pts} de 100: a média das suas rodadas até agora.',
+  finalRoundPts: '{n} pts nas rodadas',
   seeResults: 'Ver resultado',
 
   // Avisos no celular (D-223)

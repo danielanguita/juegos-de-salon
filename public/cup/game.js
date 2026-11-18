@@ -28,7 +28,7 @@ import {
   fechaEn, sumarDias, nuevaMeta, diaActual, abierto, cerrado, terminada, inscripcionAbierta, estadoDia, comodinDe, comodinEfectivo, ultimoDiaComodin, moverInicio, sinEmpezar, pasarDia, MAX_DIAS_INICIO, faltaGente,
   medianoche, menosJuegos, provisoria, ultimoDiaVisto, marcaDelDia, puedeComodin, multiplicador, posicionesDelDia, tabla, desempate, faltan, fuera, enRiesgo, medallas, evolucion, podioDecidido, visibleDia, reloj, pausaDeLectura, mmss, juegoDelDia, esFinal, finalRounds, diaDeCal, activos, ZONA, zonaDeIdioma,
   conCierre, cerradaAntes, anulado, puedeCerrar, semanaAlAzar, ESTILOS_SEMANA, tieneFinal, SIN_FINAL,
-  findeAbierto, findeAlAzar, rondasDelDia, TRIO_SEP, estadoEnLista, recorteLista, porJugar,
+  findeAbierto, findeAlAzar, rondasDelDia, TRIO_SEP, estadoEnLista, recorteLista, porJugar, finalByPlaces,
 } from './engine.js';
 import { GAME_ID, LOCALES, juegosCopa, rondasFinal, conVariante, JUEGOS_COPA as JUEGOS_COPA_ES } from './rules.js';
 import { createCuenta, juntarCopas } from './cuenta.js';
@@ -1679,7 +1679,9 @@ const juegoDia = (meta, d) => {
   // A weekend cup's day of three (D-439) names its games by their emoji: "Tres juegos: 🧶 🔢 ⏳",
   // the three kept together on one line (U-11)
   if (tres) return { ...JUEGOS_COPA.trio, nombre: `${JUEGOS_COPA.trio.nombre}: ${tres.map(x => JUEGOS_COPA[diaDeCal(x).id]?.emoji || '').join('\u00a0')}` };
-  return conVariante(JUEGOS_COPA[juegoDelDia(meta, d)], varianteDelDia(meta, d));
+  const J = conVariante(JUEGOS_COPA[juegoDelDia(meta, d)], varianteDelDia(meta, d));
+  // A final by places (D-587) says how its rounds score
+  return esFinal(meta, d) && finalByPlaces(meta) && J?.puntajeLugares ? { ...J, puntaje: J.puntajeLugares } : J;
 };
 /** The variant's name under the game's name in the waiting room, if it has one. */
 const rotuloVariante = J => (J?.varianteNombre ? el('p', { class: 'variante-dia', id: 'variante-dia' }, J.varianteNombre) : null);
@@ -1718,7 +1720,13 @@ const listaRondas = ({ detalle = false, d } = {}) => el('ul', { class: 'como', i
 /** One line, above the detailed list, for the rounds played whole (instead of repeating it per round). */
 const notaRondasEnteras = () => (rondasDeLaFinal().some(x => !RONDAS_FINAL[diaDeCal(x).id]) ? el('p', { class: 'muted', id: 'nota-enteras' }, T.finalWholeNote) : null);
 /** The final outside a cup (the lab's practice and its trial) has no week: its five fixed rounds' texts (D-418). */
-const reglasDe = (id, J) => (id === 'final' && S.juego?.practica && J?.comoSuelta ? { ...J, como: J.comoSuelta, puntaje: J.puntajeSuelto } : J);
+const reglasDe = (id, J) => {
+  if (id !== 'final' || !J) return J;
+  if (S.juego?.practica && J.comoSuelta) return { ...J, como: J.comoSuelta, puntaje: J.puntajeSuelto };
+  // A cup's final by places (D-587) says how its rounds score
+  const meta = S.code ? L()?.meta : null;
+  return meta && esFinal(meta, S.juego?.d) && finalByPlaces(meta) && J.puntajeLugares ? { ...J, puntaje: J.puntajeLugares } : J;
+};
 
 function panelReglas(id, { copa = true, prueba = false, variante = null } = {}) {
   const J = reglasDe(id, conVariante(JUEGOS_COPA[id], variante));
@@ -1811,7 +1819,9 @@ async function jugar(d, { nuevo = false } = {}) {
   const persistir = () => cuenta.intento.guardar(S.code, d, S.yo, { jugadas, reloj: reloj.pausar(rel, ahora()), detenido, ...(fin ? { fin } : {}) });
   const cerrar = estado => {
     const r = mod.resultado(estado);
-    fin = { s: r.s, ms: r.ms ?? Math.round(reloj.leer(rel, ahora())), ...(Number.isFinite(r.d) ? { d: r.d } : {}), t: r.t, resumen: r.resumen, det: detalle(id, estado, { T, fmt, mmss, lang: LANG }) };
+    fin = { s: r.s, ms: r.ms ?? Math.round(reloj.leer(rel, ahora())), ...(Number.isFinite(r.d) ? { d: r.d } : {}), t: r.t, resumen: r.resumen, det: detalle(id, estado, { T, fmt, mmss, lang: LANG }),
+      // A final by places keeps each round (D-587); a final that opened before keeps the average
+      ...(r.rs && id === 'final' && esFinal(L().meta, d) && finalByPlaces(L().meta) ? { rs: r.rs } : {}) };
     persistir();
     envio = mandar(d, fin);
     // Si falla, "Ver resultado" lo reintenta y lo dice en pantalla; aquí no hay nada que mostrar
@@ -1876,7 +1886,7 @@ async function jugar(d, { nuevo = false } = {}) {
 /** Escribe el resultado en la copa. Que ya estuviera guardado cuenta como enviado. */
 async function mandar(d, fin) {
   const t = String(fin.t || '').slice(0, 300);
-  const res = { s: fin.s, ms: fin.ms, ...(Number.isFinite(fin.d) ? { d: fin.d } : {}), t, r: String(fin.resumen || '').slice(0, 30) };
+  const res = { s: fin.s, ms: fin.ms, ...(Number.isFinite(fin.d) ? { d: fin.d } : {}), t, r: String(fin.resumen || '').slice(0, 30), ...(typeof fin.rs === 'string' ? { rs: fin.rs.slice(0, 200) } : {}) };
   try {
     await store.resultado(S.code, d, S.yo, res);
   } catch (e) {

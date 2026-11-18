@@ -177,7 +177,9 @@ Todos los juegos puntúan **de 0 a 100** (D-113), salvo 🗼 Babel y 🥷 Shinob
 | 4 | 👑 Reinas: una por fila, columna y zona, sin tocarse | por tiempo: 100 hasta 30 s, 10 a los 5 min (D-107) | nuevo (Queens de LinkedIn) |
 | 5 | 🔤 Toque y Fama: Palabra. 5 letras, 8 intentos | 10 × letra encontrada en su lugar (una vez por lugar) + si la saca 50 − 5 × (intentos − 1) (D-108) | lo mismo que el día 2, con letras |
 | 6 | 📅 ¿En qué año?: 6 hitos | promedio de los hitos (100 cada uno, baja con la distancia) | mazos de Línea de Tiempo y teclado de Toque y Fama |
-| 7 | 🏁 La Gran Final: one round per game of the week, in order (D-418): the short version of the five that have one, any other game whole with new content | average of the rounds (0 to 100 each) | each game's engine and screen |
+| 7 | 🏁 La Gran Final: one round per game of the week, in order (D-418): the short version of the five that have one, any other game whole with new content | average of the rounds (0 to 100 each); **since D-587** (finals opening from `FINAL_PLACES_FROM`), each round hands out the day's points by place (score, then the round's own time) and the final is ranked by their sum | each game's engine and screen |
+
+**Final by places (D-587):** each result keeps its rounds as `rs` (`"score/ms"` per round); `posicionesDelDia` ranks the final by rounds only when every result carries them (a final played before, or a result from an old phone, keeps the average for everyone). The final's day table shows each player's points in rounds and their place in each round («☀️ 1.° 〰️ 3.°»).
 
 Between rounds of 🏁 La Gran Final, the intro of the next round shows the running score: the average of the rounds played so far, out of 100, the same scale as the result, which it equals after the last round (D-417).
 

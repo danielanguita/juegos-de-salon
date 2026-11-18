@@ -657,6 +657,8 @@ export function activos(L) {
 const conD = f => Number.isFinite(f.d);
 const mismoDesempate = (a, b) => (conD(a) && conD(b) ? a.d === b.d : a.ms === b.ms);
 export function posicionesDelDia(resultados = {}, pids) {
+  const rondas = porRondas(resultados, pids);
+  if (rondas) return rondas;
   const filas = pids.filter(pid => resultados[pid]).map(pid => {
     const r = resultados[pid], d = Number(r.d);
     return { pid, s: Number(r.s) || 0, ms: Number(r.ms) || 0, ...(r.d != null && Number.isFinite(d) ? { d } : {}) };
@@ -668,6 +670,36 @@ export function posicionesDelDia(resultados = {}, pids) {
     const pos = prev && prev.s === f.s && mismoDesempate(prev, f) ? out[prev.pid].pos : i + 1;
     out[f.pid] = { pos, pts: PUNTOS[pos - 1] ?? 1 };
   });
+  return out;
+}
+
+/**
+ * The Grand Final by places (D-587): each round hands out the day's points by place (score, then that
+ * round's time), and the final is ranked by their sum, then by its whole time. Only a final that opens
+ * at `FINAL_PLACES_FROM` or later records each round (`rs`, `finalByPlaces`); a final whose results
+ * do not all carry their rounds keeps the average of the rounds (D-113), so no final already played changes.
+ */
+export const FINAL_PLACES_FROM = Date.parse('2026-11-19T02:00:00Z');
+export const finalByPlaces = meta => tieneFinal(meta) && !rondasDelDia(meta, meta?.days) && (meta?.win?.[meta?.days]?.a ?? 0) >= FINAL_PLACES_FROM;
+/** A result's rounds, written as `"100/42310 89/61000"` (score/ms each, in the final's order; `writeRounds` in games/final/engine.js). */
+export function readRounds(rs) {
+  if (typeof rs !== 'string' || !rs) return null;
+  const out = rs.split(' ').map(x => x.split('/').map(Number)).map(([s, ms]) => ({ s, ms }));
+  return out.every(r => Number.isFinite(r.s) && Number.isFinite(r.ms)) ? out : null;
+}
+function porRondas(resultados, pids) {
+  const jugaron = pids.filter(pid => resultados[pid]);
+  if (!jugaron.length) return null;
+  const rs = Object.fromEntries(jugaron.map(pid => [pid, readRounds(resultados[pid].rs)]));
+  const n = rs[jugaron[0]]?.length;
+  if (!n || jugaron.some(pid => rs[pid]?.length !== n)) return null;
+  const suma = Object.fromEntries(jugaron.map(pid => [pid, 0])), lugares = Object.fromEntries(jugaron.map(pid => [pid, []]));
+  for (let i = 0; i < n; i++) {
+    const ronda = posicionesDelDia(Object.fromEntries(jugaron.map(pid => [pid, rs[pid][i]])), jugaron);
+    for (const pid of jugaron) { suma[pid] += ronda[pid].pts; lugares[pid].push(ronda[pid].pos); }
+  }
+  const out = posicionesDelDia(Object.fromEntries(jugaron.map(pid => [pid, { s: suma[pid], ms: resultados[pid].ms }])), jugaron);
+  for (const pid of jugaron) Object.assign(out[pid], { suma: suma[pid], rondas: lugares[pid] });
   return out;
 }
 

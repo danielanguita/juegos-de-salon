@@ -2,8 +2,9 @@
  * 🏁 La Gran Final — pantalla. One round per game of the week (D-418), each with its game's screen.
  * Las jugadas son { ronda, sub: { <ronda>: jugadas }, hechas: { <ronda>: true }, pts, t0 }: `pts` keeps
  * the score of each round played whole (a game without a short version), taken from its own
- * `resultado()` when it ends, and `t0` when it started on the final's clock, so a game that scores
- * its time counts only its own round.
+ * `resultado()` when it ends, `t0` when each round started on the final's clock, so a game that scores
+ * its time counts only its own round, and `t1` when its board ended: each round's time, which ranks
+ * the round in a final by places (D-587).
  *
  * Antes de cada ronda se explica cómo se juega (LIG-36).
  */
@@ -39,14 +40,16 @@ const rondasDe = p => (Array.isArray(p?.rondas) ? p.rondas : final.RONDAS);
 /** A round played in its short version: never in a day of three, where every game is whole (D-439). */
 const esCorta = (p, r) => !p?.enteras && !!ESTADO[r];
 
-/** The result so far: `{ rondas, pts }` with the rounds finished, for the score and the card. */
+/** The result so far: `{ rondas, pts, ms }` with the rounds finished, for the score and the card; `ms` each round's time when both ends were kept (D-587). */
 export function estados(p, jugadas) {
-  const rondas = rondasDe(p), pts = {};
+  const rondas = rondasDe(p), pts = {}, ms = {};
   for (const r of rondas) {
     if (!jugadas?.hechas?.[r]) continue;
     pts[r] = esCorta(p, r) ? final.puntosRonda[r](ESTADO[r](p[r], jugadas.sub?.[r])) : jugadas.pts?.[r] || 0;
+    const t0 = jugadas.t0?.[r], t1 = jugadas.t1?.[r];
+    if (Number.isFinite(t0) && Number.isFinite(t1)) ms[r] = Math.max(0, t1 - t0);
   }
-  return { rondas, pts };
+  return { rondas, pts, ...(p?.enteras ? {} : { ms }) };
 }
 
 export function montar(raiz, ctx) {
@@ -56,7 +59,7 @@ export function montar(raiz, ctx) {
   const R = p?.enteras ? { ...T, roundOf: T.trioOf, roundStart: T.trioStart, roundNext: T.trioNext, finalSoFar: T.trioSoFar } : T;
   const rondas = rondasDe(p), n = rondas.length;
   const j = ctx.jugadas && typeof ctx.jugadas === 'object' && !Array.isArray(ctx.jugadas) ? ctx.jugadas : {};
-  const J = { ronda: j.ronda || 0, sub: { ...(j.sub || {}) }, hechas: { ...(j.hechas || {}) }, pts: { ...(j.pts || {}) }, t0: { ...(j.t0 || {}) }, jugando: !!j.jugando };
+  const J = { ronda: j.ronda || 0, sub: { ...(j.sub || {}) }, hechas: { ...(j.hechas || {}) }, pts: { ...(j.pts || {}) }, t0: { ...(j.t0 || {}) }, t1: { ...(j.t1 || {}) }, jugando: !!j.jugando };
   const guardar = () => ctx.guardar(J);
   const ficha = r => conVariante(JUEGOS_COPA[r], p[r]?.variante ?? null) || JUEGOS_COPA[r];
   const ahora = () => ctx.tiempo?.() ?? 0;
@@ -75,7 +78,7 @@ export function montar(raiz, ctx) {
         RONDAS_FINAL[r] ? null : [el('p', { class: 'lead', style: 'margin:10px 0 4px' }, T.scoring), el('p', { class: 'muted' }, M.puntaje), M.puntajeFinal && !p?.enteras ? el('p', { class: 'muted', id: 'puntaje-final' }, M.puntajeFinal) : null]),
       J.ronda > 0 ? el('p', { class: 'muted center' }, fmt(R.finalSoFar, { pts: lleva })) : null,
       el('button', { class: 'btn btn--yellow', id: 'btn-ronda', onClick: () => {
-        SFX.tap(); J.jugando = true; if (!esCorta(p, r) && J.t0[r] === undefined) J.t0[r] = ahora(); guardar(); ronda();
+        SFX.tap(); J.jugando = true; if (J.t0[r] === undefined) J.t0[r] = ahora(); guardar(); ronda();
       } }, `${M.emoji} ${R.roundStart}`)));
   };
 
@@ -90,13 +93,19 @@ export function montar(raiz, ctx) {
     const ultima = J.ronda === n - 1;
     // A game played whole scores with its own result (0 to 100) the moment its board ends (D-150)
     const puntos = e => { if (corta) return final.puntosRonda[r](e); const x = mod.resultado(e); return Math.min(100, Number.isFinite(x.d100) ? x.d100 : x.s); };   // a game whose points pass 100 brings its own 0–100 (¡Al toque!'s `d100`)
-    const anotar = e => { if (!corta && e) J.pts[r] = puntos(e); };
+    // The round's time stops with its board (D-587), not when "next round" is tapped
+    const anotar = e => { if (J.t1[r] === undefined) J.t1[r] = ahora(); if (!corta && e) J.pts[r] = puntos(e); };
     if (!corta) ctx.pantallaCompleta?.(mod.pantallaCompleta);
     // Solo la última ronda detiene el reloj de la final (D-130), y con ella sale el resultado de
     // todas (D-150). A game played whole in an earlier round only keeps its score
     const pararReloj = ultima
-      ? e => { anotar(e); const res = estados(p, J); ctx.pararReloj?.(e ? { ...res, pts: { ...res.pts, [r]: puntos(e) } } : undefined); }
-      : corta ? undefined : e => { anotar(e); guardar(); };
+      ? e => {
+        anotar(e);
+        const res = estados(p, J), t0 = J.t0[r];
+        const ms = res.ms && Number.isFinite(t0) ? { ...res.ms, [r]: Math.max(0, J.t1[r] - t0) } : res.ms;
+        ctx.pararReloj?.(e ? { ...res, pts: { ...res.pts, [r]: puntos(e) }, ...(ms ? { ms } : {}) } : undefined);
+      }
+      : e => { anotar(e); guardar(); };
     mod.montar(caja, {
       ...ctx,
       p: p[r],
@@ -126,5 +135,8 @@ export function montar(raiz, ctx) {
 
 export const resultado = res => {
   const s = final.puntaje(res);
-  return { s, t: final.tarjeta(res), resumen: `${s}/100` };
+  // Each round's score and time, for a final by places (D-587): only when every round kept its time
+  const rondas = (res?.rondas || []).map(r => ({ s: res.pts?.[r] || 0, ms: res.ms?.[r] }));
+  const rs = rondas.length && rondas.every(x => Number.isFinite(x.ms)) ? final.writeRounds(rondas) : null;
+  return { s, t: final.tarjeta(res), resumen: `${s}/100`, ...(rs ? { rs } : {}) };
 };
