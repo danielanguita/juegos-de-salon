@@ -1227,7 +1227,7 @@ function renderResult() {
   const top = sorted[0];
   $('#standings').replaceChildren(...sorted.map((p, i) => {
     const isTop = top && p.coins === top.coins && (p.handsWon || 0) === (top.handsWon || 0) && (p.blackjacks || 0) === (top.blackjacks || 0) && p.coins > 0;
-    const label = `${i + 1}. ${p.name} · ${fmt(T.handsWonN, { n: p.handsWon || 0 })}`;
+    const label = `${i + 1}. ${p.name} · ${p.handsWon === 1 ? T.handsWonOne : fmt(T.handsWonN, { n: p.handsWon || 0 })}`;
     return el('li', { class: isTop ? 'top' : '' },
       el('span', {}, label),
       el('b', {}, ...coins(`🪙 ${p.coins}`)));
