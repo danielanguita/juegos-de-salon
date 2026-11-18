@@ -1213,7 +1213,11 @@ function commitDispatch(act, extra = {}) {
 }
 
 function placeBet(amount) { dispatch('bet', { amount }); }
-function hit() { dispatch('hit'); }
+function hit() {
+  const cards = felt && $('#seats-box .bj-hand.active-hand .cards-row');
+  if (cards) { const r = cards.getBoundingClientRect(); showTapHand(r.left + r.width * 0.72, r.top + r.height * 0.55); }
+  dispatch('hit');
+}
 function stand() { dispatch('stand'); }
 function doubleDown() { dispatch('double'); }
 function split() { dispatch('split'); }
@@ -1356,28 +1360,8 @@ function resultRankings() {
   ponerBuzon($('#screen-result'), { juego: GAME_ID });
 }
 
-/* On the felt, two taps on the cloth near your cards ask the dealer for a card, as at a real table:
- * a hand taps twice where the finger landed, then «Pedir» runs. One tap does nothing (D-576: a double tap
- * counts once, and here the double tap is the gesture itself). */
-const TAP_GAP = 380;   // ms between the two taps
-const TAP_NEAR = 36;   // px the second tap may land from the first
-function feltTapToHit() {
-  let last = null;
-  $('#seats-box').addEventListener('pointerup', e => {
-    if (!felt || e.pointerType === 'mouse' && e.button !== 0) return;
-    const hand = e.target.closest('.bj-hand.active-hand');
-    const btn = document.getElementById('btn-hit');
-    if (!hand || !btn || btn.disabled) { last = null; return; }
-    const now = performance.now();
-    if (last && now - last.t < TAP_GAP && Math.hypot(e.clientX - last.x, e.clientY - last.y) < TAP_NEAR) {
-      last = null;
-      showTapHand(e.clientX, e.clientY);
-      btn.click();
-      return;
-    }
-    last = { t: now, x: e.clientX, y: e.clientY };
-  });
-}
+/* On the felt, «Pedir» shows the table's gesture for it: a hand taps the cloth twice by your cards, as a
+ * player asks a real dealer for a card. Only the picture: the button is what asks. */
 function showTapHand(x, y) {
   if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
   const hand = el('div', { class: 'bj-tap-hand', 'aria-hidden': 'true' }, el('span', {}, '👆'), el('i', {}), el('i', {}));
@@ -1394,7 +1378,6 @@ function init() {
   $('#lang-slot').append(coverLangToggle());
   $('#sound-slot').append(soundToggle());
   initSound();
-  feltTapToHit();
   renderModes();
   renderResumeSlot();
   flag('blackjack-felt').then(on => {

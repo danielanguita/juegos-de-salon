@@ -79,13 +79,11 @@ const r1 = await round();
 await doubleTap(b, '#btn-bet');
 await b.until("document.getElementById('btn-stand') || document.getElementById('btn-next-round')", 12000); await sleep(300);
 ok(await b.evaluate("document.querySelectorAll('#seats-box .bj-hand .pcard').length === 2 && document.querySelectorAll('#dealer-box .pcard').length === 2"), 'a double tap on «Apostar» deals one hand: two cards each');
-// Two taps on the felt by your cards ask for a card; one tap does nothing
-const TAP = n => `(()=>{const h=document.querySelector('#seats-box .bj-hand.active-hand');if(!h)return 'no-hand';const r=h.getBoundingClientRect();const o={bubbles:true,clientX:r.left+r.width/2,clientY:r.top+r.height/2,pointerType:'touch'};for(let i=0;i<${n};i++)h.dispatchEvent(new PointerEvent('pointerup',o));return 'ok'})()`;
-if (await b.evaluate("!!document.querySelector('#seats-box .bj-hand.active-hand') && !document.getElementById('btn-hit')?.disabled")) {
-  await b.evaluate(TAP(1)); await sleep(700);
-  ok(await b.evaluate("document.querySelectorAll('#seats-box .bj-hand .pcard').length === 2"), 'one tap on the felt does nothing');
-  await b.evaluate(TAP(2)); await sleep(1200);
-  ok(await b.evaluate("document.querySelectorAll('#seats-box .bj-hand .pcard').length === 3"), 'two taps on the felt by your cards ask for a card (one, not two)');
+// «Pedir» on the felt shows a hand tapping the table twice by your cards
+if (await b.evaluate("!!document.getElementById('btn-hit') && !document.getElementById('btn-hit').disabled")) {
+  await b.evaluate("document.getElementById('btn-hit').click(); 1"); await sleep(150);
+  ok(await b.evaluate("!!document.querySelector('.bj-tap-hand')"), '«Pedir» shows the hand tapping the felt twice');
+  await sleep(1200);
 }
 // The card asked for may bust the hand: the house then plays it out before «Siguiente ronda» comes back
 await b.until("document.getElementById('btn-stand') || document.getElementById('btn-next-round') || document.querySelector('#screen-result.active')", 14000); await sleep(300);
