@@ -206,3 +206,5 @@ Its catalogue entry, modes, session key, Firebase paths and the exceptions above
 and run `node tools/generators/manifests.mjs`; games.js reads the generated module.
 
 - **What a mistake costs** (lab, flag `mistakes-rule`): in La Copa's Número, one line under the title says it («❌ Cada intento que las pistas ya descartaban resta 15.»); see [cup.md](cup.md#reglas).
+
+**A short phone** (2026-11-18, D-520, D-570): at 320×568 the clues of a guess fell below the fold. Under 640 px of height, `teclado.css` (scoped to `.numero-juego`, so solo and La Copa's 🔢 Número) tightens the keypad to 48 px keys, hides the block hint once there is a guess and lists the newest guess first, so the latest feedback sits right under the keypad. 390 px is unchanged. `tools/e2e/play-fold.mjs` checks it in every language.

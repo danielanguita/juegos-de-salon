@@ -67,3 +67,15 @@
 .reply-clue .z { background: rgb(var(--ink-rgb) / 0.15); }
 /* Con `elegir` (#604) las casillas se tocan para elegir dónde va la próxima cifra */
 .entry--elegir .box { cursor: pointer; -webkit-tap-highlight-color: transparent; }
+/* Guess the number on a short phone (320×568), in Bulls and Cows solo and in La Copa: after a guess
+   its clues fell below the fold, so the player scrolled for every answer. The keypad tightens to
+   48 px keys, the hint (already read) steps aside from the second guess on, and the newest guess goes
+   first in the list, so the latest feedback sits right under the keypad. */
+@media (max-height: 640px) {
+  .numero-juego .entry { margin: var(--s-6) 0 var(--s-10); }
+  .numero-juego .entry .box { width: 46px; }
+  .numero-juego .keypad { gap: var(--s-6); }
+  .numero-juego .keypad button { min-height: 48px; padding: var(--s-6) 0; }
+  .numero-juego:has(.board li + li) .block-hint { display: none; }
+  .numero-juego .board ol { display: flex; flex-direction: column-reverse; }
+}
