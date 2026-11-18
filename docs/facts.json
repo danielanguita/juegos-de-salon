@@ -1599,6 +1599,7 @@
     "public/sw-sync.test.mjs",
     "public/sw.test.mjs",
     "public/timeline/engine.test.mjs",
+    "tools/agents/agents-models.test.mjs",
     "tools/agents/approve.test.mjs",
     "tools/agents/architecture.test.mjs",
     "tools/agents/clean-worktrees.test.mjs",
