@@ -668,7 +668,7 @@ const query = new URLSearchParams(location.search), seedParam = query.get('seed'
 const fromParam = Math.max(0, Math.min(500, Math.floor(Number(query.get('from')) || 0)));
 function start() {
   S = newGame(seedParam != null ? Number(seedParam) | 0 : Date.now() | 0, fromParam);
-  state = 'play'; acc = 0; chispas = []; anillos = []; floats = []; says = []; banner = null; zoom = 1; card.hidden = true;
+  state = 'play'; acc = 0; chispas = []; anillos = []; floats = []; says = []; banner = null; zoom = 1; card.hidden = true; document.dispatchEvent(new Event('wobbles:clear'));
   target = { x: 0, z: 0 }; dropQ = false; drag = null; turning = null; twist = null; fingers.clear(); seen = null; yaw = 0;
   // The opening turn, at the start of every game (`?spin=0` skips it: lab only)
   opening = query.get('spin') === '0' ? null : 0; sinceOpening = opening == null ? 99 : 0; handQ = null;
@@ -676,12 +676,11 @@ function start() {
 function finish() {
   state = 'over';
   const s = Math.round(S.t), time = `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
-  showCard('⚖️', ui('b3Over'), `<p class="big">${S.score}</p><ul>${S.capsized ? `<li>${ui('b3BdTipped')}</li>` : ''}
-    <li>${some('b3BdPieces', S.landed)}</li>
-    <li>${some('b3BdPerfects', S.perfects, { p: S.bonus })}</li>
-    <li>${ui('b3BdStreak', { n: S.best })}</li>
-    <li>${ui('b3BdHeight', { m: decimal(S.peak) })}</li>
-    <li>${ui('b3BdTime', { t: time })}</li></ul>`, ui('b3Again'));
+  const lines = [S.capsized ? ui('b3BdTipped') : '', some('b3BdPieces', S.landed), some('b3BdPerfects', S.perfects, { p: S.bonus }),
+    ui('b3BdStreak', { n: S.best }), ui('b3BdHeight', { m: decimal(S.peak) }), ui('b3BdTime', { t: time })].filter(Boolean);
+  showCard('⚖️', ui('b3Over'), `<p class="big">${S.score}</p>`, ui('b3Again'));
+  // The rankings, the exits and the breakdown come from ../game.js, in C-19's order
+  document.dispatchEvent(new CustomEvent('wobbles:over', { detail: { score: S.score, ms: Math.round(S.t * 1000), lines } }));
 }
 
 /* ---------- input ---------- */

@@ -41,6 +41,7 @@
   <link rel="preload" href="../../assets/fonts/nunito-latin.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="../../assets/fonts/bangers-latin.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="../../assets/css/base.css">
+  <link rel="stylesheet" href="../../assets/css/ranking.css">
   <link rel="stylesheet" href="style.css">
   <link rel="apple-touch-icon" href="../../assets/icons/apple-touch-icon.png">
   <meta name="apple-mobile-web-app-title" content="Juegos de Salón">
@@ -65,11 +66,13 @@
       </div>
       <div class="stack">
         <div class="modes" id="modes"></div>
-        <!-- The rules go after the main action (U-39): the goal first and three points (U-18) -->
-        <div class="panel">
-          <p class="lead" data-i18n="howTitle"></p>
+        <!-- The rules go after the main action (U-39): folded by default (D-550), the goal first and three points (U-18) -->
+        <details class="panel">
+          <summary><span data-i18n="howTitle"></span></summary>
           <ol class="how" id="how"></ol>
-        </div>
+        </details>
+        <!-- The player's account (D-212): only signing in on the cover, the «👤 Entrar» dialog (C-8); the tables are on each level's result -->
+        <div class="stack" id="rk-slot"></div>
       </div>
       <div id="pie" class="pie"></div>
     </section>
