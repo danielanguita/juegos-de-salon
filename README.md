@@ -674,6 +674,7 @@ node tools/agents/sync-pr.test.mjs
 node tools/agents/tokens-rgb.test.mjs
 node tools/agents/usability-lint.test.mjs
 node tools/agents/wait-pr.test.mjs
+node tools/agents/worktree-guard.test.mjs
 node tools/cloudflare/inbox-worker.test.mjs
 node tools/e2e/affected.test.mjs
 node tools/e2e/already-tested.test.mjs
