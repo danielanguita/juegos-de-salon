@@ -196,6 +196,10 @@ generator and judge are deleted and the eval cases stay as documentation of why.
 - 2026-11-04 · 1.1 concept written in the planning session; the owner chose C.
 - 2026-11-04 · 20 clues labelled by the owner in conversation, criteria drafted from the labels (PR #1177).
 - 2026-11-04 · The owner answered J6, M3 and the hidden rule; **1.1 closed**. Next: 1.2.
+- 2026-11-17 · 1.2, first half: `tools/generators/clues/checks.mjs` (M1–M3), `cases.json` (the 20 labels + 8 bad on purpose), `clues.test.mjs`. On the live decks: M1 clean; **M2 flags 18 real give-aways** (es 4, en 10, pt 4: MIDNIGHT for NIGHT, PESCADOR for PESCA…), kept in `known.json` as a debt that can only shrink, because editing a deck reshuffles the boards a running Cup plays (U-21); **M3 breaks on 17–19% of boards** (es 57/300, en 52, pt 52).
+- 2026-11-17 · ⚖️ **Two questions for the owner before the second half of 1.2:**
+  1. *The 18 give-aways:* replace them in one PR on a day no Cup is running (they reshuffle every Agentes board, Uno al día included), or leave them?
+  2. *The `agents-m3` flag:* every Agentes board is seeded and shared (Cups, Uno al día, rankings), so a flag that changes boards only for lab key holders would score them on different boards. Options: (a) only in a lab-only practice mode with no rankings; (b) for everyone on a date, as a deck change, measured before/after on the panel; (c) not at all, M3 stays a generator rule for new clues.
 
 ## Learnings
 
