@@ -1,0 +1,402 @@
+/* Croc! (lab). Tokens and shared shell live in assets/css/base.css (DESIGN.md). */
+
+:root {
+  --croc-stage-bg: #101524;
+  --croc-pad-bg: rgba(16, 22, 40, 0.56);
+  --croc-pad-active: rgba(46, 230, 214, 0.34);
+  --croc-shadow: rgba(0, 0, 0, 0.55);
+  --sp-plate-light: #4a4f5c;
+  --sp-plate-dark: #23262e;
+  --sp-plate-edge: #6b7180;
+  --sp-axle-light: #d9dde5;
+  --sp-axle-dark: #7b8190;
+  --sp-arm-1: #aeb4c0;
+  --sp-arm-2: #e6e9ef;
+  --sp-arm-3: #9aa0ad;
+  --sp-knob-easy: #c8ff8a;
+  --sp-knob-hard: #ff8a8a;
+  --sp-knob-shade-easy: #3f8f12;
+  --sp-knob-shade-hard: #c4142b;
+  --sp-hard-bg: #1c0512;
+  --sp-hard-glow-top: rgba(255, 40, 120, 0.24);
+  --sp-hard-glow-bot: rgba(255, 68, 56, 0.18);
+  --sp-plate-hard-glow: rgba(255, 59, 92, 0.38);
+  --sp-lever-hard-bg: rgba(40, 8, 22, 0.78);
+  --sp-lever-hard-border: rgba(255, 70, 96, 0.7);
+  --sp-lever-hard-shadow: rgba(255, 45, 85, 0.32);
+  --sp-lever-hard-inset: rgba(255, 45, 85, 0.14);
+  --sp-track-shadow: rgba(0, 0, 0, 0.85);
+  --sp-knob-shadow: rgba(0, 0, 0, 0.6);
+  --sp-knob-glow-easy: rgba(124, 255, 91, 0.45);
+  --sp-knob-glow-hard: rgba(255, 59, 92, 0.75);
+  --sp-flash-glow: rgba(255, 45, 85, 0.4);
+}
+
+.croc-logo {
+  display: block;
+  margin-inline: auto;
+  font-size: var(--fs-200);
+  line-height: 1;
+  text-align: center;
+  animation: croc-hop 2s ease-in-out infinite;
+}
+@keyframes croc-hop {
+  0%, 100% { transform: translateY(0) scale(1); }
+  45% { transform: translateY(-4px) scale(1.03); }
+}
+
+.best-line {
+  margin: 0;
+  text-align: center;
+  font-size: var(--fs-90);
+  font-weight: 800;
+  color: var(--muted);
+}
+.best-line b { color: var(--yellow); }
+
+.dash-demo {
+  display: block;
+  width: 100%;
+  max-width: 340px;
+  height: 96px;
+  margin-inline: auto;
+  border-radius: var(--r-16);
+  border: 1px solid var(--glass-border);
+  background: var(--croc-stage-bg);
+  box-shadow: var(--shadow-panel);
+}
+
+.pie { text-align: center; }
+
+/* ---------------- Play stage ---------------- */
+#screen-play.active {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  overscroll-behavior: none;
+}
+
+.stage {
+  position: relative;
+  height: calc(100svh - 140px);
+  min-height: 340px;
+  overflow: hidden;
+  border-radius: var(--radius);
+  border: 1px solid var(--glass-border);
+  background: var(--croc-stage-bg);
+  box-shadow: var(--shadow-panel);
+  touch-action: none;
+  overscroll-behavior: none;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  outline: none;
+}
+
+#canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* Top compact HUD */
+.hud {
+  position: absolute;
+  top: var(--s-10);
+  left: var(--s-10);
+  right: var(--s-10);
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--s-8);
+  pointer-events: none;
+}
+
+.hud-pill {
+  display: grid;
+  gap: var(--s-2);
+  padding: var(--s-6) var(--s-10);
+  border-radius: var(--r-12);
+  background: rgb(var(--bg1-rgb) / 0.72);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  font-size: var(--fs-85);
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.15;
+}
+.hud-pill small {
+  font-size: var(--fs-75);
+  font-weight: 700;
+  color: var(--muted);
+}
+.hud-lives {
+  font-size: var(--fs-85);
+  line-height: 1.1;
+  letter-spacing: 1px;
+}
+
+.hud-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--s-4);
+}
+.hud-score {
+  font: 900 var(--fs-200)/1 var(--font-num);
+  font-variant-numeric: tabular-nums;
+  color: var(--yellow);
+  text-shadow: 0 3px 0 var(--croc-shadow);
+}
+.hud-dash {
+  padding: var(--s-4) var(--s-12);
+  border-radius: var(--r-pill);
+  background: rgb(var(--bg1-rgb) / 0.88);
+  border: 2px solid var(--yellow);
+  color: var(--yellow);
+  font-size: var(--fs-85);
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+  box-shadow: 0 2px 10px rgb(var(--yellow-rgb) / 0.35);
+}
+.hud-dash.cooldown {
+  border-width: 1px;
+  border-color: var(--glass-border);
+  color: var(--muted);
+  box-shadow: none;
+}
+
+.hud-right {
+  display: flex;
+  align-items: center;
+  gap: var(--s-6);
+  text-align: right;
+}
+.hud-pause {
+  pointer-events: auto;
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
+  border-radius: var(--r-10);
+  border: 1px solid var(--glass-border);
+  background: rgb(var(--bg1-rgb) / 0.72);
+  color: var(--ink);
+  font-size: var(--fs-90);
+  cursor: pointer;
+}
+
+.pause-layer {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  gap: var(--s-6);
+  text-align: center;
+  cursor: pointer;
+  background: rgb(var(--bg1-rgb) / 0.78);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+/* ---------------- Result breakdown ---------------- */
+.score-card {
+  display: grid;
+  gap: var(--s-8);
+}
+.score-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: var(--fs-90);
+}
+.score-row b {
+  font-variant-numeric: tabular-nums;
+}
+.score-sep {
+  margin: var(--s-4) 0;
+  border: 0;
+  border-top: 1px solid var(--glass-border);
+}
+.score-total {
+  font-size: var(--fs-120);
+  font-weight: 900;
+}
+.score-total b { color: var(--yellow); }
+.score-meta {
+  margin: var(--s-4) 0 0;
+  font-size: var(--fs-85);
+  text-align: center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .croc-logo { animation: none; }
+  .sp-arm, .sp-lever { transition: none; }
+  .sp-lever.on .sp-bolt { animation: none; opacity: 1; }
+  .sp-lever.zap .sp-plate { animation: none; }
+}
+
+/* ---------------- Electric difficulty lever (Tembleque style) ---------------- */
+body.sp-hard { background: var(--sp-hard-bg); }
+body.sp-hard::before {
+  background:
+    radial-gradient(640px 440px at 85% 0%, var(--sp-hard-glow-top), transparent 62%),
+    radial-gradient(640px 440px at 10% 100%, var(--sp-hard-glow-bot), transparent 62%);
+}
+
+.sp-lever {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  padding: 12px 16px 12px 14px;
+  border-radius: var(--radius);
+  border: 1px solid var(--glass-border);
+  background: var(--glass);
+  color: inherit;
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: border-color 0.25s, background 0.25s, box-shadow 0.25s;
+}
+.sp-lever:active { transform: scale(0.99); }
+.sp-lever.on {
+  border-color: var(--sp-lever-hard-border);
+  background: var(--sp-lever-hard-bg);
+  box-shadow: 0 0 28px var(--sp-lever-hard-shadow), inset 0 0 18px var(--sp-lever-hard-inset);
+}
+.sp-lever.zap .sp-plate { animation: sp-zap 0.35s linear; }
+@keyframes sp-zap {
+  0%, 100% { filter: brightness(1); }
+  25% { filter: brightness(1.8); }
+  55% { filter: brightness(1.3); }
+}
+
+.sp-plate {
+  position: relative;
+  flex: none;
+  width: 44px;
+  height: 60px;
+  border-radius: 10px;
+  background: linear-gradient(180deg, var(--sp-plate-light), var(--sp-plate-dark));
+  border: 1px solid var(--sp-plate-edge);
+  box-shadow: inset 0 2px 3px rgb(var(--ink-rgb) / 0.18), 0 4px 10px var(--croc-shadow);
+  display: grid;
+  place-items: center;
+}
+.sp-lever.on .sp-plate {
+  box-shadow: inset 0 2px 3px rgb(var(--ink-rgb) / 0.20), 0 0 16px var(--sp-plate-hard-glow);
+}
+.sp-track {
+  position: relative;
+  width: 12px;
+  height: 44px;
+  border-radius: 999px;
+  background: var(--bg);
+  box-shadow: inset 0 2px 5px var(--sp-track-shadow);
+}
+.sp-groove {
+  position: absolute;
+  inset: 3px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, var(--green) 0%, transparent 45%, transparent 55%, var(--red) 100%);
+  opacity: 0.4;
+}
+.sp-axle {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 10px;
+  height: 10px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, var(--sp-axle-light), var(--sp-axle-dark));
+  z-index: 2;
+}
+.sp-arm {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 4px;
+  height: 22px;
+  margin-left: calc(var(--s-2) * -1);
+  transform-origin: 50% 0%;
+  transform: rotate(-165deg);
+  background: linear-gradient(90deg, var(--sp-arm-1), var(--sp-arm-2) 50%, var(--sp-arm-3));
+  border-radius: var(--r-8);
+  transition: transform 0.28s cubic-bezier(0.3, 1.5, 0.5, 1);
+  z-index: 3;
+}
+.sp-lever.on .sp-arm { transform: rotate(-15deg); }
+.sp-knob {
+  position: absolute;
+  left: 50%;
+  bottom: -11px;
+  width: 17px;
+  height: 17px;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  background: radial-gradient(circle at 32% 30%, var(--sp-knob-easy), var(--green) 48%, var(--sp-knob-shade-easy));
+  box-shadow: 0 2px 6px var(--sp-knob-shadow), 0 0 10px var(--sp-knob-glow-easy);
+}
+.sp-lever.on .sp-knob {
+  background: radial-gradient(circle at 32% 30%, var(--sp-knob-hard), var(--red) 48%, var(--sp-knob-shade-hard));
+  box-shadow: 0 2px 6px var(--sp-knob-shadow), 0 0 14px var(--sp-knob-glow-hard);
+}
+.sp-bolt {
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  font-size: var(--fs-75);
+  opacity: 0;
+  transition: opacity 0.2s;
+  pointer-events: none;
+}
+.sp-lever.on .sp-bolt {
+  opacity: 1;
+  animation: sp-bolt 1.4s ease-in-out infinite;
+}
+@keyframes sp-bolt {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.22); }
+}
+
+.sp-lever-text { flex: 1; min-width: 0; }
+.sp-lever-text b { display: block; font-size: var(--fs-100); font-weight: 900; }
+.sp-lever-text small { display: block; margin-top: 2px; font-size: var(--fs-85); color: var(--muted); }
+.sp-lever.on .sp-lever-text b { color: var(--red); }
+
+.sp-wave {
+  position: fixed;
+  width: 36px;
+  height: 36px;
+  margin: -18px 0 0 -18px;
+  border-radius: 50%;
+  border: 3px solid var(--red);
+  pointer-events: none;
+  z-index: 95;
+  animation: sp-wave 0.55s ease-out forwards;
+}
+.sp-wave--normal { border-color: var(--green); }
+@keyframes sp-wave {
+  from { transform: scale(0.4); opacity: 0.9; }
+  to { transform: scale(14); opacity: 0; }
+}
+.sp-flash {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 90;
+  background: radial-gradient(circle at 50% 40%, rgb(var(--ink-rgb) / 0.90), var(--sp-flash-glow) 45%, transparent 75%);
+  animation: sp-flash 0.45s ease-out forwards;
+}
+@keyframes sp-flash {
+  0% { opacity: 1; }
+  40% { opacity: 0.3; }
+  65% { opacity: 0.65; }
+  100% { opacity: 0; }
+}

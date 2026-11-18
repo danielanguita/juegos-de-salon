@@ -454,7 +454,7 @@ export const PATHS = {
       `document.querySelector('#result .actions .btn').click()`,
     ],
   },
-  sapiondo: {
+  'croc': {
     intro: [],
   },
   julepe: {

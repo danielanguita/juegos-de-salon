@@ -1,10 +1,10 @@
-/* Sapiondo in La Copa. Loaded by ui.js; all classes start with `sp-`. Tokens only (DESIGN.md). */
+/* Croc! in La Copa. Loaded by ui.js; all classes start with `sp-`. Tokens only (DESIGN.md). */
 
 :root {
-  --sapiondo-stage: #101524;
-  --sapiondo-pad: rgba(16, 22, 40, 0.56);
-  --sapiondo-pad-on: rgba(46, 230, 214, 0.34);
-  --sapiondo-shadow: rgba(0, 0, 0, 0.55);
+  --croc-stage: #101524;
+  --croc-pad: rgba(16, 22, 40, 0.56);
+  --croc-pad-on: rgba(46, 230, 214, 0.34);
+  --croc-shadow: rgba(0, 0, 0, 0.55);
 }
 
 .sp-cabeza {
@@ -30,7 +30,7 @@
   border-radius: var(--radius);
   overflow: hidden;
   border: 1px solid var(--glass-border);
-  background: var(--sapiondo-stage);
+  background: var(--croc-stage);
 }
 .sp-demo {
   display: block;
@@ -51,7 +51,7 @@
   overflow: hidden;
   border-radius: var(--radius);
   border: 1px solid var(--glass-border);
-  background: var(--sapiondo-stage);
+  background: var(--croc-stage);
   box-shadow: var(--shadow-panel);
   touch-action: none;
   overscroll-behavior: none;
@@ -110,7 +110,7 @@
   font: 900 var(--fs-200)/1 var(--font-num);
   font-variant-numeric: tabular-nums;
   color: var(--yellow);
-  text-shadow: 0 3px 0 var(--sapiondo-shadow);
+  text-shadow: 0 3px 0 var(--croc-shadow);
 }
 .sp-dash {
   padding: var(--s-4) var(--s-12);

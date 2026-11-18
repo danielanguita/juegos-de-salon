@@ -1,5 +1,5 @@
 /**
- * Sapiondo in La Copa: cover, title, mount, result, and breakdown.
+ * Croc! in La Copa: cover, title, mount, result, and breakdown.
  */
 import { newGame, step, act, score, card, sectorOf, COLS, FINISH_ROW, STEP, LIVES } from './engine.js';
 import { createScene } from './scene.js';
@@ -346,7 +346,7 @@ export function mount(raiz, ctx) {
   }
   requestAnimationFrame(frame);
 
-  window.__sapiondoCopa = { get g() { return g; }, act: a => trigger(a), estado };
+  window.__crocCopa = { get g() { return g; }, act: a => trigger(a), estado };
 }
 
 export function result(e) {

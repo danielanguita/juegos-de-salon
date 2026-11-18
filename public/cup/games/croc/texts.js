@@ -1,9 +1,9 @@
 /**
- * Sapiondo in La Copa: es, en, pt texts merged into cup/rules.js (C-3).
+ * Croc! in La Copa: es, en, pt texts merged into cup/rules.js (C-3).
  */
 const ES = {
   juego: {
-    nombre: 'Sapiondo',
+    nombre: 'Croc!',
     habilidad: 'reflejos',
     como: [
       'Desliza adelante, izquierda o derecha en el tablero para cruzar sin retroceder.',
@@ -35,7 +35,7 @@ const ES = {
 
 const EN = {
   juego: {
-    nombre: 'Dash Hopper',
+    nombre: 'Croc!',
     habilidad: 'reflexes',
     como: [
       'Swipe forward, left, or right on the board to cross lanes with no turning back.',
@@ -67,7 +67,7 @@ const EN = {
 
 const PT = {
   juego: {
-    nombre: 'Sapichão',
+    nombre: 'Croc!',
     habilidad: 'reflexos',
     como: [
       'Deslize para frente, esquerda ou direita no tabuleiro para cruzar sem voltar.',

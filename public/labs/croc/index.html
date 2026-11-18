@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#150726">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>Sapiondo 🐸 · Juegos de Salón</title>
+  <title>Croc! 🐸 · Juegos de Salón</title>
   <!-- A lab game (D-395): behind the lab's door (D-281) and not indexed -->
   <script src="../../assets/js/labs-puerta.js"></script>
   <meta name="robots" content="noindex, nofollow">
@@ -26,25 +26,25 @@
   </script>
   <!-- generated: og · rewritten by node tools/release/og.mjs cards -->
   <meta name="description" content="Cruza la autopista esquivando autos, agarra frutas y haz dash con estilo. Un jugador, 1–2 min. Gratis, sin instalar y sin cuenta.">
-  <link rel="canonical" href="https://juegosdesalon.cl/labs/sapiondo/">
+  <link rel="canonical" href="https://juegosdesalon.cl/labs/croc/">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Juegos de Salón">
-  <meta property="og:url" content="https://juegosdesalon.cl/labs/sapiondo/">
-  <meta property="og:title" content="Sapiondo 🐸 · Juegos de Salón">
+  <meta property="og:url" content="https://juegosdesalon.cl/labs/croc/">
+  <meta property="og:title" content="Croc! 🐸 · Juegos de Salón">
   <meta property="og:description" content="Cruza la autopista esquivando autos, agarra frutas y haz dash con estilo. Un jugador, 1–2 min. Gratis, sin instalar y sin cuenta.">
-  <meta property="og:image" content="https://juegosdesalon.cl/assets/og/sapiondo.jpg">
+  <meta property="og:image" content="https://juegosdesalon.cl/assets/og/croc.jpg">
   <meta property="og:image:type" content="image/jpeg">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
-  <meta property="og:image:alt" content="Sapiondo: Cruza la autopista esquivando autos, agarra frutas y haz dash con estilo.">
+  <meta property="og:image:alt" content="Croc!: Cruza la autopista esquivando autos, agarra frutas y haz dash con estilo.">
   <meta property="og:locale" content="es_CL">
   <meta property="og:locale:alternate" content="en_US">
   <meta property="og:locale:alternate" content="pt_BR">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Sapiondo 🐸 · Juegos de Salón">
+  <meta name="twitter:title" content="Croc! 🐸 · Juegos de Salón">
   <meta name="twitter:description" content="Cruza la autopista esquivando autos, agarra frutas y haz dash con estilo. Un jugador, 1–2 min. Gratis, sin instalar y sin cuenta.">
-  <meta name="twitter:image" content="https://juegosdesalon.cl/assets/og/sapiondo.jpg">
-  <meta name="twitter:image:alt" content="Sapiondo: Cruza la autopista esquivando autos, agarra frutas y haz dash con estilo.">
+  <meta name="twitter:image" content="https://juegosdesalon.cl/assets/og/croc.jpg">
+  <meta name="twitter:image:alt" content="Croc!: Cruza la autopista esquivando autos, agarra frutas y haz dash con estilo.">
   <!-- /generated -->
   <link rel="manifest" href="../../manifest.webmanifest">
   <script>
@@ -72,20 +72,21 @@
   <main class="app" id="app">
     <div class="topbar">
       <a class="back" href="../../" id="btn-menu" data-i18n="menu">‹ Laboratorio</a>
-      <div class="tools"><span class="chip" data-i18n="gameChip">🐸 Sapiondo</span><span id="sound-slot"></span></div>
+      <div class="tools"><span class="chip" data-i18n="gameChip">🐸 Croc!</span><span id="sound-slot"></span></div>
     </div>
 
     <!-- ============ INTRO ============ -->
     <section class="screen stack active" id="screen-intro">
       <div class="intro-hero">
-        <div class="sapiondo-logo" aria-hidden="true">🐸</div>
-        <h1 class="display display--xl rainbow" data-i18n="title">Sapiondo</h1>
+        <div class="croc-logo" aria-hidden="true">🐸</div>
+        <h1 class="display display--xl rainbow" data-i18n="title">Croc!</h1>
         <p class="lead" data-i18n="lead"></p>
         <div id="lang-slot"></div>
+        <canvas class="dash-demo" id="dash-demo" aria-hidden="true"></canvas>
       </div>
       <div class="stack">
         <div id="resume-slot"></div>
-        <div class="seg" id="diff-seg" role="group"></div>
+        <div id="diff-seg"></div>
         <div class="modes" id="modes"></div>
         <p class="best-line" id="best-cover" hidden></p>
         <!-- The rules go after the main action (U-39): the goal first and three points (U-18) -->
@@ -130,7 +131,7 @@
     <!-- ============ RESULT (C-19) ============ -->
     <section class="screen stack" id="screen-result">
       <div class="result-hero">
-        <div class="sapiondo-logo" aria-hidden="true">🐸</div>
+        <div class="croc-logo" aria-hidden="true">🐸</div>
         <div class="display display--md" id="result-title">—</div>
       </div>
       <div class="panel score-card" id="score-card">
