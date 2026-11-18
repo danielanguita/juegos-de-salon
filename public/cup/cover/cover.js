@@ -13,7 +13,7 @@ import { loadGame } from '../games/index.js';
 const game = param('game') || '';
 /** The tallest an example drawing shows in the frame, in px. */
 export const MAX_EXAMPLE = 260;
-const ZOOMS = [1, 0.9, 0.8, 0.7];
+const ZOOMS = [1, 0.9, 0.8];
 const tell = height => { if (parent !== window) parent.postMessage({ type: 'cover-demo', game, height }, location.origin); };
 
 /** What a game draws to show itself: its animated cover first, else its example. Pure but for the game's own nodes. */

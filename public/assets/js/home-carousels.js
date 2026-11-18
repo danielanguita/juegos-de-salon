@@ -3,8 +3,8 @@
  * `home-carousels`, lab: #seccion-home-carousels). The top of the page stays as it is: bar, title,
  * tagline, the dice, La Copa and Uno al día. Under them, one row per way of choosing, each sliding
  * sideways: favourites (once one is marked), popular, new, with friends, quick, and one per type.
- * A game says its icon, its name and how long it takes (how many play too, when more than one can),
- * never a label: the row it is in already says it. A tap opens a sheet with what the game is, its
+ * A game says its icon and its name, nothing else (the owner, 2026-11-18): the row it is in already says what
+ * kind it is, and how long it takes and how many play are in its sheet. A tap opens a sheet with what the game is, its
  * ranking and ▶ Jugar; the ⭐ lives there too. On top of the details, the game's cover animation plays (the demo
  * of its waiting room, or its "how to play" drawing), in a frame of `cup/cover/`: it shows how the game is played.
  *
@@ -214,13 +214,9 @@ export async function drawCarousels({ lang, T, games, tap = () => {}, doc = docu
     box.replaceChildren(...shelves(games, { favs: favoritos() }).map(s => {
       const paths = s.games.map(g => new URL(g.path, doc.baseURI).href);
       const row = el('div', { class: 'shelf-row', 'data-shelf': s.id, role: 'list' }, s.games.map(g => {
-        const [, max] = rangoJugadores(g.players);
         return el('div', { role: 'listitem' }, el('button', { type: 'button', class: 'shelf-tile', 'data-id': g.id, 'aria-haspopup': 'dialog', onClick: () => { tap(); open(g, s.id, paths); } },
           el('span', { class: 'emoji', 'aria-hidden': 'true' }, gameIcon(g, { size: 1 })),
-          el('span', { class: 'name' }, pickLang(g.name, lang)),
-          el('span', { class: 'meta' },
-            el('span', {}, `⏱ ${g.duration} ${unit(g)}`),
-            max > 1 && el('span', {}, `👥 ${g.players}`, el('span', { class: 'unidad' }, ` ${T.players}`)))));
+          el('span', { class: 'name' }, pickLang(g.name, lang))));
       }));
       const section = el('section', { class: 'shelf', 'aria-labelledby': `shelf-${s.id}` },
         el('h2', { class: 'display display--sm', id: `shelf-${s.id}` }, el('span', { 'aria-hidden': 'true' }, `${s.emoji} `), titleOf(s.id)), row);
