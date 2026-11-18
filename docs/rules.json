@@ -1161,6 +1161,20 @@
    ],
    "reviewer": "the session building or changing the game, and the usability agent (.claude/agents/usability.md)",
    "why": "Which buttons wait on an animation is a reading of each game's code; the check runs where a script double-taps the button, and the reviewer makes sure each such button has one."
+  },
+  {
+   "id": "one-a-day-single-result",
+   "title": "One a Day ends on one page: the last move goes straight to the result, and anything an in-between screen showed is a block of it",
+   "doc": "docs/CANONS.md",
+   "form": [
+    "judged"
+   ],
+   "applies": [
+    "public/**/game.js",
+    "public/cup/games/**"
+   ],
+   "reviewer": "the session building or changing the game, the usability agent (.claude/agents/usability.md) and, for a contributor, the contributions agent",
+   "why": "Whether a screen is an unneeded step before the result is a reading of each game's flow: a check cannot tell a result page from a step that only leads to it."
   }
  ]
 }
