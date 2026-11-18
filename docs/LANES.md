@@ -46,7 +46,9 @@ changes in the same PR (CLAUDE.md), which makes it red.
 **An outside PR is 🔴 whatever its files** (#1249 step 4): one from a fork, or opened by anyone but
 the owner (`INSIDERS` in `lanes.mjs`; sessions act as the owner, and the repo's own workflows, `github-actions[bot]`, are insiders, D-575), never takes the lane of its files,
 so it never auto-merges. `lanes.test.mjs` simulates both. On a fork the `lane` job's token cannot
-write the status, so `owner-approval` stays missing and the PR cannot merge without the owner either way.
+write the status, so `owner-approval` stays missing and the PR cannot merge without the owner either way;
+the job prints the lane, writes nothing and ends green (`readOnlyToken` in `lanes.mjs`), so a fork PR's
+checks are not red for a permission the contributor cannot fix.
 
 **A lab game's owner merges alone inside their game** (D-553). The contributor whose PR brought a
 game into the lab owns it while it is there: `tools/agents/lab-owners.json` maps the game folder to

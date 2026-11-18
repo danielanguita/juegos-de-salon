@@ -76,6 +76,17 @@ export function outsideReason(pr, files = null, owners = LAB_OWNERS) {
   return `by ${author || 'an unknown author'}, not the owner${Object.values(owners).some(o => o?.toLowerCase() === author?.toLowerCase()) ? ', and it touches files outside their lab games (D-553)' : ''}`;
 }
 
+/**
+ * Whether the `lane` job's token is read-only (a PR from a fork): GitHub gives a fork's
+ * `pull_request` run no write token on a public repo, so the label, the status and the decision
+ * cannot be written. The job then reports the lane and ends green; `owner-approval` stays missing,
+ * so the PR still cannot merge without the owner (docs/LANES.md). It used to fail on the label
+ * instead: 19 red runs on three fork PRs in two days (signature 3f17b9bc87).
+ */
+export function readOnlyToken(pr) {
+  return !!pr && pr.head?.repo?.full_name !== pr.base?.repo?.full_name;
+}
+
 /** A PR's lane: the highest of its files, with the files that set it. No files is green; an outside PR is red. */
 export function laneOfPr(files, { outside = null } = {}) {
   const each = files.map(f => ({ file: f, ...laneOf(f) }));
@@ -171,6 +182,10 @@ async function ci() {
   const files = prFiles(n);
   const result = laneOfPr(files, { outside: outsideReason(pr, files) });
   console.log(report(result));
+  if (readOnlyToken(pr)) {
+    console.log(`::notice::A PR from a fork: this job's token is read-only, so the ${LABEL} label, the ${STATUS} status and the decision are not written. ${STATUS} stays missing and the owner approves it by hand (docs/LANES.md).`);
+    return;
+  }
   const status = (state, description) => gh('api', '-X', 'POST', `repos/${repo}/statuses/${sha}`, '-f', `state=${state}`, '-f', `context=${STATUS}`, '-f', `description=${description}`);
   if (result.lane !== 'red') {
     status('success', `${result.lane} lane: no owner approval needed`);
