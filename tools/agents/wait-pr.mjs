@@ -15,9 +15,12 @@
 // on a timeout or anything else, is not lost: pending-watch.yml lists stuck PRs every day.
 // A conflict counts only once it is read CONFLICT_READS times in a row: right after a push GitHub
 // still reports the head before it (and recomputes mergeability lazily), so a single read said
-// `conflict` for PRs that were mergeable (#919, #928).
+// `conflict` for PRs that were mergeable (#919, #928). A conflict only in generated files (the
+// decisions index, docs/facts.json, the README's generated blocks) is resolved by sync-pr.mjs, once,
+// when run from the PR's own worktree, and the wait goes on (D-580); a real one is reported.
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
+import { sync } from './sync-pr.mjs';
 
 /** Consecutive failed reads before giving up (D-441). */
 export const MAX_ERRORS = 5;
@@ -76,13 +79,18 @@ function read(pr) {
   }
 }
 
+/** Whether this folder is the PR's own branch, so syncing it here is the session's own work. */
+function onHead(pr) {
+  try { return run(['pr', 'view', pr, '--json', 'headRefName']).headRefName === execFileSync('git', ['rev-parse', '--abbrev-ref', 'HEAD'], { encoding: 'utf8' }).trim(); } catch (_) { return false; }
+}
+
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const arg = (k, d) => { const i = process.argv.indexOf(k); return i > 0 ? Number(process.argv[i + 1]) : d; };
   const pr = process.argv[2];
   if (!/^\d+$/.test(pr || '')) { console.error('usage: node tools/agents/wait-pr.mjs <n> [--every 60] [--max-hours 2]'); process.exit(2); }
   const every = arg('--every', 60) * 1000;
   const until = Date.now() + arg('--max-hours', 2) * 3600 * 1000;
-  let errors = 0, conflicts = 0;
+  let errors = 0, conflicts = 0, synced = false;
   for (;;) {
     let seen = null;
     try {
@@ -96,6 +104,11 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     if (seen || conflicts) {
       const s = settle(seen, conflicts);
       conflicts = s.conflicts;
+      // A conflict only in generated files fixes itself (D-580): merge main, regenerate, push, keep waiting
+      if (s.stop && seen === 'conflict' && !synced && onHead(pr)) {
+        synced = true;
+        if (sync() === 0) { conflicts = 0; await new Promise(r => setTimeout(r, every)); continue; }
+      }
       if (s.stop) { console.log(`#${pr}: ${seen}`); process.exit(seen === 'merged' ? 0 : 1); }
       if (conflicts) console.error(`wait-pr: GitHub says conflict (${conflicts}/${CONFLICT_READS}); reading again to be sure`);
     }

@@ -1632,6 +1632,7 @@
     "tools/agents/session-length.test.mjs",
     "tools/agents/structure.test.mjs",
     "tools/agents/sweep.test.mjs",
+    "tools/agents/sync-pr.test.mjs",
     "tools/agents/tokens-rgb.test.mjs",
     "tools/agents/usability-lint.test.mjs",
     "tools/agents/wait-pr.test.mjs",

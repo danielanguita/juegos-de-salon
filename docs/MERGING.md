@@ -120,3 +120,11 @@ job's log, find the cause, fix it on the branch and push, without asking the own
 
 The `tests` check on each PR blocks an out-of-date README or card. **"Actualiza el README" (update the README) is a full pass**,
 at the owner's request (D-213). The commands and the rules are in the `readme-and-cards` skill (`.claude/skills/readme-and-cards/SKILL.md`): read it before touching the README, screenshots or cards.
+
+## A conflict only in generated files (D-580)
+
+`wait-pr.mjs`, run from the PR's own worktree, resolves a conflict that is only in generated files
+(the decisions index, `docs/facts.json`, the README's generated blocks) with `tools/agents/sync-pr.mjs`:
+it merges main, regenerates them, pushes and keeps waiting. A conflict in any other file is reported, and
+the session resolves it. By hand: `node tools/agents/sync-pr.mjs` in the PR's worktree.
+

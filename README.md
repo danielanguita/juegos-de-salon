@@ -670,6 +670,7 @@ node tools/agents/rules.test.mjs
 node tools/agents/session-length.test.mjs
 node tools/agents/structure.test.mjs
 node tools/agents/sweep.test.mjs
+node tools/agents/sync-pr.test.mjs
 node tools/agents/tokens-rgb.test.mjs
 node tools/agents/usability-lint.test.mjs
 node tools/agents/wait-pr.test.mjs
