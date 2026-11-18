@@ -236,10 +236,11 @@
   };
 
   // The tester ribbon on every screen (for lab key holders): vigía is the one script every page
-  // loads, so it only adds the module next to itself; the module checks the key
+  // loads, so it only adds the module next to itself; the module checks the key. Not in a page shown
+  // inside a frame (the game sheet's cover demo, cup/cover/): the tab belongs to the page around it
   try {
     var yo = d.currentScript;
-    if (yo && yo.src && w.location.pathname.indexOf('/panel/') < 0) {
+    if (yo && yo.src && w.location.pathname.indexOf('/panel/') < 0 && w.top === w) {
       var boot = function () {
         var m = d.createElement('script'); m.type = 'module';
         m.src = new URL('tester-boot.js', yo.src).href; // next to vigía (and seen by the e2e scope graph)
