@@ -147,6 +147,11 @@ that (after a new game, after a big text change), saying why.
   (`.claude/agents/backlog.md`), from `origin/main` and in your own worktree; PR base `main`."
   Criteria: every branch `check` listed accounted for (deleted, PR opened, or a one-tap decision), the
   owner's done issues closed with their PR, at most two moved forward, each in its PR with auto-merge.
+- **`retention`, weekly round** (learning piece 7): "Do your weekly round according to your guide
+  (`.claude/agents/retention.md`), from `origin/main` and in your own worktree; PR base `main`."
+  Criteria: its ledger advanced one week; at most one proposal, only on a `drop` and none while one
+  waits, following the template in `docs/learning/07-retention-loop.md`; every verdict date reached has
+  its verdict. It never ships an action: send it back if it did.
 - When you launch them, record the dispatch (`dispatch <agent> <main commit>`). It goes in
   `docs/processes.json`: a round that dispatched leaves a PR even if it has nothing else (step 9),
   or tomorrow `check` asks for it again. While they run, you go on with your round; at the end

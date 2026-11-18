@@ -144,5 +144,7 @@ assert.match(decisionsBody({ decisions: [{ question: 'x', origin: 'Player report
   assert.ok(who({ backlogDays: null }).includes('backlog'));
   assert.ok(who({ backlogDays: 8 }).includes('backlog'));
   assert.ok(!who({ backlogDays: 2 }).includes('backlog'));
-  for (const a of ['feedback', 'ci-health', 'backlog']) assert.ok(EXECUTORS.includes(a), `${a} can be recorded with dispatch`);
+  assert.ok(who({ retentionDays: null }).includes('retention'));
+  assert.ok(!who({ retentionDays: 3 }).includes('retention'));
+  for (const a of ['feedback', 'ci-health', 'backlog', 'retention']) assert.ok(EXECUTORS.includes(a), `${a} can be recorded with dispatch`);
 }

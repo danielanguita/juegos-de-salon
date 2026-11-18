@@ -108,7 +108,16 @@ action moves the number beyond noise, the agent is removed and its ledger kept a
 ## Status
 
 - 2026-11-17 · Concept written at the owner's request ("explica bien qué quieres lograr y documenta lo
-  necesario para su autonomía"). Waiting on 7.1: the owner's agreement.
+  necesario para su autonomía").
+- 2026-11-17 · **7.1 closed**, the owner agreed to the session's recommendations: the headline is
+  next-day return to **any game** (more players, less noise; a better Blackjack or room shows too), with
+  Uno al día's next-day return as the secondary; the band as written; the autonomy table as written
+  (proposals only). The **Number** above is read that way from here on.
+- 2026-11-17 · 7.2 and 7.3 built: `tools/agents/retention.mjs` (+ test), `docs/retention.json`,
+  `.claude/agents/retention.md`, weekly dispatch. First read: per-player activity exists only since the
+  week of 2026-10-18, so the band has no history yet (`no-history` until eight weeks): 67.4%, 62.9%,
+  58.5%, then **42.7%** the week of 2026-11-08 (40 players), a slide worth watching before the band can
+  call it.
 
 ## The owner's decision (7.1)
 
