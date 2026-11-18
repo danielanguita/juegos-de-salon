@@ -212,7 +212,7 @@ await sleep(2600); await b.shot('10-solo-result');
 // Playing solo, the score goes to its table (D-274): with no player signed in, "¿quieres que cuente?" and the table
 {
   const rk = await b.evaluate(`JSON.stringify({ pts: document.querySelector('.rk-solo-fin p')?.textContent || '', count: !!document.querySelector('.rk-solo-fin .rk-contar'), table: !!document.querySelector('.rk-solo-fin .rk-ranking') })`).then(JSON.parse);
-  console.log(`${/\d+\/100/.test(rk.pts) && rk.count && rk.table ? '✓' : '✗'} playing solo: the score (${rk.pts}), ¿quieres que cuente? and the solo table`);
+  console.log(`${/\d+ (de|out of) 100/.test(rk.pts) && rk.count && rk.table ? '✓' : '✗'} playing solo: the score (${rk.pts}), ¿quieres que cuente? and the solo table`);
 }
 console.log('result:', await b.evaluate(`document.getElementById('result-title').textContent+' | '+document.getElementById('result-sub').textContent`));
 console.log('the word:', await b.evaluate(`document.getElementById('result-words').innerText.replace(/\\n/g,' · ')`));
