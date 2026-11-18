@@ -6,7 +6,7 @@ description: Building a new game or changing an existing one (anything under a g
 # Changing a game
 
 The canons are the rule; this only routes you to the ones your change needs (D-213: one place each).
-The index is `docs/CANONS.md` (one line per canon, then the checklist); each canon is `docs/canons/C-n.md`.
+The index is `docs/CANONS.md` (one line per canon, then the checklist); each canon is `docs/canons/C-<n>.md`.
 
 1. **Read the game's spec** `docs/games/<folder>.md`: its exceptions to the canons win.
 2. **Read only the canons your change touches:**
