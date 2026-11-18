@@ -42,6 +42,10 @@ await b.go(SITE + '/labs/wobbles/hard/?seed=7&spin=0'); await b.evaluate("localS
 await b.go(SITE + '/labs/wobbles/hard/?seed=7&spin=0'); await sleep(600);
 await b.evaluate("document.getElementById('cBtn').click(); 1"); await sleep(800);
 ok(await b.evaluate("(() => { const S = window.__balanza.S; return S.phase === 'play' && S.plat.looks.length + S.bodies.length >= 6 && S.score === 0 && S.lives === 3; })()"), 'hard: a game starts with the tester\'s pieces on the disc, no points, 3 lives');
+await b.go(SITE + '/labs/wobbles/easy/?seed=7'); await b.evaluate("localStorage.setItem('balanza-lab:start-pieces', '6'); 1");
+await b.go(SITE + '/labs/wobbles/easy/?seed=7'); await sleep(600);
+await b.evaluate("document.getElementById('cBtn').click(); 1"); await sleep(800);
+ok(await b.evaluate("(() => { const S = window.__balanza.S; return S.phase === 'play' && S.plank.parts.filter(q => !q.lip).length + S.bodies.length >= 4 && S.score === 0 && S.lives === 3; })()"), 'easy: a game starts with the tester\'s pieces on the plank, no points, 3 lives');
 await b.evaluate("localStorage.removeItem('balanza-lab:start-pieces'); 1");
 ok(!b.errors.length, 'no console errors' + (b.errors.length ? ': ' + b.errors[0].slice(0, 160) : ''));
 b.close();

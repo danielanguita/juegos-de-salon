@@ -43,17 +43,21 @@ dialogs) → a level: its card (how to play, ▶ Play) → the round (its HUD: �
 its result card, in C-19's order: the score, ↻ Again, the rankings notice (one line), the exit from `fin.js`
 (`salidasFin('lab')`), the breakdown, the level's table (`wobbles_easy`, `wobbles_hard`) and 💬 last.
 
-## Lab tools (hard level)
+## Lab tools and the hard level's top
 
-- **The dial** that turns the board sits at the top, under the next pieces, faded to 40 % until it is
-  used: at the bottom, an iPhone's swipe there leaves the app (the owner, 2026-11-18).
-- **Pieces at the start**, in the «T» tester tab (lab key holders only): − and + set how many pieces the
-  disc starts with (0 to 40, kept on the phone in `balanza-lab:start-pieces`); the next game starts with
-  them. They are the game's own first pieces in order, dropped with the real physics over a sunflower of
-  spots across the disc, each swapped to the opposite side when the disc leans that way; the disc keeps its
-  first stiffness while they are laid. They count as nothing (no points, no lives, the time starts after
-  them) and the game goes on as hard as a new one. More than the disc holds tips it: setup then starts
-  over with two fewer until they fit (about 30). Setting up many takes a few seconds.
+- **The dial** that turns the hard level's board sits at the top, just under the header, faded to 40 %
+  until it is used: at the bottom, an iPhone's swipe there leaves the app (the owner, 2026-11-18).
+- **The next pieces** (hard level) are centred under the dial in a column that flows down toward the
+  hand: the one after next small and faint on top, the next one under it, bigger and bright.
+- **Pieces at the start**, in the «T» tester tab of both levels (lab key holders only): − and + set how
+  many pieces the plank or the disc starts with (0 to 40, one number for both, kept on the phone in
+  `balanza-lab:start-pieces`); the next game starts with them. They are the game's own first pieces in
+  order, laid with the real physics: on the easy level the claw stops over spots from the middle out,
+  24 px apart, one side then the other; on the hard level they drop over a sunflower of spots across the
+  disc. Either way a spot on the low side is swapped for the opposite one, and the plank or disc keeps its
+  first stiffness (and the claw its first speed) while they are laid. They count as nothing (no points,
+  no lives, the time starts after them) and the game goes on as hard as a new one. More than it holds
+  tips it: setup then starts over with two fewer until they fit (about 13 on the plank, 30 on the disc).
 
 ## Protocolo de mensajes
 

@@ -1499,10 +1499,10 @@ function holdPiece() {
 }
 /**
  * The dial that turns the view: where it is (x0 to x1, `h` tall) and how far a pixel turns. It sits at the
- * top, under the next pieces (`TOP_PX` CSS pixels below the canvas top, which starts under the header): at the bottom, an iPhone's swipe
+ * top, over the next pieces (`TOP_PX` CSS pixels below the canvas top, which starts under the header): at the bottom, an iPhone's swipe
  * up there leaves the app (the owner). Faded while it is not being used, so it does not draw the eye.
  */
-const DIAL = { x0: 56, x1: 344, h: 36, gain: 0.012, TOP_PX: 46, IDLE: 0.4 };
+const DIAL = { x0: 56, x1: 344, h: 36, gain: 0.012, TOP_PX: 6, IDLE: 0.4 };
 const dialY0 = () => (DIAL.TOP_PX - oy) / sc;
 function drawDial() {
   const y0 = dialY0(), mid = y0 + DIAL.h / 2, on = !!(turning || twist || opening != null);
@@ -1612,9 +1612,10 @@ function render() {
   c.restore(); zoom = zoomWas;
 
   // From here on, drawn on the screen itself, not through the camera.
-  // What is coming: the next two pieces, small and faint in the corner, the nearer one first
-  const hudLeft = 200 - Math.min(vw, 560) / (2 * sc);
-  if (S.phase === 'play') [[hudLeft + 28, T0 + 22, 13, 0.6], [hudLeft + 60, T0 + 22, 9, 0.32]].forEach(([x, y, r, a], i) => {
+  // What is coming: the next two pieces, centred under the dial in a column that flows down toward the
+  // hand: the one after next small and faint at the top, the next one under it, bigger and bright
+  const qTop = dialY0() + DIAL.h + 18;
+  if (S.phase === 'play') [[200, qTop + 40, 15, 0.95], [200, qTop, 9, 0.35]].forEach(([x, y, r, a], i) => {
     const nx = S.queue[i]; if (!nx) return;
     let b = previews.get(nx); if (!b) previews.set(nx, b = mkBody(-9, formFor(nx), 0, 0, 0));
     CAM = { cx: x, cy: y, u: r / b.form.r, c: 1, s: 0 }; const z = zoom; zoom = 1;
