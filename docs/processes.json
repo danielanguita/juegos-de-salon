@@ -771,6 +771,40 @@
       "signatures": [
         "3f17b9bc87"
       ]
+    },
+    {
+      "key": "e2e-groups-unmeasured",
+      "what": "CI tests: tools/e2e/groups.test.mjs · ",
+      "seen": [
+        {
+          "date": "2026-11-17T05:40:05.908Z",
+          "what": "blackjack tests: tools/e2e/groups.test.mjs",
+          "commit": "c596d2e80e1d11890b8808d0e431c1f399bfbeb0"
+        },
+        {
+          "date": "2026-11-17T22:32:48.896Z",
+          "what": "sapiondo tests: tools/e2e/groups.test.mjs",
+          "commit": "7ff9e9db19cd8921fcf7e59b4e62bce21f5bfa55"
+        },
+        {
+          "date": "2026-11-18T06:07:30.434Z",
+          "what": "#1587 tests: tools/e2e/groups.test.mjs",
+          "commit": "a0c45c4329a486a4bf5d3df5c423b5a3fd112655"
+        },
+        {
+          "date": "2026-11-18T06:08:35.694Z",
+          "what": "#1587 tests: tools/e2e/groups.test.mjs",
+          "commit": "ff5658ef472916efec281e7573a86e825b23d990"
+        }
+      ],
+      "mechanism": {
+        "date": "2026-11-18",
+        "what": "groups.mjs estimate(): an unmeasured job counts as its siblings' median, and TARGET_S 400 gives 46 s of headroom (D-585)",
+        "pr": "https://github.com/ellokojavi/juegos-de-salon/pull/1611"
+      },
+      "signatures": [
+        "14fef58185"
+      ]
     }
   ],
   "mechanisms": [
@@ -917,6 +951,12 @@
       "key": "lane-fork-readonly",
       "what": "lanes.mjs ci: a fork PR's read-only token reports the lane and ends green (readOnlyToken, lanes.test.mjs)",
       "pr": "https://github.com/ellokojavi/juegos-de-salon/pull/1601"
+    },
+    {
+      "date": "2026-11-18",
+      "key": "e2e-groups-unmeasured",
+      "what": "groups.mjs estimate(): an unmeasured job counts as its siblings' median, and TARGET_S 400 gives 46 s of headroom (D-585)",
+      "pr": "https://github.com/ellokojavi/juegos-de-salon/pull/1611"
     }
   ],
   "queueDone": [
