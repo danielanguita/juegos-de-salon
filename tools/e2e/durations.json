@@ -119,6 +119,7 @@
  "offline.mjs": 16,
  "paint-mines/game.mjs": 35,
  "panel/views.mjs": 46,
+ "play-fold.mjs": 30,
  "plots/numbers.mjs": 46,
  "plots/utilities.mjs": 28,
  "room-cap.mjs": 28,

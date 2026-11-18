@@ -170,7 +170,7 @@ export const PATHS = {
   'labs/wobbles': { intro: [] },
   // Each level's result (C-19): a round started and ended at once
   'labs/wobbles/easy': { result: [`document.getElementById('cBtn').click()`, `1`, `window.__balanza.finish()`, `1`] },
-  'labs/wobbles/hard': { result: [`document.getElementById('cBtn').click()`, `1`, `window.__balanza.finish()`, `1`] },
+  'labs/wobbles/hard': { play: [`document.getElementById('cBtn').click()`, `1`, `1`, `1`], result: [`document.getElementById('cBtn').click()`, `1`, `window.__balanza.finish()`, `1`] },
   // Blackjack (lab): its cover, measured by landing-fold.mjs (D-579)
   blackjack: {
     intro: [],

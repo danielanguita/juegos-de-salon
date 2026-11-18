@@ -43,6 +43,23 @@ dialogs) → a level: its card (how to play, ▶ Play) → the round (its HUD: �
 its result card, in C-19's order: the score, ↻ Again, the rankings notice (one line), the exit from `fin.js`
 (`salidasFin('lab')`), the breakdown, the level's table (`wobbles_easy`, `wobbles_hard`) and 💬 last.
 
+## Lab tools and the hard level's top
+
+- **The dial** that turns the hard level's board sits at the top, just under the header, faded to 40 %
+  until it is used: at the bottom, an iPhone's swipe there leaves the app (the owner, 2026-11-18).
+- **The next pieces** (hard level) are centred under the dial in a column that flows down toward the
+  hand: the one after next small and faint on top, the next one under it, bigger and bright.
+- **Pieces at the start**, in the cover's «T» tester tab (lab key holders only; the owner: set it there,
+  for both levels): − and + set how
+  many pieces the plank or the disc starts with (0 to 40, one number for both, kept on the phone in
+  `balanza-lab:start-pieces`); the next game starts with them. They are the game's own first pieces in
+  order, laid with the real physics: on the easy level the claw stops over spots from the middle out,
+  24 px apart, one side then the other; on the hard level they drop over a sunflower of spots across the
+  disc. Either way a spot on the low side is swapped for the opposite one, and the plank or disc keeps its
+  first stiffness (and the claw its first speed) while they are laid. They count as nothing (no points,
+  no lives, the time starts after them) and the game goes on as hard as a new one. More than it holds
+  tips it: setup then starts over with two fewer until they fit (about 13 on the plank, 30 on the disc).
+
 ## Protocolo de mensajes
 
 None: solo, nothing saved but mute (`balanza-lab:muted`) and, on the hard level, two one-time hints.

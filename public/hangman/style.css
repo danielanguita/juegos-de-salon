@@ -173,6 +173,26 @@
 .confirm .buy { display: flex; align-items: center; justify-content: center; gap: var(--s-8); font-size: var(--fs-110); min-height: 46px; }
 .btn-row--ask .btn { font-size: var(--fs-120); }
 .confirm .buy small { font: 800 var(--fs-75) var(--font-body); text-transform: none; letter-spacing: 0; opacity: 0.85; }
+/* A short phone (320×568): the confirm button and "Buy a letter" fell below the fold, so the player
+   scrolled for every letter. The drawing shrinks, the word tightens and the two buttons go side by
+   side, so the whole turn fits; the keys stay at the canon's 44 px. */
+@media (max-height: 640px) {
+  .board { grid-template-columns: 76px 1fr; gap: var(--s-8); }
+  .gallows svg { max-height: 76px; }
+  .side { gap: var(--s-4); }
+  /* the dots and «6 lives» on one line */
+  .lives { gap: var(--s-2); flex-wrap: nowrap; }
+  .lives .dot { width: 9px; height: 9px; }
+  .lives .n { font-size: var(--fs-75); margin-left: var(--s-2); white-space: nowrap; }
+  .hint { padding: var(--s-6) var(--s-8); font-size: var(--fs-75); line-height: 1.25; }
+  .word { gap: var(--s-4) var(--s-8); margin: var(--s-2) 0 var(--s-6); min-height: 34px; }
+  .word .ch { min-height: 30px; font-size: 1.6rem; }
+  .word.long .ch { min-height: 28px; font-size: var(--fs-140); }
+  .keyboard { margin-bottom: var(--s-8); }
+  .confirm { grid-auto-flow: column; grid-auto-columns: 1fr; padding-top: var(--s-8); padding-bottom: calc(var(--s-8) + env(safe-area-inset-bottom, 0px)); margin-bottom: calc(-1 * var(--s-32)); }
+  .confirm .btn { flex-direction: column; gap: 0; min-height: 48px; padding: var(--s-6) var(--s-8); font-size: var(--fs-90); line-height: 1.15; }
+  .confirm .buy { gap: 0; font-size: var(--fs-90); }
+}
 
 /* ---------- Veredicto de la ronda ---------- */
 .verdict { display: grid; gap: var(--s-8); justify-items: center; }
