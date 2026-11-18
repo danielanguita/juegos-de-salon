@@ -96,7 +96,7 @@ await A.shot('04-play');
   await A.evaluate(`(()=>{const bs=[...document.querySelectorAll('#confirm .btn')];bs[bs.length-1].click();return 1})()`);
   await sleep(300);
   console.log('flash in the room:', await A.evaluate(`(()=>{const f=document.querySelector('.flash');if(!f)return 'none';window.__flash=f;return f.className+' · '+f.innerText.replace(/\\n/g,' ')})()`), '| letter:', l);
-  await sleep(1100);
+  await sleep(2900);
   console.log('that flash went away on its own:', await A.evaluate(`!!window.__flash && !document.contains(window.__flash)`));
 }
 console.log('the rivals strip shows no letters (D-55):', await A.evaluate(`[...document.querySelectorAll('#rivals .r')].map(x=>x.innerText.replace(/\\n/g,' ')).join(' | ')`));

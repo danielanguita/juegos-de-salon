@@ -34,6 +34,12 @@ const SCREENS = [
     must: ['#confirm .btn--yellow', '#confirm .buy'],
   },
   {
+    // The rules screen of playing alone: its Start button, not only the rules above it
+    name: 'bulls-and-cows solo rules', route: 'bulls-and-cows',
+    steps: [`document.querySelectorAll('.mode')[2].click()`],
+    must: ['#btn-solo-empezar'],
+  },
+  {
     name: 'bulls-and-cows solo guess', route: 'bulls-and-cows',
     steps: [
       `document.querySelectorAll('.mode')[2].click()`,
