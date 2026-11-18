@@ -43,7 +43,9 @@ function pantallaResultado(d, { recien = false, det = null } = {}) {
       el('h2', { class: 'display display--md' }, fmt(T.resultTitle, { d, juego: J.nombre })),
       el('p', { class: 'muted', style: 'margin:0' }, T.yourScore),
       el('div', { class: 'score-big' }, mio.r || String(mio.s)),
-      ...bajoElPuntaje(mio.t, mio.ms, id)),
+      ...bajoElPuntaje(mio.t, mio.ms, id),
+      // A final by places (D-587): the big score is not what ranks it
+      pos[S.yo]?.rondas ? el('p', { class: 'muted', id: 'nota-lugares' }, T.finalPlacesNote) : null),
     el('p', { class: 'lead center' }, cerrado(meta, d, now) || terminada(meta, now)
       ? fmt(T.finalPos, { pos: ord(yo.pos), n, pts: yo.pts * x })
       : fmt(T.provisional, { pos: ord(yo.pos), n })),

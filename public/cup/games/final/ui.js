@@ -56,7 +56,9 @@ export function montar(raiz, ctx) {
   const { p, T, fmt, el, SFX } = ctx;
   const JUEGOS_COPA = juegosCopa(ctx.lang), RONDAS_FINAL = p?.enteras ? {} : rondasFinal(ctx.lang);
   // A day of three (D-439) counts games, not rounds: each one is played whole
-  const R = p?.enteras ? { ...T, roundOf: T.trioOf, roundStart: T.trioStart, roundNext: T.trioNext, finalSoFar: T.trioSoFar } : T;
+  const R = p?.enteras ? { ...T, roundOf: T.trioOf, roundStart: T.trioStart, roundNext: T.trioNext, finalSoFar: T.trioSoFar }
+    // A final by places (D-587): the running average does not decide it, and says so
+    : ctx.porLugares && T.finalSoFarPlaces ? { ...T, finalSoFar: T.finalSoFarPlaces } : T;
   const rondas = rondasDe(p), n = rondas.length;
   const j = ctx.jugadas && typeof ctx.jugadas === 'object' && !Array.isArray(ctx.jugadas) ? ctx.jugadas : {};
   const J = { ronda: j.ronda || 0, sub: { ...(j.sub || {}) }, hechas: { ...(j.hechas || {}) }, pts: { ...(j.pts || {}) }, t0: { ...(j.t0 || {}) }, t1: { ...(j.t1 || {}) }, jugando: !!j.jugando };

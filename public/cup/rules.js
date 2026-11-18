@@ -931,6 +931,9 @@ const ES = {
   roundNext: 'Siguiente ronda',
   roundDone: 'Ronda terminada: {pts} puntos.',
   finalSoFar: 'Vas con {pts} de 100: el promedio de tus rondas hasta ahora.',
+  // A final by places (D-587): the average does not decide it
+  finalSoFarPlaces: 'Vas con {pts} de 100 en tus rondas. La final se gana por lugar en cada ronda: lo verás en la tabla del día.',
+  finalPlacesNote: 'En la final cuenta tu lugar en cada ronda, no este puntaje: mira la tabla del día.',
   finalRoundPts: '{n} pts por lugares',
   seeResults: 'Ver resultado',
 
@@ -1849,6 +1852,8 @@ const EN = {
   roundNext: 'Next round',
   roundDone: 'Round over: {pts} points.',
   finalSoFar: 'You\'re at {pts} out of 100: the average of your rounds so far.',
+  finalSoFarPlaces: 'You\'re at {pts} out of 100 in your rounds. The final is won by place in each round: you\'ll see it in the day\'s table.',
+  finalPlacesNote: 'In the final, your place in each round counts, not this score: check the day\'s table.',
   finalRoundPts: '{n} pts from places',
   seeResults: 'See result',
 
@@ -2767,6 +2772,8 @@ const PT = {
   roundNext: 'Próxima rodada',
   roundDone: 'Rodada terminada: {pts} pontos.',
   finalSoFar: 'Você está com {pts} de 100: a média das suas rodadas até agora.',
+  finalSoFarPlaces: 'Você está com {pts} de 100 nas suas rodadas. A final se ganha pela posição em cada rodada: você verá na tabela do dia.',
+  finalPlacesNote: 'Na final conta a sua posição em cada rodada, não esta pontuação: veja a tabela do dia.',
   finalRoundPts: '{n} pts por posições',
   seeResults: 'Ver resultado',
 

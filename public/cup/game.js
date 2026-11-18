@@ -1855,6 +1855,7 @@ async function jugar(d, { nuevo = false } = {}) {
   pantallaCompleta(mod.pantallaCompleta);
   mod.montar(body, {
     p, jugadas, T, fmt, el, SFX, vibrate, lang: LANG, pantallaCompleta,
+    porLugares: id === 'final' && !!S.code && esFinal(L().meta, d) && finalByPlaces(L().meta),
     guardar(j) { jugadas = j; persistir(); },
     tiempo: () => Math.round(reloj.leer(rel, ahora())),
     pausa(ms) {
