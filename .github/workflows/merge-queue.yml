@@ -1,0 +1,60 @@
+# The homemade merge queue (D-586, a trial; docs/MERGING.md). main requires branches up to date, so
+# auto-merge never merges a PR tested against a stale main; this brings ONE behind, green,
+# auto-merge PR at a time up to date (merging main in, never a rebase) so its checks run on
+# main + PR, and the rest wait their turn. tools/agents/merge-queue.mjs holds the logic.
+#
+# Needs the MERGE_QUEUE_TOKEN secret: a push made with the workflow token wakes no workflow, so an
+# update made with it would never re-run tests and end-to-end. Without it, it says so and does nothing.
+# Off switch: repo variable MERGE_QUEUE=off.
+#
+# Runs main's copy of the script, never a PR's: the trigger events below always run main's workflow
+# (workflow_run, push to main, schedule), and the checkout is main.
+
+name: Merge queue
+
+on:
+  workflow_run:
+    workflows: [Tests, End to end]
+    types: [completed]
+  push:
+    branches: [main]
+  schedule:
+    - cron: '*/15 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: merge-queue
+  cancel-in-progress: false
+
+jobs:
+  step:
+    if: vars.MERGE_QUEUE != 'off'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - id: token
+        env:
+          T: ${{ secrets.MERGE_QUEUE_TOKEN }}
+        run: |
+          if [ -z "$T" ]; then echo "::notice::No MERGE_QUEUE_TOKEN secret: the merge queue does nothing (docs/MERGING.md)"; echo "ok=false" >> "$GITHUB_OUTPUT"; else echo "ok=true" >> "$GITHUB_OUTPUT"; fi
+      - if: steps.token.outputs.ok == 'true'
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+          token: ${{ secrets.MERGE_QUEUE_TOKEN }}
+      - if: steps.token.outputs.ok == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - if: steps.token.outputs.ok == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.MERGE_QUEUE_TOKEN }}
+          MERGE_QUEUE: ${{ vars.MERGE_QUEUE }}
+        run: |
+          git config user.name "merge-queue"
+          git config user.email "merge-queue@users.noreply.github.com"
+          node tools/agents/merge-queue.mjs step
