@@ -16,15 +16,32 @@ import { execFileSync } from 'node:child_process';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 export const DURATIONS = join(HERE, 'durations.json');
-export const TARGET_S = 360;       // ~6 min per group: with ~1 min of setup, the check in ~7 (310 until D-484: the panel's views script filled the last group; 270 until D-421: with Agentes' two jobs the 18 runners no longer fit; 300 until D-447: Dudo's shake script and its language screens filled the last group)
+export const TARGET_S = 400;       // ~6.5 min per group: with ~1 min of setup, the check in ~7.5 (360 until D-585: the 18 runners were full and main sat at the alarm; 310 until D-484: the panel's views script filled the last group; 270 until D-421: with Agentes' two jobs the 18 runners no longer fit; 300 until D-447: Dudo's shake script and its language screens filled the last group)
 export const MAXIMUM = 18;         // and 2 runners free out of the 20, for list and end-to-end
-export const UNMEASURED_S = 90;    // a new script, until it is measured
+export const UNMEASURED_S = 90;    // a new script with no measured sibling, until it is measured
 const REPO = process.env.REPO || 'ellokojavi/juegos-de-salon';
 
 export const readDurations = () => existsSync(DURATIONS) ? JSON.parse(readFileSync(DURATIONS, 'utf8')) : {};
 
-/** How long a job (`script` or `script:part`) takes, as measured. */
-export const duration = (t, dur) => dur[t] ?? UNMEASURED_S;
+const median = xs => { const s = [...xs].sort((a, b) => a - b); return s.length % 2 ? s[(s.length - 1) / 2] : (s[s.length / 2 - 1] + s[s.length / 2]) / 2; };
+
+/**
+ * How long an unmeasured job is likely to take, from its measured siblings: the median of the other
+ * parts of the same script (`conformance.mjs:<game>`), else of the same file in the other games' folders
+ * (`<game>/languages.mjs`), else UNMEASURED_S. A flat 90 s for every new job of a new game (a
+ * conformance part takes ~11 s) made the groups look over the target until someone timed them by hand.
+ */
+export function estimate(t, dur) {
+  const [file, part] = t.split(':');
+  const known = Object.keys(dur).filter(k => k !== t);
+  const siblings = part !== undefined
+    ? known.filter(k => k.startsWith(`${file}:`))
+    : file.includes('/') ? known.filter(k => !k.includes(':') && k.includes('/') && k.split('/').pop() === file.split('/').pop()) : [];
+  return siblings.length >= 2 ? Math.round(median(siblings.map(k => dur[k]))) : UNMEASURED_S;
+}
+
+/** How long a job (`script` or `script:part`) takes, as measured, or estimated from its siblings. */
+export const duration = (t, dur) => dur[t] ?? estimate(t, dur);
 
 /**
  * Splits the jobs into even groups: `[{ name, scripts: [...], s }]`, the heaviest first.
@@ -50,8 +67,6 @@ export function group(jobs, dur, { target = TARGET_S, maximum = MAXIMUM } = {}) 
 export const NOTICE = 'Durations';
 const OLD_NOTICE = 'Duraciones';   // runs from before D-316
 export const readNotice = message => { try { return JSON.parse(message); } catch (_) { return null; } };
-
-const median = xs => { const s = [...xs].sort((a, b) => a - b); return s.length % 2 ? s[(s.length - 1) / 2] : (s[s.length / 2 - 1] + s[s.length / 2]) / 2; };
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const [cmd, ...args] = process.argv.slice(2);
