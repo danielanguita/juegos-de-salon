@@ -1697,6 +1697,7 @@
     "battleship/placement.mjs",
     "battleship/salvo.mjs",
     "blackjack/game.mjs",
+    "blackjack/languages.mjs",
     "bridges/game.mjs",
     "bulls-and-cows/chat.mjs",
     "bulls-and-cows/choose-box.mjs",
