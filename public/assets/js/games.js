@@ -24,6 +24,7 @@ import battleshipManifest from './manifests/battleship.js';
 import generalaManifest from './manifests/generala.js';
 import julepManifest from './manifests/labs/julep.js';
 import fourthKingManifest from './manifests/labs/fourth-king.js';
+import sapiondoManifest from './manifests/labs/sapiondo.js';
 import cupManifest from './manifests/cup.js';
 
 /**
@@ -78,6 +79,8 @@ export const GAMES = [
   // /labs/fourth-king/; /fourth-king/ and /cuarto-rey/ are bridges there
   // Its name in URLs and its docs/games/ and docs/screenshots/ folders, without the lab (C-18)
   catalogEntry(fourthKingManifest),
+  // sapiondo: from public/labs/sapiondo/game.json (in the lab, recorded to SOLO_TABLES)
+  { ...catalogEntry(sapiondoManifest), oculto: true },
 ];
 
 /**
@@ -501,6 +504,7 @@ export const SOLO_TABLES = {
   'toque-y-fama': 'toque-y-fama_solo',
   ahorcado: 'ahorcado_solo',
   generala: 'generala_solo',
+  sapiondo: 'sapiondo',
 };
 
 /**
@@ -638,6 +642,7 @@ export const idDeSlug = s => (Object.hasOwn(SLUG_DE, s) ? s : Object.hasOwn(ID_D
  * when a game sends signals with an id that has no name.
  */
 export const LAB_NAMES = {
+  sapiondo: { emoji: '🐸', name: { es: 'Sapiondo', en: 'Sapiondo', pt: 'Sapiondo' } },
   blackjack: { emoji: '♠️', name: { es: 'Blackjack', en: 'Blackjack', pt: 'Blackjack' } },
   memory: { emoji: '👀', name: { es: 'Memorice', en: 'Memorice', pt: 'Memorice' } },
   artifacts: { emoji: '⚙️', name: { es: 'Artefactos', en: 'Artifacts', pt: 'Artefatos' } },

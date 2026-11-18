@@ -449,6 +449,9 @@ export const PATHS = {
       `document.querySelector('#result .actions .btn').click()`,
     ],
   },
+  sapiondo: {
+    intro: [],
+  },
   julepe: {
     intro: [],
     setup: [`document.querySelectorAll('.mode')[0].click()`],
