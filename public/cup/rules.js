@@ -931,7 +931,7 @@ const ES = {
   roundNext: 'Siguiente ronda',
   roundDone: 'Ronda terminada: {pts} puntos.',
   finalSoFar: 'Vas con {pts} de 100: el promedio de tus rondas hasta ahora.',
-  finalRoundPts: '{n} pts en rondas',
+  finalRoundPts: '{n} pts por lugares',
   seeResults: 'Ver resultado',
 
   // Avisos al celular (D-223)
@@ -1849,7 +1849,7 @@ const EN = {
   roundNext: 'Next round',
   roundDone: 'Round over: {pts} points.',
   finalSoFar: 'You\'re at {pts} out of 100: the average of your rounds so far.',
-  finalRoundPts: '{n} pts in rounds',
+  finalRoundPts: '{n} pts from places',
   seeResults: 'See result',
 
   // Phone notifications (D-223)
@@ -2767,7 +2767,7 @@ const PT = {
   roundNext: 'Próxima rodada',
   roundDone: 'Rodada terminada: {pts} pontos.',
   finalSoFar: 'Você está com {pts} de 100: a média das suas rodadas até agora.',
-  finalRoundPts: '{n} pts nas rodadas',
+  finalRoundPts: '{n} pts por posições',
   seeResults: 'Ver resultado',
 
   // Avisos no celular (D-223)
