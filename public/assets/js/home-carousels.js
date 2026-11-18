@@ -75,7 +75,16 @@ export async function drawCarousels({ lang, T, games, tap = () => {}, doc = docu
 
   /* ---------------- the sheet ---------------- */
   let layer = null, before = null, pinned = null;
-  const onKey = e => { if (e.key === 'Escape') close(); };
+  const onKey = e => {
+    if (e.key === 'Escape') return close();
+    // A modal dialog keeps Tab inside it: the page behind is not reachable while the sheet is open
+    if (e.key !== 'Tab' || !layer) return;
+    const all = [...layer.querySelectorAll('button, a[href], [tabindex]:not([tabindex="-1"])')].filter(n => !n.closest('[hidden]') && n.tabIndex >= 0);
+    if (!all.length) return;
+    const first = all[0], last = all[all.length - 1], at = doc.activeElement;
+    if (e.shiftKey && (at === first || !layer.contains(at))) { e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && (at === last || !layer.contains(at))) { e.preventDefault(); first.focus(); }
+  };
   // The page behind does not scroll while the sheet is open (as the share sheet does)
   const pin = () => {
     const b = doc.body, y = doc.defaultView?.scrollY || 0;
