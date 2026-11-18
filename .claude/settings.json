@@ -80,6 +80,27 @@
             "timeout": 10
           }
         ]
+      },
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cd \"$CLAUDE_PROJECT_DIR\" && [ -f tools/agents/css-edited.mjs ] && node tools/agents/css-edited.mjs || true",
+            "timeout": 20
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cd \"$CLAUDE_PROJECT_DIR\" && [ -f tools/agents/stop-tests.mjs ] && node tools/agents/stop-tests.mjs; c=$?; [ $c -eq 2 ] && exit 2 || exit 0",
+            "timeout": 180
+          }
+        ]
       }
     ]
   }
