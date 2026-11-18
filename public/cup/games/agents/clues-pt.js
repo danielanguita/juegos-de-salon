@@ -94,7 +94,7 @@ export const CLASICAS = [
   { pista: 'TERREMOTO', si: ['SISMO', 'TREMOR', 'ESCOMBROS', 'TSUNAMI', 'RACHADURA', 'RICHTER', 'EVACUAÇÃO', 'EPICENTRO', 'MAGNITUDE', 'ABALO'], casi: ['VULCÃO', 'FURACÃO', 'TEMPESTADE'] },
   { pista: 'VULCÃO', si: ['LAVA', 'CRATERA', 'ERUPÇÃO', 'CINZA', 'MAGMA', 'FUMAÇA', 'EXPLOSÃO', 'CONE', 'VESÚVIO'], casi: ['LAREIRA', 'TERREMOTO', 'FOGO'] },
   { pista: 'TEMPESTADE', si: ['RAIO', 'TROVÃO', 'RELÂMPAGO', 'VENTO', 'VENDAVAL', 'GRANIZO', 'APAGÃO', 'TEMPORAL', 'ALERTA'], casi: ['NEBLINA', 'TERREMOTO', 'GAROA'] },
-  { pista: 'PESCA', si: ['VARA', 'ANZOL', 'ISCA', 'REDE', 'LANCHA', 'LINHA', 'MOLINETE', 'PEIXE', 'CAIS', 'TILÁPIA'], casi: ['CAÇA', 'AQUÁRIO', 'MERGULHO'] },
+  { pista: 'PESCA', si: ['VARA', 'ANZOL', 'ISCA', 'REDE', 'LANCHA', 'MINHOCA', 'MOLINETE', 'PEIXE', 'CAIS', 'TILÁPIA'], casi: ['CAÇA', 'AQUÁRIO', 'MERGULHO'] },
   { pista: 'AQUÁRIO', si: ['PEIXINHO', 'BOLHA', 'ALGA', 'FILTRO', 'TARTARUGA', 'VIDRO', 'ESCAMA', 'CORAL', 'CARANGUEJO'], casi: ['PISCINA', 'PESCA', 'ZOOLÓGICO'] },
   { pista: 'MUSEU', si: ['QUADRO', 'ESCULTURA', 'VITRINE', 'GUIA', 'EXPOSIÇÃO', 'MÚMIA', 'FÓSSIL', 'ESTÁTUA', 'OBRA', 'ACERVO'], casi: ['BIBLIOTECA', 'TEATRO', 'IGREJA'] },
   { pista: 'BIBLIOTECA', si: ['ESTANTE', 'SILÊNCIO', 'EMPRÉSTIMO', 'LEITOR', 'BIBLIOTECÁRIA', 'REVISTA', 'DICIONÁRIO', 'ENCICLOPÉDIA', 'CARTEIRINHA', 'ESTUDO'], casi: ['LIVRARIA', 'MUSEU', 'ESCOLA'] },
