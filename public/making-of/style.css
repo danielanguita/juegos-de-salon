@@ -95,7 +95,8 @@ main { position: relative; z-index: 1; max-width: 1080px; margin: 0 auto; paddin
 .mo-owner { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--s-4) var(--s-12); border: 2px dashed var(--yellow); border-radius: var(--r-16); padding: var(--s-10) var(--s-16); }
 .mo-owner b { color: var(--yellow); font-size: var(--fs-110); }
 .mo-owner span { color: var(--muted); font-size: var(--fs-90); }
-.mo-team { display: grid; grid-template-columns: 1.3fr repeat(4, 1fr); gap: var(--s-12); }
+.mo-team { display: grid; grid-template-columns: 1.3fr repeat(3, 1fr); gap: var(--s-12); }
+.mo-team > .mo-boss { grid-row: span 2; }
 .mo-team article { display: flex; flex-direction: column; gap: var(--s-8); background: var(--glass); border: 2px solid var(--glass-border); border-radius: var(--r-16); padding: var(--s-14); }
 .mo-team .mo-boss { border-color: rgb(var(--pink-rgb) / 0.7); }
 .mo-team header { display: flex; align-items: center; gap: var(--s-8); }
@@ -110,7 +111,7 @@ main { position: relative; z-index: 1; max-width: 1080px; margin: 0 auto; paddin
 .mo-small { font-size: var(--fs-90); }
 
 /* Nine weeks: a horizontal line of milestones */
-.mo-timeline { margin: 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--s-20) var(--s-16); }
+.mo-timeline { margin: 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(5, 1fr); gap: var(--s-20) var(--s-16); }
 .mo-timeline li { display: flex; flex-direction: column; gap: var(--s-4); border-top: 3px solid var(--cyan); padding-top: var(--s-10); }
 .mo-timeline time { color: var(--cyan); font-weight: 900; font-size: var(--fs-90); }
 .mo-timeline b { font-size: var(--fs-110); }
@@ -146,7 +147,7 @@ main { position: relative; z-index: 1; max-width: 1080px; margin: 0 auto; paddin
   .mo-play { grid-template-columns: 1fr 1fr; }
   .mo-play-wide { grid-column: 1 / -1; grid-template-columns: 1fr 1fr; }
   .mo-team { grid-template-columns: 1fr 1fr; }
-  .mo-team .mo-boss { grid-column: 1 / -1; }
+  .mo-team .mo-boss { grid-column: 1 / -1; grid-row: auto; }
   .mo-flow, .mo-timeline { grid-template-columns: 1fr 1fr; }
   .mo-flow { gap: var(--s-12); }
   .mo-flow li::after { display: none; }
