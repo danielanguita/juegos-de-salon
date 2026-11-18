@@ -213,7 +213,9 @@ function renderSetupOptions() {
  */
 function nameRow(num, input) {
   const yo = felt ? leerYo() : null;
-  if (!yo?.n || input.value !== yo.n) return el('div', { class: 'player-row' }, num ? el('span', { class: 'num' }, num) : '', input);
+  // Alone at the table (no number), the name starts at the row's own left edge, like any field
+  const cls = 'player-row' + (num ? '' : ' no-num');
+  if (!yo?.n || input.value !== yo.n) return el('div', { class: cls }, num ? el('span', { class: 'num' }, num) : '', input);
   input.hidden = true;
   const shown = el('span', { class: 'signed-name' }, conBandera(yo.co, yo.n));
   const change = el('button', {
@@ -221,7 +223,7 @@ function nameRow(num, input) {
       SFX.tap(); shown.remove(); change.remove(); input.hidden = false; input.focus(); input.select();
     },
   }, T.changeName);
-  return el('div', { class: 'player-row signed' }, el('span', { class: 'num' }, num), shown, input, change);
+  return el('div', { class: cls + ' signed' }, num ? el('span', { class: 'num' }, num) : '', shown, input, change);
 }
 
 function openSetupCpu() {
