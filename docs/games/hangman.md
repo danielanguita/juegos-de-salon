@@ -285,6 +285,8 @@ Ahorcado was the first game migrated to the design system: its stylesheet lost i
 the dot while «Difícil · 5» and «Fácil · 8» did not. The control is `.seg.seg--lives` and its buttons
 don't wrap; each takes the width of its label (73, 85 and 68 px at 320), at 390 they are still equal.
 
+**A short phone** (2026-11-18, D-520, D-570): at 320×568, after picking a letter, «Try the E» and «Buy a letter» fell below the fold. Under 640 px of height (`@media (max-height: 640px)` in `style.css`) the drawing shrinks to 76 px, the lives, hint and word tighten and the two buttons sit side by side, so the turn fits without scrolling; the keys stay 44 px. 390 px is unchanged. `tools/e2e/play-fold.mjs` checks it in every language.
+
 ## Manifest (`game.json`, #1249 step 7)
 
 Its catalogue entry, modes, session key, Firebase paths and the exceptions above live in
