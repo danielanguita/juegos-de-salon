@@ -297,10 +297,10 @@
 .demo .field2 { position: relative; }
 .demo .field2 span { position: absolute; transform: translate(-50%, -50%); line-height: 1; animation: drift 1.6s ease-in-out infinite alternate; }
 @keyframes drift { from { translate: calc(var(--dx) * -1) calc(var(--dy) * -1); } to { translate: var(--dx) var(--dy); } }
-.demo .opts4 { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; width: min(100%, 22rem); }
+.demo .opts4 { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; width: min(22rem, calc(100vw - 4.8rem)); }
 .demo .opts4 button, .demo .opts3 button { font: 400 var(--mg-fs-220) var(--font-display); color: var(--ink); background: var(--glass); border: 1px solid var(--line); border-radius: 14px; padding: var(--s-24) 0; min-height: 64px; cursor: pointer; font-variant-numeric: tabular-nums; }
 .demo .op { font: 400 clamp(var(--mg-fs-300), 14vw, var(--mg-fs-440))/1 var(--font-display); letter-spacing: 0.04em; color: var(--ink); }
-.demo .opts3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; width: min(100%, 19rem); margin-top: 4px; }
+.demo .opts3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; width: min(19rem, calc(100vw - 4.8rem)); margin-top: 4px; }
 .demo .opts3.low { position: absolute; left: 50%; bottom: 9%; translate: -50% 0; margin: 0; grid-template-columns: repeat(3, minmax(0, 1fr)); width: min(92%, 19rem); gap: 12px; }
 .demo .opts3.low button { font-size: var(--fs-160); padding: 18px 0; min-height: 60px; }
 .demo .picking button { transition: opacity 0.25s, scale 0.25s, filter 0.25s; }
@@ -723,7 +723,7 @@
 .demo .cup { width: 70px; height: 78px; border: 0; padding: 0; cursor: pointer; background: linear-gradient(90deg, var(--mg-c0392b), var(--mg-ff6b5b) 45%, var(--mg-c0392b)); clip-path: polygon(14% 0, 86% 0, 100% 100%, 0 100%); border-radius: 8px; transition: top 0.3s ease-in-out; z-index: 2; }
 .demo .pearl { font-size: var(--fs-160); z-index: 1; }
 .demo .diffwrap { display: grid; gap: 12px; position: relative; }
-.demo .diff { display: grid; grid-template-columns: repeat(4, 62px); gap: var(--s-6); }
+.demo .diff { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--s-6); width: min(19rem, calc(100vw - 4.8rem)); }
 .demo .diff button { height: 58px; font-size: var(--fs-160); padding: 0; }
 .demo .diff button.found { border-color: var(--yellow); box-shadow: 0 0 0 3px var(--yellow); position: relative; z-index: 2; }
 .demo .diffsep { height: 3px; margin: 2px 6px; border-radius: 8px; background: linear-gradient(90deg, transparent, var(--yellow) 15%, var(--yellow) 85%, transparent); box-shadow: 0 0 10px rgb(var(--yellow-rgb) / 0.60); }
@@ -733,17 +733,17 @@
 .demo .diff button.hit { background: rgb(var(--yellow-rgb) / 0.25); box-shadow: 0 0 0 3px var(--yellow), 0 0 22px 6px rgb(var(--yellow-rgb) / 0.60); animation: rightpop 0.4s cubic-bezier(0.3, 1.8, 0.5, 1); scale: 1.12; }
 .demo .diffbeam { position: absolute; width: 6px; opacity: 0.55; border-radius: 8px; background: linear-gradient(var(--mg-fff6a8), var(--yellow), var(--mg-fff6a8)); box-shadow: 0 0 14px 4px rgb(var(--yellow-rgb) / 0.70); z-index: 1; pointer-events: none; transform-origin: 50% 0; animation: beam 0.3s ease-out; }
 @keyframes beam { from { scale: 1 0; } }
-.demo .row4 { display: flex; gap: 8px; } .demo .row4 span { padding: 8px; font-size: var(--mg-fs-240); } .demo .row4.dim span { opacity: 0.8; }
+.demo .row4 { display: flex; gap: 8px; width: min(22rem, calc(100vw - 4.8rem)); } .demo .row4 span { flex: 1 1 0; min-width: 0; text-align: center; padding: 8px 0; font-size: var(--mg-fs-240); } .demo .row4.dim span { opacity: 0.8; }
 .demo .row4 .fit { font-size: var(--mg-fs-240); border-color: var(--mg-3ddc84); box-shadow: 0 0 0 3px var(--mg-3ddc84), 0 0 22px 6px rgb(var(--mg-3ddc84-rgb) / 0.50); animation: rightpop 0.4s cubic-bezier(0.3, 1.8, 0.5, 1); scale: 1.1; opacity: 1 !important; }
 .demo .row4 .fit.wrongfit { border-color: var(--yellow); box-shadow: 0 0 0 3px var(--yellow); }
 .demo .row4 .blinkfit { animation: dblink 0.32s steps(2) infinite; }
 .demo .flyback { font-size: var(--mg-fs-240); z-index: 20; pointer-events: none; transition: left 0.45s cubic-bezier(0.5, -0.2, 0.3, 1.2), top 0.45s cubic-bezier(0.5, -0.2, 0.3, 1.2); filter: drop-shadow(0 0 10px rgb(var(--yellow-rgb) / 0.80)); }
 .demo .flyback.bounce { filter: drop-shadow(0 0 10px rgb(var(--mg-ff4d5e-rgb) / 0.90)); animation: flybounce 0.42s ease-in forwards; }
 @keyframes flybounce { 0% { translate: 0 0; } 25% { translate: -8px 0; rotate: -12deg; } 45% { translate: 8px 0; rotate: 12deg; } 100% { translate: 30px 90px; rotate: 60deg; opacity: 0; } }
-.demo .row4 .q { font: 400 var(--mg-fs-240) var(--font-display); color: var(--yellow); min-width: 56px; text-align: center; }
+.demo .row4 .q { font: 400 var(--mg-fs-240) var(--font-display); color: var(--yellow); text-align: center; }
 .demo .opts3.emo button { font-size: var(--mg-fs-220); }
 .demo .opts3.wide { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-.demo .piles { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; width: 310px; max-width: 100%; }
+.demo .piles { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; width: min(310px, calc(100vw - 4.8rem)); }
 .demo .piles button { position: relative; aspect-ratio: 1; width: 100%; border-radius: 50%; border: 0; cursor: pointer; padding: 0; background: radial-gradient(circle at 50% 42%, var(--mg-3a1f63) 0 58%, var(--mg-2a1449) 70%, var(--mg-1b0b33) 100%); box-shadow: 0 0 0 4px rgb(var(--ink-rgb) / 0.12), 0 10px 0 var(--well), inset 0 6px 18px var(--glass); transition: scale 0.1s; }
 .demo .piles button:active { scale: 0.97; }
 .demo .piles button.less { opacity: 0.45; }
@@ -768,8 +768,8 @@
 .demo .piles span { position: absolute; transform: translate(-50%, -50%); font-size: var(--fs-120); line-height: 1; filter: drop-shadow(0 2px 1px rgb(var(--mg-000000-rgb) / 0.35)); }
 .demo .clock { width: 190px; height: 190px; }
 .demo .shadowgoal { font-size: var(--mg-fs-420); line-height: 1; }
-.demo .shadows { display: flex; gap: 10px; }
-.demo .shadows button { width: 88px; height: 88px; border-radius: 16px; background: var(--mg-e9e1ff); border: 0; cursor: pointer; display: grid; place-items: center; }
+.demo .shadows { display: flex; gap: 10px; width: min(20rem, calc(100vw - 4.8rem)); }
+.demo .shadows button { flex: 1 1 0; min-width: 0; aspect-ratio: 1; max-height: 100px; border-radius: 16px; background: var(--mg-e9e1ff); border: 0; cursor: pointer; display: grid; place-items: center; }
 .demo .shadows span { font-size: var(--mg-fs-300); filter: brightness(0); opacity: 0.85; display: inline-block; }
 .demo .shadows button.show span { filter: none; opacity: 1; }
 .demo .series { font: 400 clamp(var(--fs-200), 9vw, var(--mg-fs-260)) var(--font-display); letter-spacing: 0.04em; } .demo .series b { color: var(--yellow); }
