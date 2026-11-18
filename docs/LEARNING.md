@@ -76,7 +76,7 @@ The owner's Claude plan is the programme's only budget. Rules for a session on t
 
 | # | Piece | File | Status | The number |
 |---|---|---|---|---|
-| 1 | Endless content with quality control (Agentes, then Bachillerato, puzzles, translations) | [learning/01-content-pipeline.md](learning/01-content-pipeline.md) | 1.2 closed (D-583: give-aways fixed, M3 enforced for everyone); next 1.3, the judge | share of generated clues the judge accepts and the owner agrees with |
+| 1 | Endless content with quality control (Agentes, then Bachillerato, puzzles, translations) | [learning/01-content-pipeline.md](learning/01-content-pipeline.md) | 1.2 closed (D-583: give-aways fixed, M3 enforced for everyone); 1.3 closed below the bar (80% on the labels, owner's call); piece paused | share of generated clues the judge accepts and the owner agrees with |
 | 2 | The factory's dashboard | [learning/02-factory-metrics.md](learning/02-factory-metrics.md) | 2.2 built: «🏭 The factory» in the Sunday PDF; 2.3 after four reports | a weekly factory section the owner reads |
 | 3 | The owner's taste as data | [learning/03-taste-model.md](learning/03-taste-model.md) | planned | how often the ideas agent predicts the owner's answer |
 | 4 | Earned autonomy | [learning/04-earned-autonomy.md](learning/04-earned-autonomy.md) | planned | agreement between agent and owner in shadow mode |

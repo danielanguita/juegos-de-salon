@@ -22,6 +22,9 @@ Grade each clue **good**, **so-so** or **bad** with this rubric, the owner's (do
 Idea clues (feelings, abstract words) are judged strictly on their `si` and leniently on their temptations;
 concrete clues the other way round: for a concrete clue, a `si` set a player reads at once is good unless a
 temptation fails J3.
+For a concrete clue, a temptation that shares a setting with the clue (FARMACIA for HOSPITAL, ZOOLÓGICO
+for ACUARIO, CELOS for AMOR) is a good decoy: it fails J3 only if most tables would put it among the `si`
+as the expected answer (GOBIERNO for PODER, TEATRO for MUSEU). "A table could argue it" is not enough.
 
 A `si` word that is the obvious meaning of the clue but too wide or too narrow for it (ALTURA: things that
 are high; MAR: things of the sea that also belong to any beach) costs one grade: so-so.

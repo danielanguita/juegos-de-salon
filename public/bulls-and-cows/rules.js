@@ -45,11 +45,11 @@ const ES = {
   // jugar solo = el juego de La Copa (D-142). Estas claves las lee también cup/games/number/ui.js
   soloHow: [
     'El número secreto tiene 4 cifras distintas y puede empezar con cero.',
-    'Escribe un número y toca Probar para ver sus famas y sus toques.',
+    'Escribe un número y toca Probar: una fama es una cifra correcta en su lugar y un toque, una cifra correcta en otro lugar.',
     'Tienes 10 intentos y el reloj corre mientras juegas.',
   ],
   scoringTitle: '🏅 Puntaje',
-  soloScoring: 'Partes con 100 puntos. Cada intento que las pistas ya descartaban y no prueba ninguna cifra nueva resta 15; el mínimo es 10. Si no lo sacas, son 0 puntos.',
+  soloScoring: 'Partes con 100 puntos. Cada intento que repite lo que las pistas ya descartaban resta 15; el mínimo es 10. Si no lo sacas, son 0 puntos.',
   newDigitFree: 'Un intento con alguna cifra que no habías probado no resta: estabas explorando.',
   discardedNote: '⚠️ Las pistas ya descartaban los intentos marcados: cada uno resta {c} puntos.',
   soloStart: '🔢 Empezar', soloTitle: '🔢 Adivina el número', soloTimer: '⏱ {t}',
@@ -102,11 +102,11 @@ const EN = {
   replicaNotice: '{name} got it! {other} gets one last guess to tie.',
   soloHow: [
     'The secret number has 4 different digits and can start with zero.',
-    'Type a number and tap Guess to see its bulls and cows.',
+    'Type a number and tap Guess: a bull is a right digit in the right spot and a cow is a right digit in the wrong spot.',
     'You have 10 guesses and the clock runs while you play.',
   ],
   scoringTitle: '🏅 Scoring',
-  soloScoring: 'You start with 100 points. Each guess the clues had already ruled out that tries no new digit takes off 15; the minimum is 10. If you don\'t crack it, you get 0 points.',
+  soloScoring: 'You start with 100 points. Each guess the clues had already ruled out takes off 15; the minimum is 10. If you don\'t crack it, you get 0 points.',
   newDigitFree: 'A guess with a digit you hadn\'t tried yet takes nothing off: you were exploring.',
   discardedNote: '⚠️ The clues had already ruled out the marked guesses: each one takes off {c} points.',
   soloStart: '🔢 Start', soloTitle: '🔢 Crack the number', soloTimer: '⏱ {t}',
@@ -163,11 +163,11 @@ const PT = {
   // jogar sozinho
   soloHow: [
     'O número secreto tem 4 algarismos diferentes e pode começar com zero.',
-    'Escreva um número e toque em Tentar para ver as famas e os toques dele.',
+    'Escreva um número e toque em Tentar: uma fama é um algarismo certo no lugar certo e um toque, um algarismo certo em outro lugar.',
     'Você tem 10 tentativas e o relógio corre enquanto você joga.',
   ],
   scoringTitle: '🏅 Pontuação',
-  soloScoring: 'Você começa com 100 pontos. Cada tentativa que as pistas já descartavam e não testa nenhum dígito novo tira 15; o mínimo é 10. Se não descobrir, são 0 pontos.',
+  soloScoring: 'Você começa com 100 pontos. Cada tentativa que as pistas já descartavam tira 15; o mínimo é 10. Se não descobrir, são 0 pontos.',
   newDigitFree: 'Uma tentativa com algum dígito que você ainda não tinha testado não tira nada: você estava explorando.',
   discardedNote: '⚠️ As pistas já descartavam as tentativas marcadas: cada uma tira {c} pontos.',
   soloStart: '🔢 Começar', soloTitle: '🔢 Descubra o número', soloTimer: '⏱ {t}',

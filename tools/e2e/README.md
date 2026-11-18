@@ -187,9 +187,15 @@ node tools/e2e/contact-sheet.mjs cuarto-rey --out /tmp/contact-sheet
 |---|---|
 | `panel/views.mjs` | Every panel view in `PATHS.panel` at 900 and 390 px with seeded data: no uncaught error, no `undefined`/`NaN`/`Infinity`/`[object …]` on screen, no sideways overflow, and no offline-log row from the other domain (D-484) |
 | `landing-fold.mjs` | Every game's landing (the `intro` path of each game in `paths.mjs`) at 320×568 and 375×667 in every language: the start button, or the first mode, is above the fold, also each game opened from Uno al día (`?today`) and a cup's day cover (U-39, D-344) |
+| `play-fold.mjs` | Mid-turn at 320×568 in every language: the turn's confirm button and the latest feedback are above the fold (Hangman with a letter picked, Bulls and Cows solo after a guess); a new game screen with a turn action joins its `SCREENS` (D-520, D-570) |
 | `fourth-king/lab.mjs` | Cuarto Rey in La Bodega (D-420): not on the home page, in the lab's La Bodega folded to its title, a tap shows Play; `/fourth-king/` and `/cuarto-rey/` lead to `/labs/fourth-king/`, which loads behind the lab's door and is not indexed |
 | `fourth-king/game.mjs` | At `/labs/fourth-king/` (D-420): sound button, full deck up to the fourth king and the menu in English; that the table is exactly the script's names, even if the remembered table brings more rows |
 | `blackjack/game.mjs` | ♠️ Blackjack at `/labs/blackjack/`: a solo game against the house to the result and back to the lab (C-19); with the flag `blackjack-felt` on, the felt table (the bet a chip on its spot, the shoe a bar), and switched off in the tester tab, the table as before; a double tap on «Apostar» and «Siguiente ronda» counts once (`doubleTap()`, D-576) |
+| `blackjack/languages.mjs` | Blackjack's screens in every offered language, against Spanish (D-199) |
+| `sapiondo/game.mjs` | Sapiondo (lab): starts a seeded run, advances with the overlay controls and checks the result screen |
+| `sapiondo/languages.mjs` | Sapiondo's screens in every offered language, against Spanish (D-199) |
+| `wobbles/game.mjs` | Tembleque at `/labs/wobbles/`: the cover's lever picks the level and its picture follows; each level starts a round from its card and ends on its game-over card, in es/en/pt, and its ‹ comes back to the cover |
+| `wobbles/languages.mjs` | Tembleque's cover in every offered language, against Spanish (D-199) |
 | `bulls-and-cows/local.mjs` | One phone and playing solo (twice, to see the record), up to the result |
 | `bulls-and-cows/choose-box.mjs` | Playing solo with a lab key: tapping a box chooses where the next digit goes (#604) |
 | `bulls-and-cows/online.mjs` | Two phones against real Firebase: joining by URL, reload midway, rematch |

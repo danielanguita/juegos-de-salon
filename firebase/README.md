@@ -428,7 +428,7 @@ Logic and tests: [`public/assets/js/transport/dispose.js`](../public/assets/js/t
 ## Usage signals (`stats`)
 
 What the games record for the owner's panel ([docs/PANEL.md](../docs/PANEL.md)),
-by environment (`prod`, `lab`, `dev`) and by day:
+by environment (`prod` players, `owner` the owner's devices D-471, `labs` the live `/labs/` pages D-584, `dev` tests and previews) and by day:
 
 ```
 stats/prod/days/20342/

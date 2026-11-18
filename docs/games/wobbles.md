@@ -17,7 +17,7 @@ Making them a game of the house (an engine, the shared modules) is later work.
 - **Easy (2D):** the claw carries each piece across on its own; tap to drop it on the plank. Keep the plank
   level: when the level's bubble reaches the end of the red, it tips over and the round ends. Three
   lives: each piece that falls in the water costs one. Pieces come faster and faster. Score: pieces
-  placed plus balanced turns (Perfect!).
+  placed plus balanced turns (each says one of nine cheers, Perfect! among them, never the same twice in a row).
 - **Hard (3D):** a round disc on a pivot: drag each piece onto it, turn it with a held finger, turn the
   board with two fingertips. Keep the disc level (the hoop goes green); it capsizes past its limit.
   Three hearts: each piece lost costs one.
@@ -37,8 +37,28 @@ it starts on easy, as in Sudoku. The player never reads "2D" or "3D" (the owner)
 and the hard level's name is plain Tembleque too.
 
 
-Cover (a moving picture of the level, the level lever, ¡A jugar!, how to play, the site footer with 💬) → a level: its card (how to play, ▶ Play) →
-the round (its HUD: ‹ back to the cover, lives, score, mute) → its game-over card with ↻ Again.
+Cover (a moving picture of the level, the level lever, ¡A jugar!, how to play folded, the sign-in, the site footer
+with 💬; behind the lab flag `cover-dialogs`, how to play and the sign-in are the «📖 Instrucciones» and «👤 Entrar»
+dialogs) → a level: its card (how to play, ▶ Play) → the round (its HUD: ‹ back to the cover, lives, score, mute) →
+its result card, in C-19's order: the score, ↻ Again, the rankings notice (one line), the exit from `fin.js`
+(`salidasFin('lab')`), the breakdown, the level's table (`wobbles_easy`, `wobbles_hard`) and 💬 last.
+
+## Lab tools and the hard level's top
+
+- **The dial** that turns the hard level's board sits at the top, just under the header, faded to 40 %
+  until it is used: at the bottom, an iPhone's swipe there leaves the app (the owner, 2026-11-18).
+- **The next pieces** (hard level) are centred under the dial in a column that flows down toward the
+  hand: the one after next small and faint on top, the next one under it, bigger and bright.
+- **Pieces at the start**, in the cover's «T» tester tab (lab key holders only; the owner: set it there,
+  for both levels): − and + set how
+  many pieces the plank or the disc starts with (0 to 40, one number for both, kept on the phone in
+  `balanza-lab:start-pieces`); the next game starts with them. They are the game's own first pieces in
+  order, laid with the real physics: on the easy level the claw stops over spots from the middle out,
+  24 px apart, one side then the other; on the hard level they drop over a sunflower of spots across the
+  disc. Either way a spot on the low side is swapped for the opposite one, and the plank or disc keeps its
+  first stiffness (and the claw its first speed) while they are laid. They count as nothing (no points,
+  no lives, the time starts after them) and the game goes on as hard as a new one. More than it holds
+  tips it: setup then starts over with two fewer until they fit (about 13 on the plank, 30 on the disc).
 
 ## Protocolo de mensajes
 
@@ -48,12 +68,16 @@ None: solo, nothing saved but mute (`balanza-lab:muted`) and, on the hard level,
 
 - `public/labs/wobbles/`: the cover (C-2's `index.html`, `rules.js` with its texts, `style.css`, `game.js`
   with the visit signal, `trackVisit`, D-208, and `game.json`).
+- The result's shared blocks for both levels (C-19) are in the cover's `game.js` too, which each level loads:
+  a level's classic script says `wobbles:over` (score, time, breakdown) and `wobbles:clear`, and `game.js` adds
+  the rankings, the exits and the breakdown. Both levels load `base.css` and `ranking.css` for them.
 - `public/labs/wobbles/easy/index.html`: the 2D prototype, markup, CSS and script inline, with the lab's
   head added and the site's own fonts. It came only as its finished page: edit it itself.
 - `public/labs/wobbles/hard/index.html`: the 3D prototype, built from `tools/generators/wobbles-hard/`
   (`sim.js` physics, `texts.js`, `view.js`, `template.html`) by `python3 tools/generators/wobbles-hard/build.py`.
   Edit the sources, never the page.
-- `tools/e2e/wobbles/game.mjs`: the cover's two levels, then each level in es/en/pt to its game-over card.
+- `tools/e2e/wobbles/game.mjs`: the cover's two levels, then each level in es/en/pt to its result (exits, breakdown);
+  `languages.mjs` the cover in es/en/pt.
 - Test hook: `window.__balanza` on each level (the prototype's own), `window.__wobbles` on the cover.
 
 ## Performance
@@ -109,4 +133,3 @@ All with the same root: the two levels are prototypes kept whole, as the owner a
 - **C-2**: no `engine.js` or `engine.test.mjs`: the physics lives in each level's page.
 - **C-6**: a round lasts a minute or two and is not resumed: no `session.js`.
 - **C-7**: no sharing through `compartir.js`, no `trackStart`/`trackFinish` (only the cover's visit).
-- **C-19**: each level's own game-over card, not the exits from `fin.js`.

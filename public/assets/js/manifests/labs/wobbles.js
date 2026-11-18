@@ -63,10 +63,6 @@ export default {
     {
       "canon": "C-7",
       "why": "Two levels, each the owner's prototype brought whole from another tool and kept untouched (docs/games/wobbles.md): easy/ (2D) and hard/ (3D), pages of their own with their code inline, behind a cover that follows the canons. Solo with no sharing yet, so nothing goes through compartir.js, and its rounds send no trackStart/trackFinish (the cover counts the visit)."
-    },
-    {
-      "canon": "C-19",
-      "why": "Two levels, each the owner's prototype brought whole from another tool and kept untouched (docs/games/wobbles.md): easy/ (2D) and hard/ (3D), pages of their own with their code inline, behind a cover that follows the canons. Each level's game-over card is its own (play again), not the exits from fin.js; they come when it leaves the prototype stage."
     }
   ]
 };

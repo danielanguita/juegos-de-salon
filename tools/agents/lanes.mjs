@@ -7,6 +7,7 @@
  *   node tools/agents/lanes.mjs check --pr <n>   # a PR on GitHub, open or merged
  *   node tools/agents/lanes.mjs ci               # the `lane` job in tests.yml (GitHub Actions only)
  *   node tools/agents/lanes.mjs tick <n>         # D-540: the session ticks Yes on a 🔴 PR the owner asked for in its dialogue
+ *   node tools/agents/lanes.mjs keep             # lane-box.yml: a description edit by anyone but the owner keeps the approval box
  *
  * It prints the lane, the files that set it, what the lane requires and, for the review agents,
  * the stage of covers.mjs (D-304: lab only, a game leaving the lab, the site). The rules are in
@@ -76,6 +77,17 @@ export function outsideReason(pr, files = null, owners = LAB_OWNERS) {
   return `by ${author || 'an unknown author'}, not the owner${Object.values(owners).some(o => o?.toLowerCase() === author?.toLowerCase()) ? ', and it touches files outside their lab games (D-553)' : ''}`;
 }
 
+/**
+ * Whether the `lane` job's token is read-only (a PR from a fork): GitHub gives a fork's
+ * `pull_request` run no write token on a public repo, so the label, the status and the decision
+ * cannot be written. The job then reports the lane and ends green; `owner-approval` stays missing,
+ * so the PR still cannot merge without the owner (docs/LANES.md). It used to fail on the label
+ * instead: 19 red runs on three fork PRs in two days (signature 3f17b9bc87).
+ */
+export function readOnlyToken(pr) {
+  return !!pr && pr.head?.repo?.full_name !== pr.base?.repo?.full_name;
+}
+
 /** A PR's lane: the highest of its files, with the files that set it. No files is green; an outside PR is red. */
 export function laneOfPr(files, { outside = null } = {}) {
   const each = files.map(f => ({ file: f, ...laneOf(f) }));
@@ -122,6 +134,23 @@ export function withApproval(body = '', block) {
   const a = body.indexOf(APPROVAL_START), b = body.indexOf(APPROVAL_END);
   if (a >= 0 && b > a) return body.slice(0, a) + block + body.slice(b + APPROVAL_END.length);
   return body.trim() ? `${block}\n\n${body}` : block;
+}
+
+/** The approval block of a description, markers included, or null. */
+export function approvalOf(body = '') {
+  const a = body.indexOf(APPROVAL_START), b = body.indexOf(APPROVAL_END);
+  return a >= 0 && b > a ? body.slice(a, b + APPROVAL_END.length) : null;
+}
+
+/**
+ * The description to write back after an edit by anyone but the owner (lane-box.yml): the box as it
+ * was before the edit, whether the edit dropped it or changed it, or null when the box is untouched
+ * (or there was none). A contributor's session that rewrites its description never loses the box.
+ */
+export function keptApproval(before = '', after = '') {
+  const was = approvalOf(before);
+  if (!was || approvalOf(after) === was) return null;
+  return withApproval(after, was);
 }
 
 /** The description with the Yes of its approval block ticked (D-540), or null if there is none to tick. */
@@ -171,6 +200,10 @@ async function ci() {
   const files = prFiles(n);
   const result = laneOfPr(files, { outside: outsideReason(pr, files) });
   console.log(report(result));
+  if (readOnlyToken(pr)) {
+    console.log(`::notice::A PR from a fork: this job's token is read-only, so the ${LABEL} label, the ${STATUS} status and the decision are not written. ${STATUS} stays missing and the owner approves it by hand (docs/LANES.md).`);
+    return;
+  }
   const status = (state, description) => gh('api', '-X', 'POST', `repos/${repo}/statuses/${sha}`, '-f', `state=${state}`, '-f', `context=${STATUS}`, '-f', `description=${description}`);
   if (result.lane !== 'red') {
     status('success', `${result.lane} lane: no owner approval needed`);
@@ -229,6 +262,18 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const [cmd, ...args] = process.argv.slice(2);
   try {
     if (cmd === 'ci') await ci();
+    else if (cmd === 'keep') {
+      const event = JSON.parse(readFileSync(process.env.GITHUB_EVENT_PATH, 'utf8'));
+      const n = event.pull_request.number, before = event.changes?.body?.from;
+      // The edit's own result, read again: a later edit may already have put the box back
+      const now = JSON.parse(gh('api', `repos/${process.env.GITHUB_REPOSITORY}/issues/${n}`)).body || '';
+      const body = before == null ? null : keptApproval(before, now);
+      if (!body) console.log('The approval box is as it was.');
+      else {
+        gh('api', '-X', 'PATCH', `repos/${process.env.GITHUB_REPOSITORY}/issues/${n}`, '-f', `body=${body}`);
+        console.log(`#${n}: an edit by @${event.sender.login} dropped or changed the approval box; it is back as it was.`);
+      }
+    }
     else if (cmd === 'tick') {
       const n = Number(args[0]);
       if (!n) throw new Error('Usage: node tools/agents/lanes.mjs tick <pr>');

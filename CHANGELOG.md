@@ -1,5 +1,235 @@
 # Changelog
 
+## 1.21.16 — 2026-11-18
+- **Agentes**: four decoys that could pass for right answers are replaced (PODER, LIFE, LUCK, MUSEU), and the clue judge's third round agrees with the owner on 16 of 20 labelled clues and catches all 12 bad ones.
+
+## 1.21.15 — 2026-11-17
+- **Tembleque (lab)**: its cover and result follow the canons. How to play starts folded, with sign-in, and behind
+  `cover-dialogs` both open as the Instrucciones and Entrar dialogs; on a 320×568 phone the picture shrinks so
+  the level lever stays above the fold. Each level's result now has the rankings (a table per level), the
+  shared «Volver al laboratorio» exit and the breakdown after it; the easy level's top buttons are 44 px.
+
+## 1.21.14 — 2026-11-17
+- **Blackjack (lab, felt table)**: «Pedir» shows a hand tapping the felt twice by your cards, the table's sign for a card; the two taps on the felt no longer ask by themselves.
+
+## 1.21.13 — 2026-11-17
+- **Sapiondo (lab)**: danielanguita owns it while it is in the lab (D-553), so their PRs that touch only Sapiondo merge on green checks without the owner's tick.
+
+## 1.21.12 — 2026-11-17
+- **Blackjack (lab, felt table)**: two taps on the felt by your cards ask the dealer for a card, as at a real table: a hand taps twice where your finger landed and the card comes; one tap does nothing.
+
+## 1.21.11 — 2026-11-17
+- **Blackjack (lab, felt table)**: «Elige tu apuesta ↓» shows in every betting round, not only the first.
+
+## 1.21.10 — 2026-11-17
+- **Blackjack (lab)**: in «Arma tu mesa» the player's name starts at its box's left edge, with no empty slot for a seat number.
+
+## 1.21.9 — 2026-11-17
+- **Game covers**: no more flash of the old «Cómo se juega» and sign-in before the «Instrucciones» and account buttons: the phone remembers the last answer of the `cover-dialogs` flag and builds the cover at once; the network only confirms it.
+
+## 1.21.8 — 2026-11-17
+- ¡NO TOQUES! (Altoke) shows a mole instead of a hammer, and the board no longer scrolls the page while a game is on (it scrolls again on the result screens); the board never grows taller than the screen.
+- Each game of Altoke scrolls the page so the whole stage is in view.
+- ¡REVIENTA! bubbles rise about a third slower (the round lasts 7.2 s).
+- Testers get the picker for any single game back in the T tab (a try-out: nothing is saved).
+- The tester tab shows every Altoke game in its picker (the tab scrolls on short screens, and the mole icon shows).
+
+## 1.21.7 — 2026-11-17
+- **Blackjack (lab, felt table)**: a chip tapped from your pile flies onto the bet, and «Limpiar» sends each chip back to its own pile, one after another.
+
+## 1.21.6 — 2026-11-17
+- **The retention loop is built** (learning piece 7, with the owner's Yes to its concept): `tools/agents/retention.mjs` reads next-day return to any game week by week against an eight-week noise band, and the weekly retention agent proposes at most one hypothesis and action to the owner on a real drop, then writes its verdict. It only proposes. First read: 67%, 63%, 59%, then 43% the week of 8 Nov; the band fills by mid-December. Nothing changes for players.
+
+## 1.21.5 — 2026-11-17
+- **Agentes clue judge (learning piece 1, step 1.3)**: the owner's rubric as a prompt and a scorer (`tools/generators/clues/judge.mjs`), run blind on the labelled cases: 46%, then 64% after one rubric revision; the next round waits on the owner's labels. Nothing changes for players.
+
+## 1.21.4 — 2026-11-17
+- **Blackjack (lab, felt table)**: the player's plate is centred over the bet's chip, in one line when the name is short («Jiri 🪙 250») and two when it is long, the coins under the name, so a name as long as the field allows («Margarita», «Maximiliano Ro») always reads whole.
+
+## 1.21.3 — 2026-11-17
+- **Blackjack (lab, felt table)**: each player's name and coins read as one line, «Jiri 🪙 240», in a dark stitched plate above their bet, with air from the chip; a long name is cut with «…».
+- **Game covers**: on a phone taller than the cover, the sunset footer rests on the bottom edge, so its gradient no longer stops short above a dark band.
+
+## 1.21.2 — 2026-11-17
+- **Agentes: every board can be deduced, and no word gives its clue away** (D-583): 18 words that contained their clue (MIDNIGHT for NIGHT, PESCADOR for PESCA, FEIRANTE for FEIRA…) are replaced in Spanish, English and Portuguese, and a board never again has a clue with as many look-alikes as agents, so the clue's number always tells which group it is. Every Agentes board changes from this version.
+
+## 1.21.1 — 2026-11-17
+- **The retention loop, as a concept for the owner** (learning piece 7): what it should achieve (at most one argued proposal a week to bring players back, each ending with a number), how it tells a real drop from noise, and an autonomy table of what its agent may do alone, only with the owner's Yes, and never. Nothing is built until the owner agrees. Nothing changes for players.
+
+## 1.21.0 — 2026-11-17
+- **Sapiondo in the lab & La Copa**: 2.5D arcade highway crossing (`/labs/sapiondo/` and `public/cup/games/sapiondo/`) in Spanish, English, and Portuguese, featuring a frog in a Chilean flag t-shirt, 3 mobile overlay buttons (`◀ ▲ ▶`) plus Dash (`⚡`), road fruits, bumper Close-Calls, Normal & Hard difficulties, and deterministic seeded tracks for Cup play.
+
+## 1.20.48 — 2026-11-17
+- **The Sunday report measures the factory** (learning piece 2): a «🏭 The factory» section with five numbers from GitHub (PRs merged and hours open, 🔴 included; red CI runs per PR; one-tap decisions and how long they wait; agent round PRs; reverts), `tools/reports/factory.mjs`. Nothing changes for players.
+
+## 1.20.47 — 2026-11-17
+- **Agentes' clues get their mechanical checks** (learning piece 1, step 1.2): `tools/generators/clues/` checks deck shape (M1), give-away words (M2) and boards where the count cannot pick the group (M3), with the eval cases for the judge to come. It found 18 give-aways in the three decks and M3 on about 18% of boards; both wait for the owner's decision, since a deck change reshuffles running Cups. Nothing changes for players.
+
+## 1.20.46 — 2026-11-17
+- **A backlog agent takes the branch sweep and the owner's to-dos out of the daily round**: once a week it deletes superseded branches, opens PRs for wanted ones, asks about the rest, closes the owner's done issues and moves one or two forward. The pr-created reminder now says to launch the review agents in one message, so they run in parallel. Nothing changes for players.
+
+## 1.20.45 — 2026-11-17
+- **Two more hooks catch slips while the file is open**: `css-edited.mjs` shows the design lint's hits right after a stylesheet is edited, and `stop-tests.mjs` runs the unit tests a branch's changes touch when a turn ends (each state once) and keeps the turn going while one fails. Nothing changes for players.
+
+## 1.20.44 — 2026-11-17
+- **Each agent runs on the model and effort its work needs** (D-582): ideas on Opus high; processes and ci-health on Opus medium; feedback and usability on Opus low; documentation and player on Sonnet; contributions on Sonnet; support on Haiku. `agents-models.test.mjs` fails an agent that does not name both, and the ci-health agent moves one back to Opus after two misses. Nothing changes for players.
+
+## 1.20.43 — 2026-11-17
+- **Every visual change is measured before it ships** (D-570, DESIGN.md rule 10): a new check, M-4, fails a screen where a picture, a panel or a title sits on the block before it, on every screenshot the end-to-end scripts take, and the process asks each screen whose look changes to be shot, measured with `look.mjs` at 390 and 320 px, and listed as measured in its PR.
+
+## 1.20.42 — 2026-11-17
+- **Blackjack (lab)**: clearer words before launch: «Fichas iniciales», «Hasta la carta roja» with a line on what the red card does, «Mazo» instead of «Zapato», leaving says you lose your chips, and English outcomes as full phrases; sharing a table game lists every player by coins.
+- **Tools**: `look.mjs` and `landing-fold.mjs` open a lab game at its real path (`routeOf`): Blackjack's cover was being measured on a missing page.
+- **Blackjack (lab)**, from the player agent's games: the result's number is the change both ways («Ganó la casa (−10)»), the table says «2 manos ganadas» instead of a bare ✋, the deal is quicker and says «Repartiendo…» / «Juega la casa…» while it runs, and the solo setup drops the lone «1» by the name.
+
+## 1.20.41 — 2026-11-17
+- **Blackjack (lab)**: its language check (`tools/e2e/blackjack/languages.mjs`) walks the cover, setup, betting, a hand and the result in es, en and pt; it pays the last canon Blackjack owed the lab's gate (D-579).
+
+## 1.20.40 — 2026-11-17
+- **Two agents take load off the daily round**: the feedback agent (`.claude/agents/feedback.md`) handles 🐞 reports end to end (reproduce, fix in its own PR, decide, close, answer the player once), and the ci-health agent (`.claude/agents/ci-health.md`) reads the failure signatures, flaky tests, test levels and the weekly cost numbers and builds one mechanism a week. `processes.mjs check` dispatches them (feedback when reports wait, ci-health once a week); the processes agent reviews what they deliver. Nothing changes for players.
+
+## 1.20.39 — 2026-11-17
+- **Launching a feature from /labs/ no longer turns open PRs red** (D-578): the end-to-end tests read a snapshot of the flags kept in the repository, refreshed by the processes round; and adding a test no longer fails the README check.
+
+## 1.20.38 — 2026-11-17
+- **The making-of page catches up**: the Player and Contributions agents join the team (seven agents), the setup diagram counts the jobs as they are now (13 on GitHub, 5 on the Mac mini, 3 in Claude's cloud), and the timeline adds the heartbeat (Nov 16) and the first outside contribution, Blackjack, with the player agent (Nov 17).
+
+## 1.20.37 — 2026-11-17
+- **Sessions read only the canons they need**: `docs/CANONS.md` is now an index (one line per canon and the checklist, 8 KB instead of 78 KB) and each canon lives in `docs/canons/C-n.md`, like the decisions (D-394). Three project skills route the work so a session loads only what applies: `game-change` (which canons a change needs), `player-text` (the U-n rules and the lint for texts in three languages) and `css-change` (the design system and its gate). Nothing changes for players.
+
+## 1.20.36 — 2026-11-17
+- **A player agent plays the games a PR changes** (`.claude/agents/player.md`): on the preview, phone-sized, in Spanish and one other language, a full game to the result, and it comments the friction it met. It only reports. MERGING.md, AGENTS.md and the `pr-created.mjs` reminder launch it on game PRs. Its first trial, on Blackjack (#1551), found that the result headline shows the balance when losing and the gain when winning, an unlabelled ✋ count, and a 3-second wait with nothing to tap after betting. Nothing changes for players.
+
+## 1.20.35 — 2026-11-17
+- **One a Day ends on one page** (D-581): the canons and the new-game guide require that the last move of a daily game go straight to its result page, with anything an in-between screen showed as a block of it; the usability and contributions reviews look for it.
+
+## 1.20.34 — 2026-11-17
+- **Sessions can no longer edit the main folder**: the new `worktree-guard.mjs` hook stops an Edit or Write in the repo's main folder, which parallel sessions share, and says how to open a worktree (D-135). Nothing changes for players.
+
+## 1.20.33 — 2026-11-17
+- **PRs no longer sit in conflict for hours over generated files** (D-580): `wait-pr.mjs` brings a PR up to date by itself when the only conflicts are in the decisions index, `docs/facts.json` or the README's generated blocks.
+
+## 1.20.32 — 2026-11-17
+- **Blackjack (lab)**: the result screen has what every game's has (C-19): alone, the coins left count in the ranking (the notice under the hero when signed in, «¿Quieres que esta partida cuente?» otherwise), the game's ranking after the exits, «Cambiar modo», and the feedback link last; online, the win counts in the victories. The title no longer repeats the hero's 🏆, and alone there is no one-row table repeating the coins.
+
+## 1.20.31 — 2026-11-17
+- **Two hooks so sessions stop forgetting steps**: `push-guard.mjs` now also stops a `git push` from a branch that brings changes without its changelog entry (D-300), and the new `pr-created.mjs` reminds the session, right after `gh pr create`, to check the lane, tick it when the owner asked for the work, turn on auto-merge and watch the PR. `docs/SESSIONS.md` lists the pre-approved checks and these hooks. Nothing changes for players.
+
+## 1.20.30 — 2026-11-17
+- **Lab games come in with their canons** (D-579): a new game in the lab, ours or a contributor's, passes the whole canons checklist before it merges. `public/labs/canons.test.mjs` checks its `game.json`, a measured cover, its result exits, its result in the rankings, the cover dialogs, the panel signals, its spec and its e2e scripts; `docs/ADD-GAME.md` ("The entry gate") names the test or reviewer for every other line. The generator now makes a game that passes all of it. The games already in the lab owe what `docs/labs-canon-debt.json` lists, and that list only shrinks.
+
+## 1.20.29 — 2026-11-17
+- **Blackjack (lab, felt table)**: «Elige tu apuesta ↓» sits right above the chips; each player's name and coins sit on the felt over their bet, and nothing on the table moves while a hand is played; the cards land at their tilt without a snap.
+
+## 1.20.28 — 2026-11-17
+- **Tembleque (lab): the cover's easy picture tells one story.** The claw carries the piece over the plank and drops it, the piece lands with a squash, the plank tips under its weight and wobbles back to level, and the claw goes home; stars twinkle. Still with reduced motion.
+
+## 1.20.27 — 2026-11-17
+- **Fewer approval prompts for the owner**: the read-only checks every session runs before a merge (lanes, preview, design and usability lint, pending, costs, jobs status, the unit-test runner, waiting for a PR) are pre-approved in `.claude/settings.json`. Nothing that writes, pushes or merges was added. Nothing changes for players.
+
+## 1.20.26 — 2026-11-17
+- **Rule (D-576)**: a button that waits on an animation takes one tap only, and its game's e2e script proves it with a double tap (`tools/e2e/double-tap.mjs`). Blackjack's script now double-taps «Apostar» and «Siguiente ronda»; the check fails on the code before #1543.
+
+## 1.20.25 — 2026-11-17
+- **Blackjack (lab), on the felt trial**: on the first round, the empty felt shows the first step in one stitched chalk line beside the bet's spot, «Elige tu apuesta ↓», its arrow bobbing towards the chips while the spot glows gently. It goes once the cards are dealt.
+
+## 1.20.24 — 2026-11-17
+- **Where a job goes, and what Claude cloud tasks can and cannot do** (D-577): `tools/jobs/README.md` orders it GitHub, then a Claude cloud task, then the Mac mini only if nothing else reaches what it needs, and records the lessons of setting up the first cloud tasks; CLAUDE.md points to it. The session sweep proposes and archives on the owner's «sí».
+
+## 1.20.23 — 2026-11-17
+- **Blackjack (lab), on the felt trial**: before a new hand, the cards slide off the felt towards the dealer, turning a little and fading one after another, instead of just fading. The table's words («Blackjack paga 3 a 2», «El crupier se planta en 17») are bigger and look printed in the felt: soft, faint and a touch blurred.
+
+## 1.20.22 — 2026-11-17
+- 🧪 **Tango scored by time, in the lab: the game's cover says so too.** Its «Cómo se juega» shows the new rule when `tango-time` is on, and the /labs/ card of `mistakes-rule` says Tango's −10 is La Copa's.
+
+## 1.20.21 — 2026-11-17
+- **Finished Claude sessions are archived every day** (D-577): a cloud scheduled task archives the owner's sessions that are done and idle, and lists the ones waiting on the owner.
+
+## 1.20.20 — 2026-11-17
+- **Blackjack (lab)**: Guard `dispatch` against double-taps during the felt's round-clear fade and active deal animations, and ensure `animateTransition` always clears `dealReveal` on exit so the table cannot get stuck with no cards.
+
+## 1.20.19 — 2026-11-17
+- **Blackjack (lab), on the felt trial**: the table fills the phone's height instead of half of it: it takes all the room the buttons and «Cómo se juega» leave, the dealer's half and the player's share it evenly, the cards grow with the screen, and it keeps the same size while betting and playing.
+
+## 1.20.18 — 2026-11-17
+- **Blackjack (lab), on the felt trial**: losing to the house is no longer celebrated: no confetti; the view turns red from its edges, a 💸 sinks where the trophy was, the title goes red, and the phone gives a low buzz. Breaking even shows 🤝 and no confetti.
+
+## 1.20.17 — 2026-11-17
+- **Blackjack (lab), on the felt trial**: the table opens at its full size the moment the bet goes down and does not grow again; each card lands in its own place to the right of the last, nothing already on the felt moves, and the cards and stamps fade off before the next round.
+
+## 1.20.16 — 2026-11-17
+- **Blackjack (lab), on the felt trial**: betting and playing fit a phone without scrolling, «Cómo se juega» folded included: a lower table with smaller cards, the bet chip beside the cards, the table already laid out while betting, and a tighter betting box (the bet shows on the table).
+
+## 1.20.15 — 2026-11-17
+- **Labs**: the felt trial's card is folded into Blackjack's own card, one card for the game; its switch stays in the «T» tab.
+
+## 1.20.14 — 2026-11-17
+- **Blackjack (lab), on the felt trial**: a signed-in player sees their account in the setup as a block, flag and name, with «Cambiar» to type another name instead.
+
+## 1.20.13 — 2026-11-17
+- **Blackjack (lab), on the felt trial**: placing the bet opens the table and folds the betting box away in one smooth move, and the table grows smoothly as the cards are dealt.
+- **Blackjack (lab), on the felt trial**: every coin (seats, bet, standings, how to play) is the table's yellow chip instead of 🪙, which iPhone drew as a grey moon. The signed-in name and the setup's chips from the last two PRs now sit behind the same switch, all on the one `/labs/` card.
+
+## 1.20.12 — 2026-11-17
+- **Tembleque is one game in the lab**: one cover, like the other games, with two levels: easy in 2D
+  and hard in 3D. The ‹ in each level comes back to the cover.
+- **Tembleque's cover picks the level with a lever**, the same as Sudoku's: down for easy (2D), up for hard
+  (3D), with a moving picture of the level above it that changes when you flip it.
+
+## 1.20.11 — 2026-11-17
+- **One tap per change**: updating a branch from main keeps the owner's approval, the weekly popularity PR no longer waits for it, and sessions tick the PRs the owner asked for with one command (D-575).
+
+## 1.20.10 — 2026-11-17
+- **🔥 Popular, this week**: the home page's order and its three 🔥 Popular games follow the games finished in the last four weeks.
+
+## 1.20.9 — 2026-11-17
+- **Publishing works again**: the install invitation's test now pins its own flag, so launching «Instala Juegos de Salón» to everyone no longer turns it red.
+
+## 1.20.8 — 2026-11-17
+- **La Copa notifications no longer stop for hours** (D-574): each heartbeat run on GitHub starts the next one before it ends, instead of waiting for GitHub's schedule, which left about 3 hours without notifications in each cycle.
+
+## 1.20.7 — 2026-11-17
+- **Blackjack (lab)**: the setup's coin options show the table's yellow chip; the 🪙 emoji drew as a grey moon on iPhone.
+
+## 1.20.6 — 2026-11-17
+- 🧪 **Tango, in the lab: the time scores, as in Reinas.** On its own page and in Uno al día, mistakes no longer take off points: 100 up to 45 seconds, then down to 10 at 5 minutes, and each hint adds 15 seconds. La Copa keeps its rule, so no running cup changes. Behind the `tango-time` flag, with its card in /labs/ (D-572).
+
+## 1.20.5 — 2026-11-17
+- **La Copa: the account tip on the sign-up form starts on its own line** instead of being glued to the PIN hint ("No lo compartas.¿Tienes jugador?"), U-10.
+
+## 1.20.4 — 2026-11-17
+- **Blackjack (lab)**: a signed-in player finds their account's name already in the setup, alone or online, and does not type it again.
+- **Blackjack (lab)**: on the cover's demo, the cards already dealt glide to their new place when the next one lands, instead of jumping.
+
+## 1.20.3 — 2026-11-17
+- **The weekend cup's test no longer fails by luck**: with every game in the pool, its 🎲 rarely drew games the test can play; it now seeds the draw (#1517 was blocked by it).
+
+## 1.20.2 — 2026-11-17
+- **A red PR no longer waits for anyone**: each hour the heartbeat nudges the session that left its PR red, and two hours later a cloud task takes it over (D-573).
+
+## 1.20.1 — 2026-11-17
+- **Blackjack's felt table, in the lab** (flag `blackjack-felt`): the table becomes a turquoise felt with a gold rim and "Blackjack pays 3 to 2" in an arc, the cards are bigger and fanned with corner indices, the bet is a chip on its spot, the shoe is a bar with the red card marked, and each hand's result lands as a stamp. Its card in `/labs/` and the «T» tester tab switch it on and off to compare.
+- **Blackjack's cover**: the modes read «🤖 Contra la casa» and «📡 Varios celulares» (C-5), the rules and signing in open from «📖 Instrucciones» and «👤 Entrar» like every cover (C-8), and with the felt table on, a small hand deals itself to a Blackjack in place of the icon.
+- **The lab's index**: a card whose title opens with a game's drawing (Blackjack) shows it in its pill too, as the others show their emoji.
+- **Rule for the lab:** every card in `/labs/`, game or feature, opens its title with its emoji or the game's drawing, so its index pill carries it; `index-nav.test.mjs` fails a bare title.
+
+## 1.20.0 — 2026-11-17
+- 🧪 **Lab: «Instala Juegos de Salón»** (D-571, flag `install-invite`). The invitation to put the app on the phone says "install" now, in an iridescent card with a turning border and a sheen. On the home page it waits for a first finished game; its ✕ snoozes it 14 days, then 60, instead of turning it off forever. A moment after any game ends it invites from the top, once a week at most. On iPhone the steps draw Safari's own buttons and an arrow points at its toolbar. The home footer keeps a «📲 Instalar la app» tile, and «sin instalar» reads «sin descargas».
+
+## 1.19.2 — 2026-11-17
+- **Uno al día, straight to the result (lab)**: Shinobi and Aletazo no longer show their own end screen with a «Ver resultado» button in Uno al día; the run ends and the day's result opens, with the breakdown folded in it. Aletazo keeps its fall and verdict on screen for a moment. Games whose end shows the solution (Palabra, Sudoku, Desenredar…) keep theirs. Behind flag `uad-skip-end`.
+- **Tests**: `cup/talk.mjs` no longer expects the tester controls of the comments balloon once `cup-talk-hint` is launched (D-567 drops them); it failed on every PR since the launch.
+
+## 1.19.1 — 2026-11-17
+- **The 🐞 feedback upload and the lab readiness check left the Mac mini** (D-569): the heartbeat on GitHub runs them now, every 5 minutes and every hour, so they keep going if the Mac stops.
+
+## 1.19.0 — 2026-11-17
+- **Outside PRs get an answer within the hour** (D-568): a new `contributions` agent runs every hour as a Claude Code cloud scheduled task, reviews only the outside PRs that changed since its last look, comments what is missing in the contributor's language, and tells the owner (a bot comment, so GitHub emails it) when a PR waits only for their Yes. It never pushes, approves or merges. A new kind of job, `cloud`, in `jobs.json`, with its prompt in the repository so it can be recreated.
+
+## 1.18.0 — 2026-11-17
+- **Blackjack in the lab**: Vegas-style Blackjack table against the house (`/labs/blackjack/`) in Spanish, English, and Portuguese, with Solo vs. House and Multi-phone Online Rooms (2–6 players via Firebase).
+- **Casino table & betting**: 1–8 deck shoe with red cut card, live card counter (`n/total`), animated 3D SVG casino chip stacks (`100`, `50`, `20`, `10`, `5`, `1`), sequential card dealing and dealer reveal with sound effects, Hit / Stand / Double / Split / Surrender (50%), and full-screen Blackjack FX.
+
 ## 1.17.2 — 2026-11-16
 - 🔢 **Toque y Fama and La Copa's Número: exploring costs nothing, for everyone.** A guess the clues had already ruled out no longer takes off 15 points if it tries a digit no earlier guess had. The rules texts say it in every language, and its card moved to La Bodega.
 

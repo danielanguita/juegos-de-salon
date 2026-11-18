@@ -5,17 +5,20 @@
  * the owner's prototype whole: easy/ and hard/; their ‹ comes back here. Lab only (D-395); docs/games/wobbles.md.
  */
 import { $, el, vibrate } from '../../assets/js/ui.js';
-import { getLang, coverLangToggle, applyStatic } from '../../assets/js/i18n.js';
+import { getLang, coverLangToggle, applyStatic, COMMON } from '../../assets/js/i18n.js';
 import { SFX, soundToggle, initSound } from '../../assets/js/sound.js';
 import { trackVisit } from '../../assets/js/transport/stats.js';
 import { footerInto } from '../../assets/js/site-footer.js';
 import { abrirComentario } from '../../assets/js/labs-idioma.js';
+import { labAccess } from '../../assets/js/lab-access.js';
+import { coverWithDialogs } from '../../assets/js/cover-dialogs.js';
+import { bloqueJugador, avisoPartida, bloqueTabla } from '../../assets/js/ranking.js';
+import { salidasFin } from '../../assets/js/fin.js';
+import { ponerBuzon } from '../../assets/js/buzon.js';
+import { rankingsVisibles } from '../../assets/js/jugador.js';
 import { GAME_ID, LOCALES } from './rules.js';
 // Its game.json as a module (node tools/generators/manifests.mjs): the facts are read from there
 import manifest from '../../assets/js/manifests/labs/wobbles.js';
-
-// Counts the visit on load, even if nobody plays (D-208)
-trackVisit();
 
 const lang = getLang();
 const L = LOCALES[lang] || LOCALES.es;
@@ -154,9 +157,75 @@ function init() {
   $('#sound-slot').append(soundToggle());
   initSound();
   renderModes();
+  $('#rk-slot').append(bloqueJugador({ alTocar: () => SFX.tap() }));
   footer();
+  // Behind the lab flag cover-dialogs, the steps and the sign-in open as dialogs (C-8)
+  coverWithDialogs($('#screen-intro'), { lang, alTocar: () => SFX.tap() });
 }
 
+
+/* ---------------- The result (C-19), on each level's page ---------------- */
+/*
+ * Each level is the owner's prototype, a classic script: its game-over card says `wobbles:over` (score,
+ * time, breakdown) and this adds what every result has, in C-19's order under the score and ↻ Again: the
+ * rankings notice (one line), the exits from fin.js (back to the lab), the breakdown, the level's table
+ * (wobbles_easy, wobbles_hard) and the 💬 link last. `wobbles:clear` empties it when a game starts.
+ */
+/** The level this page is: its table is the game's with the level as its variant. */
+const resultLevel = /\/hard\/?$/.test(location.pathname) ? 'hard' : 'easy';
+const fmt = (s, v) => s.replace(/\{(\w+)\}/g, (_, k) => v[k] ?? '');
+const byId = id => document.getElementById(id);
+const C = COMMON[lang] || COMMON.es;
+
+function wireResult() {
+  document.addEventListener('wobbles:clear', () => {
+    for (const id of ['cAviso', 'cExits', 'cDetail', 'cRank']) byId(id)?.replaceChildren();
+  });
+
+  document.addEventListener('wobbles:over', ({ detail: { score, ms, lines } }) => {
+    const s = Math.max(0, score | 0);
+    byId('cExits').replaceChildren(salidasFin('lab', { lang, raiz: '../../../' }));
+    // The breakdown is the long detail: after the exits (C-19, D-353)
+    byId('cDetail').replaceChildren(el('ul', {}, lines.map(l => el('li', {}, l))));
+    const rank = byId('cRank');
+    rank.replaceChildren();
+    byId('cAviso').replaceChildren();
+    if (!rankingsVisibles()) return;
+    const table = bloqueTabla({ tabla: `${GAME_ID}_${resultLevel}`, titulo: fmt(C.rk.titleOf, { game: manifest.name[lang] || manifest.name.es }), entrar: false });
+    rank.append(table);
+    // Signed in, the score is recorded and said; not yet, the one-line offer to make it count
+    byId('cAviso').append(avisoPartida({ juego: GAME_ID, variante: resultLevel, s, ms, alAnotar: () => table.recargar() }));
+    ponerBuzon(byId('card'), { juego: GAME_ID });
+  });
+}
+
+// The cover (with its visit, D-208) or a level's result: the levels load this module too
+if (document.getElementById('screen-intro')) {
+  trackVisit();
+  /* ---------------- Lab: the pieces a game starts with, in the «T» tester tab ---------------- */
+/**
+ * On the cover, for a lab key holder: − and + set how many pieces the plank or the disc starts with (0 to
+ * 40), one number for both levels, kept on the phone; each level reads it when a game starts and lays them
+ * with its own physics (docs/games/wobbles.md). Texts in the three languages.
+ */
+const START_KEY = 'balanza-lab:start-pieces', START_MAX = 40;
+const START_T = { es: ['🧱 Piezas al empezar', 'Fácil y difícil, desde la próxima partida'], en: ['🧱 Pieces at the start', 'Easy and hard, from the next game'], pt: ['🧱 Peças ao começar', 'Fácil e difícil, a partir da próxima partida'] }[lang] || [];
+function readStart() { try { return Math.max(0, Math.min(START_MAX, parseInt(localStorage.getItem(START_KEY), 10) || 0)); } catch (_) { return 0; } }
+function startControl() {
+  let n = readStart();
+  const num = el('b', { id: 'tr-piezas', style: 'font:400 1.6rem/1 var(--font-display);min-width:2ch;text-align:center' }, String(n));
+  const step = d => { n = Math.max(0, Math.min(START_MAX, n + d)); num.textContent = n; try { localStorage.setItem(START_KEY, String(n)); } catch (_) { /* no storage */ } };
+  const btn = (txt, d) => el('button', { type: 'button', class: 'btn btn--ghost btn--sm', style: 'font-size:1.4rem', 'aria-label': d < 0 ? '-1' : '+1', onClick: () => { SFX.tap(); step(d); } }, txt);
+  return el('div', { class: 'tr-sim' }, el('small', {}, START_T[0]),
+    el('div', { class: 'tr-fila', style: 'justify-content:space-between' }, btn('−', -1), num, btn('+', 1)),
+    el('p', { class: 'muted', style: 'margin:0;font-size:0.8rem' }, START_T[1]));
+}
+labAccess().then(ok => ok && import('../../assets/js/tester-ribbon.js').then(m => m.setTesterContext(startControl()))).catch(() => {});
+
 // The hook for the end-to-end tests (C-14)
-window.__wobbles = { id: manifest.id, get level() { return chosen; } };
-init();
+  window.__wobbles = { id: manifest.id, get level() { return chosen; } };
+  init();
+} else {
+  wireResult();
+  window.__wobblesResult = { level: resultLevel, table: `${GAME_ID}_${resultLevel}` };
+}

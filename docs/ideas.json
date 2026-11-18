@@ -35,6 +35,11 @@
       "date": "2026-11-11",
       "what": "Mini Sudoku 6x6 was declined with no comment, while a 🧮 Sudoku is already in the lab: check the lab for the same family before proposing another number puzzle; prefer ideas that bring groups back",
       "from": "https://github.com/ellokojavi/juegos-de-salon/issues/1165"
+    },
+    {
+      "date": "2026-11-18",
+      "what": "On a fix for a published game with a clear loss (Broken Routes' 30% finish), the owner checked «Yes, and publish», not Labs: for existing-game fixes backed by a big number, offer publishing as the recommendation",
+      "from": "https://github.com/ellokojavi/juegos-de-salon/issues/1381"
     }
   ],
   "ideas": [
@@ -213,7 +218,7 @@
       "prototype": "Behind its flag in /labs/ (D-395), Spanish only: lab browsers see the 💡 button on /routes/ (not in La Copa until it is published).",
       "proof": "Broken Routes one-player finish rate from 31% to 45% or more with 100+ starts, read two rounds after it lands, with the La Copa average not falling.",
       "recommendation": "Yes, in Labs: it targets the biggest loss among popular games, and a hint that costs points is how the house already helps (D-292, D-310).",
-      "status": "proposed",
+      "status": "prototyped",
       "date": "2026-11-11",
       "issue": "https://github.com/ellokojavi/juegos-de-salon/issues/1381",
       "history": [
@@ -222,6 +227,64 @@
           "status": "proposed",
           "why": null,
           "link": "https://github.com/ellokojavi/juegos-de-salon/issues/1381"
+        },
+        {
+          "date": "2026-11-18",
+          "status": "approved",
+          "why": "Owner checked Yes, and publish on #1381 (2026-11-11)",
+          "link": "https://github.com/ellokojavi/juegos-de-salon/issues/1381"
+        },
+        {
+          "date": "2026-11-18",
+          "status": "prototyped",
+          "why": "Built in #1417 (merged 2026-11-12) behind flag routes-hint, on its /labs/ card; the owner publishes it with the card's switch (D-498). Proof read once it is on for everyone: Broken Routes one-player finish 30% (191 started, 57 finished, 2026-10-18 to 2026-11-14) to 45%+",
+          "link": "https://github.com/ellokojavi/juegos-de-salon/pull/1417"
+        }
+      ],
+      "why": "Built in #1417 (merged 2026-11-12) behind flag routes-hint, on its /labs/ card; the owner publishes it with the card's switch (D-498). Proof read once it is on for everyone: Broken Routes one-player finish 30% (191 started, 57 finished, 2026-10-18 to 2026-11-14) to 45%+",
+      "pr": "https://github.com/ellokojavi/juegos-de-salon/pull/1417"
+    },
+    {
+      "id": "solo-result-today-card",
+      "title": "Uno al día al terminar un juego suelto",
+      "lane": "meta",
+      "evidence": "check, 2026-10-18 to 2026-11-14: Uno al día 124 games, 9 players with a name, came back next day 89%, after 7 days 87%; users 691, 39 per day, stickiness 6%. One-player games finished on their own pages in the same range: Shinobi 320, Flap 172, Generala 106, Babel 104, Queens 103, Tango 80. Today a game played on its own ends with Play again, Share and Back to the menu only (C-19, fin.js SALIDAS.suelto = menu): nothing points to Uno al día, the habit that holds players best.",
+      "cost": "One PR in the shared result shell (fin.js and uno-al-dia-ui.js), so it reaches every one-player game through ALL_GAMES: a one-line card under the actions, «📅 Uno al día de hoy: 👑 Reinas · Jugar», shown only to whoever has not played today's game, never in La Copa or in Uno al día itself; cyan, not a second yellow button (C-19). Three languages, fin.test.mjs, the C-19 table row amended, one e2e script (Queens) measured at 390 and 320 px with look.mjs. No Firebase change.",
+      "prototype": "Behind its flag in /labs/ (D-395), Spanish only: lab browsers see the card on the result of any game played on its own.",
+      "proof": "Uno al día games from 124 to 160+ per four weeks (+30%) once it is on for everyone, with next-day return staying at 85% or more, read two rounds after it is published.",
+      "recommendation": "Yes, in Labs: it routes players we already have into the habit that keeps them best, at the cost of one shared card.",
+      "question": "Try «Uno al día al terminar un juego suelto» in the lab?",
+      "status": "proposed",
+      "date": "2026-11-18",
+      "issue": "https://github.com/ellokojavi/juegos-de-salon/issues/1597",
+      "history": [
+        {
+          "date": "2026-11-18",
+          "status": "proposed",
+          "why": null,
+          "link": "https://github.com/ellokojavi/juegos-de-salon/issues/1597"
+        }
+      ]
+    },
+    {
+      "id": "cup-out-tell-admin",
+      "title": "La Copa: avisar al administrador quién quedó fuera",
+      "lane": "meta",
+      "evidence": "check, 2026-10-18 to 2026-11-14: players out after two days without playing (D-347): 7; brought back: 0. Participation by day of the cup: 95%, 89%, 83%, 78%, 80%, 76%, 76%. Cups active 14, sign-ups 90. Today only the admin can bring someone back (D-347, «Devolver a la copa» in Administrar), but the admin is told nothing: the admin's notifications cover sign-ups only (avMsgJoin), not who was left out.",
+      "cost": "One PR in public/cup/ and tools/push/: a line on the admin's board, «🚪 {nombre} quedó fuera · Devolver a la copa», that opens the same confirmation Administrar has, and a new notice for the admin who turned notifications on («🚪 {nombre} quedó fuera de tu copa. Puedes devolverle su lugar.», type out, counted by the panel like the others, D-233), inside the existing caps (D-229). Three languages, rules.js texts, schedule.mjs and its tests, the cup e2e out scene. No Firebase rule change: bringing back already exists. D-347 is untouched: the admin still decides.",
+      "prototype": "Behind its flag in /labs/ (D-395), Spanish only: the board line for lab browsers first; the notice joins when the flag is on for everyone.",
+      "proof": "At least 1 in 4 players left out brought back by their admin (from 0 of 7), and day 7 participation from 76% to 80% or more, read two rounds after it is published.",
+      "recommendation": "Yes, in Labs: it keeps the rule the owner chose (only the admin brings back) and fixes that the admin never hears about it.",
+      "question": "Try «La Copa: avisar al administrador quién quedó fuera» in the lab?",
+      "status": "proposed",
+      "date": "2026-11-18",
+      "issue": "https://github.com/ellokojavi/juegos-de-salon/issues/1597",
+      "history": [
+        {
+          "date": "2026-11-18",
+          "status": "proposed",
+          "why": null,
+          "link": "https://github.com/ellokojavi/juegos-de-salon/issues/1597"
         }
       ]
     }
@@ -249,6 +312,14 @@
       "issue": "https://github.com/ellokojavi/juegos-de-salon/issues/1381",
       "ideas": [
         "routes-paid-hint"
+      ]
+    },
+    {
+      "date": "2026-11-18",
+      "issue": "https://github.com/ellokojavi/juegos-de-salon/issues/1597",
+      "ideas": [
+        "solo-result-today-card",
+        "cup-out-tell-admin"
       ]
     }
   ]

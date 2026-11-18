@@ -1,8 +1,8 @@
 // Merge lanes by blast radius (docs/LANES.md, D-519): the glob table and the PR lane.
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { laneOf, laneOfPr, outsideReason, INSIDERS, globRe, decision, report, CONFIG, ORDER, approvalBlock, withApproval, APPROVAL_START } from './lanes.mjs';
-import { invalidAction, closesWhenDone, plan, OWNER } from './approve.mjs';
+import { laneOf, laneOfPr, outsideReason, readOnlyToken, INSIDERS, globRe, decision, report, CONFIG, ORDER, approvalBlock, withApproval, APPROVAL_START, approvalOf, keptApproval } from './lanes.mjs';
+import { invalidAction, closesWhenDone, plan, OWNER, dropsLabel } from './approve.mjs';
 import { decisionsBody } from './processes.mjs';
 
 // Globs
@@ -79,6 +79,23 @@ assert.equal(pushed.split(APPROVAL_START).length, 2);
 assert.ok(pushed.endsWith('What the PR does.'));
 assert.equal(withApproval('', block), block);
 
+// lane-box.yml: an edit by anyone but the owner never drops or changes the box (PR 1589 lost it)
+assert.equal(approvalOf(prBody), block);
+assert.equal(approvalOf('What the PR does.'), null);
+const dropped = keptApproval(prBody, 'What the PR does, rewritten.');
+assert.ok(dropped.startsWith(block) && dropped.endsWith('What the PR does, rewritten.'), 'a dropped box comes back on top, the new text kept');
+const forged = prBody.replace(/- \[ \](.*?<!-- op:1:si -->)/, '- [x]$1');
+assert.equal(keptApproval(prBody, forged), prBody, 'a box changed by someone else goes back as it was');
+assert.equal(keptApproval(prBody, prBody.replace('What the PR does.', 'Better words.')), null, 'an edit that leaves the box alone is left alone');
+assert.equal(keptApproval('No box yet.', 'Still none.'), null);
+
+// The owner's Yes or No, carried out, takes the needs-owner label off the PR; a failure or an issue keeps it
+const answered = [{ decision: '1', option: 'no', actions: [{ type: 'nothing' }] }];
+assert.ok(dropsLabel({ pull_request: { number: 12 } }, answered));
+assert.ok(!dropsLabel({ pull_request: { number: 12 } }, answered, true), 'a failed Yes still waits for the owner');
+assert.ok(!dropsLabel({ pull_request: { number: 12 } }, []));
+assert.ok(!dropsLabel({ issue: { number: 3 } }, answered));
+
 // The owner's tick in the PR description is carried out, only for that PR and only by the owner
 const tick = b => b.replace(/- \[ \](.*?<!-- op:1:si -->)/, '- [x]$1');
 const prEvent = (before, after, extra = {}) => ({
@@ -107,6 +124,11 @@ assert.match(outsideReason(fork), /fork/);
 const stranger = { user: { login: 'someone' }, head: { repo }, base: { repo } };
 assert.match(outsideReason(stranger), /not the owner/);
 assert.match(outsideReason({ user: { login: 'someone' }, head: { repo: null }, base: { repo } }), /fork/);
+// A fork's lane job has a read-only token: it reports and ends green, writes nothing (signature 3f17b9bc87)
+assert.equal(readOnlyToken(fork), true, 'a fork PR gets a read-only token');
+assert.equal(readOnlyToken({ user: { login: 'someone' }, head: { repo: null }, base: { repo } }), true, 'a deleted fork too');
+assert.equal(readOnlyToken(inside), false, "the owner's branch writes");
+assert.equal(readOnlyToken(stranger), false, "an outsider's branch of this repo writes: it gets the label and the decision");
 for (const pr of [fork, stranger]) {
   const r = laneOfPr(['docs/LANES.md', 'changelog/x.md'], { outside: outsideReason(pr) });
   assert.equal(r.lane, 'red', 'an outside PR with only green files is still red');

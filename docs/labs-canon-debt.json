@@ -40,14 +40,6 @@
         "dialogs",
         "e2e"
       ]
-    },
-    "wobbles": {
-      "missing": [
-        "cover-measured",
-        "rankings",
-        "dialogs",
-        "e2e"
-      ]
     }
   }
 }

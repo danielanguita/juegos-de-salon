@@ -42,6 +42,14 @@ css='''  #chip { background: none; padding: 0; width: 106px; height: 28px; }
   @keyframes ilOk { 0%, 68% { opacity: 0; } 74%, 100% { opacity: 1; } }
   @media (prefers-reduced-motion: reduce) { #cBody .steps svg * { animation: none !important; } }
   /* On a touch screen the card does not blur what is behind it (a full-screen blur cost most of a phone's frame): a darker veil instead */
+  /* The breakdown, under the exits (C-19): the card's quiet list */
+  #cDetail ul { list-style: none; margin: 0; padding: 0; text-align: left; color: var(--muted); font-weight: 700; font-size: 0.95rem; }
+  #cDetail li { margin: 6px 0; }
+  /* One even gap between the result's blocks (DESIGN.md rule 7): the blocks' own margins give way to it */
+  #cAviso:not(:empty), #cExits:not(:empty), #cRank:not(:empty) { margin-top: var(--s-12); }
+  #cAviso > *, #cExits > *, #cRank > * { margin-top: 0; margin-bottom: 0; }
+  #cDetail ul { margin-top: var(--s-12); }
+  #cBody .big { margin-bottom: 0; } #cBtn { margin-top: var(--s-12); }
   @media (pointer: coarse) { #card { -webkit-backdrop-filter: none; backdrop-filter: none; background: rgba(21, 7, 38, 0.84); } }
 '''
 assert head.count('</style>')==1 and head.count('<div id="hud">')==1
@@ -75,9 +83,16 @@ LAB=r'''  <!-- A lab game (D-395): behind the lab's door (D-281) and not indexed
   <link rel="apple-touch-icon" href="../../../assets/icons/apple-touch-icon.png">
 '''
 out=out.replace('<link rel="preload"',LAB+'<link rel="preload"',1)
+# The site's sheets for the result's shared blocks (C-19), after the fonts' preload
+assert out.count("<style>\n  /* The site's fonts")==1
+out=out.replace("<style>\n  /* The site's fonts",'<link rel="stylesheet" href="../../../assets/css/base.css">\n<link rel="stylesheet" href="../../../assets/css/ranking.css">\n'+"<style>\n  /* The site's fonts",1)
 MODS='''  <script type="module">import '../../../assets/js/instalable.js';</script>
 '''
 out=out.replace('</head>\n','</head>\n'+MODS,1)
+assert out.count('</body>')==1
+out=out.replace('</body>','''<!-- The result's shared blocks: rankings, exits, feedback (C-19) -->
+<script type="module">import '../game.js';</script>
+</body>''')
 open(N+'../../../public/labs/wobbles/hard/index.html','w').write(out)
 simpart=out[out.index('/* Physics: bodies made of'):out.index('/* The texts, in the site')]
 print(len(out),'bytes; Math calls in the simulation:',sorted(set(re.findall(r'Math\.\w+',simpart))))

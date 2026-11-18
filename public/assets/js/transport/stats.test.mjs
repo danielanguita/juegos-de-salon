@@ -545,6 +545,17 @@ console.log('stats.test.mjs: todo en verde');
   assert.equal(envFor({ hostname: 'juegosdesalon.cl' }, s), 'prod');
   assert.equal(envFor({ hostname: 'juegosdesalon.cl' }, { getItem() { throw new Error('blocked'); } }), 'prod');
   assert.ok(ENVS.includes('owner'));
+  // D-584: the live /labs/ pages write to `labs`, even from a not-counted browser; tests and previews stay `dev`
+  assert.ok(ENVS.includes('labs'));
+  assert.equal(envFor({ hostname: 'juegosdesalon.cl', pathname: '/labs/' }, s), 'labs');
+  assert.equal(envFor({ hostname: 'juegosdesalon.cl', pathname: '/labs/artifacts/' }, s), 'labs');
+  assert.equal(envFor({ hostname: 'juegosdesalon.cl', pathname: '/labs' }, s), 'labs');
+  assert.equal(envFor({ hostname: 'juegosdesalon.cl', pathname: '/labsx/' }, s), 'prod');
+  assert.equal(envFor({ hostname: 'juegosdesalon.cl', pathname: '/hangman/' }, s), 'prod');
+  assert.equal(envFor({ hostname: 'localhost', pathname: '/labs/' }, s), 'dev');
+  setNotCounted(true, s);
+  assert.equal(envFor({ hostname: 'juegosdesalon.cl', pathname: '/labs/' }, s), 'labs');
+  setNotCounted(false, s);
 }
 
 // Where a game came from (the panel's timeline): marked by the page that opens it, taken once by the game

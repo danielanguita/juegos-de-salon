@@ -12,6 +12,7 @@ const ok = (cond, msg) => { console.log((cond ? '✓ ' : '✗ ') + msg); if (!co
 
 await b.go(SITE + '/labs/wobbles/'); await sleep(600);
 ok(await b.evaluate("window.__wobbles.level === 'easy' && document.getElementById('btn-level').getAttribute('aria-checked') === 'false' && !document.getElementById('pic').classList.contains('hard')"), 'the lever starts on easy, with the 2D picture');
+ok(await b.evaluate("!!document.querySelector('#screen-intro details.panel, #btn-instrucciones')"), 'the steps start folded, or in the Instrucciones dialog (D-550, C-8)');
 await b.shot('cover-easy');
 const howEasy = await b.evaluate("document.getElementById('how').textContent");
 ok(!/\b[23]D\b/.test(await b.evaluate('document.body.innerText')), 'the cover never says 2D or 3D');
@@ -30,10 +31,26 @@ for (const level of ['easy', 'hard']) {
     ok(await b.evaluate("window.__balanza.state === 'play' && document.getElementById('card').hidden"), `${level} ${lang}: a round starts`);
     await b.evaluate('window.__balanza.finish(); 1'); await sleep(300);
     ok(await b.evaluate("window.__balanza.state === 'over' && !document.getElementById('card').hidden"), `${level} ${lang}: it ends on its game-over card`);
+    ok(await b.evaluate("!!document.querySelector('#cExits #btn-fin-lab') && document.querySelectorAll('#cDetail li').length >= 3"), `${level} ${lang}: the result has fin.js's exit to the lab and the breakdown after it (C-19)`);
+    ok(await b.evaluate("(()=>{const r=document.getElementById('btn-fin-lab').getBoundingClientRect(),c=document.getElementById('cBtn').getBoundingClientRect();return c.bottom<=innerHeight&&r.bottom<=innerHeight+document.querySelector('#card .in').scrollHeight})()"), `${level} ${lang}: ↻ and the exit are on the card`);
     if (lang === 'es') await b.shot(level + '-over');
   }
   ok(await b.evaluate("new URL(document.querySelector('a[href=\"../\"]').href).pathname === '/labs/wobbles/'"), `${level}: its ‹ goes back to the cover`);
 }
+// Lab: the cover's «T» tab sets the pieces both levels start with (on localhost the lab is open)
+await b.go(SITE + '/labs/wobbles/'); await b.evaluate("localStorage.removeItem('balanza-lab:start-pieces'); 1"); await b.go(SITE + '/labs/wobbles/'); await sleep(1200);
+await b.evaluate("document.querySelector('.tr-tab')?.click(); [1, 2, 3].forEach(() => document.querySelector('.tr-sim button[aria-label=\"+1\"]')?.click()); 1"); await sleep(300);
+ok(await b.evaluate("document.getElementById('tr-piezas')?.textContent === '3' && localStorage.getItem('balanza-lab:start-pieces') === '3'"), 'the cover\'s tester tab sets the starting pieces');
+// Lab: the hard level starts with the pieces the tester tab asks for, spread on the disc, and they count as nothing
+await b.go(SITE + '/labs/wobbles/hard/?seed=7&spin=0'); await b.evaluate("localStorage.setItem('balanza-lab:start-pieces', '8'); 1");
+await b.go(SITE + '/labs/wobbles/hard/?seed=7&spin=0'); await sleep(600);
+await b.evaluate("document.getElementById('cBtn').click(); 1"); await sleep(800);
+ok(await b.evaluate("(() => { const S = window.__balanza.S; return S.phase === 'play' && S.plat.looks.length + S.bodies.length >= 6 && S.score === 0 && S.lives === 3; })()"), 'hard: a game starts with the tester\'s pieces on the disc, no points, 3 lives');
+await b.go(SITE + '/labs/wobbles/easy/?seed=7'); await b.evaluate("localStorage.setItem('balanza-lab:start-pieces', '6'); 1");
+await b.go(SITE + '/labs/wobbles/easy/?seed=7'); await sleep(600);
+await b.evaluate("document.getElementById('cBtn').click(); 1"); await sleep(800);
+ok(await b.evaluate("(() => { const S = window.__balanza.S; return S.phase === 'play' && S.plank.parts.filter(q => !q.lip).length + S.bodies.length >= 4 && S.score === 0 && S.lives === 3; })()"), 'easy: a game starts with the tester\'s pieces on the plank, no points, 3 lives');
+await b.evaluate("localStorage.removeItem('balanza-lab:start-pieces'); 1");
 ok(!b.errors.length, 'no console errors' + (b.errors.length ? ': ' + b.errors[0].slice(0, 160) : ''));
 b.close();
 process.exit(failures ? 1 : 0);

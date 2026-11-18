@@ -1,0 +1,42 @@
+# The 🔴 approval box keeps its place (docs/LANES.md): when anyone but the owner edits a
+# `needs-owner` PR's description and the edit drops or changes the box between
+# <!-- owner-approval:start --> and <!-- owner-approval:end -->, this puts it back as it was.
+# A contributor's session that rewrites its description from an old copy no longer leaves the
+# owner without a box to tick. The owner's own edits (their tick) are approve.yml's, never touched here.
+#
+# pull_request_target runs main's copy of this file and of lanes.mjs, never the PR's: nothing the PR
+# wrote runs, only its description is read and written through the API. Edits made with the workflow
+# token (the lane job writing the box) wake nothing, so this never answers itself.
+
+name: Lane box
+
+on:
+  pull_request_target:
+    types: [edited]
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
+concurrency:
+  group: lane-box-${{ github.event.pull_request.number }}
+  cancel-in-progress: false
+
+jobs:
+  keep:
+    if: github.event.sender.login != 'ellokojavi' && github.event.changes.body && contains(github.event.pull_request.labels.*.name, 'needs-owner')
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      # main, never the PR's code
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - env:
+          GH_TOKEN: ${{ github.token }}
+        run: node tools/agents/lanes.mjs keep

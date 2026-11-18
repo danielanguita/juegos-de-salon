@@ -28,7 +28,9 @@ through `pull_request_target`, so main's copy of `approve.mjs` obeys, never the 
 only approve and merge that same PR (`invalidInPr`). `approve-pr` turns `owner-approval` green **for
 that commit only**, then `merge` waits for `tests` and `end-to-end`, merges and publishes the site.
 If a check fails, the result is written next to the box; unticking and ticking again after the fix
-retries. A session that edits the PR description keeps that block as it is. For 🟢/🟡 the job sets
+retries. Once the Yes or the No is carried out, `approve.mjs` takes the `needs-owner` label off
+the PR (a later push puts it back). A session that edits the PR description keeps that block as it is; if an edit by anyone
+but the owner drops or changes it anyway, `lane-box.yml` (`lanes.mjs keep`, main's copy) puts it back as it was. For 🟢/🟡 the job sets
 `owner-approval` green at once.
 `owner-approval` is a required status on `main`, so a 🔴 PR cannot merge without the tick.
 
@@ -46,7 +48,9 @@ changes in the same PR (CLAUDE.md), which makes it red.
 **An outside PR is 🔴 whatever its files** (#1249 step 4): one from a fork, or opened by anyone but
 the owner (`INSIDERS` in `lanes.mjs`; sessions act as the owner, and the repo's own workflows, `github-actions[bot]`, are insiders, D-575), never takes the lane of its files,
 so it never auto-merges. `lanes.test.mjs` simulates both. On a fork the `lane` job's token cannot
-write the status, so `owner-approval` stays missing and the PR cannot merge without the owner either way.
+write the status, so `owner-approval` stays missing and the PR cannot merge without the owner either way;
+the job prints the lane, writes nothing and ends green (`readOnlyToken` in `lanes.mjs`), so a fork PR's
+checks are not red for a permission the contributor cannot fix.
 
 **A lab game's owner merges alone inside their game** (D-553). The contributor whose PR brought a
 game into the lab owns it while it is there: `tools/agents/lab-owners.json` maps the game folder to
