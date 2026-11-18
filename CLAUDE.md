@@ -34,9 +34,9 @@ text by outsiders (player feedback) and persisted keys (game ids like `'ahorcado
 | What | Where | When to read it |
 |---|---|---|
 | How a rule is made: its form (🤖 check, 📈 ratchet, 👁 judged) | [docs/RULES.md](docs/RULES.md) (D-541) | Before adding or changing any rule, canon or check |
-| How a game is built (C-n) | [docs/CANONS.md](docs/CANONS.md), with its checklist at the end | Before building or changing a game or the home page (C-17), and when done |
-| The design system: tokens, scales, components (D-533) | [docs/DESIGN.md](docs/DESIGN.md), the tokens in `public/assets/css/base.css` | Before writing any CSS, or adding a control a game does not have; and after, its rule 10: measure every changed screen (D-570) |
-| Texts, buttons, sharing (U-n) | [docs/USABILIDAD.md](docs/USABILIDAD.md): U-1, U-8 and **U-18** before writing instructions; **U-41** visual proposals as images | Before writing anything the player reads, or proposing a design |
+| How a game is built (C-n) | [docs/CANONS.md](docs/CANONS.md), the index (one line per canon, then the checklist), and `docs/canons/C-<n>.md` for each one; the `game-change` skill says which to read | Before building or changing a game or the home page (C-17), and when done |
+| The design system: tokens, scales, components (D-533) | [docs/DESIGN.md](docs/DESIGN.md), the tokens in `public/assets/css/base.css`; the `css-change` skill routes it | Before writing any CSS, or adding a control a game does not have; and after, its rule 10: measure every changed screen (D-570) |
+| Texts, buttons, sharing (U-n) | [docs/USABILIDAD.md](docs/USABILIDAD.md), routed by the `player-text` skill: U-1, U-8 and **U-18** before writing instructions; **U-41** visual proposals as images | Before writing anything the player reads, or proposing a design |
 | Why it is this way (D-n) | [docs/DECISIONS.md](docs/DECISIONS.md), the index (by topic, then one row each), and `docs/decisions/D-<n>.md` for each one (D-394): read the index, open only the ones you need | Before changing something that looks odd |
 | A new game, step by step | [docs/ADD-GAME.md](docs/ADD-GAME.md) | When starting one |
 | Each game | `docs/games/<folder>.md`, with its exceptions to the canons | Before touching it |
