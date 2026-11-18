@@ -5,7 +5,8 @@
 import { gameIcon } from '../assets/js/game-icon.js';
 import { $, el } from '../assets/js/ui.js';
 import { SFX } from '../assets/js/sound.js';
-import { abierto, activos, cerrado, comodinEfectivo, diaActual, esFinal, juegoDelDia, mmss, multiplicador, posicionesDelDia, tabla, terminada, tieneFinal } from './engine.js';
+import { abierto, activos, cerrado, comodinEfectivo, diaActual, diaDeCal, esFinal, finalRounds, juegoDelDia, mmss, multiplicador, posicionesDelDia, tabla, terminada, tieneFinal } from './engine.js';
+import { juegosCopa } from './rules.js';
 import { cabecera, laminaResultado, nombreArchivo, puntajeYTiempo } from '../assets/js/compartir.js';
 
 let c;
@@ -42,7 +43,9 @@ function pantallaResultado(d, { recien = false, det = null } = {}) {
       el('h2', { class: 'display display--md' }, fmt(T.resultTitle, { d, juego: J.nombre })),
       el('p', { class: 'muted', style: 'margin:0' }, T.yourScore),
       el('div', { class: 'score-big' }, mio.r || String(mio.s)),
-      ...bajoElPuntaje(mio.t, mio.ms, id)),
+      ...bajoElPuntaje(mio.t, mio.ms, id),
+      // A final by places (D-587): the big score is not what ranks it
+      pos[S.yo]?.rondas ? el('p', { class: 'muted', id: 'nota-lugares' }, T.finalPlacesNote) : null),
     el('p', { class: 'lead center' }, cerrado(meta, d, now) || terminada(meta, now)
       ? fmt(T.finalPos, { pos: ord(yo.pos), n, pts: yo.pts * x })
       : fmt(T.provisional, { pos: ord(yo.pos), n })),
@@ -65,13 +68,21 @@ function pantallaResultado(d, { recien = false, det = null } = {}) {
         // sus puntos no calzan con su lugar. El de la final va en otro color (D-151)
         el('div', { class: 'quien' }, multiplicador(Lc, d, j.pid, now) === 2
           ? el('div', { class: 'con-x2' }, el('b', {}, j.name), el('span', { class: `${claseX2(esFinal(meta, d))} md-x2` }, !esFinal(meta, d) && comodinEfectivo(Lc, j.pid, now).auto ? T.x2Auto : T.x2))
-          : el('b', {}, j.name), el('small', { class: 'muted' }, `${Lc.results[d][j.pid].r || Lc.results[d][j.pid].s} · ⏱ ${mmss(Lc.results[d][j.pid].ms)}`),
-          // En la final, las rondas de cada uno (⏳75 🔢85 …), para comparar ronda a ronda (#259)
-          CON_RONDAS.includes(id) && Lc.results[d][j.pid].t ? el('small', { class: 'muted rondas' }, Lc.results[d][j.pid].t) : null),
+          : el('b', {}, j.name), el('small', { class: 'muted' }, `${pos[j.pid].rondas ? fmt(T.finalRoundPts, { n: pos[j.pid].suma }) : Lc.results[d][j.pid].r || Lc.results[d][j.pid].s} · ⏱ ${mmss(Lc.results[d][j.pid].ms)}`),
+          // En la final, las rondas de cada uno (⏳75 🔢85 …), para comparar ronda a ronda (#259); in a
+          // final by places (D-587), the place in each round (☀️ 1.° 〰️ 3.° …)
+          pos[j.pid].rondas ? el('small', { class: 'muted rondas' }, lugaresRondas(meta, pos[j.pid].rondas))
+            : CON_RONDAS.includes(id) && Lc.results[d][j.pid].t ? el('small', { class: 'muted rondas' }, Lc.results[d][j.pid].t) : null),
         el('span', { class: 'total' }, `+${pos[j.pid].pts * multiplicador(Lc, d, j.pid, now)}`))))),
     botonReporte({ juego: id, dia: d }),
   );
 }
+
+/** A final by places (D-587): each round's emoji and the place in it, in the final's order. */
+const lugaresRondas = (meta, lugares) => {
+  const ids = [...new Set(finalRounds(meta).map(x => diaDeCal(x).id))];
+  return lugares.map((n, i) => `${(ids.length === lugares.length && juegosCopa('es')[ids[i]]?.emoji) || '🏁'}\u00a0${ord(n)}`).join(' ');
+};
 
 /**
  * El resultado del día, completo (D-124) y con su imagen (D-165): la cabecera de la copa con el

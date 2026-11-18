@@ -1,6 +1,7 @@
 // Tests del motor de La Copa: node public/cup/engine.test.mjs
 import assert from 'node:assert/strict';
 import { zonaDeIdioma, ZONA, DIAS_MIN, DIAS_MAX, FINAL_DESDE, FINAL_RONDAS, FINAL_FIVE_FROM, finalRounds, largoValido, admiteFinal } from './engine.js';
+import { writeRounds } from './games/final/engine.js';
 import {
   CALENDARIOS, POZO, POZO_ABIERTO, POZO_FIJO, calendarioValido, calendarioAlAzar, PUNTOS, esCodigo, codigoAlAzar, pidAlAzar, PID, limpiarNombre, claveNombre, esPin, hashPin,
   fechaEn, sumarDias, medianoche, ventanas, nuevaMeta, diaActual, abierto, cerrado, terminada, inscripcionAbierta,
@@ -9,6 +10,7 @@ import {
   fuera, enRiesgo, AUSENCIAS, cerrarEn, conCierre, cerradaAntes, anulado, puedeCerrar, VARIANTES, diaDeCal, entradaCal, varianteDelDia, calendario,
   semanaAlAzar, ESTILOS_SEMANA, tieneFinal, SIN_FINAL, esFinal,
   TRIO, findeAlAzar, findeAbierto, FINDE_HASTA, rondasDelDia, estadoEnLista, recorteLista, podioDecidido,
+  finalByPlaces, FINAL_PLACES_FROM, readRounds,
 } from './engine.js';
 import { JUEGOS_COPA } from './rules.js';
 
@@ -319,6 +321,42 @@ test('posiciones: a result\'s own tiebreak d (Aletazo\'s 🎯) beats the time; e
   const r = posicionesDelDia({ aaaaaa: { s: 5, ms: 9, d: 0 }, bbbbbb: { s: 5, ms: 1, d: 1 }, cccccc: { s: 5, ms: 2 } }, ['aaaaaa', 'bbbbbb', 'cccccc']);
   assert.equal(r.bbbbbb.pos, 1);
   assert.ok(r.aaaaaa.pos > 1 && r.cccccc.pos > 1);
+});
+
+test('final by places (D-587): each round by place, then the sum; a final without every round keeps the average', () => {
+  const pids = ['jiri00', 'jose00', 'pepe00'];
+  // Round 1: all 100, the fastest wins it. Round 2: by score
+  const p = posicionesDelDia({
+    jiri00: { s: 90, ms: 300000, rs: '100/30000 50/90000' },
+    jose00: { s: 75, ms: 200000, rs: '100/20000 50/80000' },
+    pepe00: { s: 85, ms: 400000, rs: '100/40000 70/10000' },
+  }, pids);
+  // Jose 10 + 8 (50, faster than Jiri's 50) = 18; Pepe 6 + 10 = 16; Jiri 8 + 6 = 14
+  assert.deepEqual(p.jose00, { pos: 1, pts: 10, suma: 18, rondas: [1, 2] });
+  assert.deepEqual(p.pepe00, { pos: 2, pts: 8, suma: 16, rondas: [3, 1] });
+  assert.deepEqual(p.jiri00, { pos: 3, pts: 6, suma: 14, rondas: [2, 3] });
+  // Equal sums: the final's whole time decides
+  const q = posicionesDelDia({ jiri00: { s: 1, ms: 9, rs: '100/1 0/9' }, jose00: { s: 1, ms: 5, rs: '0/9 100/1' } }, ['jiri00', 'jose00']);
+  assert.equal(q.jose00.pos, 1);
+  assert.equal(q.jiri00.pos, 2);
+  // Thursday's Guys #7 (KYVBL): its final was played without rounds, so it keeps the average
+  const kyvbl = { qdpwck: { s: 84, ms: 502287 }, xhegsf: { s: 70, ms: 480489 } };
+  assert.deepEqual(posicionesDelDia(kyvbl, ['qdpwck', 'xhegsf']), { qdpwck: { pos: 1, pts: 10 }, xhegsf: { pos: 2, pts: 8 } });
+  // Mixed (one result with rounds, one without): the average for everyone
+  const m = posicionesDelDia({ ...kyvbl, jiri00: { s: 99, ms: 1, rs: '100/1' } }, ['qdpwck', 'xhegsf', 'jiri00']);
+  assert.equal(m.jiri00.rondas, undefined);
+  assert.equal(m.jiri00.pos, 1);
+  assert.equal(readRounds('100/1 x/2'), null);
+  assert.equal(writeRounds([{ s: 99.6, ms: 1200.4 }, { s: 0, ms: -3 }]), '100/1200 0/0');
+});
+
+test('final by places: only a final that opens at FINAL_PLACES_FROM or later', () => {
+  const meta = a => ({ days: 7, cal: 'tango,zip,puentes,rutas,aletazo,reinas,final', win: { 7: { a } } });
+  assert.equal(finalByPlaces(meta(FINAL_PLACES_FROM - 1)), false, 'a final already open keeps the average');
+  assert.equal(finalByPlaces(meta(FINAL_PLACES_FROM)), true);
+  assert.equal(finalByPlaces({ ...meta(FINAL_PLACES_FROM), cal: 'tango,zip,puentes', days: 3 }), false, 'a cup without a final');
+  // KYVBL's final opened on 2026-11-18
+  assert.equal(finalByPlaces({ ...meta(1794988800000) }), false);
 });
 
 test('tabla: oculta lo que no jugaste, suma comodín y final', () => {

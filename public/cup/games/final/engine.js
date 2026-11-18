@@ -78,4 +78,7 @@ export const puntajeParcial = ({ pts = {} } = {}) => {
   return hechas.length ? Math.round(hechas.reduce((s, x) => s + x, 0) / hechas.length) : 0;
 };
 
+/** A result's rounds for a final by places (D-587): `"100/42310 89/61000"`, score/ms each, as `readRounds` in La Copa's engine reads them. */
+export const writeRounds = rondas => rondas.map(r => `${Math.round(r.s) || 0}/${Math.max(0, Math.round(r.ms) || 0)}`).join(' ');
+
 export const tarjeta = ({ rondas = RONDAS, pts = {} } = {}) => rondas.map(r => `${EMOJI[r] || '🏁'}${pts[r] || 0}`).join(' ');

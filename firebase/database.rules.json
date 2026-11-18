@@ -918,6 +918,9 @@
               "r": {
                 ".validate": "newData.isString() && newData.val().length <= 30"
               },
+              "rs": {
+                ".validate": "newData.isString() && newData.val().length <= 200 && newData.val().matches(/^[0-9]{1,4}\\/[0-9]{1,8}( [0-9]{1,4}\\/[0-9]{1,8}){0,15}$/)"
+              },
               "at": {
                 ".validate": "newData.isNumber() && newData.val() <= now + 60000 && newData.val() > now - 60000"
               },

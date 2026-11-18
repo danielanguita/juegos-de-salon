@@ -67,7 +67,7 @@ panel del dueño (D-137).
 | Un intento | "Cómo se juega" no cuenta. El intento empieza al tocar **Empezar**; recargar retoma el mismo intento (C-6). Since D-433 (for everyone since 2026-10-23): a day resumed with **Seguir jugando** where this phone has no save (another phone, the browser's memory cleared) takes its clock from the server's start (`started/<d>/<pid>`), not from zero, and the screen says so; the `resumed` demo shows it on one phone. |
 | Puntos del día | Por posición entre quienes jugaron: 10-8-6-5-4-3-2-1-1-1. Manda el puntaje del juego; a igual puntaje, el menor **tiempo activo** (D-95). Leer el dato de cada carta en Línea Relámpago (al errar y al acertar) o de cada hito en ¿En qué año? no cuenta, hasta 6 s cada vez (D-277, D-314). Empate total: comparten la mejor posición. A result may carry its own tiebreak `d` (higher wins): when both tied results have it, it decides instead of the time, and an equal `d` shares the place (`posicionesDelDia`; today only Aletazo's dead centers 🎯, since 2026-11-16). |
 | Comodín ×2 | Uno por jugador y copa. Se activa antes de Empezar (el servidor lo rechaza después). No vale en la final; in a cup without a final (D-438) it goes on any day, the last one included. **Unused, it is not lost (D-444):** once no day it is valid on is left to use it on (each played, started or closed), it lands on the last of those days the player played: day 6 or an earlier one in a cup with a final; up to the last day in a cup without one (D-438, D-439). The last such day warns «No has usado tu comodín ×2. Se aplicará hoy automáticamente.» and the day it lands on carries a gold **×2 auto** pill. Retroactive for every cup still running on 2026-10-25 (`meta.end` after `AUTO_WILD_FROM` in `engine.js`); a cup ended before keeps its table and saved podium. Not in a cup the admin ended early. |
-| Final ×2 | El último día vale doble para todos. The 3-day cup has no final: its last day counts single (D-438). |
+| Final ×2 | El último día vale doble para todos. The 3-day cup has no final: its last day counts single (D-438). The final's place comes from the sum of its rounds' places when it opens from `FINAL_PLACES_FROM`, else from the average of the rounds (D-587). |
 | Resultados ocultos | Los puntajes de un día se ven después de jugarlo o cuando cierra. La tabla y el gráfico tampoco lo delatan: suman solo los días que ya puedes ver. |
 | Nombre | El admin lo puede cambiar hasta que la copa termina; el link sigue igual (D-148). |
 | Terminar antes | El admin puede terminar la copa en cualquier momento desde que parte. Nadie más juega, la tabla de ese momento queda como la final y los días que no alcanzaron a abrirse no se juegan ni suman (D-161). |
@@ -167,7 +167,7 @@ Each game has its own page (C-21): [connections.md](connections.md), [word.md](w
 Todo el contenido de un día sale de una semilla `código:día:sal` (D-97): es idéntico para todos
 sin que nada viaje por la red.
 
-Todos los juegos puntúan **de 0 a 100** (D-113), salvo 🗼 Babel y 🥷 Shinobi, sin tope (D-525): la Gran Final los topa en 100 (`Math.min(100, s)`) y Uno al día los pasa por una curva suave (`puntajeDia`, D-526). Igual lo que decide la copa es el lugar de cada día.
+Todos los juegos puntúan **de 0 a 100** (D-113), salvo 🗼 Babel y 🥷 Shinobi, sin tope (D-525): la Gran Final los topa en 100 (`Math.min(100, s)`) y Uno al día los pasa por una curva suave (`puntajeDia`, D-526). Igual lo que decide la copa es el lugar de cada día (the final too, since D-587: its rounds are ranked by place, see the table below).
 
 | Día | Juego | Puntaje (0 a 100) | Reusa |
 |---|---|---|---|
@@ -177,7 +177,9 @@ Todos los juegos puntúan **de 0 a 100** (D-113), salvo 🗼 Babel y 🥷 Shinob
 | 4 | 👑 Reinas: una por fila, columna y zona, sin tocarse | por tiempo: 100 hasta 30 s, 10 a los 5 min (D-107) | nuevo (Queens de LinkedIn) |
 | 5 | 🔤 Toque y Fama: Palabra. 5 letras, 8 intentos | 10 × letra encontrada en su lugar (una vez por lugar) + si la saca 50 − 5 × (intentos − 1) (D-108) | lo mismo que el día 2, con letras |
 | 6 | 📅 ¿En qué año?: 6 hitos | promedio de los hitos (100 cada uno, baja con la distancia) | mazos de Línea de Tiempo y teclado de Toque y Fama |
-| 7 | 🏁 La Gran Final: one round per game of the week, in order (D-418): the short version of the five that have one, any other game whole with new content | average of the rounds (0 to 100 each) | each game's engine and screen |
+| 7 | 🏁 La Gran Final: one round per game of the week, in order (D-418): the short version of the five that have one, any other game whole with new content | average of the rounds (0 to 100 each); **since D-587** (finals opening from `FINAL_PLACES_FROM`), each round hands out the day's points by place (score, then the round's own time) and the final is ranked by their sum | each game's engine and screen |
+
+**Final by places (D-587):** each result keeps its rounds as `rs` (`"score/ms"` per round); `posicionesDelDia` ranks the final by rounds only when every result carries them (a final played before, or a result from an old phone, keeps the average for everyone). The final's day table shows each player's points in rounds and their place in each round («☀️ 1.° 〰️ 3.°»).
 
 Between rounds of 🏁 La Gran Final, the intro of the next round shows the running score: the average of the rounds played so far, out of 100, the same scale as the result, which it equals after the last round (D-417).
 
