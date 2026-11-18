@@ -3,6 +3,7 @@
 <!-- Moved out of CLAUDE.md by D-497: read on demand; CLAUDE.md points here. -->
 
 What each agent (`.claude/agents/`) and owner tool does, and the command it runs. Read the entry before using one.
+Each agent's model and effort are in its frontmatter and chosen by its work (D-582): judgment on Opus, work a program checks on Sonnet, email sorting on Haiku.
 
 **Run them without asking** (the owner, 2026-11-01): when the work calls for an agent (usability, documentation,
 or any other here), launch it and report what it found; do not ask the owner first.
