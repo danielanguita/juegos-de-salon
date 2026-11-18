@@ -28,6 +28,9 @@ or any other here), launch it and report what it found; do not ask the owner fir
 - **Backlog**: dispatched once a week by the processes round. It sweeps the branches whose work never reached
   main (D-441) and works the owner's backlog of unlabelled issues (D-339): closes the done, moves one or two
   forward in their PRs, asks only what needs the owner.
+- **Retention** (learning piece 7): dispatched once a week. Reads next-day return against its noise band
+  (`node tools/agents/retention.mjs check`), proposes at most one hypothesis and action as a one-tap decision on a
+  real drop, and writes verdicts two weeks after an approved action ships. It only proposes, never acts on players.
 - **Player**: on every PR that changes a game, it plays the touched games on the preview like a first-time
   player (phone size, Spanish and one other language, a full game to the result) and comments the friction it met
   with steps and screenshots. It reports only: it never edits or pushes, and it does not re-report what `look.mjs`

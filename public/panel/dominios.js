@@ -207,6 +207,9 @@ function activosPorDia(days) {
   return out;
 }
 
+/** The same, for the workshop's tools (the retention loop, learning piece 7). */
+export const activeByDay = activosPorDia;
+
 /**
  * Users in the range (D-349). A user is a browser: a random id that lives in it and says nothing
  * about the person. Day by day, the active ones and how many of them played; daily average,
