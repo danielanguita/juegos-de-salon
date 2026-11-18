@@ -441,7 +441,7 @@ html.bj-defeat #app { position: relative; z-index: 1; }
    a bet or a new count never nudges it, and each seat of a full table carries its own over its chips */
 .bj-felt .bj-table .bj-hand { position: relative; }
 .bj-felt .bj-table .bj-seat-top {
-  position: absolute; left: 0; top: auto; bottom: calc(50% + 28px + var(--s-12)); max-width: calc(50% - var(--s-32));
+  position: absolute; left: calc(var(--s-4) + 28px); top: auto; bottom: calc(50% + 28px + var(--s-12)); transform: translateX(-50%); max-width: 112px;
   flex-direction: row; gap: var(--s-6); padding: var(--s-2) var(--s-10); border-radius: var(--r-pill);
   background: var(--well-deep); box-shadow: inset 0 0 0 1px rgb(var(--yellow-rgb) / 0.35);
   white-space: nowrap; line-height: 1.15; pointer-events: none;
