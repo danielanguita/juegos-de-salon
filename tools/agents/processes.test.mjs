@@ -130,3 +130,16 @@ assert.throws(() => resolveCommit('aaaa', a => { if (a[0] === 'merge-base') thro
 assert.throws(() => requireOrigins([{ question: 'Open a PR?', yes: [{ type: 'nothing' }] }]), /origin/);
 requireOrigins([{ question: 'Open a PR?', origin: 'Owner request in issue #1371, Nov 10', yes: [{ type: 'nothing' }] }]);
 assert.match(decisionsBody({ decisions: [{ question: 'x', origin: 'Player report #1400', yes: [{ type: 'nothing' }] }] }), /\*\*Where it came from:\*\* Player report #1400/);
+
+// feedback and ci-health split out of the round
+{
+  const base = { docCommits: 0, publicCommits: 0, usabilityDays: 0, ideasDays: 0 };
+  const who = o => toDispatch({ ...base, ...o }).map(d => d.agent);
+  assert.deepEqual(who({}), [], 'nothing waits, nobody goes');
+  assert.ok(who({ feedbackWaiting: 2 }).includes('feedback'), 'feedback when reports wait');
+  assert.ok(!who({ feedbackWaiting: 0 }).includes('feedback'));
+  assert.ok(who({ ciDays: null }).includes('ci-health'), 'ci-health when never dispatched');
+  assert.ok(who({ ciDays: 7 }).includes('ci-health'), 'ci-health once a week');
+  assert.ok(!who({ ciDays: 3 }).includes('ci-health'));
+  for (const a of ['feedback', 'ci-health']) assert.ok(EXECUTORS.includes(a), `${a} can be recorded with dispatch`);
+}

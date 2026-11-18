@@ -1,6 +1,6 @@
-# Handling 🐞 feedback: step 3 of the processes round
+# Handling 🐞 feedback: the feedback agent's guide (step 3 of the processes round)
 
-Read by the processes agent (`.claude/agents/processes.md`) only when its `check` lists unhandled
+Read by the feedback agent (`.claude/agents/feedback.md`), which the processes round dispatches only when its `check` lists unhandled
 feedback or a report still waiting for its email reply; moved here word for word so the rounds without
 feedback don't load it. It has the same force as the agent file, and a rule for feedback is changed here.
 
