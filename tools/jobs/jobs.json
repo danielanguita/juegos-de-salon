@@ -166,6 +166,16 @@
       ]
     },
     {
+      "id": "merge-queue",
+      "where": "github",
+      "workflow": "merge-queue.yml",
+      "cron": "*/15 * * * *",
+      "what": "Merge queue trial: brings the oldest green, auto-merge PR that is behind main up to date, one at a time, so its checks run on main + PR before auto-merge merges it (also on check completion and push to main).",
+      "decisions": [
+        "D-586"
+      ]
+    },
+    {
       "id": "pending-watch",
       "where": "github",
       "workflow": "pending-watch.yml",

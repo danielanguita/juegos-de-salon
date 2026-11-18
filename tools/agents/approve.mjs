@@ -254,8 +254,15 @@ function perform(action, repo) {
       // No --delete-branch: GitHub deletes the branch (the repo has it enabled) and so retargets
       // the PRs stacked on it to main. Deleted by hand, GitHub closes them (it happened to #303).
       // A conflict with main is reported as such: it used to say "Command failed" without the cause (#331).
-      const mergeable = JSON.parse(gh('pr', 'view', String(a.pr), ...R, '--json', 'mergeable')).mergeable;
+      const { mergeable, mergeStateStatus } = JSON.parse(gh('pr', 'view', String(a.pr), ...R, '--json', 'mergeable,mergeStateStatus'));
       if (mergeable === 'CONFLICTING') throw new Error(`#${a.pr} conflicts with main: it needs updating`);
+      // main requires branches up to date (D-586): a PR behind main joins the merge queue, which
+      // updates it, and auto-merge merges it once its checks pass on main + PR; the queue's next
+      // step starts the Publish run a merge by this token does not wake.
+      if (mergeStateStatus === 'BEHIND') {
+        gh('pr', 'merge', String(a.pr), ...R, '--auto', '--merge');
+        return `#${a.pr} is behind main: it joined the merge queue and merges when its checks pass on main`;
+      }
       gh('pr', 'merge', String(a.pr), ...R, '--merge');
       // publish.yml runs the tests and the end-to-end suite before publishing (D-302): that is enough
       gh('workflow', 'run', 'publish.yml', ...R, '--ref', 'main');

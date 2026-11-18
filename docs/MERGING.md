@@ -63,6 +63,26 @@ job's log, find the cause, fix it on the branch and push, without asking the own
    this PR now" (D-323), but no longer holds the check two minutes for the monitor (D-400), and
    `publish.yml` comments on the merged PR with the version that went live, as a record.
 
+## The merge queue (D-586, trial from 2026-11-19)
+
+`main` requires branches up to date, so auto-merge only merges a PR whose checks ran on today's main.
+`.github/workflows/merge-queue.yml` brings **one** PR at a time up to date: the open PR with auto-merge
+on the longest whose `tests` and `end-to-end` passed but that is behind main. It merges main in
+(GitHub's update-branch; on a conflict only in generated files, `sync-pr.mjs`), labels it `merge-queue`
+and waits until its checks finish; then auto-merge merges it, or it went red and its session fixes it.
+A real conflict gets one comment and the PR is skipped until its session pushes a fix. A 🔴 PR waits
+for the owner's tick first; when the tick finds it behind, `approve.mjs` turns on auto-merge and the
+queue takes it (its next step also starts the Publish run such a merge does not wake). Sessions change
+nothing: auto-merge on, `wait-pr.mjs` as before.
+
+- Needs the `MERGE_QUEUE_TOKEN` secret (a push with the workflow token re-runs no checks); without it the queue does nothing.
+- **Off switch**: `gh variable set MERGE_QUEUE --body off`, and strict off:
+  `gh api -X PATCH repos/ellokojavi/juegos-de-salon/branches/main/protection/required_status_checks -F strict=false`.
+- **Measure**: `node tools/agents/merge-queue.mjs report [--since 2026-11-19] [--until <date>]` prints the
+  trial against the same-length period before it: PRs merged per day, "main is red" issues, red Publish /
+  End to end runs on main, queue wait (green with auto-merge on → merged: median, p90, max) and main-merge
+  commits on PRs (each one re-runs both checks).
+
 ## On merge and publish (C-11, D-205, D-300, D-302, D-323)
 
 - **Every PR body says where its change is seen** (D-504): a line `Ver en: <path of the site>`, and
