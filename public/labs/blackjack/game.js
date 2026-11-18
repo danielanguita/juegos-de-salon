@@ -213,7 +213,7 @@ function renderSetupOptions() {
  */
 function nameRow(num, input) {
   const yo = felt ? leerYo() : null;
-  if (!yo?.n || input.value !== yo.n) return el('div', { class: 'player-row' }, el('span', { class: 'num' }, num), input);
+  if (!yo?.n || input.value !== yo.n) return el('div', { class: 'player-row' }, num ? el('span', { class: 'num' }, num) : '', input);
   input.hidden = true;
   const shown = el('span', { class: 'signed-name' }, conBandera(yo.co, yo.n));
   const change = el('button', {
@@ -231,7 +231,7 @@ function openSetupCpu() {
   $('#screen-setup h2').textContent = T.whoPlays;
   $('.setup-hint').textContent = T.setupHint;
   $('#setup-form').replaceChildren(
-    nameRow('1', el('input', {
+    nameRow(null, el('input', {
       type: 'text', value: (felt && leerYo()?.n) || remembered[0] || '', maxlength: 14, autocomplete: 'off',
       placeholder: fmt(T.playerPlaceholder, { n: 1 }),
     })),
@@ -722,7 +722,7 @@ function renderActionBox() {
   const myIdx = myPlayerIndex();
 
   if (dealReveal) {
-    box.replaceChildren(el('p', { class: 'waiting center' }, '♠️ …'));
+    box.replaceChildren(el('p', { class: 'waiting center' }, dealReveal.house ? T.houseTurn : T.dealing));
     return;
   }
 
@@ -971,11 +971,12 @@ async function runDealerReveal(token, next, { initialDealer = 2 } = {}) {
     dealer: Math.min(initialDealer, next.dealer.cards.length),
     holeRevealed: false,
     showOutcomes: false,
+    house: true,
   };
   freshCardKey = null;
   renderPlay();
 
-  await wait(650);
+  await wait(450);
   if (token !== animToken) return;
   dealReveal.holeRevealed = true;
   freshCardKey = 'd-1';
@@ -984,7 +985,7 @@ async function runDealerReveal(token, next, { initialDealer = 2 } = {}) {
   renderPlay();
 
   for (let d = 2; d < next.dealer.cards.length; d++) {
-    await wait(850);
+    await wait(600);
     if (token !== animToken) return;
     dealReveal.dealer = d + 1;
     freshCardKey = `d-${d}`;
@@ -1062,7 +1063,7 @@ async function animateTransition(prev, next) {
       for (let pass = 0; pass < 2; pass++) {
         for (let pi = 0; pi < next.players.length; pi++) {
           if (next.players[pi].hands.length === 0) continue;
-          await wait(650);
+          await wait(400);
           if (token !== animToken) return;
           pCounts[pi][0] = pass + 1;
           freshCardKey = `p-${pi}-0-${pass}`;
@@ -1070,7 +1071,7 @@ async function animateTransition(prev, next) {
           SFX.reveal();
           renderPlay();
         }
-        await wait(650);
+        await wait(400);
         if (token !== animToken) return;
         dealReveal.dealer = pass + 1;
         freshCardKey = `d-${pass}`;
@@ -1083,7 +1084,7 @@ async function animateTransition(prev, next) {
         await runDealerReveal(token, next);
         return;
       }
-      await wait(450);
+      await wait(250);
       if (token !== animToken) return;
       dealReveal = null;
       freshCardKey = null;
@@ -1192,8 +1193,8 @@ function resultHeading() {
     const p = state.players[0];
     const diff = p.coins - state.startingCoins;
     if (diff > 0) return fmt(T.winnerSoloWin, { diff });
-    if (diff === 0) return fmt(T.winnerSoloEven, { coins: p.coins });
-    return fmt(T.winnerSoloLose, { coins: p.coins });
+    if (diff === 0) return T.winnerSoloEven;
+    return fmt(T.winnerSoloLose, { diff: -diff });
   }
   const { winners, topCoins } = state.winner;
   if (winners.length > 1) {
@@ -1226,7 +1227,7 @@ function renderResult() {
   const top = sorted[0];
   $('#standings').replaceChildren(...sorted.map((p, i) => {
     const isTop = top && p.coins === top.coins && (p.handsWon || 0) === (top.handsWon || 0) && (p.blackjacks || 0) === (top.blackjacks || 0) && p.coins > 0;
-    const label = `${i + 1}. ${p.name} · ✋ ${p.handsWon || 0}`;
+    const label = `${i + 1}. ${p.name} · ${p.handsWon === 1 ? T.handsWonOne : fmt(T.handsWonN, { n: p.handsWon || 0 })}`;
     return el('li', { class: isTop ? 'top' : '' },
       el('span', {}, label),
       el('b', {}, ...coins(`🪙 ${p.coins}`)));
@@ -1236,7 +1237,10 @@ function renderResult() {
   $('#standings').hidden = state.players.length === 1;
 
   const shareCtx = mode === 'cpu' ? T.shareContextSolo : T.shareContextOnline;
-  const shareBody = title;
+  // The message carries the table (U-30, U-31): one line per player by coins; alone, the title already says them
+  const shareBody = state.players.length > 1
+    ? [title, ...sorted.map((p, i) => `${['🥇', '🥈', '🥉'][i] || `${i + 1}.`} ${p.name} 🪙 ${p.coins}`)].join('\n')
+    : title;
   $('#result-actions').replaceChildren(
     el('button', {
       class: 'btn btn--yellow', id: 'btn-again',
