@@ -292,3 +292,5 @@ don't wrap; each takes the width of its label (73, 85 and 68 px at 320), at 390 
 Its catalogue entry, modes, session key, Firebase paths and the exceptions above live in
 `public/hangman/game.json`, a pilot of the per-game manifest (docs/ADD-GAME.md). Edit it there and run
 `node tools/generators/manifests.mjs`; games.js reads the generated module.
+
+Follow-up: the hit or miss banner (`FLASH_MS`, D-63) is 3 s, whole for 2.6 s of it (it was whole for only 0.6 s, too short to read); a letter's verdict that closes on its own (`VERDICT_MS`) waits 2.8 s instead of 1.7 s.
