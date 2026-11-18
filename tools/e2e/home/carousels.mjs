@@ -77,6 +77,18 @@ for (const width of [390, 320]) {
     ok(sheet.chips >= 3 && sheet.tabs === 2, `${width}: who plays, how long and its type; two tabs`);
     await b.shot(`carousels-${width}-sheet`);
 
+    // A game of La Copa plays its cover animation on top of the details, framed; a game with none has no frame
+    await ev(`document.getElementById('btn-game-sheet-close').click(); document.querySelector('.shelf-tile[data-id="stick"]').click(); 1`);
+    ok(await waitFor(`!!document.querySelector('#game-sheet[data-id="stick"] #game-sheet-demo.on')`, 10000), `${width}: Shinobi's sheet plays its cover animation`);
+    await sleep(600);
+    const demo = await ev(`(() => { const f = document.getElementById('game-sheet-demo').getBoundingClientRect(), p = document.querySelector('#game-sheet-details p').getBoundingClientRect(), r = document.getElementById('btn-game-sheet-play').getBoundingClientRect(), s = document.getElementById('game-sheet');
+      return { h: Math.round(f.height), above: f.bottom <= p.top + 1, play: r.top >= 0 && r.bottom <= innerHeight, fits: s.scrollWidth <= s.clientWidth + 1 }; })()`);
+    ok(demo.h >= 60 && demo.above && demo.play && demo.fits, `${width}: the animation (${demo.h} px) sits above the game's line, ▶ Jugar still in sight`);
+    await b.shot(`carousels-${width}-sheet-demo`);
+    await ev(`document.getElementById('btn-game-sheet-close').click(); document.querySelector('[data-shelf="friends"] .shelf-tile').click(); 1`);
+    ok(await waitFor(`!!document.querySelector('#game-sheet[data-id="${id}"]')`) && await ev(`!document.getElementById('game-sheet-demo')`), `${width}: ${id}, not a game of La Copa, has no frame`);
+    await sleep(500);
+
     // The ranking tab reads the game's table; ▶ Jugar stays in sight under it
     await ev(`document.getElementById('game-sheet-tab-ranking').click(); 1`);
     ok(await waitFor(`!!document.querySelector('#game-sheet-ranking .rk-lista') && document.getElementById('game-sheet-details').hidden`), `${width}: the Ranking tab shows the game's ranking`);

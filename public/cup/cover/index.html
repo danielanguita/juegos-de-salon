@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="robots" content="noindex">
+  <meta name="screen" content="none">
+  <title>Juegos de Salón</title>
+  <!--
+    A game's cover animation on its own, to show inside a frame (the home page's game sheet, lab flag
+    home-carousels): `?game=<id>&lang=<es|en|pt>` draws what the game's waiting room draws on top
+    (`portada`, the demo that plays itself) or, without one, its "how to play" drawing (`ejemplo`), and
+    nothing else: no bar, no buttons, no visit counted. It is a page of La Copa's, so it may load the
+    games La Copa plays (D-378) and the home page does not: the frame keeps their code and styles apart.
+    It tells the page that frames it how tall the drawing is, or that the game has none.
+  -->
+  <script src="../../assets/js/vigia.js"></script>
+  <link rel="preload" href="../../assets/fonts/nunito-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="../../assets/fonts/bangers-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="../../assets/css/base.css">
+  <link rel="stylesheet" href="../style.css">
+  <style>
+    /* Framed: the sheet behind shows through, and the drawing fills the frame's width with no page padding */
+    html, body { background: transparent; margin: 0; padding: 0; overflow: hidden; }
+    #demo { display: grid; grid-template-columns: minmax(0, 1fr); justify-items: center; }
+    #demo .intro-hero { width: 100%; margin: 0; }
+  </style>
+</head>
+<body>
+  <div id="demo" aria-hidden="true"></div>
+  <script type="module">import './cover.js';</script>
+</body>
+</html>

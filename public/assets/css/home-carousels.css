@@ -43,6 +43,9 @@
 .game-sheet .hoja-cabeza h2 { flex: 1; min-width: 0; overflow-wrap: anywhere; }
 .game-sheet-icon { flex: none; font-size: var(--fs-200); line-height: 1; }
 .game-sheet-body { flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
+/* The game's cover animation, framed (cup/cover/): as wide as the sheet's text, as tall as its page says; nothing in it is tapped */
+.game-sheet-demo { display: block; width: 100%; height: 0; border: 0; background: none; color-scheme: normal; pointer-events: none; }
+.game-sheet-demo:not(.on) { position: absolute; visibility: hidden; }
 .game-sheet-fav { color: var(--muted); }
 .game-sheet-fav.on { color: var(--yellow); }
 .game-sheet > .btn { flex: none; }
