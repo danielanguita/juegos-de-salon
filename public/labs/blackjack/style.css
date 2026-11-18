@@ -452,3 +452,7 @@ html.bj-defeat #app { position: relative; z-index: 1; }
 /* The score pill and the outcome tag take the same height, so the hand does not move when the result shows */
 .bj-felt .bj-table .bj-hand-meta { min-height: var(--s-24); }
 .bj-felt #action-box { align-content: center; justify-content: center; }
+
+/* A chip on its way between the player's pile and the bet (flyChip in game.js): over everything, never in the way */
+.bj-flying-chip { position: fixed; z-index: 50; pointer-events: none; will-change: transform; filter: drop-shadow(0 6px 8px var(--well-deep)); }
+.bj-flying-chip svg { display: block; width: 100%; height: 100%; }

@@ -738,6 +738,7 @@ function renderActionBox() {
       if (pendingBet + n > maxBet) return;
       SFX.tap();
       SFX.reveal();
+      flyChip(n, pileEl(n), betSpotEl());
       pendingBet += n;
       betStacks[n] = (betStacks[n] || 0) + 1;
       betBump = true;
@@ -754,12 +755,23 @@ function renderActionBox() {
         ...[10, 20, 50, 100].map(n => el('button', {
           type: 'button',
           class: 'casino-chip',
+          'data-denom': String(n),
           disabled: pendingBet + n > maxBet,
           onClick: () => addChip(n),
         }, chipBtnSvg(n))),
       ),
       el('div', { class: 'chips-row' },
-        el('button', { class: 'bet-chip', disabled: pendingBet <= minReq, onClick: () => { SFX.tap(); pendingBet = minReq; betStacks = exactChipBreakdown(minReq); betBump = true; renderActionBox(); } }, T.chipClear),
+        el('button', { class: 'bet-chip', disabled: pendingBet <= minReq, onClick: () => {
+          SFX.tap();
+          // Each chip above the minimum goes back to its own pile, one after another
+          const keep = exactChipBreakdown(minReq);
+          const spot = betSpotEl();
+          let k = 0;
+          for (const d of Object.keys(betStacks).map(Number).sort((x, y) => y - x)) {
+            for (let i = 0; i < (betStacks[d] || 0) - (keep[d] || 0); i++) flyChip(d, spot, pileEl(d), 70 * k++);
+          }
+          pendingBet = minReq; betStacks = keep; betBump = true; renderActionBox();
+        } }, T.chipClear),
         el('button', { class: 'bet-chip', disabled: pendingBet >= maxBet, onClick: () => { SFX.tap(); SFX.reveal(); pendingBet = maxBet; betStacks = exactChipBreakdown(maxBet); betBump = true; renderActionBox(); } }, T.chipMax),
       ),
       el('div', { class: 'actions-grid' },
@@ -866,6 +878,26 @@ function coins(text) {
   if (!felt || !String(text).includes('🪙')) return [text];
   return String(text).split('🪙').flatMap((part, i) => i ? [el('span', { class: 'seg-chip' }, chipSpotSvg(5)), part.replace(/^ /, '')] : [part]).filter(x => x !== '');
 }
+
+/** On the felt, a chip flies between the player's pile (its button) and the bet's spot: added, it lands on the
+ *  bet; cleared, it goes back to its own pile. A copy flies over the page, so the boxes can re-render under it. */
+function flyChip(denom, from, to, delay = 0) {
+  if (!felt || !from || !to || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const a = from.getBoundingClientRect(), b = to.getBoundingClientRect();
+  const size = Math.min(a.width, a.height);
+  const chip = el('div', { class: 'bj-flying-chip', 'aria-hidden': 'true' }, chipBtnSvg(denom));
+  Object.assign(chip.style, { left: `${a.left + a.width / 2 - size / 2}px`, top: `${a.top + a.height / 2 - size / 2}px`, width: `${size}px`, height: `${size}px` });
+  document.body.append(chip);
+  const dx = b.left + b.width / 2 - (a.left + a.width / 2), dy = b.top + b.height / 2 - (a.top + a.height / 2);
+  const scale = Math.max(0.5, Math.min(b.width, b.height) * 0.7 / size);
+  chip.animate([
+    { transform: 'translate(0, 0) scale(1)', opacity: 1 },
+    { transform: `translate(${dx / 2}px, ${dy / 2 - 40}px) scale(${(1 + scale) / 2 * 1.08})`, opacity: 1, offset: 0.5 },
+    { transform: `translate(${dx}px, ${dy}px) scale(${scale})`, opacity: 0.9 },
+  ], { duration: 460, delay, easing: 'cubic-bezier(0.3, 0.7, 0.4, 1)', fill: 'both' }).finished.then(() => chip.remove(), () => chip.remove());
+}
+const betSpotEl = () => $('#seats-box .bet-spot:not(.empty)') || $('#seats-box .bet-spot');
+const pileEl = denom => $(`#action-box .casino-chip[data-denom="${denom}"]`);
 
 function chipSpotSvg(value = 10) {
   const c = CHIP_PALETTE[value];
