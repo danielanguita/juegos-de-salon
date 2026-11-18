@@ -7,8 +7,9 @@ import { measureMargins } from './margins-common.mjs';
 import { isFolder as isFolder } from './output.mjs';
 // CHROME: another path to the browser (Linux, a cloud session)
 const CHROME = process.env.CHROME || '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
-import { snapshot } from '../agents/flags-snapshot.mjs';
-const SNAPSHOT = snapshot();
+import { snapshot, held } from '../agents/flags-snapshot.mjs';
+// The snapshot of Firebase (D-578), then the flags the tests hold at a state of their own (flags-held.json)
+const SNAPSHOT = { ...snapshot(), ...held() };
 export const sleep = ms => new Promise(r => setTimeout(r, ms));
 
 /**

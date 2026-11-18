@@ -498,6 +498,11 @@
     /* Lab flag home-pill-bar (#1027): the round buttons become pills as tall as the language toggle, so the bar reads as one row */
     .pill-bar .portada-barra, .pill-bar .portada-barra .tools { align-items: stretch; }
     .pill-bar .portada-barra .tools > span { display: flex; }
+    /* Lab flag home-carousels (lab: #seccion-home-carousels): the games as carousels under La Copa and Uno al día, in
+       place of the filters and the list's cards. Here and not in home-carousels.css, so it holds before that sheet arrives */
+    html.carousels #filtros-marca, html.carousels #filtros-barra, html.carousels .filtros-fin:not(.lista-fin), html.carousels .filtros-relleno,
+    html.carousels #games > .game-slot, html.carousels #games > .game-card { display: none; }
+    html.carousels .games { margin-top: var(--s-16); }
     .pill-bar .portada-barra .tools .icon-btn, .pill-bar .portada-barra .tools .sound-toggle { width: 48px; height: auto; min-height: 44px; }
     .pill-bar .portada-barra .tools > span:empty { width: 48px; }
     /* Below 441 px the toggle stacks flag over code (54 px) and the buttons may drop to their own row: same height there too */
@@ -540,6 +545,8 @@
          so a game opens even before the modules arrive. The copy counts only for the same version,
          language and day (a ✨ Nuevo or Uno al día's state changes with the date) and with no
          filter in the link; the module draws the real cards over it in the same instant. */
+      // The carousels (lab flag home-carousels): what this phone last knew of the flag hides the filters at once
+      try { if (localStorage.getItem('juegos-de-salon:home-carousels') === '1') document.documentElement.classList.add('carousels'); } catch (_) { /* no storage: the module decides */ }
       (function () {
         try {
           var m = document.getElementById('importmap'), d = new Date(), z = function (n) { return (n < 10 ? '0' : '') + n; };
@@ -766,6 +773,19 @@
     // Which cup, your place, the day's game and a bar of its days (flag copa-contexto). lab: #seccion-copa-contexto
     // The top bar's buttons as pills of one height (flag home-pill-bar, #1027). lab: #seccion-home-pill-bar
     import('./assets/js/flags.js').then(({ flag }) => flag('home-pill-bar')).then(on => on && document.documentElement.classList.add('pill-bar')).catch(() => {});
+    // The games as carousels in place of the filters and the list (flag home-carousels). lab: #seccion-home-carousels
+    // Drawn at once when this phone last saw the flag on (the script under #games set the class), then confirmed
+    {
+      const HINT = 'juegos-de-salon:home-carousels';
+      const draw = () => import('./assets/js/home-carousels.js').then(m => m.drawCarousels({ lang, T, games: JUEGOS_PORTADA, tap: () => SFX.tap() }));
+      const drawn = document.documentElement.classList.contains('carousels') ? draw() : null;
+      drawn?.catch(() => document.documentElement.classList.remove('carousels'));
+      import('./assets/js/flags.js').then(({ flag }) => flag('home-carousels')).then(async on => {
+        try { if (on) localStorage.setItem(HINT, '1'); else localStorage.removeItem(HINT); } catch (_) { /* decided again on the next visit */ }
+        if (on && !drawn) await draw();
+        if (!on && drawn) (await drawn).remove();
+      }).catch(() => {});
+    }
     if (copa) import('./assets/js/flags.js').then(({ flag }) => flag('copa-hoy')).then(on => on && import('./assets/js/cup-today.js'))
       .then(m => m && import('./assets/js/flags.js').then(({ flag }) => Promise.all([flag('copa-espera'), flag('copa-contexto')])).then(([wait, context]) => {
         m.decorateCupCard(copa, { lang, wait, context });
@@ -835,7 +855,8 @@
     // ?type=favorites en un celular sin favoritos muestra todos, sin ruido.
     try {
       const q = new URLSearchParams(location.search);
-      const pedido = q.get('type') || TIPOS_VIEJOS[q.get('tipo')];
+      // With the carousels on (flag home-carousels) there are no filters: a filter kept in the link is not applied
+      const pedido = document.documentElement.classList.contains('carousels') ? null : q.get('type') || TIPOS_VIEJOS[q.get('tipo')];
       const FAV = 'favorites';
       const hayFavoritos = () => tarjetas.some(t => t.caja !== t.card && marcados.has(t.g.id));
       // "✨ Nuevos" and "🔥 Populares" (D-362; for everyone since D-369)
