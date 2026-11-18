@@ -17,7 +17,7 @@ Making them a game of the house (an engine, the shared modules) is later work.
 - **Easy (2D):** the claw carries each piece across on its own; tap to drop it on the plank. Keep the plank
   level: when the level's bubble reaches the end of the red, it tips over and the round ends. Three
   lives: each piece that falls in the water costs one. Pieces come faster and faster. Score: pieces
-  placed plus balanced turns (Perfect!).
+  placed plus balanced turns (each says one of nine cheers, Perfect! among them, never the same twice in a row).
 - **Hard (3D):** a round disc on a pivot: drag each piece onto it, turn it with a held finger, turn the
   board with two fingertips. Keep the disc level (the hoop goes green); it capsizes past its limit.
   Three hearts: each piece lost costs one.

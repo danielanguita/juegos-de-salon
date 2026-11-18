@@ -716,6 +716,7 @@ const ES = {
     bzPaused: 'En pausa',
     bzResume: 'Toca para seguir',
     bzPerfect: '¡Perfecto!',
+    bzPerfects: ['¡Perfecto!', '¡Impecable!', '¡Clavado!', '¡Exacto!', '¡Genial!', '¡Tremendo!', '¡Maestro!', '¡Bravo!', '¡Increíble!'],
     bzWater: '¡Al agua!',
     bzLastLife: '¡Al agua! ¡Última vida!',
     bzAuto: '¡Se soltó sola!',
@@ -767,6 +768,7 @@ const EN = {
     bzPaused: 'Paused',
     bzResume: 'Tap to continue',
     bzPerfect: 'Perfect!',
+    bzPerfects: ['Perfect!', 'Flawless!', 'Nailed it!', 'Spot on!', 'Great!', 'Awesome!', 'Masterful!', 'Bravo!', 'Amazing!'],
     bzWater: 'In the water!',
     bzLastLife: 'In the water! Last life!',
     bzAuto: 'It dropped by itself!',
@@ -818,6 +820,7 @@ const PT = {
     bzPaused: 'Pausado',
     bzResume: 'Toque para continuar',
     bzPerfect: 'Perfeito!',
+    bzPerfects: ['Perfeito!', 'Impecável!', 'Cravou!', 'Exato!', 'Genial!', 'Demais!', 'Mandou bem!', 'Bravo!', 'Incrível!'],
     bzWater: 'Na água!',
     bzLastLife: 'Na água! Última vida!',
     bzAuto: 'Soltou sozinha!',
@@ -856,6 +859,9 @@ const LANG = (() => {
   try { const l = (new URLSearchParams(location.search).get('lang') || localStorage.getItem('juegos-de-salon:lang') || 'es').toLowerCase().slice(0, 2); return TEXTS[l] ? l : 'es'; } catch (_) { return 'es'; }
 })();
 const GAME = TEXTS[LANG].juego, UI = TEXTS[LANG].ui;
+// A balanced drop says one of the cheers (the owner, 2026-11-18), never the same twice in a row
+let lastCheer = -1;
+const cheer = list => { const free = lastCheer >= 0 ? list.length - 1 : list.length; let i = Math.floor(Math.random() * free); if (lastCheer >= 0 && i >= lastCheer) i++; lastCheer = i; return list[i]; };
 /** A text with its {blanks} filled in. */
 const fmt = (s, o) => s.replace(/\{(\w+)\}/g, (_, k) => o[k]);
 /** A piece's [name, line]. */
@@ -1065,7 +1071,7 @@ function onEvent(e) {
     floats.push({ x: e.x, y: e.y - 24, text: e.perfect ? '+2' : '+1', color: e.perfect ? '#9dff3a' : '#ffd23f', t: 0 });
     if (e.perfect) {
       // Balanced, and it must show: the plank flashes green from end to end, the piece pulses, the level lights up
-      say(UI.bzPerfect, '#9dff3a', 42); SFX.perfect(e.streak);
+      say(cheer(UI.bzPerfects), '#9dff3a', 42); SFX.perfect(e.streak);
       ring = 1; flash = 1; pulses.push({ id: e.id, t: 0 });
       const pl = S.plank; sparks(PIV.x, PIV.y, '#9dff3a', 12, 220);
       for (const sd of [-1, 1]) sparks(PIV.x + sd * HALF * pl.c, PIV.y + sd * HALF * pl.s, '#9dff3a', 10, 180, 60);
