@@ -25,6 +25,9 @@ or any other here), launch it and report what it found; do not ask the owner fir
   failure signatures (`failures.mjs check`), the flaky tests, the test levels and the weekly cost numbers
   (`costs.mjs`, D-558), and builds at most one mechanism so the same red run does not come back. It never
   drops a test or a check to go faster.
+- **Backlog**: dispatched once a week by the processes round. It sweeps the branches whose work never reached
+  main (D-441) and works the owner's backlog of unlabelled issues (D-339): closes the done, moves one or two
+  forward in their PRs, asks only what needs the owner.
 - **Player**: on every PR that changes a game, it plays the touched games on the preview like a first-time
   player (phone size, Spanish and one other language, a full game to the result) and comments the friction it met
   with steps and screenshots. It reports only: it never edits or pushes, and it does not re-report what `look.mjs`
