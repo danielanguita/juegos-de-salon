@@ -209,6 +209,12 @@ export function recordDone(body, decision, option, result, made = true) {
   return body.replace(re, (_, line) => `${line} — ${result}${made ? ` <!-- hecho:${decision} -->` : ''}`);
 }
 
+/**
+ * Whether a run on a 🔴 PR's description drops its `needs-owner` label: once the owner's Yes or No
+ * was carried out without failing, nothing waits for them. A later push puts it back (lanes.mjs ci).
+ */
+export const dropsLabel = (event, plans = [], failed = false) => Boolean(event?.pull_request) && !failed && plans.length > 0;
+
 /* ------------------------------------------------------------------ */
 /* What touches GitHub                                                */
 /** An owner-approval issue (docs/LANES.md) closes itself once its tick has been carried out. */
@@ -329,6 +335,10 @@ function main() {
   gh('issue', 'comment', n, '-R', repo, '--body', lines.join('\n'));
   // The PR is merged (or the owner said No): nothing is left to decide, so the question goes away
   if (!failed && event.issue && closesWhenDone(event.issue.title)) gh('issue', 'close', n, '-R', repo, '--reason', 'completed');
+  // The owner answered (Yes and merged, or No): the PR no longer waits for them
+  if (dropsLabel(event, p.plans, failed)) {
+    try { gh('pr', 'edit', n, '-R', repo, '--remove-label', PR_LABEL); } catch (e) { console.log(`The ${PR_LABEL} label was not removed: ${String(e.stderr || e.message).trim()}`); }
+  }
   console.log(lines.join('\n'));
   if (failed) process.exit(1);
 }
