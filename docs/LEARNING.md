@@ -82,10 +82,11 @@ The owner's Claude plan is the programme's only budget. Rules for a session on t
 | 4 | Earned autonomy | [learning/04-earned-autonomy.md](learning/04-earned-autonomy.md) | planned | agreement between agent and owner in shadow mode |
 | 5 | Closing the hypothesis loop | [learning/05-hypothesis-loop.md](learning/05-hypothesis-loop.md) | planned | experiments closed with a verdict |
 | 6 | Where the model lives: a judge in three places | [learning/06-model-placement.md](learning/06-model-placement.md) | the server (6.0) built in the repo, the owner installs it; the game after 1 | latency, quality and availability of the same judge in each place |
+| 7 | The retention loop: notice, explain, propose, measure | [learning/07-retention-loop.md](learning/07-retention-loop.md) | concept written (7.1), waiting for the owner | next-day return of Uno al día, beyond the noise band |
 
 **Order**: 1 first (cheapest, and its eval is what every other piece needs to choose a model); 2
 in parallel because it needs no decision from the owner; 3, 4 and 5 once there is history to
-read; 6 after 1, because the eval of 1 is what picks the open model.
+read; 6 after 1, because the eval of 1 is what picks the open model; 7 once the owner agrees its concept, and it feeds 5 its first experiments.
 
 ## How a session advances a piece
 
