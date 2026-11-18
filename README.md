@@ -728,4 +728,5 @@ These documents are being moved to English (D-316); the ones with a Spanish titl
 - [Piece 4 · Earned autonomy](docs/learning/04-earned-autonomy.md)
 - [Piece 5 · Closing the hypothesis loop](docs/learning/05-hypothesis-loop.md)
 - [Piece 6 · Where the model lives: one judge in three places](docs/learning/06-model-placement.md)
+- [Piece 7 · The retention loop](docs/learning/07-retention-loop.md)
 <!-- /generated -->
