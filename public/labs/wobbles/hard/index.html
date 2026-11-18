@@ -1129,9 +1129,9 @@ const $ = s => document.querySelector(s);
 const DISPLAY = "Bangers, Impact, 'Arial Black', sans-serif", BODY = "Nunito, system-ui, -apple-system, sans-serif";
 const VW = 400, VH = 600, C30 = 0.8660254037844386, NEON = [[255, 46, 136], [255, 122, 26], [255, 210, 63], [157, 255, 58], [46, 230, 214], [138, 77, 255]];
 const rgb = ([r, g, b], a = 1) => `rgba(${r},${g},${b},${a})`;
-// A balanced drop says one of the cheers (the owner, 2026-11-18), never the same twice in a row
+// A balanced drop says one of the cheers (the owner, 2026-11-18), never the same twice in a row, while flag wobbles-cheers is on (../game.js); off, ¡Perfecto!
 let lastCheer = -1;
-const cheer = list => { const free = lastCheer >= 0 ? list.length - 1 : list.length; let i = Math.floor(Math.random() * free); if (lastCheer >= 0 && i >= lastCheer) i++; lastCheer = i; return list[i]; };
+const cheer = list => { if (!window.__wobblesCheers) return list[0]; const free = lastCheer >= 0 ? list.length - 1 : list.length; let i = Math.floor(Math.random() * free); if (lastCheer >= 0 && i >= lastCheer) i++; lastCheer = i; return list[i]; };
 const sombra = (col, k) => col.map(v => Math.round(v * k));
 const claro = (col, k) => col.map(v => Math.round(v + (255 - v) * k));
 const neonAt = k => { const i = Math.floor(k) % 6, f = k - Math.floor(k), a = NEON[i], b = NEON[(i + 1) % 6]; return a.map((v, j) => Math.round(v + (b[j] - v) * f)); };
