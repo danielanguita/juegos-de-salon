@@ -5,15 +5,13 @@
 
 export const COLS = 7;
 export const FINISH_ROW = 33;
-export const PAR_TIME = 42;
 export const STEP = 1 / 120;
 
 export const WRAP_PAD = 3.2;
 export const TRACK_W = COLS + WRAP_PAD * 2;
-export const DASH_CD = 3.2;
 export const DIFFICULTIES = {
-  normal: { speedScale: 0.84, minGap: 2.65, maxOcc: 0.40, maxExtraCars: 0, dashCd: 2.6, parTime: 46 },
-  hard: { speedScale: 0.95, minGap: 2.15, maxOcc: 0.48, maxExtraCars: 1, dashCd: 3.2, parTime: 42 },
+  normal: { speedScale: 0.84, minGap: 2.65, maxOcc: 0.40, maxExtraCars: 0 },
+  hard: { speedScale: 0.95, minGap: 2.15, maxOcc: 0.48, maxExtraCars: 1 },
 };
 export const HOP_DUR = 0.105;
 export const DASH_DUR = 0.145;
@@ -170,7 +168,7 @@ export function wrapX(x) {
   return ((((x - min) % span) + span) % span) + min;
 }
 
-export function newGame({ seed = 4821, finishRow = FINISH_ROW, difficulty = 'normal', parTime, lives = LIVES, dashes = MAX_DASHES, mode = 'ready' } = {}) {
+export function newGame({ seed = 4821, finishRow = FINISH_ROW, difficulty = 'normal', lives = LIVES, dashes = MAX_DASHES, mode = 'ready' } = {}) {
   const diffKey = difficulty === 'hard' ? 'hard' : 'normal';
   const diffCfg = DIFFICULTIES[diffKey];
   const cleanSeed = Math.max(1, Math.floor(Number(seed) || 4821));
@@ -187,10 +185,8 @@ export function newGame({ seed = 4821, finishRow = FINISH_ROW, difficulty = 'nor
   return {
     seed: cleanSeed,
     difficulty: diffKey,
-    dashCooldownDur: diffCfg.dashCd,
     mode, // 'demo' | 'ready' | 'play' | 'win' | 'crash'
     finishRow,
-    parTime: parTime ?? diffCfg.parTime,
     elapsed: 0,
     lanes,
     fruits,
@@ -211,7 +207,6 @@ export function newGame({ seed = 4821, finishRow = FINISH_ROW, difficulty = 'nor
       eyeAlert: 0,
     },
     queued: null, // 'up' | 'left' | 'right' | 'dash'
-    dashCd: 0,
     dashes,
     maxDashes: dashes,
     lives,
@@ -505,7 +500,6 @@ export function serialize(g) {
     mode: g.mode,
     elapsed: g.elapsed,
     frog: { ...g.frog },
-    dashCd: g.dashCd,
     dashes: g.dashes,
     lives: g.lives,
     shield: g.shield,
@@ -523,7 +517,6 @@ export function hydrate(snap) {
   const g = newGame({ seed: snap.seed, difficulty: snap.difficulty || 'normal', mode: snap.mode === 'ready' ? 'ready' : 'play' });
   g.elapsed = snap.elapsed || 0;
   Object.assign(g.frog, snap.frog);
-  g.dashCd = snap.dashCd || 0;
   g.dashes = Number.isFinite(snap.dashes) ? snap.dashes : MAX_DASHES;
   g.lives = Number.isFinite(snap.lives) ? snap.lives : LIVES;
   g.shield = snap.shield || 0;

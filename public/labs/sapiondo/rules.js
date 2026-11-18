@@ -8,8 +8,7 @@ export const MIN_PLAYERS = 1;
 export const MAX_PLAYERS = 1;
 export const COLS = 7;
 export const FINISH_ROW = 33;
-export const PAR_TIME = 42;
-export const DEFAULT_CONFIG = { finishRow: FINISH_ROW, parTime: PAR_TIME };
+export const DEFAULT_CONFIG = { finishRow: FINISH_ROW };
 
 const ES = {
   ui: {

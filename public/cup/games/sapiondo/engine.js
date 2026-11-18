@@ -6,15 +6,13 @@ import { hash32 } from '../semilla.js';
 
 export const COLS = 7;
 export const FINISH_ROW = 33;
-export const PAR_TIME = 42;
 export const STEP = 1 / 120;
 
 export const WRAP_PAD = 3.2;
 export const TRACK_W = COLS + WRAP_PAD * 2;
-export const DASH_CD = 3.2;
 export const DIFFICULTIES = {
-  normal: { speedScale: 0.84, minGap: 2.65, maxOcc: 0.40, maxExtraCars: 0, dashCd: 2.6, parTime: 46 },
-  hard: { speedScale: 0.95, minGap: 2.15, maxOcc: 0.48, maxExtraCars: 1, dashCd: 3.2, parTime: 42 },
+  normal: { speedScale: 0.84, minGap: 2.65, maxOcc: 0.40, maxExtraCars: 0 },
+  hard: { speedScale: 0.95, minGap: 2.15, maxOcc: 0.48, maxExtraCars: 1 },
 };
 export const HOP_DUR = 0.105;
 export const DASH_DUR = 0.145;
@@ -154,7 +152,7 @@ function buildFruits(lanes, rand) {
   return fruits;
 }
 
-export function newGame({ seed = 4821, finishRow = FINISH_ROW, difficulty = 'normal', parTime, lives = LIVES, dashes = MAX_DASHES, mode = 'ready' } = {}) {
+export function newGame({ seed = 4821, finishRow = FINISH_ROW, difficulty = 'normal', lives = LIVES, dashes = MAX_DASHES, mode = 'ready' } = {}) {
   const diffKey = difficulty === 'hard' ? 'hard' : 'normal';
   const diffCfg = DIFFICULTIES[diffKey];
   const cleanSeed = Math.max(1, Math.floor(Number(seed) || 4821));
@@ -171,10 +169,8 @@ export function newGame({ seed = 4821, finishRow = FINISH_ROW, difficulty = 'nor
   return {
     seed: cleanSeed,
     difficulty: diffKey,
-    dashCooldownDur: diffCfg.dashCd,
     mode,
     finishRow,
-    parTime: parTime ?? diffCfg.parTime,
     elapsed: 0,
     lanes,
     fruits,
@@ -183,7 +179,6 @@ export function newGame({ seed = 4821, finishRow = FINISH_ROW, difficulty = 'nor
       x: 3, y: 0, z: 0, hopT: 0, hopDur: HOP_DUR, isDash: false, dir: 'up', eyeAlert: 0,
     },
     queued: null,
-    dashCd: 0,
     dashes,
     maxDashes: dashes,
     lives,
@@ -315,7 +310,7 @@ function finishHop(g) {
 
   if (f.row >= g.finishRow) {
     if (g.mode === 'demo') {
-      Object.assign(g, newGame({ seed: g.seed + 1, finishRow: g.finishRow, parTime: g.parTime, mode: 'demo' }));
+      Object.assign(g, newGame({ seed: g.seed + 1, finishRow: g.finishRow, mode: 'demo' }));
       return;
     }
     g.mode = 'win';
@@ -349,7 +344,7 @@ function checkTraffic(g) {
 
     if (fRight > vLeft && fLeft < vRight) {
       if (g.mode === 'demo') {
-        Object.assign(g, newGame({ seed: g.seed + 1, finishRow: g.finishRow, parTime: g.parTime, mode: 'demo' }));
+        Object.assign(g, newGame({ seed: g.seed + 1, finishRow: g.finishRow, mode: 'demo' }));
         return;
       }
       g.lives = Math.max(0, (g.lives | 0) - 1);
@@ -445,7 +440,6 @@ export function generateDay(code, day, { sal = '', ensayo = false } = {}) {
   return {
     semilla: hash32(`${code}:${day}${sal ? `:${sal}` : ''}`),
     finishRow: ensayo ? 15 : FINISH_ROW,
-    parTime: ensayo ? 22 : PAR_TIME,
   };
 }
 
