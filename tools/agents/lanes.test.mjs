@@ -1,7 +1,7 @@
 // Merge lanes by blast radius (docs/LANES.md, D-519): the glob table and the PR lane.
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { laneOf, laneOfPr, outsideReason, INSIDERS, globRe, decision, report, CONFIG, ORDER, approvalBlock, withApproval, APPROVAL_START } from './lanes.mjs';
+import { laneOf, laneOfPr, outsideReason, readOnlyToken, INSIDERS, globRe, decision, report, CONFIG, ORDER, approvalBlock, withApproval, APPROVAL_START } from './lanes.mjs';
 import { invalidAction, closesWhenDone, plan, OWNER } from './approve.mjs';
 import { decisionsBody } from './processes.mjs';
 
@@ -107,6 +107,11 @@ assert.match(outsideReason(fork), /fork/);
 const stranger = { user: { login: 'someone' }, head: { repo }, base: { repo } };
 assert.match(outsideReason(stranger), /not the owner/);
 assert.match(outsideReason({ user: { login: 'someone' }, head: { repo: null }, base: { repo } }), /fork/);
+// A fork's lane job has a read-only token: it reports and ends green, writes nothing (signature 3f17b9bc87)
+assert.equal(readOnlyToken(fork), true, 'a fork PR gets a read-only token');
+assert.equal(readOnlyToken({ user: { login: 'someone' }, head: { repo: null }, base: { repo } }), true, 'a deleted fork too');
+assert.equal(readOnlyToken(inside), false, "the owner's branch writes");
+assert.equal(readOnlyToken(stranger), false, "an outsider's branch of this repo writes: it gets the label and the decision");
 for (const pr of [fork, stranger]) {
   const r = laneOfPr(['docs/LANES.md', 'changelog/x.md'], { outside: outsideReason(pr) });
   assert.equal(r.lane, 'red', 'an outside PR with only green files is still red');
