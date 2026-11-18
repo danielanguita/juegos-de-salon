@@ -830,7 +830,8 @@ function renderResult(v) {
   });
 
   const words = $('#result-words'); words.innerHTML = '';
-  for (const p of M.players) {
+  // Playing alone the word is already under the title: the card would say it twice
+  for (const p of soloYo ? [] : M.players) {
     const real = v.words[p] || M.reveals[p]?.word || '';
     const ver = M.verify?.[p];
     words.append(el('div', { class: 'w' },

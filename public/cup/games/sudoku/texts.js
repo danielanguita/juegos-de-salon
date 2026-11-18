@@ -73,7 +73,7 @@ const EN = {
     },
   },
   ui: {
-    sdLema: 'The numbers classic, mini or full size.',
+    sdLema: 'Classic number puzzles, small or full size.',
     sdModo: [{ titulo: 'Easy mode', sub: '6×6: fewer cells, quicker' }, { titulo: 'Hard mode', sub: '9×9 and nearly empty: think with notes' }],
     sdDemo: { row: '➡️ Row: 1 to {n}, no repeats', col: '⬇️ Column: no repeats either', box: '🔲 {box} box: the same', fill: '✨ Only the {d} fits!', done: '🎉 Solved!' },
     sdPickCell: 'Tap an empty cell, then a number.',

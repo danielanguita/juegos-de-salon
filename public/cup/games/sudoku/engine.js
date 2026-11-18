@@ -388,9 +388,10 @@ export const dayGame = p => ({
   cells: [...p.givens], notes: Array(p.givens.length).fill(0), history: [], elapsed: 0, moves: 0, mistakes: 0, hints: 0, hinted: [], done: false,
 });
 
-/** The share card: the board's size, then ✨ for a clean board, a ❌ per wrong digit and a 💡 per hint (up to 10 each); 🏳️ if given up. */
+/** The share card: the board's size, then ✨ for a clean board, ❌ with the count of wrong digits and 💡 with the count of hints; 🏳️ if given up. */
 export function card(state) {
   const n = state?.givens?.length === 81 ? 9 : 6;
-  const marks = state?.gaveUp ? '🏳️' : ('❌'.repeat(Math.min(10, state?.mistakes || 0)) + '💡'.repeat(Math.min(10, state?.hints || 0))) || '✨';
+  const m = state?.mistakes || 0, h = state?.hints || 0;
+  const marks = state?.gaveUp ? '🏳️' : [m ? `❌ ${m}` : '', h ? `💡 ${h}` : ''].filter(Boolean).join(' · ') || '✨';
   return `${n === 9 ? '🔴' : '🟢'} ${n}×${n}\n${marks}`;
 }
