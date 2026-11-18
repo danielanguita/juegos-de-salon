@@ -114,6 +114,7 @@
         "public/cup/games/index.js",
         "public/cup/games/mazos.js",
         "public/cup/games/microgames/engine.js",
+        "public/cup/games/microgames/intros.js",
         "public/cup/games/microgames/stage.js",
         "public/cup/games/microgames/style.css",
         "public/cup/games/microgames/texts.js",
@@ -1331,6 +1332,7 @@
     "public/cup/games/index.js",
     "public/cup/games/mazos.js",
     "public/cup/games/microgames/engine.js",
+    "public/cup/games/microgames/intros.js",
     "public/cup/games/microgames/stage.js",
     "public/cup/games/microgames/texts.js",
     "public/cup/games/microgames/tr.js",
@@ -1900,7 +1902,8 @@
     "transfer/game.mjs",
     "versioning.mjs",
     "visual.mjs",
-    "wobbles/game.mjs"
+    "wobbles/game.mjs",
+    "wobbles/languages.mjs"
   ],
   "documents": [
     {
