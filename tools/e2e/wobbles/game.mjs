@@ -37,6 +37,10 @@ for (const level of ['easy', 'hard']) {
   }
   ok(await b.evaluate("new URL(document.querySelector('a[href=\"../\"]').href).pathname === '/labs/wobbles/'"), `${level}: its ‹ goes back to the cover`);
 }
+// Lab: the cover's «T» tab sets the pieces both levels start with (on localhost the lab is open)
+await b.go(SITE + '/labs/wobbles/'); await b.evaluate("localStorage.removeItem('balanza-lab:start-pieces'); 1"); await b.go(SITE + '/labs/wobbles/'); await sleep(1200);
+await b.evaluate("document.querySelector('.tr-tab')?.click(); [1, 2, 3].forEach(() => document.querySelector('.tr-sim button[aria-label=\"+1\"]')?.click()); 1"); await sleep(300);
+ok(await b.evaluate("document.getElementById('tr-piezas')?.textContent === '3' && localStorage.getItem('balanza-lab:start-pieces') === '3'"), 'the cover\'s tester tab sets the starting pieces');
 // Lab: the hard level starts with the pieces the tester tab asks for, spread on the disc, and they count as nothing
 await b.go(SITE + '/labs/wobbles/hard/?seed=7&spin=0'); await b.evaluate("localStorage.setItem('balanza-lab:start-pieces', '8'); 1");
 await b.go(SITE + '/labs/wobbles/hard/?seed=7&spin=0'); await sleep(600);

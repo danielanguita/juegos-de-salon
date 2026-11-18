@@ -1837,7 +1837,7 @@ const query = new URLSearchParams(location.search), seedParam = query.get('seed'
 const fromParam = Math.max(0, Math.min(500, Math.floor(Number(query.get('from')) || 0)));
 /* ---------- Lab: the pieces a game starts with (the «T» tester tab) ---------- */
 /**
- * A tester sets with − and + how many pieces the disc starts with; the next game (▶ Jugar or ↻ Otra vez)
+ * A tester sets on the cover's «T» tab, with − and +, how many pieces the disc starts with; the next game (▶ Jugar or ↻ Otra vez)
  * starts with them. They are the game's own first pieces, in their order, dropped with the real physics
  * over spots spread evenly across the disc (a sunflower: each one a golden angle on, further out the
  * later; a spot on the side the disc leans to is swapped for the one opposite, so the pile stays level), and they count as nothing: no points, no lives, the time starts after them. Only the view sets
@@ -1872,23 +1872,6 @@ function seedPile(S, n) {
   timeFrom = S.t;
   return true;
 }
-function testerControl() {
-  const L3 = { es: ['🧱 Piezas al empezar', 'Desde la próxima partida'], en: ['🧱 Pieces at the start', 'From the next game'], pt: ['🧱 Peças ao começar', 'A partir da próxima partida'] }[LANG] || [];
-  const box = document.createElement('div'); box.className = 'tr-sim';
-  const btn = (txt, d) => { const b = document.createElement('button'); b.type = 'button'; b.textContent = txt; b.setAttribute('aria-label', txt === '−' ? '-1' : '+1');
-    b.style.cssText = 'width:40px;height:40px;border-radius:999px;border:1px solid var(--glass-border);background:var(--glass);color:var(--ink);font:900 1.3rem/1 var(--font-body);cursor:pointer';
-    b.addEventListener('click', () => { startPieces = Math.max(0, Math.min(START_MAX, startPieces + d)); num.textContent = startPieces; try { localStorage.setItem(START_KEY, String(startPieces)); } catch (_) { /* no storage */ } }); return b; };
-  const title = document.createElement('small'); title.textContent = L3[0];
-  const row = document.createElement('div'); row.className = 'tr-fila'; row.style.justifyContent = 'space-between';
-  const num = document.createElement('b'); num.id = 'tr-piezas'; num.textContent = startPieces; num.style.cssText = 'font:400 1.6rem/1 var(--font-display);min-width:2ch;text-align:center';
-  row.append(btn('−', -1), num, btn('+', 1));
-  const note = document.createElement('p'); note.textContent = L3[1]; note.style.cssText = 'margin:0;font-size:0.8rem;color:var(--muted)';
-  box.append(title, row, note);
-  return box;
-}
-// Only for a lab key holder: the control goes in the tester tab the page already has (vigia.js → tester-boot.js)
-import(new URL('../../../assets/js/lab-access.js', location.href).href).then(m => m.labAccess()).then(ok => ok &&
-  import(new URL('../../../assets/js/tester-ribbon.js', location.href).href).then(m => m.setTesterContext(testerControl()))).catch(() => {});
 
 function start() {
   const seed = seedParam != null ? Number(seedParam) | 0 : Date.now() | 0;

@@ -10,6 +10,7 @@ import { SFX, soundToggle, initSound } from '../../assets/js/sound.js';
 import { trackVisit } from '../../assets/js/transport/stats.js';
 import { footerInto } from '../../assets/js/site-footer.js';
 import { abrirComentario } from '../../assets/js/labs-idioma.js';
+import { labAccess } from '../../assets/js/lab-access.js';
 import { coverWithDialogs } from '../../assets/js/cover-dialogs.js';
 import { bloqueJugador, avisoPartida, bloqueTabla } from '../../assets/js/ranking.js';
 import { salidasFin } from '../../assets/js/fin.js';
@@ -201,7 +202,27 @@ function wireResult() {
 // The cover (with its visit, D-208) or a level's result: the levels load this module too
 if (document.getElementById('screen-intro')) {
   trackVisit();
-  // The hook for the end-to-end tests (C-14)
+  /* ---------------- Lab: the pieces a game starts with, in the «T» tester tab ---------------- */
+/**
+ * On the cover, for a lab key holder: − and + set how many pieces the plank or the disc starts with (0 to
+ * 40), one number for both levels, kept on the phone; each level reads it when a game starts and lays them
+ * with its own physics (docs/games/wobbles.md). Texts in the three languages.
+ */
+const START_KEY = 'balanza-lab:start-pieces', START_MAX = 40;
+const START_T = { es: ['🧱 Piezas al empezar', 'Fácil y difícil, desde la próxima partida'], en: ['🧱 Pieces at the start', 'Easy and hard, from the next game'], pt: ['🧱 Peças ao começar', 'Fácil e difícil, a partir da próxima partida'] }[lang] || [];
+function readStart() { try { return Math.max(0, Math.min(START_MAX, parseInt(localStorage.getItem(START_KEY), 10) || 0)); } catch (_) { return 0; } }
+function startControl() {
+  let n = readStart();
+  const num = el('b', { id: 'tr-piezas', style: 'font:400 1.6rem/1 var(--font-display);min-width:2ch;text-align:center' }, String(n));
+  const step = d => { n = Math.max(0, Math.min(START_MAX, n + d)); num.textContent = n; try { localStorage.setItem(START_KEY, String(n)); } catch (_) { /* no storage */ } };
+  const btn = (txt, d) => el('button', { type: 'button', class: 'btn btn--ghost btn--sm', style: 'font-size:1.4rem', 'aria-label': d < 0 ? '-1' : '+1', onClick: () => { SFX.tap(); step(d); } }, txt);
+  return el('div', { class: 'tr-sim' }, el('small', {}, START_T[0]),
+    el('div', { class: 'tr-fila', style: 'justify-content:space-between' }, btn('−', -1), num, btn('+', 1)),
+    el('p', { class: 'muted', style: 'margin:0;font-size:0.8rem' }, START_T[1]));
+}
+labAccess().then(ok => ok && import('../../assets/js/tester-ribbon.js').then(m => m.setTesterContext(startControl()))).catch(() => {});
+
+// The hook for the end-to-end tests (C-14)
   window.__wobbles = { id: manifest.id, get level() { return chosen; } };
   init();
 } else {
