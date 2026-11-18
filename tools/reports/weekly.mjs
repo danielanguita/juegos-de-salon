@@ -23,6 +23,7 @@ import { token, fail } from '../firebase/firebase-admin.mjs';
 import { firebaseConfig } from '../../public/assets/js/firebase-config.js';
 import { launch, sleep } from '../e2e/cdp.mjs';
 import { semana, semanaCerrada } from './weekly-data.mjs';
+import { factory } from './factory.mjs';
 import { readHistory } from '../firebase/uad-index.mjs';
 import { htmlDelInforme, destacados, tablasTendencia } from './weekly-html.mjs';
 
@@ -55,6 +56,8 @@ const [days, torneos, historia, invitados, rachas, feedback, flags] = await Prom
 // CHANGELOG.md and its archived months (D-497): a week may start in the month before
 const changelog = existsSync(join(ROOT, 'CHANGELOG.md')) ? fullHistory(ROOT) : '';
 const r = semana({ days, torneos, flags, uad: { historia, invitados, rachas }, feedback, changelog }, now);
+// The factory's section (learning piece 2): GitHub only; a report without it is still sent
+try { r.fabrica = factory(new Date((w.to + 1) * 864e5), 7); } catch (e) { r.fabrica = null; console.log(`(factory section skipped: ${e.message.split('\n')[0]})`); }
 
 // The PDF, printed by headless Chrome from the page written to a temporary file
 mkdirSync(out, { recursive: true });

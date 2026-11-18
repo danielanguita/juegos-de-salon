@@ -54,6 +54,7 @@ a section nobody acted on in three months leaves the report.
 ## Status
 
 - 2026-11-04 · planned in the planning session; needs no owner decision to start 2.1.
+- 2026-11-17 · 2.1 proposed and 2.2 built (`tools/reports/factory.mjs`, its test, the «🏭 The factory» section of the Sunday PDF). The five, each with the decision it informs: **PRs merged and median hours open, all and 🔴** (relax or tighten a lane); **red CI runs per merged PR** (what ci-health works on); **one-tap decisions opened, answered, median hours** (the owner's time); **agent round PRs merged** (which agent earns its keep); **reverts** (mistakes that reached main). Its first week: 194 PRs, 0.2 h median; 46 🔴 at 0.4 h; 105 red runs, 0.5 per PR; 3 decisions, all answered, 54.8 h median; 12 agent PRs; 0 reverts. The owner may swap any metric; the cost proxy (headless sessions) waits for the jobs' logs to carry durations.
 
 ## Learnings
 
