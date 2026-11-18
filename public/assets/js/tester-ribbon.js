@@ -39,7 +39,8 @@ html[data-en-juego] .tr:not(.con-ctx), body.jugando .tr:not(.con-ctx) { display:
 @media (prefers-reduced-motion: reduce) { .tr-tab, .tr-tab::after { animation: none; } .tr-tab { background-position: 30% 50%; } }
 .tr-panel { display: flex; flex-direction: column; gap: 10px; width: min(236px, calc(100vw - 60px)); padding: 12px 14px;
   background: rgba(21,7,38,0.94); border: 1px solid var(--glass-border); border-right: 0; border-radius: 0 0 0 14px;
-  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); box-shadow: 0 10px 30px rgba(0,0,0,0.45); }
+  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); box-shadow: 0 10px 30px rgba(0,0,0,0.45);
+  max-height: calc(100svh - 64px); overflow-y: auto; overscroll-behavior: contain; }
 .tr:not(.abierto) .tr-panel { display: none; }
 .tr-cab { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .tr-cab b { font: 400 1.25rem/1 var(--font-display); letter-spacing: 0.05em; color: var(--yellow); }

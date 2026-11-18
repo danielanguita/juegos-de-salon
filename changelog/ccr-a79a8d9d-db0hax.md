@@ -4,3 +4,4 @@ level: patch
 - Each game of Altoke scrolls the page so the whole stage is in view.
 - ¡REVIENTA! bubbles rise about a third slower (the round lasts 7.2 s).
 - Testers get the picker for any single game back in the T tab (a try-out: nothing is saved).
+- The tester tab shows every Altoke game in its picker (the tab scrolls on short screens, and the mole icon shows).

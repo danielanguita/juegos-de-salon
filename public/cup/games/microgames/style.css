@@ -176,7 +176,7 @@
   max-height: calc(100svh - 16px); overscroll-behavior: contain; }
 /* While a game is on (.playing, off again at its end so the result can be scrolled), a finger on the board drags the game, never the page (the effective touch-action is the intersection up the tree, so it goes on every child) */
 .demo.playing .center.full, .demo.playing .center.full * { touch-action: none; }
-.demo .moleicon { width: 1.1em; height: 1.1em; vertical-align: -0.15em; }
+.moleicon { width: 1.1em; height: 1.1em; vertical-align: -0.15em; }
 .demo .target .moleicon { width: 1em; height: 1em; }
 .demo:focus-visible { outline: 3px solid var(--cyan); outline-offset: 3px; }
 .demo .timer { position: absolute; left: 0; bottom: 0; height: 8px; width: 100%; background: var(--yellow); transform-origin: left; }
