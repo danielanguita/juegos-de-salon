@@ -18,11 +18,23 @@ import { flag } from './flags.js';
 
 const ON = 'portada-v2';
 let encendido = null;
+// The flag's last answer on this phone: the flags come from the network, so a cover that waited for them
+// painted the old «Cómo se juega» and sign-in for a moment before folding them into the two buttons.
+// With this answer the cover is built at once; the network's answer is saved for the next visit, and a
+// change of mind (the owner turned the flag off) reloads the page once.
+const RECUERDO = 'juegos-de-salon:cover-dialogs';
+const recordado = () => { try { return globalThis.localStorage?.getItem(RECUERDO); } catch { return null; } };
 /** Whether this visitor gets the new cover: read once per page. */
-const activo = () => (encendido ??= flag('cover-dialogs').catch(() => false));
+const activo = () => (encendido ??= flag('cover-dialogs').catch(() => false).then(on => {
+  try { globalThis.localStorage?.setItem(RECUERDO, on ? '1' : '0'); } catch { /* private mode: no memory */ }
+  return on;
+}));
+/** Without waiting: this phone's last answer, true or false. */
+const yaActivo = () => recordado() === '1';
 
 /** The top bar on every game screen: no game name chip, ‹ Menú 44 px tall (CSS under body.portada-v2). */
 export async function gameTopBar() {
+  if (yaActivo()) document.body.classList.add(ON);
   if (await activo()) document.body.classList.add(ON);
 }
 
@@ -75,8 +87,18 @@ function ventana({ id, titulo, cuerpo, T }) {
  * The cover's two buttons and their dialogs, if the flag is on. `raiz`: the cover's screen. Does
  * nothing on a cover with neither a «Cómo se juega» panel nor a sign-in block.
  */
-export async function coverWithDialogs(raiz, { lang = getLang(), alTocar = () => {} } = {}) {
-  if (!raiz || raiz.querySelector('.portada-acciones') || !(await activo())) return;
+export async function coverWithDialogs(raiz, opts = {}) {
+  if (!raiz) return;
+  // Built at once when this phone already knows the answer; the network only confirms it
+  const antes = yaActivo();
+  if (antes) armar(raiz, opts);
+  const on = await activo();
+  if (on && !antes) armar(raiz, opts);
+  else if (!on && antes && raiz.querySelector('.portada-acciones')) location.reload();
+}
+
+function armar(raiz, { lang = getLang(), alTocar = () => {} } = {}) {
+  if (raiz.querySelector('.portada-acciones')) return;
   document.body.classList.add(ON);
   const T = (COMMON[lang] || COMMON.es).portada;
   // The cover's «Cómo se juega»: the folded panel that is not the ranking's sign-in or account
