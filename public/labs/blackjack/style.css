@@ -456,6 +456,3 @@ html.bj-defeat #app { position: relative; z-index: 1; }
 /* A chip on its way between the player's pile and the bet (flyChip in game.js): over everything, never in the way */
 .bj-flying-chip { position: fixed; z-index: 50; pointer-events: none; will-change: transform; filter: drop-shadow(0 6px 8px var(--well-deep)); }
 .bj-flying-chip svg { display: block; width: 100%; height: 100%; }
-
-/* The setup's name row without a seat number: one column for the name, the «Cambiar» link at the end */
-.player-row.no-num { grid-template-columns: 1fr auto; padding-left: var(--s-14); }
