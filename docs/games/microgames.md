@@ -185,5 +185,6 @@ colours and glyph sizes base.css has no token for are the sheet's own tokens, `-
 `window.__alToque`: `S` (the marks, `fin`), `estado()` and `acabar()` (ends the run now). `window.__microgames`
 (stage.js): `game`, `order`, `idx`, `total`, `active` and `ids`.
 - **¡A la hora!:** the hand pointing nearest the finger turns (near the middle, the short one); the long one snaps to 5 minutes, the short one must be within half an hour of its place. Never 12:00, where both hands start.
-- **Testing:** the lab tester tab and the page's own ranking left with its page: La Copa's page gives the rankings.
+- **Testing:** testers (lab key) get the single-game picker in the T tab again: the 29 games by icon, framed in their type's color, one tap plays one on its own as a try-out (nothing saved, nothing sent to the cup; `ui.js`). The tester panel scrolls on short screens. The page's own ranking left with its page: La Copa's page gives the rankings.
+- **¡No toques!** shows a mole (an inline SVG, there is no mole emoji) where the hammer was. While a game is on the stage locks touch scrolling (`.demo.playing`), the stage is never taller than the screen, and each game scrolls it into view.
 - **Ranking (D-212):** the `microgames` table, its tab on `/records/` as a `SUELTOS` game (D-559; no longer in `SOLO_TABLES`), checked by `tools/e2e/in-a-flash/page.mjs`.
