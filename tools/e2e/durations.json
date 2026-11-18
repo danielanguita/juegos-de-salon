@@ -28,6 +28,7 @@
  "conformance.mjs:sudoku": 11,
  "conformance.mjs:timeline": 10,
  "conformance.mjs:transfer": 10,
+ "conformance.mjs:wobbles": 10,
  "cup-games/languages.mjs:agents": 109,
  "cup-games/languages.mjs:babel": 21,
  "cup-games/languages.mjs:bridges": 22,
@@ -169,5 +170,7 @@
  "visual.mjs:untangle": 2,
  "visual.mjs:word": 2,
  "visual.mjs:year": 2,
- "visual.mjs:zip": 2
+ "visual.mjs:zip": 2,
+ "wobbles/game.mjs": 30,
+ "wobbles/languages.mjs": 15
 }
