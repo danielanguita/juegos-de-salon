@@ -201,6 +201,8 @@ generator and judge are deleted and the eval cases stay as documentation of why.
   1. *The 18 give-aways:* replace them in one PR on a day no Cup is running (they reshuffle every Agentes board, Uno al día included), or leave them?
   2. *The `agents-m3` flag:* every Agentes board is seeded and shared (Cups, Uno al día, rankings), so a flag that changes boards only for lab key holders would score them on different boards. Options: (a) only in a lab-only practice mode with no rankings; (b) for everyone on a date, as a deck change, measured before/after on the panel; (c) not at all, M3 stays a generator rule for new clues.
 
+- 2026-11-17 · The owner: fix the give-aways now (no running Cup has Agentes left) and let the session choose the flag's shape. **D-583**: the 18 words replaced in es/en/pt and M3 enforced by `generar` for everyone in the same release, no lab flag (a shared, seeded board cannot be tried by key holders only). Before/after on the panel's Agentes numbers from the release date; record them here after two weeks. **1.2 closed.** Next: 1.3, the judge.
+
 ## Learnings
 
 **1.1, the concept (2026-11-04).** In the owner's words where they gave them.

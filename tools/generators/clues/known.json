@@ -1,27 +1,6 @@
 {
-  "_": "Known M1/M2 hits in the live decks: not fixed while a Cup may be playing them (U-21); the owner decides the fix. clues.test.mjs fails on any hit not listed here, so the debt can only shrink.",
-  "es": [
-    "BIBLIOTECA M2: BIBLIOTECARIA contains the clue BIBLIOTECA",
-    "ISLA M2: AISLADO contains the clue ISLA",
-    "MAR M2: MAREA contains the clue MAR",
-    "PESCA M2: PESCADOR contains the clue PESCA"
-  ],
-  "en": [
-    "FIRE M2: CAMPFIRE contains the clue FIRE",
-    "FIRE M2: FIREFIGHTER contains the clue FIRE",
-    "FIRE M2: FIREPLACE contains the clue FIRE",
-    "FIRE M2: FIREWOOD contains the clue FIRE",
-    "ICE M2: ICEBERG contains the clue ICE",
-    "KING M2: KINGDOM contains the clue KING",
-    "NIGHT M2: MIDNIGHT contains the clue NIGHT",
-    "RAIN M2: RAINBOW contains the clue RAIN",
-    "RAIN M2: RAINCOAT contains the clue RAIN",
-    "ZOO M2: ZOOKEEPER contains the clue ZOO"
-  ],
-  "pt": [
-    "FEIRA M2: FEIRANTE contains the clue FEIRA",
-    "MAR M2: MARÉ contains the clue MAR",
-    "PESCA M2: PESCADOR contains the clue PESCA",
-    "REI M2: REINO contains the clue REI"
-  ]
+  "_": "Known M1/M2 hits in the live decks. Empty since D-583 replaced the 18 give-aways; clues.test.mjs fails on any hit not listed here, so the debt can only shrink.",
+  "es": [],
+  "en": [],
+  "pt": []
 }
