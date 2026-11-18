@@ -22,7 +22,9 @@ export const GESTURES = {
 export const WAYS = [['toca', 'TOCA', '#2ee6d6'], ['arrastra', 'ARRASTRA', '#ff9a1f'], ['desliza', 'DESLIZA', '#c45cff']];
 
 /** Each microgame's icon (the run's summary, the cup's result). */
-export const ICONS = { cruza: '⚪', espera: '🟢', toca: '🎈', quecolor: '🔴', cuenta: '🍎', atrapa: '🪙', corta: '🥪', ordena: '🐘', calcula: '🧮', conecta: '🟡', limpia: '🧽', para: '🎯', aplasta: '🪰', revienta: '🫧', pinball: '🕹️', rebota: '👾', equilibra: '🍽️', dibuja: '✏️', sigue: '🐀', repite: '🟦', dondequedo: '⚪', diferente: '🔍', cualfalta: '👀', mas: '⚖️', quehora: '🕐', hands: '🕰️', sombra: '🌑', completa: '🔢', notoques: '🔨' };
+// A small mole face: the emoji set has no mole, and a hammer said nothing about the game (¡NO TOQUES!)
+const MOLE_ICON = '<svg class="moleicon" viewBox="0 0 100 100" aria-hidden="true"><path d="M8 100 V52 C8 20 28 4 50 4 C72 4 92 20 92 52 V100 Z" fill="#8d5a2c"/><ellipse cx="50" cy="62" rx="22" ry="16" fill="#f0c79d"/><circle cx="34" cy="42" r="6" fill="#1b0f08"/><circle cx="66" cy="42" r="6" fill="#1b0f08"/><path d="M40 50 C40 44 60 44 60 50 C60 56 54 58 50 58 C46 58 40 56 40 50 Z" fill="#e2557a"/><rect x="45" y="66" width="4.5" height="7" rx="1.5" fill="#fff"/><rect x="50.5" y="66" width="4.5" height="7" rx="1.5" fill="#fff"/></svg>';
+export const ICONS = { cruza: '⚪', espera: '🟢', toca: '🎈', quecolor: '🔴', cuenta: '🍎', atrapa: '🪙', corta: '🥪', ordena: '🐘', calcula: '🧮', conecta: '🟡', limpia: '🧽', para: '🎯', aplasta: '🪰', revienta: '🫧', pinball: '🕹️', rebota: '👾', equilibra: '🍽️', dibuja: '✏️', sigue: '🐀', repite: '🟦', dondequedo: '⚪', diferente: '🔍', cualfalta: '👀', mas: '⚖️', quehora: '🕐', hands: '🕰️', sombra: '🌑', completa: '🔢', notoques: MOLE_ICON };
 
 /** The stage's markup: the HUD, the run's marks, the screen and the clock bar (ids the microgames draw into). */
 export const STAGE = `<section class="alt-stage"><div class="demo" id="demo" aria-label="¡Al toque!">
@@ -1591,7 +1593,7 @@ export function playRun({ order: list, seed, done = [], onGame = () => {}, onEnd
         <ellipse cx="36" cy="50" rx="11" ry="7" transform="rotate(-35 36 50)" fill="#fff" opacity=".35"/><circle cx="31" cy="58" r="3" fill="#fff" opacity=".25"/>
         <path d="M18 84 A40 40 0 0 0 84 84" stroke="#000" stroke-width="5" fill="none" opacity=".25"/></svg>`;
       command(t('¡NO TOQUES!'), () => {
-        const { lay, W, H } = lay0('<div class="arcade"></div><div class="whackhud" id="wh">🔨 0 / 9</div>');
+        const { lay, W, H } = lay0('<div class="arcade"></div><div class="whackhud" id="wh">${MOLE_ICON} 0 / 9</div>');
         // Three rows, smaller toward the back, for a bit of depth
         const ROWS = [[0.34, 0.72], [0.57, 0.86], [0.82, 1]], holes = [];
         ROWS.forEach(([ry, sc]) => [-1, 0, 1].forEach(cx => {
@@ -1627,10 +1629,10 @@ export function playRun({ order: list, seed, done = [], onGame = () => {}, onEnd
           if (h.what === 'bomb') { h.c.classList.add('boom'); const r = h.box.getBoundingClientRect(), L = lay.getBoundingClientRect();
             const fx = mk(lay, 'div', 'boomfx'); place(fx, r.left - L.left + r.width / 2, r.top - L.top + r.height * 0.55); h.c.innerHTML = '';
             lay.classList.add('fail', 'shake'); finish(0, t('¡Tocaste la bomba!')); return; }
-          good++; wh.textContent = `🔨 ${good} / 9`; h.c.classList.add('bonk'); pop(lay, '+1', parseFloat(h.box.style.left) + h.box.offsetWidth / 2, parseFloat(h.box.style.top));
+          good++; wh.innerHTML = `${MOLE_ICON} ${good} / 9`; h.c.classList.add('bonk'); pop(lay, '+1', parseFloat(h.box.style.left) + h.box.offsetWidth / 2, parseFloat(h.box.style.top));
           later(() => h.c.classList.remove('up'), 220); }));
         active = true; show();
-      }, '🔨 ✓  💣 ✗', t('golpea los topos, nunca la bomba'));
+      }, `${MOLE_ICON} ✓  💣 ✗`, t('golpea los topos, nunca la bomba'));
     },
   };
   const META = [
@@ -1662,7 +1664,7 @@ export function playRun({ order: list, seed, done = [], onGame = () => {}, onEnd
     ['hands', t('¡A LA HORA!'), '🕰️', 'Una hora digital y un reloj con las agujas en el 12: arrastra la corta a la hora y la larga a los minutos, y toca ¡Listo! antes de 10 segundos.'],
     ['sombra', t('¡SU SOMBRA!'), '🌑', 'Una figura y tres siluetas: su sombra, su reflejo y la de otro.'],
     ['completa', t('¡COMPLETA!'), '🔢', 'Una serie de números: cuál sigue.'],
-    ['notoques', t('¡NO TOQUES!'), '🔨', 'Como golpear topos de arcade: salen topos de los hoyos y a veces una bomba. Golpea los topos, nunca la bomba.'],
+    ['notoques', t('¡NO TOQUES!'), MOLE_ICON, 'Como golpear topos de arcade: salen topos de los hoyos y a veces una bomba. Golpea los topos, nunca la bomba.'],
   ].map(([id, n, i, d]) => ({ id, n, i, d }));
   const NAMES = Object.fromEntries(META.map(m => [m.id, m.n]));
   if (META.some(m => !GAMES[m.id]) || Object.keys(GAMES).some(k => !NAMES[k])) console.warn('META and GAMES differ');
