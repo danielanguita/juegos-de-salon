@@ -750,7 +750,9 @@
         "result"
       ],
       "chat": false,
-      "files": []
+      "files": [
+        "public/dash-hopper/index.html"
+      ]
     }
   ],
   "standalone": [
