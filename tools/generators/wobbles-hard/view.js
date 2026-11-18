@@ -6,6 +6,9 @@ const $ = s => document.querySelector(s);
 const DISPLAY = "Bangers, Impact, 'Arial Black', sans-serif", BODY = "Nunito, system-ui, -apple-system, sans-serif";
 const VW = 400, VH = 600, C30 = 0.8660254037844386, NEON = [[255, 46, 136], [255, 122, 26], [255, 210, 63], [157, 255, 58], [46, 230, 214], [138, 77, 255]];
 const rgb = ([r, g, b], a = 1) => `rgba(${r},${g},${b},${a})`;
+// A balanced drop says one of the cheers (the owner, 2026-11-18), never the same twice in a row
+let lastCheer = -1;
+const cheer = list => { const free = lastCheer >= 0 ? list.length - 1 : list.length; let i = Math.floor(Math.random() * free); if (lastCheer >= 0 && i >= lastCheer) i++; lastCheer = i; return list[i]; };
 const sombra = (col, k) => col.map(v => Math.round(v * k));
 const claro = (col, k) => col.map(v => Math.round(v + (255 - v) * k));
 const neonAt = k => { const i = Math.floor(k) % 6, f = k - Math.floor(k), a = NEON[i], b = NEON[(i + 1) % 6]; return a.map((v, j) => Math.round(v + (b[j] - v) * f)); };
@@ -298,7 +301,7 @@ function onEvent(e) {
   else if (e.type === 'score') {
     floats.push({ x: e.x, y: e.y + 0.12, z: e.z, text: `+${1 + e.bonus}`, color: e.perfect ? '#9dff3a' : '#ffd23f', t: 0 });
     if (e.perfect) {
-      say(`${e.streak > 1 ? ui('b3Streak', { n: e.streak }) : ui('b3Perfect')}  +${1 + e.bonus}`, '#9dff3a'); SFX.perfect(e.streak); anillos.push({ t: 0 }); verde = 2;
+      say(`${e.streak > 1 ? ui('b3Streak', { n: e.streak }) : cheer(UI.b3Perfects)}  +${1 + e.bonus}`, '#9dff3a'); SFX.perfect(e.streak); anillos.push({ t: 0 }); verde = 2;
       // Sparks all around the rim, in the house's colors
       const r = S.plat.r;
       for (let k = 0; k < 16; k++) { const co = ROUND[k * 3][0] * RAD, si = ROUND[k * 3][1] * RAD; sparks(r[0] * co + r[2] * si, r[3] * co + r[5] * si + RIM, r[6] * co + r[8] * si, 1, [k % 2 ? [157, 255, 58] : NEON[k % 6]], 0.5); }
