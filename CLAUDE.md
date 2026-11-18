@@ -35,7 +35,7 @@ text by outsiders (player feedback) and persisted keys (game ids like `'ahorcado
 |---|---|---|
 | How a rule is made: its form (🤖 check, 📈 ratchet, 👁 judged) | [docs/RULES.md](docs/RULES.md) (D-541) | Before adding or changing any rule, canon or check |
 | How a game is built (C-n) | [docs/CANONS.md](docs/CANONS.md), the index (one line per canon, then the checklist), and `docs/canons/C-<n>.md` for each one; the `game-change` skill says which to read | Before building or changing a game or the home page (C-17), and when done |
-| The design system: tokens, scales, components (D-533) | [docs/DESIGN.md](docs/DESIGN.md), the tokens in `public/assets/css/base.css`; the `css-change` skill routes it | Before writing any CSS, or adding a control a game does not have |
+| The design system: tokens, scales, components (D-533) | [docs/DESIGN.md](docs/DESIGN.md), the tokens in `public/assets/css/base.css`; the `css-change` skill routes it | Before writing any CSS, or adding a control a game does not have; and after, its rule 10: measure every changed screen (D-570) |
 | Texts, buttons, sharing (U-n) | [docs/USABILIDAD.md](docs/USABILIDAD.md), routed by the `player-text` skill: U-1, U-8 and **U-18** before writing instructions; **U-41** visual proposals as images | Before writing anything the player reads, or proposing a design |
 | Why it is this way (D-n) | [docs/DECISIONS.md](docs/DECISIONS.md), the index (by topic, then one row each), and `docs/decisions/D-<n>.md` for each one (D-394): read the index, open only the ones you need | Before changing something that looks odd |
 | A new game, step by step | [docs/ADD-GAME.md](docs/ADD-GAME.md) | When starting one |
@@ -84,6 +84,9 @@ marks the old decision (`amended by` / `replaced by`). A canon that contradicts 
 - **Tests**: run every `*.test.mjs` / `*.test.py` before the PR (commands in [docs/SESSIONS.md](docs/SESSIONS.md));
   for end-to-end, run only the script of the screen you changed, never the whole `ci.mjs` (D-428):
   the `end-to-end` check on GitHub is the gate.
+- **Every visual change is measured** (D-570): each screen whose look changes is shot by its e2e script and checked
+  with `look.mjs` at 390 and 320 px (margins, nothing covering the next block, gaps even with the neighbours), and the PR
+  says what was measured; the owner should never have to ask ([docs/DESIGN.md](docs/DESIGN.md) rule 10).
 - **Big files**: nothing over 5 MB enters git (D-494).
 - **A preview link only when it is live**: run `node tools/agents/preview-ready.mjs` and give the owner the
   link only after it says `ready` ([docs/PREVIEWS.md](docs/PREVIEWS.md)); the PR's comment does the same.

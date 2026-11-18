@@ -135,7 +135,7 @@ console.log(`  screen: ${review.screen}`);
 console.log(`  horizontal scroll (C-8): ${review.horizontalScroll ? '⚠️  YES' : 'no'}`);
 console.log(`  buttons under 44 px (C-8): ${review.smallButtons.length ? '⚠️  ' + review.smallButtons.join(', ') : 'none'}`);
 console.log(`  board → buttons spacing (U-11, ${MIN_SPACING} px or more): ${!spacing.length ? 'no marked board' : lacksSpacing(spacing).length ? '⚠️  ' + lacksSpacing(spacing).join(', ') : spacing.map(f => `${f.spacing} px`).join(', ')}`);
-{ const off = JSON.parse(await b.evaluate(measureMargins)); console.log(`  margins (DESIGN.md rule 7, M-1…M-3): ${off.length ? '⚠️  ' + off.join(', ') : 'even'}`); }
+{ const off = JSON.parse(await b.evaluate(measureMargins)); console.log(`  margins (DESIGN.md rule 7, M-1…M-4): ${off.length ? '⚠️  ' + off.join(', ') : 'even'}`); }
 console.log(`  buttons on top of each other (U-12): ${overlaps.length ? '⚠️  ' + overlaps.join(', ') : 'none'}`);
 console.log(`  the page is taller than the screen: ${review.excess > 0 ? `⚠️  ${review.excess} px` : 'no'}${notches ? ' (with notches)' : ''}`);
 console.log(`  buttons off screen: ${review.belowBottom.length ? '⚠️  ' + review.belowBottom.join(', ') : 'none'}`);

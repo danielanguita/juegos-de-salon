@@ -141,7 +141,7 @@
   },
   {
    "id": "key-margins",
-   "title": "The key margins are even: centered column, even card padding, even media in a card (DESIGN.md rule 7)",
+   "title": "The key margins are even and nothing covers the next block: centered column, even card padding, even media in a card, no block over the one before it (DESIGN.md rule 7, M-1…M-4)",
    "doc": "docs/DESIGN.md",
    "form": [
     "check"
@@ -154,6 +154,25 @@
     "public/**/*.css",
     "public/assets/js/splash.js"
    ]
+  },
+  {
+   "id": "visual-measured",
+   "title": "Every visual change is measured before it ships: shot by its e2e script, measured with look.mjs at 390 and 320 px, what was measured said in the PR (DESIGN.md rule 10, D-570)",
+   "doc": "docs/DESIGN.md",
+   "form": [
+    "check",
+    "judged"
+   ],
+   "enforcedBy": [
+    "tools/e2e/margins-common.mjs",
+    "tools/e2e/cdp.mjs"
+   ],
+   "reviewer": "the session making the change, and the usability agent (.claude/agents/usability.md) on the PR",
+   "applies": [
+    "public/**/*.css",
+    "public/**/index.html"
+   ],
+   "why": "whether picture, title, text and first button sit as evenly as in the neighbouring games is a comparison by eye; overlaps and uneven margins are measured by M-1…M-4"
   },
   {
    "id": "game-icons",
