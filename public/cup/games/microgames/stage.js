@@ -182,7 +182,7 @@ export function playRun({ order: list, seed, done = [], onGame = () => {}, onEnd
   // The intro of the two games where a finger drags something side to side (¡Atrapa!, ¡Equilibra!), as ¡Pinball!'s shows its
   // table: a faded ghost of the thing at both ends of its path, the real one sliding between them with a thumb under it
   const INTRO = makeIntros(reduce, MOLE_ICON);
-  const DRAG_INTRO = (kind, inner) => `<div class="dg-intro ${kind}" aria-hidden="true"><i class="dg-track"></i>${inner}</div>`;
+  const DRAG_INTRO = (kind, inner) => `<div class="dg-intro dgk-${kind}" aria-hidden="true"><i class="dg-track"></i>${inner}</div>`;
   const ATRAPA_INTRO = () => DRAG_INTRO('atrapa', `<span class="dg-ghost l">🧺</span><span class="dg-ghost r">🧺</span>
     <span class="dg-fall coin1">🪙</span><span class="dg-fall bomb">💣</span><span class="dg-fall coin2">🪙</span>
     <span class="dg-mover"><span class="dg-item">🧺</span><span class="dg-thumb">👆<i></i></span></span>`);
@@ -193,7 +193,7 @@ export function playRun({ order: list, seed, done = [], onGame = () => {}, onEnd
   // SVG with its own animation, so the thumb really travels (reduced motion: the still drawing only)
   const thumb = (path, d, keys = 'keyPoints="0;1;1" keyTimes="0;0.7;1"', lag = 0) => `<g><g transform="translate(-4 -3)"><text x="0" y="22" font-size="22" text-anchor="middle">👆</text></g>${reduce ? '' : `<animateMotion path="${path}" dur="${d}s" begin="${lag}s" repeatCount="indefinite" calcMode="linear" ${keys}/>`}</g>`;
   const trail = (path, d, cls = '') => `<path d="${path}" pathLength="100" class="sw-trail ${cls}" fill="none" stroke-dasharray="100" stroke-dashoffset="${reduce ? 0 : 100}">${reduce ? '' : `<animate attributeName="stroke-dashoffset" values="100;0;0" keyTimes="0;0.7;1" dur="${d}s" repeatCount="indefinite"/>`}</path>`;
-  const SWIPE_INTRO = (kind, inner) => `<div class="dg-intro swipe ${kind}" aria-hidden="true"><svg viewBox="0 0 200 64" preserveAspectRatio="xMidYMid meet">${inner}</svg></div>`;
+  const SWIPE_INTRO = (kind, inner) => `<div class="dg-intro swipe dgk-${kind}" aria-hidden="true"><svg viewBox="0 0 200 64" preserveAspectRatio="xMidYMid meet">${inner}</svg></div>`;
   const CUT = 'M30 52 L170 14', ROLL = 'M18 50 C58 2 88 62 118 30 S170 10 184 36', HEART = 'M100 56 C58 32 68 4 100 20 C132 4 142 32 100 56 Z', CHASE = 'M30 44 L76 12 L108 50 L156 18 L174 46';
   const CORTA_INTRO = FOOD => SWIPE_INTRO('corta', `<text x="100" y="42" font-size="34" text-anchor="middle">${FOOD}</text>
     <path d="${CUT}" class="sw-dash" fill="none"/>${trail(CUT, 2.6)}${thumb(CUT, 2.6)}`);

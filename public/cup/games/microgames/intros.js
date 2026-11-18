@@ -11,7 +11,7 @@ export function makeIntros(reduce, MOLE) {
   // One looping attribute animation / transform animation, none with reduced motion
   const A = (attr, values, keyTimes, dur) => reduce ? '' : `<animate attributeName="${attr}" values="${values}" keyTimes="${keyTimes}" dur="${dur}s" repeatCount="indefinite"/>`;
   const AT = (values, keyTimes, dur, type = 'translate') => reduce ? '' : `<animateTransform attributeName="transform" type="${type}" values="${values}" keyTimes="${keyTimes}" dur="${dur}s" repeatCount="indefinite"/>`;
-  const box = (kind, inner) => `<div class="dg-intro swipe ${kind}" aria-hidden="true"><svg viewBox="0 0 200 64" preserveAspectRatio="xMidYMid meet">${inner}</svg></div>`;
+  const box = (kind, inner) => `<div class="dg-intro swipe dgk-${kind}" aria-hidden="true"><svg viewBox="0 0 200 64" preserveAspectRatio="xMidYMid meet">${inner}</svg></div>`;
   const f2 = n => (Math.round(n * 1000) / 1000).toString();
   const THUMB = '<g transform="translate(-4 -3)"><text x="0" y="22" font-size="22" text-anchor="middle">👆</text></g>';
 
@@ -48,7 +48,7 @@ export function makeIntros(reduce, MOLE) {
     const tk = ts.map(f2).join(';');
     return box('toca', `<rect x="20" y="54" width="34" height="4" rx="2" fill="#fff" fill-opacity="0.2"/>
       <g transform="translate(37 40)"><ellipse rx="6" ry="7" fill="${REDS}" stroke="#fff" stroke-opacity="0.5" stroke-width="1">${A('rx', grow.join(';'), tk, dur)}${A('ry', growY.join(';'), tk, dur)}</ellipse></g>
-      <g transform="translate(150 34)"><rect x="-4" y="-12" width="8" height="12" rx="2" fill="#aaa"/><rect x="-13" y="0" width="26" height="10" rx="4" fill="${YEL}"/>${AT(pump.join(';'), tk, dur)}</g>
+      <g transform="translate(150 34)"><g><rect x="-4" y="-12" width="8" height="12" rx="2" fill="#aaa"/><rect x="-13" y="0" width="26" height="10" rx="4" fill="${YEL}"/>${AT(pump.join(';'), tk, dur)}</g></g>
       ${finger([[150, 22], [150, 22], [150, 22], [150, 22]], dur, [0, 1, 2, 3])}`); };
   I.espera = () => box('espera', `<circle cx="100" cy="26" r="16" fill="${REDS}">${A('fill', `${REDS};${REDS};${GREEN};${GREEN};${REDS}`, '0;0.45;0.5;0.95;1', 3.2)}</circle>
     ${finger([[100, 44], [100, 44]], 3.2, [1])}${label(100, 62, '…', 10)}`);
@@ -91,7 +91,7 @@ export function makeIntros(reduce, MOLE) {
     const rings = seq.map((v, k) => { const [x, y] = centre(v), a = t2(k), kts = `0;${f2(a)};${f2(a + 0.06)};1`;
       return `<circle cx="${x}" cy="${y}" r="3" fill="none" stroke="#fff" stroke-width="1.5" opacity="0">${A('opacity', '0;0.9;0;0', kts, dur)}${A('r', '2;2;13;13', kts, dur)}</circle>`; }).join('');
     return box('repite', `${padsSvg}${rings}<g transform="translate(${start.join(' ')})">${THUMB}${AT(vs.map(p => p.join(' ')).join(';'), kt.map(f2).join(';'), dur)}</g>`); };
-  I.aplasta = () => box('aplasta', `${[[40, 20, 0], [90, 46, 0.2], [150, 24, 0.4]].map(([x, y, d], i) => `<g transform="translate(${x} ${y})"><text font-size="16" text-anchor="middle">🪰</text>${AT(`0 0;8 -5;-6 4;0 0`, '0;0.3;0.7;1', 1.4 + d)}${i === 1 ? A('opacity', '1;1;0;0;1', '0;0.4;0.45;0.9;1', 1.4 + d) : ''}</g>`).join('')}
+  I.aplasta = () => box('aplasta', `${[[40, 20, 0], [90, 46, 0.2], [150, 24, 0.4]].map(([x, y, d], i) => `<g transform="translate(${x} ${y})"><g><text font-size="16" text-anchor="middle">🪰</text>${AT(`0 0;8 -5;-6 4;0 0`, '0;0.3;0.7;1', 1.4 + d)}${i === 1 ? A('opacity', '1;1;0;0;1', '0;0.4;0.45;0.9;1', 1.4 + d) : ''}</g></g>`).join('')}
     ${glow(`<text x="90" y="52" font-size="18" text-anchor="middle">💥</text>`, 1, 2, 2.8)}${finger([[170, 58], [90, 40]], 2.8, [1])}`);
   I.revienta = () => box('revienta', `${[[50, '#9aa7ff', 3.2, 0], [100, BLUE, 3.2, 0], [150, '#8a5cff', 3.2, 0.3]].map(([x, c, d], i) => `<circle cx="${x}" cy="70" r="${i === 1 ? 10 : 8}" fill="${c}" fill-opacity="0.8" stroke="#fff" stroke-opacity="0.6">${A('cy', '72;72;-8', '0;0.0;1', d + 1.2 * i)}${i === 1 ? A('opacity', '1;1;0;0', '0;0.56;0.6;1', d) : ''}</circle>`).join('')}
     ${finger([[170, 60], [100, 26]], 3.2, [1])}`);
@@ -105,7 +105,7 @@ export function makeIntros(reduce, MOLE) {
     return box('conecta', `${holes}<g><circle r="7" fill="${YEL}"/>${AT(`${top.join(' ')};${top.join(' ')};${bottom.join(' ')};${bottom.join(' ')};${top.join(' ')}`, '0;0.2;0.6;0.95;1', 3.4)}</g>
       <g transform="translate(${top[0]} ${top[1] + 4})">${THUMB}${AT(`${top[0]} ${top[1] + 4};${top[0]} ${top[1] + 4};${bottom[0]} ${bottom[1] + 4};${bottom[0]} ${bottom[1] + 4};${top[0]} ${top[1] + 4}`, '0;0.2;0.6;0.95;1', 3.4)}</g>`); };
   I.para = () => box('para', `<path d="M40 56 A60 60 0 0 1 160 56" fill="none" stroke="#fff" stroke-opacity="0.3" stroke-width="2"/><path d="M85 56 A28 28 0 0 1 115 56" fill="none" stroke="${GREEN}" stroke-width="6" stroke-linecap="round" stroke-opacity="0.7"/>
-    <g transform="translate(100 56)"><line x1="0" y1="0" x2="0" y2="-52" stroke="${YEL}" stroke-width="3" stroke-linecap="round"/>${AT('-70;-70;0;0;-70', '0;0.1;0.55;0.95;1', 3.2, 'rotate')}</g>
+    <g transform="translate(100 56)"><g><line x1="0" y1="0" x2="0" y2="-52" stroke="${YEL}" stroke-width="3" stroke-linecap="round"/>${AT('-70;-70;0;0;-70', '0;0.1;0.55;0.95;1', 3.2, 'rotate')}</g></g>
     ${glow(`<circle cx="100" cy="30" r="16" fill="none" stroke="${GREEN}" stroke-width="3"/>`, 1, 2, 3.2)}${finger([[170, 60], [118, 58]], 3.2, [1])}`);
   I.rebota = () => box('rebota', `${[60, 100, 140].map((x, i) => `<text x="${x}" y="16" font-size="14" text-anchor="middle">👾</text>`).join('')}
     <g><rect x="-16" y="44" width="32" height="5" rx="2.5" fill="${YEL}"/>${AT('60 0;140 0;60 0', '0;0.5;1', 3.2)}</g>
@@ -113,7 +113,7 @@ export function makeIntros(reduce, MOLE) {
     <g transform="translate(60 54)">${THUMB}${AT('60 54;140 54;60 54', '0;0.5;1', 3.2)}</g>`);
   I.hands = () => box('hands', `${label(46, 38, '3:00', 20)}<circle cx="136" cy="32" r="26" fill="#fff" fill-opacity="0.1" stroke="#fff" stroke-opacity="0.5" stroke-width="2"/>
     <line x1="136" y1="32" x2="136" y2="10" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/>
-    <g transform="translate(136 32)"><line x1="0" y1="0" x2="0" y2="-14" stroke="${YEL}" stroke-width="4" stroke-linecap="round"/>${AT('0;0;90;90;0', '0;0.15;0.6;0.95;1', 3.4, 'rotate')}</g>
+    <g transform="translate(136 32)"><g><line x1="0" y1="0" x2="0" y2="-14" stroke="${YEL}" stroke-width="4" stroke-linecap="round"/>${AT('0;0;90;90;0', '0;0.15;0.6;0.95;1', 3.4, 'rotate')}</g></g>
     <g>${THUMB}${reduce ? '' : `<animateMotion path="M136 18 A14 14 0 0 1 150 32" dur="3.4s" repeatCount="indefinite" keyPoints="0;0;1;1;0" keyTimes="0;0.15;0.6;0.95;1" calcMode="linear"/>`}</g>`);
   I.notoques = () => { const hole = x => `<ellipse cx="${x}" cy="50" rx="19" ry="7" fill="#2a1608"/>`;
     const pop = (x, body, times) => `<g transform="translate(${x} 50)"><g>${body}${AT('0 14;0 14;0 -8;0 -8;0 14;0 14', times, 4)}</g></g>`;
