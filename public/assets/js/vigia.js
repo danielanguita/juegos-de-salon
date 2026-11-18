@@ -118,8 +118,8 @@
 
   var V = {
     pagina: pagina(location.pathname),
-    // A browser marked in the panel as not counted writes its live errors to `owner`, as stats.js does
-    env: (function () { var e = entorno(location.hostname, location.pathname); try { if (e === 'prod' && localStorage.getItem('juegos-de-salon:not-counted') === '1') return 'owner'; } catch (_) { /* no storage */ } return e; })(),
+    // As stats.js's envFor: the live /labs/ pages write to `labs` (D-584), a browser marked in the panel as not counted to `owner`
+    env: (function () { var e = entorno(location.hostname, location.pathname); if (e === 'prod' && /^\/labs(\/|$)/.test(location.pathname)) return 'labs'; try { if (e === 'prod' && localStorage.getItem('juegos-de-salon:not-counted') === '1') return 'owner'; } catch (_) { /* no storage */ } return e; })(),
     nav: navegador(navigator.userAgent),
     fallas: [],          // lo que se mandó en esta carga, para las pruebas (C-14)
     vistos: {},

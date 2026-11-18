@@ -7,7 +7,8 @@
  * se apunta, por día y por entorno, en `stats/<env>/days/<día>`:
  *
  *   (envs: `prod` the live site, `dev` tests, previews and the home network (`envOf`), and
- *   `owner` a live browser the owner marked as not counted from the panel (`envFor`, D-471))
+ *   `owner` a live browser the owner marked as not counted from the panel (`envFor`, D-471), and
+ *   `labs` the live site's `/labs/` pages, kept out of the panel's numbers (D-584))
  *
  *   rooms/<CÓDIGO>: { game, at, v, players: { A: 'Javi' },     solo dos celulares: la sala ya
  *                     co: { A: 'CL' }, end: { winner, name, at } }  tiene esos nombres, y al
@@ -69,7 +70,7 @@ import { backGuard } from '../back-guard.js';
 import { screenBand } from '../screen-bands.js';
 
 // 'lab' salió con el laboratorio (D-67); queda en el panel para leer lo que quedó guardado
-export const ENVS = ['prod', 'dev', 'owner'];
+export const ENVS = ['prod', 'dev', 'owner', 'labs'];
 
 /**
  * A browser the owner marked from the panel as not counted (D-471): its play and visits on the
@@ -83,8 +84,18 @@ export function notCounted(storage = globalThis.localStorage) {
 export function setNotCounted(on, storage = globalThis.localStorage) {
   try { if (on) storage.setItem(NOT_COUNTED_KEY, '1'); else storage.removeItem(NOT_COUNTED_KEY); } catch (_) { /* no storage */ }
 }
-/** The environment this browser writes to: `envOf`, with a not-counted browser's live visits as `owner`. */
-export const envFor = (loc, storage) => { const e = envOf(loc || {}); return e === 'prod' && notCounted(storage) ? 'owner' : e; };
+/** Where the live site's lab pages write (D-584): `/labs/` and what hangs from it, never a player's numbers. */
+export const isLabsPath = pathname => /^\/labs(\/|$)/.test(String(pathname || ''));
+/**
+ * The environment this browser writes to: `envOf`, with the live site's `/labs/` pages as `labs`
+ * (D-584) and a not-counted browser's live visits as `owner` (D-471).
+ */
+export const envFor = (loc, storage) => {
+  const e = envOf(loc || {});
+  if (e !== 'prod') return e;
+  if (isLabsPath(loc?.pathname)) return 'labs';
+  return notCounted(storage) ? 'owner' : e;
+};
 // Los modos viven en `games.js` (C-16): acá solo se pregunta si el que llegó sube contador.
 
 /**

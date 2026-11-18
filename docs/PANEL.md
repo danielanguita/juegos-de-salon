@@ -34,6 +34,10 @@ La Copa's games without a page) and, for a game a flag launched, from the UTC da
 are not about a game and stay whole; the live views (now, logs, a game's own page) still show lab
 plays. The weekly report uses the same function, so the two agree.
 
+**The /labs/ pages write apart (D-584).** On the live site every page under `/labs/` writes to `stats/labs/`
+(**Labs** in the environment picker), not `stats/prod/`, so visits, users, traffic, health and the timeline
+leave the lab out too. Data from before stays in Live.
+
 | Section | Address | What it answers |
 |---|---|---|
 | 📊 Summary | `#/summary` | The main metric (**games finished**: rooms with an ending, offline games finished and La Copa games), one card per domain with its change, and what is being played now (`#/now` keeps the full list). |
