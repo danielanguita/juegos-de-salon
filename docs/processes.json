@@ -594,6 +594,74 @@
         "what": "compact-lang's gate removed: the cover compacts before first paint; landing-fold.mjs ignores the top bar and measures today's cover once",
         "pr": "pending"
       }
+    },
+    {
+      "key": "e2e-live-flags",
+      "what": "CI end-to-end: install-prompt.mjs · ✗ and says \"Juegos de Salón como app\"",
+      "seen": [
+        {
+          "date": "2026-11-06T20:50:40.992Z",
+          "what": "#1251 end-to-end: install-prompt.mjs",
+          "commit": "7dd2d8607b4bba1bf5e8b0f62fec84320f0d61b5"
+        },
+        {
+          "date": "2026-11-17T18:36:29.712Z",
+          "what": "#1523 end-to-end: install-prompt.mjs",
+          "commit": "8a32b0522abfb193fa225cfc7b1886ee3f38eebb"
+        },
+        {
+          "date": "2026-11-17T19:16:54.720Z",
+          "what": "#1533 end-to-end: install-prompt.mjs",
+          "commit": "bb233561349109f8175e919f092b4b7f162ebba9"
+        },
+        {
+          "date": "2026-11-17T19:25:43.012Z",
+          "what": "#1530 end-to-end: install-prompt.mjs",
+          "commit": "185f1dbf03ae0627bfdd865bf3fb7e4525948d71"
+        },
+        {
+          "date": "2026-11-17T19:32:17.829Z",
+          "what": "#1503 end-to-end: install-prompt.mjs",
+          "commit": "05decf9d0414f3e5adc556c43ea094640eee5f38"
+        }
+      ],
+      "mechanism": {
+        "date": "2026-11-17",
+        "what": "e2e tests read tools/e2e/flags-snapshot.json, never live Firebase flags (D-578)",
+        "pr": "https://github.com/ellokojavi/juegos-de-salon/pull/1550"
+      },
+      "signatures": [
+        "d92f6eced1"
+      ]
+    },
+    {
+      "key": "e2e-live-flags-talk",
+      "what": "CI end-to-end: cup/talk.mjs · ✗ es: the tester tab offers to show it again",
+      "seen": [
+        {
+          "date": "2026-11-17T16:32:10.652Z",
+          "what": "#1520 end-to-end: cup/talk.mjs",
+          "commit": "77d65f3bd87b3fddf0198e8d3eca1a9f532c9c87"
+        },
+        {
+          "date": "2026-11-17T17:12:59.713Z",
+          "what": "#1522 end-to-end: cup/talk.mjs",
+          "commit": "deea097e6435abbda564d4d9e52830271efc8c40"
+        },
+        {
+          "date": "2026-11-17T18:06:40.561Z",
+          "what": "#1503 end-to-end: cup/talk.mjs",
+          "commit": "18f985b241a17c8a985a29b141b7b48d6f5bc5fa"
+        }
+      ],
+      "mechanism": {
+        "date": "2026-11-17",
+        "what": "e2e tests read tools/e2e/flags-snapshot.json, never live Firebase flags (D-578)",
+        "pr": "https://github.com/ellokojavi/juegos-de-salon/pull/1550"
+      },
+      "signatures": [
+        "2ccd50abfb"
+      ]
     }
   ],
   "mechanisms": [
@@ -722,6 +790,18 @@
       "key": "readme-tests-block-stale",
       "what": "push-guard.mjs checks the worktree a cd moves to before git push (push-guard.test.mjs)",
       "pr": "https://github.com/ellokojavi/juegos-de-salon/pull/1468"
+    },
+    {
+      "date": "2026-11-17",
+      "key": "e2e-live-flags",
+      "what": "e2e tests read tools/e2e/flags-snapshot.json, never live Firebase flags (D-578)",
+      "pr": "https://github.com/ellokojavi/juegos-de-salon/pull/1550"
+    },
+    {
+      "date": "2026-11-17",
+      "key": "e2e-live-flags-talk",
+      "what": "e2e tests read tools/e2e/flags-snapshot.json, never live Firebase flags (D-578)",
+      "pr": "https://github.com/ellokojavi/juegos-de-salon/pull/1550"
     }
   ],
   "queueDone": [

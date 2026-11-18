@@ -1,0 +1,128 @@
+{
+  "aletazo": {
+    "state": "all"
+  },
+  "babel-tally": {
+    "state": "all"
+  },
+  "bn-salva": {
+    "state": "off"
+  },
+  "browser-lang": {
+    "state": "all"
+  },
+  "compact-lang": {
+    "state": "all"
+  },
+  "copa-crear": {
+    "state": "all"
+  },
+  "copa-espera": {
+    "state": "all"
+  },
+  "copa-hoy": {
+    "state": "all"
+  },
+  "cover-dialogs": {
+    "state": "all"
+  },
+  "cover-facts": {
+    "state": "all"
+  },
+  "cover-share": {
+    "state": "all"
+  },
+  "cup-again": {
+    "state": "all"
+  },
+  "cup-footer": {
+    "state": "all"
+  },
+  "cup-offline": {
+    "state": "all"
+  },
+  "cup-podium-early": {
+    "state": "all"
+  },
+  "cup-talk": {
+    "state": "all"
+  },
+  "cup-talk-hint": {
+    "state": "all"
+  },
+  "cup-talk-push": {
+    "state": "all"
+  },
+  "flap-tiebreak": {
+    "state": "all"
+  },
+  "home-pill-bar": {
+    "state": "all"
+  },
+  "install-invite": {
+    "state": "all"
+  },
+  "keyboard-lift": {
+    "state": "all"
+  },
+  "launch-test": {
+    "state": "all"
+  },
+  "microgames": {
+    "state": "all"
+  },
+  "mistakes-rule": {
+    "state": "all"
+  },
+  "name-guard": {
+    "state": "all"
+  },
+  "news-once": {
+    "state": "all"
+  },
+  "no-double-tap-zoom": {
+    "state": "all"
+  },
+  "offline": {
+    "state": "all"
+  },
+  "panel-nav-more": {
+    "state": "all"
+  },
+  "pm-pick-brush": {
+    "state": "all"
+  },
+  "routes-hint": {
+    "state": "all"
+  },
+  "stack": {
+    "state": "all"
+  },
+  "stick": {
+    "state": "all"
+  },
+  "sudoku": {
+    "state": "all"
+  },
+  "tango-time": {
+    "state": "all"
+  },
+  "tester-ribbon": {
+    "state": "all"
+  },
+  "uad-clean-hero": {
+    "state": "all"
+  },
+  "uad-month-end": {
+    "state": "all"
+  },
+  "uad-night-totals": {
+    "state": "all"
+  },
+  "uad-share-grids": {
+    "state": "all"
+  },
+  "uad-skip-end": {
+    "state": "all"
+  }
+}

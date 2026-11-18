@@ -36,6 +36,16 @@ SITE=http://localhost:8791 node tools/e2e/hangman/online.mjs /tmp/e2e
 script's Chromes, for example): the script's first Chrome uses `CDP_PORT`, the second the next one, and
 so on. It is optional; without it there is nothing to coordinate.
 
+## The flags the tests see (D-578)
+
+The site reads its runtime flags live from Firebase, and the owner launches a feature by flipping its
+flag to *all* on /labs/, with no PR (D-498). The tests do **not** read them live: `launch()` in
+`cdp.mjs` answers every request for `flags.json` with `tools/e2e/flags-snapshot.json`, so a flip never
+turns open PRs red at once (it did, five PRs on 2026-11-17). A script that needs another state sets
+it with `browser.flags({ '<id>': 'all' })` before loading the page. The processes round refreshes the
+snapshot when it differs (`node tools/agents/flags-snapshot.mjs check | refresh`) in its own PR, where a
+test that the launch breaks fails once and is fixed.
+
 ## Test levels (D-346)
 
 Each PR gets the least testing that still keeps the site safe, decided from what its changes reach
