@@ -706,10 +706,10 @@ export function createScene(canvas) {
       drawFruit(fr, rowToScreenY(fr.row), tile, padX);
     }
 
-    // Draw vehicles
+    // Draw vehicles & boats
     for (let r = minVisible; r <= maxVisible; r++) {
       const lane = g.lanes[r];
-      if (!lane || lane.kind !== 'road') continue;
+      if (!lane || (lane.kind !== 'road' && lane.kind !== 'water')) continue;
       const ry = rowToScreenY(r);
       for (const v of lane.vehicles) {
         drawVehicle(v, lane.dir, lane.sector, ry, tile, padX);
