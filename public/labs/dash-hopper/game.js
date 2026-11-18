@@ -1,5 +1,5 @@
 /**
- * Sapiondo: screens, touch/keyboard input, audio synth, session resume (C-6), sharing (C-7),
+ * Dash Hopper: screens, touch/keyboard input, audio synth, session resume (C-6), sharing (C-7),
  * and result exits (C-19). Simulation is in engine.js; rendering is in scene.js.
  */
 import { $, $$, el, vibrate, confetti } from '../../assets/js/ui.js';
@@ -16,9 +16,20 @@ import { rankingsVisibles } from '../../assets/js/jugador.js';
 import { GAME_ID, FINISH_ROW, DEFAULT_CONFIG, LOCALES } from './rules.js';
 import * as E from './engine.js';
 import { createScene } from './scene.js';
-import manifest from '../../assets/js/manifests/labs/sapiondo.js';
+import manifest from '../../assets/js/manifests/labs/dash-hopper.js';
 
 trackVisit();
+
+// C-20 / D-535 one-time localStorage migration from sapiondo -> dash-hopper
+try {
+  for (const suffix of ['best', 'diff', 'session']) {
+    const oldK = `juegos-de-salon:sapiondo:${suffix}`;
+    const newK = `juegos-de-salon:${GAME_ID}:${suffix}`;
+    const v = localStorage.getItem(oldK);
+    if (v !== null && localStorage.getItem(newK) === null) localStorage.setItem(newK, v);
+    if (v !== null) localStorage.removeItem(oldK);
+  }
+} catch (_) { /* ignore */ }
 
 const BEST_KEY = `juegos-de-salon:${GAME_ID}:best`;
 const DIFF_KEY = `juegos-de-salon:${GAME_ID}:diff`;
@@ -468,7 +479,7 @@ function renderIntro() {
 
   renderResumeSlot();
   startDashDemo();
-  footerInto($('#pie'), { screen: 'sapiondo-cover', inbox: false, lang });
+  footerInto($('#pie'), { screen: 'dash-hopper-cover', inbox: false, lang });
   coverWithDialogs($('#screen-intro'), { lang, alTocar: () => SFX.tap() });
 }
 
@@ -763,7 +774,7 @@ function init() {
 }
 
 // Hook for end-to-end tests (C-14)
-window.__sapiondo = {
+window.__dashHopper = {
   state: () => g,
   act: action => triggerAction(action),
   start: seed => startRun(seed || currentSeed),

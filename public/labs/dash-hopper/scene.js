@@ -1,5 +1,5 @@
 /**
- * Sapiondo: 2.5D top-down HTML5 Canvas renderer.
+ * Dash Hopper: 2.5D top-down HTML5 Canvas renderer.
  * No shadowBlur (kept fast on 3x phones; DPR capped at 2x).
  */
 import { COLS, FINISH_ROW, sectorOf } from './engine.js';
@@ -726,7 +726,7 @@ export function createScene(canvas) {
       });
     }
 
-    // Draw Sapiondo!
+    // Draw Dash Hopper!
     const f = g.frog;
     const shakeX = hitShake > 0 ? Math.sin(clock * 65) * tile * 0.14 * (hitShake / 0.45) : 0;
     const fx = padX + (f.x + 0.5) * tile + shakeX;

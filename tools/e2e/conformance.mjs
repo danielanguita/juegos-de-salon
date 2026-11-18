@@ -48,7 +48,7 @@ const START = {
   // Its one mode starts the first trip, already saved
   'labs/transfer': [`document.querySelector('.mode').click()`],
   // Its one mode starts the crossing directly, already saved
-  'labs/sapiondo': [`document.querySelector('.mode').click()`],
+  'labs/dash-hopper': [`document.querySelector('.mode').click()`],
 };
 
 const b = await launch({ port: 0, dir: `${OUT}/p`, out: OUT });

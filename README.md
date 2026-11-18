@@ -688,7 +688,7 @@ These documents are being moved to English (D-316); the ones with a Spanish titl
 - [📐 Loteo (Plots · Loteamento · Parzellen)](docs/games/plots.md)
 - [👑 Queens (Reinas)](docs/games/queens.md)
 - [🚇 Rutas rotas (Broken Routes)](docs/games/routes.md)
-- [🐸 Saporín (lab, in Juegos en prueba)](docs/games/sapiondo.md)
+- [🐸 Saporín (lab, in Juegos en prueba)](docs/games/dash-hopper.md)
 - [🗼 Babel (La Copa game, launched by flag; Stack in the lab)](docs/games/stack.md)
 - [🥷 Shinobi (La Copa game; Stick Ninja in the lab before)](docs/games/stick.md)
 - [#️⃣ Sudoku (La Copa game, launched by flag; the lab prototype stays until the cleanup)](docs/games/sudoku.md)

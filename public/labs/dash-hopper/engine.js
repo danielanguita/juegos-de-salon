@@ -1,8 +1,7 @@
 /**
- * Sapiondo in La Copa: pure, deterministic highway-crossing engine (no DOM).
- * Uses hash32(code:day) so every player in the same Cup gets the exact same traffic & fruits.
+ * Dash Hopper: pure, deterministic game engine (no DOM, fixed timestep, seeded RNG).
+ * Designed for repeatable Cup play: identical seed + identical inputs produce identical runs.
  */
-import { hash32 } from '../semilla.js';
 
 export const COLS = 7;
 export const FINISH_ROW = 33;
@@ -24,6 +23,7 @@ export const LIVES = 3;
 export const MAX_DASHES = 3;
 export const SHIELD_DUR = 1.5;
 
+/** Deterministic Mulberry32 PRNG returning floats in [0, 1). */
 export function createRng(seed) {
   let a = (Number(seed) >>> 0) || 1;
   return () => {
@@ -33,6 +33,10 @@ export function createRng(seed) {
     t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
     return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
   };
+}
+
+export function randomSeed() {
+  return Math.floor(1000 + Math.random() * 9000);
 }
 
 export function sectorOf(row) {
@@ -50,22 +54,6 @@ const VEHICLE_SPECS = {
 };
 
 const SEDAN_COLORS = ['coral', 'teal', 'indigo', 'lime'];
-
-export function wrapX(x) {
-  const min = -WRAP_PAD;
-  const max = COLS + WRAP_PAD;
-  const span = max - min;
-  return ((((x - min) % span) + span) % span) + min;
-}
-
-function buildMedianProps(rand) {
-  const props = [];
-  for (let c = 0; c < COLS; c++) {
-    if (c === 3) continue;
-    if (rand() < 0.28) props.push({ col: c, kind: rand() < 0.55 ? 'shrub' : 'cone' });
-  }
-  return props;
-}
 
 function buildWaterLane(row, rand, prevDir, diffCfg) {
   const dir = prevDir ? -prevDir : (rand() < 0.5 ? 1 : -1);
@@ -88,14 +76,15 @@ function buildWaterLane(row, rand, prevDir, diffCfg) {
   return { row, kind: 'water', sector: 3, dir, speed, vehicles, props: [] };
 }
 
-function buildLane(row, finishRow, rand, prevDir, diffCfg) {
+function buildLane(row, rand, prevDir, diffCfg) {
   if (row === 0) return { row, kind: 'safe', sector: 1, dir: 0, speed: 0, vehicles: [], props: [] };
   if (row === 11) return { row, kind: 'median', sector: 2, dir: 0, speed: 0, vehicles: [], props: buildMedianProps(rand) };
   if (row === 21) return { row, kind: 'median', sector: 3, dir: 0, speed: 0, vehicles: [], props: buildMedianProps(rand) };
   if (row === 22) return buildWaterLane(row, rand, prevDir, diffCfg);
-  if (row >= finishRow) return { row, kind: 'finish', sector: 3, dir: 0, speed: 0, vehicles: [], props: [] };
+  if (row >= FINISH_ROW) return { row, kind: 'finish', sector: 3, dir: 0, speed: 0, vehicles: [], props: [] };
 
   const sector = sectorOf(row);
+  // Alternate directions frequently while keeping a slight random rhythm
   const dir = prevDir ? (rand() < 0.78 ? -prevDir : prevDir) : (rand() < 0.5 ? 1 : -1);
 
   let pool;
@@ -116,6 +105,7 @@ function buildLane(row, finishRow, rand, prevDir, diffCfg) {
   }
   baseSpeed *= diffCfg.speedScale;
 
+  // Pick vehicle types and ensure total occupied width leaves generous, fair gaps
   const vehicles = [];
   const chosen = [];
   let totalLen = 0;
@@ -132,6 +122,7 @@ function buildLane(row, finishRow, rand, prevDir, diffCfg) {
     totalLen = VEHICLE_SPECS.sedan.len;
   }
 
+  // Distribute remaining free space as guaranteed gaps
   const free = Math.max(diffCfg.minGap * chosen.length, TRACK_W - totalLen);
   const weights = chosen.map(() => 0.65 + rand() * 0.7);
   const wSum = weights.reduce((a, b) => a + b, 0);
@@ -142,12 +133,13 @@ function buildLane(row, finishRow, rand, prevDir, diffCfg) {
     const type = chosen[i];
     const spec = VEHICLE_SPECS[type];
     const gap = Math.max(diffCfg.minGap, (free * weights[i]) / wSum);
+    const x = wrapX(cursor);
     vehicles.push({
       id: `${row}-${i}`,
       type,
       len: spec.len,
       color: type === 'sedan' ? SEDAN_COLORS[Math.floor(rand() * SEDAN_COLORS.length)] : type,
-      x: wrapX(cursor),
+      x,
       grazed: false,
     });
     cursor += spec.len + gap;
@@ -156,12 +148,22 @@ function buildLane(row, finishRow, rand, prevDir, diffCfg) {
   return { row, kind: 'road', sector, dir, speed, vehicles, props: [] };
 }
 
+function buildMedianProps(rand) {
+  const props = [];
+  for (let c = 0; c < COLS; c++) {
+    if (c === 3) continue; // Keep center clear
+    if (rand() < 0.28) props.push({ col: c, kind: rand() < 0.55 ? 'shrub' : 'cone' });
+  }
+  return props;
+}
+
 function buildFruits(lanes, rand) {
   const fruits = [];
   for (const lane of lanes) {
     if (lane.kind !== 'road') continue;
     const chance = lane.sector === 1 ? 0.34 : lane.sector === 2 ? 0.42 : 0.48;
     if (rand() > chance) continue;
+    // Place fruits slightly off-center to reward lateral weaving
     const colPool = [1, 2, 4, 5, 0, 6];
     const col = colPool[Math.floor(rand() * colPool.length)];
     let kind = 'strawberry';
@@ -169,9 +171,23 @@ function buildFruits(lanes, rand) {
     if (lane.sector === 3 && roll < 0.55) kind = 'star';
     else if (lane.sector >= 2 && roll < 0.5) kind = 'mango';
     else if (roll < 0.2) kind = 'mango';
-    fruits.push({ id: `f-${lane.row}-${col}`, row: lane.row, col, kind, pts: PTS_FRUIT, taken: false });
+    fruits.push({
+      id: `f-${lane.row}-${col}`,
+      row: lane.row,
+      col,
+      kind,
+      pts: PTS_FRUIT,
+      taken: false,
+    });
   }
   return fruits;
+}
+
+export function wrapX(x) {
+  const min = -WRAP_PAD;
+  const max = COLS + WRAP_PAD;
+  const span = max - min;
+  return ((((x - min) % span) + span) % span) + min;
 }
 
 export function newGame({ seed = 4821, finishRow = FINISH_ROW, difficulty = 'normal', lives = LIVES, dashes = MAX_DASHES, mode = 'ready' } = {}) {
@@ -182,7 +198,7 @@ export function newGame({ seed = 4821, finishRow = FINISH_ROW, difficulty = 'nor
   const lanes = [];
   let prevDir = 0;
   for (let r = 0; r <= finishRow; r++) {
-    const lane = buildLane(r, finishRow, rand, prevDir, diffCfg);
+    const lane = buildLane(r, rand, prevDir, diffCfg);
     if (lane.dir) prevDir = lane.dir;
     lanes.push(lane);
   }
@@ -191,16 +207,28 @@ export function newGame({ seed = 4821, finishRow = FINISH_ROW, difficulty = 'nor
   return {
     seed: cleanSeed,
     difficulty: diffKey,
-    mode,
+    mode, // 'demo' | 'ready' | 'play' | 'win' | 'crash'
     finishRow,
     elapsed: 0,
     lanes,
     fruits,
     frog: {
-      col: 3, row: 0, fromCol: 3, fromRow: 0, toCol: 3, toRow: 0,
-      x: 3, y: 0, z: 0, hopT: 0, hopDur: HOP_DUR, isDash: false, dir: 'up', eyeAlert: 0,
+      col: 3,
+      row: 0,
+      fromCol: 3,
+      fromRow: 0,
+      toCol: 3,
+      toRow: 0,
+      x: 3,
+      y: 0,
+      z: 0,
+      hopT: 0,
+      hopDur: HOP_DUR,
+      isDash: false,
+      dir: 'up', // 'up' | 'left' | 'right'
+      eyeAlert: 0,
     },
-    queued: null,
+    queued: null, // 'up' | 'left' | 'right' | 'dash'
     dashes,
     maxDashes: dashes,
     lives,
@@ -270,12 +298,14 @@ function startHop(g, action) {
   return true;
 }
 
+/** Queue or execute a player move: 'up' | 'left' | 'right' | 'dash'. */
 export function act(g, action) {
   if (!g || g.mode === 'win' || g.mode === 'crash') return false;
   if (g.mode === 'ready') g.mode = 'play';
   const f = g.frog;
   const hopping = f.hopT < f.hopDur && (f.fromCol !== f.toCol || f.fromRow !== f.toRow);
   if (hopping) {
+    // Buffer the next move if we're past the first 25% of the hop
     if (f.hopT / f.hopDur >= 0.25) g.queued = action;
     return true;
   }
@@ -286,7 +316,12 @@ function triggerCloseCall(g, col, row, aerial = false) {
   g.closeCalls++;
   if (!aerial && g.dashes < (g.maxDashes || MAX_DASHES)) g.dashes++;
   g.frog.eyeAlert = 0.6;
-  g.events.push({ type: 'closeCall', col, row, aerial });
+  g.events.push({
+    type: 'closeCall',
+    col,
+    row,
+    aerial,
+  });
 }
 
 function checkCollectFruit(g, row, col) {
@@ -321,6 +356,7 @@ function finishHop(g) {
 
   checkCollectFruit(g, f.row, f.col);
 
+  // If dashed 2 lanes over an occupied middle lane, celebrate an aerial Close-Call!
   if (wasDash && f.toRow - midRow >= 1 && g.shield <= 0) {
     const midLane = g.lanes[midRow];
     if (midLane && midLane.kind === 'road') {
@@ -332,7 +368,9 @@ function finishHop(g) {
 
   if (f.row >= g.finishRow) {
     if (g.mode === 'demo') {
-      Object.assign(g, newGame({ seed: g.seed + 1, finishRow: g.finishRow, mode: 'demo' }));
+      // Loop demo cleanly from start
+      const fresh = newGame({ seed: g.seed + 1, mode: 'demo' });
+      Object.assign(g, fresh);
       return;
     }
     g.mode = 'win';
@@ -355,7 +393,8 @@ function boatUnderFrog(lane, fx) {
 function splashWater(g, laneIdx) {
   const f = g.frog;
   if (g.mode === 'demo') {
-    Object.assign(g, newGame({ seed: g.seed + 1, finishRow: g.finishRow, mode: 'demo' }));
+    const fresh = newGame({ seed: g.seed + 1, mode: 'demo' });
+    Object.assign(g, fresh);
     return;
   }
   g.lives = Math.max(0, (g.lives | 0) - 1);
@@ -380,20 +419,26 @@ function splashWater(g, laneIdx) {
 
 function checkTraffic(g) {
   const f = g.frog;
+  // Airborne during middle of a Dash clears vehicles & water cleanly
   if (f.isDash && f.z > 0.5) return;
+
   const hopping = f.fromCol !== f.toCol || f.fromRow !== f.toRow;
   const laneIdx = Math.round(f.y);
   const lane = g.lanes[laneIdx];
   if (!lane) return;
+
   if (lane.kind === 'water') {
     if (hopping) return;
-    if (f.x < -0.35 || f.x > COLS - 0.65 || !boatUnderFrog(lane, f.x + 0.5)) splashWater(g, laneIdx);
+    if (f.x < -0.35 || f.x > COLS - 0.65 || !boatUnderFrog(lane, f.x + 0.5)) {
+      splashWater(g, laneIdx);
+    }
     return;
   }
+
   if (g.shield > 0 || lane.kind !== 'road') return;
 
   const frogCenter = f.x + 0.5;
-  const frogHalf = 0.23;
+  const frogHalf = 0.23; // Forgiving arcade hitbox
 
   for (const v of lane.vehicles) {
     const vLeft = v.x + 0.08;
@@ -403,7 +448,8 @@ function checkTraffic(g) {
 
     if (fRight > vLeft && fLeft < vRight) {
       if (g.mode === 'demo') {
-        Object.assign(g, newGame({ seed: g.seed + 1, finishRow: g.finishRow, mode: 'demo' }));
+        const fresh = newGame({ seed: g.seed + 1, mode: 'demo' });
+        Object.assign(g, fresh);
         return;
       }
       g.lives = Math.max(0, (g.lives | 0) - 1);
@@ -420,7 +466,10 @@ function checkTraffic(g) {
       return;
     }
 
-    const minGap = Math.max(vLeft - fRight, fLeft - vRight);
+    // Near-miss check: within 0.42 tiles of bumper without colliding
+    const distLeft = vLeft - fRight;
+    const distRight = fLeft - vRight;
+    const minGap = Math.max(distLeft, distRight);
     if (minGap > 0 && minGap <= 0.42) {
       if (!v.grazed && g.mode === 'play') {
         v.grazed = true;
@@ -445,6 +494,7 @@ function laneClearAt(lane, col, lookAheadSec = 0.16) {
   return true;
 }
 
+/** Simple demo autopilot for the cover screen background. */
 export function autopilot(g, dt) {
   if (g.mode !== 'demo') return;
   g.demoTimer -= dt;
@@ -453,14 +503,26 @@ export function autopilot(g, dt) {
 
   const nextLane = g.lanes[f.row + 1];
   const afterLane = g.lanes[f.row + 2];
-  if (laneClearAt(nextLane, f.col, 0.25)) { startHop(g, 'up'); g.demoTimer = 0.22; return; }
-  if (g.dashes > 0 && laneClearAt(afterLane, f.col, 0.25)) { startHop(g, 'dash'); g.demoTimer = 0.28; return; }
+  if (laneClearAt(nextLane, f.col, 0.25)) {
+    startHop(g, 'up');
+    g.demoTimer = 0.22;
+    return;
+  }
+  if (g.dashes > 0 && laneClearAt(afterLane, f.col, 0.25)) {
+    startHop(g, 'dash');
+    g.demoTimer = 0.28;
+    return;
+  }
   const curLane = g.lanes[f.row];
-  if (f.col < COLS - 1 && laneClearAt(curLane, f.col + 1, 0.2) && laneClearAt(nextLane, f.col + 1, 0.25)) startHop(g, 'right');
-  else if (f.col > 0 && laneClearAt(curLane, f.col - 1, 0.2) && laneClearAt(nextLane, f.col - 1, 0.25)) startHop(g, 'left');
+  if (f.col < COLS - 1 && laneClearAt(curLane, f.col + 1, 0.2) && laneClearAt(nextLane, f.col + 1, 0.25)) {
+    startHop(g, 'right');
+  } else if (f.col > 0 && laneClearAt(curLane, f.col - 1, 0.2) && laneClearAt(nextLane, f.col - 1, 0.25)) {
+    startHop(g, 'left');
+  }
   g.demoTimer = 0.24;
 }
 
+/** Advance simulation by `dt` seconds. */
 export function step(g, dt) {
   if (!g || g.mode === 'win' || g.mode === 'crash') return;
 
@@ -471,18 +533,21 @@ export function step(g, dt) {
     autopilot(g, dt);
   }
 
+  // Move traffic & boats
   for (const lane of g.lanes) {
     if (lane.kind !== 'road' && lane.kind !== 'water') continue;
     const dx = lane.dir * lane.speed * dt;
     for (const v of lane.vehicles) v.x = wrapX(v.x + dx);
   }
 
+  // Advance frog hop / dash arc (or drift on a boat)
   const f = g.frog;
   if (f.eyeAlert > 0) f.eyeAlert = Math.max(0, f.eyeAlert - dt);
   const hopping = f.fromCol !== f.toCol || f.fromRow !== f.toRow;
   if (hopping) {
     f.hopT += dt;
     const p = Math.min(1, f.hopT / f.hopDur);
+    // Ease out slightly on horizontal/vertical travel, parabolic arc on z
     const ease = 1 - Math.pow(1 - p, 2);
     f.x = f.fromCol + (f.toCol - f.fromCol) * ease;
     f.y = f.fromRow + (f.toRow - f.fromRow) * ease;
@@ -499,27 +564,46 @@ export function step(g, dt) {
   if (g.mode === 'play' || g.mode === 'demo') checkTraffic(g);
 }
 
-/* ------------------------------------------------------------------ */
-/* La Copa                                                             */
-/* ------------------------------------------------------------------ */
-
-export function generateDay(code, day, { sal = '', ensayo = false } = {}) {
+/** Compact serializable snapshot for session.js resume (C-6). */
+export function serialize(g) {
   return {
-    semilla: hash32(`${code}:${day}${sal ? `:${sal}` : ''}`),
-    finishRow: ensayo ? 15 : FINISH_ROW,
+    seed: g.seed,
+    difficulty: g.difficulty || 'normal',
+    mode: g.mode,
+    elapsed: g.elapsed,
+    frog: { ...g.frog },
+    dashes: g.dashes,
+    lives: g.lives,
+    shield: g.shield,
+    maxRow: g.maxRow,
+    fruitsTaken: g.fruitsTaken,
+    closeCalls: g.closeCalls,
+    dashesUsed: g.dashesUsed,
+    takenFruits: g.fruits.filter(f => f.taken).map(f => f.id),
+    vehicles: g.lanes.map(l => l.vehicles.map(v => v.x)),
   };
 }
 
-export const score = e => Math.max(0, Math.round(Number(e?.score) || 0));
-
-export function card(e) {
-  const rows = Math.max(0, e?.maxRow | 0);
-  const total = Math.max(1, e?.finishRow | 0);
-  const fruits = Math.max(0, e?.fruitsTaken | 0);
-  const close = Math.max(0, e?.closeCalls | 0);
-  const end = e?.won ? '🏁' : '💥';
-  return `🐸 ${rows}/${total} · 🍓${fruits} ⚡${close} ${end}`;
+export function hydrate(snap) {
+  if (!snap || !snap.seed) return null;
+  const g = newGame({ seed: snap.seed, difficulty: snap.difficulty || 'normal', mode: snap.mode === 'ready' ? 'ready' : 'play' });
+  g.elapsed = snap.elapsed || 0;
+  Object.assign(g.frog, snap.frog);
+  g.dashes = Number.isFinite(snap.dashes) ? snap.dashes : MAX_DASHES;
+  g.lives = Number.isFinite(snap.lives) ? snap.lives : LIVES;
+  g.shield = snap.shield || 0;
+  g.maxRow = snap.maxRow || 0;
+  g.fruitsTaken = snap.fruitsTaken || 0;
+  g.closeCalls = snap.closeCalls || 0;
+  g.dashesUsed = snap.dashesUsed || 0;
+  const taken = new Set(snap.takenFruits || []);
+  for (const fr of g.fruits) if (taken.has(fr.id)) fr.taken = true;
+  if (Array.isArray(snap.vehicles)) {
+    g.lanes.forEach((l, i) => {
+      const xs = snap.vehicles[i];
+      if (Array.isArray(xs)) l.vehicles.forEach((v, k) => { if (typeof xs[k] === 'number') v.x = xs[k]; });
+    });
+  }
+  recomputeScore(g);
+  return g;
 }
-
-export const DAY_K = 35;
-export const dayScore = s => Math.max(0, Math.min(100, Math.round(100 * (1 - Math.exp(-(Number(s) || 0) / DAY_K)))));

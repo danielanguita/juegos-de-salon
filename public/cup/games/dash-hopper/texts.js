@@ -1,5 +1,5 @@
 /**
- * Sapiondo in La Copa: es, en, pt texts merged into cup/rules.js (C-3).
+ * Dash Hopper in La Copa: es, en, pt texts merged into cup/rules.js (C-3).
  */
 const ES = {
   juego: {

@@ -129,4 +129,4 @@ for (let i = 0; i < 5; i++) step(water, STEP);
 assert.equal(water.lives, LIVES - 1, 'falling in water loses 1 life');
 assert.equal(water.frog.row, 21, 'splashing returns frog to shore');
 
-console.log('sapiondo engine.test.mjs ok');
+console.log('dash-hopper engine.test.mjs ok');
