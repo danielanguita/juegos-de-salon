@@ -63,17 +63,19 @@ export const measureMargins = `(()=>{
   const O = ${OVERLAP};
   const inFlow = e => { const s = getComputedStyle(e); return !['absolute', 'fixed', 'sticky'].includes(s.position) && s.float === 'none' && !['inline', 'contents'].includes(s.display); };
   // A hero's emoji or glyph (the game's icon, a crown, Uno al día's, Rankings') brings its own air: the title under it rises by design
-  const heroIcon = x => { const c = x.getAttribute('class') || ''; return /(^|[\\s-])(icon|crown|crown-big)([\\s-]|$)/.test(c) || /-icon(\\s|$)/.test(c); };
+  const heroIcon = x => { const c = x.getAttribute('class') || ''; return /(^|[\\s-])(icon|crown|crown-big|trophy|logo)([\\s-]|$)/.test(c) || /-(icon|logo)(\\s|$)/.test(c); };
   // Two siblings placed in the same grid cell on purpose (a card's pips and corners) are layers, not a column
   const placed = x => { const s = getComputedStyle(x); return s.gridRowStart !== 'auto' || s.gridArea.split('/')[0].trim() !== 'auto'; };
   // A playing card's face (its corners and pips) is a drawing, not a column of blocks
   const cardFace = x => x.parentElement?.closest('.face, .pcard');
+  // A tilted or animated sticker (Nuevo, Popular) is drawn turned: its box is not where the layout put it
+  const turned = x => getComputedStyle(x).transform !== 'none';
   const root = document.querySelector('.screen.active') || document.querySelector('.app') || document.body;
   for (const e of root.querySelectorAll('*')) {
     if (!visible(e) || skip(e) || !inFlow(e) || cardFace(e) || e.closest('svg') && e.tagName.toLowerCase() !== 'svg') continue;
     let p = e.previousElementSibling;
     while (p && (!visible(p) || !inFlow(p))) p = p.previousElementSibling;
-    if (!p || skip(p) || heroIcon(p)) continue;
+    if (!p || skip(p) || heroIcon(p) || turned(p) || turned(e)) continue;
     if (getComputedStyle(e.parentElement).display.includes('grid') && (placed(e) || placed(p))) continue;
     const a = p.getBoundingClientRect(), b = e.getBoundingClientRect();
     const below = b.top >= a.top + a.height / 2;

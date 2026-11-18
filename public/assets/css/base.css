@@ -915,6 +915,8 @@ body.azar-abierto { overflow: hidden; }
    phrase in white. Its options are chips, each tinted with its own color and its color circle on the left (variant C2,
    the owner, 2026-11-09): the pill of the cards' tags, so the corner reads as part of the app and not as more game cards */
 footer.atardecer { margin: 0 -18px -32px; padding: 28px 18px 32px; background: linear-gradient(180deg, transparent, rgb(var(--purple-rgb) / 0.28) 45%, rgb(var(--pink-rgb) / 0.32)); }
+/* On a screen shorter than the phone the sunset rests on the bottom edge: pushed down, its gradient ends where the page does, no dark band below */
+.screen > footer.atardecer:last-child { margin-top: auto; }
 footer.atardecer .footer-msg { color: var(--ink); opacity: 1; font-weight: 800; font-size: 1.04rem; }
 footer.atardecer .footer-links.tiles::before, .footer-links.tiles.chips::before { content: none; }
 footer.atardecer .footer-links.tiles, .footer-links.tiles.chips { display: flex; flex-wrap: wrap; justify-content: center; max-width: none; gap: 8px; margin-top: 18px; }
