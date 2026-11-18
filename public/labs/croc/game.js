@@ -44,7 +44,6 @@ const fmt = (s, vars = {}) => String(s).replace(/\{(\w+)\}/g, (_, k) => (vars[k]
 const urlSeed = Number(new URLSearchParams(location.search).get('seed'));
 let currentSeed = urlSeed > 0 ? Math.floor(urlSeed) : E.randomSeed();
 let difficulty = 'normal';
-try { if (localStorage.getItem(DIFF_KEY) === 'hard') difficulty = 'hard'; } catch (_) { /* ignore */ }
 
 let g = null;
 let paused = false;
@@ -128,217 +127,60 @@ function updateHud() {
 }
 
 /* ---------------- Intro ---------------- */
+/**
+ * The cover's demo is the real game: the engine plays a run on its own (mode 'demo', its autopilot)
+ * and the game's own scene draws it, so the cover shows the frog, the cars, the canal and the boats
+ * as they are. It follows the lever's traffic, and a caption under it says what the frog is doing.
+ */
+let demoG = null;
+let demoScene = null;
+let demoRun = 0;
+let demoCaption = '';
+function newDemo() {
+  demoG = E.newGame({ ...DEFAULT_CONFIG, seed: E.randomSeed(), difficulty, mode: 'demo' });
+  demoScene?.clear();
+}
+function setDemoCaption(text) {
+  if (text === demoCaption) return;
+  demoCaption = text;
+  $('#demo-caption').textContent = text;
+}
 function startDashDemo() {
   const c = $('#dash-demo');
   if (!c) return;
-  const ctx = c.getContext('2d');
-  const reduced = matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-  let t = reduced ? 1.4 : 0;
+  if (!demoScene) {
+    demoScene = createScene(c);
+    new ResizeObserver(() => demoScene.measure()).observe(c);
+  }
+  newDemo();
+  demoScene.measure();
+  const run = ++demoRun;
   let last = performance.now();
-
-  const drawDemo = now => {
+  let acc = 0;
+  let dashUntil = 0;
+  const frame = now => {
+    if (run !== demoRun) return;
     const dt = Math.min(0.05, (now - last) / 1000);
     last = now;
-    if (!$('#screen-intro').classList.contains('active')) {
-      requestAnimationFrame(drawDemo);
-      return;
+    if ($('#screen-intro').classList.contains('active')) {
+      if (QUIET()) acc = 0; else acc += dt;
+      while (acc >= E.STEP) {
+        E.step(demoG, E.STEP);
+        demoScene.tick(E.STEP, demoG);
+        acc -= E.STEP;
+        for (const ev of demoG.events.splice(0)) {
+          if (ev.type === 'dash') dashUntil = now + 1400;
+          demoScene.fx(ev, demoG, { closeCall: T.closeCall });
+        }
+        if (demoG.mode === 'win' || demoG.mode === 'crash') { newDemo(); break; }
+      }
+      const kind = demoG.lanes[demoG.frog.row + 1]?.kind;
+      setDemoCaption(now < dashUntil ? T.demoHint : (kind === 'water' || demoG.lanes[demoG.frog.row]?.kind === 'water') ? T.demoBoatHint : T.demoHopHint);
+      demoScene.draw(demoG, null);
     }
-    if (!reduced) t = (t + dt) % 9.6;
-    const cycle = t < 3.2 ? 0 : t < 6.4 ? 1 : 2; // 0 = road + dash, 1 = water + dash, 2 = water + boat hop
-    const p = t % 3.2;
-
-    const dpr = Math.min(2, devicePixelRatio || 1);
-    const w = c.clientWidth || 320;
-    const h = c.clientHeight || 96;
-    if (c.width !== Math.round(w * dpr) || c.height !== Math.round(h * dpr)) {
-      c.width = Math.round(w * dpr);
-      c.height = Math.round(h * dpr);
-    }
-
-    ctx.save();
-    ctx.scale(dpr, dpr);
-    const laneH = h / 3;
-
-    // 3 horizontal lanes: top landing curb, middle hazard (road or water), bottom start curb
-    ctx.fillStyle = '#2c6b3f';
-    ctx.fillRect(0, 0, w, laneH);
-    ctx.fillRect(0, laneH * 2, w, laneH);
-    if (cycle === 0) {
-      ctx.fillStyle = '#1b2238';
-      ctx.fillRect(0, laneH, w, laneH);
-      ctx.fillStyle = 'rgba(255,255,255,0.18)';
-      for (let x = 12; x < w; x += 28) ctx.fillRect(x, laneH + laneH / 2 - 1, 14, 2);
-    } else {
-      ctx.fillStyle = '#0ea5e9';
-      ctx.fillRect(0, laneH, w, laneH);
-      ctx.fillStyle = 'rgba(224, 242, 254, 0.32)';
-      const drift = (t * 28) % 36;
-      for (let x = -36; x < w + 36; x += 36) ctx.fillRect(x + drift, laneH + laneH * 0.45, 16, 2.5);
-    }
-
-    // Moving car (cycle 0) or floating boat (cycles 1 & 2) in middle lane
-    const frogBaseX = w * 0.24;
-    let boatCenterX = frogBaseX;
-    if (cycle === 0) {
-      const carW = 40;
-      const carH = laneH * 0.68;
-      const carX = ((p * 85 + w * 0.1) % (w + carW)) - carW;
-      const carY = laneH + (laneH - carH) / 2;
-      ctx.fillStyle = '#ff5d6c';
-      ctx.beginPath();
-      ctx.roundRect(carX, carY, carW, carH, 6);
-      ctx.fill();
-      ctx.fillStyle = '#ff9aa4';
-      ctx.beginPath();
-      ctx.roundRect(carX + 8, carY + 3, carW - 16, carH - 6, 4);
-      ctx.fill();
-    } else {
-      const boatW = 62;
-      const boatH = laneH * 0.68;
-      const boatY = laneH + (laneH - boatH) / 2;
-      // In cycle 2, boat passes right under frogBaseX during 0.5..1.9s so frog hops on & rides it
-      const boatX = cycle === 2
-        ? frogBaseX - boatW * 0.45 + (p - 0.5) * 32
-        : ((p * 55 + w * 0.45) % (w + boatW)) - boatW;
-      boatCenterX = boatX + boatW * 0.5;
-
-      ctx.fillStyle = 'rgba(224, 242, 254, 0.38)';
-      ctx.fillRect(boatX - 10, boatY + boatH * 0.32, 10, 3);
-      ctx.fillRect(boatX - 8, boatY + boatH * 0.62, 8, 3);
-      ctx.fillStyle = '#d97706';
-      ctx.beginPath();
-      ctx.roundRect(boatX, boatY, boatW, boatH, 7);
-      ctx.fill();
-      ctx.fillStyle = '#fde68a';
-      ctx.beginPath();
-      ctx.roundRect(boatX + 6, boatY + 3, boatW - 12, boatH - 6, 5);
-      ctx.fill();
-      ctx.fillStyle = '#f8fafc';
-      ctx.beginPath();
-      ctx.roundRect(boatX + boatW * 0.58, boatY + 5, boatW * 0.24, boatH - 10, 3);
-      ctx.fill();
-    }
-
-    const startY = laneH * 2.5;
-    const midY = laneH * 1.5;
-    const endY = laneH * 0.5;
-
-    // Glowing yellow Dash arrow (cycles 0 & 1)
-    if (cycle < 2 && p >= 0.2 && p <= 1.35) {
-      const a = p < 1.1 ? Math.min(0.85, (p - 0.2) * 2.2) : Math.max(0, (1.35 - p) * 3.4);
-      ctx.save();
-      ctx.globalAlpha = a * 0.85;
-      ctx.fillStyle = '#ffd94a';
-      ctx.beginPath();
-      ctx.moveTo(frogBaseX, endY - 4);
-      ctx.lineTo(frogBaseX + 14, endY + 11);
-      ctx.lineTo(frogBaseX + 6, endY + 11);
-      ctx.lineTo(frogBaseX + 6, startY);
-      ctx.lineTo(frogBaseX - 6, startY);
-      ctx.lineTo(frogBaseX - 6, endY + 11);
-      ctx.lineTo(frogBaseX - 14, endY + 11);
-      ctx.closePath();
-      ctx.fill();
-      ctx.restore();
-    }
-
-    // Frog position: Dash 2 lanes (cycles 0 & 1) OR hop onto floating boat, ride, hop off (cycle 2)
-    let fx = frogBaseX;
-    let fy = startY;
-    let scale = 1;
-    if (cycle < 2) {
-      let jump = 0;
-      if (p >= 1.0 && p < 1.6) jump = (p - 1.0) / 0.6;
-      else if (p >= 1.6 && p < 2.75) jump = 1;
-      const ease = 1 - Math.pow(1 - jump, 2);
-      const arc = Math.sin(jump * Math.PI) * 14;
-      fy = startY + (endY - startY) * ease - arc * 0.35;
-      scale = 1 + Math.sin(jump * Math.PI) * 0.35;
-    } else if (p < 0.45) {
-      fy = startY;
-    } else if (p < 0.85) {
-      const hop1 = (p - 0.45) / 0.4;
-      const ease = 1 - Math.pow(1 - hop1, 2);
-      fx = frogBaseX + (boatCenterX - frogBaseX) * ease;
-      fy = startY + (midY - startY) * ease - Math.sin(hop1 * Math.PI) * 6;
-      scale = 1 + Math.sin(hop1 * Math.PI) * 0.22;
-    } else if (p < 1.8) {
-      fx = boatCenterX;
-      fy = midY;
-    } else if (p < 2.2) {
-      const hop2 = (p - 1.8) / 0.4;
-      const ease = 1 - Math.pow(1 - hop2, 2);
-      const exitX = frogBaseX + (1.8 - 0.5) * 32;
-      fx = exitX;
-      fy = midY + (endY - midY) * ease - Math.sin(hop2 * Math.PI) * 6;
-      scale = 1 + Math.sin(hop2 * Math.PI) * 0.22;
-    } else {
-      fx = frogBaseX + (1.8 - 0.5) * 32;
-      fy = endY;
-    }
-
-    ctx.save();
-    ctx.translate(fx, fy);
-    ctx.scale(scale, scale);
-    ctx.fillStyle = '#5de65a';
-    ctx.beginPath();
-    ctx.arc(0, 0, 10, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.fillStyle = '#ffffff';
-    ctx.beginPath();
-    ctx.arc(-4, -5, 3, 0, Math.PI * 2);
-    ctx.arc(4, -5, 3, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.fillStyle = '#13192c';
-    ctx.beginPath();
-    ctx.arc(-4, -5.5, 1.5, 0, Math.PI * 2);
-    ctx.arc(4, -5.5, 1.5, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.restore();
-
-    // Right-side swipe hand + label (long swipe for Dash, two short swipes for boat hop)
-    const handX = w * 0.72;
-    let swipeProg = 0;
-    let handAlpha = 0.35;
-    if (cycle < 2) {
-      swipeProg = p < 1.05 ? Math.min(1, Math.max(0, (p - 0.15) / 0.85)) : 1;
-      handAlpha = p < 1.35 ? 0.92 : Math.max(0.25, 1 - (p - 1.35) * 0.6);
-    } else if (p < 1.2) {
-      swipeProg = Math.min(0.45, Math.max(0, (p - 0.1) / 0.35) * 0.45);
-      handAlpha = p < 0.8 ? 0.92 : 0.35;
-    } else {
-      swipeProg = Math.min(0.45, Math.max(0, (p - 1.45) / 0.35) * 0.45);
-      handAlpha = p < 2.1 ? 0.92 : 0.3;
-    }
-    const handY = h * 0.78 - swipeProg * (h * 0.52);
-    ctx.save();
-    ctx.globalAlpha = handAlpha;
-    ctx.strokeStyle = 'rgba(255, 217, 74, 0.55)';
-    ctx.lineWidth = 3;
-    ctx.lineCap = 'round';
-    ctx.beginPath();
-    ctx.moveTo(handX, h * 0.78);
-    ctx.lineTo(handX, handY);
-    ctx.stroke();
-    ctx.font = '18px system-ui, sans-serif';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText('👆', handX, handY);
-    ctx.restore();
-
-    const hint = cycle === 2 ? T.demoBoatHint : T.demoHint;
-    ctx.font = '900 11px Nunito, system-ui, sans-serif';
-    ctx.textAlign = 'right';
-    ctx.textBaseline = 'bottom';
-    ctx.fillStyle = 'rgba(10, 14, 28, 0.75)';
-    ctx.fillText(hint, w - 9, h - 5);
-    ctx.fillStyle = '#ffd94a';
-    ctx.fillText(hint, w - 10, h - 6);
-
-    ctx.restore();
-    requestAnimationFrame(drawDemo);
+    requestAnimationFrame(frame);
   };
-  requestAnimationFrame(drawDemo);
+  requestAnimationFrame(frame);
 }
 
 function renderResumeSlot() {
@@ -371,94 +213,78 @@ function renderResumeSlot() {
 }
 
 const QUIET = () => matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-let flickerTimer = null;
 
 function setDiffTheme(on) {
   document.body.classList.toggle('sp-hard', on);
   const meta = $('meta[name="theme-color"]');
-  if (meta) meta.setAttribute('content', on ? '#1c0512' : '#0b0e18');
-}
-
-function triggerWave(target, on) {
-  if (QUIET()) return;
-  const r = target.getBoundingClientRect();
-  const d = el('div', { class: `sp-wave ${on ? '' : 'sp-wave--normal'}` });
-  d.style.left = `${r.left + 36}px`;
-  d.style.top = `${r.top + r.height / 2}px`;
-  document.body.appendChild(d);
-  setTimeout(() => d.remove(), 600);
+  if (meta) meta.setAttribute('content', on ? '#1c020a' : '#0b0e18');
 }
 
 function triggerLightning() {
   if (QUIET()) return;
-  const f = el('div', { class: 'sp-flash' });
+  const f = el('div', { class: 'sp-flash', 'aria-hidden': 'true' });
   document.body.appendChild(f);
-  setTimeout(() => f.remove(), 500);
+  setTimeout(() => f.remove(), 600);
 }
 
+function wave(lever, hard) {
+  const w = el('span', { class: 'sp-wave' + (hard ? ' hard' : ''), 'aria-hidden': 'true' });
+  lever.querySelector('.sp-plate').append(w);
+  setTimeout(() => w.remove(), 900);
+  lever.classList.remove('zap'); void lever.offsetWidth; lever.classList.add('zap');
+}
+
+/* The traffic lever: the standard lever (Pintaminas', Sudoku's). Down and green is normal, up and red is heavy;
+   on, the rectangle flickers at random like a bad contact (--glow from 0 to 1) */
+let flicker = 0;
 function startFlicker(lever) {
-  clearTimeout(flickerTimer);
-  if (difficulty !== 'hard' || QUIET()) return;
-  flickerTimer = setTimeout(() => {
-    lever.classList.remove('zap');
-    void lever.offsetWidth;
-    lever.classList.add('zap');
-    startFlicker(lever);
-  }, 2400 + Math.random() * 4200);
+  const n = ++flicker;
+  if (QUIET()) return;
+  const step = () => {
+    if (n !== flicker || !lever.isConnected || difficulty !== 'hard') { lever.style.removeProperty('--glow'); return; }
+    const r = Math.random();
+    const glow = r < 0.12 ? 0.05 + Math.random() * 0.2 : r < 0.3 ? 1 : 0.45 + Math.random() * 0.45;
+    lever.style.setProperty('--glow', glow.toFixed(2));
+    setTimeout(step, r < 0.3 ? 40 + Math.random() * 90 : 120 + Math.random() * 900);
+  };
+  step();
 }
 
-function renderDiffLever() {
-  const slot = $('#diff-seg');
+function trafficLever() {
   const hard = difficulty === 'hard';
   setDiffTheme(hard);
-
+  const title = el('b', {}, T.diffSwitch[+hard].title);
+  const sub = el('span', { class: 'muted' }, T.diffSwitch[+hard].sub);
   const lever = el('button', {
-    type: 'button',
-    class: `sp-lever ${hard ? 'on' : ''}`,
-    'aria-pressed': String(hard),
+    type: 'button', class: 'sp-lever' + (hard ? ' on' : ''), id: 'btn-level', role: 'switch',
+    'aria-checked': String(hard), 'aria-label': T.diffSwitch[1].title,
+    onClick: () => {
+      difficulty = difficulty === 'hard' ? 'normal' : 'hard';
+      const on = difficulty === 'hard';
+      try { localStorage.setItem(DIFF_KEY, difficulty); } catch (_) { /* ignore */ }
+      if (on) { triggerLightning(); SFX.error(); vibrate([15, 30, 15, 30, 40]); } else { SFX.tap(); vibrate(10); }
+      lever.classList.toggle('on', on);
+      lever.setAttribute('aria-checked', String(on));
+      title.textContent = T.diffSwitch[+on].title;
+      sub.textContent = T.diffSwitch[+on].sub;
+      if (!QUIET()) wave(lever, on);
+      if (on) startFlicker(lever); else flicker++;
+      setDiffTheme(on);
+      newDemo();
+    },
   },
-    el('span', { class: 'sp-plate', 'aria-hidden': 'true' },
-      el('span', { class: 'sp-track' }, el('span', { class: 'sp-groove' })),
-      el('span', { class: 'sp-axle' }),
-      el('span', { class: 'sp-arm' }, el('span', { class: 'sp-knob' })),
-      el('span', { class: 'sp-bolt' }, '⚡'),
-    ),
-    el('span', { class: 'sp-lever-text' },
-      el('b', {}, T.diffSwitch[hard ? 1 : 0].title),
-      el('small', {}, T.diffSwitch[hard ? 1 : 0].sub),
-    ),
-  );
-
-  lever.addEventListener('click', () => {
-    const on = difficulty !== 'hard';
-    difficulty = on ? 'hard' : 'normal';
-    try { localStorage.setItem(DIFF_KEY, difficulty); } catch (_) { /* ignore */ }
-    lever.classList.toggle('on', on);
-    lever.setAttribute('aria-pressed', String(on));
-    const idx = on ? 1 : 0;
-    lever.querySelector('b').textContent = T.diffSwitch[idx].title;
-    lever.querySelector('small').textContent = T.diffSwitch[idx].sub;
-    setDiffTheme(on);
-    triggerWave(lever, on);
-    if (on) {
-      triggerLightning();
-      SFX.error();
-      vibrate([15, 30, 15, 30, 40]);
-      startFlicker(lever);
-    } else {
-      clearTimeout(flickerTimer);
-      SFX.tap();
-      vibrate(10);
-    }
-  });
-
-  slot.replaceChildren(lever);
-  startFlicker(lever);
+  el('span', { class: 'sp-plate', 'aria-hidden': 'true' },
+    el('span', { class: 'sp-track', html: '<svg viewBox="0 0 70 60"><path class="sp-groove" d="M10.99 16.52 A39 39 0 0 1 59.01 16.52" /></svg>' }),
+    el('span', { class: 'sp-bolt b1' }, '⚡'), el('span', { class: 'sp-bolt b2' }, '⚡'), el('span', { class: 'sp-bolt b3' }, '⚡'),
+    el('span', { class: 'sp-arm' }, el('span', { class: 'sp-knob' })), el('span', { class: 'sp-axle' })),
+  el('span', { class: 'sp-label' }, title, sub));
+  if (hard) startFlicker(lever);
+  return lever;
 }
 
 function renderIntro() {
-  renderDiffLever();
   $('#modes').replaceChildren(
+    trafficLever(),
     el('button', {
       class: 'mode',
       'data-mode': 'solo',
@@ -477,6 +303,7 @@ function renderIntro() {
     bestEl.hidden = true;
   }
 
+  $('#cover-ranking').replaceChildren(bloqueTabla({ tabla: GAME_ID, titulo: String((C.rk?.titleOf || '{game}')).replace('{game}', T.title), alTocar: () => SFX.tap() }));
   renderResumeSlot();
   startDashDemo();
   footerInto($('#pie'), { screen: 'croc-cover', inbox: false, lang });
