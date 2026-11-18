@@ -13,18 +13,17 @@ export const WRAP_PAD = 3.2;
 export const TRACK_W = COLS + WRAP_PAD * 2;
 export const DASH_CD = 3.2;
 export const DIFFICULTIES = {
-  normal: { speedScale: 0.84, minGap: 2.65, maxOcc: 0.40, maxExtraCars: 0, dashCd: 2.6, parTime: 46, scoreMult: 1 },
-  hard: { speedScale: 0.95, minGap: 2.15, maxOcc: 0.48, maxExtraCars: 1, dashCd: 3.2, parTime: 42, scoreMult: 1.25 },
+  normal: { speedScale: 0.84, minGap: 2.65, maxOcc: 0.40, maxExtraCars: 0, dashCd: 2.6, parTime: 46 },
+  hard: { speedScale: 0.95, minGap: 2.15, maxOcc: 0.48, maxExtraCars: 1, dashCd: 3.2, parTime: 42 },
 };
 export const HOP_DUR = 0.105;
 export const DASH_DUR = 0.145;
-export const COMBO_WINDOW = 4.5;
 
-export const PTS_LANE = 15;
-export const PTS_FINISH = 200;
-export const PTS_TIME_RATE = 12;
-export const PTS_CLOSE_CALL = 35;
-export const FRUIT_VALUE = { strawberry: 40, mango: 80, star: 150 };
+export const PTS_LANE = 1;
+export const PTS_FRUIT = 1;
+export const LIVES = 3;
+export const MAX_DASHES = 3;
+export const SHIELD_DUR = 1.5;
 
 export function createRng(seed) {
   let a = (Number(seed) >>> 0) || 1;
@@ -149,12 +148,12 @@ function buildFruits(lanes, rand) {
     if (lane.sector === 3 && roll < 0.55) kind = 'star';
     else if (lane.sector >= 2 && roll < 0.5) kind = 'mango';
     else if (roll < 0.2) kind = 'mango';
-    fruits.push({ id: `f-${lane.row}-${col}`, row: lane.row, col, kind, pts: FRUIT_VALUE[kind], taken: false });
+    fruits.push({ id: `f-${lane.row}-${col}`, row: lane.row, col, kind, pts: PTS_FRUIT, taken: false });
   }
   return fruits;
 }
 
-export function newGame({ seed = 4821, finishRow = FINISH_ROW, difficulty = 'normal', parTime, mode = 'ready' } = {}) {
+export function newGame({ seed = 4821, finishRow = FINISH_ROW, difficulty = 'normal', parTime, lives = LIVES, dashes = MAX_DASHES, mode = 'ready' } = {}) {
   const diffKey = difficulty === 'hard' ? 'hard' : 'normal';
   const diffCfg = DIFFICULTIES[diffKey];
   const cleanSeed = Math.max(1, Math.floor(Number(seed) || 4821));
@@ -184,11 +183,15 @@ export function newGame({ seed = 4821, finishRow = FINISH_ROW, difficulty = 'nor
     },
     queued: null,
     dashCd: 0,
-    combo: 1,
-    comboTimer: 0,
+    dashes,
+    maxDashes: dashes,
+    lives,
+    maxLives: lives,
+    shield: 0,
     maxRow: 0,
     distanceScore: 0,
     bonusScore: 0,
+    lifePenalty: 0,
     timeBonus: 0,
     score: 0,
     fruitsTaken: 0,
@@ -200,8 +203,11 @@ export function newGame({ seed = 4821, finishRow = FINISH_ROW, difficulty = 'nor
 }
 
 function recomputeScore(g) {
-  g.distanceScore = g.maxRow * PTS_LANE + (g.mode === 'win' ? PTS_FINISH : 0);
-  g.score = g.distanceScore + g.bonusScore + g.timeBonus;
+  g.distanceScore = g.maxRow * PTS_LANE;
+  g.bonusScore = g.fruitsTaken * PTS_FRUIT;
+  g.lifePenalty = Math.max(0, (g.maxLives || LIVES) - (g.lives | 0));
+  g.timeBonus = 0;
+  g.score = Math.max(0, g.distanceScore + g.bonusScore - g.lifePenalty);
 }
 
 function startHop(g, action) {
@@ -224,11 +230,11 @@ function startHop(g, action) {
     toRow = f.row + 1;
     dir = 'up';
   } else if (action === 'dash') {
-    if (g.dashCd > 0 || f.row >= g.finishRow) return false;
+    if (g.dashes <= 0 || f.row >= g.finishRow) return false;
     toRow = Math.min(g.finishRow, f.row + 2);
     dir = 'up';
     isDash = true;
-    g.dashCd = g.dashCooldownDur || DASH_CD;
+    g.dashes--;
     g.dashesUsed++;
   } else {
     return false;
@@ -260,15 +266,9 @@ export function act(g, action) {
 
 function triggerCloseCall(g, col, row, aerial = false) {
   g.closeCalls++;
-  g.combo = Math.min(3, g.combo + 1);
-  g.comboTimer = COMBO_WINDOW;
-  const pts = PTS_CLOSE_CALL * g.combo;
-  g.bonusScore += pts;
-  const beforeCd = g.dashCd;
-  g.dashCd = Math.max(0, g.dashCd - 1.0);
+  if (!aerial && g.dashes < (g.maxDashes || MAX_DASHES)) g.dashes++;
   g.frog.eyeAlert = 0.6;
-  recomputeScore(g);
-  g.events.push({ type: 'closeCall', col, row, pts, combo: g.combo, aerial, recharged: beforeCd > 0 });
+  g.events.push({ type: 'closeCall', col, row, aerial });
 }
 
 function checkCollectFruit(g, row, col) {
@@ -276,12 +276,9 @@ function checkCollectFruit(g, row, col) {
     if (fr.taken || fr.row !== row || fr.col !== col) continue;
     fr.taken = true;
     g.fruitsTaken++;
-    g.combo = Math.min(3, g.combo + (g.comboTimer > 0 ? 1 : 0));
-    g.comboTimer = COMBO_WINDOW;
-    const pts = fr.pts * g.combo;
-    g.bonusScore += pts;
+    if (g.dashes < (g.maxDashes || MAX_DASHES)) g.dashes++;
     recomputeScore(g);
-    g.events.push({ type: 'fruit', kind: fr.kind, col, row, pts, combo: g.combo });
+    g.events.push({ type: 'fruit', kind: fr.kind, col, row, pts: PTS_FRUIT });
   }
 }
 
@@ -306,7 +303,7 @@ function finishHop(g) {
 
   checkCollectFruit(g, f.row, f.col);
 
-  if (wasDash && f.toRow - midRow >= 1) {
+  if (wasDash && f.toRow - midRow >= 1 && g.shield <= 0) {
     const midLane = g.lanes[midRow];
     if (midLane && midLane.kind === 'road') {
       const fx = f.col + 0.5;
@@ -321,9 +318,8 @@ function finishHop(g) {
       return;
     }
     g.mode = 'win';
-    g.timeBonus = Math.max(0, Math.round((g.parTime - g.elapsed) * PTS_TIME_RATE));
     recomputeScore(g);
-    g.events.push({ type: 'win', score: g.score, timeBonus: g.timeBonus });
+    g.events.push({ type: 'win', score: g.score, elapsed: g.elapsed });
     return;
   }
 
@@ -336,7 +332,7 @@ function finishHop(g) {
 
 function checkTraffic(g) {
   const f = g.frog;
-  if (f.isDash && f.z > 0.5) return;
+  if ((f.isDash && f.z > 0.5) || g.shield > 0) return;
   const laneIdx = Math.round(f.y);
   const lane = g.lanes[laneIdx];
   if (!lane || lane.kind !== 'road') return;
@@ -353,6 +349,13 @@ function checkTraffic(g) {
     if (fRight > vLeft && fLeft < vRight) {
       if (g.mode === 'demo') {
         Object.assign(g, newGame({ seed: g.seed + 1, finishRow: g.finishRow, parTime: g.parTime, mode: 'demo' }));
+        return;
+      }
+      g.lives = Math.max(0, (g.lives | 0) - 1);
+      if (g.lives > 0) {
+        g.shield = SHIELD_DUR;
+        recomputeScore(g);
+        g.events.push({ type: 'hit', col: f.x, row: laneIdx, lives: g.lives, vehicle: v.type });
         return;
       }
       g.mode = 'crash';
@@ -394,7 +397,7 @@ export function autopilot(g, dt) {
   const nextLane = g.lanes[f.row + 1];
   const afterLane = g.lanes[f.row + 2];
   if (laneClearAt(nextLane, f.col, 0.25)) { startHop(g, 'up'); g.demoTimer = 0.22; return; }
-  if (g.dashCd <= 0 && laneClearAt(afterLane, f.col, 0.25)) { startHop(g, 'dash'); g.demoTimer = 0.28; return; }
+  if (g.dashes > 0 && laneClearAt(afterLane, f.col, 0.25)) { startHop(g, 'dash'); g.demoTimer = 0.28; return; }
   const curLane = g.lanes[f.row];
   if (f.col < COLS - 1 && laneClearAt(curLane, f.col + 1, 0.2) && laneClearAt(nextLane, f.col + 1, 0.25)) startHop(g, 'right');
   else if (f.col > 0 && laneClearAt(curLane, f.col - 1, 0.2) && laneClearAt(nextLane, f.col - 1, 0.25)) startHop(g, 'left');
@@ -407,10 +410,7 @@ export function step(g, dt) {
   if (g.mode === 'play') {
     g.elapsed += dt;
     if (g.dashCd > 0) g.dashCd = Math.max(0, g.dashCd - dt);
-    if (g.comboTimer > 0) {
-      g.comboTimer -= dt;
-      if (g.comboTimer <= 0) g.combo = 1;
-    }
+    if (g.shield > 0) g.shield = Math.max(0, g.shield - dt);
   } else if (g.mode === 'demo') {
     if (g.dashCd > 0) g.dashCd = Math.max(0, g.dashCd - dt);
     autopilot(g, dt);
@@ -461,5 +461,5 @@ export function card(e) {
   return `🐸 ${rows}/${total} · 🍓${fruits} ⚡${close} ${end}`;
 }
 
-export const DAY_K = 550;
+export const DAY_K = 28;
 export const dayScore = s => Math.max(0, Math.min(100, Math.round(100 * (1 - Math.exp(-(Number(s) || 0) / DAY_K)))));

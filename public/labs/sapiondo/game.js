@@ -74,6 +74,7 @@ const SND = {
   dash: () => { tone(440, 980, 0.11, 'sine', 0.1); tone(660, 1120, 0.09, 'triangle', 0.06, 0.03); },
   fruit: () => { tone(740, 1080, 0.08, 'sine', 0.1); tone(1080, 1440, 0.1, 'sine', 0.09, 0.06); },
   closeCall: () => { tone(880, 1320, 0.07, 'square', 0.045); tone(1320, 1760, 0.1, 'triangle', 0.07, 0.05); },
+  hit: () => { tone(240, 110, 0.18, 'sawtooth', 0.1); },
   crash: () => { tone(200, 65, 0.3, 'sawtooth', 0.12); },
   win: () => {
     tone(523, 523, 0.1, 'triangle', 0.1, 0);
@@ -110,24 +111,9 @@ function updateHud() {
   $('#hud-sector').textContent = sec === 1 ? T.sector1 : sec === 2 ? T.sector2 : T.sector3;
   $('#hud-score').textContent = String(g.score);
   $('#hud-time').textContent = `${g.elapsed.toFixed(1)}s`;
-  $('#hud-seed').textContent = fmt(T.hudSeed, { seed: g.seed });
-
-  const comboEl = $('#hud-combo');
-  if (g.combo > 1) {
-    comboEl.hidden = false;
-    comboEl.textContent = `x${g.combo}`;
-  } else {
-    comboEl.hidden = true;
-  }
-
-  const dashBtn = $('#btn-dash');
-  if (g.dashCd <= 0) {
-    dashBtn.classList.remove('cooldown');
-    $('#lbl-dash').textContent = T.hudDashReady;
-  } else {
-    dashBtn.classList.add('cooldown');
-    $('#lbl-dash').textContent = fmt(T.hudDashWait, { s: g.dashCd.toFixed(1) });
-  }
+  const maxL = g.maxLives || E.LIVES;
+  $('#hud-lives').textContent = '❤️'.repeat(Math.max(0, g.lives | 0)) + '🖤'.repeat(Math.max(0, maxL - (g.lives | 0)));
+  $('#hud-dashes').textContent = g.dashes > 0 ? '⚡'.repeat(g.dashes) : '⚡ 0';
 }
 
 /* ---------------- Intro ---------------- */
@@ -231,12 +217,14 @@ function finishRun() {
   $('#result-title').textContent = isBest ? T.resultBest : isWin ? T.resultWin : T.resultCrash;
   $('#lbl-stat-dist').textContent = T.statDistance;
   $('#lbl-stat-bonus').textContent = T.statBonus;
+  $('#lbl-stat-lives').textContent = T.statLives;
   $('#lbl-stat-time').textContent = T.statTime;
   $('#lbl-stat-total').textContent = T.statTotal;
 
   $('#val-dist').textContent = `+${g.distanceScore}`;
   $('#val-bonus').textContent = `+${g.bonusScore}`;
-  $('#val-time').textContent = `+${g.timeBonus}`;
+  $('#val-lives').textContent = g.lifePenalty ? `-${g.lifePenalty}` : '0';
+  $('#val-time').textContent = `${g.elapsed.toFixed(1)}s`;
   $('#val-total').textContent = String(g.score);
   $('#val-meta').textContent = fmt(T.statMeta, {
     lanes: g.maxRow,
@@ -287,17 +275,13 @@ function finishRun() {
   showScreen('screen-result');
 }
 
-/* ---------------- Controls (3 overlay buttons + Dash + keyboard) ---------------- */
-function triggerAction(action, btnEl) {
+/* ---------------- Controls (board swipes + keyboard) ---------------- */
+function triggerAction(action) {
   if (!g || g.mode === 'demo' || g.mode === 'win' || g.mode === 'crash') return;
   if (paused) {
     paused = false;
     $('#pause-layer').hidden = true;
     return;
-  }
-  if (btnEl) {
-    btnEl.classList.add('pressed');
-    setTimeout(() => btnEl.classList.remove('pressed'), 90);
   }
   const ok = E.act(g, action);
   if (ok) {
@@ -306,24 +290,98 @@ function triggerAction(action, btnEl) {
   }
 }
 
-function bindPad(id, action) {
-  const btn = $(id);
-  btn.addEventListener('pointerdown', e => {
-    e.preventDefault();
-    unlockAudio();
-    triggerAction(action, btn);
-  });
+const SWIPE_EDGE_PAD = 18;
+const HOP_DIST = 26;
+const DASH_DIST = 135;
+const swipe = {
+  active: false,
+  pointerId: null,
+  x0: 0,
+  y0: 0,
+  x1: 0,
+  y1: 0,
+  dashDist: DASH_DIST,
+  hopDist: HOP_DIST,
+  forwardProgress: 0,
+  dashReady: true,
+  notifiedDash: false,
+  dir: null,
+  fade: 0,
+};
+
+const stageEl = $('#stage');
+const blockScroll = e => { if (!e.target.closest?.('button')) e.preventDefault(); };
+stageEl.addEventListener('touchstart', blockScroll, { passive: false });
+stageEl.addEventListener('touchmove', blockScroll, { passive: false });
+
+stageEl.addEventListener('pointerdown', e => {
+  if (e.target.closest?.('button') || paused || !g || g.mode === 'win' || g.mode === 'crash') return;
+  const rect = stageEl.getBoundingClientRect();
+  const x = e.clientX - rect.left;
+  const y = e.clientY - rect.top;
+  if (x < SWIPE_EDGE_PAD || x > rect.width - SWIPE_EDGE_PAD || y < SWIPE_EDGE_PAD || y > rect.height - SWIPE_EDGE_PAD) return;
+  e.preventDefault();
+  unlockAudio();
+  swipe.active = true;
+  swipe.pointerId = e.pointerId;
+  swipe.x0 = x;
+  swipe.y0 = y;
+  swipe.x1 = x;
+  swipe.y1 = y;
+  swipe.forwardProgress = 0;
+  swipe.dashReady = g.dashes > 0;
+  swipe.notifiedDash = false;
+  swipe.dir = null;
+  swipe.fade = 0;
+  try { stageEl.setPointerCapture(e.pointerId); } catch (_) { /* ignore */ }
+});
+
+stageEl.addEventListener('pointermove', e => {
+  if (!swipe.active || e.pointerId !== swipe.pointerId) return;
+  e.preventDefault();
+  const rect = stageEl.getBoundingClientRect();
+  swipe.x1 = e.clientX - rect.left;
+  swipe.y1 = e.clientY - rect.top;
+  const dx = swipe.x1 - swipe.x0;
+  const dy = swipe.y1 - swipe.y0;
+  swipe.dashReady = !!g && g.dashes > 0;
+  if (-dy > 10 && -dy >= Math.abs(dx)) {
+    swipe.forwardProgress = -dy / DASH_DIST;
+    swipe.dir = swipe.forwardProgress >= 1 && swipe.dashReady ? 'dash' : 'up';
+    if (swipe.forwardProgress >= 1 && swipe.dashReady && !swipe.notifiedDash) {
+      swipe.notifiedDash = true;
+      vibrate(8);
+    }
+  } else if (Math.abs(dx) >= HOP_DIST && Math.abs(dx) > Math.abs(dy)) {
+    swipe.forwardProgress = 0;
+    swipe.dir = dx < 0 ? 'left' : 'right';
+  } else {
+    swipe.forwardProgress = 0;
+    swipe.dir = null;
+  }
+});
+
+function endSwipe(e, commit) {
+  if (!swipe.active || e.pointerId !== swipe.pointerId) return;
+  swipe.active = false;
+  swipe.pointerId = null;
+  if (commit) {
+    const dx = swipe.x1 - swipe.x0;
+    const dy = swipe.y1 - swipe.y0;
+    let action = null;
+    if (-dy >= DASH_DIST && -dy >= Math.abs(dx)) action = g && g.dashes > 0 ? 'dash' : 'up';
+    else if (-dy >= HOP_DIST && -dy >= Math.abs(dx)) action = 'up';
+    else if (dx <= -HOP_DIST && Math.abs(dx) > Math.abs(dy)) action = 'left';
+    else if (dx >= HOP_DIST && Math.abs(dx) > Math.abs(dy)) action = 'right';
+    if (action) triggerAction(action);
+    swipe.fade = swipe.forwardProgress > 0 || swipe.dir ? 0.18 : 0;
+  } else {
+    swipe.fade = 0;
+  }
 }
 
-bindPad('#btn-left', 'left');
-bindPad('#btn-up', 'up');
-bindPad('#btn-right', 'right');
-bindPad('#btn-dash', 'dash');
-
-$('#btn-left').setAttribute('aria-label', T.btnLeft);
-$('#btn-up').setAttribute('aria-label', T.btnUp);
-$('#btn-right').setAttribute('aria-label', T.btnRight);
-$('#btn-dash').setAttribute('aria-label', T.btnDash);
+stageEl.addEventListener('pointerup', e => endSwipe(e, true));
+stageEl.addEventListener('pointercancel', e => endSwipe(e, false));
 
 $('#btn-pause').addEventListener('click', () => {
   if (!g || g.mode !== 'play') return;
@@ -346,10 +404,10 @@ document.addEventListener('visibilitychange', () => {
 addEventListener('keydown', e => {
   if (!$('#screen-play').classList.contains('active')) return;
   if (e.target.closest?.('input, textarea')) return;
-  if (e.code === 'ArrowUp' || e.code === 'KeyW') { e.preventDefault(); triggerAction('up', $('#btn-up')); }
-  else if (e.code === 'ArrowLeft' || e.code === 'KeyA') { e.preventDefault(); triggerAction('left', $('#btn-left')); }
-  else if (e.code === 'ArrowRight' || e.code === 'KeyD') { e.preventDefault(); triggerAction('right', $('#btn-right')); }
-  else if (e.code === 'Space' || e.code === 'ShiftLeft' || e.code === 'ShiftRight') { e.preventDefault(); triggerAction('dash', $('#btn-dash')); }
+  if (e.code === 'ArrowUp' || e.code === 'KeyW') { e.preventDefault(); triggerAction('up'); }
+  else if (e.code === 'ArrowLeft' || e.code === 'KeyA') { e.preventDefault(); triggerAction('left'); }
+  else if (e.code === 'ArrowRight' || e.code === 'KeyD') { e.preventDefault(); triggerAction('right'); }
+  else if (e.code === 'Space' || e.code === 'ShiftLeft' || e.code === 'ShiftRight') { e.preventDefault(); triggerAction('dash'); }
   else if (e.code === 'KeyP') {
     if (g?.mode === 'play') { paused = !paused; $('#pause-layer').hidden = !paused; }
   }
@@ -365,6 +423,7 @@ function handleEvent(ev) {
   else if (ev.type === 'dash') { SND.dash(); vibrate(12); }
   else if (ev.type === 'fruit') { SND.fruit(); vibrate(10); }
   else if (ev.type === 'closeCall') { SND.closeCall(); vibrate(18); }
+  else if (ev.type === 'hit') { SND.hit(); vibrate(40); save(); }
   else if (ev.type === 'crash') {
     SND.crash();
     vibrate(80);
@@ -393,8 +452,9 @@ function loop(now) {
         evs.forEach(handleEvent);
       }
     }
+    if (swipe.fade > 0) swipe.fade = Math.max(0, swipe.fade - dt);
     updateHud();
-    scene.draw(g);
+    scene.draw(g, swipe);
   }
   requestAnimationFrame(loop);
 }

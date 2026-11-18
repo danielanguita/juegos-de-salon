@@ -11,11 +11,11 @@ A solo arcade highway crossing built for mobile touch controls and deterministic
 
 Cross 33 rows across three escalating sectors (Suburb Ave, City Highway, Night Expressway) to reach the pond.
 
-- **Movement:** Forward (`▲`), Left (`◀`), Right (`▶`) only — no going backward.
-- **Dash (`⚡`):** Leaps 2 lanes forward over traffic (3.2 s cooldown), triggered from the dedicated Dash button above Forward (or `Space`/`Shift` on keyboard).
-- **Close-Call:** Passing within a narrow bumper margin or dashing directly over a vehicle awards bonus points (`35 × combo`) and refunds `1.0 s` of Dash cooldown.
-- **Fruits:** Strawberries (`+40`), Mangoes (`+80`), and Golden Starfruit (`+150`) spawn on road lanes and scale with combo (`x1..x3`).
-- **Scoring:** Distance (`15` per lane + `200` on finish) + Fruit/Close-Call bonuses + Time bonus (`round((42 - elapsed) * 12)` on finish).
+- **Movement:** Board-wide swipes (forward, left, right — no going backward), with edge padding and `touch-action: none` to prevent browser scroll/navigation conflicts, plus keyboard support.
+- **Dash (`⚡`):** A long forward swipe (with a live on-canvas distance gauge) leaps 2 lanes forward over traffic (`2.6 s` Normal / `3.2 s` Hard cooldown).
+- **Close-Call:** Passing within a narrow bumper margin or dashing directly over a vehicle triggers celebratory UX (particles, sound, popup) and refunds `1.0 s` of Dash cooldown (0 points).
+- **Fruits:** Strawberries, Mangoes, and Golden Starfruit spawn on road lanes and award `+1` point each.
+- **Scoring:** `+1` per lane progressed + `+1` per fruit taken; ties are broken by faster completion time.
 
 ## Modes
 
@@ -23,7 +23,7 @@ Solo (`solo`), with deterministic seeded tracks (`?seed=<n>`) ready for Cup inte
 
 ## Flow
 
-Intro (cover, resume panel, solo mode, 3-step rules, site footer) → Play (2.5D canvas stage, top HUD, 3 bottom overlay buttons + Dash pill) → Result (itemized breakdown: distance, bonus, time bonus, total; replay same seed or new seed; share through `compartir.js`; exits from `fin.js`, C-19).
+Intro (cover, resume panel, solo mode, 3-step rules, site footer) → Play (2.5D canvas stage, top HUD, board-wide swipe controls + live Dash gauge) → Result (itemized breakdown: lanes, fruits, elapsed time tie-break, total; replay same seed or new seed; share through `compartir.js`; exits from `fin.js`, C-19).
 
 ## Message protocol
 

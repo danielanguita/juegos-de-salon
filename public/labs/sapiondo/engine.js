@@ -12,18 +12,17 @@ export const WRAP_PAD = 3.2;
 export const TRACK_W = COLS + WRAP_PAD * 2;
 export const DASH_CD = 3.2;
 export const DIFFICULTIES = {
-  normal: { speedScale: 0.84, minGap: 2.65, maxOcc: 0.40, maxExtraCars: 0, dashCd: 2.6, parTime: 46, scoreMult: 1 },
-  hard: { speedScale: 0.95, minGap: 2.15, maxOcc: 0.48, maxExtraCars: 1, dashCd: 3.2, parTime: 42, scoreMult: 1.25 },
+  normal: { speedScale: 0.84, minGap: 2.65, maxOcc: 0.40, maxExtraCars: 0, dashCd: 2.6, parTime: 46 },
+  hard: { speedScale: 0.95, minGap: 2.15, maxOcc: 0.48, maxExtraCars: 1, dashCd: 3.2, parTime: 42 },
 };
 export const HOP_DUR = 0.105;
 export const DASH_DUR = 0.145;
-export const COMBO_WINDOW = 4.5;
 
-export const PTS_LANE = 15;
-export const PTS_FINISH = 200;
-export const PTS_TIME_RATE = 12;
-export const PTS_CLOSE_CALL = 35;
-export const FRUIT_VALUE = { strawberry: 40, mango: 80, star: 150 };
+export const PTS_LANE = 1;
+export const PTS_FRUIT = 1;
+export const LIVES = 3;
+export const MAX_DASHES = 3;
+export const SHIELD_DUR = 1.5;
 
 /** Deterministic Mulberry32 PRNG returning floats in [0, 1). */
 export function createRng(seed) {
@@ -156,7 +155,7 @@ function buildFruits(lanes, rand) {
       row: lane.row,
       col,
       kind,
-      pts: FRUIT_VALUE[kind],
+      pts: PTS_FRUIT,
       taken: false,
     });
   }
@@ -170,7 +169,7 @@ export function wrapX(x) {
   return ((((x - min) % span) + span) % span) + min;
 }
 
-export function newGame({ seed = 4821, finishRow = FINISH_ROW, difficulty = 'normal', parTime, mode = 'ready' } = {}) {
+export function newGame({ seed = 4821, finishRow = FINISH_ROW, difficulty = 'normal', parTime, lives = LIVES, dashes = MAX_DASHES, mode = 'ready' } = {}) {
   const diffKey = difficulty === 'hard' ? 'hard' : 'normal';
   const diffCfg = DIFFICULTIES[diffKey];
   const cleanSeed = Math.max(1, Math.floor(Number(seed) || 4821));
@@ -187,7 +186,6 @@ export function newGame({ seed = 4821, finishRow = FINISH_ROW, difficulty = 'nor
   return {
     seed: cleanSeed,
     difficulty: diffKey,
-    scoreMult: diffCfg.scoreMult,
     dashCooldownDur: diffCfg.dashCd,
     mode, // 'demo' | 'ready' | 'play' | 'win' | 'crash'
     finishRow,
@@ -213,11 +211,15 @@ export function newGame({ seed = 4821, finishRow = FINISH_ROW, difficulty = 'nor
     },
     queued: null, // 'up' | 'left' | 'right' | 'dash'
     dashCd: 0,
-    combo: 1,
-    comboTimer: 0,
+    dashes,
+    maxDashes: dashes,
+    lives,
+    maxLives: lives,
+    shield: 0,
     maxRow: 0,
     distanceScore: 0,
     bonusScore: 0,
+    lifePenalty: 0,
     timeBonus: 0,
     score: 0,
     fruitsTaken: 0,
@@ -229,9 +231,11 @@ export function newGame({ seed = 4821, finishRow = FINISH_ROW, difficulty = 'nor
 }
 
 function recomputeScore(g) {
-  const mult = g.scoreMult || 1;
-  g.distanceScore = Math.round((g.maxRow * PTS_LANE + (g.mode === 'win' ? PTS_FINISH : 0)) * mult);
-  g.score = g.distanceScore + g.bonusScore + g.timeBonus;
+  g.distanceScore = g.maxRow * PTS_LANE;
+  g.bonusScore = g.fruitsTaken * PTS_FRUIT;
+  g.lifePenalty = Math.max(0, (g.maxLives || LIVES) - (g.lives | 0));
+  g.timeBonus = 0;
+  g.score = Math.max(0, g.distanceScore + g.bonusScore - g.lifePenalty);
 }
 
 function startHop(g, action) {
@@ -254,11 +258,11 @@ function startHop(g, action) {
     toRow = f.row + 1;
     dir = 'up';
   } else if (action === 'dash') {
-    if (g.dashCd > 0 || f.row >= g.finishRow) return false;
+    if (g.dashes <= 0 || f.row >= g.finishRow) return false;
     toRow = Math.min(g.finishRow, f.row + 2);
     dir = 'up';
     isDash = true;
-    g.dashCd = g.dashCooldownDur || DASH_CD;
+    g.dashes--;
     g.dashesUsed++;
   } else {
     return false;
@@ -292,22 +296,13 @@ export function act(g, action) {
 
 function triggerCloseCall(g, col, row, aerial = false) {
   g.closeCalls++;
-  g.combo = Math.min(3, g.combo + 1);
-  g.comboTimer = COMBO_WINDOW;
-  const pts = PTS_CLOSE_CALL * g.combo;
-  g.bonusScore += pts;
-  const beforeCd = g.dashCd;
-  g.dashCd = Math.max(0, g.dashCd - 1.0);
+  if (!aerial && g.dashes < (g.maxDashes || MAX_DASHES)) g.dashes++;
   g.frog.eyeAlert = 0.6;
-  recomputeScore(g);
   g.events.push({
     type: 'closeCall',
     col,
     row,
-    pts,
-    combo: g.combo,
     aerial,
-    recharged: beforeCd > 0,
   });
 }
 
@@ -316,12 +311,9 @@ function checkCollectFruit(g, row, col) {
     if (fr.taken || fr.row !== row || fr.col !== col) continue;
     fr.taken = true;
     g.fruitsTaken++;
-    g.combo = Math.min(3, g.combo + (g.comboTimer > 0 ? 1 : 0));
-    g.comboTimer = COMBO_WINDOW;
-    const pts = fr.pts * g.combo;
-    g.bonusScore += pts;
+    if (g.dashes < (g.maxDashes || MAX_DASHES)) g.dashes++;
     recomputeScore(g);
-    g.events.push({ type: 'fruit', kind: fr.kind, col, row, pts, combo: g.combo });
+    g.events.push({ type: 'fruit', kind: fr.kind, col, row, pts: PTS_FRUIT });
   }
 }
 
@@ -347,7 +339,7 @@ function finishHop(g) {
   checkCollectFruit(g, f.row, f.col);
 
   // If dashed 2 lanes over an occupied middle lane, celebrate an aerial Close-Call!
-  if (wasDash && f.toRow - midRow >= 1) {
+  if (wasDash && f.toRow - midRow >= 1 && g.shield <= 0) {
     const midLane = g.lanes[midRow];
     if (midLane && midLane.kind === 'road') {
       const fx = f.col + 0.5;
@@ -364,9 +356,8 @@ function finishHop(g) {
       return;
     }
     g.mode = 'win';
-    g.timeBonus = Math.max(0, Math.round((g.parTime - g.elapsed) * PTS_TIME_RATE));
     recomputeScore(g);
-    g.events.push({ type: 'win', score: g.score, timeBonus: g.timeBonus });
+    g.events.push({ type: 'win', score: g.score, elapsed: g.elapsed });
     return;
   }
 
@@ -379,8 +370,8 @@ function finishHop(g) {
 
 function checkTraffic(g) {
   const f = g.frog;
-  // Airborne during middle of a Dash clears vehicles cleanly
-  if (f.isDash && f.z > 0.5) return;
+  // Airborne during middle of a Dash or in ghost shield clears vehicles cleanly
+  if ((f.isDash && f.z > 0.5) || g.shield > 0) return;
 
   const laneIdx = Math.round(f.y);
   const lane = g.lanes[laneIdx];
@@ -399,6 +390,13 @@ function checkTraffic(g) {
       if (g.mode === 'demo') {
         const fresh = newGame({ seed: g.seed + 1, mode: 'demo' });
         Object.assign(g, fresh);
+        return;
+      }
+      g.lives = Math.max(0, (g.lives | 0) - 1);
+      if (g.lives > 0) {
+        g.shield = SHIELD_DUR;
+        recomputeScore(g);
+        g.events.push({ type: 'hit', col: f.x, row: laneIdx, lives: g.lives, vehicle: v.type });
         return;
       }
       g.mode = 'crash';
@@ -448,7 +446,7 @@ export function autopilot(g, dt) {
     g.demoTimer = 0.22;
     return;
   }
-  if (g.dashCd <= 0 && laneClearAt(afterLane, f.col, 0.25)) {
+  if (g.dashes > 0 && laneClearAt(afterLane, f.col, 0.25)) {
     startHop(g, 'dash');
     g.demoTimer = 0.28;
     return;
@@ -469,10 +467,7 @@ export function step(g, dt) {
   if (g.mode === 'play') {
     g.elapsed += dt;
     if (g.dashCd > 0) g.dashCd = Math.max(0, g.dashCd - dt);
-    if (g.comboTimer > 0) {
-      g.comboTimer -= dt;
-      if (g.comboTimer <= 0) g.combo = 1;
-    }
+    if (g.shield > 0) g.shield = Math.max(0, g.shield - dt);
   } else if (g.mode === 'demo') {
     if (g.dashCd > 0) g.dashCd = Math.max(0, g.dashCd - dt);
     autopilot(g, dt);
@@ -512,10 +507,10 @@ export function serialize(g) {
     elapsed: g.elapsed,
     frog: { ...g.frog },
     dashCd: g.dashCd,
-    combo: g.combo,
-    comboTimer: g.comboTimer,
+    dashes: g.dashes,
+    lives: g.lives,
+    shield: g.shield,
     maxRow: g.maxRow,
-    bonusScore: g.bonusScore,
     fruitsTaken: g.fruitsTaken,
     closeCalls: g.closeCalls,
     dashesUsed: g.dashesUsed,
@@ -530,10 +525,10 @@ export function hydrate(snap) {
   g.elapsed = snap.elapsed || 0;
   Object.assign(g.frog, snap.frog);
   g.dashCd = snap.dashCd || 0;
-  g.combo = snap.combo || 1;
-  g.comboTimer = snap.comboTimer || 0;
+  g.dashes = Number.isFinite(snap.dashes) ? snap.dashes : MAX_DASHES;
+  g.lives = Number.isFinite(snap.lives) ? snap.lives : LIVES;
+  g.shield = snap.shield || 0;
   g.maxRow = snap.maxRow || 0;
-  g.bonusScore = snap.bonusScore || 0;
   g.fruitsTaken = snap.fruitsTaken || 0;
   g.closeCalls = snap.closeCalls || 0;
   g.dashesUsed = snap.dashesUsed || 0;

@@ -43,6 +43,7 @@ export function createScene(canvas) {
   let camY = 0;
   let clock = 0;
   let shake = 0;
+  let hitShake = 0;
   const particles = [];
   const popups = [];
   const ghosts = [];
@@ -95,9 +96,14 @@ export function createScene(canvas) {
       popups.push({ x: ev.col + 0.5, y: ev.row + 0.6, text: `+${ev.pts}`, color: col, life: 0.9, maxLife: 0.9 });
     } else if (ev.type === 'closeCall') {
       spawnBurst(ev.col, ev.row, '#ffd94a', 14, 3.4);
-      const txt = (labels.closeCall || 'CLOSE CALL! +{pts}').replace('{pts}', ev.pts);
+      const txt = labels.closeCall || 'CLOSE CALL!';
       popups.push({ x: ev.col + 0.5, y: ev.row + 0.8, text: txt, color: '#ffd94a', life: 1.05, maxLife: 1.05 });
       shake = Math.max(shake, 0.2);
+    } else if (ev.type === 'hit') {
+      spawnBurst(ev.col, ev.row, '#ff4d6d', 14, 3.2);
+      popups.push({ x: ev.col + 0.5, y: ev.row + 0.8, text: '-1 ❤️', color: '#ff4d6d', life: 0.9, maxLife: 0.9 });
+      shake = 0.32;
+      hitShake = 0.45;
     } else if (ev.type === 'crash') {
       spawnBurst(ev.col, ev.row, '#ff4d6d', 20, 4.2);
       spawnBurst(ev.col, ev.row, '#ffd94a', 8, 2.8);
@@ -111,6 +117,7 @@ export function createScene(canvas) {
   function tick(dt, g) {
     clock += dt;
     if (shake > 0) shake = Math.max(0, shake - dt * 1.4);
+    if (hitShake > 0) hitShake = Math.max(0, hitShake - dt);
 
     if (g) {
       const targetCam = Math.max(0, Math.min(g.finishRow - 3, g.frog.y));
@@ -430,7 +437,7 @@ export function createScene(canvas) {
     ctx.ellipse(tile * 0.27, -tile * 0.04, tile * 0.08, tile * 0.12, 0.3, 0, Math.PI * 2);
     ctx.fill();
 
-    // Torso wearing Chilean flag t-shirt!
+    // Torso wearing festive Christmas sweater
     const shirtW = tile * 0.46;
     const shirtH = tile * 0.38;
     const sx = -shirtW / 2;
@@ -443,18 +450,19 @@ export function createScene(canvas) {
       ctx.save();
       drawRoundedRect(ctx, sx, sy, shirtW, shirtH, tile * 0.14);
       ctx.clip();
-      // White top half
+      // Christmas red sweater base
+      ctx.fillStyle = '#d62828';
+      ctx.fillRect(sx, sy, shirtW, shirtH);
+      // Forest-green festive middle band
+      ctx.fillStyle = '#198754';
+      ctx.fillRect(sx, sy + shirtH * 0.36, shirtW, shirtH * 0.36);
+      // White fuzzy collar & hem trim
       ctx.fillStyle = '#f8fafc';
-      ctx.fillRect(sx, sy, shirtW, shirtH * 0.52);
-      // Red bottom half
-      ctx.fillStyle = '#d52b1e';
-      ctx.fillRect(sx, sy + shirtH * 0.5, shirtW, shirtH * 0.52);
-      // Blue canton (upper-left)
-      ctx.fillStyle = '#0039a6';
-      ctx.fillRect(sx, sy, shirtW * 0.46, shirtH * 0.52);
-      // White 5-point star inside canton
-      ctx.fillStyle = '#ffffff';
-      drawStar(ctx, sx + shirtW * 0.23, sy + shirtH * 0.26, tile * 0.065, tile * 0.028);
+      ctx.fillRect(sx, sy, shirtW, shirtH * 0.18);
+      ctx.fillRect(sx, sy + shirtH * 0.84, shirtW, shirtH * 0.18);
+      // Gold star ornament in the center
+      ctx.fillStyle = '#ffd94a';
+      drawStar(ctx, 0, sy + shirtH * 0.54, tile * 0.07, tile * 0.032);
       ctx.fill();
       ctx.restore();
     }
@@ -514,7 +522,74 @@ export function createScene(canvas) {
     ctx.restore();
   }
 
-  function draw(g) {
+  function drawSwipeIndicator(swipe, g, padX, tile, rowToScreenY) {
+    if (!swipe || (!swipe.active && !(swipe.fade > 0))) return;
+    if (!(swipe.forwardProgress >= 1 && swipe.dashReady)) return;
+    const pulse = 0.5 + 0.5 * Math.sin(clock * 12);
+    const baseAlpha = swipe.active ? 0.72 : Math.max(0, swipe.fade / 0.18) * 0.72;
+    const f = g.frog;
+    const fx = padX + (f.x + 0.5) * tile;
+    const startY = rowToScreenY(f.y) + tile * 0.15;
+    const targetRow = Math.min(g.finishRow, f.row + 2);
+    const tipY = rowToScreenY(targetRow) + tile * 0.45;
+    const shaftW = Math.max(16, tile * 0.36);
+    const headW = Math.max(32, tile * 0.74);
+    const headH = Math.min(Math.max(20, tile * 0.44), Math.max(20, (startY - tipY) * 0.42));
+
+    const traceArrow = () => {
+      ctx.beginPath();
+      ctx.moveTo(fx, tipY);
+      ctx.lineTo(fx + headW / 2, tipY + headH);
+      ctx.lineTo(fx + shaftW / 2, tipY + headH);
+      ctx.lineTo(fx + shaftW / 2, startY);
+      ctx.lineTo(fx - shaftW / 2, startY);
+      ctx.lineTo(fx - shaftW / 2, tipY + headH);
+      ctx.lineTo(fx - headW / 2, tipY + headH);
+      ctx.closePath();
+    };
+
+    ctx.save();
+    // Outer pulsing glow layers (fast, no shadowBlur)
+    traceArrow();
+    ctx.lineJoin = 'round';
+    ctx.globalAlpha = baseAlpha * (0.24 + pulse * 0.14);
+    ctx.strokeStyle = '#ffd94a';
+    ctx.lineWidth = 14;
+    ctx.stroke();
+
+    ctx.globalAlpha = baseAlpha * (0.38 + pulse * 0.18);
+    ctx.lineWidth = 7;
+    ctx.stroke();
+
+    // Translucent golden-yellow gradient fill
+    ctx.globalAlpha = baseAlpha;
+    const grad = ctx.createLinearGradient(fx, tipY, fx, startY);
+    grad.addColorStop(0, '#fff7b2');
+    grad.addColorStop(0.55, '#ffd94a');
+    grad.addColorStop(1, '#ff9f1c');
+    ctx.fillStyle = grad;
+    ctx.fill();
+
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.9)';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    // Vertical "DASH" text along the arrow shaft with crisp shadow
+    const textY = (startY + tipY + headH * 0.65) / 2;
+    ctx.translate(fx, textY);
+    ctx.rotate(-Math.PI / 2);
+    ctx.globalAlpha = Math.min(1, baseAlpha * 1.25);
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.font = `900 ${Math.max(12, Math.round(tile * 0.28))}px Nunito, system-ui, sans-serif`;
+    ctx.fillStyle = 'rgba(14, 10, 28, 0.85)';
+    ctx.fillText('DASH', 1.5, 1.5);
+    ctx.fillStyle = '#fffbeb';
+    ctx.fillText('DASH', 0, 0);
+    ctx.restore();
+  }
+
+  function draw(g, swipe = null) {
     if (!g) return;
     ctx.save();
     ctx.scale(dpr, dpr);
@@ -586,9 +661,23 @@ export function createScene(canvas) {
 
     // Draw Sapiondo!
     const f = g.frog;
-    const fx = padX + (f.x + 0.5) * tile;
+    const shakeX = hitShake > 0 ? Math.sin(clock * 65) * tile * 0.14 * (hitShake / 0.45) : 0;
+    const fx = padX + (f.x + 0.5) * tile + shakeX;
     const fy = rowToScreenY(f.y) + tile * 0.5;
+    let frogAlpha = 1;
+    if (g.shield > 0) {
+      const pulse = 0.5 + 0.5 * Math.sin(clock * 14);
+      frogAlpha = 0.36 + pulse * 0.34;
+      ctx.save();
+      ctx.strokeStyle = `rgba(165, 243, 252, ${0.28 + pulse * 0.48})`;
+      ctx.lineWidth = Math.max(2, tile * 0.06);
+      ctx.beginPath();
+      ctx.arc(fx, fy - f.z * tile * 0.58, tile * (0.42 + pulse * 0.08), 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.restore();
+    }
     drawFrogSprite(fx, fy, tile, f.z, f.dir, {
+      alpha: frogAlpha,
       eyeAlert: f.eyeAlert,
       crashed: g.mode === 'crash',
       win: g.mode === 'win',
@@ -622,6 +711,7 @@ export function createScene(canvas) {
     }
     ctx.globalAlpha = 1;
 
+    drawSwipeIndicator(swipe, g, padX, tile, rowToScreenY);
     ctx.restore();
   }
 

@@ -18,13 +18,14 @@
   <!-- Frog arms -->
   <ellipse cx="27" cy="90" rx="9" ry="14" transform="rotate(22 27 90)" fill="#37b93f"/>
   <ellipse cx="101" cy="90" rx="9" ry="14" transform="rotate(-22 101 90)" fill="#37b93f"/>
-  <!-- Chilean flag t-shirt -->
+  <!-- Christmas sweater -->
   <g clip-path="url(#shirt-clip)">
-    <rect x="24" y="60" width="80" height="27" fill="#f7f9fc"/>
-    <rect x="24" y="87" width="80" height="26" fill="#d52b1e"/>
-    <rect x="24" y="60" width="38" height="27" fill="#0039a6"/>
-    <!-- 5-point star -->
-    <polygon points="43,66 45.1,72.2 51.6,72.2 46.4,76 48.3,82.2 43,78.5 37.7,82.2 39.6,76 34.4,72.2 40.9,72.2" fill="#ffffff"/>
+    <rect x="24" y="60" width="80" height="54" fill="#d62828"/>
+    <rect x="24" y="79" width="80" height="16" fill="#198754"/>
+    <rect x="24" y="60" width="80" height="8" fill="#f8fafc"/>
+    <rect x="24" y="102" width="80" height="10" fill="#f8fafc"/>
+    <!-- Gold star ornament -->
+    <polygon points="64,80 65.8,85.2 71.2,85.2 66.8,88.4 68.5,93.6 64,90.4 59.5,93.6 61.2,88.4 56.8,85.2 62.2,85.2" fill="#ffd94a"/>
   </g>
   <!-- T-shirt collar -->
   <path d="M46 65c5 6 31 6 36 0" fill="none" stroke="#18233a" stroke-opacity="0.28" stroke-width="3" stroke-linecap="round"/>
