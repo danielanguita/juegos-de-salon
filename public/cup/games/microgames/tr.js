@@ -123,6 +123,8 @@ const ROWS = [
   ['¡Se cayó todo!', 'Everything fell!', 'Caiu tudo!'],
   ['¡No se cayó nada!', 'Nothing fell!', 'Não caiu nada!'],
   ['Se cayeron {n}', '{n} fell', 'Caíram {n}'],
+  ['arrastra la canasta de lado a lado', 'drag the basket from side to side', 'arraste a cesta de um lado para o outro'],
+  ['mueve el palo de lado a lado: que no se caiga nada del plato', 'move the stick from side to side: don\'t let anything fall off the plate', 'mova o bastão de um lado para o outro: não deixe nada cair do prato'],
   ['que no se caiga nada del plato', 'don\'t let anything fall off the plate', 'não deixe nada cair do prato'],
   ['¡DIBUJA!', 'DRAW!', 'DESENHE!'],
   ['¡Te saliste!', 'You went off!', 'Você saiu!'],

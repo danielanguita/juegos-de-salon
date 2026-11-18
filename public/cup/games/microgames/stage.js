@@ -125,9 +125,9 @@ export function playRun({ order: list, seed, done = [], onGame = () => {}, onEnd
   const dress = id => { const k = KIND[id]; if (k) { demo.dataset.kind = k; demo.style.setProperty('--kind', KINDS[k][2]); } };
   const undress = () => { delete demo.dataset.kind; };
   // `ms` holds the intro longer, for a game whose intro has more to show (¡Pinball!'s table)
-  function command(word, then, icon, hint, top, ms) {
+  function command(word, then, icon, hint, top, ms, bottom) {
     const gx = gesture(curGame), extra = (gx ? 500 : 0) + (ms || 0); dress(curGame); const go = then; then = () => { undress(); go(); };
-    set(`${gx}${top || ''}<div class="cmd">${word}</div>${icon ? `<div class="target" aria-hidden="true">${icon}</div>` : ''}${hint ? `<div class="sub">${hint}</div>` : ''}`);
+    set(`${gx}${top || ''}<div class="cmd">${word}</div>${icon ? `<div class="target" aria-hidden="true">${icon}</div>` : ''}${hint ? `<div class="sub">${hint}</div>` : ''}${bottom || ''}`);
     later(then, (reduce ? 900 : top ? 1800 : hint ? 1600 : icon ? 1200 : 800) + extra);
   }
 
@@ -178,6 +178,15 @@ export function playRun({ order: list, seed, done = [], onGame = () => {}, onEnd
   };
   const near = (a, b, r) => Math.hypot(a[0] - b[0], a[1] - b[1]) < r;
 
+  // The intro of the two games where a finger drags something side to side (¡Atrapa!, ¡Equilibra!), as ¡Pinball!'s shows its
+  // table: a faded ghost of the thing at both ends of its path, the real one sliding between them with a thumb under it
+  const DRAG_INTRO = (kind, inner) => `<div class="dg-intro ${kind}" aria-hidden="true"><i class="dg-track"></i>${inner}</div>`;
+  const ATRAPA_INTRO = () => DRAG_INTRO('atrapa', `<span class="dg-ghost l">🧺</span><span class="dg-ghost r">🧺</span>
+    <span class="dg-fall coin1">🪙</span><span class="dg-fall bomb">💣</span><span class="dg-fall coin2">🪙</span>
+    <span class="dg-mover"><span class="dg-item">🧺</span><span class="dg-thumb">👆<i></i></span></span>`);
+  const EQUILIBRA_INTRO = () => { const plate = '<span class="dg-plate"><i style="--w:1.5rem;--h:0.9rem;--c:#ff4d5e"></i><i style="--w:1.1rem;--h:0.8rem;--c:#4d8bff"></i><i style="--w:0.8rem;--h:0.7rem;--c:#3ddc84"></i></span><span class="dg-stick"></span><span class="dg-handle"></span>';
+    return DRAG_INTRO('equilibra', `<span class="dg-ghost l">${plate}</span><span class="dg-ghost r">${plate}</span>
+    <span class="dg-mover"><span class="dg-item">${plate}</span><span class="dg-thumb">👆<i></i></span></span>`); };
   const GAMES = {
     // ¡ENCUENTRA!: a theme of lookalikes in the same colors; the command shows which one to find
     // ¡CRUZA!: a smooth, curvy bridge of even width. Chevrons along it point the way and the crossed part lights up.
@@ -473,7 +482,7 @@ export function playRun({ order: list, seed, done = [], onGame = () => {}, onEnd
           loop = requestAnimationFrame(step);
         };
         loop = requestAnimationFrame(step);
-      }, '🪙 ✓  💣 ✗');
+      }, '🪙 ✓  💣 ✗', t('arrastra la canasta de lado a lado'), '', 1400, ATRAPA_INTRO());
     },
     // ¡CORTA!: swipe along the dashed line across the sandwich
     corta() {
@@ -1260,7 +1269,7 @@ export function playRun({ order: list, seed, done = [], onGame = () => {}, onEnd
           lay.classList.toggle('warn', items.some((it, k) => Math.abs(it.u - (k ? items[k - 1].u : 0)) > lim(k) * 0.6));
           if (tm >= dur) { finish(items.length, items.length === 3 ? t('¡No se cayó nada!') : t('Se cayeron {n}', { n: 3 - items.length })); return false; } });
         arm(); runTimer(dur, () => {});
-      }, `<span style="display:inline-flex;flex-direction:column-reverse;align-items:center">${LOAD.map(k => chip(k, 1.1).replace('margin-right:4px', 'margin:0')).join('')}</span>`, t('que no se caiga nada del plato'));
+      }, '', t('mueve el palo de lado a lado: que no se caiga nada del plato'), '', 1400, EQUILIBRA_INTRO());
     },
     // 14 ¡DIBUJA!: trace the dotted shape without leaving it
     dibuja() {
