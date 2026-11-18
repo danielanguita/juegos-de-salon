@@ -17,7 +17,7 @@ export function reminder(n) {
   const id = n || '<n>';
   return [
     `PR ${pr} is open. Before going on (CLAUDE.md, "Before proposing a merge"):`,
-    `1. node tools/agents/lanes.mjs check — and run the agents its lane requires; if the PR changes a game, also the player agent on its preview.`,
+    `1. node tools/agents/lanes.mjs check — and run the agents its lane requires (and the player agent on its preview if the PR changes a game), all in one message so they run in parallel.`,
     `2. If it is 🔴 and the owner asked for this work in this dialogue: node tools/agents/lanes.mjs tick ${id} (D-540, D-575).`,
     `3. node tools/firebase/in-progress.mjs, then gh pr merge ${id} --auto --merge unless the lane is 🔴 (D-216).`,
     `4. Watch it: subscribe_pr_activity in a cloud session, else node tools/agents/wait-pr.mjs ${id} in the background (D-400, D-522).`,

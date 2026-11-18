@@ -141,5 +141,8 @@ assert.match(decisionsBody({ decisions: [{ question: 'x', origin: 'Player report
   assert.ok(who({ ciDays: null }).includes('ci-health'), 'ci-health when never dispatched');
   assert.ok(who({ ciDays: 7 }).includes('ci-health'), 'ci-health once a week');
   assert.ok(!who({ ciDays: 3 }).includes('ci-health'));
-  for (const a of ['feedback', 'ci-health']) assert.ok(EXECUTORS.includes(a), `${a} can be recorded with dispatch`);
+  assert.ok(who({ backlogDays: null }).includes('backlog'));
+  assert.ok(who({ backlogDays: 8 }).includes('backlog'));
+  assert.ok(!who({ backlogDays: 2 }).includes('backlog'));
+  for (const a of ['feedback', 'ci-health', 'backlog']) assert.ok(EXECUTORS.includes(a), `${a} can be recorded with dispatch`);
 }
