@@ -16,6 +16,7 @@ import { confetti } from '../../../assets/js/ui.js';
 import { SFX } from '../../../assets/js/sound.js';
 import { score, points, runScore100, card, STREAK } from './engine.js';
 import { STAGE, GESTURES, WAYS, ICONS, playRun, t, multTxt } from './stage.js';
+import { labAccess } from '../../../assets/js/lab-access.js';
 import TEXTOS from './texts.js';
 
 // Its own stylesheet, loaded with its code and before its first screen (D-468)
@@ -98,6 +99,18 @@ export function mount(raiz, ctx) {
     onEnd: marks => { if (vez !== partidas) return; S.marks = marks; acabar(); } });
   // For the end-to-end script: the run as the cup gets it
   window.__alToque = { S, estado, acabar };
+  // Testers only, in the T tab (never on the cover, which stays as players see it): play any one game on its own.
+  // It is a try-out: nothing is saved or sent to the cup, and the run it replaces is dropped
+  labAccess().then(ok => {
+    if (!ok || !juego.isConnected) return;
+    return import('../../../assets/js/tester-ribbon.js').then(({ setTesterContext, foldTesterRibbon }) => {
+      const kinds = S.run.kinds, kindOf = S.run.kind;
+      const go = id => { foldTesterRibbon(); S.run?.stop(); partidas++; S.run = playRun({ order: [id], seed: String(Date.now()) }); };
+      const grid = el('div', { class: 'tr-mg-grid', id: 'tr-mg' }, ...Object.keys(kinds).flatMap(k => S.run.meta.filter(m => kindOf[m.id] === k).map(m =>
+        el('button', { type: 'button', class: 'tr-mg-b', style: `--kc:${kinds[k][2]}`, title: m.n, 'aria-label': m.n, 'data-id': m.id, onClick: () => go(m.id) }, ...(m.i.startsWith('<') ? [Object.assign(el('span'), { innerHTML: m.i })] : [m.i])))));
+      setTesterContext(el('div', { class: 'tr-sim tr-mg-box' }, el('small', {}, '⚡ Jugar un microjuego (sin guardar)'), grid));
+    });
+  }).catch(() => {});
 }
 
 /** What goes to the cup and to the result: the points (no cap), its card, the run's 0–100 for Uno al día and the final (`d100`), and the time. */

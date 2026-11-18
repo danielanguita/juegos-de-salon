@@ -174,8 +174,8 @@
   border: 1px solid var(--line); background: var(--night-2); box-shadow: 0 20px 50px rgb(var(--mg-000000-rgb) / 0.45), inset 0 0 80px rgb(var(--purple-rgb) / 0.25);
   display: grid; place-items: center; cursor: pointer; touch-action: manipulation; user-select: none; -webkit-user-select: none;
   max-height: calc(100svh - 16px); overscroll-behavior: contain; }
-/* While a game is on, a finger on the board drags the game, never the page (the effective touch-action is the intersection up the tree, so it goes on every child) */
-.demo .center.full, .demo .center.full * { touch-action: none; }
+/* While a game is on (.playing, off again at its end so the result can be scrolled), a finger on the board drags the game, never the page (the effective touch-action is the intersection up the tree, so it goes on every child) */
+.demo.playing .center.full, .demo.playing .center.full * { touch-action: none; }
 .demo .moleicon { width: 1.1em; height: 1.1em; vertical-align: -0.15em; }
 .demo .target .moleicon { width: 1em; height: 1em; }
 .demo:focus-visible { outline: 3px solid var(--cyan); outline-offset: 3px; }

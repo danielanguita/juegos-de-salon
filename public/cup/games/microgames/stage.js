@@ -44,6 +44,8 @@ export function playRun({ order: list, seed, done = [], onGame = () => {}, onEnd
   const hudN = document.getElementById('hud-n'), hudS = document.getElementById('hud-s');
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   let total = 0, idx = 0, raf = 0, loop = 0, active = false, cleanup = null, sp = 1, order = [], tOuts = [], lastStars = 0;
+  // A game is on: from here a finger on the board drags the game, never the page; freeze() gives the page back
+  const arm = () => { active = true; demo.classList.add('playing'); };
   let rand = Math.random;   // the game's random stream: seeded in a shared run (Uno al día, a cup), so every phone gets the same game
   const rnd = n => Math.floor(rand() * n);
   const pick = a => a[rnd(a.length)];
@@ -79,7 +81,7 @@ export function playRun({ order: list, seed, done = [], onGame = () => {}, onEnd
     cancelAnimationFrame(raf); cancelAnimationFrame(loop); animTok++;
     tOuts.forEach(clearTimeout); tOuts = [];
     cleanup?.(); cleanup = null;
-    timer.hidden = true; demo.style.touchAction = '';
+    timer.hidden = true; demo.style.touchAction = ''; demo.classList.remove('playing');
   }
   function stopAll() {
     freeze();
@@ -267,14 +269,14 @@ export function playRun({ order: list, seed, done = [], onGame = () => {}, onEnd
         // A time limit for the whole road, shown as the bar and as seconds counting down
         const LIMIT = T(Math.max(6000, LEN / 120 * 1000)), tStart = performance.now(), rc = $id('rc');
         animate(() => { rc.textContent = `⏱ ${Math.max(0, (LIMIT - (performance.now() - tStart)) / 1000).toFixed(1)}`; });
-        active = true; runTimer(LIMIT, () => finish(0, t('¡Se acabó el tiempo!')));
+        arm(); runTimer(LIMIT, () => finish(0, t('¡Se acabó el tiempo!')));
       }, '<span class="example"><i class="ballicon"></i> → <i class="chkicon"></i></span>', t('llega a tiempo · cada toque al borde: −★ · 3 toques y pierdes'));
     },
     // ¡ESPERA… YA!: red, then green; tap on green, never before
     espera() {
       command(t('¡ESPERA… YA!'), () => {
         demo.classList.add('red'); set(`<div class="cmd white">${t('Espera…')}</div>`);
-        active = true; let green = false, tg = 0;
+        arm(); let green = false, tg = 0;
         later(() => {
           green = true; demo.classList.replace('red', 'green');
           set(`<div class="cmd white huge">${t('¡YA!')}</div>`); tg = performance.now();
@@ -363,7 +365,7 @@ export function playRun({ order: list, seed, done = [], onGame = () => {}, onEnd
           if (ph.isConnected) ph.remove();
           if (taps >= BURST) { boom(); finish(3, t('¡Reventó!'), 1300); }
         });
-        active = true;
+        arm();
         runTimer(5000, () => finish(grade(), t('{n} infladas', { n: taps })));
       }, '🎈💥', t('aprieta el bombín para inflar el globo'));
     },
@@ -379,7 +381,7 @@ export function playRun({ order: list, seed, done = [], onGame = () => {}, onEnd
       later(() => { undress();
         set(`<div class="sub ask">${ask}</div><div class="stroop" style="color:${C[ink][1]}">${C[w][0]}</div><div class="swatches">${shuffle([0, 1, 2, 3]).map(i => `<button type="button" data-i="${i}" style="background:${C[i][1]}" aria-label="${C[i][0]}"></button>`).join('')}</div>`);
         const why = byInk ? t('Las letras eran {c}, no importa lo que dice', { c: C[ink][2] }) : t('La palabra decía {w} {c}, no importa su color', { w: C[w][0], c: C[w][2] });
-        active = true; const t0 = runTimer(T(4200), () => finish(0, why));
+        arm(); const t0 = runTimer(T(4200), () => finish(0, why));
         screen.querySelectorAll('.swatches button').forEach(b => tap(b, () => {
           const s = (performance.now() - t0) / 1000 * sp;
           finish(+b.dataset.i === goal ? (s < 1.4 ? 3 : s < 2.5 ? 2 : 1) : 0, +b.dataset.i === goal ? null : why);
@@ -407,7 +409,7 @@ export function playRun({ order: list, seed, done = [], onGame = () => {}, onEnd
         full(`<div class="countbox"><div class="field2">${items.map((it, i) => { const c = slots[i] % cols, r = Math.floor(slots[i] / cols);
           return `<span style="left:${(c + 0.5) * 100 / cols + (rand() - 0.5) * 8}%;top:${(r + 0.5) * 100 / rows + (rand() - 0.5) * 8}%;font-size:${fs}px;--dx:${Math.round((rand() - 0.5) * 12)}px;--dy:${Math.round((rand() - 0.5) * 12)}px;animation-duration:${(0.9 + rand() * 1.1).toFixed(2)}s;animation-delay:-${(rand() * 2).toFixed(2)}s">${it}</span>`; }).join('')}</div>
           <div class="opts4">${opts.map(v => `<button type="button" data-v="${v}">${v}</button>`).join('')}</div></div>`);
-        active = true; const t0 = runTimer(T(5000), () => finish(0, t('Eran {n}', { n: k })));
+        arm(); const t0 = runTimer(T(5000), () => finish(0, t('Eran {n}', { n: k })));
         numPick(screen.querySelector('.opts4'), k, t0, s => s < 2.5 ? 3 : s < 4 ? 2 : 1, t('Eran {n}', { n: k }));
       }, goal, goalName);
     },
@@ -456,7 +458,7 @@ export function playRun({ order: list, seed, done = [], onGame = () => {}, onEnd
             <path d="M136 52 l3 6 6 1 -4 4 1 6 -6 -3 -6 3 1 -6 -4 -4 6 -1z" fill="#fff6a8"/></svg><b>${t('¡BIEN AHÍ!')}</b>`);
           for (let i = 0; i < 10; i++) { const bl = mk(demo, 'span', 'cashrain', '💵'); bl.style.left = `${5 + rand() * 90}%`; bl.style.animationDelay = `${rand() * 0.7}s`; setTimeout(() => bl.remove(), 1900); }
           setTimeout(() => m.remove(), 1750); };
-        active = true; runTimer(dur, () => { const n = got === cookies && !socks ? 3 : got >= 4 && socks <= 1 ? 2 : got ? 1 : 0;
+        arm(); runTimer(dur, () => { const n = got === cookies && !socks ? 3 : got >= 4 && socks <= 1 ? 2 : got ? 1 : 0;
           if (got === cookies) tycoon(); finish(n, `${got}/${cookies} 🪙 · ${socks} 💣`, got === cookies ? 1800 : 800); });
         const step = now => {
           const t = now - t0;
@@ -516,7 +518,7 @@ export function playRun({ order: list, seed, done = [], onGame = () => {}, onEnd
         };
         demo.addEventListener('pointerdown', down); demo.addEventListener('pointermove', move); addEventListener('pointerup', up);
         cleanup = () => { demo.removeEventListener('pointerdown', down); demo.removeEventListener('pointermove', move); removeEventListener('pointerup', up); };
-        active = true; runTimer(T(4000), () => finish(0, t('¡Se acabó el tiempo!')));
+        arm(); runTimer(T(4000), () => finish(0, t('¡Se acabó el tiempo!')));
       }, `✂️ ${FOOD}`, t('corta por la línea'));
     },
     // ¡ORDENA!: four in a column, made for a phone held upright. The spots shrink from top to bottom (the top one
@@ -562,11 +564,11 @@ export function playRun({ order: list, seed, done = [], onGame = () => {}, onEnd
             fit(el, to); el.style.top = (c - SZ[to] / 2) + 'px'; });
           const drop = () => { if (drag !== el) return; drag = null; el.classList.remove('lift'); layout(); land(el);
             if (els.map(c => +c.dataset.v).join() === goal.join()) { active = false; cancelAnimationFrame(raf);
-              els.forEach((c, i) => setTimeout(() => c.classList.add('ok'), 120 + i * 110)); active = true;
+              els.forEach((c, i) => setTimeout(() => c.classList.add('ok'), 120 + i * 110)); arm();
               const s = (performance.now() - t0) / 1000 * sp; later(() => finish(s < 2.6 ? 3 : s < 4 ? 2 : 1, t('¡En orden!'), 900), 560); } };
           el.addEventListener('pointerup', drop); el.addEventListener('pointercancel', drop);
         });
-        active = true; const t0 = runTimer(T(5600), () => finish(0, t('¡Se acabó el tiempo!')));
+        arm(); const t0 = runTimer(T(5600), () => finish(0, t('¡Se acabó el tiempo!')));
       }, null, t('arrastra: el más grande arriba'));
     },
     // ¡CALCULA!: one quick operation, three answers right under it
@@ -580,7 +582,7 @@ export function playRun({ order: list, seed, done = [], onGame = () => {}, onEnd
       const opts = shuffle([r, ...wrong]);
       command(t('¡CALCULA!'), () => {
         set(`<div class="op">${a} ${op} ${b}</div><div class="opts3 low">${opts.map(v => `<button type="button" data-v="${v}">${v}</button>`).join('')}</div>`);
-        active = true; const t0 = runTimer(T(4000), () => finish(0, t('Era {n}', { n: r })));
+        arm(); const t0 = runTimer(T(4000), () => finish(0, t('Era {n}', { n: r })));
         numPick(screen.querySelector('.opts3'), r, t0, s => s < 1.5 ? 3 : s < 3 ? 2 : 1, t('Era {n}', { n: r }));
       }, '➕ ➖ ✖️');
     },
@@ -643,7 +645,7 @@ export function playRun({ order: list, seed, done = [], onGame = () => {}, onEnd
         let mid = centers(), aim = 3, x = mid[aim], dragging = false, moved = false, onLane = false, sx = 0;
         const show = () => { hand.style.left = x + 'px'; cols.forEach((c, i) => c.classList.toggle('aim', i === aim)); };
         show();
-        active = true; const t0 = runTimer(T(5500), () => finish(0, t('¡Se acabó el tiempo!')));
+        arm(); const t0 = runTimer(T(5500), () => finish(0, t('¡Se acabó el tiempo!')));
         const drop = () => {
           const c = aim, h = heightOf(grid, c); if (h >= R) { x = mid[aim]; show(); return; }
           const s = (performance.now() - t0) / 1000 * sp, good = c === goalCol, col = cols[c];
@@ -655,7 +657,7 @@ export function playRun({ order: list, seed, done = [], onGame = () => {}, onEnd
           active = false; cancelAnimationFrame(raf); timer.hidden = true;
           // Once it's dropped, the column stops being pointed at
           cols.forEach(cc => cc.classList.remove('aim')); $id('c4').classList.add('done');
-          setTimeout(() => { active = true;
+          setTimeout(() => { arm();
             // Four in a row: those four light up and pulse, one after another, and the rest dims
             if (good) lineOf(grid, ME).forEach(([r, cc], k) => { const dd = cols[cc].children[R - 1 - r].querySelector('.dot'); dd?.classList.add('glow'); dd?.style.setProperty('--k', k); });
             finish(good ? (s < 2 ? 3 : s < 3.4 ? 2 : 1) : 0, good ? t('¡Cuatro en línea!') : t('¡Esa no conecta!')); }, reduce ? 50 : 450);
@@ -740,7 +742,7 @@ export function playRun({ order: list, seed, done = [], onGame = () => {}, onEnd
         const up = () => { on = false; last = null; };
         demo.addEventListener('pointerdown', down); demo.addEventListener('pointermove', move); addEventListener('pointerup', up);
         cleanup = () => { demo.removeEventListener('pointerdown', down); demo.removeEventListener('pointermove', move); removeEventListener('pointerup', up); };
-        active = true; t0 = performance.now();
+        arm(); t0 = performance.now();
         runTimer(T(6000), () => finish(0, t('Quedó {n} % limpio', { n: Math.round((1 - left / (N * N)) * 100) })));
       }, `🧽 ${SURF.icon}`, SURF.hint);
     },
@@ -786,7 +788,7 @@ export function playRun({ order: list, seed, done = [], onGame = () => {}, onEnd
           leds.forEach(l => { l.setAttribute('fill', col); l.setAttribute('opacity', '1'); l.classList.add('ledblink'); });
           if (n) zones[n - 1].classList.add('zhit'); else lay.classList.add('shake');
           finish(n, n ? null : t('¡Fuera de la franja!'), 1100); } });
-        active = true; runTimer(T(4000), () => finish(0, t('¡Se acabó el tiempo!')));
+        arm(); runTimer(T(4000), () => finish(0, t('¡Se acabó el tiempo!')));
       }, '📡', t('frena el radar: mientras más al centro, más estrellas'));
     },
     // 3 ¡APLASTA!: five flies buzz around; tap and a fly swatter comes down from behind onto that spot and squashes what's there
@@ -834,7 +836,7 @@ export function playRun({ order: list, seed, done = [], onGame = () => {}, onEnd
             if (n === N) { later(() => finish(timeStars(t0, 5, 7), t('¡Las nueve!')), 150); }
           }, 110);
           later(() => sw.remove(), 450); } });
-        active = true; runTimer(T(9000), () => finish(n >= N - 2 ? 1 : 0, t('{n} de {N} moscas', { n, N })));
+        arm(); runTimer(T(9000), () => finish(n >= N - 2 ? 1 : 0, t('{n} de {N} moscas', { n, N })));
       }, '🪰 × 9', t('toca donde está la mosca para aplastarla'));
     },
     // 5 ¡REVIENTA!: lots of quick bubbles in close blues; pop only the true blue ones
@@ -843,7 +845,7 @@ export function playRun({ order: list, seed, done = [], onGame = () => {}, onEnd
         const { lay, W, H } = lay0('');
         const BLUE = '#2f6bff', OTHERS = ['#5ec8ff', '#8a5cff', '#2ec4b6'];
         const plan = shuffle([...Array(9).fill(BLUE), ...Array(9).keys()].map(c => typeof c === 'number' ? OTHERS[c % 3] : c))
-          .map((c, i) => ({ c, at: 80 + i * T(230), x: W * (0.18 + rand() * 0.64), dur: T(1900) * (0.85 + rand() * 0.3), size: 36 + Math.round(rand() * 44) }));
+          .map((c, i) => ({ c, at: 80 + i * T(230), x: W * (0.18 + rand() * 0.64), dur: T(2600) * (0.85 + rand() * 0.3), size: 36 + Math.round(rand() * 44) }));
         // Popping: a ring and a few droplets fly out of the bubble
         const burst = b => { const r = mk(lay, 'span', 'obj bring'); place(r, b.x, b.y); r.style.width = r.style.height = b.size + 'px'; r.style.borderColor = b.c; later(() => r.remove(), 400);
           for (let i = 0; i < 7; i++) { const d = mk(lay, 'span', 'obj bdrop'); place(d, b.x, b.y); const an = i / 7 * Math.PI * 2 + rand() * 0.5, dist = b.size * (0.6 + rand() * 0.5);
@@ -856,7 +858,7 @@ export function playRun({ order: list, seed, done = [], onGame = () => {}, onEnd
               if (b.c === BLUE) { blue++; if (blue === 9) finish(wrong === 0 ? 3 : wrong === 1 ? 2 : 1, t('¡Todas las azules!')); }
               else { wrong++; pop(lay, '✗', b.x, b.y, 'bad'); } }); }
           if (b.el && !b.done) { const k = (t - b.at) / b.dur; b.y = H * (1.05 - 1.15 * k); place(b.el, b.x + Math.sin(k * 8 + b.x) * 12, b.y); if (k > 1) { b.done = true; b.el.remove(); } } }); });
-        active = true; runTimer(T(6200), () => finish(blue >= 6 && wrong <= 1 ? 2 : blue >= 3 ? 1 : 0, t('{b}/9 azules · {w} malas', { b: blue, w: wrong })));
+        arm(); runTimer(T(7200), () => finish(blue >= 6 && wrong <= 1 ? 2 : blue >= 3 ? 1 : 0, t('{b}/9 azules · {w} malas', { b: blue, w: wrong })));
       }, '<span class="bubgoal"></span>', t('revienta solo las de este azul'));
     },
 
@@ -1122,7 +1124,7 @@ export function playRun({ order: list, seed, done = [], onGame = () => {}, onEnd
           draw(now);
         });
         const savedN = () => balls.filter(b => b.live && b.saved).length;
-        active = true; runTimer(T(7000), () => {
+        arm(); runTimer(T(7000), () => {
           const n = savedN();
           if (n < 3) { finish(n, t('Salvaste {n} de 3', { n })); return; }
           party = performance.now(); timer.hidden = true; SFX.win?.();
@@ -1183,7 +1185,7 @@ export function playRun({ order: list, seed, done = [], onGame = () => {}, onEnd
           trail.forEach((q, k) => { const p = hist[(k + 1) * 3 - 1] || hist.at(-1); place(q, p[0], p[1]); q.style.opacity = 0.35 - k * 0.1; q.style.scale = 1 - k * 0.2; });
           // Past the paddle it is lost: the game ends right there, not when the ball leaves the screen
           if (by - R > py + 18) { finish(broken, broken ? t('Le diste a {n} de 3', { n: broken }) : t('¡Se te cayó!')); return false; } });
-        active = true; runTimer(T(9000), () => finish(broken, t('Le diste a {n} de 3', { n: broken })));
+        arm(); runTimer(T(9000), () => finish(broken, t('Le diste a {n} de 3', { n: broken })));
       }, '🏓 → 👾👾👾', t('mueve la paleta y dale a los tres marcianos'));
     },
     // 11 ¡EQUILIBRA!: a plate on a stick leans and falls; move your finger left and right under it to keep it up
@@ -1257,7 +1259,7 @@ export function playRun({ order: list, seed, done = [], onGame = () => {}, onEnd
           hb.setAttribute('x', x - 42); hb.setAttribute('y', by);
           lay.classList.toggle('warn', items.some((it, k) => Math.abs(it.u - (k ? items[k - 1].u : 0)) > lim(k) * 0.6));
           if (tm >= dur) { finish(items.length, items.length === 3 ? t('¡No se cayó nada!') : t('Se cayeron {n}', { n: 3 - items.length })); return false; } });
-        active = true; runTimer(dur, () => {});
+        arm(); runTimer(dur, () => {});
       }, `<span style="display:inline-flex;flex-direction:column-reverse;align-items:center">${LOAD.map(k => chip(k, 1.1).replace('margin-right:4px', 'margin:0')).join('')}</span>`, t('que no se caiga nada del plato'));
     },
     // 14 ¡DIBUJA!: trace the dotted shape without leaving it
@@ -1298,7 +1300,7 @@ export function playRun({ order: list, seed, done = [], onGame = () => {}, onEnd
         listen({ down: e => { on = true; prev = null; travel = 0; line = []; tr = ink.appendChild(document.createElementNS('http://www.w3.org/2000/svg', 'polyline')); go(e); if (active) ends.push(line[0]); },
           move: e => { if (on) go(e); },
           up: () => { on = false; prev = null; if (line.length) ends.push(line[line.length - 1]); if (active && seen.size / S.length >= 0.6) partial(t('Te faltó cerrarla')); } });
-        active = true; runTimer(T(6500), () => partial(t('Se acabó el tiempo')));
+        arm(); runTimer(T(6500), () => partial(t('Se acabó el tiempo')));
       }, '✏️ ⭐', t('repasa la figura sin salirte'));
     },
     // 19 ¡SIGUE!: a drawn little rat scurries around, turning now and then; keep your finger on it
@@ -1353,7 +1355,7 @@ export function playRun({ order: list, seed, done = [], onGame = () => {}, onEnd
               place(mo, Math.max(W * 0.25, Math.min(W * 0.75, x)), Math.max(H * 0.3, Math.min(H * 0.75, y)));
               for (let i = 0; i < 4; i++) { const nt = mk(lay, 'span', 'obj note', pick(['♪', '♫'])); place(nt, parseFloat(mo.style.left) + (i - 1.5) * 30, parseFloat(mo.style.top) - 50); nt.style.animationDelay = `${i * 0.25}s`; } }
             finish(n, t('La seguiste el {n} %', { n: Math.round(k * 100) }), n >= 2 ? 1900 : 800); return false; } });
-        active = true; runTimer(T(8000), () => finish(0, started ? null : t('No pusiste el dedo')));
+        arm(); runTimer(T(8000), () => finish(0, started ? null : t('No pusiste el dedo')));
       }, '👆 🐀', t('pon el dedo en la ratita y no la sueltes'));
     },
     // 21 ¡REPITE!: the pads light up in order; repeat it
@@ -1364,7 +1366,7 @@ export function playRun({ order: list, seed, done = [], onGame = () => {}, onEnd
         const pads = [...screen.querySelectorAll('.pads button')], ask = $id('ask');
         const flash = i => { pads[i].classList.add('lit'); later(() => pads[i].classList.remove('lit'), T(380)); };
         seq.forEach((i, k) => later(() => flash(i), 300 + k * T(560)));
-        later(() => { ask.textContent = t('¡Ahora tú!'); let k = 0; active = true; const t0 = runTimer(T(6000), () => finish(0, t('Eran {n}', { n })));
+        later(() => { ask.textContent = t('¡Ahora tú!'); let k = 0; arm(); const t0 = runTimer(T(6000), () => finish(0, t('Eran {n}', { n })));
           pads.forEach((b, i) => tap(b, () => { flash(i); if (i !== seq[k]) { finish(0, t('¡Ese no era!')); return; } k++;
             if (k === n) { const s = (performance.now() - t0) / 1000 * sp; finish(s < 3 ? 3 : s < 4.4 ? 2 : 1, t('¡Igualito!')); } })); }, 300 + n * T(560));
       }, '🟥🟦🟩', t('mira el orden y repítelo'));
@@ -1384,7 +1386,7 @@ export function playRun({ order: list, seed, done = [], onGame = () => {}, onEnd
           [ca, cb].forEach(c => { c.style.transition = `left ${T(320)}ms ease-in-out`; place(c, xs[c.pos], cy); });
           if (++k < swaps) later(swap, T(380)); else later(ask, T(380)); };
         later(() => { pe.hidden = true; swap(); }, 1100);
-        const ask = () => { place(pe, xs[ball], cy + 18); active = true; const t0 = runTimer(T(3000), () => finish(0, t('¡Se acabó el tiempo!')));
+        const ask = () => { place(pe, xs[ball], cy + 18); arm(); const t0 = runTimer(T(3000), () => finish(0, t('¡Se acabó el tiempo!')));
           cups.forEach(c => tap(c, () => { cups.forEach(o => place(o, xs[o.pos], cy - 50)); pe.hidden = false;
             const s = (performance.now() - t0) / 1000 * sp; finish(c.pos === ball ? (s < 1.2 ? 3 : s < 2.2 ? 2 : 1) : 0, c.pos === ball ? t('¡Ahí estaba!') : t('¡Estaba en otro!')); })); };
       }, '⚪ 🥤🥤🥤', t('sigue la bolita'));
@@ -1401,7 +1403,7 @@ export function playRun({ order: list, seed, done = [], onGame = () => {}, onEnd
         const pair = () => [...screen.querySelectorAll(`.diff button[data-i="${at}"]`)];
         // Missed (or out of time): the two that differ start blinking so you see where it was
         const show = () => pair().forEach(x => x.classList.add('found', 'blink'));
-        active = true; const t0 = runTimer(T(6000), () => { show(); finish(0, t('Era esta'), 1500); });
+        arm(); const t0 = runTimer(T(6000), () => { show(); finish(0, t('Era esta'), 1500); });
         screen.querySelectorAll('.diff button').forEach(btn => tap(btn, () => { const ok = +btn.dataset.i === at;
           const s = (performance.now() - t0) / 1000 * sp;
           if (!ok) { btn.classList.add('nope'); show(); finish(0, t('¡Era otra!'), 1500); return; }
@@ -1425,7 +1427,7 @@ export function playRun({ order: list, seed, done = [], onGame = () => {}, onEnd
           const hole = $id('hole'), o3 = $id('o3');
           // Fill the spot: right one fits and sparkles; wrong one bounces off and the real one shows up blinking
           const fill = (e, ok) => { hole.textContent = e; hole.className = ok ? 'fit' : 'fit wrongfit'; };
-          active = true; const t0 = runTimer(T(3500), () => { fill(gone, false); hole.classList.add('blinkfit'); finish(0, t('Se fue {e}', { e: gone }), 1300); });
+          arm(); const t0 = runTimer(T(3500), () => { fill(gone, false); hole.classList.add('blinkfit'); finish(0, t('Se fue {e}', { e: gone }), 1300); });
           let locked = false;
           o3.querySelectorAll('button').forEach(b => tap(b, () => { if (locked) return; locked = true; cancelAnimationFrame(raf);
             const ok = b.dataset.e === gone, n = ok ? timeStars(t0, 1.4, 2.5) : 0;
@@ -1475,7 +1477,7 @@ export function playRun({ order: list, seed, done = [], onGame = () => {}, onEnd
             later(() => { i++; if (i < rounds.length) play(); else finish(right, right === 3 ? t('¡Las tres!') : t('{n} de 3', { n: right })); }, 950); };
           runTimer(T(3000), () => end(null));
           screen.querySelectorAll('.piles button').forEach(btn => tap(btn, () => end(btn))); };
-        active = true; play();
+        arm(); play();
       }, '⚖️ ×3', t('tres veces: toca el lado con más'));
     },
     // 26 ¡QUÉ HORA ES!: an analog clock and three times
@@ -1491,7 +1493,7 @@ export function playRun({ order: list, seed, done = [], onGame = () => {}, onEnd
         const ticks = [...Array(12).keys()].map(k => { const an = k * 30 * Math.PI / 180; return `<line x1="${50 + 40 * Math.sin(an)}" y1="${50 - 40 * Math.cos(an)}" x2="${50 + 45 * Math.sin(an)}" y2="${50 - 45 * Math.cos(an)}" stroke="#fff" stroke-width="${k % 3 ? 1.5 : 3}"/>`; }).join('');
         const nums = [12, 3, 6, 9].map((nn, k) => `<text x="${50 + 33 * Math.sin(k * Math.PI / 2)}" y="${50 - 33 * Math.cos(k * Math.PI / 2) + 4}" font-size="10" fill="#fff" text-anchor="middle" font-family="Nunito,sans-serif" font-weight="900">${nn}</text>`).join('');
         set(`<svg class="clock" viewBox="0 0 100 100"><circle cx="50" cy="50" r="48" fill="#1f0c38" stroke="#ffd23f" stroke-width="3"/>${ticks}${nums}${hand(ha, 22, 5, '#ffd23f')}${hand(ma, 36, 3, '#2ee6d6')}<circle cx="50" cy="50" r="3.5" fill="#fff"/></svg><div class="opts3 wide">${opts.map(o => `<button type="button" data-v="${o}">${o}</button>`).join('')}</div>`);
-        active = true; const t0 = runTimer(T(4500), () => finish(0, t('Eran las {h}', { h: right })));
+        arm(); const t0 = runTimer(T(4500), () => finish(0, t('Eran las {h}', { h: right })));
         screen.querySelectorAll('.opts3 button').forEach(b => tap(b, () => { const ok = b.dataset.v === right; const s = (performance.now() - t0) / 1000 * sp;
           finish(ok ? (s < 2 ? 3 : s < 3.4 ? 2 : 1) : 0, ok ? null : t('Eran las {h}', { h: right })); }));
       }, '🕐', t('aguja corta: hora · aguja larga: minutos'));
@@ -1522,7 +1524,7 @@ export function playRun({ order: list, seed, done = [], onGame = () => {}, onEnd
         sc.addEventListener('pointerup', drop); sc.addEventListener('pointercancel', drop);
         const wrong = t('Eran las {h}: la corta en el {a}, la larga en el {b}', { h: shown, a: h, b: m ? m / 5 : 12 });
         const show = () => { draw(hh, ((h % 12) + m / 60) * 30, 22); draw(mh, m * 6, 37); };
-        active = true; const t0 = runTimer(T(10000), () => { show(); finish(0, wrong, 1400); });
+        arm(); const t0 = runTimer(T(10000), () => { show(); finish(0, wrong, 1400); });
         tap($id('ok'), () => {
           // The minute hand must be exact; the hour hand within half an hour of where it belongs
           const ok = ma === m * 6 % 360 && gap(ha, ((h % 12) + m / 60) * 30) <= 15;
@@ -1538,7 +1540,7 @@ export function playRun({ order: list, seed, done = [], onGame = () => {}, onEnd
       command(t('¡SU SOMBRA!'), () => {
         const opts = shuffle([['ok', ''], ['mirror', 'transform:scaleX(-1)'], ['other', '']]);
         set(`<div class="shadowgoal">${goal}</div><div class="sub ask">${t('¿Cuál es su sombra?')}</div><div class="shadows">${opts.map(([k, st]) => `<button type="button" data-k="${k}"><span style="${st}">${k === 'other' ? other : goal}</span></button>`).join('')}</div>`);
-        active = true; const t0 = runTimer(T(4000), () => finish(0, t('¡Se acabó el tiempo!')));
+        arm(); const t0 = runTimer(T(4000), () => finish(0, t('¡Se acabó el tiempo!')));
         screen.querySelectorAll('.shadows button').forEach(b => tap(b, () => { const k = b.dataset.k; b.classList.add('show'); const s = (performance.now() - t0) / 1000 * sp;
           finish(k === 'ok' ? (s < 1.4 ? 3 : s < 2.6 ? 2 : 1) : 0, k === 'ok' ? null : k === 'mirror' ? t('¡Esa estaba al revés!') : t('¡Esa era de otro!')); }));
       }, '🌑', t('toca la silueta que le corresponde'));
@@ -1553,7 +1555,7 @@ export function playRun({ order: list, seed, done = [], onGame = () => {}, onEnd
       const opts = shuffle([r, ...shuffle([r + 1, r - 1, r + 2, r - 2, r + 10].filter(v => v >= 0 && v !== r)).slice(0, 2)]);
       command(t('¡COMPLETA!'), () => {
         set(`<div class="series">${s.join(', ')}, <b>?</b></div><div class="opts3 low">${opts.map(v => `<button type="button" data-v="${v}">${v}</button>`).join('')}</div>`);
-        active = true; const t0 = runTimer(T(4500), () => finish(0, t('Era {n}', { n: r })));
+        arm(); const t0 = runTimer(T(4500), () => finish(0, t('Era {n}', { n: r })));
         numPick(screen.querySelector('.opts3'), r, t0, sec => sec < 2 ? 3 : sec < 3.4 ? 2 : 1, t('Era {n}', { n: r }));
       }, '🔢', t('qué número sigue'));
     },
@@ -1631,7 +1633,7 @@ export function playRun({ order: list, seed, done = [], onGame = () => {}, onEnd
             lay.classList.add('fail', 'shake'); finish(0, t('¡Tocaste la bomba!')); return; }
           good++; wh.innerHTML = `${MOLE_ICON} ${good} / 9`; h.c.classList.add('bonk'); pop(lay, '+1', parseFloat(h.box.style.left) + h.box.offsetWidth / 2, parseFloat(h.box.style.top));
           later(() => h.c.classList.remove('up'), 220); }));
-        active = true; show();
+        arm(); show();
       }, `${MOLE_ICON} ✓  💣 ✗`, t('golpea los topos, nunca la bomba'));
     },
   };
@@ -1683,6 +1685,8 @@ export function playRun({ order: list, seed, done = [], onGame = () => {}, onEnd
   // started again after a pause is dealt the same and runs at the same speed
   function play() {
     sp = speedAt(idx); scored = false;
+    // The whole stage in view, so the page's top buttons do not eat into it
+    demo.style.scrollMarginTop = '8px'; demo.scrollIntoView?.({ block: 'start', behavior: reduce ? 'auto' : 'smooth' });
     hudN.textContent = `${idx + 1} / ${order.length}${sp > 1 ? ` · ×${sp.toFixed(1)}` : ''}`;
     curGame = order[idx]; rand = stream(code, `${idx}:${curGame}`); idx++;
     if (order.length > 1) runbar(); GAMES[curGame]();
@@ -1707,5 +1711,5 @@ export function playRun({ order: list, seed, done = [], onGame = () => {}, onEnd
   window.__microgames = { get game() { return curGame; }, get order() { return order.slice(); }, get idx() { return idx; }, get total() { return total; }, get active() { return active; }, ids: META.map(m => m.id),
     get code() { return code; }, get marks() { return marks.slice(); }, get paused() { return paused; } };
   next();
-  return { meta: META, kinds: KINDS, stop: () => { over = true; stopAll(); fuera.abort(); } };
+  return { meta: META, kinds: KINDS, kind: KIND, stop: () => { over = true; stopAll(); fuera.abort(); } };
 }
