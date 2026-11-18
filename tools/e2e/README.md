@@ -75,11 +75,11 @@ and are still run by hand. The ones in `OBSOLETE` test something that no longer 
 
 **In groups** (D-307): [`groups.mjs`](groups.mjs) splits the scripts into even groups based on
 how long each one actually took ([`durations.json`](durations.json), in seconds), so that none
-goes over ~6 min (`TARGET_S`, 360 s) and all fit at once in the 20 runners GitHub gives at a time. Each group is a
+goes over ~6.5 min (`TARGET_S`, 400 s, D-585) and all fit at once in the 20 runners GitHub gives at a time. Each group is a
 job that runs its scripts one after another (that they stay even and each script appears once is tested by
 `node tools/e2e/groups.test.mjs`); the run summary has the table with each script, its
 time and its result, and the `screenshots-g<n>` artifact has, in one folder per script, the screenshots of
-what failed or passed on the second attempt. A new script gets in on its own, with an assumed 90 s until it is
+what failed or passed on the second attempt. A new script gets in on its own, timed as the median of its measured siblings (the other parts of its script, or the same file in the other games' folders; 90 s if it has none, D-585) until it is
 measured: each job leaves a "Durations" notice with how long each script took, and
 `node tools/e2e/groups.mjs measure` moves it into `durations.json` (the processes round, every round;
 that file alone runs no script, D-428). A script that goes over about 4 minutes is split into parts (`PARTS` in

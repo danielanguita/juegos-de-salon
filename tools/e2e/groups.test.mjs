@@ -16,14 +16,22 @@ assert.match(g[0].name, /^g01 · \S+ \+\d+$/);
 assert.deepEqual(group(['long', 'x', 'y'], { long: 500, x: 10, y: 20 }, { target: 100 }).map(g => g.scripts), [['long'], ['y', 'x']]);
 assert.equal(group([], dur).length, 0);
 assert.equal(duration('new.mjs', {}), UNMEASURED_S, 'an unmeasured script counts as 90 s');
+// An unmeasured job counts as its measured siblings' median (D-585): the other parts of its script, else the same file in other folders
+const sib = { 'conformance.mjs:a': 10, 'conformance.mjs:b': 12, 'conformance.mjs:c': 30, 'x/game.mjs': 40, 'y/game.mjs': 50, 'z/lab.mjs': 20 };
+assert.equal(duration('conformance.mjs:new', sib), 12, 'a new part: the median of its script\'s parts');
+assert.equal(duration('w/game.mjs', sib), 45, 'a new game\'s script: the median of the same file in the other games');
+assert.equal(duration('w/lab.mjs', sib), UNMEASURED_S, 'one sibling is not enough');
+assert.equal(duration('new.mjs', sib), UNMEASURED_S, 'a top-level script has no siblings');
+assert.equal(duration('x/game.mjs', sib), 40, 'a measured job keeps its time');
 assert.equal(group(['a', 'b', 'c'], {}, { target: 1, maximum: 2 }).length, 2, 'never more than the maximum');
 
-// The repo's: in groups that fit at once in the runners (the unmeasured ones count as 90 s)
+// The repo's: in groups that fit at once in the runners (the unmeasured ones estimated from their siblings)
 const measured = readDurations();
 const unmeasured = jobs().filter(t => !(t in measured));
-if (unmeasured.length) console.log(`  not measured yet (count as ${UNMEASURED_S} s): ${unmeasured.join(', ')}`);
+if (unmeasured.length) console.log(`  not measured yet (estimated from their siblings): ${unmeasured.map(t => `${t} ${duration(t, measured)} s`).join(', ')}`);
 const real = group(jobs(), measured);
 assert.ok(real.length <= MAXIMUM, `${real.length} groups: more than the runners`);
 const longest = Math.max(...jobs().map(t => duration(t, measured)));
-assert.ok(real[0].s <= Math.max(TARGET_S, longest) * 1.15, `the heaviest group (${real[0].s} s) goes far over the target`);
-console.log(`groups: green · ${real.length} groups, the longest ${real[0].s} s`);
+const alarm = Math.max(TARGET_S, longest) * 1.15;
+assert.ok(real[0].s <= alarm, `the heaviest group (${real[0].s} s) goes far over the target: cut browser time or propose the next TARGET_S (D-585)`);
+console.log(`groups: green · ${real.length} groups, the longest ${real[0].s} s, ${Math.floor(alarm - real[0].s)} s of headroom before the alarm`);
