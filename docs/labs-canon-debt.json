@@ -9,11 +9,6 @@
         "e2e"
       ]
     },
-    "blackjack": {
-      "missing": [
-        "e2e"
-      ]
-    },
     "dominorama": {
       "missing": [
         "manifest",

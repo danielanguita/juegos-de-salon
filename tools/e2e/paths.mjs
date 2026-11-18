@@ -167,7 +167,30 @@ const TYF_RESULT = [
 
 export const PATHS = {
   // Blackjack (lab): its cover, measured by landing-fold.mjs (D-579)
-  blackjack: { intro: [] },
+  blackjack: {
+    intro: [],
+    setup: [`document.querySelector('.mode[data-mode="cpu"]').click()`],
+    betting: [
+      `document.querySelector('.mode[data-mode="cpu"]').click()`,
+      `(()=>{const i=document.querySelector('#setup-form input');i.value='Javi';i.dispatchEvent(new Event('input',{bubbles:true}))})()`,
+      `document.getElementById('btn-start').click()`,
+    ],
+    playing: [
+      `document.querySelector('.mode[data-mode="cpu"]').click()`,
+      `(()=>{const i=document.querySelector('#setup-form input');i.value='Javi';i.dispatchEvent(new Event('input',{bubbles:true}))})()`,
+      `document.getElementById('btn-start').click()`,
+      `document.getElementById('btn-bet').click()`,
+      `1`, `1`, `1`,
+    ],
+    // The result: every round played standing, in one step that waits for each button to come back
+    result: [
+      `document.querySelector('.mode[data-mode="cpu"]').click()`,
+      `(()=>{const i=document.querySelector('#setup-form input');i.value='Javi';i.dispatchEvent(new Event('input',{bubbles:true}))})()`,
+      `document.getElementById('btn-start').click()`,
+      `(async()=>{const w=ms=>new Promise(r=>setTimeout(r,ms));for(let t=0;t<400&&!document.querySelector('#screen-result.active');t++){for(const id of ['btn-bet','btn-stand','btn-next-round']){const x=document.getElementById(id);if(x&&!x.disabled){x.click();break}}await w(100)}})()`,
+      `1`, `1`, `1`,
+    ],
+  },
   /**
    * 🕵️ Agentes (D-421): the board, the end (every clue passed, Terminar confirmed) and its result.
    * AG_FINISH passes each clue as soon as its button comes back (a clue takes about a second to
