@@ -1612,6 +1612,7 @@
     "tools/agents/failures.test.mjs",
     "tools/agents/feedback-templates.test.mjs",
     "tools/agents/feedback.test.mjs",
+    "tools/agents/flags-snapshot.test.mjs",
     "tools/agents/ideas.test.mjs",
     "tools/agents/identifiers.test.mjs",
     "tools/agents/inbox.test.mjs",
