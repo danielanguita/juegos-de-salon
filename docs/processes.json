@@ -1,5 +1,5 @@
 {
-  "checkedUpTo": "b56bec6db321bd723475189a68e2e3bad586f304",
+  "checkedUpTo": "1fe300d8d0391e10e4ed68edc9c289e3f52e8708",
   "patterns": [
     {
       "key": "version-hacia-atras",
@@ -817,16 +817,28 @@
   ],
   "dispatches": {
     "documentation": {
-      "date": "2026-11-17",
-      "to": "b56bec6db321bd723475189a68e2e3bad586f304"
+      "date": "2026-11-18",
+      "to": "1fe300d8d0391e10e4ed68edc9c289e3f52e8708"
     },
     "usability": {
-      "date": "2026-11-17",
-      "to": "b56bec6db321bd723475189a68e2e3bad586f304"
+      "date": "2026-11-18",
+      "to": "1fe300d8d0391e10e4ed68edc9c289e3f52e8708"
     },
     "ideas": {
-      "date": "2026-11-11",
-      "to": "de0c9294ca2517f2a212dcb5f52844302f61a65f"
+      "date": "2026-11-18",
+      "to": "1fe300d8d0391e10e4ed68edc9c289e3f52e8708"
+    },
+    "ci-health": {
+      "date": "2026-11-18",
+      "to": "1fe300d8d0391e10e4ed68edc9c289e3f52e8708"
+    },
+    "backlog": {
+      "date": "2026-11-18",
+      "to": "1fe300d8d0391e10e4ed68edc9c289e3f52e8708"
+    },
+    "retention": {
+      "date": "2026-11-18",
+      "to": "1fe300d8d0391e10e4ed68edc9c289e3f52e8708"
     }
   },
   "rounds": [
@@ -1053,6 +1065,14 @@
       "issue": null,
       "pr": null,
       "note": "dispatched docs (#1515) + usability; collected 26 changelog entries; D-501 marked unused (branch delete denied); groups measured"
+    },
+    {
+      "date": "2026-11-18",
+      "from": "b56bec6db321bd723475189a68e2e3bad586f304",
+      "to": "1fe300d8d0391e10e4ed68edc9c289e3f52e8708",
+      "issue": null,
+      "pr": null,
+      "note": "dispatched docs, usability, ideas, ci-health, backlog, retention (#1594); collected 70 changelog entries; durations measured"
     }
   ],
   "ownerDecisions": [
