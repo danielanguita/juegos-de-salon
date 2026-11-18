@@ -1,0 +1,8 @@
+## C-8b · Player errors
+
+- An error is shown with an unmistakable cue (color, shake, its own sound) and stays on screen until the player taps; it never closes on its own and another player's move never overwrites it.
+- That cue is **for whoever made the mistake**. The others get the same fact as news, in third person and without the red background: “¡Cata se equivocó!”, not “¡Te equivocaste!” (D-36).
+- It comes with a short, concrete explanation of what was wrong, with the game's data (for example, between which milestones the card went and between which it was placed). **Exception, when the answer already shows** (D-277): in Línea de Tiempo, ⏳ Línea Relámpago and 📅 ¿En qué año? the card's year, large, already says what was wrong; instead of repeating it, the verdict tells the card's **fact**, something the player takes away, and tells it on a correct answer too (D-314). If the game runs against the clock, the clock pauses while it is read, with a cap. A card with no fact again says between which milestones it went.
+- A correct answer or another player's move may close on its own after a couple of seconds (as long as reading its fact takes, with a draining bar, D-314), if no phone pass comes after it; a tap closes it sooner. If a pass comes, C-9 rules (D-213).
+- The timer that closes a notice can only close that notice, not a newer one.
+- **Exception, when erring is the normal move** (D-56): in El Ahorcado, a letter that is not in the word does not open a notice to close in the modes where the phone does not change hands; it is signaled through four channels (color, shake, sound and the drawing advancing) and the game goes on. The round's verdict does stay until the player taps.
