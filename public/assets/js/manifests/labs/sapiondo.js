@@ -6,8 +6,8 @@ export default {
   "emoji": "🐸",
   "name": {
     "es": "Sapiondo",
-    "en": "Sapiondo",
-    "pt": "Sapiondo"
+    "en": "Dash Hopper",
+    "pt": "Sapichão"
   },
   "tagline": {
     "es": "Cruza la autopista esquivando autos, agarra frutas y haz dash con estilo.",
@@ -21,12 +21,12 @@ export default {
       "autopista"
     ],
     "en": [
-      "sapiondo",
+      "dash hopper",
       "frog",
       "highway"
     ],
     "pt": [
-      "sapiondo",
+      "sapichao",
       "sapo",
       "rodovia"
     ]

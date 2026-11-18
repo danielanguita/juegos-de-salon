@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import {
   newGame, step, act, serialize, hydrate,
-  COLS, FINISH_ROW, STEP, DASH_CD, PTS_LANE, PTS_FINISH,
+  COLS, FINISH_ROW, STEP, PTS_LANE, PTS_FRUIT, PTS_FINISH, LIVES,
 } from './engine.js';
 
 // 1. Seeded repeatability: same seed builds identical lanes, vehicles, and fruits
@@ -38,14 +38,16 @@ for (let i = 0; i < COLS + 2; i++) {
 assert.equal(g.frog.col, COLS - 1, 'clamps at right edge');
 assert.equal(act(g, 'back'), false, 'no backward movement supported');
 
-// 3. Dash leaps 2 rows and goes on cooldown
+// 3. Dash starts with 3 charges, consumes 1 per Dash, and refuses when empty
 const d = newGame({ seed: 2026 });
 for (const l of d.lanes) l.vehicles = []; // clear road to verify pure dash mechanics
-assert.equal(act(d, 'dash'), true);
-assert.ok(d.dashCd > d.dashCooldownDur - 0.1);
-for (let i = 0; i < 30; i++) step(d, STEP);
-assert.equal(d.frog.row, 2, 'dash advances 2 rows');
-assert.equal(act(d, 'dash'), false, 'dash cannot re-trigger while on cooldown');
+for (let n = 0; n < 3; n++) {
+  assert.equal(act(d, 'dash'), true);
+  for (let i = 0; i < 30; i++) step(d, STEP);
+}
+assert.equal(d.frog.row, 6, '3 dashes advance 6 rows');
+assert.equal(d.dashes, 0, '3 dashes spend all 3 charges');
+assert.equal(act(d, 'dash'), false, 'cannot dash with 0 charges');
 
 // 3b. Hard difficulty has denser traffic / faster speeds than Normal
 const norm = newGame({ seed: 7777, difficulty: 'normal' });
@@ -54,7 +56,7 @@ const normCars = norm.lanes.reduce((s, l) => s + l.vehicles.length, 0);
 const hardCars = hard.lanes.reduce((s, l) => s + l.vehicles.length, 0);
 assert.ok(hardCars > normCars, `hard (${hardCars}) has more traffic than normal (${normCars})`);
 
-// 4. Airborne dash over a vehicle clears it and triggers aerial close-call
+// 4. Airborne dash over a vehicle clears it and triggers aerial close-call (UX only, 0 pts)
 const aerial = newGame({ seed: 3030 });
 for (const l of aerial.lanes) l.vehicles = [];
 aerial.lanes[1].vehicles = [{ id: 't1', type: 'sedan', len: 1.3, color: 'coral', x: 2.8, grazed: false }];
@@ -64,20 +66,30 @@ for (let i = 0; i < 30; i++) step(aerial, STEP);
 assert.equal(aerial.mode, 'play', 'dash leaps cleanly over vehicle in row 1');
 assert.equal(aerial.frog.row, 2);
 assert.equal(aerial.closeCalls, 1, 'aerial pass counts as close-call');
-assert.ok(aerial.bonusScore > 0);
+assert.equal(aerial.score, 2 * PTS_LANE, 'close-call awards no points');
 
-// 5. Collision ends the run as crash
+// 5. First hit loses a life and grants ghost shield; losing the last life ends the run as crash
 const crashGame = newGame({ seed: 4040 });
 for (const l of crashGame.lanes) l.vehicles = [];
 crashGame.lanes[1].vehicles = [{ id: 'c1', type: 'bus', len: 2.3, color: 'bus', x: 2.2, grazed: false }];
 crashGame.lanes[1].speed = 0;
 act(crashGame, 'up');
 for (let i = 0; i < 30; i++) step(crashGame, STEP);
-assert.equal(crashGame.mode, 'crash');
+assert.equal(crashGame.mode, 'play', 'first hit keeps playing with remaining lives');
+assert.equal(crashGame.lives, LIVES - 1);
+assert.equal(crashGame.lifePenalty, 1, 'losing a life subtracts 1 point');
+assert.equal(crashGame.score, 0, '1 lane - 1 life lost = 0 points');
+assert.ok(crashGame.shield > 0, 'ghost shield activates after hit');
 
-// 6. Reaching FINISH_ROW awards finish bonus + time bonus
+crashGame.lives = 1;
+crashGame.shield = 0;
+for (let i = 0; i < 10; i++) step(crashGame, STEP);
+assert.equal(crashGame.mode, 'crash', 'losing final life ends the run');
+
+// 6. Reaching FINISH_ROW awards +1 per lane + +1 per fruit - 1 per life lost (time is tie-break)
 const winGame = newGame({ seed: 5050 });
 for (const l of winGame.lanes) l.vehicles = [];
+winGame.fruits = [{ id: 'f-33-3', row: FINISH_ROW, col: 3, kind: 'star', pts: PTS_FRUIT, taken: false }];
 winGame.frog.row = FINISH_ROW - 1;
 winGame.frog.fromRow = FINISH_ROW - 1;
 winGame.frog.toRow = FINISH_ROW - 1;
@@ -86,8 +98,11 @@ winGame.maxRow = FINISH_ROW - 1;
 act(winGame, 'up');
 for (let i = 0; i < 30; i++) step(winGame, STEP);
 assert.equal(winGame.mode, 'win');
-assert.ok(winGame.timeBonus > 0);
+assert.equal(winGame.timeBonus, 0);
 assert.equal(winGame.distanceScore, FINISH_ROW * PTS_LANE + PTS_FINISH);
+assert.equal(winGame.bonusScore, PTS_FRUIT);
+assert.equal(winGame.lifePenalty, 0);
+assert.equal(winGame.score, FINISH_ROW * PTS_LANE + PTS_FINISH + PTS_FRUIT);
 
 // 7. Serialize / hydrate preserves progress for session.js resume
 const snap = serialize(d);

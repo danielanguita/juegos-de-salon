@@ -57,7 +57,7 @@
       } catch (_) { /* the Spanish one stays */ }
     })();
   </script>
-  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%90%B8%3C/text%3E%3C/svg%3E" type="image/svg+xml">
   <script src="../../assets/js/vigia.js"></script>
   <link rel="preload" href="../../assets/fonts/nunito-latin.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="../../assets/fonts/bangers-latin.woff2" as="font" type="font/woff2" crossorigin>
@@ -78,7 +78,7 @@
     <!-- ============ INTRO ============ -->
     <section class="screen stack active" id="screen-intro">
       <div class="intro-hero">
-        <img class="sapiondo-logo" src="icon.svg" alt="" width="76" height="76">
+        <div class="sapiondo-logo" aria-hidden="true">🐸</div>
         <h1 class="display display--xl rainbow" data-i18n="title">Sapiondo</h1>
         <p class="lead" data-i18n="lead"></p>
         <div id="lang-slot"></div>
@@ -106,30 +106,17 @@
           <div class="hud-pill hud-left">
             <span id="hud-dist">0/33</span>
             <small id="hud-sector"></small>
+            <div class="hud-lives" id="hud-lives">❤️❤️❤️</div>
+            <div class="hud-lives" id="hud-dashes">⚡⚡⚡</div>
           </div>
           <div class="hud-center">
             <div class="hud-score" id="hud-score">0</div>
-            <span class="hud-combo" id="hud-combo" hidden>x2</span>
           </div>
           <div class="hud-right">
             <div class="hud-pill">
               <span id="hud-time">0.0s</span>
-              <small id="hud-seed">#4821</small>
             </div>
             <button type="button" class="hud-pause" id="btn-pause" aria-label="Pausa">⏸</button>
-          </div>
-        </div>
-
-        <!-- 3 ergonomic bottom overlay buttons + Dash pill -->
-        <div class="controls" id="controls">
-          <button type="button" class="pad-btn pad-dash" id="btn-dash">
-            <span class="pad-ico" aria-hidden="true">⚡</span>
-            <span class="pad-lbl" id="lbl-dash"></span>
-          </button>
-          <div class="pad-row">
-            <button type="button" class="pad-btn" id="btn-left" aria-label="Left">◀</button>
-            <button type="button" class="pad-btn pad-up" id="btn-up" aria-label="Forward">▲</button>
-            <button type="button" class="pad-btn" id="btn-right" aria-label="Right">▶</button>
           </div>
         </div>
 
@@ -143,12 +130,13 @@
     <!-- ============ RESULT (C-19) ============ -->
     <section class="screen stack" id="screen-result">
       <div class="result-hero">
-        <img class="sapiondo-logo" src="icon.svg" alt="" width="68" height="68">
+        <div class="sapiondo-logo" aria-hidden="true">🐸</div>
         <div class="display display--md" id="result-title">—</div>
       </div>
       <div class="panel score-card" id="score-card">
         <div class="score-row"><span id="lbl-stat-dist"></span><b id="val-dist">0</b></div>
         <div class="score-row"><span id="lbl-stat-bonus"></span><b id="val-bonus">0</b></div>
+        <div class="score-row"><span id="lbl-stat-lives"></span><b id="val-lives">0</b></div>
         <div class="score-row"><span id="lbl-stat-time"></span><b id="val-time">0</b></div>
         <hr class="score-sep">
         <div class="score-row score-total"><span id="lbl-stat-total"></span><b id="val-total">0</b></div>

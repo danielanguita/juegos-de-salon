@@ -725,8 +725,8 @@
       "emoji": "🐸",
       "name": {
         "es": "Sapiondo",
-        "en": "Sapiondo",
-        "pt": "Sapiondo"
+        "en": "Dash Hopper",
+        "pt": "Sapichão"
       },
       "players": "1",
       "duration": "1–2",
@@ -1714,6 +1714,7 @@
     "tools/firebase/uad-points-backfill.test.mjs",
     "tools/firebase/unnoted-rooms.test.mjs",
     "tools/generators/clues/clues.test.mjs",
+    "tools/generators/clues/judge.test.mjs",
     "tools/generators/manifests.test.mjs",
     "tools/generators/new-game.test.mjs",
     "tools/jobs/claude-task.test.mjs",

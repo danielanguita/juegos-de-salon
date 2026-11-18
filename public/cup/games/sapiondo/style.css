@@ -41,18 +41,20 @@
 .sp-juego {
   display: grid;
   gap: var(--s-12);
+  overscroll-behavior: none;
 }
 
 .sp-escenario {
   position: relative;
-  height: calc(100svh - 140px);
-  min-height: 380px;
+  height: calc(100svh - 190px);
+  min-height: 340px;
   overflow: hidden;
   border-radius: var(--radius);
   border: 1px solid var(--glass-border);
   background: var(--sapiondo-stage);
   box-shadow: var(--shadow-panel);
   touch-action: none;
+  overscroll-behavior: none;
   -webkit-user-select: none;
   user-select: none;
   -webkit-tap-highlight-color: transparent;
@@ -93,6 +95,11 @@
   font-weight: 700;
   color: var(--muted);
 }
+.sp-lives {
+  font-size: var(--fs-85);
+  line-height: 1.1;
+  letter-spacing: 1px;
+}
 .sp-center {
   display: flex;
   flex-direction: column;
@@ -105,65 +112,22 @@
   color: var(--yellow);
   text-shadow: 0 3px 0 var(--sapiondo-shadow);
 }
-.sp-combo {
-  padding: var(--s-2) var(--s-8);
+.sp-dash {
+  padding: var(--s-4) var(--s-12);
   border-radius: var(--r-pill);
-  background: var(--pink);
-  color: var(--ink);
-  font-size: var(--fs-75);
-  font-weight: 900;
-}
-
-.sp-controls {
-  position: absolute;
-  left: var(--s-12);
-  right: var(--s-12);
-  bottom: var(--s-12);
-  display: grid;
-  gap: var(--s-8);
-  justify-items: center;
-  pointer-events: none;
-}
-.sp-pad-row {
-  width: 100%;
-  display: grid;
-  grid-template-columns: 1fr 1.35fr 1fr;
-  gap: var(--s-10);
-}
-.sp-pad-btn {
-  pointer-events: auto;
-  height: 56px;
-  border-radius: var(--r-16);
-  border: 1px solid var(--glass-border);
-  background: var(--sapiondo-pad);
-  color: var(--ink);
-  font: 900 var(--fs-140)/1 var(--font-body);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--s-6);
-  cursor: pointer;
-  touch-action: none;
-  box-shadow: var(--shadow-panel);
-}
-.sp-pad-btn:active, .sp-pad-btn.pressed {
-  transform: scale(0.95);
-  background: var(--sapiondo-pad-on);
-  border-color: var(--cyan);
-}
-.sp-pad-up { border-color: rgb(var(--cyan-rgb) / 0.45); }
-.sp-pad-dash {
-  height: 40px;
-  padding: 0 var(--s-18);
-  border-radius: var(--r-pill);
-  font-size: var(--fs-90);
-  border-color: rgb(var(--yellow-rgb) / 0.55);
+  background: rgb(var(--bg1-rgb) / 0.88);
+  border: 2px solid var(--yellow);
   color: var(--yellow);
+  font-size: var(--fs-85);
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+  box-shadow: 0 2px 10px rgb(var(--yellow-rgb) / 0.35);
 }
-.sp-pad-dash.cooldown {
-  opacity: 0.55;
-  color: var(--muted);
+.sp-dash.cooldown {
+  border-width: 1px;
   border-color: var(--glass-border);
+  color: var(--muted);
+  box-shadow: none;
 }
 
 .sp-pausa {
