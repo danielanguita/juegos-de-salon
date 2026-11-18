@@ -18,7 +18,7 @@ test('prNumber reads the URL gh prints', () => {
 
 test('reminder names the lane, the tick, auto-merge and watching, with the number', () => {
   const r = reminder(7);
-  for (const s of ['lanes.mjs check', 'lanes.mjs tick 7', 'merge 7 --auto', 'wait-pr.mjs 7', 'subscribe_pr_activity']) assert.ok(r.includes(s), s);
+  for (const s of ['lanes.mjs check', 'lanes.mjs tick 7', 'merge 7 --auto', 'wait-pr.mjs 7', 'subscribe_pr_activity', 'player agent']) assert.ok(r.includes(s), s);
 });
 
 test('the hook prints context only after a PR was created', () => {

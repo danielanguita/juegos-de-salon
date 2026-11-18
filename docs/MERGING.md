@@ -14,6 +14,8 @@ job's log, find the cause, fix it on the branch and push, without asking the own
    (🟢/🟡/🔴), the files that set it, the stage (D-304) and what that lane requires before merging: which
    agents run (the usability and documentation agents together, `.claude/agents/usability.md` and
    `documentation.md`, D-132, D-172, fixing on the same branch, D-213, D-303) and whether it may auto-merge.
+   A PR that changes a game also gets the **player agent** (`.claude/agents/player.md`): it plays the
+   touched games on the preview like a first-time player and comments the friction it met; it never pushes.
 2. **Is anyone playing?** `node tools/firebase/in-progress.mjs` (exits with 3 if there are live rooms
    or Cups in progress; needs the owner's key).
 3. **No merge without ✅ on GitHub in `tests` and in `end-to-end`** (D-143,
