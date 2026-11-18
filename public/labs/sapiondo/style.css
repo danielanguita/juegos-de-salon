@@ -10,8 +10,9 @@
 .sapiondo-logo {
   display: block;
   margin-inline: auto;
-  border-radius: var(--r-16);
-  box-shadow: var(--shadow-panel);
+  font-size: var(--fs-200);
+  line-height: 1;
+  text-align: center;
   animation: sapiondo-hop 2s ease-in-out infinite;
 }
 @keyframes sapiondo-hop {

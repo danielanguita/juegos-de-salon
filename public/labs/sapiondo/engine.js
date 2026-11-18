@@ -20,6 +20,7 @@ export const DASH_DUR = 0.145;
 
 export const PTS_LANE = 1;
 export const PTS_FRUIT = 1;
+export const PTS_FINISH = 10;
 export const LIVES = 3;
 export const MAX_DASHES = 3;
 export const SHIELD_DUR = 1.5;
@@ -231,7 +232,7 @@ export function newGame({ seed = 4821, finishRow = FINISH_ROW, difficulty = 'nor
 }
 
 function recomputeScore(g) {
-  g.distanceScore = g.maxRow * PTS_LANE;
+  g.distanceScore = g.maxRow * PTS_LANE + (g.mode === 'win' ? PTS_FINISH : 0);
   g.bonusScore = g.fruitsTaken * PTS_FRUIT;
   g.lifePenalty = Math.max(0, (g.maxLives || LIVES) - (g.lives | 0));
   g.timeBonus = 0;
@@ -466,10 +467,8 @@ export function step(g, dt) {
 
   if (g.mode === 'play') {
     g.elapsed += dt;
-    if (g.dashCd > 0) g.dashCd = Math.max(0, g.dashCd - dt);
     if (g.shield > 0) g.shield = Math.max(0, g.shield - dt);
   } else if (g.mode === 'demo') {
-    if (g.dashCd > 0) g.dashCd = Math.max(0, g.dashCd - dt);
     autopilot(g, dt);
   }
 

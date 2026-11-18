@@ -11,11 +11,12 @@ A solo arcade highway crossing built for mobile touch controls and deterministic
 
 Cross 33 rows across three escalating sectors (Suburb Ave, City Highway, Night Expressway) to reach the pond.
 
-- **Movement:** Board-wide swipes (forward, left, right — no going backward), with edge padding and `touch-action: none` to prevent browser scroll/navigation conflicts, plus keyboard support.
-- **Dash (`⚡`):** A long forward swipe (with a live on-canvas distance gauge) leaps 2 lanes forward over traffic (`2.6 s` Normal / `3.2 s` Hard cooldown).
-- **Close-Call:** Passing within a narrow bumper margin or dashing directly over a vehicle triggers celebratory UX (particles, sound, popup) and refunds `1.0 s` of Dash cooldown (0 points).
-- **Fruits:** Strawberries, Mangoes, and Golden Starfruit spawn on road lanes and award `+1` point each.
-- **Scoring:** `+1` per lane progressed + `+1` per fruit taken; ties are broken by faster completion time.
+- **Movement:** Board-wide swipes (forward, left, right — no going backward), with edge padding and `touch-action: none` to prevent browser scroll/navigation conflicts, plus keyboard support. Lateral hops fire immediately on swipe; forward swipes wait for release so a long forward swipe (`2.4` tiles) previews the glowing `DASH` arrow.
+- **Dash (`⚡`):** Starts with `3` charges (`⚡⚡⚡`). A long forward swipe leaps 2 lanes forward over traffic.
+- **Close-Call:** Passing within a narrow bumper margin (when not in ghost mode) triggers celebratory UX (particles, sound, popup) and restores `+1 ⚡` Dash charge (0 points).
+- **Lives & Ghost Mode:** `3` lives (`❤️❤️❤️`); getting hit deducts 1 life (`-1` point) and grants `1.5 s` of pulsing transparent ghost invulnerability.
+- **Fruits:** Strawberries, Mangoes, and Golden Starfruit spawn on road lanes, award `+1` point each, and restore `+1 ⚡` Dash charge.
+- **Scoring:** `+1` per lane progressed, `+10` on reaching the finish, `+1` per fruit taken, `-1` per life lost (clamped `>= 0`). In La Copa, ties among finishers break by faster completion time; crashed runs tie-break by distance reached.
 
 ## Modes
 
@@ -31,7 +32,7 @@ None: single-player. Active runs are serialized (`serialize` / `hydrate`) into `
 
 ## Files
 
-- `public/labs/sapiondo/`: `game.json`, `icon.svg`, `index.html`, `style.css`, `rules.js`, `engine.js`, `engine.test.mjs`, `scene.js`, `game.js`.
+- `public/labs/sapiondo/`: `game.json`, `index.html`, `style.css`, `rules.js`, `engine.js`, `engine.test.mjs`, `scene.js`, `game.js`.
 - `tools/e2e/sapiondo/game.mjs`: end-to-end play script (`window.__sapiondo`).
 
 ## Exceptions to the canons

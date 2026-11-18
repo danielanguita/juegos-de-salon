@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import {
   newGame, step, act, serialize, hydrate,
-  COLS, FINISH_ROW, STEP, PTS_LANE, PTS_FRUIT, LIVES,
+  COLS, FINISH_ROW, STEP, PTS_LANE, PTS_FRUIT, PTS_FINISH, LIVES,
 } from './engine.js';
 
 // 1. Seeded repeatability: same seed builds identical lanes, vehicles, and fruits
@@ -99,10 +99,10 @@ act(winGame, 'up');
 for (let i = 0; i < 30; i++) step(winGame, STEP);
 assert.equal(winGame.mode, 'win');
 assert.equal(winGame.timeBonus, 0);
-assert.equal(winGame.distanceScore, FINISH_ROW * PTS_LANE);
+assert.equal(winGame.distanceScore, FINISH_ROW * PTS_LANE + PTS_FINISH);
 assert.equal(winGame.bonusScore, PTS_FRUIT);
 assert.equal(winGame.lifePenalty, 0);
-assert.equal(winGame.score, FINISH_ROW * PTS_LANE + PTS_FRUIT);
+assert.equal(winGame.score, FINISH_ROW * PTS_LANE + PTS_FINISH + PTS_FRUIT);
 
 // 7. Serialize / hydrate preserves progress for session.js resume
 const snap = serialize(d);

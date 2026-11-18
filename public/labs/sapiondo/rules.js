@@ -55,8 +55,8 @@ const ES = {
   },
   como: [
     '👆 Desliza adelante, izquierda o derecha en cualquier parte del tablero (sin retroceder).',
-    '⚡ Haz un deslizamiento largo hacia adelante para hacer Dash (3 cargas; frutas o pases cerca recargan +1 ⚡).',
-    '🛣️ +1 por carril, 🍓 +1 por fruta y 💔 -1 por vida perdida; menor tiempo desempata.',
+    '⚡ Desliza largo adelante para hacer Dash; frutas y pases cerca recargan cargas.',
+    '🛣️ +1 por carril, 🏁 +10 al llegar, 🍓 +1 por fruta y 💔 -1 por vida perdida.',
   ],
 };
 
@@ -104,8 +104,8 @@ const EN = {
   },
   como: [
     '👆 Swipe forward, left, or right anywhere on the board (no going back).',
-    '⚡ Make a long forward swipe to Dash (3 charges; fruit or close calls restore +1 ⚡).',
-    '🛣️ +1 per lane, 🍓 +1 per fruit, and 💔 -1 per life lost; faster time breaks ties.',
+    '⚡ Swipe far forward to Dash; fruit and close calls restore charges.',
+    '🛣️ +1 per lane, 🏁 +10 at finish, 🍓 +1 per fruit, and 💔 -1 per life lost.',
   ],
 };
 
@@ -153,8 +153,8 @@ const PT = {
   },
   como: [
     '👆 Deslize para frente, esquerda ou direita em qualquer lugar do tabuleiro (sem voltar).',
-    '⚡ Faça um deslize longo para frente para dar Dash (3 cargas; frutas ou por um triz recarregam +1 ⚡).',
-    '🛣️ +1 por faixa, 🍓 +1 por fruta e 💔 -1 por vida perdida; menor tempo desempata.',
+    '⚡ Deslize longo para frente para dar Dash; frutas e por um triz recarregam cargas.',
+    '🛣️ +1 por faixa, 🏁 +10 ao chegar, 🍓 +1 por fruta e 💔 -1 por vida perdida.',
   ],
 };
 

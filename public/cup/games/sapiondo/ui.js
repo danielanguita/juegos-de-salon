@@ -1,7 +1,7 @@
 /**
  * Sapiondo in La Copa: cover, title, mount, result, and breakdown.
  */
-import { newGame, step, act, score, card, sectorOf, FINISH_ROW, PAR_TIME, STEP, LIVES } from './engine.js';
+import { newGame, step, act, score, card, sectorOf, COLS, FINISH_ROW, STEP, LIVES } from './engine.js';
 import { createScene } from './scene.js';
 import { onScreen } from '../../../assets/js/on-screen.js';
 import { loadCss } from '../../../assets/js/load-css.js';
@@ -135,8 +135,7 @@ export function mount(raiz, ctx) {
   const sc = createScene(canvas);
   sc.measure();
   const finishRow = p.finishRow || FINISH_ROW;
-  const parTime = p.parTime || PAR_TIME;
-  const g = newGame({ seed: p.semilla ?? 4821, finishRow, parTime, mode: 'ready' });
+  const g = newGame({ seed: p.semilla ?? 4821, finishRow, mode: 'ready' });
   new ResizeObserver(() => { if (runId === activeRun && canvas.isConnected) sc.measure(); }).observe(stage);
 
   const S = { fin: false, paused: false, pauseAt: 0, pausedMs: 0, startedAt: 0, ms: 0, last: performance.now(), acc: 0 };
@@ -212,11 +211,11 @@ export function mount(raiz, ctx) {
   }
 
   const SWIPE_EDGE_PAD = 18;
-  const HOP_DIST = 26;
-  const DASH_DIST = 135;
+  const HOP_DIST = 24;
+  const tileDashDist = rect => Math.max(84, Math.round(Math.min(rect.width / COLS, rect.height / 11.5) * 2.4));
   const swipe = {
-    active: false, pointerId: null, x0: 0, y0: 0, x1: 0, y1: 0,
-    dashDist: DASH_DIST, hopDist: HOP_DIST, forwardProgress: 0,
+    active: false, committed: false, pointerId: null, x0: 0, y0: 0, x1: 0, y1: 0,
+    dashDist: 120, hopDist: HOP_DIST, forwardProgress: 0,
     dashReady: true, notifiedDash: false, dir: null, fade: 0,
   };
   const blockScroll = e => { if (!e.target.closest?.('button')) e.preventDefault(); };
@@ -231,7 +230,9 @@ export function mount(raiz, ctx) {
     e.preventDefault();
     unlockAudio();
     swipe.active = true;
+    swipe.committed = false;
     swipe.pointerId = e.pointerId;
+    swipe.dashDist = tileDashDist(rect);
     swipe.x0 = x; swipe.y0 = y; swipe.x1 = x; swipe.y1 = y;
     swipe.forwardProgress = 0;
     swipe.dashReady = g.dashes > 0;
@@ -241,7 +242,7 @@ export function mount(raiz, ctx) {
     try { stage.setPointerCapture(e.pointerId); } catch (_) { /* ignore */ }
   }, { signal: acCtrl.signal });
   stage.addEventListener('pointermove', e => {
-    if (!swipe.active || e.pointerId !== swipe.pointerId) return;
+    if (!swipe.active || swipe.committed || e.pointerId !== swipe.pointerId) return;
     e.preventDefault();
     const rect = stage.getBoundingClientRect();
     swipe.x1 = e.clientX - rect.left;
@@ -250,15 +251,17 @@ export function mount(raiz, ctx) {
     const dy = swipe.y1 - swipe.y0;
     swipe.dashReady = g.dashes > 0;
     if (-dy > 10 && -dy >= Math.abs(dx)) {
-      swipe.forwardProgress = -dy / DASH_DIST;
+      swipe.forwardProgress = -dy / swipe.dashDist;
       swipe.dir = swipe.forwardProgress >= 1 && swipe.dashReady ? 'dash' : 'up';
       if (swipe.forwardProgress >= 1 && swipe.dashReady && !swipe.notifiedDash) {
         swipe.notifiedDash = true;
         vibrate(8);
       }
     } else if (Math.abs(dx) >= HOP_DIST && Math.abs(dx) > Math.abs(dy)) {
+      swipe.committed = true;
       swipe.forwardProgress = 0;
       swipe.dir = dx < 0 ? 'left' : 'right';
+      trigger(swipe.dir);
     } else {
       swipe.forwardProgress = 0;
       swipe.dir = null;
@@ -266,16 +269,16 @@ export function mount(raiz, ctx) {
   }, { signal: acCtrl.signal });
   const endSwipe = (e, commit) => {
     if (!swipe.active || e.pointerId !== swipe.pointerId) return;
+    const alreadyCommitted = swipe.committed;
     swipe.active = false;
+    swipe.committed = false;
     swipe.pointerId = null;
-    if (commit) {
+    if (commit && !alreadyCommitted) {
       const dx = swipe.x1 - swipe.x0;
       const dy = swipe.y1 - swipe.y0;
       let action = null;
-      if (-dy >= DASH_DIST && -dy >= Math.abs(dx)) action = g.dashes > 0 ? 'dash' : 'up';
+      if (-dy >= swipe.dashDist && -dy >= Math.abs(dx)) action = g.dashes > 0 ? 'dash' : 'up';
       else if (-dy >= HOP_DIST && -dy >= Math.abs(dx)) action = 'up';
-      else if (dx <= -HOP_DIST && Math.abs(dx) > Math.abs(dy)) action = 'left';
-      else if (dx >= HOP_DIST && Math.abs(dx) > Math.abs(dy)) action = 'right';
       if (action) trigger(action);
       swipe.fade = swipe.forwardProgress > 0 || swipe.dir ? 0.18 : 0;
     } else {
@@ -348,11 +351,14 @@ export function mount(raiz, ctx) {
 
 export function result(e) {
   const s = score(e);
+  const ms = Number.isFinite(e?.ms) ? Math.round(e.ms) : 0;
+  const maxRow = Math.max(0, e?.maxRow | 0);
   return {
     s,
     t: card(e),
     resumen: String(s),
-    ms: Number.isFinite(e?.ms) ? Math.round(e.ms) : undefined,
+    ms: Number.isFinite(e?.ms) ? ms : undefined,
+    d: e?.won ? 1_000_000_000 - ms : maxRow,
   };
 }
 

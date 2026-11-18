@@ -291,16 +291,17 @@ function triggerAction(action) {
 }
 
 const SWIPE_EDGE_PAD = 18;
-const HOP_DIST = 26;
-const DASH_DIST = 135;
+const HOP_DIST = 24;
+const tileDashDist = rect => Math.max(84, Math.round(Math.min(rect.width / E.COLS, rect.height / 11.5) * 2.4));
 const swipe = {
   active: false,
+  committed: false,
   pointerId: null,
   x0: 0,
   y0: 0,
   x1: 0,
   y1: 0,
-  dashDist: DASH_DIST,
+  dashDist: 120,
   hopDist: HOP_DIST,
   forwardProgress: 0,
   dashReady: true,
@@ -323,7 +324,9 @@ stageEl.addEventListener('pointerdown', e => {
   e.preventDefault();
   unlockAudio();
   swipe.active = true;
+  swipe.committed = false;
   swipe.pointerId = e.pointerId;
+  swipe.dashDist = tileDashDist(rect);
   swipe.x0 = x;
   swipe.y0 = y;
   swipe.x1 = x;
@@ -337,7 +340,7 @@ stageEl.addEventListener('pointerdown', e => {
 });
 
 stageEl.addEventListener('pointermove', e => {
-  if (!swipe.active || e.pointerId !== swipe.pointerId) return;
+  if (!swipe.active || swipe.committed || e.pointerId !== swipe.pointerId) return;
   e.preventDefault();
   const rect = stageEl.getBoundingClientRect();
   swipe.x1 = e.clientX - rect.left;
@@ -346,15 +349,17 @@ stageEl.addEventListener('pointermove', e => {
   const dy = swipe.y1 - swipe.y0;
   swipe.dashReady = !!g && g.dashes > 0;
   if (-dy > 10 && -dy >= Math.abs(dx)) {
-    swipe.forwardProgress = -dy / DASH_DIST;
+    swipe.forwardProgress = -dy / swipe.dashDist;
     swipe.dir = swipe.forwardProgress >= 1 && swipe.dashReady ? 'dash' : 'up';
     if (swipe.forwardProgress >= 1 && swipe.dashReady && !swipe.notifiedDash) {
       swipe.notifiedDash = true;
       vibrate(8);
     }
   } else if (Math.abs(dx) >= HOP_DIST && Math.abs(dx) > Math.abs(dy)) {
+    swipe.committed = true;
     swipe.forwardProgress = 0;
     swipe.dir = dx < 0 ? 'left' : 'right';
+    triggerAction(swipe.dir);
   } else {
     swipe.forwardProgress = 0;
     swipe.dir = null;
@@ -363,16 +368,16 @@ stageEl.addEventListener('pointermove', e => {
 
 function endSwipe(e, commit) {
   if (!swipe.active || e.pointerId !== swipe.pointerId) return;
+  const alreadyCommitted = swipe.committed;
   swipe.active = false;
+  swipe.committed = false;
   swipe.pointerId = null;
-  if (commit) {
+  if (commit && !alreadyCommitted) {
     const dx = swipe.x1 - swipe.x0;
     const dy = swipe.y1 - swipe.y0;
     let action = null;
-    if (-dy >= DASH_DIST && -dy >= Math.abs(dx)) action = g && g.dashes > 0 ? 'dash' : 'up';
+    if (-dy >= swipe.dashDist && -dy >= Math.abs(dx)) action = g && g.dashes > 0 ? 'dash' : 'up';
     else if (-dy >= HOP_DIST && -dy >= Math.abs(dx)) action = 'up';
-    else if (dx <= -HOP_DIST && Math.abs(dx) > Math.abs(dy)) action = 'left';
-    else if (dx >= HOP_DIST && Math.abs(dx) > Math.abs(dy)) action = 'right';
     if (action) triggerAction(action);
     swipe.fade = swipe.forwardProgress > 0 || swipe.dir ? 0.18 : 0;
   } else {

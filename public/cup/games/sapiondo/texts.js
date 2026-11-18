@@ -7,11 +7,11 @@ const ES = {
     habilidad: 'reflejos',
     como: [
       'Desliza adelante, izquierda o derecha en el tablero para cruzar sin retroceder.',
-      'Haz un deslizamiento largo hacia adelante para hacer Dash (3 cargas; frutas o pases cerca recargan +1 ⚡).',
+      'Desliza largo adelante para hacer Dash; frutas y pases cerca recargan cargas.',
       'Agarra frutas y pasa cerca de los autos para recargar tu Dash.',
     ],
-    puntaje: '🛣️ +1 punto por carril avanzado, 🍓 +1 por fruta y 💔 -1 por vida perdida.',
-    desempate: 'Si empatas, gana quien lo haga en menos tiempo.',
+    puntaje: '🛣️ +1 por carril, 🏁 +10 al llegar, 🍓 +1 por fruta y 💔 -1 por vida perdida.',
+    desempate: 'Si empatan al llegar, gana el menor tiempo; si no, quien llegó más lejos.',
   },
   ui: {
     spLema: 'Cruza la autopista sin mirar atrás.',
@@ -39,11 +39,11 @@ const EN = {
     habilidad: 'reflexes',
     como: [
       'Swipe forward, left, or right on the board to cross lanes with no turning back.',
-      'Make a long forward swipe to Dash (3 charges; fruit or close calls restore +1 ⚡).',
+      'Swipe far forward to Dash; fruit and close calls restore charges.',
       'Snatch fruit and graze bumpers to recharge your Dash.',
     ],
-    puntaje: '🛣️ +1 point per lane progressed, 🍓 +1 per fruit, and 💔 -1 per life lost.',
-    desempate: 'If you tie, faster time wins.',
+    puntaje: '🛣️ +1 per lane, 🏁 +10 at finish, 🍓 +1 per fruit, and 💔 -1 per life lost.',
+    desempate: 'If tied at finish, faster time wins; otherwise furthest distance wins.',
   },
   ui: {
     spLema: 'Cross the highway with no turning back.',
@@ -71,11 +71,11 @@ const PT = {
     habilidad: 'reflexos',
     como: [
       'Deslize para frente, esquerda ou direita no tabuleiro para cruzar sem voltar.',
-      'Faça um deslize longo para frente para dar Dash (3 cargas; frutas ou por um triz recarregam +1 ⚡).',
+      'Deslize longo para frente para dar Dash; frutas e por um triz recarregam cargas.',
       'Pegue frutas e passe raspando nos carros para recarregar o Dash.',
     ],
-    puntaje: '🛣️ +1 ponto por faixa avançada, 🍓 +1 por fruta e 💔 -1 por vida perdida.',
-    desempate: 'Se empatar, vence o menor tempo.',
+    puntaje: '🛣️ +1 por faixa, 🏁 +10 ao chegar, 🍓 +1 por fruta e 💔 -1 por vida perdida.',
+    desempate: 'Se empatarem ao chegar, vence o menor tempo; senão, quem foi mais longe.',
   },
   ui: {
     spLema: 'Atravesse a rodovia sem olhar para trás.',
