@@ -77,7 +77,7 @@ const CODE = {
   aletazo: () => Promise.all([import('./flap/engine.js'), import('./flap/ui.js')]),
   sudoku: () => Promise.all([import('./sudoku/engine.js'), import('./sudoku/ui.js')]),
   microgames: () => Promise.all([import('./microgames/engine.js'), import('./microgames/ui.js')]),
-  sapiondo: () => Promise.all([import('./sapiondo/engine.js'), import('./sapiondo/ui.js')]),
+  'dash-hopper': () => Promise.all([import('./dash-hopper/engine.js'), import('./dash-hopper/ui.js')]),
   final: () => Promise.all([import('./final/engine.js'), import('./final/ui.js')]),
 };
 CODE.trio = CODE.final;
@@ -130,8 +130,8 @@ const BUILD = {
   microgames: ([m, ui]) => delLab('microgames', { generarDia: m.generateDay, puntajeDia: m.dayScore }, {
     portada: ui.cover, titulo: ui.title, montar: ui.mount, resultado: ui.result, desglose: ui.breakdown,
   }),
-  // 🐸 Sapiondo, arcade highway crossing (in the lab, not in POZO yet)
-  sapiondo: ([m, ui]) => delLab('sapiondo', {
+  // 🐸 Dash Hopper (Saporín), arcade highway crossing (in the lab, not in POZO yet)
+  'dash-hopper': ([m, ui]) => delLab('dash-hopper', {
     generarDia: m.generateDay, puntajeDia: m.dayScore,
   }, { portada: ui.cover, titulo: ui.title, montar: ui.mount, resultado: ui.result, desglose: ui.breakdown }),
   final: ([final, uiFinal]) => ({

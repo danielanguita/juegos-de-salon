@@ -29,4 +29,4 @@ assert.ok(score(a) > 0);
 assert.ok(dayScore(score(a)) > 0 && dayScore(score(a)) <= 100);
 assert.match(card({ maxRow: a.maxRow, finishRow: a.finishRow, fruitsTaken: 1, closeCalls: 2, won: true }), /🐸 33\/33/);
 
-console.log('sapiondo cup engine.test.mjs ok');
+console.log('dash-hopper cup engine.test.mjs ok');

@@ -1,7 +1,8 @@
-{
-  "id": "sapiondo",
-  "path": "labs/sapiondo/",
-  "slug": "sapiondo",
+// Generated from game.json by node tools/generators/manifests.mjs: do not edit by hand.
+export default {
+  "id": "dash-hopper",
+  "path": "labs/dash-hopper/",
+  "slug": "dash-hopper",
   "emoji": "🐸",
   "name": {
     "es": "Saporín",
@@ -44,7 +45,7 @@
     "solo"
   ],
   "ai": false,
-  "memory": "juegos-de-salon:sapiondo:session",
+  "memory": "juegos-de-salon:dash-hopper:session",
   "languages": [
     "es",
     "en",
@@ -52,4 +53,4 @@
   ],
   "firebasePaths": [],
   "canonExceptions": []
-}
+};

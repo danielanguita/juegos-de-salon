@@ -1,9 +1,9 @@
 /**
- * Sapiondo: game constants and player-facing texts in es, en, and pt (C-2, C-3).
+ * Dash Hopper: game constants and player-facing texts in es, en, and pt (C-2, C-3).
  * No logic here; the pure simulation lives in engine.js.
  */
 
-export const GAME_ID = 'sapiondo';
+export const GAME_ID = 'dash-hopper';
 export const MIN_PLAYERS = 1;
 export const MAX_PLAYERS = 1;
 export const COLS = 7;

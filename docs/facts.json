@@ -105,6 +105,11 @@
         "public/cup/games/connections/grillas-pt.js",
         "public/cup/games/connections/grillas.js",
         "public/cup/games/connections/ui.js",
+        "public/cup/games/dash-hopper/engine.js",
+        "public/cup/games/dash-hopper/scene.js",
+        "public/cup/games/dash-hopper/style.css",
+        "public/cup/games/dash-hopper/texts.js",
+        "public/cup/games/dash-hopper/ui.js",
         "public/cup/games/deshacer.js",
         "public/cup/games/final/engine.js",
         "public/cup/games/final/ui.js",
@@ -139,11 +144,6 @@
         "public/cup/games/routes/style.css",
         "public/cup/games/routes/texts.js",
         "public/cup/games/routes/ui.js",
-        "public/cup/games/sapiondo/engine.js",
-        "public/cup/games/sapiondo/scene.js",
-        "public/cup/games/sapiondo/style.css",
-        "public/cup/games/sapiondo/texts.js",
-        "public/cup/games/sapiondo/ui.js",
         "public/cup/games/semilla.js",
         "public/cup/games/solo.js",
         "public/cup/games/stack/engine.js",
@@ -724,7 +724,7 @@
       ]
     },
     {
-      "id": "sapiondo",
+      "id": "dash-hopper",
       "emoji": "🐸",
       "name": {
         "es": "Saporín",
@@ -750,9 +750,7 @@
         "result"
       ],
       "chat": false,
-      "files": [
-        "public/sapiondo/index.html"
-      ]
+      "files": []
     }
   ],
   "standalone": [
@@ -1221,9 +1219,9 @@
     "public/assets/js/manifests/generala.js",
     "public/assets/js/manifests/hangman.js",
     "public/assets/js/manifests/labs/blackjack.js",
+    "public/assets/js/manifests/labs/dash-hopper.js",
     "public/assets/js/manifests/labs/fourth-king.js",
     "public/assets/js/manifests/labs/julep.js",
-    "public/assets/js/manifests/labs/sapiondo.js",
     "public/assets/js/manifests/labs/transfer.js",
     "public/assets/js/manifests/labs/wobbles.js",
     "public/assets/js/manifests/liars-dice.js",
@@ -1326,6 +1324,10 @@
     "public/cup/games/connections/grillas-pt.js",
     "public/cup/games/connections/grillas.js",
     "public/cup/games/connections/ui.js",
+    "public/cup/games/dash-hopper/engine.js",
+    "public/cup/games/dash-hopper/scene.js",
+    "public/cup/games/dash-hopper/texts.js",
+    "public/cup/games/dash-hopper/ui.js",
     "public/cup/games/deshacer.js",
     "public/cup/games/final/engine.js",
     "public/cup/games/final/ui.js",
@@ -1355,10 +1357,6 @@
     "public/cup/games/routes/engine.js",
     "public/cup/games/routes/texts.js",
     "public/cup/games/routes/ui.js",
-    "public/cup/games/sapiondo/engine.js",
-    "public/cup/games/sapiondo/scene.js",
-    "public/cup/games/sapiondo/texts.js",
-    "public/cup/games/sapiondo/ui.js",
     "public/cup/games/semilla.js",
     "public/cup/games/solo.js",
     "public/cup/games/stack/engine.js",
@@ -1431,6 +1429,10 @@
     "public/labs/code/engine-palabra.js",
     "public/labs/code/engine.js",
     "public/labs/code/game.js",
+    "public/labs/dash-hopper/engine.js",
+    "public/labs/dash-hopper/game.js",
+    "public/labs/dash-hopper/rules.js",
+    "public/labs/dash-hopper/scene.js",
     "public/labs/dominorama/engine.js",
     "public/labs/dominorama/game.js",
     "public/labs/exploding-numbers/engine.js",
@@ -1452,10 +1454,6 @@
     "public/labs/memory/rules.js",
     "public/labs/memory/sprites.js",
     "public/labs/publish.js",
-    "public/labs/sapiondo/engine.js",
-    "public/labs/sapiondo/game.js",
-    "public/labs/sapiondo/rules.js",
-    "public/labs/sapiondo/scene.js",
     "public/labs/stack/engine.js",
     "public/labs/stack/game.js",
     "public/labs/stack/scene.js",
@@ -1591,6 +1589,7 @@
     "public/cup/games/agents/palette.test.mjs",
     "public/cup/games/bridges/contrast.test.mjs",
     "public/cup/games/bridges/physics.test.mjs",
+    "public/cup/games/dash-hopper/engine.test.mjs",
     "public/cup/games/deshacer.test.mjs",
     "public/cup/games/flap/engine.test.mjs",
     "public/cup/games/juegos.test.mjs",
@@ -1600,7 +1599,6 @@
     "public/cup/games/paint-mines/engine.test.mjs",
     "public/cup/games/plots/engine.test.mjs",
     "public/cup/games/routes/engine.test.mjs",
-    "public/cup/games/sapiondo/engine.test.mjs",
     "public/cup/games/stack/engine.test.mjs",
     "public/cup/games/stick/engine.test.mjs",
     "public/cup/games/stick/issue-1103.test.mjs",
@@ -1624,6 +1622,7 @@
     "public/labs/chameleon/engine.test.mjs",
     "public/labs/code/engine-palabra.test.mjs",
     "public/labs/code/engine.test.mjs",
+    "public/labs/dash-hopper/engine.test.mjs",
     "public/labs/dominorama/engine.test.mjs",
     "public/labs/exploding-numbers/engine.test.mjs",
     "public/labs/flap/engine.test.mjs",
@@ -1633,7 +1632,6 @@
     "public/labs/launched.test.mjs",
     "public/labs/listed.test.mjs",
     "public/labs/memory/engine.test.mjs",
-    "public/labs/sapiondo/engine.test.mjs",
     "public/labs/stack/engine.test.mjs",
     "public/labs/sudoku/engine.test.mjs",
     "public/labs/transfer/engine.test.mjs",
@@ -1805,6 +1803,8 @@
     "daily-player.mjs",
     "daily-variants.mjs",
     "daily.mjs",
+    "dash-hopper/game.mjs",
+    "dash-hopper/languages.mjs",
     "design/page.mjs",
     "dominorama/lab.mjs",
     "double-tap.mjs",
@@ -1875,8 +1875,6 @@
     "room-error.mjs",
     "rooms/online.mjs",
     "routes/game.mjs",
-    "sapiondo/game.mjs",
-    "sapiondo/languages.mjs",
     "scope-guard.test.mjs",
     "scope.test.mjs",
     "share-home.mjs",
@@ -2069,6 +2067,10 @@
       "title": "La Copa"
     },
     {
+      "path": "docs/games/dash-hopper.md",
+      "title": "🐸 Saporín (lab, in Juegos en prueba)"
+    },
+    {
       "path": "docs/games/design.md",
       "title": "🎨 The components page (the design system, in the lab)"
     },
@@ -2127,10 +2129,6 @@
     {
       "path": "docs/games/routes.md",
       "title": "🚇 Rutas rotas (Broken Routes)"
-    },
-    {
-      "path": "docs/games/sapiondo.md",
-      "title": "🐸 Saporín (lab, in Juegos en prueba)"
     },
     {
       "path": "docs/games/stack.md",
@@ -2231,6 +2229,6 @@
     "batalla-naval": 7,
     "julepe": 10,
     "cuarto-rey": 12,
-    "sapiondo": 0
+    "dash-hopper": 0
   }
 }
