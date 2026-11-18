@@ -35,7 +35,7 @@ The game inside is a placeholder (a race to ten). Replace it, keeping what surro
 - **Memory, sharing, the pass screen** with the shared modules: `session.js` (C-6), `compartir.js`,
   `handoff.js`, `chat.js`, `sound.js`, `arrastre.js` (C-4, C-7, C-8, C-9, C-15); the board carries
   `data-tablero` (D-309).
-- **The result screen** (C-19): exits from `fin.js` for each context, looked at 390×812 and 320 px.
+- **The result screen** (C-19): exits from `fin.js` for each context, looked at 390×812 and 320 px. In One a Day it is the only screen after the last move (D-581).
 - **Rankings** (D-212, D-559): whether a game records a score is a question for the owner. One that does
   (`avisoPartida()`) adds its table to `SOLO_TABLES` in `games.js` so Rankings shows its tab
   (`rankings-coverage.test.mjs` fails otherwise), and its e2e script checks the tab on `/records/`.
@@ -128,6 +128,9 @@ old debt in `docs/manifest-debt.json`, which only shrinks; an old entry moves wi
   (`scope.test.mjs`).
 - `unoAlDia: { orden, desde, hasta?, grupo? }` if it enters One a Day: `orden` is the next free place
   (`manifest.test.mjs`); a group game's daily score function goes in `uno-al-dia.js`.
+  Its today mode ends on **one result page** (C-19, D-581): no screen between the last move and the
+  result; what a game would show in between (a summary, the day's score, a ranking) is a block of
+  that page, with One a Day's card (`ponerTarjeta`) right under the hero.
 - `modes`, `ai`, `memory` (the C-6 session key), `languages`, `firebasePaths` and `canonExceptions`.
 - La Copa is a manifest too (`public/cup/game.json`): a tournament, with `torneo: true`, `durationUnit` and `formato`, which only a tournament may carry.
 - **La Copa's standalone games (`SUELTOS`) are not manifests:** they are not a game folder with C-2's files but engines and screens inside `public/cup/games/`, played through La Copa's page (`cup/suelto/`), so their entries stay in `SUELTOS`.

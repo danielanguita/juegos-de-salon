@@ -603,6 +603,11 @@ that moment, and only those, in the same order everywhere (D-343):
 - **One a Day is one card in every game**: `tarjetaResultado` (`uno-al-dia-ui.js`) carries its
   actions and exits, and `ponerTarjeta` puts it right under the hero. In today mode the game adds
   no buttons of its own: no rematch (#226), no change mode, no second menu button.
+- **One a Day ends on one page** (D-581): the last move goes straight to the result, with no screen
+  in between (no «¡Terminaste!» step, no separate score or ranking page, no «Continuar» to reach
+  the result). Whatever such a screen showed becomes a block of the one result page, in the order
+  above (hero → One a Day card → detail → rankings → feedback). A game that had one migrates it
+  when a PR touches its result.
 - **Never offered at the wrong moment:** play again in a Cup day (it is played once, U-21), a
   link to La Copa from One a Day (a Cup is joined by invitation), the menu inside a running Cup
   (the header's ‹ already goes there).
