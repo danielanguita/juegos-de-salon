@@ -42,7 +42,7 @@ Several Claude sessions may be working in this repo at the same time:
   `node tools/agents/clean-worktrees.mjs`, which deletes the worktrees whose branch already reached `main` through a
   merge and names those with uncommitted changes (D-218). GitHub deletes the remote branch on merge.
 - **Pre-approved checks**: the read-only commands every session runs (lanes, preview-ready, lints, wait-pr, run-tests…) are allowed in `.claude/settings.json`, so they need no approval. A new read-only check joins that list in the PR that adds it; nothing that writes, pushes or merges goes there.
-- **Hooks that remind and stop** (`.claude/settings.json`): `push-guard.mjs` stops a `git push` with stale generated files or a branch with no changelog entry (D-300); `pr-created.mjs` reminds, right after `gh pr create`, the lane, its tick, auto-merge and watching the PR.
+- **Hooks that remind and stop** (`.claude/settings.json`): `push-guard.mjs` stops a `git push` with stale generated files or a branch with no changelog entry (D-300); `pr-created.mjs` reminds, right after `gh pr create`, the lane, its tick, auto-merge and watching the PR. `worktree-guard.mjs` stops an Edit or Write in the repo's main folder (D-135): edit in your worktree.
 - **No worktree is left unused** (D-252, the owner's request): the session that creates a worktree deletes it
   as soon as it knows it will not produce a PR (the work was already done, was discarded or was merged into another), without
   waiting for the hook, and when its work is done only worktrees with an open PR remain. The hook sweeps

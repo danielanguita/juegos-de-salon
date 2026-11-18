@@ -47,6 +47,16 @@
             "timeout": 60
           }
         ]
+      },
+      {
+        "matcher": "Edit|Write|NotebookEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cd \"$CLAUDE_PROJECT_DIR\" && [ -f tools/agents/worktree-guard.mjs ] && node tools/agents/worktree-guard.mjs || true",
+            "timeout": 10
+          }
+        ]
       }
     ],
     "UserPromptSubmit": [
