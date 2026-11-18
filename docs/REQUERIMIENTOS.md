@@ -186,7 +186,7 @@ In the lab's 📦 La Bodega since D-420, at the owner's request: off the home pa
 | LIG-20 | ~~⚓ Batalla Naval: Solitario~~ reemplazado por 👑 Reinas, con solución única (D-102). | ✅ v0.44 |
 | LIG-21 | ~~🎲 ¿Dudo o le creo?~~ reemplazado por 🔤 Toque y Fama con letras (D-102). | ✅ v0.44 |
 | LIG-22 | 📅 ¿En qué año?. | ✅ v0.42 |
-| LIG-23 | 🏁 La Gran Final. | ✅ v0.42 |
+| LIG-23 | 🏁 La Gran Final (since D-587, each round ranked by place like a day, for finals opening from 2026-11-19; before, the average of the rounds). | ✅ v0.42 |
 | LIG-24 | Admin: renombrar, sacar y cambiar PIN de jugadores (since D-464, the admin confirms a new PIN with their own). | ✅ v0.42 |
 | LIG-25 | Admin: invitación, recordatorio del día (cualquier día), tabla parcial y resumen final por el diálogo de compartir. | ✅ v0.42 |
 | LIG-26 | Cuenta segura: hash del PIN ilegible y escritura autorizada por reglas (D-96). | ✅ v0.42 (falta publicar reglas y habilitar el acceso anónimo) |
