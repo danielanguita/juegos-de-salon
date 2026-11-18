@@ -224,7 +224,7 @@ async function leer(ruta, t, query = {}) {
 
 async function numbers(weeks) {
   const { semanaCerrada, nombreJuego } = await import('../reports/weekly-data.mjs');
-  const { partidasDominio, finales, dificultad, embudoSalas, embudoCopas, usuarios, senales } = await import('../../public/panel/dominios.js');
+  const { partidasDominio, finales, dificultad, embudoSalas, embudoCopas, usuarios, senales, SHARES_APP_NOTE } = await import('../../public/panel/dominios.js');
   const { unoAlDiaDelRango } = await import('../../public/panel/aggregate.js');
   const { resumenCopas, pct: pctCopa } = await import('../../public/panel/copas.js');
   const { POPULARIDAD, POPULARIDAD_FECHA, ALL_GAMES } = await import('../../public/assets/js/games.js');
@@ -297,7 +297,7 @@ async function numbers(weeks) {
     const u = usuarios(days, range);
     console.log(`Users (browsers): ${u.rango} in the range, ${u.diario} per day, last 7 days ${u.semana}, last 30 ${u.mes}, stickiness ${u.pegajosidad ?? '—'}%${u.rango ? '' : ' (counted since v0.178.0, D-349: a range before it has none)'}`);
     const s = senales(days, range);
-    console.log(`Shared ${s.compartidos} times: ${Object.entries(s.comparte).sort((a, b) => b[1] - a[1]).map(([k, n]) => `${k} ${n}`).join(', ') || '—'}${s.compartidos ? '' : ' (counted since v0.178.0, D-348)'}`);
+    console.log(`Shared ${s.compartidos} times: ${Object.entries(s.comparte).sort((a, b) => b[1] - a[1]).map(([k, n]) => `${k} ${n}`).join(', ') || '—'}${s.compartidos ? '' : ' (counted since v0.178.0, D-348)'}${s.appOmitidos ? ` (${s.appOmitidos} ${SHARES_APP_NOTE})` : ''}`);
   });
 }
 
