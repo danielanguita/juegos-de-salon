@@ -69,7 +69,7 @@ for (const width of [390, 320]) {
       return { name: s.querySelector('h2').textContent === card.querySelector('h2 span').textContent,
         tag: s.querySelector('#game-sheet-details p').textContent === card.querySelector('.tag').textContent,
         href: play.href === card.href, seen: r.top >= 0 && r.bottom <= innerHeight && r.height >= 44,
-        chips: s.querySelectorAll('.chip').length, tabs: s.querySelectorAll('[role=tab]').length,
+        chips: s.querySelectorAll('.chip').length, tabs: s.querySelectorAll('.hoja-pestana[role=tab]').length,
         fits: s.scrollWidth <= s.clientWidth + 1, focus: document.activeElement === play };
     })()`);
     ok(sheet.name && sheet.tag && sheet.href, `${width}: the sheet says the game's name and line, and ▶ Jugar goes to its page`);
@@ -89,12 +89,20 @@ for (const width of [390, 320]) {
     ok(await waitFor(`!!document.querySelector('#game-sheet[data-id="${id}"]')`) && await ev(`!document.getElementById('game-sheet-demo')`), `${width}: ${id}, not a game of La Copa, has no frame`);
     await sleep(500);
 
+    // One height for both tabs: the sheet does not move when the tab changes
+    const tall = () => ev(`Math.round(document.getElementById('game-sheet').getBoundingClientRect().height)`);
+    await sleep(1500);
+    const before = await tall();
     // The ranking tab reads the game's table; ▶ Jugar stays in sight under it
     await ev(`document.getElementById('game-sheet-tab-ranking').click(); 1`);
-    ok(await waitFor(`!!document.querySelector('#game-sheet-ranking .rk-lista') && document.getElementById('game-sheet-details').hidden`), `${width}: the Ranking tab shows the game's ranking`);
+    ok(await waitFor(`!!document.querySelector('#game-sheet-ranking .rk-lista') && document.getElementById('game-sheet-details').inert && !document.getElementById('game-sheet-ranking').inert`), `${width}: the Ranking tab shows the game's ranking`);
     await sleep(1200);
     ok(await ev(`(() => { const r = document.getElementById('btn-game-sheet-play').getBoundingClientRect(); return r.top >= 0 && r.bottom <= innerHeight; })()`), `${width}: ▶ Jugar still in sight under the ranking`);
     await b.shot(`carousels-${width}-ranking`);
+    const inRanking = await tall();
+    await ev(`document.getElementById('game-sheet-tab-details').click(); 1`);
+    await sleep(300);
+    ok(before === inRanking && inRanking === await tall(), `${width}: the sheet keeps one height in Detalles and Ranking (${before} → ${inRanking} px)`);
 
     // The ⭐ marks a favourite: its row appears first, and the sheet stays open
     await ev(`document.getElementById('btn-game-sheet-fav').click(); 1`);

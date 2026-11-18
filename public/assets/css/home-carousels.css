@@ -38,9 +38,16 @@
 .game-sheet { overflow: hidden; }
 .game-sheet .hoja-cabeza h2 { flex: 1; min-width: 0; overflow-wrap: anywhere; }
 .game-sheet-icon { flex: none; font-size: var(--fs-200); line-height: 1; }
-.game-sheet-body { flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
-/* The game's cover animation, framed (cup/cover/): as wide as the sheet's text, as tall as its page says; nothing in it is tapped */
-.game-sheet-demo { display: block; width: 100%; height: 0; border: 0; background: none; color-scheme: normal; pointer-events: none; }
+.game-sheet-body { flex: 1 1 auto; min-height: 0; overflow: hidden; display: grid; grid-template: minmax(0, 1fr) / minmax(0, 1fr); }
+/* One height for both tabs: Detalles and Ranking share one cell, so the sheet is as tall as the taller one and
+   stays put when the tab changes; each scrolls on its own if the screen gives less. The one not shown is invisible */
+.game-sheet-body > * { grid-area: 1 / 1; min-width: 0; min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
+.game-sheet-body > .off { visibility: hidden; }
+.game-sheet-details { display: flex; flex-direction: column; gap: var(--s-12); }
+.game-sheet-details > :not(.game-sheet-demo) { flex: none; }
+/* The game's cover animation, framed (cup/cover/): as wide as the sheet's text, at least as tall as its page says
+   (min-height, set by home-carousels.js) and taking the room the details leave under the shared height; nothing in it is tapped */
+.game-sheet-demo { display: block; flex: 1 1 0; width: 100%; height: 0; border: 0; background: none; color-scheme: normal; pointer-events: none; }
 .game-sheet-demo:not(.on) { position: absolute; visibility: hidden; }
 .game-sheet-fav { color: var(--muted); }
 .game-sheet-fav.on { color: var(--yellow); }
