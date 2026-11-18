@@ -149,5 +149,5 @@ assert.deepEqual(counts(m).slice(1), Array(6).fill(6));
   for (const i of s.cells.map((d, k) => (d ? -1 : k)).filter(k => k >= 0)) s = setDigit(s, i, s.solution[i]);
   assert.ok(isOver(s) && score(s) === 100, 'the trial is solved with its 6 digits');
   assert.match(card(s), /🟢 6×6\n✨/);
-  assert.match(card({ ...dayGame(h), mistakes: 2, hints: 1 }), /🔴 9×9\n❌❌💡/);
+  assert.match(card({ ...dayGame(h), mistakes: 2, hints: 1 }), /🔴 9×9\n❌ 2 · 💡 1/);
 }
