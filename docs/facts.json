@@ -727,7 +727,7 @@
       "id": "sapiondo",
       "emoji": "🐸",
       "name": {
-        "es": "Sapiondo",
+        "es": "Saporín",
         "en": "Dash Hopper",
         "pt": "Sapichão"
       },
@@ -2130,7 +2130,7 @@
     },
     {
       "path": "docs/games/sapiondo.md",
-      "title": "🐸 Sapiondo (lab, in Juegos en prueba)"
+      "title": "🐸 Saporín (lab, in Juegos en prueba)"
     },
     {
       "path": "docs/games/stack.md",
