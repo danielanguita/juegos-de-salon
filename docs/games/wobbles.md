@@ -37,8 +37,11 @@ it starts on easy, as in Sudoku. The player never reads "2D" or "3D" (the owner)
 and the hard level's name is plain Tembleque too.
 
 
-Cover (a moving picture of the level, the level lever, ¡A jugar!, how to play, the site footer with 💬) → a level: its card (how to play, ▶ Play) →
-the round (its HUD: ‹ back to the cover, lives, score, mute) → its game-over card with ↻ Again.
+Cover (a moving picture of the level, the level lever, ¡A jugar!, how to play folded, the sign-in, the site footer
+with 💬; behind the lab flag `cover-dialogs`, how to play and the sign-in are the «📖 Instrucciones» and «👤 Entrar»
+dialogs) → a level: its card (how to play, ▶ Play) → the round (its HUD: ‹ back to the cover, lives, score, mute) →
+its result card, in C-19's order: the score, ↻ Again, the rankings notice (one line), the exit from `fin.js`
+(`salidasFin('lab')`), the breakdown, the level's table (`wobbles_easy`, `wobbles_hard`) and 💬 last.
 
 ## Protocolo de mensajes
 
@@ -48,12 +51,16 @@ None: solo, nothing saved but mute (`balanza-lab:muted`) and, on the hard level,
 
 - `public/labs/wobbles/`: the cover (C-2's `index.html`, `rules.js` with its texts, `style.css`, `game.js`
   with the visit signal, `trackVisit`, D-208, and `game.json`).
+- The result's shared blocks for both levels (C-19) are in the cover's `game.js` too, which each level loads:
+  a level's classic script says `wobbles:over` (score, time, breakdown) and `wobbles:clear`, and `game.js` adds
+  the rankings, the exits and the breakdown. Both levels load `base.css` and `ranking.css` for them.
 - `public/labs/wobbles/easy/index.html`: the 2D prototype, markup, CSS and script inline, with the lab's
   head added and the site's own fonts. It came only as its finished page: edit it itself.
 - `public/labs/wobbles/hard/index.html`: the 3D prototype, built from `tools/generators/wobbles-hard/`
   (`sim.js` physics, `texts.js`, `view.js`, `template.html`) by `python3 tools/generators/wobbles-hard/build.py`.
   Edit the sources, never the page.
-- `tools/e2e/wobbles/game.mjs`: the cover's two levels, then each level in es/en/pt to its game-over card.
+- `tools/e2e/wobbles/game.mjs`: the cover's two levels, then each level in es/en/pt to its result (exits, breakdown);
+  `languages.mjs` the cover in es/en/pt.
 - Test hook: `window.__balanza` on each level (the prototype's own), `window.__wobbles` on the cover.
 
 ## Performance
@@ -109,4 +116,3 @@ All with the same root: the two levels are prototypes kept whole, as the owner a
 - **C-2**: no `engine.js` or `engine.test.mjs`: the physics lives in each level's page.
 - **C-6**: a round lasts a minute or two and is not resumed: no `session.js`.
 - **C-7**: no sharing through `compartir.js`, no `trackStart`/`trackFinish` (only the cover's visit).
-- **C-19**: each level's own game-over card, not the exits from `fin.js`.

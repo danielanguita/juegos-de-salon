@@ -12,6 +12,7 @@ const ok = (cond, msg) => { console.log((cond ? '✓ ' : '✗ ') + msg); if (!co
 
 await b.go(SITE + '/labs/wobbles/'); await sleep(600);
 ok(await b.evaluate("window.__wobbles.level === 'easy' && document.getElementById('btn-level').getAttribute('aria-checked') === 'false' && !document.getElementById('pic').classList.contains('hard')"), 'the lever starts on easy, with the 2D picture');
+ok(await b.evaluate("!!document.querySelector('#screen-intro details.panel, #btn-instrucciones')"), 'the steps start folded, or in the Instrucciones dialog (D-550, C-8)');
 await b.shot('cover-easy');
 const howEasy = await b.evaluate("document.getElementById('how').textContent");
 ok(!/\b[23]D\b/.test(await b.evaluate('document.body.innerText')), 'the cover never says 2D or 3D');
@@ -30,6 +31,8 @@ for (const level of ['easy', 'hard']) {
     ok(await b.evaluate("window.__balanza.state === 'play' && document.getElementById('card').hidden"), `${level} ${lang}: a round starts`);
     await b.evaluate('window.__balanza.finish(); 1'); await sleep(300);
     ok(await b.evaluate("window.__balanza.state === 'over' && !document.getElementById('card').hidden"), `${level} ${lang}: it ends on its game-over card`);
+    ok(await b.evaluate("!!document.querySelector('#cExits #btn-fin-lab') && document.querySelectorAll('#cDetail li').length >= 3"), `${level} ${lang}: the result has fin.js's exit to the lab and the breakdown after it (C-19)`);
+    ok(await b.evaluate("(()=>{const r=document.getElementById('btn-fin-lab').getBoundingClientRect(),c=document.getElementById('cBtn').getBoundingClientRect();return c.bottom<=innerHeight&&r.bottom<=innerHeight+document.querySelector('#card .in').scrollHeight})()"), `${level} ${lang}: ↻ and the exit are on the card`);
     if (lang === 'es') await b.shot(level + '-over');
   }
   ok(await b.evaluate("new URL(document.querySelector('a[href=\"../\"]').href).pathname === '/labs/wobbles/'"), `${level}: its ‹ goes back to the cover`);
