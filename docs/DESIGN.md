@@ -149,7 +149,7 @@ these uses the class; a game that needs something close to one asks for a varian
 | Stack | `.stack` | vertical rhythm of 12 px |
 | Sheet | `.hoja*`, `.hoja-cabeza` | the bottom sheet (D-232); `.hoja-cabeza` its title with the ✕ |
 | The cover's dialogs (lab: flag `cover-dialogs`) | `.portada-acciones`, `.portada-ventana`, `.portada-pasos`, `.portada-cuenta`, `body.portada-v2` | built only by `cover-dialogs.js`: the row of two `.opcion` buttons under Empezar (Entrar in `--cyan` until signed in); the sheet's pieces as a centred dialog; the steps numbered in pink 32 px circles; the ranking's sign-in block always open, without its card. `body.portada-v2` hides the top bar's game name chip and draws `.back` 44 px tall |
-| The home page as carousels (lab: flag `home-carousels`) | `.shelf`, `.shelf-row`, `.shelf-tile` (`.emoji`, `.name`), in `home-carousels.css` | built only by `home-carousels.js`: a titled row that slides sideways with snap, its tiles 124 px wide (icon, name, time); a tap opens the game's `.hoja` (the Sheet above), no new sheet. Loaded only with the flag on (C-17) |
+| The home page as carousels (lab: flag `home-carousels`) | `.shelf`, `.shelf-row`, `.shelf-tile` (`.emoji`, `.name`), in `home-carousels.css` | built only by `home-carousels.js`: a titled row that slides sideways with snap, its tiles 124 px wide (icon, name, time); a tap opens the game's `.hoja` (the Sheet above), no new sheet, whose body also frames the game's cover animation in `.game-sheet-demo` (an `iframe` of `cup/cover/`, taller as its page says, never tapped). Loaded only with the flag on (C-17) |
 | Chat | `.chat*` | the room's chat bubble |
 | Random | `.azar*` | the random-game control (D-237) |
 | One a day | `.uad*` | |
