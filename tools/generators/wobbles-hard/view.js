@@ -337,10 +337,17 @@ function holdPiece() {
   hand.x = h.x; hand.y = S.hover + (1 - a) * 0.3; hand.z = h.z; hand.qw = h.qw; hand.qx = h.qx; hand.qy = h.qy; hand.qz = h.qz; place(hand);
   return { hulls: hand.looks.map(outline), x0: hand.minx, x1: hand.maxx, z0: hand.minz, z1: hand.maxz, y: hand.miny, a };
 }
-/** The dial at the bottom that turns the view: where it is (x0 to x1, `h` tall, 8 above the bottom) and how far a pixel turns. */
-const DIAL = { x0: 56, x1: 344, h: 36, gain: 0.012 };
-function drawDial(bottom) {
-  const y0 = bottom - 8 - DIAL.h, mid = y0 + DIAL.h / 2, on = !!(turning || twist || opening != null);
+/**
+ * The dial that turns the view: where it is (x0 to x1, `h` tall) and how far a pixel turns. It sits at the
+ * top, under the next pieces (`TOP_PX` CSS pixels below the canvas top, which starts under the header): at the bottom, an iPhone's swipe
+ * up there leaves the app (the owner). Faded while it is not being used, so it does not draw the eye.
+ */
+const DIAL = { x0: 56, x1: 344, h: 36, gain: 0.012, TOP_PX: 46, IDLE: 0.4 };
+const dialY0 = () => (DIAL.TOP_PX - oy) / sc;
+function drawDial() {
+  const y0 = dialY0(), mid = y0 + DIAL.h / 2, on = !!(turning || twist || opening != null);
+  const A = on ? 1 : DIAL.IDLE;
+  c.save(); c.globalAlpha = A;
   c.fillStyle = on ? 'rgba(46,230,214,0.18)' : 'rgba(0,0,0,0.32)'; c.strokeStyle = on ? 'rgba(46,230,214,0.7)' : 'rgba(255,255,255,0.18)'; c.lineWidth = 1;
   c.beginPath(); c.roundRect(DIAL.x0, y0, DIAL.x1 - DIAL.x0, DIAL.h, DIAL.h / 2); c.fill(); c.stroke();
   // A mark every 15°, in the rim's colors, that slides with the turn
@@ -348,12 +355,13 @@ function drawDial(bottom) {
   const k0 = Math.round(yaw / 0.2618);
   for (let k = k0 - 6; k <= k0 + 6; k++) {
     const x = 200 - (yaw - k * 0.2618) / DIAL.gain, big = k % 6 === 0, hh = big ? 11 : 6;
-    c.globalAlpha = Math.max(0, 1 - Math.abs(x - 200) / 110);
+    c.globalAlpha = A * Math.max(0, 1 - Math.abs(x - 200) / 110);
     c.strokeStyle = rgb(neonAt((((k % 24) + 24) % 24) / 4)); c.lineWidth = big ? 3 : 2; c.lineCap = 'round';
     c.beginPath(); c.moveTo(x, mid - hh); c.lineTo(x, mid + hh); c.stroke();
   }
-  c.restore(); c.globalAlpha = 1;
+  c.restore(); c.globalAlpha = A;
   txt('⟲', DIAL.x0 + 18, mid + 1, 17, 'rgba(255,255,255,0.8)', true); txt('⟳', DIAL.x1 - 18, mid + 1, 17, 'rgba(255,255,255,0.8)', true);
+  c.restore();
   return y0;
 }
 const previews = new WeakMap();
@@ -463,7 +471,7 @@ function render() {
   }
   for (const s of says) { c.globalAlpha = 1 - s.t / 1.3; glowText(s.text, 200, 170 - s.t * 26, s.size, s.color, 14); }
   c.globalAlpha = 1;
-  const dialTop = drawDial(B0), baseY = dialTop - 2, showing = opening != null;
+  const dialTop = drawDial(), baseY = B0 - 10, showing = opening != null;
   if (state === 'play' && showing) {
     // The opening shows how the board is turned, once the camera is nearly there: a thumb sliding along the dial as the board turns and, on a touch screen, two fingertips twisting over it. Nothing is said: it ends with the turn
     const mid = dialTop + DIAL.h / 2, tx = 200 + 70 * Math.cos(ok * Math.PI);
@@ -666,8 +674,68 @@ function ready() {
 const query = new URLSearchParams(location.search), seedParam = query.get('seed');
 /** Lab only: `?from=30` starts as hard as if 30 pieces were already down (on an empty disc), to try the late pieces. */
 const fromParam = Math.max(0, Math.min(500, Math.floor(Number(query.get('from')) || 0)));
+/* ---------- Lab: the pieces a game starts with (the «T» tester tab) ---------- */
+/**
+ * A tester sets with − and + how many pieces the disc starts with; the next game (▶ Jugar or ↻ Otra vez)
+ * starts with them. They are the game's own first pieces, in their order, dropped with the real physics
+ * over spots spread evenly across the disc (a sunflower: each one a golden angle on, further out the
+ * later; a spot on the side the disc leans to is swapped for the one opposite, so the pile stays level), and they count as nothing: no points, no lives, the time starts after them. Only the view sets
+ * this up, through the game's own steps; the rules are untouched. Kept on this phone.
+ */
+const START_KEY = 'balanza-lab:start-pieces', START_MAX = 40;
+let startPieces = 0, timeFrom = 0;
+try { startPieces = Math.max(0, Math.min(START_MAX, parseInt(localStorage.getItem(START_KEY), 10) || 0)); } catch (_) { /* no storage */ }
+function seedPile(S, n) {
+  // While it is set up the disc keeps its first stiffness (each piece softens it, which would tip a pile laid in one go); the game then goes on with its own
+  const R = REACH * 0.48, firm = () => { S.K = params(0).K; };
+  for (let i = 0; i < n && S.phase === 'play'; i++) {
+    for (let k = 0; k < 600 && !S.held && S.phase === 'play'; k++) { firm(); advance(S, null); }
+    if (!S.held) break;
+    // Its spot on the sunflower, or the one opposite when that is the side the disc leans to (its low side is (ux, uz))
+    const a = i * 2.399963, r = n > 1 ? R * Math.sqrt((i + 0.5) / n) : 0, pl = S.plat;
+    let x = r * Math.cos(a), z = r * Math.sin(a);
+    if (x * pl.ux + z * pl.uz > 0) { x = -x; z = -z; }
+    firm(); advance(S, { x, z, q: null, drop: true });
+    for (let k = 0; k < 150 && S.phase === 'play'; k++) { firm(); advance(S, null); }
+    S.ev.length = 0;
+  }
+  // Let the pile come to rest, and take away what went over the edge while it was set up
+  for (let k = 0; k < 360 && S.phase === 'play'; k++) { firm(); advance(S, null); }
+  if (S.phase !== 'play') return false;
+  S.bodies = S.bodies.filter(b => !b.lost && b.y > -0.2);
+  // They were set up, not played: the game starts from here
+  S.score = 0; S.landed = 0; S.perfects = 0; S.bonus = 0; S.streak = 0; S.best = 0; S.lives = 3; S.ev.length = 0;
+  for (const b of S.bodies) b.judged = true;
+  // The pile is the only difference: the game goes on as hard as a new one (the disc's stiffness, the time per piece)
+  S.released = 0; S.P = params(S.skip); S.K = S.P.K;
+  timeFrom = S.t;
+  return true;
+}
+function testerControl() {
+  const L3 = { es: ['🧱 Piezas al empezar', 'Desde la próxima partida'], en: ['🧱 Pieces at the start', 'From the next game'], pt: ['🧱 Peças ao começar', 'A partir da próxima partida'] }[LANG] || [];
+  const box = document.createElement('div'); box.className = 'tr-sim';
+  const btn = (txt, d) => { const b = document.createElement('button'); b.type = 'button'; b.textContent = txt; b.setAttribute('aria-label', txt === '−' ? '-1' : '+1');
+    b.style.cssText = 'width:40px;height:40px;border-radius:999px;border:1px solid var(--glass-border);background:var(--glass);color:var(--ink);font:900 1.3rem/1 var(--font-body);cursor:pointer';
+    b.addEventListener('click', () => { startPieces = Math.max(0, Math.min(START_MAX, startPieces + d)); num.textContent = startPieces; try { localStorage.setItem(START_KEY, String(startPieces)); } catch (_) { /* no storage */ } }); return b; };
+  const title = document.createElement('small'); title.textContent = L3[0];
+  const row = document.createElement('div'); row.className = 'tr-fila'; row.style.justifyContent = 'space-between';
+  const num = document.createElement('b'); num.id = 'tr-piezas'; num.textContent = startPieces; num.style.cssText = 'font:400 1.6rem/1 var(--font-display);min-width:2ch;text-align:center';
+  row.append(btn('−', -1), num, btn('+', 1));
+  const note = document.createElement('p'); note.textContent = L3[1]; note.style.cssText = 'margin:0;font-size:0.8rem;color:var(--muted)';
+  box.append(title, row, note);
+  return box;
+}
+// Only for a lab key holder: the control goes in the tester tab the page already has (vigia.js → tester-boot.js)
+import(new URL('../../../assets/js/lab-access.js', location.href).href).then(m => m.labAccess()).then(ok => ok &&
+  import(new URL('../../../assets/js/tester-ribbon.js', location.href).href).then(m => m.setTesterContext(testerControl()))).catch(() => {});
+
 function start() {
-  S = newGame(seedParam != null ? Number(seedParam) | 0 : Date.now() | 0, fromParam);
+  const seed = seedParam != null ? Number(seedParam) | 0 : Date.now() | 0;
+  S = newGame(seed, fromParam);
+  timeFrom = 0;
+  // More pieces than the disc holds tip it while they are laid: then it starts over with fewer, down to what fits
+  for (let n = startPieces; n > 0 && !seedPile(S, n); n -= 2) S = newGame(seed, fromParam);
+  if (S.phase !== 'play') S = newGame(seed, fromParam);
   state = 'play'; acc = 0; chispas = []; anillos = []; floats = []; says = []; banner = null; zoom = 1; card.hidden = true; document.dispatchEvent(new Event('wobbles:clear'));
   target = { x: 0, z: 0 }; dropQ = false; drag = null; turning = null; twist = null; fingers.clear(); seen = null; yaw = 0;
   // The opening turn, at the start of every game (`?spin=0` skips it: lab only)
@@ -675,7 +743,7 @@ function start() {
 }
 function finish() {
   state = 'over';
-  const s = Math.round(S.t), time = `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
+  const s = Math.round(S.t - timeFrom), time = `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
   const lines = [S.capsized ? ui('b3BdTipped') : '', some('b3BdPieces', S.landed), some('b3BdPerfects', S.perfects, { p: S.bonus }),
     ui('b3BdStreak', { n: S.best }), ui('b3BdHeight', { m: decimal(S.peak) }), ui('b3BdTime', { t: time })].filter(Boolean);
   showCard('⚖️', ui('b3Over'), `<p class="big">${S.score}</p>`, ui('b3Again'));
@@ -735,7 +803,7 @@ function reach(x, z) { const d2 = x * x + z * z; if (d2 > REACH * REACH) { const
 function onScreen(e) { const r = cv.getBoundingClientRect(); return [(e.clientX - r.left - ox) / sc, (e.clientY - r.top - oy) / sc]; }
 /** That place in the scene, before the camera's zoom. */
 const inScene = ([x, y]) => [200 + (x - 200) / zoom, ZY + (y - ZY) / zoom];
-const onDial = ([x, y]) => { const bottom = (vh - oy) / sc; return y > bottom - 16 - DIAL.h && x > DIAL.x0 - 8 && x < DIAL.x1 + 8; };
+const onDial = ([x, y]) => { const y0 = dialY0(); return y > y0 - 8 && y < y0 + DIAL.h + 8 && x > DIAL.x0 - 8 && x < DIAL.x1 + 8; };
 /** A mouse holds the piece itself: the spot under the pointer at the height of the hand. */
 function underPointer([x, y]) {
   const a = (x - MAIN.cx) / (C30 * MAIN.u), b = (y - MAIN.cy + S.hover * MAIN.u) / (0.5 * MAIN.u), [gx, gz] = ground((a + b) / 2, (b - a) / 2);
@@ -885,7 +953,7 @@ window.addEventListener('resize', resize);
 $('header a').setAttribute('aria-label', ui('b3Back')); muteBtn.setAttribute('aria-label', ui('b3Sound')); $('h1 span').textContent = GAME.nombre;
 paintMute(); resize(); ready(); requestAnimationFrame(frame);
 window.__balanza = { get S() { return S; }, get opening() { return opening; }, get handQ() { return handQ; }, get state() { return state; }, get target() { return target; }, get yaw() { return yaw; }, set yaw(v) { yaw = v; }, finish, newGame, advance, stepWorld, mkBody, mkForm, solid, blocks, formFor, place, weld, sat, meets, collide, params, pieceAt, specialAt, box, ball, KINDS, MASS, LANG, UI, TEXTS, DT, RAD, RIM, CLEAR, REACH, DIAL,
-  show(s, st = 'play') { S = s; state = st; card.hidden = true; for (const e of s.ev) onEvent(e); s.ev.length = 0; }, fx, render, hud, drawHearts, HEART, HALVES, holdHearts(t) { heartFrozen = t; }, get heartLost() { return heartLost; }, get clock() { return clock; },
+  show(s, st = 'play') { S = s; state = st; card.hidden = true; for (const e of s.ev) onEvent(e); s.ev.length = 0; }, fx, render, hud, drawHearts, HEART, HALVES, holdHearts(t) { heartFrozen = t; }, get heartLost() { return heartLost; }, get startPieces() { return startPieces; }, seedPile, get clock() { return clock; },
   get blurs() { return blurs; }, set blurs(v) { blurs = v; }, get res() { return dpr; } };
 </script>
 </body>

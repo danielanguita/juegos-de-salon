@@ -43,6 +43,18 @@ dialogs) → a level: its card (how to play, ▶ Play) → the round (its HUD: �
 its result card, in C-19's order: the score, ↻ Again, the rankings notice (one line), the exit from `fin.js`
 (`salidasFin('lab')`), the breakdown, the level's table (`wobbles_easy`, `wobbles_hard`) and 💬 last.
 
+## Lab tools (hard level)
+
+- **The dial** that turns the board sits at the top, under the next pieces, faded to 40 % until it is
+  used: at the bottom, an iPhone's swipe there leaves the app (the owner, 2026-11-18).
+- **Pieces at the start**, in the «T» tester tab (lab key holders only): − and + set how many pieces the
+  disc starts with (0 to 40, kept on the phone in `balanza-lab:start-pieces`); the next game starts with
+  them. They are the game's own first pieces in order, dropped with the real physics over a sunflower of
+  spots across the disc, each swapped to the opposite side when the disc leans that way; the disc keeps its
+  first stiffness while they are laid. They count as nothing (no points, no lives, the time starts after
+  them) and the game goes on as hard as a new one. More than the disc holds tips it: setup then starts
+  over with two fewer until they fit (about 30). Setting up many takes a few seconds.
+
 ## Protocolo de mensajes
 
 None: solo, nothing saved but mute (`balanza-lab:muted`) and, on the hard level, two one-time hints.
