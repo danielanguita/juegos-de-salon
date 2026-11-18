@@ -87,6 +87,8 @@ if (await b.evaluate("!!document.querySelector('#seats-box .bj-hand.active-hand'
   await b.evaluate(TAP(2)); await sleep(1200);
   ok(await b.evaluate("document.querySelectorAll('#seats-box .bj-hand .pcard').length === 3"), 'two taps on the felt by your cards ask for a card (one, not two)');
 }
+// The card asked for may bust the hand: the house then plays it out before «Siguiente ronda» comes back
+await b.until("document.getElementById('btn-stand') || document.getElementById('btn-next-round') || document.querySelector('#screen-result.active')", 14000); await sleep(300);
 if (await b.evaluate("!!document.getElementById('btn-stand')")) {
   await b.evaluate("document.getElementById('btn-stand').click(); 1");
   await b.until("document.getElementById('btn-next-round') || document.querySelector('#screen-result.active')", 14000);
