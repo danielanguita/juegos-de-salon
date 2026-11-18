@@ -19,6 +19,14 @@ const REMOTE = 'https://juegos-de-salon-default-rtdb.firebaseio.com/flags.json';
 /** Only each flag's state, sorted, so the file changes only when a state does. */
 export const states = flags => Object.fromEntries(Object.keys(flags || {}).sort().map(id => [id, { state: flags[id]?.state || 'lab' }]));
 export const snapshot = () => JSON.parse(readFileSync(FILE, 'utf8'));
+/**
+ * The flags the tests hold at a state whatever Firebase says (`tools/e2e/flags-held.json`): a lab treatment that
+ * replaces a whole page (the home page as carousels) would otherwise be on in every script that opens that
+ * page, since localhost holds the lab key. Its own script turns it on with `browser.flags()`. A row leaves
+ * this file in the PR that removes the flag's gate.
+ */
+export const HELD = fileURLToPath(new URL('../e2e/flags-held.json', import.meta.url));
+export const held = () => JSON.parse(readFileSync(HELD, 'utf8'));
 /** What changed: [{ id, from, to }]. */
 export const diff = (a, b) => [...new Set([...Object.keys(a), ...Object.keys(b)])].sort()
   .filter(id => a[id]?.state !== b[id]?.state).map(id => ({ id, from: a[id]?.state ?? '-', to: b[id]?.state ?? '-' }));

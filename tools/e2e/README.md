@@ -46,6 +46,11 @@ it with `browser.flags({ '<id>': 'all' })` before loading the page. The processe
 snapshot when it differs (`node tools/agents/flags-snapshot.mjs check | refresh`) in its own PR, where a
 test that the launch breaks fails once and is fixed.
 
+**Flags the tests hold** (`tools/e2e/flags-held.json`): localhost holds the lab key, so a flag in *lab* is on in
+every script. A lab treatment that replaces a whole page (the home page as carousels, `home-carousels`) is listed
+there at *off*, on top of the snapshot, so the scripts that open that page keep testing what players see; its own
+script (`home/carousels.mjs`) turns it on with `browser.flags()`. The row leaves in the PR that removes the gate.
+
 ## Test levels (D-346)
 
 Each PR gets the least testing that still keeps the site safe, decided from what its changes reach
