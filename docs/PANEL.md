@@ -315,7 +315,7 @@ Sale del celular, por día y por entorno (`public/assets/js/transport/stats.js`)
   `vigia.js` y no `stats.js`.
 - **Since D-348:** `fin/<game>/<mode>` (an offline game finished), `otra/<game>` (a replay: the
   same game started again after finishing, detected in `stats.js`), `comparte/<what>` (a share that
-  was not cancelled, from `compartir()`; counted only on a web page and never from a robot, `shareCountable` in `stats.js`, so tests run in Node write nothing), and once per visit `vuelta/<band>` (days since the last
+  was not cancelled, from `compartir()`; counted only on a web page and never from a robot, `shareCountable` in `stats.js`, so tests run in Node write nothing; the panel readers skip `comparte/app` up to 2026-11-15, the shares earlier tests wrote), and once per visit `vuelta/<band>` (days since the last
   visit: `nueva`, `d1`, `d2-7`, `d8-30`, `d31`) and once per browser and day `frec/<band>` (how many
   of the last 28 days it came: `f1`, `f2-3`, `f4-7`, `f8-14`, `f15`). The browser computes the bands
   from `juegos-de-salon:ultima` and `juegos-de-salon:dias` and sends only the band.
