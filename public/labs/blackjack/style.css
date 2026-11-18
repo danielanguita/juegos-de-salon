@@ -456,3 +456,12 @@ html.bj-defeat #app { position: relative; z-index: 1; }
 /* A chip on its way between the player's pile and the bet (flyChip in game.js): over everything, never in the way */
 .bj-flying-chip { position: fixed; z-index: 50; pointer-events: none; will-change: transform; filter: drop-shadow(0 6px 8px var(--well-deep)); }
 .bj-flying-chip svg { display: block; width: 100%; height: 100%; }
+
+/* Two taps on the felt ask for a card (feltTapToHit): a hand taps twice where the finger landed, a ring per tap */
+.bj-felt .bj-hand.active-hand { touch-action: manipulation; }
+.bj-tap-hand { position: fixed; z-index: 50; pointer-events: none; transform: translate(-30%, -10%); }
+.bj-tap-hand span { display: block; font-size: var(--fs-200); animation: bjTapTwice 0.7s ease-out both; filter: drop-shadow(0 4px 6px var(--well-deep)); }
+.bj-tap-hand i { position: absolute; left: 30%; top: 10%; width: var(--s-32); height: var(--s-32); margin: calc(-1 * var(--s-16)); border-radius: 50%; border: 2px solid rgb(var(--yellow-rgb) / 0.8); opacity: 0; animation: bjTapRing 0.45s ease-out both; }
+.bj-tap-hand i + i { animation-delay: 0.22s; }
+@keyframes bjTapTwice { 0% { opacity: 0; transform: translateY(var(--s-8)); } 15% { opacity: 1; transform: none; } 25%, 55% { transform: scale(0.88); } 40%, 70% { transform: none; } 100% { opacity: 0; } }
+@keyframes bjTapRing { from { opacity: 1; transform: scale(0.3); } to { opacity: 0; transform: scale(1.6); } }
