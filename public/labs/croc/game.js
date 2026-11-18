@@ -137,7 +137,8 @@ let demoScene = null;
 let demoRun = 0;
 let demoCaption = '';
 function newDemo() {
-  demoG = E.newGame({ ...DEFAULT_CONFIG, seed: E.randomSeed(), difficulty, mode: 'demo' });
+  // With reduced motion the demo is one still frame: of a fixed track, so it is the same every time
+  demoG = E.newGame({ ...DEFAULT_CONFIG, seed: QUIET() ? 4821 : E.randomSeed(), difficulty, mode: 'demo' });
   demoScene?.clear();
 }
 function setDemoCaption(text) {
