@@ -859,9 +859,9 @@ const LANG = (() => {
   try { const l = (new URLSearchParams(location.search).get('lang') || localStorage.getItem('juegos-de-salon:lang') || 'es').toLowerCase().slice(0, 2); return TEXTS[l] ? l : 'es'; } catch (_) { return 'es'; }
 })();
 const GAME = TEXTS[LANG].juego, UI = TEXTS[LANG].ui;
-// A balanced drop says one of the cheers (the owner, 2026-11-18), never the same twice in a row
+// A balanced drop says one of the cheers (the owner, 2026-11-18), never the same twice in a row, while flag wobbles-cheers is on (../game.js); off, ¡Perfecto!
 let lastCheer = -1;
-const cheer = list => { const free = lastCheer >= 0 ? list.length - 1 : list.length; let i = Math.floor(Math.random() * free); if (lastCheer >= 0 && i >= lastCheer) i++; lastCheer = i; return list[i]; };
+const cheer = list => { if (!window.__wobblesCheers) return list[0]; const free = lastCheer >= 0 ? list.length - 1 : list.length; let i = Math.floor(Math.random() * free); if (lastCheer >= 0 && i >= lastCheer) i++; lastCheer = i; return list[i]; };
 /** A text with its {blanks} filled in. */
 const fmt = (s, o) => s.replace(/\{(\w+)\}/g, (_, k) => o[k]);
 /** A piece's [name, line]. */

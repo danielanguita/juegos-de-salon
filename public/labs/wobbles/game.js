@@ -11,6 +11,7 @@ import { trackVisit } from '../../assets/js/transport/stats.js';
 import { footerInto } from '../../assets/js/site-footer.js';
 import { abrirComentario } from '../../assets/js/labs-idioma.js';
 import { labAccess } from '../../assets/js/lab-access.js';
+import { flag } from '../../assets/js/flags.js';
 import { coverWithDialogs } from '../../assets/js/cover-dialogs.js';
 import { bloqueJugador, avisoPartida, bloqueTabla } from '../../assets/js/ranking.js';
 import { salidasFin } from '../../assets/js/fin.js';
@@ -227,5 +228,7 @@ labAccess().then(ok => ok && import('../../assets/js/tester-ribbon.js').then(m =
   init();
 } else {
   wireResult();
+  // The nine cheers of a balanced drop, on trial (lab: #seccion-wobbles-cheers): off, it is always ¡Perfecto!; its switch is in the «T» tab
+  flag('wobbles-cheers').then(on => { window.__wobblesCheers = on; }).catch(() => {});
   window.__wobblesResult = { level: resultLevel, table: `${GAME_ID}_${resultLevel}` };
 }
