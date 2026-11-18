@@ -289,6 +289,107 @@
           "PROTETOR"
         ]
       }
+    },
+    {
+      "lang": "es",
+      "label": "bad",
+      "breaks": "J3",
+      "why": "GOBIERNO is the best answer, not a decoy (player agent; owner label 2026-11-18)",
+      "entry": {
+        "pista": "PODER",
+        "si": [
+          "CORONA",
+          "TRONO",
+          "ESPADA",
+          "ENERGÍA",
+          "PALACIO",
+          "ÁGUILA",
+          "LEÓN",
+          "CETRO",
+          "PRESIDENTE"
+        ],
+        "casi": [
+          "FAMA",
+          "SUERTE",
+          "GOBIERNO"
+        ]
+      }
+    },
+    {
+      "lang": "en",
+      "label": "bad",
+      "breaks": "J3",
+      "why": "HEALTH cannot be told apart from HEARTBEAT and LUNG (player agent; owner label 2026-11-18)",
+      "entry": {
+        "pista": "LIFE",
+        "si": [
+          "SEED",
+          "EGG",
+          "CRADLE",
+          "HEARTBEAT",
+          "ROOT",
+          "SPRING",
+          "LUNG",
+          "SPROUT",
+          "WATER"
+        ],
+        "casi": [
+          "DEATH",
+          "TIME",
+          "HEALTH"
+        ]
+      }
+    },
+    {
+      "lang": "en",
+      "label": "bad",
+      "breaks": "J3",
+      "why": "SUCCESS cannot be told apart from CHARM (player agent; owner label 2026-11-18)",
+      "entry": {
+        "pista": "LUCK",
+        "si": [
+          "CLOVER",
+          "DICE",
+          "HORSESHOE",
+          "LOTTERY",
+          "COIN",
+          "CASINO",
+          "SEVEN",
+          "CHARM",
+          "ROULETTE"
+        ],
+        "casi": [
+          "SUCCESS",
+          "WEALTH",
+          "TALENT"
+        ]
+      }
+    },
+    {
+      "lang": "pt",
+      "label": "bad",
+      "breaks": "J3",
+      "why": "TEATRO can be defended as a museum thing (player agent; owner label 2026-11-18)",
+      "entry": {
+        "pista": "MUSEU",
+        "si": [
+          "QUADRO",
+          "ESCULTURA",
+          "VITRINE",
+          "GUIA",
+          "EXPOSIÇÃO",
+          "MÚMIA",
+          "FÓSSIL",
+          "ESTÁTUA",
+          "OBRA",
+          "ACERVO"
+        ],
+        "casi": [
+          "BIBLIOTECA",
+          "TEATRO",
+          "IGREJA"
+        ]
+      }
     }
   ]
 }
