@@ -28,7 +28,9 @@ through `pull_request_target`, so main's copy of `approve.mjs` obeys, never the 
 only approve and merge that same PR (`invalidInPr`). `approve-pr` turns `owner-approval` green **for
 that commit only**, then `merge` waits for `tests` and `end-to-end`, merges and publishes the site.
 If a check fails, the result is written next to the box; unticking and ticking again after the fix
-retries. A session that edits the PR description keeps that block as it is. For 🟢/🟡 the job sets
+retries. Once the Yes or the No is carried out, `approve.mjs` takes the `needs-owner` label off
+the PR (a later push puts it back). A session that edits the PR description keeps that block as it is; if an edit by anyone
+but the owner drops or changes it anyway, `lane-box.yml` (`lanes.mjs keep`, main's copy) puts it back as it was. For 🟢/🟡 the job sets
 `owner-approval` green at once.
 `owner-approval` is a required status on `main`, so a 🔴 PR cannot merge without the tick.
 
