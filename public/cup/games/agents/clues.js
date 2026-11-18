@@ -124,7 +124,7 @@ export const ABSTRACTAS = [
   { pista: 'VELOCIDAD', si: ['RAYO', 'GUEPARDO', 'COHETE', 'BALA', 'FLECHA', 'HALCÓN', 'CARRERA', 'LUZ', 'TURBO'], casi: ['TORTUGA', 'CARACOL', 'SEMÁFORO'] },
   { pista: 'LIBERTAD', si: ['PÁJARO', 'ALAS', 'LLAVE', 'BANDERA', 'VACACIONES', 'HORIZONTE', 'VELERO', 'ESTATUA', 'CABALLO'], casi: ['CÁRCEL', 'JAULA', 'CANDADO'] },
   { pista: 'AMOR', si: ['CORAZÓN', 'ROSA', 'BESO', 'ANILLO', 'FLECHA', 'CARTA', 'CHOCOLATE', 'ABRAZO', 'CUPIDO', 'POEMA'], casi: ['AMISTAD', 'CELOS', 'DIVORCIO'] },
-  { pista: 'PODER', si: ['CORONA', 'TRONO', 'ESPADA', 'ENERGÍA', 'PALACIO', 'ÁGUILA', 'LEÓN', 'CETRO', 'PRESIDENTE'], casi: ['FAMA', 'SUERTE', 'GOBIERNO'] },
+  { pista: 'PODER', si: ['CORONA', 'TRONO', 'ESPADA', 'ENERGÍA', 'PALACIO', 'ÁGUILA', 'LEÓN', 'CETRO', 'PRESIDENTE'], casi: ['FAMA', 'SUERTE', 'ÉXITO'] },
   { pista: 'SUERTE', si: ['TRÉBOL', 'DADO', 'HERRADURA', 'LOTERÍA', 'MONEDA', 'CASINO', 'SIETE', 'AMULETO', 'RULETA'], casi: ['ÉXITO', 'RIQUEZA', 'TALENTO'] },
   { pista: 'LUZ', si: ['SOL', 'AMPOLLETA', 'VELA', 'FARO', 'LINTERNA', 'RAYO', 'LUCIÉRNAGA', 'LÁMPARA', 'FLASH'], casi: ['SOMBRA', 'NOCHE', 'ESPEJO'] },
   { pista: 'ALTURA', si: ['JIRAFA', 'RASCACIELOS', 'ESCALERA', 'AVIÓN', 'GLOBO', 'CÓNDOR', 'TORRE', 'NUBE', 'VÉRTIGO'], casi: ['POZO', 'SUBMARINO', 'CUEVA'] },

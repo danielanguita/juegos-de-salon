@@ -270,7 +270,7 @@ function listen() {
  * o un idioma que el código ya manda y esta página todavía no conoce.
  */
 const ENV_VIEJOS = { lab: 'Lab' };                    // went away with the lab (D-67)
-const ENV_NOMBRE = { prod: 'Live', dev: 'Local tests', owner: 'My devices', ...ENV_VIEJOS };
+const ENV_NOMBRE = { prod: 'Live', dev: 'Local tests', owner: 'My devices', labs: 'Labs', ...ENV_VIEJOS };
 const envLabel = env => ENV_NOMBRE[env] || env;
 const ENV_OPCIONES = [...ENVS, ...Object.keys(ENV_VIEJOS).filter(e => !ENVS.includes(e))];
 

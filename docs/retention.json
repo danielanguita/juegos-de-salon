@@ -1,5 +1,12 @@
 {
   "_": "The retention agent's ledger (learning piece 7): each closed week read, its next-day return and verdict; each proposal and its verdict. Written by tools/agents/retention.mjs record and by the agent's PRs.",
-  "weeks": [],
+  "weeks": [
+    {
+      "week": "2026-11-08",
+      "pct": 42.7,
+      "players": 40,
+      "verdict": "no-history"
+    }
+  ],
   "proposals": []
 }
