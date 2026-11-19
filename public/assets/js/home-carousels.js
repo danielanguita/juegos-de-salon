@@ -11,7 +11,7 @@
  * It reads the same games the list does (`PORTADA` without Toque y Fama: Palabra), so a game that
  * reaches the home page reaches a carousel (C-21). Only the home page loads this file.
  */
-import { TIPOS, SOLO_TABLES, SUELTOS, rangoJugadores, esNuevo, populares } from './games.js';
+import { TIPOS, SOLO_TABLES, FIRST_VARIANT_TABLES, SUELTOS, rangoJugadores, esNuevo, populares } from './games.js';
 import { el, ICONO_COMPARTIR } from './ui.js';
 import { gameIcon } from './game-icon.js';
 import { pickLang, homeUrl } from './i18n.js';
@@ -65,7 +65,7 @@ export const slugOf = g => String(g.path || '').replace(/^\.?\//, '').split('/')
 export const sheetUrl = (g, lang, home = homeUrl(lang)) => `${home}?game=${slugOf(g)}`;
 
 /** The table a game's sheet shows: its wins when it is played in a room, else its solo scores (as /records/ does). */
-export const rankingOf = g => (g.jugadas ? { table: `${g.id}_victorias`, wins: true } : { table: SOLO_TABLES[g.id] || g.id, wins: false });
+export const rankingOf = g => (g.jugadas ? { table: `${g.id}_victorias`, wins: true } : { table: SOLO_TABLES[g.id] || FIRST_VARIANT_TABLES[g.id] || g.id, wins: false });
 
 /**
  * The page that draws a game's cover animation alone (cup/cover/), for the sheet's frame; null for a game

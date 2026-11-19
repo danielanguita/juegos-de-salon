@@ -17,7 +17,7 @@ import { compartir as compartirAlChat, cabecera, lamina, laminaResultado, aArchi
 import { SFX, soundToggle, initSound } from '../assets/js/sound.js';
 import { trackStart, versionOf, releaseOf, countryOf, trackVisit, trackFinish } from '../assets/js/transport/stats.js';
 import { gameIcon, withIcon, textWithIcon } from '../assets/js/game-icon.js';
-import { gameById, MODO_UNO_AL_DIA, slugDe, idDeSlug, esNuevo } from '../assets/js/games.js';
+import { gameById, MODO_UNO_AL_DIA, slugDe, idDeSlug, esNuevo, FIRST_VARIANT_TABLES } from '../assets/js/games.js';
 import { flag, labHere } from '../assets/js/flags.js';
 import { factsLine } from '../assets/js/how-to-play-facts.js';
 import { shareGrid } from '../assets/js/share-grid.js';
@@ -2030,9 +2030,10 @@ function varianteSuelta(id) {
 function guardarVariante(id, v) { try { localStorage.setItem(claveVariante(id), v); } catch (_) { /* solo esta vez */ } }
 /**
  * The ranking table of a variant (D-331): the default one is the game's own, the others go apart. Sudoku
- * ranked each level apart from the lab (`sudoku_easy`, `sudoku_hard`) and keeps those tables.
+ * ranked each level apart from the lab (`sudoku_easy`, `sudoku_hard`) and keeps those tables: the list is in
+ * games.js (`FIRST_VARIANT_TABLES`), which Rankings and the home page read too.
  */
-const RK_POR_VARIANTE = ['sudoku'];
+const RK_POR_VARIANTE = Object.keys(FIRST_VARIANT_TABLES);
 const varianteRk = (id, v) => (v && (v !== JUEGOS[id]?.variantes?.[0] || RK_POR_VARIANTE.includes(id)) ? v : '');
 
 /**
