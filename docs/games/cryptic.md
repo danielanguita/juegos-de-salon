@@ -58,6 +58,18 @@ result stays on the phone for the streak.
   and a practice clue given up; `node tools/e2e/conformance.mjs labs/cryptic` checks the canons.
 - Hook: `window.__cryptic` (`state()`, `clue()`, `answer()`).
 
+## Writing a clue (the owner, 2026-11-19)
+
+The first bank was too direct: the owner asked for clues that make the player think and reach for a hint,
+while staying solvable. Every clue in `clues.js` follows these four rules:
+
+1. **One natural sentence that tells another story.** No colon or semicolon splitting wordplay from
+   definition: the seam is the player's to find («Una monja loca se cura colgada en la despensa»).
+2. **A fair but sideways definition** at one end: «ni te cases ni te embarques» for MARTES, «Recluta» for SOLDADO.
+3. **A blended indicator**: «loca», «regresa», «a escondidas», «decapitan» read as part of the story, not as an instruction.
+4. **One answer only**, and `x` shows every step of the solution. The engine test checks the mechanics it can
+   (definition at an end, anagram letters, hidden and reversed words).
+
 ## Excepciones a los cánones
 
 - **C-8b:** a wrong guess is the normal move (as in El Ahorcado, D-56): it does not open a notice to close.
