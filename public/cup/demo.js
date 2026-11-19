@@ -53,6 +53,8 @@ const PUNTAJE = {
   // Sudoku: 100, minus 10 a wrong digit and 15 a hint (D-517's way)
   microgames: k => { const s = Math.round(60 + 220 * k * k); return { s, r: `⚡ ${s}` }; },
   sudoku: k => { const s = Math.max(0, 100 - 10 * Math.round(4 * (1 - k))); return { s, r: `${s}/100` }; },
+  // Dominorama: 20 a board, up to 40 for speed with the three, −10 a help (D-517's way)
+  dominorama: k => { const s = Math.min(100, 20 * Math.round(3 * k) + (k > 0.9 ? Math.round(40 * k) : 0)); return { s, r: `${s}/100` }; },
   stack: k => { const s = Math.min(100, 2 * Math.round(50 * k * k)); return { s, r: `🧱 ${s}` }; },
   puentes: k => { const s = Math.min(100, 10 * Math.round(5 * k) + Math.round(30 * k * k)); return { s, r: `${s}/100` }; },
   'croc': k => { const s = Math.round(180 + 720 * k * k); return { s, r: `🐸 ${s}` }; },

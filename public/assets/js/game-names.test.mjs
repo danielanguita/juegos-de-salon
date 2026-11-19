@@ -17,6 +17,7 @@ const SAME_NAME = {
   stack: { en: 'a proper name (the tower)', pt: 'a proper name (the tower)' },
   croc: { en: 'a frog\'s croak, the same sound in every language', pt: 'a frog\'s croak, the same sound in every language' },
   sudoku: { en: 'the puzzle\'s own name, the same everywhere', pt: 'the puzzle\'s own name, the same everywhere' },
+  dominorama: { en: 'a made-up name, the same everywhere', pt: 'a made-up name, the same everywhere' },
 };
 
 const bad = [];

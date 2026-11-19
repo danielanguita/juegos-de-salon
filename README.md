@@ -53,6 +53,7 @@ The games with their own section below come first; after them, the one-player ga
 | 🐤 [Flap / Aletazo / Bate-Asa](https://juegosdesalon.cl/flap/) | 1 | Play alone | Also in The Cup |
 | #️⃣ [Sudoku](https://juegosdesalon.cl/sudoku/) | 1 | Play alone | Also in The Cup |
 | ⚡ [In a Flash! / ¡Al toque! / Na Hora!](https://juegosdesalon.cl/in-a-flash/) | 1 | Play alone | Also in The Cup |
+| 🎲 [Dominorama](https://juegosdesalon.cl/dominorama/) | 1 | Play alone | Also in The Cup |
 <!-- /generated -->
 
 ---
@@ -573,6 +574,7 @@ The whole app is translated, Portuguese as spoken in Brazil (German left in D-51
 | Aletazo | Flap | Bate-Asa |
 | Sudoku | Sudoku | Sudoku |
 | ¡Al toque! | In a Flash! | Na Hora! |
+| Dominorama | Dominorama | Dominorama |
 <!-- /generated -->
 
 <!-- generated: screenshots:idiomas · written by python3 tools/release/readme.py update -->
@@ -675,7 +677,7 @@ These documents are being moved to English (D-316); the ones with a Spanish titl
 - [🐸 Croc! (lab, in Juegos en prueba)](docs/games/croc.md)
 - [La Copa](docs/games/cup.md)
 - [🎨 The components page (the design system, in the lab)](docs/games/design.md)
-- [🎲 Dominorama (lab prototype, in Juegos en prueba)](docs/games/dominorama.md)
+- [🎲 Dominorama (La Copa game, ready to launch by flag; the lab prototype stays until the cleanup)](docs/games/dominorama.md)
 - [💥 Números explosivos (prototipo del laboratorio, en Juegos en prueba)](docs/games/exploding-numbers.md)
 - [🐤 Aletazo (La Copa game, launched by flag; the lab prototype stays until the cleanup)](docs/games/flap.md)
 - [Especificación: Cuarto Rey](docs/games/fourth-king.md)

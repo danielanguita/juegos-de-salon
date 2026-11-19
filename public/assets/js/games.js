@@ -483,6 +483,33 @@ export const SUELTOS = [
     nuevoDesde: '2026-11-14',
     diasNuevo: 10,
   },
+  {
+    // 🎲 Out of the lab like Sudoku (D-517's way): La Copa's screen in cup/games/dominorama/, its page
+    // /dominorama/, hidden until the owner switches flags/dominorama on (not launched yet: the owner picks
+    // the date). Inspired by NYT's Pips, credited on its cover. Three boards, easy to hard, 0 to 100. The id
+    // and the usage signal are the lab's; the lab prototype /labs/dominorama/ stays until the cleanup PR.
+    // 🎲 is the text stand-in; the screen shows the drawn domino (cup/games/dominorama/icon.svg)
+    id: 'dominorama',
+    lanza: 'dominorama',
+    copa: { pozo: 19 },
+    // Uno al día: by date, never by flag. PLACEHOLDER: set when the owner picks the launch date (the day after it)
+    unoAlDia: { orden: 24, desde: '2027-01-01' },
+    slug: 'dominorama',
+    emoji: '🎲',
+    icon: 'cup/games/dominorama/icon.svg',
+    name: { es: 'Dominorama', en: 'Dominorama', pt: 'Dominorama' },
+    tagline: { es: 'Pon todas las fichas de dominó para que cada zona cumpla su regla.', en: 'Place every domino so each zone keeps its rule.', pt: 'Coloque todas as peças de dominó para que cada zona cumpra sua regra.' },
+    keywords: {
+      es: ['dominó', 'domino', 'fichas', 'lógica', 'logica', 'puzle', 'pips', 'zonas', 'solitario'],
+      en: ['domino', 'dominoes', 'logic', 'puzzle', 'pips', 'zones', 'solo'],
+      pt: ['dominó', 'peças', 'lógica', 'quebra-cabeça', 'pips', 'zonas', 'solitário'],
+    },
+    tipos: ['logic'],
+    duration: '3–10',
+    // PLACEHOLDER: set when the owner picks the launch date (the ✨ Nuevo label starts with the flag anyway, D-556)
+    nuevoDesde: '2027-01-01',
+    diasNuevo: 10,
+  },
   // Los del laboratorio viven en /labs/<slug>/ (D-267): al salir pasan a /<slug>/
 ].map(m => ({ ...m, players: '1', path: `${m.labs ? 'labs/' : ''}${m.slug}/`, available: !m.labs, suelto: true, ...(m.lanza ? { oculto: !lanzado(m.lanza) } : {}) }));
 
@@ -656,7 +683,6 @@ export const LAB_NAMES = {
   blackjack: { emoji: '♠️', name: { es: 'Blackjack', en: 'Blackjack', pt: 'Blackjack' } },
   memory: { emoji: '👀', name: { es: 'Memorice', en: 'Memorice', pt: 'Memorice' } },
   artifacts: { emoji: '⚙️', name: { es: 'Artefactos', en: 'Artifacts', pt: 'Artefatos' } },
-  dominorama: { emoji: '🎲', name: { es: 'Dominorama', en: 'Dominorama', pt: 'Dominorama' } },
   clave: { emoji: '🔐', name: { es: 'La clave', en: 'The Code', pt: 'A senha' } },
   camaleon: { emoji: '🦎', name: { es: 'El Camaleón', en: 'Chameleon', pt: 'Camaleão' } },
   transfer: { emoji: '🚉', name: { es: 'Transbordo', en: 'Transfer', pt: 'Baldeação' } },

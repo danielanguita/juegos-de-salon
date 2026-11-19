@@ -1,6 +1,6 @@
 // Dominorama (D-381): rules, one solution per board, laying dominoes, the help and the score.
 import assert from 'node:assert/strict';
-import { cumple, etiqueta, resolver, generar, nuevaPartida, lugar, poner, sacar, valores, estadoZonas, resuelto, lleno, ayudar, puntaje, tarjeta, NIVELES, MAXIMO, PUNTOS_TABLERO, RESTA_AYUDA, unida } from './engine.js';
+import { cumple, etiqueta, resolver, generar, nuevaPartida, lugar, poner, sacar, valores, estadoZonas, resuelto, lleno, ayudar, puntaje, tarjeta, NIVELES, MAXIMO, PUNTOS_TABLERO, RESTA_AYUDA, unida, generateDay, card } from './engine.js';
 
 // The rules, full and partial
 assert.equal(cumple({ tipo: 'suma', n: 6 }, [2, 4]), true);
@@ -103,6 +103,18 @@ assert.equal(tarjeta({ resueltos: 2, ayudas: 1 }), '✅✅⬜ 2 de 3 · 💡 1')
   }
   assert.ok(enSuma / celdas <= 0.7, `cells under an exact sum: ${Math.round(100 * enSuma / celdas)}%`);
   for (const tipo of ['suma', 'igual', 'distinto', 'menor', 'mayor']) assert.ok(tipos.has(tipo), `some zone asks ${tipo}`);
+}
+
+// La Copa's day: three boards, the same on every phone; the trial plays only the easy one
+{
+  const a = generateDay('ABCD', 2), b = generateDay('ABCD', 2);
+  assert.deepEqual(a.boards.map(t => t.nivel), NIVELES.map(n => n.id));
+  assert.deepEqual(a, b, 'the same day, the same boards');
+  const e = generateDay('ABCD', 2, { sal: 'ensayo', ensayo: true });
+  assert.equal(e.boards.length, 1); assert.equal(e.ensayo, true);
+  assert.equal(MAXIMO, 100, 'already 0 to 100 for the cup');
+  assert.equal(card({ resueltos: 2, ayudas: 1 }), '✅✅⬜ 2/3 · 💡 1');
+  assert.equal(card({ resueltos: 3, ayudas: 0 }), '✅✅✅ 3/3');
 }
 
 console.log('✓ dominorama engine');

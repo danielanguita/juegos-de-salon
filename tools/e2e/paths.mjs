@@ -598,6 +598,8 @@ export const PATHS = {
   stick: { intro: [], game: [START, `1`, `1`, `1`, `1`] },
   stack: { intro: [], game: [START, `1`, `1`, `1`, `1`] },
   aletazo: { intro: [], game: [START] },
+  // Dominorama: the cover, then Empezar and the countdown to the first board
+  dominorama: { intro: [], game: [START, `1`, `1`, `1`, `1`] },
   // Sudoku: the cover (the lever on easy), then Empezar and the countdown to the 6×6 board; `hard` the 9×9 one
   // hard: waits for the level lever before tapping it, and for the 9×9's 81 cells after starting, so every
   // language photographs the same board (on the runner the lever was once tapped before it existed)
