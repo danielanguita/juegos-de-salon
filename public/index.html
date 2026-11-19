@@ -671,6 +671,10 @@
     // Toque y Fama: Palabra is not on the home page: Toque y Fama's page picks the number or the word (#767).
     // It still plays in Uno al día and La Copa, and 🎲 still draws it (D-188)
     const JUEGOS_PORTADA = PORTADA.filter(g => g.id !== 'letras');
+    // …except under 🔤 Palabras, where it has its own card (the owner, 2026-11-19; lab flag word-in-words):
+    // a game listed only under one type, hidden with no filter, in the search and in the count
+    const SOLO_EN_TIPO = { letras: 'words' };
+    const soloEnTipo = { on: false };
     const app = compartirApp({ C: T, lang, juegos: JUEGOS_PORTADA.filter(g => g.available).length });
     // The sheet with the vertical video in every language, on the Spanish or English tab (D-410)
     document.getElementById('share-slot').append(
@@ -694,7 +698,7 @@
       try {
         const k = window.__fotoPortada?.k;
         // Never from a link that changes the layout (?daily=button puts Uno al día next to the die)
-        if (k && param('daily') === null && !list.querySelector('[hidden], .reserva')) localStorage.setItem(FOTO, JSON.stringify({ k, html: list.innerHTML }));
+        if (k && param('daily') === null && !list.querySelector('[hidden]:not([data-solo-tipo]):not([data-solo-tipo] *), .reserva')) localStorage.setItem(FOTO, JSON.stringify({ k, html: list.innerHTML }));
       } catch (_) { /* without storage, every visit waits for the modules, as before */ }
     };
 
@@ -721,7 +725,7 @@
     };
     // The 🔥 "Popular" label on the top three (D-361; for everyone since D-369)
     const top = populares();
-    const tarjetas = JUEGOS_PORTADA.map((g, i) => {
+    const tarjeta = (g, i) => {
       const [, max] = rangoJugadores(g.players);
       // Un juego que no está disponible se ve, pero no se abre: sin href, ni con el teclado (C-5)
       const card = el('a', { class: 'game-card' + (g.available ? '' : ' soon') + (g.torneo ? ' torneo' : ''), href: g.available ? g.path : null, 'aria-disabled': g.available ? null : 'true', 'data-id': g.id, style: `animation-delay:${i * 60}ms` },
@@ -753,9 +757,12 @@
       // no se puede tocar sin abrir el juego. La Copa no lleva: es una semana con amigos, no una partida
       if (!g.available || g.torneo) { list.append(card); return { g, card, caja: card }; }
       const caja = el('div', { class: 'game-slot' }, card, botonFavorito(g, card));
+      // Hidden until its type is chosen; marked so the list's copy for the next visit is still taken (D-435)
+      if (SOLO_EN_TIPO[g.id]) { caja.dataset.soloTipo = SOLO_EN_TIPO[g.id]; caja.hidden = card.hidden = true; }
       list.append(caja);
       return { g, card, caja };
-    });
+    };
+    const tarjetas = JUEGOS_PORTADA.map(tarjeta);
 
 
     // Juego al azar (D-188): always from every game on the home page, whatever filter is on; only
@@ -883,7 +890,8 @@
       const filtro = { tipo: TIPOS[pedido] || (pedido === FAV && hayFavoritos()) || (atajo[pedido] && tieneAtajo(pedido)) ? pedido : null };
       // The search (D-390, for everyone since D-403): the games "see them all" filtered, or null with nothing typed
       const busca = { ids: null, clear: () => {} };
-      const caben = ({ g, card, caja }) => (!busca.ids || busca.ids.has(g.id)) && (!filtro.tipo
+      const caben = ({ g, card, caja }) => (SOLO_EN_TIPO[g.id] ? soloEnTipo.on && !busca.ids && filtro.tipo === SOLO_EN_TIPO[g.id] : true)
+        && (!busca.ids || busca.ids.has(g.id)) && (!filtro.tipo
         || (filtro.tipo === FAV ? caja !== card && marcados.has(g.id) : atajo[filtro.tipo] ? atajo[filtro.tipo](g) : (g.tipos || []).includes(filtro.tipo)));
       const caja = document.getElementById('filtros');
       caja.setAttribute('aria-label', T.filters);
@@ -952,7 +960,7 @@
         cuenta.hidden = !filtrado || n === 0;
         // One a Day is not a game of any kind: with a filter or a search on, it steps aside
         document.documentElement.classList.toggle('filtrado', filtrado);
-        cuenta.replaceChildren(el('span', {}, T.shown.replace('{n}', n).replace('{total}', tarjetas.length)),
+        cuenta.replaceChildren(el('span', {}, T.shown.replace('{n}', n).replace('{total}', tarjetas.filter(t => !SOLO_EN_TIPO[t.g.id]).length)),
           el('button', { class: 'link-btn', type: 'button', onClick: limpiar }, T.clearFilters));
         // ?jugadores= era el filtro de cuántos juegan (D-142): un link viejo lo pierde sin ruido.
         // ?tipo= es el nombre de antes de D-214: se reescribe como ?type=
@@ -963,6 +971,18 @@
         history.replaceState(history.state, '', url.pathname + url.search.replace(/=(?=&|$)/g, '') + url.hash);
       };
       aplicar(true);
+      // Toque y Fama: Palabra under 🔤 Palabras, behind its flag. lab: #seccion-word-in-words
+      // Its card exists only with the flag on, in its place in the home page's order, so the list is untouched without it
+      import('./assets/js/flags.js').then(({ flag }) => flag('word-in-words')).then(on => {
+        const g = on && PORTADA.find(x => x.id === 'letras' && x.available);
+        if (!g) return;
+        const t = tarjeta(g, tarjetas.length);
+        const orden = PORTADA.map(x => x.id);
+        const at = tarjetas.findIndex(x => orden.indexOf(x.g.id) > orden.indexOf(g.id));
+        if (at >= 0) { list.insertBefore(t.caja, tarjetas[at].caja); tarjetas.splice(at, 0, t); } else tarjetas.push(t);
+        soloEnTipo.on = true;
+        aplicar();
+      }).catch(() => {});
       // The 🔎 search, for everyone (D-403): loaded after the list is drawn, so it never delays it
       import('./assets/js/search.js').then(({ drawSearch }) => {
         Object.assign(busca, drawSearch({ into: caja, lang, games: JUEGOS_PORTADA, pickName: pickLang, onChange: ids => { busca.ids = ids; aplicar(); } }));
