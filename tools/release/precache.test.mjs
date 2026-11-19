@@ -6,7 +6,7 @@ import { createHash } from 'node:crypto';
 import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { join } from 'node:path';
-import { precache, NEVER, BIG } from './precache.mjs';
+import { precache, NEVER, BIG, LAB } from './precache.mjs';
 
 const SITE = fileURLToPath(new URL('../../public/', import.meta.url));
 const { ALL_GAMES, offlineOk } = await import(new URL('../../public/assets/js/games.js', import.meta.url));
@@ -17,7 +17,7 @@ assert.equal(release, 'dev', 'public/ carries no release meta: it is stamped at 
 assert.equal(set.size, urls.length, 'no repeats');
 assert.ok(set.has('./'), 'the home page');
 for (const g of ALL_GAMES) {
-  assert.equal(set.has(g.path), offlineOk(g), `${g.id}: its page is precached exactly when it is offline-capable`);
+  assert.equal(set.has(g.path), offlineOk(g) && !g.path?.startsWith(LAB), `${g.id}: its page is precached exactly when it is offline-capable and not in the lab`);
 }
 // The minigames' pages load La Copa's engine and each game's module: those come along
 for (const f of ['cup/game.js', 'cup/style.css', 'cup/games/index.js', 'cup/games/zip/engine.js', 'assets/js/games.js', 'assets/css/base.css']) {
@@ -27,6 +27,7 @@ for (const u of urls) {
   const f = u.split('?')[0];
   assert.ok(!NEVER.some(n => f.startsWith(n)), `${u}: music, link cards and splash art are never precached`);
   assert.ok(!/\.test\.mjs$/.test(f), `${u}: no test files`);
+  assert.ok(!f.startsWith(LAB), `${u}: the lab is for the team, never precached on players' phones`);
   if (/\.(js|css)$/.test(f)) {
     const h = createHash('sha256').update(readFileSync(join(SITE, f))).digest('hex').slice(0, 8);
     assert.equal(u, `${f}?h=${h}`, `${f}: its URL is the one set-version.py writes (D-467)`);
