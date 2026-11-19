@@ -706,6 +706,8 @@ export const PATHS = {
     intro: [],
     game: [`document.getElementById('btn-jugar').click(); 1`, `1`, `1`, `1`],
   },
+  // Memorice: the waiting room over its demo board, then Empezar and the countdown to the first board
+  memory: { intro: [], game: [START, `1`, `1`, `1`, `1`] },
   // ¡Al toque!: La Copa's waiting room, then Empezar and the countdown to the run's first intro
   microgames: { intro: [], game: [START, `1`, `1`, `1`, `1`] },
   // Aletazo: the cover over its demo, then Jugar, the 3, 2, 1… (six waits) and the first flap (the bird in the air, the HUD up)
@@ -810,6 +812,7 @@ export const VISUAL_SKIP = {
   babel: 'its cover depends on the live flags/stack value from Firebase, so the end-to-end job and the Visual references workflow draw it differently (7.63 %)',
   flap: 'its cover is the live demo flying over a city drawn with Math.random (scene.js skyline) and the autopilot in real time, so no two loads draw the same pixels; tools/e2e/flap/game.mjs checks the cover instead',
   sudoku: 'its cover is a demo board solving itself in real time, and the page reads the live flags/sudoku value (launch by flag, like Babel), so two runs drew it 0.63 % apart while the Visual references workflow saw no change; tools/e2e/sudoku/page.mjs and cup-games/languages.mjs check the cover instead',
+  memorice: 'its cover is a small board playing itself in real time, and the page reads the live flags/memory value (launch by flag, like Sudoku); tools/e2e/memory/page.mjs checks the cover instead',
   where: 'its intro differed 1.26 % between two runs on the same runner: something on it is not fixed yet (#1249 step 15)',
 };
 

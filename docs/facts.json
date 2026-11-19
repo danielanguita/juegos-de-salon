@@ -120,6 +120,11 @@
         "public/cup/games/flap/ui.js",
         "public/cup/games/index.js",
         "public/cup/games/mazos.js",
+        "public/cup/games/memory/engine.js",
+        "public/cup/games/memory/sprites.js",
+        "public/cup/games/memory/style.css",
+        "public/cup/games/memory/texts.js",
+        "public/cup/games/memory/ui.js",
         "public/cup/games/microgames/engine.js",
         "public/cup/games/microgames/intros.js",
         "public/cup/games/microgames/stage.js",
@@ -1061,6 +1066,22 @@
       "labs": false,
       "bodega": false,
       "path": "in-a-flash/"
+    },
+    {
+      "id": "memory",
+      "emoji": "👀",
+      "name": {
+        "es": "Memorice",
+        "en": "Memorice",
+        "pt": "Memorice"
+      },
+      "kinds": [
+        "skill"
+      ],
+      "duration": "1–5",
+      "labs": false,
+      "bodega": false,
+      "path": "memorice/"
     }
   ],
   "themes": [
@@ -1339,6 +1360,10 @@
     "public/cup/games/flap/ui.js",
     "public/cup/games/index.js",
     "public/cup/games/mazos.js",
+    "public/cup/games/memory/engine.js",
+    "public/cup/games/memory/sprites.js",
+    "public/cup/games/memory/texts.js",
+    "public/cup/games/memory/ui.js",
     "public/cup/games/microgames/engine.js",
     "public/cup/games/microgames/intros.js",
     "public/cup/games/microgames/stage.js",
@@ -1596,6 +1621,7 @@
     "public/cup/games/flap/engine.test.mjs",
     "public/cup/games/juegos.test.mjs",
     "public/cup/games/lazy.test.mjs",
+    "public/cup/games/memory/engine.test.mjs",
     "public/cup/games/microgames/engine.test.mjs",
     "public/cup/games/microgames/tr.test.mjs",
     "public/cup/games/paint-mines/engine.test.mjs",
@@ -1865,6 +1891,7 @@
     "look.mjs",
     "margins-common.mjs",
     "memory/lab.mjs",
+    "memory/page.mjs",
     "narrow.mjs",
     "narrow.test.mjs",
     "offline.mjs",
@@ -2120,7 +2147,7 @@
     },
     {
       "path": "docs/games/memory.md",
-      "title": "👀 Memorice (lab prototype, in Games being tried)"
+      "title": "👀 Memorice (La Copa game, ready to launch by flag; the lab prototype stays until the cleanup)"
     },
     {
       "path": "docs/games/microgames.md",

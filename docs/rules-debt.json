@@ -59,5 +59,16 @@
   "C-20": 304,
   "C-21": 42,
   "labs-canons": 5
+ },
+ "2026-11-19": {
+  "architecture": 52,
+  "conformance": 20,
+  "design-system": 82,
+  "english": 161,
+  "C-2": 0,
+  "C-6": 20,
+  "C-20": 304,
+  "C-21": 42,
+  "labs-canons": 5
  }
 }
