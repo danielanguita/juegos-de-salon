@@ -1,11 +1,25 @@
-# Makes the visual check's references on GitHub's runner (#1249, step 15): run it by hand on a PR's
-# branch ("Run workflow", that branch) and it commits tools/e2e/visual/ref/*.png as the runner renders
-# them. The runner is where the `end-to-end` check compares, so its pixels are the reference; one made
-# on another machine can differ in the emoji font or Chrome's build. A commit pushed with the workflow's
-# token starts no checks: push anything after it (or re-run end-to-end) to compare against it.
+# Makes the visual check's references on GitHub's runner (#1249, step 15). The runner is where the
+# `end-to-end` check compares, so its pixels are the reference; one made on a Mac differs (~2 %: the
+# emoji font, Chrome's build), so a cover change used to go push → red visual.mjs → download the
+# artifact → second push (#1624, #1626, #1629).
+#
+# On a PR: when the PR's own diff changes tools/e2e/visual/ref/<game>-intro.png (the session ran
+# `visual.mjs --update --part <game>` and committed it: that is the approval, seen in the diff), this
+# remakes exactly those references on the runner and commits them to the PR's branch. Only the
+# references the PR already changes: a screen nobody approved is never rewritten, so the check keeps
+# catching it. The commit is pushed with MERGE_QUEUE_TOKEN, so it starts the checks again (a push with
+# the workflow token starts none) and the run of the session's push is cancelled, not red.
+# Never on a fork: its PR gets no secret and no write token, and it runs the fork's code; this
+# workflow uses `pull_request`, not `pull_request_target`.
+#
+# By hand ("Run workflow" on a branch, optionally one game): every reference that differs on that
+# branch, for a screen that drifted with nobody changing it (Chrome's build on the runner).
 name: Visual references
 
 on:
+  pull_request:
+    paths:
+      - 'tools/e2e/visual/ref/*.png'
   workflow_dispatch:
     inputs:
       part:
@@ -13,41 +27,79 @@ on:
         type: string
         default: ''
 
+concurrency:
+  group: visual-refs-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: write
 
 jobs:
   update:
+    if: github.event_name == 'workflow_dispatch' || github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+        with:
+          # The PR's branch itself (not the test merge), so the commit goes on it
+          ref: ${{ github.head_ref || github.ref_name }}
+          fetch-depth: 0
+          # The token is not left in .git/config while the branch's code runs; the push sets its own
+          persist-credentials: false
+      # Which references to remake: on a PR, those its diff adds or changes (none when the last
+      # commit is this workflow's own: its push wakes the checks again and finds nothing to do)
+      - id: parts
+        env:
+          PART: ${{ inputs.part }}
+          BASE: ${{ github.event.pull_request.base.sha }}
+        run: |
+          if [ "$GITHUB_EVENT_NAME" = workflow_dispatch ]; then echo "parts=${PART:-all}" >> "$GITHUB_OUTPUT"; exit 0; fi
+          if git log -1 --format=%s | grep -q '^Visual references from the runner'; then echo "parts=" >> "$GITHUB_OUTPUT"; exit 0; fi
+          parts=$(git diff --name-only --diff-filter=AM "$BASE"...HEAD -- 'tools/e2e/visual/ref/*-intro.png' \
+            | sed -E 's|.*/([^/]+)-intro\.png$|\1|' | tr '\n' ' ' | sed 's/ *$//')
+          echo "parts=$parts" >> "$GITHUB_OUTPUT"
+          echo "References the PR changes: ${parts:-none}"
+      - if: steps.parts.outputs.parts != ''
+        uses: actions/setup-node@v4
         with:
           node-version: 24
-      - name: Serve the site
+      - if: steps.parts.outputs.parts != ''
+        name: Serve the site
         run: |
           python3 -m http.server 8765 -d public > /dev/null 2>&1 &
           for i in $(seq 1 20); do curl -sf http://localhost:8765/ > /dev/null && exit 0; sleep 0.5; done
           echo "::error::the server did not come up"; exit 1
       # The same Chrome as e2e.yml
-      - name: Chrome
+      - if: steps.parts.outputs.parts != ''
+        name: Chrome
         run: |
           printf '#!/bin/sh\nexec google-chrome --no-sandbox "$@"\n' > "$RUNNER_TEMP/chrome"
           chmod +x "$RUNNER_TEMP/chrome"
           echo "CHROME=$RUNNER_TEMP/chrome" >> "$GITHUB_ENV"
-      - name: References
+      - if: steps.parts.outputs.parts != ''
+        name: References
         env:
-          PART: ${{ inputs.part }}
-        run: node tools/e2e/visual.mjs "$RUNNER_TEMP/visual" --update ${PART:+--part "$PART"}
-      - name: Commit
+          PARTS: ${{ steps.parts.outputs.parts }}
+        run: |
+          if [ "$PARTS" = all ]; then node tools/e2e/visual.mjs "$RUNNER_TEMP/visual" --update; exit; fi
+          for p in $PARTS; do node tools/e2e/visual.mjs "$RUNNER_TEMP/visual/$p" --update --part "$p"; done
+      - if: steps.parts.outputs.parts != ''
+        name: Commit
         env:
-          PART: ${{ inputs.part }}
-          BRANCH: ${{ github.ref_name }}
+          PARTS: ${{ steps.parts.outputs.parts }}
+          BRANCH: ${{ github.head_ref || github.ref_name }}
+          QUEUE_TOKEN: ${{ secrets.MERGE_QUEUE_TOKEN }}
+          TOKEN: ${{ github.token }}
         run: |
           git add tools/e2e/visual/ref
           git diff --cached --quiet && { echo "The references already match the runner."; exit 0; }
+          # Each PNG is ~57 KB, far under the 5 MB of D-494
+          git diff --cached --name-only
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git commit -qm "Visual references from the runner${PART:+ ($PART)}"
-          git push -q origin "HEAD:$BRANCH"
+          git commit -qm "Visual references from the runner ($PARTS)" \
+            -m "Remade on GitHub's runner by visual-refs.yml: the references this PR changes, as the end-to-end check renders them. Before pushing again: git pull --ff-only"
+          [ -n "$QUEUE_TOKEN" ] || echo "::warning::No MERGE_QUEUE_TOKEN secret: this commit starts no checks; push again or re-run end-to-end"
+          git push -q "https://x-access-token:${QUEUE_TOKEN:-$TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "HEAD:$BRANCH"
+          echo "::notice::Committed the runner's references for: $PARTS"
