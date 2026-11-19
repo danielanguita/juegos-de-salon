@@ -47,3 +47,4 @@ that has not paid, and until then stays unseen. This folder is its memory: every
 | [🐤 `aletazo-ya`](campaigns/aletazo-ya/) · ¡A volar con Aletazo! (launch) | 2026-11-09 00:00 Pacific → 2026-11-16 | pending (D-355) |
 | [⚡ `microgames-launch`](campaigns/microgames-launch/) · No es rápido… ¡Es al toque! (launch of ¡Al toque!) | off, made 2026-11-14 | pending (D-355) |
 | [🥂 `brindis-apoyo`](campaigns/brindis-apoyo/) · ¡Un brindis por ti! (support) | off, until support leaves the lab | pending (D-355) |
+| [🎉 `dominorama-memorice`](campaigns/dominorama-memorice/) · ¡Dos juegos nuevos! (launch of Dominorama and Memorice) | off, made 2026-11-19 | pending (D-355) |
