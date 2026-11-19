@@ -100,7 +100,7 @@ export async function checkLanguages(game, { dicts = [], port, screens, allowed 
     .map(v => new RegExp(`^${escape(v).replace(/\\?\{\w+\\?\}/g, '.+')}$`, 'iu'))]));
   const isOfLang = (lang, l) => ofLang[lang].includes(l) || templates[lang].some(re => re.test(l));
 
-  const b = await launch({ port, dir: `${OUT}/profile`, out: OUT, width, height });
+  const b = await launch({ port, dir: `${OUT}/profile`, out: OUT, width, height, clock: true });
   let failures = 0;
   const ok = (cond, msg) => { console.log(`${cond ? '✓' : '✗'} ${msg}`); if (!cond) failures++; };
   console.log(`${game}: ${shots.length} screens × ${LANGS.join(', ')}`);

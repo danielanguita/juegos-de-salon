@@ -61,7 +61,7 @@ if (!path) {
 
 // The Chrome port is chosen by the system (D-213); `--cdp` or CDP_PORT fix it, if someone wants it fixed
 if (flag('cdp', '')) process.env.CDP_PORT = flag('cdp', '');
-const b = await launch({ port: 9451, dir: `${out}/profile`, out, width, height });
+const b = await launch({ port: 9451, dir: `${out}/profile`, out, width, height, clock: true });
 await b.go(`${base}/${route}`, 1500);
 // The language is stored as bare text: getLang() compares against ['es','en','pt'] and a
 // JSON.stringify left the quotes inside, so --lang did nothing.

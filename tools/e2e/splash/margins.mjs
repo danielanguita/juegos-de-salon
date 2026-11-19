@@ -19,7 +19,7 @@ const SCREENS = [[390, 844], [360, 640], [1280, 720], [1440, 900]];
 let failures = 0;
 const ok = (cond, msg) => { console.log(`${cond ? '✓' : '✗'} ${msg}`); if (!cond) failures++; };
 for (const [width, height] of SCREENS) {
-  const b = await launch({ port: 9498, dir: `${OUT}/profile-${width}`, out: OUT, width, height });
+  const b = await launch({ port: 9498, dir: `${OUT}/profile-${width}`, out: OUT, width, height, clock: true });
   for (const id of heroes) {
     await b.open(`${SITE}/?splash=${id}`, 1500);
     await b.settle(600);
@@ -53,7 +53,7 @@ for (const [width, height] of SCREENS) {
 // shinobi-babel, flap-soon, ninja-pronto) are still taller than the screen, a debt reported to the owner
 const HEALTH_SCREENS = SCREENS.filter(([w, h]) => !(w === 1280 && h === 720));
 for (const [width, height] of HEALTH_SCREENS) {
-  const b = await launch({ port: 9499, dir: `${OUT}/health-${width}`, out: OUT, width, height });
+  const b = await launch({ port: 9499, dir: `${OUT}/health-${width}`, out: OUT, width, height, clock: true });
   for (const id of all) for (const mode of ['', '&paused']) {
     await b.open(`${SITE}/?splash=${id}${mode}`, 1500);
     await b.settle(600);

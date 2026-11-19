@@ -50,7 +50,36 @@ const writtenPort = dir => {
   try { const n = Number(readFileSync(`${dir}/DevToolsActivePort`, 'utf8').split('\n')[0]); return n > 0 ? n : 0; } catch { return 0; }
 };
 
-export async function launch({ port: requested, dir, out, width = 390, height = 844 }) {
+/**
+ * The day an e2e page lives on (D-589): pages whose content follows today (the home page's ✨ New
+ * games and their order, /today/, a `?today` link, the seasons, /records/, La Copa's create screen) are
+ * opened on this day, so a script passes or fails the same whatever day CI runs. A Wednesday in the
+ * middle of a month, outside every season, with three games carrying ✨ New (the busiest home rows).
+ * Moved only on purpose, in a PR of its own; never set from the real date.
+ */
+export const E2E_DAY = '2026-11-18';
+
+/**
+ * Page code that moves the clock to noon (local time) of `at` ('YYYY-MM-DD', or a time in ms) and
+ * keeps it running from there, from each new document on: `Date()`, `new Date()` and `Date.now()`.
+ * A script's own clock installed after it (daily.mjs, landing-fold.mjs) moves it again from there.
+ */
+export function clockAt(at = E2E_DAY) {
+  const t = typeof at === 'number' ? String(at) : (() => {
+    const [y, m, d] = String(at).split('-').map(Number);
+    if (!y || !m || !d) throw new Error(`clockAt: "${at}" is not YYYY-MM-DD`);
+    return `new R(${y}, ${m - 1}, ${d}, 12, 0, 0).getTime()`;
+  })();
+  return `(()=>{ const R = Date, off = ${t} - R.now();
+  class D extends R { constructor(...a) { a.length ? super(...a) : super(R.now() + off); } static now() { return R.now() + off; } }
+  globalThis.Date = new Proxy(D, { apply: () => new D().toString() }); })()`;
+}
+
+/**
+ * `clock`: true for E2E_DAY, a 'YYYY-MM-DD' or a time in ms, to pin every page's clock there
+ * (clockAt); a script that opens a page that follows today must pass it (real-date.test.mjs).
+ */
+export async function launch({ port: requested, dir, out, width = 390, height = 844, clock = null }) {
   // A profile in `undefined/p` or `--part/p` stayed inside the worktree and blocked its cleanup (D-315)
   for (const [k, v] of [['dir', dir], ['out', out]]) if (v != null && !isFolder(String(v))) throw new Error(`launch: ${k} = "${v}" is not an output folder (use output() from tools/e2e/output.mjs)`);
   const fixed = fixedPort(requested);
@@ -97,6 +126,7 @@ export async function launch({ port: requested, dir, out, width = 390, height = 
   };
   const send = (method, params = {}) => new Promise(r => { const i = ++id; pending.set(i, r); ws.send(JSON.stringify({ id: i, method, params })); });
   await send('Page.enable'); await send('Runtime.enable');
+  if (clock) await send('Page.addScriptToEvaluateOnNewDocument', { source: clockAt(clock === true ? E2E_DAY : clock) });
   await send('Fetch.enable', { patterns: [{ urlPattern: '*firebaseio.com/flags.json*' }] });
   await send('Emulation.setDeviceMetricsOverride', { width, height, deviceScaleFactor: 2, mobile: true });
   const api = {

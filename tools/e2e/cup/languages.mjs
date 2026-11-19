@@ -25,7 +25,7 @@ const runs = part => !PART || PART === part;
 
 const OUT = output('/tmp/cup-languages');
 mkdirSync(OUT, { recursive: true });
-const b = await launch({ port: Number(process.env.CDP_PORT) || 9378, dir: `${OUT}/profile`, out: OUT });
+const b = await launch({ port: Number(process.env.CDP_PORT) || 9378, dir: `${OUT}/profile`, out: OUT, clock: true });
 const SITE = process.env.SITE || 'http://localhost:8765';
 const ok = (cond, msg) => { console.log(`${cond ? '✓' : '✗'} ${msg}`); if (!cond) process.exitCode = 1; };
 const ev = expr => b.evaluate(expr);

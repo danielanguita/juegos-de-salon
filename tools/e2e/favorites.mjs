@@ -9,7 +9,7 @@ const SITE = process.env.SITE || process.env.SITIO || 'http://localhost:8765';
 const OUT = output('/tmp/favorites');
 let bad = 0;
 const check = (ok, what) => { console.log(`${ok ? '✓' : '✗'} ${what}`); if (!ok) bad++; };
-const b = await launch({ dir: `${OUT}/p`, out: OUT });
+const b = await launch({ dir: `${OUT}/p`, out: OUT, clock: true });
 const read = () => b.evaluate(`JSON.stringify({
   chip: !document.querySelector('.ficha-fav').hidden,
   on: document.querySelector('.ficha-fav').getAttribute('aria-pressed'),
@@ -76,7 +76,7 @@ b.close();
 const WIDTHS = [[320, 'where it fits'], [390, 'row'], [900, 'row']];
 const at320 = [];
 for (const [width, expect] of WIDTHS) for (const lang of ['es', 'en', 'pt']) {
-  const c = await launch({ dir: `${OUT}/p${width}${lang}`, out: OUT, width, height: 700 });
+  const c = await launch({ dir: `${OUT}/p${width}${lang}`, out: OUT, width, height: 700, clock: true });
   await c.go(`${SITE}/?lang=${lang}`, 1500);
   await c.evaluate(`localStorage.setItem('juegos-de-salon:favoritos', '["ahorcado","tango"]'); 1`);
   await c.go(`${SITE}/?lang=${lang}&type=favorites`, 1500);
