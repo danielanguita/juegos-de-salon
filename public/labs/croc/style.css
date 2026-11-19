@@ -45,7 +45,8 @@
   display: block;
   width: 100%;
   max-width: 340px;
-  height: min(62vw, 300px);
+  /* As tall as the screen allows with the start button above the fold (U-39): 300 px on a tall phone */
+  height: max(72px, min(62vw, 300px, calc(100svh - 495px)));
   margin-inline: auto;
   border-radius: var(--r-16);
   border: 1px solid var(--glass-border);
