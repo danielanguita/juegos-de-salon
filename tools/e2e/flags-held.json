@@ -1,4 +1,11 @@
 {
-  "home-carousels": { "state": "off" },
-  "solo-result-today-card": { "state": "off" }
+  "home-carousels": {
+    "state": "off"
+  },
+  "solo-result-today-card": {
+    "state": "off"
+  },
+  "word-in-words": {
+    "state": "off"
+  }
 }
