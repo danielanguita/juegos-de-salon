@@ -25,7 +25,7 @@ de construcción, se discutió en el documento *La Copa — requisitos del torne
   de la fecha del jugador; si hoy toca otro juego, se va a ese (D-230, [UNO-AL-DIA.md](../UNO-AL-DIA.md)).
   Bajo su resultado no va el ranking del juego, solo el de Uno al día (el primer intento igual entra al del juego).
   With `?today`, a game with variants plays its default one and the waiting room hides the picker (`practica()`, D-334).
-- **Jugadores:** de 2 a 10 por copa (`MIN_JUGADORES` y `MAX_JUGADORES` en `engine.js`, D-118). Con
+- **Jugadores:** de 2 a 20 por copa (`MIN_JUGADORES` y `MAX_JUGADORES` en `engine.js`, D-118). Con
   el administrador solo, la copa no parte y el tablero pide "al menos un jugador más". **Público:** 🌎 global, 🇨🇱 Chile o 🇧🇷 Brasil, que se elige al crear la copa (D-187, `meta.aud`; las copas `intl` de D-186 se leen como global). Decide qué contenido local entra (`public/cup/games/audiencia.js`).
   **Idioma:** español, inglés, portugués (D-170); el alemán salió de la app con D-514. La
   pantalla va en el idioma de quien mira; las palabras de Agentes, Conexiones (copas de antes de D-421) y Palabra, los mensajes al
@@ -148,7 +148,7 @@ Quien crea la copa también juega. Puede renombrar, sacar (y volver a meter) y p
 un jugador (confirming with their own PIN, the cup one or their linked player's, D-464), y compartir cuatro mensajes armados con el diálogo del celular (D-99): invitación,
 **recordatorio del día** (sirve cualquier día: antes de empezar, con el día de gracia y con quién
 falta), tabla parcial y resumen final. La **invitación** sigue en Administrar mientras alguien
-nuevo pueda entrar —inscripción abierta y menos de 10 jugadores—, no solo antes de partir; ya
+nuevo pueda entrar —inscripción abierta y menos de 20 jugadores—, no solo antes de partir; ya
 partida dice "📅 Ya partió: va en el día 3 de 7 y todavía puedes entrar." y, desde el día 3, que
 los días cerrados quedan en 0 (D-176, D-177). El botón "Invitar al grupo" del tablero sigue solo
 antes de partir.

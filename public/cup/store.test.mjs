@@ -113,8 +113,8 @@ await test('link propio: único mientras dure, libre al eliminar o al vencer (D-
 await test('inscribirse: nombre repetido y cupo', async () => {
   await otro.inscribir(CODE, { pid: 'bbbbbb', name: 'Javi', at: 2, pinHash: await hashPin(CODE, 'bbbbbb', '2222') });
   await rechaza(intruso.inscribir(CODE, { pid: 'cccccc', name: ' javi ', at: 3, pinHash: 'h' }), 'nombre-repetido');
-  for (let i = 0; i < 8; i++) await intruso.inscribir(CODE, { pid: `p${i}aaaa`, name: `J${i}`, at: 3, pinHash: 'h' });
-  await rechaza(intruso.inscribir(CODE, { pid: 'zzzzzz', name: 'Once', at: 3, pinHash: 'h' }), 'llena');
+  for (let i = 0; i < 18; i++) await intruso.inscribir(CODE, { pid: `p${i}aaaa`, name: `J${i}`, at: 3, pinHash: 'h' });
+  await rechaza(intruso.inscribir(CODE, { pid: 'zzzzzz', name: "Veintiuno", at: 3, pinHash: 'h' }), 'llena');
 });
 
 await test('sentarse con el PIN', async () => {
