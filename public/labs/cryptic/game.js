@@ -16,6 +16,7 @@ import { botonCompartir, cabecera } from '../../assets/js/compartir.js';
 import { GAME_ID, CLUE_LANG, LOCALES } from './rules.js';
 import { CLUES } from './clues.js';
 import * as E from './engine.js';
+import { flapboard } from './flapboard.js';
 // Its game.json as a module (node tools/generators/manifests.mjs): the facts are read from there
 import manifest from '../../assets/js/manifests/labs/cryptic.js';
 
@@ -72,14 +73,15 @@ function renderModes() {
   const d = today();
   const done = readDays()[d];
   // One way to play: the yellow start button (C-8); practice is a quiet second button under it
-  $('#modes').replaceChildren(
+  $('#modes').replaceChildren(...[
     el('button', { class: 'btn btn--yellow', id: 'btn-play', 'data-mode': 'today', onClick: () => { SFX.tap(); startToday(); } },
       done ? T.modeTodayAgain : T.modeToday),
     el('p', { class: 'muted center today-note', id: 'today-note' },
       done ? fmt(T.modeTodayDone, { stars: starText(done.stars, done.solved) }) : fmt(T.modeTodayHint, { n: E.numberOf(d) })),
     // The clues are in Spanish: said on the cover, before the first tap
-    lang !== CLUE_LANG && el('p', { class: 'notice notice--warn' }, T.inSpanish),
-    el('button', { class: 'btn btn--ghost btn--sm', id: 'btn-practice-cover', 'data-mode': 'practice', onClick: () => { SFX.tap(); startPractice(); } }, T.modePractice));
+    lang !== CLUE_LANG ? el('p', { class: 'notice notice--warn' }, T.inSpanish) : null,
+    el('button', { class: 'btn btn--ghost btn--sm', id: 'btn-practice-cover', 'data-mode': 'practice', onClick: () => { SFX.tap(); startPractice(); } }, T.modePractice),
+  ].filter(Boolean));
   $('#how').replaceChildren(...L.como.map(step => el('li', {}, step)));
 }
 
@@ -260,6 +262,7 @@ function init() {
   initSound();
   // Instrucciones and Entrar as dialogs behind the lab flag cover-dialogs (C-8)
   coverWithDialogs($('#screen-intro'), { lang, alTocar: () => SFX.tap() });
+  flapboard($('#flapboard'), lang);
   $('#answer-form').addEventListener('submit', submit);
   $('#answer').addEventListener('input', renderTiles);
   $('#btn-hint').addEventListener('click', askHint);

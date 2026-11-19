@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import * as E from './engine.js';
 import { LOCALES, KIND_KEYS, CLUE_LANG } from './rules.js';
 import { CLUES } from './clues.js';
+import { BOARD_WORDS } from './flapboard.js';
 
 // Normalizing: accents go, Ñ stays, only letters
 assert.equal(E.normalize(' jamón '), 'JAMON');
@@ -96,5 +97,11 @@ for (const [lang, L] of Object.entries(LOCALES)) {
   assert.deepEqual(Object.keys(L.kinds).sort(), [...KIND_KEYS].sort(), lang + ': every kind named');
   assert.ok(L.como.length <= 3, lang + ': up to three steps (U-18)');
   assert.ok(L.como.join(' ').length <= 280, lang + ': how to play within 280 characters (U-18)');
+}
+// The cover's board: every word has the length of the name it lands on, in every language
+for (const [lang, words] of Object.entries(BOARD_WORDS)) {
+  const n = [...words.at(-1)].length;
+  for (const w of words) assert.equal([...w].length, n, `${lang} ${w}: ${n} letters, like ${words.at(-1)}`);
+  assert.equal(E.normalize(words.at(-1)), E.normalize(LOCALES[lang].ui.title), `${lang}: the board lands on the name`);
 }
 console.log('cryptic engine: ok');
