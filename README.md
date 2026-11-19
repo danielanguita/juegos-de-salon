@@ -53,6 +53,7 @@ The games with their own section below come first; after them, the one-player ga
 | 🐤 [Flap / Aletazo / Bate-Asa](https://juegosdesalon.cl/flap/) | 1 | Play alone | Also in The Cup |
 | #️⃣ [Sudoku](https://juegosdesalon.cl/sudoku/) | 1 | Play alone | Also in The Cup |
 | ⚡ [In a Flash! / ¡Al toque! / Na Hora!](https://juegosdesalon.cl/in-a-flash/) | 1 | Play alone | Also in The Cup |
+| 👀 [Memorice](https://juegosdesalon.cl/memorice/) | 1 | Play alone | Also in The Cup |
 <!-- /generated -->
 
 ---
@@ -175,6 +176,12 @@ Spec and design: [docs/games/flap.md](docs/games/flap.md)
 The numbers classic, built as a La Copa game the way Aletazo was (D-517), with its page `/sudoku/`, in two levels picked with an electric lever: 🟢 easy, a 6×6 mini sudoku (boxes of 2×3), and 🔴 hard, the classic 9×9. Every board has one solution and is solved by logic. The score is 0 to 100: 100 for the board, minus 10 for each wrong digit and 15 for each hint; giving up scores 0. A cup day and Uno al día play easy unless the cup's admin picks hard for that day; the rankings are one per level (`sudoku_easy`, `sudoku_hard`). It comes out when the launch workflow switches the flag `sudoku` on; Uno al día may deal it from the deck shuffled after 2026-11-12. The lab prototype stays at `/labs/sudoku/` until the cleanup PR.
 
 Spec and design: [docs/games/sudoku.md](docs/games/sudoku.md)
+
+### 👀 Memorice (ready to launch, date not set)
+
+The Chilean memory game, built as a La Copa game the way Sudoku was (D-517), with its page `/memorice/`: the tiles show some pictures, cover again, and you tap every copy of the one asked for before the bar runs out. It is endless, with 3 lives (five rounds in a row without a miss give one back), and the boards grow up to 6×6 while the time to look shrinks. The score is the rounds cleared, with the pictures found as the tiebreak; a cup day plays it with a trial of 1 life and 3 rounds, and Uno al día takes it from its deck once the owner sets its date. It comes out when the launch workflow switches the flag `memory` on; until then it is played in the lab at `/labs/memory/`, on the same engine.
+
+Spec and design: [docs/games/memory.md](docs/games/memory.md)
 
 ### Retired cup games
 
@@ -573,6 +580,7 @@ The whole app is translated, Portuguese as spoken in Brazil (German left in D-51
 | Aletazo | Flap | Bate-Asa |
 | Sudoku | Sudoku | Sudoku |
 | ¡Al toque! | In a Flash! | Na Hora! |
+| Memorice | Memorice | Memorice |
 <!-- /generated -->
 
 <!-- generated: screenshots:idiomas · written by python3 tools/release/readme.py update -->
@@ -683,7 +691,7 @@ These documents are being moved to English (D-316); the ones with a Spanish titl
 - [Diseño: El Ahorcado](docs/games/hangman.md)
 - [Diseño: Julepe](docs/games/julep.md)
 - [Diseño: Dudo](docs/games/liars-dice.md)
-- [👀 Memorice (lab prototype, in Games being tried)](docs/games/memory.md)
+- [👀 Memorice (La Copa game, ready to launch by flag; the lab prototype stays until the cleanup)](docs/games/memory.md)
 - [⚡ ¡Al toque! (/in-a-flash/, La Copa and Uno al día)](docs/games/microgames.md)
 - [🖌️ Pintaminas (Paint Mines · Pinta-Minas · Malminen)](docs/games/paint-mines.md)
 - [📐 Loteo (Plots · Loteamento · Parzellen)](docs/games/plots.md)
