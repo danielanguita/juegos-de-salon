@@ -46,6 +46,7 @@ export const FLAGS = {
   'pm-pick-brush': '🖌️ Pintaminas: a game starts with no brush chosen; a tap on the board first asks to pick one, so nobody paints by mistake',
   'cover-dialogs': '🎮 Game covers: under Empezar, Instrucciones and Entrar (or your name) open as dialogs, the rankings open below; no «Volver al menú» and no game name chip on top, ‹ Menú as tall as the icons',
   'install-invite': '📲 Install the app: «Instala Juegos de Salón» in an iridescent card that waits for a first finished game, a ✕ that snoozes 14 then 60 days, an invitation from the top a moment after a game (once a week), iPhone steps that draw Safari\'s buttons with an arrow at its toolbar, and a 📲 tile in the home footer',
+  'solo-result-today-card': '📅 A game played on its own: under its result, one cyan line «📅 Uno al día de hoy: 👑 Reinas · Jugar» for whoever has not played today\'s Uno al día yet; never in La Copa or in Uno al día itself (#1597)',
   'lab-ready': '✅ Labs: lab use of each flag is counted, and its card says when it is ready to 🚀 (D-528)',
 };
 
