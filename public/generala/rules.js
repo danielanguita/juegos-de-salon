@@ -87,7 +87,7 @@ const ES = {
     winner: '¡Ganó {name}!', winnerYou: '¡Ganaste!', tie: '¡Empate entre {names}!',
     points: '{n} puntos', soloEnd: '¡Hiciste {n} puntos!', soloTime: 'en {t}',
     newRecord: '🏅 ¡Récord nuevo!', prevRecord: 'Tu récord: {s} puntos',
-    hoyExtra: 'Los mismos dados para todos: cuenta lo que guardas.',
+    hoyExtra: 'Los mismos dados para todos: importa qué guardas.',
   },
 };
 
@@ -241,7 +241,7 @@ const PT = {
     winner: '{name} ganhou!', winnerYou: 'Você ganhou!', tie: 'Empate entre {names}!',
     points: '{n} pontos', soloEnd: 'Você fez {n} pontos!', soloTime: 'em {t}',
     newRecord: '🏅 Recorde novo!', prevRecord: 'Seu recorde: {s} pontos',
-    hoyExtra: 'Os mesmos dados pra todo mundo: conta o que você guarda.',
+    hoyExtra: 'Os mesmos dados pra todo mundo: importa o que você guarda.',
   },
 };
 
