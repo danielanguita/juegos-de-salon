@@ -20,6 +20,7 @@ const ES = {
     howTitle: '🐸 Cómo se juega',
     demoHint: 'Desliza largo ▲ · Salta 2 carriles',
     demoBoatHint: 'Desliza corto ▲ · Usa los botes',
+    demoHopHint: 'Desliza ▲ · Avanza un carril',
     modeSolo: 'Cruzar la autopista',
     modeSoloHint: '1 jugador · Sin mirar atrás',
     diffSwitch: [
@@ -73,6 +74,7 @@ const EN = {
     howTitle: '🐸 How to play',
     demoHint: 'Long swipe ▲ · Leap 2 lanes',
     demoBoatHint: 'Short swipe ▲ · Hop on boats',
+    demoHopHint: 'Swipe ▲ · Hop one lane',
     modeSolo: 'Cross the highway',
     modeSoloHint: '1 player · No turning back',
     diffSwitch: [
@@ -126,6 +128,7 @@ const PT = {
     howTitle: '🐸 Como se joga',
     demoHint: 'Deslize longo ▲ · Salte 2 faixas',
     demoBoatHint: 'Deslize curto ▲ · Use os barcos',
+    demoHopHint: 'Deslize ▲ · Avance uma faixa',
     modeSolo: 'Atravessar a rodovia',
     modeSoloHint: '1 jogador · Sem olhar para trás',
     diffSwitch: [

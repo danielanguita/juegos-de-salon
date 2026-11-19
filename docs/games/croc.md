@@ -26,7 +26,7 @@ Solo (`solo`), with deterministic seeded tracks (`?seed=<n>`) ready for Cup inte
 
 ## Flow
 
-Intro (cover, resume panel, solo mode, 3-step rules, site footer) → Play (2.5D canvas stage, top HUD, board-wide swipe controls + live Dash gauge) → Result (itemized breakdown: lanes, fruits, elapsed time tie-break, total; replay same seed or new seed; share through `compartir.js`; exits from `fin.js`, C-19).
+Intro (cover: the real game playing itself as its demo, with a caption; the standard traffic lever, Pintaminas' and Sudoku's, always starting on normal; solo mode; «Instrucciones» and «Entrar» dialogs; the ranking; site footer) → Play (2.5D canvas stage, top HUD, board-wide swipe controls + live Dash gauge) → Result (itemized breakdown: lanes, fruits, elapsed time tie-break, total; replay same seed or new seed; share through `compartir.js`; exits from `fin.js`, C-19).
 
 ## Message protocol
 
