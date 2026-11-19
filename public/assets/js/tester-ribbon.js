@@ -145,7 +145,7 @@ export async function offlineSwitch(box, {
  * page reloads to draw without it. Flags asked later (a screen that opens) are added as they come.
  */
 /** A flag's name in the T tab when it is not its id (the owner, 2026-11-19). */
-const NAMES = { 'home-carousels': 'main page con íconos', 'home-carousels-covers': '↳ íconos a portadas' };
+const NAMES = { 'home-carousels': 'main page con íconos', 'home-carousels-covers': '↳ target: portada' };
 /** Sub-flags: asked only while their main flag is on, so their switch shows only then, under it. */
 const SUB = { 'home-carousels-covers': 'home-carousels' };
 
@@ -165,6 +165,8 @@ export async function labSwitches(box, { flags = () => import('./flags.js'), lis
     // a sub-flag sits right under its main flag's row, indented
     const parent = sub && box.querySelector(`[data-row="${sub}"]`);
     if (parent) parent.after(row); else box.append(row);
+    // a main flag asked after its sub-flags (they are asked while the page draws): its subs move under it
+    for (const [kid, of] of Object.entries(SUB)) if (of === id) { const k = box.querySelector(`[data-row="${kid}"]`); if (k) row.after(k); }
     box.hidden = false;
   };
   // Turned off here, a flag is still asked (and listed), so it can be turned back on. Not the tab's own
