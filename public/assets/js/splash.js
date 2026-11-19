@@ -189,7 +189,10 @@ export const CAMPAIGNS = {
     lead: { es: 'Dos desafíos para jugar solo. Elige uno.', en: 'Two puzzles to play on your own. Pick one.', pt: 'Dois desafios para jogar sozinho. Escolha um.' },
     items: [
       { game: 'dominorama', href: 'dominorama/?play', video: 'assets/splash/dominorama.mp4', img: 'assets/splash/dominorama-start.jpg', still: 'assets/splash/dominorama.jpg' },
-      { game: 'memory', href: 'memorice/?play', video: 'assets/splash/memory.mp4', img: 'assets/splash/memory-start.jpg', still: 'assets/splash/memory.jpg' },
+      { game: 'memory', href: 'memorice/?play',
+        // Its own text (the owner, 2026-11-19): it opens with "Un clásico de la infancia."
+        text: { es: 'Un clásico de la infancia. Mira los dibujos, espera a que se tapen y encuentra el que te piden.', en: 'A childhood classic. Look at the pictures, wait for them to be covered, then find the one asked for.', pt: 'Um clássico da infância. Olhe os desenhos, espere que sejam cobertos e encontre o pedido.' },
+        video: 'assets/splash/memory.mp4', img: 'assets/splash/memory-start.jpg', still: 'assets/splash/memory.jpg' },
     ],
   },
   // #️⃣ Sudoku leaves the lab (D-517's way, the owner's request for 2026-11-11 21:00 Pacific): its splash
