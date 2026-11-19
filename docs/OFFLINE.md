@@ -101,7 +101,7 @@ PR that changes what is kept on the phone.
 - Pages: network-first with a timeout, cache as fallback, so an online player always gets the latest.
 - Assets: cache-first in a cache named after the release version; old caches deleted on `activate`.
 - Precache list generated from the manifest: each offline-capable game's folder and its `reuses`, the
-  shared JS and CSS, fonts and icons. La Copa's own files and what they import (not `cup/games/`'s pictures, D-544); not the OG cards, not the panel. About 4 MB today; `precache.test.mjs` fails over 8 MB.
+  shared JS and CSS, fonts and icons. La Copa's own files and what they import (not `cup/games/`'s pictures, D-544); not the OG cards, not the panel, not the lab (`labs/`: only the team plays it, so its games stay online-only). About 4 MB today; `precache.test.mjs` fails over 8 MB.
 - **Music is never precached**: it is cached once a song plays online; until then offline is silent.
   Sound effects are precached.
 - **A new release downloads only what changed**: a `?h=` file is its content, so one an older release kept is

@@ -7,7 +7,7 @@
  *   { "release": "<the release meta>", "urls": ["./", "zip/", "assets/js/ui.js?h=1a2b3c4d", …] }
  *
  * - Pages: the home page, each offline-capable game's folder (offlineOk in games.js) and OFFLINE_PAGES (Uno al día). La Copa, the
- *   panel and the bridge pages stay out.
+ *   panel, the bridge pages and the lab (`labs/`, only the team plays it) stay out.
  * - Each of those games' files and its `reuses`, every shared module and stylesheet, the fonts, the
  *   icons and the manifests. JS and CSS carry the same `?h=` set-version.py puts on them (8 hex of
  *   the file's sha256, D-467), so the cached URL is exactly the one the page asks for.
@@ -23,6 +23,8 @@ import { pathToFileURL } from 'node:url';
 
 /** Folders under assets/ that never go in: big, decorative, or not needed to play. */
 export const NEVER = ['assets/music/', 'assets/og/', 'assets/splash/', 'assets/season/', 'assets/email/', 'assets/img/'];
+/** The lab's folder: its games are for the team, never stored on players' phones. */
+export const LAB = 'labs/';
 /** Shared assets that always go in. */
 export const SHARED = ['assets/js/', 'assets/css/', 'assets/fonts/', 'assets/icons/', 'assets/icon.svg',
   'manifest.webmanifest', 'manifest.en.webmanifest', 'manifest.pt.webmanifest'];
@@ -45,7 +47,7 @@ function files(site, rel) {
 export async function precache(site) {
   site = resolve(site);
   const { offlineOk, OFFLINE_PAGES = [], ALL_GAMES } = await import(pathToFileURL(join(site, 'assets/js/games.js')).href);
-  const games = ALL_GAMES.filter(g => offlineOk(g) && g.path);
+  const games = ALL_GAMES.filter(g => offlineOk(g) && g.path && !g.path.startsWith(LAB));
   const roots = [...SHARED, ...OFFLINE_PAGES, ...games.filter(g => !g.torneo).flatMap(g => [g.path, ...(g.reuses || [])])];
   // A tournament's folder holds every game's engine and pictures (cup/games/): only its own files go in,
   // and what they import is followed below; each game's pictures come with that game (D-544)
@@ -65,7 +67,7 @@ export async function precache(site) {
   }
   const urls = new Set(['./', ...OFFLINE_PAGES, ...games.map(g => g.path)]);
   for (const f of [...all].sort()) {
-    if (SKIP.test(f) || NEVER.some(n => f.startsWith(n))) continue;
+    if (SKIP.test(f) || f.startsWith(LAB) || NEVER.some(n => f.startsWith(n))) continue;
     if (f.endsWith('/index.html')) continue;
     // Big pictures (Dónde's satellite tiles) are cached the first time they are seen, not up front
     if (/\.(webp|jpe?g|png|gif|mp4|mp3|ogg)$/.test(f) && statSync(join(site, f)).size > BIG) continue;   // a page is cached by its folder's URL, above
