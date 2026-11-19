@@ -87,7 +87,7 @@ const ES = {
     winner: '¡Ganó {name}!', winnerYou: '¡Ganaste!', tie: '¡Empate entre {names}!',
     points: '{n} puntos', soloEnd: '¡Hiciste {n} puntos!', soloTime: 'en {t}',
     newRecord: '🏅 ¡Récord nuevo!', prevRecord: 'Tu récord: {s} puntos',
-    hoyExtra: 'Los dados salen iguales para todos: lo que cambia es qué guardas.',
+    hoyExtra: 'Los mismos dados para todos: cuenta lo que guardas.',
   },
 };
 
@@ -164,7 +164,7 @@ const EN = {
     winner: '{name} wins!', winnerYou: 'You win!', tie: 'It\'s a tie between {names}!',
     points: '{n} points', soloEnd: 'You scored {n} points!', soloTime: 'in {t}',
     newRecord: '🏅 New record!', prevRecord: 'Your record: {s} points',
-    hoyExtra: 'The dice come out the same for everyone: what changes is what you keep.',
+    hoyExtra: 'Same dice for everyone: what counts is what you keep.',
   },
 };
 
@@ -241,7 +241,7 @@ const PT = {
     winner: '{name} ganhou!', winnerYou: 'Você ganhou!', tie: 'Empate entre {names}!',
     points: '{n} pontos', soloEnd: 'Você fez {n} pontos!', soloTime: 'em {t}',
     newRecord: '🏅 Recorde novo!', prevRecord: 'Seu recorde: {s} pontos',
-    hoyExtra: 'Os dados saem iguais pra todo mundo: o que muda é o que você guarda.',
+    hoyExtra: 'Os mesmos dados pra todo mundo: conta o que você guarda.',
   },
 };
 
