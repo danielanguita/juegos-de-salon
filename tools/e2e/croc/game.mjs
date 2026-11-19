@@ -13,6 +13,8 @@ await b.evaluate('localStorage.clear(); 1');
 await b.go(`${SITE}/labs/croc/?seed=4821`);
 await b.evaluate("document.querySelector('#btn-play').click(); 1");
 await sleep(450);
+ok(await b.evaluate("!!document.getElementById('cuenta')"), "the 3, 2, 1 shows before playing");
+await sleep(3600);
 ok(await b.active() === 'screen-play', 'the game starts');
 await b.shot('play');
 
