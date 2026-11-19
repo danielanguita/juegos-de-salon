@@ -39,7 +39,6 @@ const ES = [
   { c: 'Se riega en el balcón y se apoya en cada paso', a: 'PLANTA', k: 'definitions', d: 'Se riega en el balcón', x: 'PLANTA: la del balcón, que se riega, y la del pie, que se apoya al caminar.' },
   { c: 'La hacen en el banco y la mueve el perro contento', a: 'COLA', k: 'definitions', d: 'La hacen en el banco', x: 'COLA: la fila que se hace en el banco, y la que mueve el perro.' },
   { c: 'Corta la madera y también el horizonte', a: 'SIERRA', k: 'definitions', d: 'Corta la madera', x: 'SIERRA: la herramienta que corta madera, y las montañas que cortan el horizonte.' },
-  { c: 'Mi nota se queda en casa, y la abotonas cada mañana', a: 'CAMISA', k: 'container', d: 'la abotonas cada mañana', x: 'MI (la nota) se queda dentro de CASA: CA·MI·SA, la que abotonas cada mañana.' },
   { c: 'El cinco del César y un pasaje sin regreso: solo se vive una', a: 'VIDA', k: 'charade', d: 'solo se vive una', x: 'V (cinco en números romanos) + IDA (un pasaje sin regreso) = VIDA: solo se vive una.' },
   { c: 'Laura, Úrsula y Zoe encabezan lo que se corta en un apagón', a: 'LUZ', k: 'selector', d: 'lo que se corta en un apagón', x: 'Las cabezas de Laura, Úrsula y Zoe: LUZ, lo que se corta en un apagón.' },
   { c: 'Salta loco con el mundo entero a cuestas', a: 'ATLAS', k: 'anagram', d: 'con el mundo entero a cuestas', x: 'Las letras de SALTA, locas, forman ATLAS, el titán con el mundo a cuestas (y el libro de mapas).' },
@@ -51,6 +50,7 @@ const ES = [
   // The owner's clue (2026-11-19), with A inside PETÓ instead of an anagram
   { c: 'Un beso catalán abraza al primer amor y sigue al norte: va a pie', a: 'PEATÓN', k: 'container', d: 'va a pie', x: 'Beso en catalán es PETÓ; abraza la A, la primera letra de amor (PE·A·TÓ), y le sigue la N del norte: PEATÓN, el que va a pie.' },
   { c: 'Ojalá se alimente y te ayude a separar las ideas', a: 'COMA', k: 'definitions', d: 'te ayude a separar las ideas', x: 'COMA: «ojalá coma», que se alimente, y la coma, el signo que separa las ideas.' },
+  { c: 'En la cumbre, de dos en dos, Camilo miraba Santiago. Hasta que se le salió un botón', a: 'CAMISA', k: 'selector', d: 'Hasta que se le salió un botón', x: 'Las cumbres de dos en dos: CA de Camilo, MI de miraba, SA de Santiago. CAMISA, a la que se le sale un botón.' },
 ];
 
 /** Spanish only for now (the owner, 2026-11-19): the mechanics first, the other banks once it works. */

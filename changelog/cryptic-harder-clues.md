@@ -6,3 +6,5 @@ level: patch
   The rules are in the game's spec.
 - **Críptico (lab): a new clue from the owner**, COMA, a double definition («Ojalá se alimente y te ayude a separar
   las ideas»). The bank has 33 clues.
+- **Críptico (lab): the owner's CAMISA clue** («En la cumbre, de dos en dos, Camilo miraba Santiago. Hasta que se le
+  salió un botón») replaces the earlier CAMISA one; still 33 clues.
