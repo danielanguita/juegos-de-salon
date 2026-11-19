@@ -45,7 +45,7 @@ const ES = [
   { c: 'Bebe una infusión: va en la ensalada', a: 'TOMATE', k: 'charade', d: 'va en la ensalada', x: 'TOMA + TÉ = TOMATE.' },
   { c: 'Pan que se regala: oso blanco y negro', a: 'PANDA', k: 'charade', d: 'oso blanco y negro', x: 'PAN + DA (regala) = PANDA.' },
   // The owner's clue (2026-11-19)
-  { c: 'Dos personas se miran de frente en inglés, todos los días de la semana', a: 'SIETE', k: 'homophone', d: 'todos los días de la semana', x: 'Dos personas que se miran de frente SE VEN, que en inglés suena a SEVEN: SIETE, todos los días de la semana.' },
+  { c: 'Dos personas se miran de frente en inglés, tantos como los colores del arcoíris', a: 'SIETE', k: 'homophone', d: 'tantos como los colores del arcoíris', x: 'Dos personas que se miran de frente SE VEN, que en inglés suena a SEVEN: SIETE, tantos como los colores del arcoíris.' },
 ];
 
 /** Spanish only for now (the owner, 2026-11-19): the mechanics first, the other banks once it works. */
