@@ -337,6 +337,7 @@ p { line-height: 1.5; margin: 0 0 12px; }
 .notice { text-align: center; font-weight: 800; padding: var(--s-10) var(--s-12); border-radius: var(--r-14); background: var(--glass); }
 .notice--good { background: rgb(var(--lime-rgb) / 0.14); color: var(--lime); }
 .notice--bad { background: rgb(var(--red-rgb) / 0.22); color: var(--ink-bad); }
+.notice--warn { background: rgb(var(--yellow-rgb) / 0.16); color: var(--yellow); }
 /* The snackbar: a short message floating at the bottom for a moment ("Copiado"); centred without a
    transform, because the entering animation would override it and push it to the right */
 .snackbar { position: fixed; left: var(--s-16); right: var(--s-16); margin: 0 auto; width: fit-content; bottom: calc(var(--s-24) + var(--safe-bottom)); background: var(--snackbar-bg); border: 1px solid var(--glass-border); color: var(--ink); font-weight: 800; padding: var(--s-12) var(--s-18); border-radius: var(--r-14); z-index: 50; animation: slideUp 0.25s both; }
