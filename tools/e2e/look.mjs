@@ -10,6 +10,7 @@
  *   node tools/e2e/look.mjs linea-de-tiempo intro --lang pt
  *
  *   node tools/e2e/look.mjs dudo bid --chat        (a room's 💬 bubble on top: it must cover no button)
+ *   node tools/e2e/look.mjs reinas result --flags solo-result-today-card=lab   (flag states over the snapshot, D-578)
  *
  * It takes the screenshot and also checks what the canon asks to look at on every screen (C-8):
  * no horizontal scroll and no button or summary under 44 px; and that the board has space before its
@@ -62,6 +63,8 @@ if (!path) {
 // The Chrome port is chosen by the system (D-213); `--cdp` or CDP_PORT fix it, if someone wants it fixed
 if (flag('cdp', '')) process.env.CDP_PORT = flag('cdp', '');
 const b = await launch({ port: 9451, dir: `${out}/profile`, out, width, height, clock: true });
+// `--flags id=state,id2=state`: what a lab treatment looks like, over the snapshot and the held flags (D-578)
+if (flag('flags', '')) b.flags(Object.fromEntries(flag('flags', '').split(',').map(x => x.split('='))));
 await b.go(`${base}/${route}`, 1500);
 // The language is stored as bare text: getLang() compares against ['es','en','pt'] and a
 // JSON.stringify left the quotes inside, so --lang did nothing.

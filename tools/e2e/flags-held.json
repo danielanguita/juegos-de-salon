@@ -1,3 +1,4 @@
 {
-  "home-carousels": { "state": "off" }
+  "home-carousels": { "state": "off" },
+  "solo-result-today-card": { "state": "off" }
 }

@@ -396,6 +396,18 @@ export function porJuego(dias) {
   }).sort((a, b) => b.n - a.n || (a.id < b.id ? -1 : 1));
 }
 
+/**
+ * Today's game while it is still to be played (lab flag `solo-result-today-card`, #1597):
+ * `{ id, emoji, name }` with the name in `lang`, or null once today is played (or with no game
+ * today). `e` is `estado()`'s. Pure, for node.
+ */
+export function todayPending(e, lang = 'es') {
+  if (!e?.juego || e.dia) return null;
+  const j = JUEGOS_DIA.find(x => x.id === e.juego);
+  const n = ALL_GAMES.find(g => g.id === e.juego)?.name || j?.name;
+  return j && n ? { id: j.id, emoji: j.emoji, name: n[lang] || n.es } : null;
+}
+
 /** Todo lo que muestra la pantalla, de una vez. */
 export function estado({ storage = globalThis.localStorage, ahora = Date.now() } = {}) {
   const hoy = fechaLocal(ahora);
