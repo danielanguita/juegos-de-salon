@@ -10,7 +10,7 @@ const SITE = process.env.SITE || process.env.SITIO || 'http://localhost:8765';
 const OUT = output();
 const ok = (cond, msg) => { console.log(`${cond ? '✓' : '✗'} ${msg}`); if (!cond) process.exitCode = 1; };
 
-const b = await launch({ port: 9498, dir: `${OUT}/p`, out: OUT });
+const b = await launch({ port: 9498, dir: `${OUT}/p`, out: OUT, clock: true });
 const ev = x => b.evaluate(x);
 // The test pins install-invite itself (D-571): the live flags/ would decide which bubble shows, and on
 // 2026-11-17 its launch to 'all' turned every old-bubble check red on main. flags.json is blocked, so

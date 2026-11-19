@@ -95,6 +95,17 @@
    ]
   },
   {
+   "id": "real-date",
+   "title": "No e2e script depends on the real date: a page that follows today is opened on a pinned day (D-589)",
+   "doc": "tools/e2e/README.md",
+   "form": [
+    "check"
+   ],
+   "enforcedBy": [
+    "tools/e2e/real-date.test.mjs"
+   ]
+  },
+  {
    "id": "conformance",
    "title": "Every game passes the conformance suite driven by its game.json",
    "doc": "docs/ADD-GAME.md",

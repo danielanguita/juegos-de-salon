@@ -10,7 +10,7 @@ import { output as output } from './output.mjs';
 import { launch, sleep } from './cdp.mjs';
 const SITE = process.env.SITE || process.env.SITIO || 'http://localhost:8765';
 const OUT = output('/tmp/share-home');
-const b = await launch({ dir: `${OUT}/p`, out: OUT });
+const b = await launch({ dir: `${OUT}/p`, out: OUT, clock: true });
 let bad = 0;
 const check = (ok, what) => { console.log(`${ok ? '✓' : '✗'} ${what}`); if (!ok) bad++; };
 const EXPECTED = {

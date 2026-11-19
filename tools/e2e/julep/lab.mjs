@@ -5,7 +5,7 @@
 import { output } from '../output.mjs';
 import { launch, sleep } from '../cdp.mjs';
 const OUT = output('/tmp/julep-lab');
-const b = await launch({ port: 9395, dir: `${OUT}/p`, out: OUT, width: 375, height: 812 });
+const b = await launch({ port: 9395, dir: `${OUT}/p`, out: OUT, width: 375, height: 812, clock: true });
 const ev = e => b.evaluate(e);
 const SITE = process.env.SITE || 'http://localhost:8765';
 let failures = 0;

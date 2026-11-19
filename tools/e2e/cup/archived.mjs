@@ -19,7 +19,7 @@ const NEW = { es: 'Crear una copa nueva', en: 'Create a new cup', pt: 'Criar uma
 const ERROR = { es: 'No encontramos una copa', en: 'We couldn\'t find a cup', pt: 'Não encontramos uma copa' };
 const YEAR = /2024/;
 
-const b = await launch({ dir: `${OUT}/profile`, out: OUT, width: 320, height: 640 });
+const b = await launch({ dir: `${OUT}/profile`, out: OUT, width: 320, height: 640, clock: true });
 const ev = e => b.evaluate(e);
 const waitFor = async expr => { for (let t = 0; t < 60; t++) { if (await ev(expr)) return true; await sleep(100); } return false; };
 try {

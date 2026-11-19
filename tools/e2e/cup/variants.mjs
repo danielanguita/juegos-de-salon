@@ -10,7 +10,7 @@ import { mkdirSync } from 'node:fs';
 
 const OUT = output('/tmp/cup-variants');
 mkdirSync(OUT, { recursive: true });
-const b = await launch({ dir: `${OUT}/profile`, out: OUT });
+const b = await launch({ dir: `${OUT}/profile`, out: OUT, clock: true });
 const SITE = process.env.SITE || 'http://localhost:8765';
 const ok = (cond, msg) => { console.log(`${cond ? '✓' : '✗'} ${msg}`); if (!cond) process.exitCode = 1; };
 const ev = expr => b.evaluate(expr);

@@ -215,6 +215,7 @@ node tools/e2e/contact-sheet.mjs cuarto-rey --out /tmp/contact-sheet
 | `conformance.mjs` | The conformance suite's browser half (#1249 step 8), driven by each `game.json`: the page loads with no console errors, each of its `languages` renders with every `data-i18n` key, the header ‹ goes to its logical parent (home for a registered game, `/labs/` for a lab one), a started game offers to continue after a reload (C-6), and the page goes through `compartir.js` (C-7) and `fin.js` (C-19); a check is skipped by an exception in `canonExceptions` to its canon whose reason names what it checks (`compartir.js`, `fin.js`, `session.js`). `node tools/e2e/conformance.mjs hangman` for one game; CI runs one part per manifest. The node half is `public/assets/js/conformance.test.mjs` |
 | `offline.mjs` | Offline mode end to end (D-538, [OFFLINE.md](../../docs/OFFLINE.md)), flag on: the site is stored while online; with the network cut the offline-capable games, the home page and Uno al día open, the chip and the once-only sheet show, links that need signal are dimmed; a game finished offline is queued and uploads exactly once when the network is back |
 | `png.test.mjs` | The PNG reader, writer and diff that `visual.mjs` uses (`png.mjs`), on synthetic images |
+| `real-date.test.mjs` | No script depends on the real date (D-589): one that opens a page following today (home, `/today/`, `?today`, `/records/`, La Copa's create screen, the `paths.mjs` catalog through a shared helper) pins its clock (`launch({ clock })`) or is in `REAL_CLOCK` with its reason |
 | `hangman/local.mjs` | Chain of three on one phone, buying a letter, resuming and solitaire |
 | `hangman/online.mjs` | Three phones against real Firebase: chain, reconnection midway and rematch |
 | `liars-dice/local.mjs` | Duel against the phone and a three-player game on one phone, with resuming midway |
@@ -318,6 +319,17 @@ node tools/e2e/contact-sheet.mjs cuarto-rey --out /tmp/contact-sheet
 | `home/popular.mjs` | What players see since D-369: the 🔥 Popular label on three cards (not La Copa nor "New"), the ✨ Nuevos / 🔥 Populares chips above the types in three languages at 320 px and their filtering, ⭐ Favoritos in that row and centered, the app's name on the floating menu and its tap, the space under the floating filters, and the menu still floating after a tap on a short result until the player scrolls up (D-371) |
 | `splash/languages.mjs` | Every splash campaign in all languages: each one as `?splash=<id>` against the Spanish one (D-199, D-355; a campaign that is not on needs a lab key, which localhost always counts as, D-395) |
 | `splash/margins.mjs` | Every big splash (`hero`) on a phone, a short phone, a laptop and a big screen: its clip as far from the card's top as from its sides, or flush on all three (DESIGN.md §3 rule 7, M-3) |
+
+## The date every script lives on (D-589)
+
+A page whose content follows today (the home page's ✨ New games and their order, the season, `/today/`
+and `?today` links, `/records/`, La Copa's create screen) is opened with a pinned clock, so a script
+passes or fails the same whatever day CI runs: `launch({ …, clock: true })` (`cdp.mjs`) moves every page
+to noon of `E2E_DAY` (2026-11-18: mid-month, no season, three games carrying ✨ New) and keeps it
+running; pass `clock: '2026-10-06'` or a time in ms for another day, or install your own clock after it
+(the Uno al día scripts do, `landing-fold.mjs` per game). `real-date.test.mjs` fails a script that
+opens such a page on the real clock; one that must follow the real clock goes in its `REAL_CLOCK` list
+with the reason. `E2E_DAY` moves only on purpose, in a PR of its own.
 
 ## Visual regression (#1249)
 

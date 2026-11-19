@@ -7,7 +7,7 @@ import { launch, sleep } from '../cdp.mjs';
 import { networkInterfaces } from 'node:os';
 import { ACTIVE, CAMPAIGNS } from '../../../public/assets/js/splash.js';
 const OUT = output('/tmp/home-search');
-const b = await launch({ dir: `${OUT}/p`, out: OUT, width: 320, height: 640 });
+const b = await launch({ dir: `${OUT}/p`, out: OUT, width: 320, height: 640, clock: true });
 const ev = e => b.evaluate(e);
 const SITE = process.env.SITE || 'http://localhost:8765';
 let failures = 0;

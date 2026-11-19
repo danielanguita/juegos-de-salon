@@ -9,7 +9,7 @@ const SITE = process.env.SITE || process.env.SITIO || 'http://localhost:8765';
 const OUT = output();
 const ok = (cond, msg) => { console.log(`${cond ? '✓' : '✗'} ${msg}`); if (!cond) process.exitCode = 1; };
 const T = LOCALES.es;
-const b = await launch({ dir: `${OUT}/p`, out: OUT });
+const b = await launch({ dir: `${OUT}/p`, out: OUT, clock: true });
 const ev = x => b.evaluate(x);
 const pill = () => ev(`(()=>{const a=document.getElementById('btn-menu');return {t:a.textContent,h:a.href,s:document.querySelector('.screen.active')?.id}})()`);
 const waitFor = async (cond, cap = 40) => { for (let i = 0; i < cap && !await ev(cond); i++) await sleep(250); return ev(cond); };

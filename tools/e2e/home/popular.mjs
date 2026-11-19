@@ -7,7 +7,7 @@
 import { output } from '../output.mjs';
 import { launch, sleep } from '../cdp.mjs';
 const OUT = output('/tmp/home-popular');
-const b = await launch({ dir: `${OUT}/p`, out: OUT, width: 320, height: 640 });
+const b = await launch({ dir: `${OUT}/p`, out: OUT, width: 320, height: 640, clock: true });
 const ev = e => b.evaluate(e);
 const SITE = process.env.SITE || 'http://localhost:8765';
 let failures = 0;
@@ -82,7 +82,7 @@ ok(Math.abs(gaps[0] - gaps[1]) <= 2, `the space under the floating filters (${ga
 
 // A tap on a floating filter keeps the menu floating (D-371): on a tall screen 🔥 Populares leaves a list too short to
 // scroll that far, and an empty space under it holds the menu until the player scrolls up
-const alto = await launch({ dir: `${OUT}/alto`, out: OUT, width: 390, height: 1400 });
+const alto = await launch({ dir: `${OUT}/alto`, out: OUT, width: 390, height: 1400, clock: true });
 const ev2 = e => alto.evaluate(e);
 const estado = `(() => { const bar = document.getElementById('filtros-barra'), c = [...document.querySelectorAll('.game-card[data-id]')].find(x => !x.hidden); return { pegada: bar.classList.contains('pegada'), arriba: Math.abs(bar.getBoundingClientRect().top - parseFloat(getComputedStyle(bar).top)) < 2, tarjeta: c.getBoundingClientRect().top >= bar.getBoundingClientRect().bottom - 1, relleno: document.querySelector('.filtros-relleno').offsetHeight, y: scrollY }; })()`;
 await alto.go(`${SITE}/?test&lang=es`);
@@ -98,7 +98,7 @@ await ev2(`scrollTo(0, 0); 1`); await sleep(300);
 ok(await ev2(`document.querySelector('.filtros-relleno').offsetHeight === 0`), 'back on top, no space is left under the list');
 alto.close();
 // Half a pixel short of the line the menu dropped on any list: at 390 px, 🧩 with its many games
-const ancho = await launch({ dir: `${OUT}/ancho`, out: OUT, width: 390, height: 844 });
+const ancho = await launch({ dir: `${OUT}/ancho`, out: OUT, width: 390, height: 844, clock: true });
 await ancho.go(`${SITE}/?test&lang=es`);
 for (let t = 0; t < 80 && !(await ancho.evaluate(`document.querySelectorAll('.game-card').length > 3`)); t++) await sleep(100);
 await ancho.evaluate(`scrollTo(0, 3000); 1`); await sleep(400);

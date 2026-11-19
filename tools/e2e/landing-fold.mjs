@@ -18,9 +18,10 @@
  * Each `?today` cover is opened on a day that game comes out (the page's clock is moved there): a
  * `?today` link sends to the real day's game, so measuring on the real date checked only one game
  * a day, and a cover too tall failed every PR on the day its game came out (Generala, 2026-11-19).
+ * Every other landing (/today/ among them) is opened on E2E_DAY, as every page that follows today (D-589).
  */
 import { mkdirSync } from 'node:fs';
-import { launch, sleep } from './cdp.mjs';
+import { launch, sleep, E2E_DAY } from './cdp.mjs';
 import { output } from './output.mjs';
 import { LANGS, EN_LABS, LABS_KEY } from '../../public/assets/js/i18n.js';
 import { PATHS, routeOf } from './paths.mjs';
@@ -43,10 +44,10 @@ const games = Object.keys(PATHS).filter(g => PATHS[g].intro && !NOT_LANDINGS.has
 const OPEN_DAY = [`document.querySelector('button[data-dia]').click()`];
 // The cup's day cover with each of its shapes: a game with a drawing (Reinas), the final, the wildcard's notice, a day of three
 const CUP_DAYS = ['player', 'final', 'last-day', 'last-day-three'];
-/** A day, from today on, on which Uno al día deals `id` (noon, local time); null if it no longer comes out. */
+/** A day, from E2E_DAY on (every page here lives on it, D-589), on which Uno al día deals `id` (noon, local time); null if it no longer comes out. */
 const DAY = 86400000;
 function dayOf(id) {
-  const noon = new Date(); noon.setHours(12, 0, 0, 0);
+  const [y, m, d] = E2E_DAY.split('-').map(Number), noon = new Date(y, m - 1, d, 12, 0, 0, 0);
   for (let i = 0; i < 400; i++) if (juegoDel(fechaLocal(noon.getTime() + i * DAY)) === id) return noon.getTime() + i * DAY;
   return null;
 }
@@ -82,7 +83,7 @@ const MEASURE = `(()=>{
 
 let failures = 0;
 for (const [width, height] of SIZES.filter(([w]) => !PART || String(w) === PART)) {
-  const b = await launch({ dir: `${OUT}/profile-${width}`, out: OUT, width, height });
+  const b = await launch({ dir: `${OUT}/profile-${width}`, out: OUT, width, height, clock: true });
   for (const { name: game, route, steps, fresh, day } of LANDINGS) {
     for (const lang of LANGS) {
       const labs = EN_LABS.includes(lang) ? `localStorage.setItem('${LABS_KEY}', '${lang}');` : '';

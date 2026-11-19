@@ -14,7 +14,7 @@ import { mkdirSync } from 'node:fs';
 
 const OUT = output('/tmp/cup-create-week');
 mkdirSync(OUT, { recursive: true });
-const b = await launch({ dir: `${OUT}/profile`, out: OUT, width: 360, height: 760 });
+const b = await launch({ dir: `${OUT}/profile`, out: OUT, width: 360, height: 760, clock: true });
 const SITE = process.env.SITE || 'http://localhost:8765';
 const ok = (cond, msg) => { console.log(`${cond ? '✓' : '✗'} ${msg}`); if (!cond) process.exitCode = 1; };
 const ev = expr => b.evaluate(expr);
