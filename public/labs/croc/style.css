@@ -290,3 +290,6 @@ body.sp-hard {
     radial-gradient(800px 600px at 50% 120%, rgba(160, 60, 255, 0.32), transparent 60%),
     linear-gradient(160deg, var(--bg1), var(--bg2) 55%, var(--bg3));
 }
+
+/* The result's emoji keeps a gap before the title's words */
+.result-icon { margin-inline-end: var(--s-12); }
