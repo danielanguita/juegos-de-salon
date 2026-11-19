@@ -37,7 +37,7 @@ Solo (`solo`): today's clue (the yellow start button) and practice (the ghost bu
 ## Flujo
 
 Cover (the yellow «Jugar la pista de hoy», under it the clue number or today's stars, then «Practicar con
-otras pistas», how to play) → play (the clue, one box per letter, the answer field and «Comprobar», the
+otras pistas», how to play) → play (the clue, one box per letter that the player types straight into, the cursor moving on by itself (the owner, 2026-11-19), and «Comprobar», the
 helps, «Me rindo») → result (stars, tries, streak; Share and «Otra pista de práctica», the exit to the lab
 from `fin.js`, C-19; then «Cómo se arma», the clue with its definition underlined and how it is solved).
 Today's clue, once played, opens on its result.
