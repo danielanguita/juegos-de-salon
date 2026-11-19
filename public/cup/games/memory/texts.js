@@ -78,7 +78,7 @@ const EN = {
     mmOver: 'Game over!',
     mmTrialDone: 'Done!',
     mmContinue: 'Continue',
-    mmVerdicts: ['Just warming up 🧠', 'Getting the hang of it', 'Good memory! ✨', 'Eagle eye! 🦅', 'Memory of an elephant! 🐘'],
+    mmVerdicts: ['Just warming up 🧠', 'Getting the hang of it', 'Good memory! ✨', 'Eagle eye! 🦅', 'A memory like an elephant’s! 🐘'],
     mmBdRounds: ['👀 No rounds cleared.', '👀 1 round cleared.', '👀 {n} rounds cleared.'],
     mmBdFound: ['', '🔎 1 picture found.', '🔎 {n} pictures found.'],
   },

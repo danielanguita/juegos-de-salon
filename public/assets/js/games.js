@@ -496,7 +496,7 @@ export const SUELTOS = [
     slug: 'memorice',
     emoji: '👀',
     name: { es: 'Memorice', en: 'Memorice', pt: 'Memorice' },
-    tagline: { es: 'Mira los dibujos, se tapan y encuentra el que te piden.', en: 'Look at the pictures, they get covered, find the one asked for.', pt: 'Olhe os desenhos, eles são cobertos e encontre o pedido.' },
+    tagline: { es: 'Mira los dibujos, espera a que se tapen y encuentra el que te piden.', en: 'Look at the pictures, wait for them to be covered, then find the one asked for.', pt: 'Olhe os desenhos, espere que sejam cobertos e encontre o pedido.' },
     keywords: {
       es: ['memorice', 'memoria', 'memorizar', 'parejas', 'pares', 'dibujos', 'pixel art', 'recordar', 'rápido', 'rapido'],
       en: ['memorice', 'memory', 'memorize', 'pairs', 'match', 'pictures', 'pixel art', 'remember', 'quick'],
