@@ -10,7 +10,7 @@ const ES = {
     nombre: 'Dominorama', habilidad: 'deducir',
     como: [
       'Pon todas las fichas: cada una cubre dos casillas.',
-      'Cada zona de color cumple su regla: un número es lo que suman sus puntos; = todos iguales; ≠ todos distintos; <5 y >9, menos o más.',
+      'Cada zona de color cumple su regla: un número es lo que suman sus puntos; = todos iguales; ≠ todos distintos; < y >, menos o más que ese número.',
       'Mantén y arrastra cada ficha a su casilla; un toque la gira. Toca un rombo: se ilumina su zona.',
     ],
     puntaje: 'Cada tablero resuelto vale 20 puntos y, con los tres, la rapidez suma hasta 40; cada ayuda resta 10.',
@@ -45,10 +45,10 @@ const EN = {
     nombre: 'Dominorama', habilidad: 'deduction',
     como: [
       'Place every domino: each one covers two cells.',
-      'Each colored zone keeps its rule: a number is what its pips add up to; = all equal; ≠ all different; <5 and >9, less or more.',
+      'Each colored zone keeps its rule: a number is what its pips add up to; = all equal; ≠ all different; < and >, less or more than that number.',
       'Hold and drag each domino to its cell; a tap turns it. Tap a diamond to light up its zone.',
     ],
-    puntaje: 'Each board solved is worth 20 points and, with all three, speed adds up to 40; each help takes off 10.',
+    puntaje: 'Each board solved is worth 20 points and, with all three, speed adds up to 40; each hint takes off 10.',
     desempate: 'On a tie, the faster player wins.',
   },
   ui: {
@@ -61,7 +61,7 @@ const EN = {
     dmNo: { fuera: 'It does not fit like that: turn it or try another cell.', ocupada: 'There is a domino there already: take it off first.' },
     dmRota: '❌ A zone breaks its rule: move a domino.',
     dmListo: '✅ Done!',
-    dmAyuda: '💡 Help (−{pts})', dmAyudaSeguro: 'Tap again (−{pts})', dmAyudaDice: '💡 That domino goes there.',
+    dmAyuda: '💡 Hint (−{pts})', dmAyudaSeguro: 'Tap again (−{pts})', dmAyudaDice: '💡 That domino goes there.',
     dmRendirse: '🏳️ Give up', dmRendirseSeguro: '🏳️ Sure?',
     dmDeshacer: '↩️ Undo', dmLimpiar: '🧹 Clear', dmLimpiarSeguro: '🧹 Take all off?',
     dmFin: { todos: 'All three!', rendido: 'You gave up' },
@@ -70,7 +70,7 @@ const EN = {
     dmCasilla: 'Cell {r}, {c}', dmFichas: 'Dominoes',
     dmBdTableros: ['🎲 No board.', '🎲 1 board: {pts}.', '🎲 {n} boards: {pts}.'],
     dmBdRapidez: '⏱️ Speed: {pts} of 40.',
-    dmBdAyudas: ['💡 1 help: −{pts}.', '💡 {n} helps: −{pts}.'],
+    dmBdAyudas: ['💡 1 hint: −{pts}.', '💡 {n} hints: −{pts}.'],
     dmBdPiso: 'The score does not go below 0.',
   },
 };
@@ -80,7 +80,7 @@ const PT = {
     nombre: 'Dominorama', habilidad: 'deduzir',
     como: [
       'Coloque todas as peças: cada uma cobre duas casas.',
-      'Cada zona colorida cumpre sua regra: um número é a soma dos pontos; = todos iguais; ≠ todos diferentes; <5 e >9, menos ou mais.',
+      'Cada zona colorida cumpre sua regra: um número é a soma dos pontos; = todos iguais; ≠ todos diferentes; < e >, menos ou mais que esse número.',
       'Segure e arraste cada peça até sua casa; um toque a gira. Toque num losango para iluminar sua zona.',
     ],
     puntaje: 'Cada tabuleiro resolvido vale 20 pontos e, com os três, a rapidez soma até 40; cada ajuda tira 10.',
