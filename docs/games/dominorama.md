@@ -91,7 +91,8 @@ plays the same engine until the cleanup PR.
   other make a compact shape (a new one goes where it touches more of the shape), each gets a different
   domino of a double-six set, the cells are split into zones of 1 to 4 (growing first into a neighbor
   with the same pips, and never holding both halves of a domino with two different numbers, D-386), and
-  each zone gets a rule its pips keep. `resolver(t, max, limite)` counts the solutions (layouts that
+  each zone gets a rule its pips keep and the player could break with this board's dominoes
+  (`puedeFallar`: no `>-1`, no `>0` without a blank, no `<13` on two cells, issue #1656). `resolver(t, max, limite)` counts the solutions (layouts that
   leave the same pips on every cell count once); while there are two, a zone that differs gets a stricter
   rule, `=`, `≠` or the tightest `<`/`>` before an exact sum, or, when only the order inside a zone
   differs, a cell moves to a neighboring zone (only if the zone it leaves stays in one piece); a board too loose to prove within `limite` steps gets one

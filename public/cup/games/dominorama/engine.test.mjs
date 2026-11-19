@@ -1,6 +1,6 @@
 // Dominorama (D-381): rules, one solution per board, laying dominoes, the help and the score.
 import assert from 'node:assert/strict';
-import { cumple, etiqueta, resolver, generar, nuevaPartida, lugar, poner, sacar, valores, estadoZonas, resuelto, lleno, ayudar, puntaje, tarjeta, NIVELES, MAXIMO, PUNTOS_TABLERO, RESTA_AYUDA, unida, generateDay, card } from './engine.js';
+import { cumple, puedeFallar, etiqueta, resolver, generar, nuevaPartida, lugar, poner, sacar, valores, estadoZonas, resuelto, lleno, ayudar, puntaje, tarjeta, NIVELES, MAXIMO, PUNTOS_TABLERO, RESTA_AYUDA, unida, generateDay, card } from './engine.js';
 
 // The rules, full and partial
 assert.equal(cumple({ tipo: 'suma', n: 6 }, [2, 4]), true);
@@ -19,6 +19,11 @@ assert.equal(cumple({ tipo: 'mayor', n: 9 }, [4, null]), null);
 assert.equal(cumple({ tipo: 'mayor', n: 9 }, [1, null]), false, 'cannot pass 9 with one more');
 assert.equal(cumple({ tipo: 'mayor', n: 9 }, [1, 2]), false);
 assert.equal(cumple({ tipo: 'libre' }, [0, 6]), true);
+assert.equal(puedeFallar({ tipo: 'mayor', n: -1, celdas: [0] }, [0, 1, 2]), false, '>-1 always holds');
+assert.equal(puedeFallar({ tipo: 'mayor', n: 0, celdas: [0] }, [1, 2, 3]), false, '>0 with no blank always holds');
+assert.equal(puedeFallar({ tipo: 'mayor', n: 0, celdas: [0] }, [0, 2, 3]), true, '>0 fails on the blank');
+assert.equal(puedeFallar({ tipo: 'menor', n: 13, celdas: [0, 1] }, [0, 5, 6, 6]), false, '<13 on two cells always holds');
+assert.equal(puedeFallar({ tipo: 'menor', n: 11, celdas: [0, 1] }, [0, 5, 6]), true);
 assert.deepEqual(['suma', 'igual', 'distinto', 'menor', 'mayor', 'libre'].map(tipo => etiqueta({ tipo, n: 7 })), ['7', '=', '≠', '<7', '>7', '']);
 
 // Every board has exactly one solution, uses different dominoes, and is the same for the same seed
@@ -37,6 +42,9 @@ for (const semilla of ['a', 'b', 'c', 'dia:2026-10-19', 'e2e1']) {
     const p = nuevaPartida(t);
     for (const s of t.solucion) assert.ok(poner(p, s.f, { a: s.a, b: s.b }).ok);
     assert.ok(resuelto(p), `${semilla}/${id}: the solution solves it`);
+    // Every > and < can fail with this board's dominoes: no ">-1" that holds whatever you do (#1656)
+    const mitades = t.fichas.flat().sort((x, y) => x - y);
+    for (const z of t.zonas) assert.ok(puedeFallar(z, mitades), `${semilla}/${id}: ${etiqueta(z)} on ${z.celdas.length} cells can fail`);
   }
 }
 
