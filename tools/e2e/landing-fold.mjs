@@ -15,13 +15,16 @@
  *
  * A game is also reached from Uno al día (its `?today` link) and from inside a cup (the day's cover,
  * before «Empezar»): those covers are checked too, as `<id> today` and `copa day:<scene>`.
+ * Each `?today` cover is opened on a day that game comes out (the page's clock is moved there): a
+ * `?today` link sends to the real day's game, so measuring on the real date checked only one game
+ * a day, and a cover too tall failed every PR on the day its game came out (Generala, 2026-11-19).
  */
 import { mkdirSync } from 'node:fs';
 import { launch, sleep } from './cdp.mjs';
 import { output } from './output.mjs';
 import { LANGS, EN_LABS, LABS_KEY } from '../../public/assets/js/i18n.js';
 import { PATHS, routeOf } from './paths.mjs';
-import { JUEGOS_DIA } from '../../public/assets/js/uno-al-dia.js';
+import { JUEGOS_DIA, juegoDel, fechaLocal } from '../../public/assets/js/uno-al-dia.js';
 import { rutaHoy } from '../../public/assets/js/uno-al-dia-ui.js';
 
 const SITE = process.env.SITE || process.env.SITIO || 'http://localhost:8765';
@@ -40,10 +43,22 @@ const games = Object.keys(PATHS).filter(g => PATHS[g].intro && !NOT_LANDINGS.has
 const OPEN_DAY = [`document.querySelector('button[data-dia]').click()`];
 // The cup's day cover with each of its shapes: a game with a drawing (Reinas), the final, the wildcard's notice, a day of three
 const CUP_DAYS = ['player', 'final', 'last-day', 'last-day-three'];
+/** A day, from today on, on which Uno al día deals `id` (noon, local time); null if it no longer comes out. */
+const DAY = 86400000;
+function dayOf(id) {
+  const noon = new Date(); noon.setHours(12, 0, 0, 0);
+  for (let i = 0; i < 400; i++) if (juegoDel(fechaLocal(noon.getTime() + i * DAY)) === id) return noon.getTime() + i * DAY;
+  return null;
+}
+/** Moves the page's clock to `ms`, keeping it running: what `?today` reads to know the day's game. */
+const CLOCK = ms => `(()=>{ const off = ${ms} - Date.now(), R = Date;
+  class D extends R { constructor(...a) { a.length ? super(...a) : super(R.now() + off); } static now() { return R.now() + off; } }
+  globalThis.Date = D; })()`;
 const LANDINGS = [
   ...games.map(g => ({ name: g, route: routeOf(g), steps: PATHS[g].intro })),
   ...JUEGOS_DIA.map(j => j.id || j).filter(id => !only.length || only.includes(id))
-    .map(id => ({ name: `${id} today`, route: rutaHoy(id), steps: [] })),
+    .map(id => ({ name: `${id} today`, route: rutaHoy(id), steps: [], day: dayOf(id) }))
+    .filter(l => l.day != null),
   ...(!only.length || only.includes('copa') ? CUP_DAYS.map(s => ({ name: `copa day:${s}`, route: `cup/?test&demo=${s}`, steps: OPEN_DAY, fresh: 'cup/' })) : []),
 ];
 
@@ -68,19 +83,19 @@ const MEASURE = `(()=>{
 let failures = 0;
 for (const [width, height] of SIZES.filter(([w]) => !PART || String(w) === PART)) {
   const b = await launch({ dir: `${OUT}/profile-${width}`, out: OUT, width, height });
-  const todays = new Set();
-  for (const { name: game, route, steps, fresh } of LANDINGS) {
+  for (const { name: game, route, steps, fresh, day } of LANDINGS) {
     for (const lang of LANGS) {
       const labs = EN_LABS.includes(lang) ? `localStorage.setItem('${LABS_KEY}', '${lang}');` : '';
       await b.open(`${SITE}/${fresh || route}`);
       await b.evaluate(`localStorage.clear(); sessionStorage.clear(); localStorage.setItem('juegos-de-salon:lang', '${lang}'); ${labs} 1`);
+      const clock = day && (await b.send('Page.addScriptToEvaluateOnNewDocument', { source: CLOCK(day) })).result.identifier;
       await b.open(`${SITE}/${route}`);
+      if (clock) await b.send('Page.removeScriptToEvaluateOnNewDocument', { identifier: clock });
       if (fresh) await b.settle(1000);
-      // Every `?today` link opens today's game (the others send there): its cover is measured once per size and language
-      if (game.endsWith(' today')) {
-        const where = `${await b.evaluate('location.pathname')} ${lang}`;
-        if (todays.has(where)) continue;
-        todays.add(where);
+      // On its day, a `?today` link stays on its game: if it went elsewhere, the clock did not move
+      if (day && !(await b.evaluate('location.href')).includes(route.split('&')[0])) {
+        console.log(`✗ ${game} ${width}×${height} ${lang}: on ${fechaLocal(day)} it went to ${await b.evaluate('location.pathname')}`);
+        failures++; continue;
       }
       for (const step of steps) { await b.evaluate(`(()=>{ ${step} ; return 1})()`); await sleep(700); }
       await b.settle(1000);
