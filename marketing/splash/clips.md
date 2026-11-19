@@ -6,7 +6,7 @@ They replace a still picture: the owner found the link cards repeated the texts 
 | | |
 |---|---|
 | Files | `public/assets/splash/<game>.mp4` (360×360, 12 fps, muted, loops) and `<game>.jpg` (its poster: the board solved) |
-| Games | 🚇 Rutas rotas (`routes`), 📐 Loteo (`plots`), 🖌️ Pintaminas (`paint-mines`), 🚂 Tren en Vilo (`bridges`) |
+| Games | 🚇 Rutas rotas (`routes`), 📐 Loteo (`plots`), 🖌️ Pintaminas (`paint-mines`), 🚂 Tren en Vilo (`bridges`), 👀 Memorice (`memory`, with `memory-start.jpg`, recorded behind its flag with `flags`) |
 | Made by | [`capture.mjs`](capture.mjs): the real game in headless Chrome, its solution played slowly while the board is shot |
 
 ## How to rebuild them

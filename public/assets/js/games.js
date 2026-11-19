@@ -483,6 +483,31 @@ export const SUELTOS = [
     nuevoDesde: '2026-11-14',
     diasNuevo: 10,
   },
+  {
+    // Out of the lab like Sudoku (D-517's way): La Copa's screen in cup/games/memory/, its page /memorice/,
+    // launched by flags/memory on the date the owner picks. Endless, 3 lives: its points are the rounds cleared,
+    // with no cap; Uno al día takes its own 0–100 (`dayScore`). The id and the usage signal are the lab's; the
+    // lab prototype /labs/memory/ stays, on the moved engine, until the cleanup PR
+    id: 'memory',
+    lanza: 'memory',
+    copa: { pozo: 19 },
+    // Uno al día: by date, never by flag. PLACEHOLDER: set when the owner picks the launch date (the day after it)
+    unoAlDia: { orden: 24, desde: '2099-01-01' },
+    slug: 'memorice',
+    emoji: '👀',
+    name: { es: 'Memorice', en: 'Memorice', pt: 'Memorice' },
+    tagline: { es: 'Mira los dibujos, se tapan y encuentra el que te piden.', en: 'Look at the pictures, they get covered, find the one asked for.', pt: 'Olhe os desenhos, eles são cobertos e encontre o pedido.' },
+    keywords: {
+      es: ['memorice', 'memoria', 'memorizar', 'parejas', 'pares', 'dibujos', 'pixel art', 'recordar', 'rápido', 'rapido'],
+      en: ['memorice', 'memory', 'memorize', 'pairs', 'match', 'pictures', 'pixel art', 'remember', 'quick'],
+      pt: ['memorice', 'memória', 'memorizar', 'pares', 'desenhos', 'pixel art', 'lembrar', 'rápido'],
+    },
+    tipos: ['skill'],
+    duration: '1–5',
+    // PLACEHOLDER: set when the owner picks the launch date
+    nuevoDesde: '2099-01-01',
+    diasNuevo: 10,
+  },
   // Los del laboratorio viven en /labs/<slug>/ (D-267): al salir pasan a /<slug>/
 ].map(m => ({ ...m, players: '1', path: `${m.labs ? 'labs/' : ''}${m.slug}/`, available: !m.labs, suelto: true, ...(m.lanza ? { oculto: !lanzado(m.lanza) } : {}) }));
 
@@ -654,7 +679,6 @@ export const idDeSlug = s => (Object.hasOwn(SLUG_DE, s) ? s : Object.hasOwn(ID_D
 export const LAB_NAMES = {
   'croc': { emoji: '🐸', name: { es: 'Croc!', en: 'Croc!', pt: 'Croc!' } },
   blackjack: { emoji: '♠️', name: { es: 'Blackjack', en: 'Blackjack', pt: 'Blackjack' } },
-  memory: { emoji: '👀', name: { es: 'Memorice', en: 'Memorice', pt: 'Memorice' } },
   artifacts: { emoji: '⚙️', name: { es: 'Artefactos', en: 'Artifacts', pt: 'Artefatos' } },
   dominorama: { emoji: '🎲', name: { es: 'Dominorama', en: 'Dominorama', pt: 'Dominorama' } },
   clave: { emoji: '🔐', name: { es: 'La clave', en: 'The Code', pt: 'A senha' } },
