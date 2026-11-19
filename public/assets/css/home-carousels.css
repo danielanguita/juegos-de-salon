@@ -3,7 +3,7 @@
    home page itself (html.carousels), so it holds before this sheet arrives. */
 
 /* The rows: one under the other, each with its title */
-.shelves { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s-16); margin-top: var(--s-16); }
+.shelves { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s-28); margin-top: var(--s-16); }
 .shelf { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s-8); }
 .shelf h2 { margin: 0; }
 
