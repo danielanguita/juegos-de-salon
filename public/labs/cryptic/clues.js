@@ -60,6 +60,7 @@ const ES = [
   { c: 'Un beso catalán abraza al primer amor y sigue al norte: va a pie', a: 'PEATÓN', k: 'container', d: 'va a pie', x: 'Beso en catalán es PETÓ; abraza la A, la primera letra de amor (PE·A·TÓ), y le sigue la N del norte: PEATÓN, el que va a pie.' },
   { c: 'Ojalá se alimente y te ayude a separar las ideas', a: 'COMA', k: 'definitions', d: 'te ayude a separar las ideas', x: 'COMA: «ojalá coma», que se alimente, y la coma, el signo que separa las ideas.' },
   { c: 'En la cumbre, de dos en dos, Camilo miraba Santiago. Hasta que se le salió un botón', a: 'CAMISA', k: 'selector', d: 'Hasta que se le salió un botón', x: 'Las cumbres de dos en dos: CA de Camilo, MI de miraba, SA de Santiago. CAMISA, a la que se le sale un botón.' },
+  { c: 'Hombre americano con un litro extra en tequila. Qué maravilla de calorías doradas', a: 'MANTEQUILLA', k: 'charade', d: 'calorías doradas', x: 'MAN (hombre, en inglés) + TEQUILA con una L (un litro) de más, TEQUILLA = MANTEQUILLA, una maravilla de calorías doradas.' },
 ];
 
 /** Spanish only for now (the owner, 2026-11-19): the mechanics first, the other banks once it works. */
