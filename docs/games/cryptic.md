@@ -25,7 +25,7 @@ look. Spanish clues only for now, by the owner's call: the mechanics first, the 
   Solving is worth 3 stars minus the helps; «Me rindo» shows the answer, with no stars.
 - **The day's clue** is the same for everyone on a date, at the player's own midnight: clue number
   `days since 2026-11-19 + 1`, walking the bank with a stride so every clue comes out once before any
-  repeats (`indexOf` in `engine.js`). With 42 clues, six weeks.
+  repeats (`indexOf` in `engine.js`). With 44 clues, six weeks.
 - **The streak:** days in a row with the day's clue solved; given up breaks it. Practice clues (any other
   clue of the bank, at random) count for nothing.
 - Rankings: none yet (D-212: whether it keeps a score is the owner's call).
@@ -61,7 +61,7 @@ result stays on the phone for the streak.
 ## Writing a clue (the owner, 2026-11-19)
 
 The first bank was too direct, and so was its first rewrite: the owner asked for clues that make the player
-think and reach for a hint, while staying solvable. The owner's own (SIETE, PEATÓN, COMA, CAMISA) are the bar.
+think and reach for a hint, while staying solvable. The owner's own (SIETE, PEATÓN, COMA, CAMISA, MANTEQUILLA, RELAMIDO) are the bar.
 Every clue in `clues.js` follows these rules:
 
 1. **One natural sentence that tells another story.** No colon or semicolon splitting wordplay from
