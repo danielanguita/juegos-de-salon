@@ -185,12 +185,8 @@ export const CAMPAIGNS = {
     emoji: '🎉',
     requires: ['dominorama', 'memory'],
     kicker: { es: '¡Dos juegos nuevos!', en: 'Two new games!', pt: 'Dois jogos novos!' },
-    title: { es: 'Dominó y memoria, para jugar solo', en: 'Dominoes and memory, to play on your own', pt: 'Dominó e memória, para jogar sozinho' },
-    lead: {
-      es: 'Un puzle de fichas de dominó y un desafío de memoria que no termina. Elige uno y empieza.',
-      en: 'A dominoes puzzle and a memory challenge that never ends. Pick one and start.',
-      pt: 'Um quebra-cabeça de dominó e um desafio de memória sem fim. Escolha um e comece.',
-    },
+    title: { es: 'Dominó y memoria', en: 'Dominoes and memory', pt: 'Dominó e memória' },
+    lead: { es: 'Dos desafíos para jugar solo. Elige uno.', en: 'Two puzzles to play on your own. Pick one.', pt: 'Dois desafios para jogar sozinho. Escolha um.' },
     items: [
       { game: 'dominorama', href: 'dominorama/?play', video: 'assets/splash/dominorama.mp4', img: 'assets/splash/dominorama-start.jpg', still: 'assets/splash/dominorama.jpg' },
       { game: 'memory', href: 'memorice/?play', video: 'assets/splash/memory.mp4', img: 'assets/splash/memory-start.jpg', still: 'assets/splash/memory.jpg' },
