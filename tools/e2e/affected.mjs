@@ -248,13 +248,15 @@ export function select({ changes, graph, scripts, shared, exists = () => true, f
     else return null;
   }
   const affected = new Set();
-  if (!changedPublic.length && !changedScripts.size) return { scripts: scripts.filter(s => readers.has(s.name)).map(s => s.name), pages: affected, changedScripts };
+  const reached = {}; // site file → the pages it reaches
+  if (!changedPublic.length && !changedScripts.size) return { scripts: scripts.filter(s => readers.has(s.name)).map(s => s.name), pages: affected, changedScripts, reached };
   for (const f of changedPublic) {
     const hit = pages.filter(p => loads(graph[p], f));
     if (!hit.length && !exists(f)) continue; // deleted, and nothing names it any more
     if (!hit.length) return null; // no page loads it directly: it may be fetched at run time
     const used = usedOn(f, uses[f], hit, graph, files) ?? hit;
-    playedOn(f, used, graph).forEach(p => affected.add(p));
+    reached[f] = playedOn(f, used, graph);
+    reached[f].forEach(p => affected.add(p));
   }
   // Only the home page changed, maybe with lab pages (D-388): its own scripts run (home/*, smoke.mjs,
   // and those that never leave it, like favorites.mjs) and the lab pages' ones, not the games that
@@ -263,6 +265,8 @@ export function select({ changes, graph, scripts, shared, exists = () => true, f
   const homeOnly = affected.has('') && affected.size === labs.length + 1;
   const runs = scripts.filter(s => {
     if (changedScripts.has(s.name) || readers.has(s.name)) return true;
+    // A script that opens a declared set of pages (`ONLY` in ci.mjs, D-588): those are its pages
+    if (s.pages) return changedPublic.some(f => s.source.includes(`public/${f}`)) || s.pages.some(p => affected.has(p));
     if (homeOnly) {
       if (s.name.startsWith('home/') || s.name === 'smoke.mjs') return true;
       if (changedPublic.some(f => s.source.includes(`public/${f}`))) return true;
@@ -283,7 +287,39 @@ export function select({ changes, graph, scripts, shared, exists = () => true, f
     if (!own.size) return true; // it doesn't say where it goes
     return [...own].some(p => affected.has(p));
   }).map(s => s.name);
-  return { scripts: runs, pages: affected, changedScripts };
+  // The scripts that import a changed module themselves: they run whole (D-588)
+  const imports = new Set(scripts.filter(s => changedPublic.some(f => s.source.includes(`public/${f}`))).map(s => s.name));
+  return { scripts: runs, pages: affected, changedScripts, imports, reached };
+}
+
+/** The page a route opens: the longest prefix of its path that is a page (`cup/suelto/?x&today` → 'cup/suelto'). */
+export function pageOfRoute(route, pages) {
+  const known = new Set(pages);
+  let p = route.split(/[?#]/)[0].replace(/\/+$/, '');
+  while (p && !known.has(p)) p = p.includes('/') ? p.slice(0, p.lastIndexOf('/')) : '';
+  return p;
+}
+
+/**
+ * The ids a script that takes `--only` (`ONLY` in ci.mjs, D-588) must run for this choice: those whose pages
+ * the change reaches, when each changed file is a game's own (it reaches the pages of one id). null runs it
+ * whole: its own source changed, it imports a changed module, a changed file is shared (it reaches the
+ * pages of two ids or more: `base.css`, `cup/style.css`, `cup/game.js`), or nothing says which ids.
+ * `ids`: { id: [page, …] }.
+ */
+export function onlyIds(script, choice, ids) {
+  if (!choice || choice.changedScripts.has(script) || choice.imports?.has(script)) return null;
+  const all = Object.keys(ids);
+  const of = pages => all.filter(id => ids[id].some(p => pages.has(p)));
+  if (Object.values(choice.reached || {}).some(ps => of(new Set(ps)).length > 1)) return null;
+  const hit = of(choice.pages);
+  return !hit.length || hit.length === all.length ? null : hit;
+}
+
+/** `script:part@a,b` → { job: 'script:part', only: ['a', 'b'] }; only is null for a whole job. */
+export function parseJob(j) {
+  const at = j.indexOf('@');
+  return at < 0 ? { job: j, only: null } : { job: j.slice(0, at), only: j.slice(at + 1).split(',').filter(Boolean) };
 }
 
 /**
@@ -348,21 +384,45 @@ export function siteGraph() {
   return closures(siteFiles());
 }
 
-/** The test level of these changes (D-346): { level, name, reason }. */
-export function changeLevel(jobs, changes, shared, noBrowser = false) {
-  if (noBrowser) return levelOf({ scripts: [], pages: new Set(), changedScripts: new Set() }, 1);
+/**
+ * `only`: { script: { id: [route, …] } }, the scripts that take `--only` (ONLY in ci.mjs): the ids with
+ * the pages their routes open. The scripts of the jobs, read from disk, those with their declared pages.
+ */
+function resolved(only, pages) {
+  return Object.fromEntries(Object.entries(only).map(([script, routes]) => [script,
+    Object.fromEntries(Object.entries(routes).map(([id, rs]) => [id, [...new Set(rs.map(r => pageOfRoute(r, pages)))]]))]));
+}
+function scriptsOf(jobs, ids) {
   const names = [...new Set(jobs.map(j => j.split(':')[0]))];
-  const scripts = names.map(name => ({ name, source: existsSync(join(HERE, name)) ? readFileSync(join(HERE, name), 'utf8') : '' }));
+  return names.map(name => ({
+    name, source: existsSync(join(HERE, name)) ? readFileSync(join(HERE, name), 'utf8') : '',
+    ...(ids[name] ? { pages: [...new Set(Object.values(ids[name]).flat())] } : {}),
+  }));
+}
+
+/** The test level of these changes (D-346): { level, name, reason }. */
+export function changeLevel(jobs, changes, shared, noBrowser = false, only = {}) {
+  if (noBrowser) return levelOf({ scripts: [], pages: new Set(), changedScripts: new Set() }, 1);
   const files = siteFiles(), graph = closures(files);
+  const scripts = scriptsOf(jobs, resolved(only, Object.keys(graph)));
   return levelOf(select({ changes, graph, scripts, shared, exists: inPublic, files }), Object.keys(graph).length);
 }
 
-/** Which of `jobs` (tools/e2e/ scripts, or `script:part`) to run for these changes; null means all. */
-export function affectedJobs(jobs, changes, shared) {
-  const names = [...new Set(jobs.map(j => j.split(':')[0]))];
-  const scripts = names.map(name => ({ name, source: existsSync(join(HERE, name)) ? readFileSync(join(HERE, name), 'utf8') : '' }));
-  const files = siteFiles(), graph = closures(files);
-  return chooseJobs(jobs, select({ changes, graph, scripts, shared, exists: inPublic, files }), Object.keys(graph));
+/**
+ * Which of `jobs` (tools/e2e/ scripts, or `script:part`) to run for these changes; null means all.
+ * A job of a script in `only` that reaches some of its ids, not all, goes as `script:part@id,id` (D-588).
+ */
+export function affectedJobs(jobs, changes, shared, only = {}) {
+  const files = siteFiles(), graph = closures(files), pages = Object.keys(graph);
+  const ids = resolved(only, pages);
+  const choice = select({ changes, graph, scripts: scriptsOf(jobs, ids), shared, exists: inPublic, files });
+  const chosen = chooseJobs(jobs, choice, pages);
+  if (!chosen) return null;
+  return chosen.map(j => {
+    const script = j.split(':')[0];
+    const hit = ids[script] ? onlyIds(script, choice, ids[script]) : null;
+    return hit ? `${j}@${hit.join(',')}` : j;
+  });
 }
 
 /* ------------------------------------------------------------------ */
@@ -422,10 +482,13 @@ export function crossLoads(graph = siteGraph()) {
  * the site the pages and scripts it reaches. A file loaded by other games' pages names the import that
  * takes it there, so a leak shows on the PR that makes it, not months later. Markdown lines.
  */
-export function scopeReport(jobs, changes, shared) {
-  const all = affectedJobs(jobs, changes, shared);
+export function scopeReport(jobs, changes, shared, only = {}) {
+  const all = affectedJobs(jobs, changes, shared, only);
   const n = all === null ? jobs.length : all.length;
   const lines = [`### Test scope: ${n} of ${jobs.length} end-to-end jobs`];
+  // A job narrowed to the ids the change reaches (D-588): which
+  const narrowed = (all || []).map(parseJob).filter(j => j.only);
+  if (narrowed.length) lines.push('', ...narrowed.map(j => `- \`${j.job}\` only for ${j.only.map(x => `\`${x}\``).join(', ')}`));
   const site = changes.map(c => c.trim()).filter(c => c.startsWith('public/') && !/\.test\.m?js$|\.md$/.test(c));
   if (!site.length) return lines;
   const files = siteFiles(), graph = closures(files), pages = Object.keys(graph);
@@ -446,7 +509,7 @@ export function scopeReport(jobs, changes, shared) {
     const { file, uses } = parseChange(c);
     const f = file.slice('public/'.length);
     const on = pages.filter(p => loads(graph[p], f));
-    const jobsOf = affectedJobs(jobs, [c], shared);
+    const jobsOf = affectedJobs(jobs, [c], shared, only);
     const owner = ownerIn(pages, f);
     const foreign = owner ? on.filter(p => !mayLoad(graph, p, f)) : [];
     const hops = {};

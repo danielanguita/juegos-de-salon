@@ -92,6 +92,7 @@ that does not balance or a patch that does not fit.
 | Small modules every page may load though they live in a game's folder | Declared, with why | `SHARED` |
 | Scripts that open every page on purpose | Declared | `EVERY_PAGE` (today `smoke.mjs` and `structured-data.mjs`) |
 | A long script split in parts named after pages | Declared | `PARTS` in `ci.mjs` |
+| A script that opens every game's page in a loop and takes `--only <ids>` (`landing-fold.mjs`): its pages, by id | Declared, from the script's own sources (`landingRoutes()`); `only.test.mjs` fails if they drift | `ONLY` in `ci.mjs` (D-588) |
 | Site files no page loads whose readers are known: the manifests (`installable.mjs`), the link cards' fingerprints (none) | Declared | `READ_BY` (D-516) |
 | Files no browser loads (docs, agents, workflows, rules, `durations.json`, D-428) | Derived from the path | `changes.mjs` (`noBrowser`) |
 | Scripts CI never runs (`*/online.mjs`, `*/chat.mjs` and the rest that open rooms in the production Firebase, the obsolete ones) | Derived from `ci.mjs`'s own exclusions: changing one runs no job (#850) | `shared` in `ci.mjs` |
@@ -107,6 +108,12 @@ that does not balance or a patch that does not fit.
 | N2 · game | Some pages, under a third | Their scripts + `smoke.mjs` | ≤ 15 |
 | N2 · home | The home page, maybe with lab pages | `home/*`, `smoke.mjs`, scripts that never leave the home page | ≤ 15 |
 | N3 · core | A third of the pages or more, a shared module, or the test tools | Every script | all |
+
+A script in `ONLY` (D-588) runs only when the change reaches one of its pages, and, when each changed
+site file is one game's own (it reaches the pages of a single id), only for those ids: the job goes as
+`landing-fold.mjs:320@generala` and `ci.mjs` passes `--only generala`. A shared file (one that reaches
+two ids or more: `base.css`, `cup/style.css`, `cup/game.js`), a module the script imports, the script
+itself, a change the graph cannot narrow and `main` run it whole.
 
 The **budget** is the number the feedback layer watches: a level that keeps going over it means the
 knowledge is too coarse somewhere.
@@ -175,10 +182,10 @@ catch in the PR) and moving the declared facts to their own module (tidier, but 
 | What | File |
 |---|---|
 | This design | `docs/TEST-SCOPE.md` |
-| Why each step was taken | `docs/decisions/`: D-308, D-329, D-346, D-378, D-388, D-391, D-392, D-496, D-506, D-515 |
+| Why each step was taken | `docs/decisions/`: D-308, D-329, D-346, D-378, D-388, D-391, D-392, D-496, D-506, D-515, D-516, D-588 |
 | How to run and write scripts | `tools/e2e/README.md` |
 | The code | `tools/e2e/affected.mjs`, `changes.mjs`, `ci.mjs`, `since-passed.mjs` (D-392), `inert.mjs` (D-515), `narrow.mjs` (D-516) |
-| The guards | `tools/e2e/*.test.mjs` |
+| The guards | `tools/e2e/*.test.mjs` (`only.test.mjs`: the `--only` narrowing, D-588) |
 | Who watches it | `.claude/agents/processes.md` (owns the test-level criterion, D-346) |
 
 ## Checking a PR's scope by hand
