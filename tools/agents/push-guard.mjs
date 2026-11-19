@@ -6,6 +6,8 @@
 //   - README.md generated blocks (ERROR lines)   → python3 tools/release/readme.py update
 //   - stylesheets against the design-lint gate    → node tools/agents/design-lint.mjs --gate
 //     (signature design-lint-gate: red `tests` on #1244 and #1245)
+//   - a game's cover changed without landing-fold.mjs passing on it here (#1624, #1629: five pushes
+//     each) → node tools/e2e/landing-fold.mjs --only <game> (tools/e2e/landing-stamp.mjs)
 //   - a branch that brings changes but no changelog/<branch>.md entry (D-300)
 //     → node tools/release/changelog.mjs new [patch|minor]
 // Exit 2 blocks the push and tells the session what to run; anything unexpected lets it through.
@@ -46,6 +48,10 @@ export function problems(cwd, run = (cmd, args) => spawnSync(cmd, args, { cwd, e
     const r = run('node', ['tools/agents/design-lint.mjs', '--gate']);
     if (r.status === 1) out.push('a stylesheet breaks the design-lint gate: node tools/agents/design-lint.mjs --gate, then use the token or allowlist the hit with its reason (docs/DESIGN.md §4)');
   }
+  if (existsSync(join(cwd, 'tools/e2e/landing-stamp.mjs'))) {
+    const r = run('node', ['tools/e2e/landing-stamp.mjs', '--check']);
+    if (r.status === 1) out.push((r.stdout || '').trim() || 'a cover changed without its landing-fold run: node tools/e2e/landing-fold.mjs --only <game>');
+  }
   out.push(...missingChangelog(run));
   return out;
 }
@@ -72,6 +78,6 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   let found = [];
   try { found = problems(cwd); } catch { process.exit(0); }
   if (!found.length) process.exit(0);
-  console.error(`Push stopped (push-guard.mjs, D-518): a generated file is stale and the tests check would go red.\n- ${found.join('\n- ')}`);
+  console.error(`Push stopped (push-guard.mjs, D-518): CI would go red for something found here.\n- ${found.join('\n- ')}`);
   process.exit(2);
 }
