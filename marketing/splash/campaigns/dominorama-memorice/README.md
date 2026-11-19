@@ -17,3 +17,8 @@ width (no sideways scroll), both ▶ buttons on screen.
 ## History
 
 - **2026-11-19:** made, kept off until both games launch.
+- **2026-11-19 (the owner's review):** each clip inset 8 px from its card with its own corners, and the
+  cards 16 px apart, so the two clips do not run together (every list campaign on a phone; the margin check
+  M-3 now accepts a row card's clip inset by the same gap above as on the left). Dominorama's clip is the
+  board alone, the dominoes turned off camera; Memorice's board is shrunk inside its clip, with room around it (ffmpeg pad, the page's purple); Memorice's card opens
+  with "Un clásico de la infancia." (its own text, three lines on a phone).
