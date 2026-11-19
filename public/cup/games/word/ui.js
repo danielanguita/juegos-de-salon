@@ -21,8 +21,10 @@ export function montar(raiz, ctx) {
 
   // Tap a box to choose where the next letter goes, as in Número
   const elegible = pad => { pad.activarElegir(); return pad; };
-  // The word's language is the cup's, not the player's: always said, in the player's own language
-  const idioma = fmt(T.wordLang, { idioma: T.langNames[p.lang || 'es'] });
+  // The word's language is the cup's, not the player's: warned only when they differ, in the player's own language
+  const palabraLang = p.lang || 'es';
+  const aviso = palabraLang === ctx.lang ? null
+    : el('div', { class: 'notice notice--warn', id: 'palabra-idioma' }, fmt(T.wordLang, { idioma: T.langNames[palabraLang] }));
 
   const dibujar = () => {
     const e = motor.estado(p, J.i);
@@ -38,7 +40,7 @@ export function montar(raiz, ctx) {
     } else {
       const quedan = p.max - e.usados;
       // Sin los `null`: `append` los escribe como el texto "null"
-      caja.append(...[el('p', { class: 'center palabra-idioma', id: 'palabra-idioma', style: 'margin:0' }, idioma),
+      caja.append(...[aviso,
         el('p', { class: 'muted center', style: 'margin:0' }, quedan === 1 ? T.tryLeft1 : fmt(T.triesLeft, { n: quedan })),
         // Lo que ya suma (D-108): cada letra en su lugar cuenta una vez
         e.encontradas ? el('p', { class: 'center ok', id: 'letras-encontradas', style: 'margin:0' }, fmt(e.encontradas === 1 ? T.famasFoundOne : T.famasFound, { n: e.encontradas, largo: p.largo, pts: motor.PUNTOS_FAMA * e.encontradas })) : null,
