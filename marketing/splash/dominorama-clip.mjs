@@ -1,6 +1,6 @@
 // The Dominorama splash clip (prepared with the game's way out of the lab; no campaign names it yet): the real
 // game at /dominorama/ (?seed=SPLASH, its window.__dominorama hook) plays the medium board the way a player
-// does: a tap turns a domino in the tray until it faces the right way, a tap on a cell lays it, each zone's
+// does: each domino turned off camera, a tap on a cell lays it, each zone's
 // diamond rings green as it fills, and the board glows when it is solved. One screenshot per frame, through
 // the e2e browser (tools/e2e/cdp.mjs, no Playwright), with the page's flag held on for this browser only.
 //
@@ -9,7 +9,7 @@
 //   ffmpeg -framerate 30 -i /tmp/dominorama-frames/f%04d.png -vf "scale=480:-2,format=yuv420p" \
 //     -c:v libx264 -crf 26 -preset slow -movflags +faststart -an public/assets/splash/dominorama.mp4
 //
-// The frame is the board and the tray, with the page's own ground; the poster (dominorama-start.jpg) is the
+// The frame is the board alone, square, with the page's own ground; the poster (dominorama-start.jpg) is the
 // first frame and the still (dominorama.jpg) the last.
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { launch, sleep } from '../../tools/e2e/cdp.mjs';
@@ -29,7 +29,9 @@ for (let t = 0; t < 60 && !(await ev(`/Tablero 2 de 3/.test(document.getElementB
 await sleep(400);
 await ev(`(() => { const s = document.createElement('style'); s.textContent = '.sparkles, .sparkle, #cover, .topbar, .jugar-head .reloj, #tr-tab, #tr-panel { visibility: hidden !important; }'; document.head.append(s); document.getElementById('dm-tablero').scrollIntoView({ block: 'start' }); })(); 1`);
 await sleep(300);
-const clip = await ev(`(() => { const a = document.getElementById('dm-tablero').getBoundingClientRect(), z = document.getElementById('dm-bandeja').getBoundingClientRect(); const pad = 12; return { x: 0, y: Math.max(0, a.top + scrollY - pad), width: innerWidth, height: z.bottom - a.top + 2 * pad, scale: 1 }; })()`);
+// Only the board, square, centred on it (the owner, 2026-11-19: the focus is the board filling up, not the
+// dominoes turning in the tray, so the tray stays out of the frame and its turns are not filmed)
+const clip = await ev(`(() => { const a = document.getElementById('dm-tablero').getBoundingClientRect(); const pad = 16; const side = Math.max(a.width, a.height) + 2 * pad; return { x: Math.max(0, a.left + a.width / 2 - side / 2), y: Math.max(0, a.top + scrollY + a.height / 2 - side / 2), width: side, height: side, scale: 1 }; })()`);
 
 let n = 0;
 const shot = async () => {
@@ -48,9 +50,8 @@ for (const s of steps) {
   const taps = s.giro || 4;
   for (let k = 0; k < taps; k++) {
     await ev(`document.querySelector('#dm-bandeja .dm-ficha[data-f="${s.f}"]').click(); 1`);
-    await hold(5);
+    await sleep(120);
   }
-  await hold(4);
   await ev(`document.querySelector('#dm-tablero .dm-celda[data-i="${s.cell}"]').click(); 1`);
   await hold(14);
 }

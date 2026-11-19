@@ -217,7 +217,8 @@ its copy wins the cascade meanwhile, so nothing changes for it. Ahorcado was the
    - **M-2 Even padding:** a card (`.panel`, `.notice`, `.mode`, `.hoja`, the splash window and its card)
      has the same padding on its left and its right.
    - **M-3 Even media:** a picture or clip that opens a card is flush with it on top and both sides, or
-     keeps the same gap above as on each side; never flush on one side with gutters on the others. When
+     keeps the same gap above as on each side (in a card laid out in a row: flush on top and left, or the same
+     gap above as on the left); never flush on one side with gutters on the others. When
      a clip must be narrower than its window (a short screen, a square clip), the window narrows to it
      rather than leaving gaps: `evenHeroMargins` in `splash.js` (the owner found an equal gap above
      excessive), and `tools/e2e/splash/margins.mjs` measures every `hero` campaign on a phone, a short
