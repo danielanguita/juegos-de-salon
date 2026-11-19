@@ -381,7 +381,9 @@ function finishRun() {
     detalle: `${g.score} pts · ${g.maxRow}/${g.finishRow} lanes · ${g.elapsed.toFixed(1)}s · ${g.fruitsTaken} fruits · ${g.closeCalls} close · seed ${g.seed}`,
   });
 
-  $('#result-title').textContent = isBest ? T.resultBest : isWin ? T.resultWin : T.resultCrash;
+  // The emoji apart from the words, with a gap, so the big display letters do not touch it
+  const [icon, ...words] = (isBest ? T.resultBest : isWin ? T.resultWin : T.resultCrash).split(' ');
+  $('#result-title').replaceChildren(el('span', { class: 'result-icon', 'aria-hidden': 'true' }, icon), words.join(' '));
   $('#lbl-stat-dist').textContent = T.statDistance;
   $('#lbl-stat-bonus').textContent = T.statBonus;
   $('#lbl-stat-lives').textContent = T.statLives;
