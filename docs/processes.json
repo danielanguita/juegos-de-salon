@@ -1,5 +1,5 @@
 {
-  "checkedUpTo": "1fe300d8d0391e10e4ed68edc9c289e3f52e8708",
+  "checkedUpTo": "9d92247fdf9fe89e74f934135cd7d9664c0484a3",
   "patterns": [
     {
       "key": "version-hacia-atras",
@@ -1354,6 +1354,14 @@
       "issue": null,
       "pr": null,
       "note": "dispatched docs, usability, ideas, ci-health, backlog, retention (#1594); collected 70 changelog entries; durations measured"
+    },
+    {
+      "date": "2026-11-19",
+      "from": "1fe300d8d0391e10e4ed68edc9c289e3f52e8708",
+      "to": "9d92247fdf9fe89e74f934135cd7d9664c0484a3",
+      "issue": null,
+      "pr": null,
+      "note": "dispatched docs (#1641 merged) + usability; queued #1597:1 handed to a build session; collected 40 changelog entries; durations measured; mechanism decision-file-invalid"
     }
   ],
   "ownerDecisions": [
