@@ -260,7 +260,7 @@ export async function drawCarousels({ lang, T, games, tap = () => {}, doc = docu
       ...shelves(games, { favs: favoritos() }).map(s => {
         const paths = s.games.map(g => new URL(g.path, doc.baseURI).href);
         const row = el('div', { class: 'shelf-row', 'data-shelf': s.id, role: 'list' }, s.games.map(g =>
-          el('div', { role: 'listitem' }, el('button', { type: 'button', class: 'shelf-tile', 'data-id': g.id, 'aria-haspopup': 'dialog', onClick: () => { tap(); if (direct) goCover(g); else open(g, s.id, paths); } },
+          el('div', { role: 'listitem' }, el('button', { type: 'button', class: 'shelf-tile', 'data-id': g.id, 'aria-haspopup': direct ? null : 'dialog', onClick: () => { tap(); if (direct) goCover(g); else open(g, s.id, paths); } },
             el('span', { class: 'emoji', 'aria-hidden': 'true' }, gameIcon(g, { size: 1 })),
             el('span', { class: 'name' }, pickLang(g.name, lang))))));
         return el('section', { class: 'shelf', 'aria-labelledby': `shelf-${s.id}` },
