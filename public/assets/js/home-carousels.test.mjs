@@ -1,6 +1,6 @@
 // The home page's carousels (lab flag home-carousels): which rows there are and what each holds.
 import assert from 'node:assert/strict';
-import { shelves, maxMinutes, rankingOf, demoUrl, slugOf, sheetUrl, TEXTS, QUICK_MINUTES } from './home-carousels.js';
+import { shelves, maxMinutes, rankingOf, demoUrl, slugOf, sheetUrl, TEXTS, QUICK_MINUTES, IN_DEXTERITY } from './home-carousels.js';
 import { PORTADA, TIPOS, SOLO_TABLES } from './games.js';
 
 const games = PORTADA.filter(g => g.id !== 'letras');
@@ -18,8 +18,12 @@ for (const g of open) assert.ok(inRows.has(g.id), `${g.id} is in no carousel: gi
 assert.ok(!inRows.has('copa'), 'La Copa is not a tile');
 for (const r of rows) assert.ok(r.games.length > 0, `${r.id} is empty`);
 // The order: the shortcuts first, then the types in their own order
-assert.deepEqual(ids.filter(id => !TIPOS[id]), ['popular', 'new', 'friends', 'quick'].filter(id => ids.includes(id)));
+assert.deepEqual(ids.filter(id => !TIPOS[id]), ['popular', 'new', 'friends', 'dexterity'].filter(id => ids.includes(id)));
 assert.deepEqual(ids.filter(id => TIPOS[id]), Object.keys(TIPOS).filter(id => ids.includes(id)));
+// Destreza holds the quick games and the skill ones (the owner, 2026-11-19): the skill type has no row of its own
+assert.ok(!ids.includes(IN_DEXTERITY), 'skill games go in Destreza');
+const skill = shelves([{ id: 's', available: true, players: '1', duration: '10', tipos: ['skill'] }], { favs: [], top: new Set(), isNew: () => false });
+assert.deepEqual(skill.map(r => r.id), ['dexterity'], 'a long skill game is in Destreza');
 // Favourites come first, and only with one marked
 assert.ok(!ids.includes('favorites'));
 const withFav = shelves(games, { favs: [open[3].id] });
@@ -28,11 +32,11 @@ assert.deepEqual(withFav[0].games.map(g => g.id), [open[3].id]);
 assert.equal(withFav.flatMap(r => r.games).filter(g => g.id === open[3].id).length, 1, 'a favourite leaves its other rows');
 // A row gets a game only if no row before it took it
 const two = shelves([{ id: 'a', available: true, players: '1–4', duration: '2', tipos: ['logic'] }], { favs: [], top: new Set(), isNew: () => false });
-assert.deepEqual(two.map(r => r.id), ['friends'], 'with friends comes before quick and its type');
+assert.deepEqual(two.map(r => r.id), ['friends'], 'with friends comes before dexterity and its type');
 // With friends: more than one can play. Quick: its longest play fits the limit
 const row = id => rows.find(r => r.id === id)?.games || [];
 assert.ok(row('friends').every(g => /\d\D+\d/.test(g.players)), 'with friends: a range of players');
-assert.ok(row('quick').every(g => maxMinutes(g) <= QUICK_MINUTES));
+assert.ok(row('dexterity').every(g => maxMinutes(g) <= QUICK_MINUTES || g.tipos?.includes(IN_DEXTERITY)));
 assert.equal(maxMinutes({ duration: '5–30' }), 30);
 assert.equal(maxMinutes({ duration: '7' }), 7);
 assert.equal(maxMinutes({ duration: '7', durationUnit: { es: 'días' } }), Infinity, 'days are never quick');
