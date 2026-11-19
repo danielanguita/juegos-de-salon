@@ -1,7 +1,7 @@
 /**
  * Críptico's cover (the owner, 2026-11-19): a split-flap board, as in an airport, that flips through
- * several words of the name's length and stops on the game's name. Each tile runs through a few letters
- * before landing, left to right, with a short stagger. With reduced motion it shows the name at once.
+ * several words of the name's length, the name among them, in an endless loop (the owner asked for it always
+ * moving). With reduced motion it shows the name, still.
  */
 
 const FLIPS = 'ABCDEFGHIJKLMNÑOPQRSTUVWXYZ';
@@ -14,7 +14,21 @@ export const BOARD_WORDS = {
 
 const wait = ms => new Promise(ok => setTimeout(ok, ms));
 
-/** Draws the board into `into` and plays it once. Returns a promise that settles on the name. */
+const WAVE = 110;      // ms between one tile and the next as a word comes in
+const SPINS = 4;       // random letters a tile runs through before landing
+const SPIN = 60;       // ms per random letter
+const HOLD = 1700;     // ms a word stays (the name, NAME_HOLD), while its tiles keep flapping in place
+const NAME_HOLD = 2800;
+const IDLE = 170;      // ms between two flaps in place while a word holds
+
+/** Is the cover on screen? The board rests while it is not, and while the tab is hidden. */
+const watching = into => !document.hidden && !!into.closest('.screen.active');
+
+/**
+ * Draws the board into `into` and plays it in a loop: each word comes in as a wave, tile by tile with a
+ * short offset, and while it holds its tiles keep flapping in place, so the board never stops and the
+ * word still reads. The name holds longest. With reduced motion (or ?test) it shows the name, still.
+ */
 export async function flapboard(into, lang = 'es', { random = Math.random } = {}) {
   const words = BOARD_WORDS[lang] || BOARD_WORDS.es;
   const name = words.at(-1);
@@ -37,14 +51,26 @@ export async function flapboard(into, lang = 'es', { random = Math.random } = {}
     void t.offsetWidth;
     t.classList.add('flap--tick');
   };
-  for (const [w, word] of words.entries()) {
-    const last = w === words.length - 1;
+  const pick = () => FLIPS[Math.floor(random() * FLIPS.length)];
+  for (let w = 0; ; w = (w + 1) % words.length) {
+    while (!watching(into)) await wait(500);
+    const word = words[w];
+    // The wave: tile i starts i × WAVE after the first, spins, and lands on its letter
     await Promise.all(tiles.map(async (t, i) => {
-      await wait(i * 45);
-      for (let k = 0; k < (last ? 5 : 3); k++) { flip(t, FLIPS[Math.floor(random() * FLIPS.length)]); await wait(55); }
+      await wait(i * WAVE);
+      for (let k = 0; k < SPINS; k++) { flip(t, pick()); await wait(SPIN); }
       flip(t, word[i] || ' ');
     }));
-    if (!last) await wait(650);
+    into.classList.toggle('flapboard--done', w === words.length - 1);
+    // The hold: one tile at a time flaps back onto its own letter, so something always moves
+    const until = Date.now() + (w === words.length - 1 ? NAME_HOLD : HOLD);
+    let last = -1;
+    while (Date.now() < until) {
+      let i = Math.floor(random() * tiles.length);
+      if (i === last) i = (i + 1) % tiles.length;
+      last = i;
+      flip(tiles[i], word[i] || ' ');
+      await wait(IDLE);
+    }
   }
-  into.classList.add('flapboard--done');
 }
