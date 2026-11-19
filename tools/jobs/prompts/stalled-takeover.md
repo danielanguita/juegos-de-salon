@@ -3,7 +3,10 @@
 The prompt of the cloud scheduled task `stalled-takeover` (jobs.json, `where: "cloud"`). It lives
 here so it can be recreated if lost: in any Claude Code session run `/schedule`, ask for a recurring
 task **every hour** on the repository `ellokojavi/juegos-de-salon`, a fresh session each run, and
-paste the text below. The cloud environment needs `gh` signed in with a token that can push, comment
+paste the text below. Pick the **cloud** environment (the one the contributions round uses),
+never the Mac mini's Remote Control environment: there each hourly run stays open as a session of
+the Mini's `claude remote-control` server, and in a day they fill its 32 places, so no new session
+from another device can start (it happened on 2026-11-19). The cloud environment needs `gh` signed in with a token that can push, comment
 and merge (a `GH_TOKEN` secret on the environment).
 
 ---
