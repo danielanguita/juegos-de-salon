@@ -101,7 +101,8 @@ const ES = {
       nombre: 'Toque y Fama: Palabra', habilidad: 'deducir',
       como: [
         'Adivina en 8 intentos una palabra secreta de 5 letras distintas.',
-        'Escribe 5 letras distintas, aunque no formen una palabra, y toca Probar. Cada letra se pinta verde si está en su lugar (fama) y amarilla si está en otro lugar (toque).',
+        'Toca una casilla y escribe 5 letras distintas, aunque no formen una palabra. Verde: en su lugar (fama); amarilla: en otro lugar (toque).',
+        'La palabra va en el idioma de la copa, no en el tuyo.',
       ],
       puntaje: 'Cada letra que encuentras en su lugar suma 10 puntos una sola vez. Sacar la palabra suma 50 más, menos 5 por cada intento después del primero.',
       desempate: 'Si empatas, gana quien tardó menos.',
@@ -743,6 +744,7 @@ const ES = {
   // Toque y Fama (el resto de sus textos son los de Toque y Fama)
   yourGuesses: 'Tus intentos',
   solvedWord: '¡La sacaste!',
+  wordLang: '🔤 Palabra en {idioma}',
   famasFound: 'Llevas {n} de {largo} letras en su lugar: {pts} puntos.',
   famasFoundOne: 'Llevas 1 de {largo} letras en su lugar: {pts} puntos.',
   notSolvedWord: 'Se acabaron los intentos. La palabra era {v}.',
@@ -1042,7 +1044,8 @@ const EN = {
       nombre: 'Bulls and Cows: Word', habilidad: 'deduction',
       como: [
         'Guess a secret word with 5 different letters in 8 guesses.',
-        'Type 5 different letters, even if they don\'t make a word, and tap Guess. Each letter turns green if it\'s in the right spot (bull) and yellow if it\'s in the wrong spot (cow).',
+        'Tap a box and type 5 different letters, even if they don\'t make a word. Green: right spot (bull); yellow: wrong spot (cow).',
+        'The word is in the cup\'s language, not yours.',
       ],
       puntaje: 'Each letter you find in its spot adds 10 points, only once. Cracking the word adds 50 more, minus 5 for each guess after the first.',
       desempate: 'On a tie, the faster player wins.',
@@ -1669,6 +1672,7 @@ const EN = {
   lineaFin: 'You placed {ok} of {n} cards correctly.',
   yourGuesses: 'Your guesses',
   solvedWord: 'You cracked it!',
+  wordLang: '🔤 Word in {idioma}',
   famasFound: '{n} of {largo} letters in their spot so far: {pts} points.',
   famasFoundOne: '1 of {largo} letters in its spot so far: {pts} points.',
   notSolvedWord: 'Out of guesses. The word was {v}.',
@@ -1962,7 +1966,8 @@ const PT = {
       nombre: 'Toque e Fama: Palavra', habilidad: 'dedução',
       como: [
         'Adivinhe em 8 tentativas uma palavra secreta de 5 letras diferentes.',
-        'Escreva 5 letras diferentes, mesmo que não formem uma palavra, e toque em Tentar. Cada letra fica verde se está no lugar certo (fama) e amarela se está em outro lugar (toque).',
+        'Toque numa casa e escreva 5 letras diferentes, mesmo que não formem uma palavra. Verde: no lugar certo (fama); amarela: em outro lugar (toque).',
+        'A palavra vem no idioma da copa, não no seu.',
       ],
       puntaje: 'Cada letra que você encontra no lugar certo soma 10 pontos, uma vez só. Descobrir a palavra soma mais 50, menos 5 por cada tentativa depois da primeira.',
       desempate: 'Se empatar, ganha quem levou menos tempo.',
@@ -2589,6 +2594,7 @@ const PT = {
   lineaFin: 'Você acertou {ok} de {n} cartas.',
   yourGuesses: 'Suas tentativas',
   solvedWord: 'Você descobriu!',
+  wordLang: '🔤 Palavra em {idioma}',
   famasFound: 'Você tem {n} de {largo} letras no lugar certo: {pts} pontos.',
   famasFoundOne: 'Você tem 1 de {largo} letras no lugar certo: {pts} pontos.',
   notSolvedWord: 'Acabaram as tentativas. A palavra era {v}.',
