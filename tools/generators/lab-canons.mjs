@@ -1,7 +1,7 @@
 /**
  * What a lab game lacks of its canons (D-579), from what it is made of, so public/labs/canons.test.mjs
  * checks the repo's lab games and tools/generators/new-game.test.mjs the generator's game with the
- * same rule. Subjects: manifest, cover-measured, exits, rankings, dialogs, signals, spec, e2e (docs/ADD-GAME.md).
+ * same rule. Subjects: manifest, cover-measured, exits, rankings, dialogs, signals, footer, spec, e2e (docs/ADD-GAME.md).
  *   manifest  its game.json, or null       game      all its code (game.js, its modules, inline scripts)
  *   inPaths   it has a cover in tools/e2e/paths.mjs (an `intro`)
  *   hasSpec   docs/games/<folder>.md exists   e2e  the file names in tools/e2e/<folder>/
@@ -17,6 +17,10 @@ export function labCanonGaps({ manifest: m, game = '', inPaths = false, hasSpec 
   if (!ok('C-19', 'rankings', /\b(finDePartida|bloqueTabla|avisoPartida|bloqueRanking|bloqueVictorias)\(/.test(game))) out.push('rankings');
   if (!ok('C-8', 'cover-dialogs', /\bcoverWithDialogs\b/.test(game))) out.push('dialogs');
   if (!ok('C-7', 'trackStart', /\btrackStart\(/.test(game) && /\btrackFinish\(/.test(game))) out.push('signals');
+  // The cover ends with the site footer and keeps a way to leave feedback (C-17): the general inbox, or, with
+  // `inbox: false`, the game's own comment among its options
+  const footer = /\b(footerInto|mountFooter)\(/.test(game) && (!/inbox:\s*false/.test(game) || /options:\s*\[/.test(game));
+  if (!ok('C-17', 'footer', footer)) out.push('footer');
   if (!hasSpec) out.push('spec');
   if (!ok('C-12', 'e2e', e2e.includes('languages.mjs') && e2e.some(f => f !== 'languages.mjs' && f.endsWith('.mjs')))) out.push('e2e');
   return out;

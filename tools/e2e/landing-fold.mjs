@@ -19,13 +19,14 @@
  * `?today` link sends to the real day's game, so measuring on the real date checked only one game
  * a day, and a cover too tall failed every PR on the day its game came out (Generala, 2026-11-19).
  */
-import { mkdirSync } from 'node:fs';
+import { mkdirSync, readFileSync } from 'node:fs';
 import { launch, sleep } from './cdp.mjs';
 import { output } from './output.mjs';
 import { LANGS, EN_LABS, LABS_KEY } from '../../public/assets/js/i18n.js';
 import { PATHS, routeOf } from './paths.mjs';
 import { JUEGOS_DIA, juegoDel, fechaLocal } from '../../public/assets/js/uno-al-dia.js';
 import { rutaHoy } from '../../public/assets/js/uno-al-dia-ui.js';
+import { coverFiles, record } from './landing-stamp.mjs';
 
 const SITE = process.env.SITE || process.env.SITIO || 'http://localhost:8765';
 const OUT = output('/tmp/e2e/landing-fold');
@@ -81,9 +82,13 @@ const MEASURE = `(()=>{
 })()`;
 
 let failures = 0;
+/** The games that passed, as { id, route, width }: the push guard's stamp (landing-stamp.mjs). */
+const passed = [];
 for (const [width, height] of SIZES.filter(([w]) => !PART || String(w) === PART)) {
   const b = await launch({ dir: `${OUT}/profile-${width}`, out: OUT, width, height });
+  const failed = new Set();
   for (const { name: game, route, steps, fresh, day } of LANDINGS) {
+    const before = failures;
     for (const lang of LANGS) {
       const labs = EN_LABS.includes(lang) ? `localStorage.setItem('${LABS_KEY}', '${lang}');` : '';
       await b.open(`${SITE}/${fresh || route}`);
@@ -108,8 +113,28 @@ for (const [width, height] of SIZES.filter(([w]) => !PART || String(w) === PART)
         await b.shot(`${game.replace(/[/: ]/g, '-')}-${width}-${lang}`);
       } else console.log(`✓ ${tag}: «${m.name}» ${m.fold - m.bottom} px to spare`);
     }
+    if (failures > before) failed.add(game.split(' ')[0]);
   }
   b.close();
+  passed.push(...games.filter(g => !failed.has(g)).map(id => ({ id, route: routeOf(id), width })));
 }
+await stamp(passed);
+/**
+ * Stamps the games that passed, for push-guard.mjs: only those whose cover files the server served
+ * exactly as they are on disk, so a run against another folder or the live site vouches for nothing.
+ */
+async function stamp(list) {
+  const same = [];
+  for (const l of list) {
+    let ok = true;
+    for (const f of coverFiles(l.route)) {
+      const served = await fetch(`${SITE}/${f.slice('public/'.length)}`).then(r => r.ok ? r.arrayBuffer() : null).catch(() => null);
+      if (!served || !Buffer.from(served).equals(readFileSync(new URL(`../../${f}`, import.meta.url)))) { ok = false; break; }
+    }
+    if (ok) same.push(l);
+  }
+  try { if (same.length) record(same); } catch { /* not in a git worktree: nothing to stamp */ }
+}
+
 console.log(failures ? `\n✗ ${failures} landing(s) with the main button below the fold` : '\n✓ every landing shows its main button without scrolling');
 process.exit(failures ? 1 : 0);
