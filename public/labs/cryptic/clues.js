@@ -61,6 +61,7 @@ const ES = [
   { c: 'Ojalá se alimente y te ayude a separar las ideas', a: 'COMA', k: 'definitions', d: 'te ayude a separar las ideas', x: 'COMA: «ojalá coma», que se alimente, y la coma, el signo que separa las ideas.' },
   { c: 'En la cumbre, de dos en dos, Camilo miraba Santiago. Hasta que se le salió un botón', a: 'CAMISA', k: 'selector', d: 'Hasta que se le salió un botón', x: 'Las cumbres de dos en dos: CA de Camilo, MI de miraba, SA de Santiago. CAMISA, a la que se le sale un botón.' },
   { c: 'Hombre americano con un litro extra en tequila. Qué maravilla de calorías doradas', a: 'MANTEQUILLA', k: 'charade', d: 'calorías doradas', x: 'MAN (hombre, en inglés) + TEQUILA con una L (un litro) de más, TEQUILLA = MANTEQUILLA, una maravilla de calorías doradas.' },
+  { c: 'Sonaron cuatro notas y no quedó una pizca de dulce de leche en la cuchara', a: 'RELAMIDO', k: 'charade', d: 'no quedó una pizca de dulce de leche en la cuchara', x: 'RE + LA + MI + DO, cuatro notas = RELAMIDO: así queda la cuchara cuando no le queda ni una pizca de dulce de leche.' },
 ];
 
 /** Spanish only for now (the owner, 2026-11-19): the mechanics first, the other banks once it works. */
