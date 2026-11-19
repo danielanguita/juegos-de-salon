@@ -25,7 +25,7 @@ look. Spanish clues only for now, by the owner's call: the mechanics first, the 
   Solving is worth 3 stars minus the helps; «Me rindo» shows the answer, with no stars.
 - **The day's clue** is the same for everyone on a date, at the player's own midnight: clue number
   `days since 2026-11-19 + 1`, walking the bank with a stride so every clue comes out once before any
-  repeats (`indexOf` in `engine.js`). With 32 clues, a month.
+  repeats (`indexOf` in `engine.js`). With 33 clues, a month.
 - **The streak:** days in a row with the day's clue solved; given up breaks it. Practice clues (any other
   clue of the bank, at random) count for nothing.
 - Rankings: none yet (D-212: whether it keeps a score is the owner's call).
@@ -57,6 +57,18 @@ result stays on the phone for the streak.
 - `tools/e2e/cryptic/game.mjs`: plays today's clue (a wrong guess, two helps, a reload, the answer)
   and a practice clue given up; `node tools/e2e/conformance.mjs labs/cryptic` checks the canons.
 - Hook: `window.__cryptic` (`state()`, `clue()`, `answer()`).
+
+## Writing a clue (the owner, 2026-11-19)
+
+The first bank was too direct: the owner asked for clues that make the player think and reach for a hint,
+while staying solvable. Every clue in `clues.js` follows these four rules:
+
+1. **One natural sentence that tells another story.** No colon or semicolon splitting wordplay from
+   definition: the seam is the player's to find («Una monja loca se cura colgada en la despensa»).
+2. **A fair but sideways definition** at one end: «ni te cases ni te embarques» for MARTES, «Recluta» for SOLDADO.
+3. **A blended indicator**: «loca», «regresa», «a escondidas», «decapitan» read as part of the story, not as an instruction.
+4. **One answer only**, and `x` shows every step of the solution. The engine test checks the mechanics it can
+   (definition at an end, anagram letters, hidden and reversed words).
 
 ## Excepciones a los cánones
 
