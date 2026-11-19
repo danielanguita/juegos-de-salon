@@ -26,6 +26,8 @@ Solo (`solo`), with deterministic seeded tracks (`?seed=<n>`) ready for Cup inte
 
 ## Flow
 
+Scenery: the start row and the rest rows (11, 21) are a grass verge between curbs (lamp, bin, bench, butterfly); the finish is a wetland up to the top of the screen (reeds, heron, duck, dragonfly, lily pads).
+
 Intro (cover: the real game playing itself as its demo, with a caption; the standard traffic lever, Pintaminas' and Sudoku's, always starting on normal; solo mode; «Instrucciones» and «Entrar» dialogs; the ranking; site footer) → Play (2.5D canvas stage, top HUD, board-wide swipe controls + live Dash gauge) → Result (itemized breakdown: lanes, fruits, elapsed time tie-break, total; replay same seed or new seed; share through `compartir.js`; exits from `fin.js`, C-19).
 
 ## Message protocol
