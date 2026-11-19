@@ -126,7 +126,7 @@ A script's pages come from its `${SITE}/…` addresses, its folder (`hangman/` �
 `case/` → `/labs/case/`) and the page names it lists when it builds its routes; a part named after a
 game (`cup-games/languages.mjs:year`) runs only with that game. A script that opens every game's page
 and takes `--only` (`ONLY` in `ci.mjs`: `landing-fold.mjs`) runs only for the games a PR's own files
-reach (`landing-fold.mjs:320@generala`), and whole for a shared file (D-588). **When in doubt, everything runs:**
+reach (`landing-fold.mjs:320@generala`, tested by `node tools/e2e/only.test.mjs`), and whole for a shared file (D-588). **When in doubt, everything runs:**
 a file in `public/` that no page loads (`sw.js`, an image fetched at run time), `tools/e2e/`'s shared
 code, `e2e.yml`, a tool a script imports, a file at the root, or a script that builds routes without
 naming them. A changed script always runs itself. `node tools/e2e/ci.mjs --list --changes <file>`
