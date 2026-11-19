@@ -185,7 +185,8 @@ export const CAMPAIGNS = {
     emoji: '🎉',
     requires: ['dominorama', 'memory'],
     kicker: { es: '¡Dos juegos nuevos!', en: 'Two new games!', pt: 'Dois jogos novos!' },
-    title: { es: 'Dominó y memoria', en: 'Dominoes and memory', pt: 'Dominó e memória' },
+    // A question that makes the player pick (the owner asked for something more interesting than the names)
+    title: { es: '¿Lógica o memoria?', en: 'Logic or memory?', pt: 'Lógica ou memória?' },
     lead: { es: 'Dos desafíos para jugar solo. Elige uno.', en: 'Two puzzles to play on your own. Pick one.', pt: 'Dois desafios para jogar sozinho. Escolha um.' },
     items: [
       { game: 'dominorama', href: 'dominorama/?play', video: 'assets/splash/dominorama.mp4', img: 'assets/splash/dominorama-start.jpg', still: 'assets/splash/dominorama.jpg' },
