@@ -6,7 +6,14 @@ import assert from 'node:assert/strict';
 import { readFile, readdir } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
-import { SUELTOS, SOLO_TABLES, ALL_GAMES } from './games.js';
+import { SUELTOS, SOLO_TABLES, ALL_GAMES, FIRST_VARIANT_TABLES } from './games.js';
+import { VARIANTES } from '../../cup/engine.js';
+
+// A game whose first variant has its own table (Sudoku) names it as the game's page writes it: `<id>_<first variant>`.
+// Rankings and the home page's sheet read it from here; Rankings showed the empty `sudoku` table for a week (2026-11-18)
+for (const [id, table] of Object.entries(FIRST_VARIANT_TABLES)) assert.equal(table, `${id}_${VARIANTES[id]?.[0]}`, `FIRST_VARIANT_TABLES.${id} is not its first variant's table`);
+const recordsPage = await (await import('node:fs/promises')).readFile(new URL('../../records/index.html', import.meta.url), 'utf8');
+assert.ok(/id: FIRST_VARIANT_TABLES\[g\.id\] \|\| g\.id/.test(recordsPage), 'Rankings names a game\'s first table through FIRST_VARIANT_TABLES');
 
 const PUBLIC = new URL('../../', import.meta.url).pathname;
 // Not a game page: La Copa records its games' tables (the SUELTOS) and the lab is not in Rankings

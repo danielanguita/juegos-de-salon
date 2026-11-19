@@ -94,7 +94,7 @@
     import '../assets/js/season.js'; // the seasonal touches (D-457)
     import { getLang, langToggle, applyStatic, pickLang, COMMON } from '../assets/js/i18n.js';
     import { SFX, soundToggle, initSound } from '../assets/js/sound.js';
-    import { SUELTOS, GAMES, gameById, SOLO_TABLES } from '../assets/js/games.js';
+    import { SUELTOS, GAMES, gameById, SOLO_TABLES, FIRST_VARIANT_TABLES } from '../assets/js/games.js';
     import { DECKS } from '../timeline/decks/index.js';
     import { LOCALES as LINEA } from '../timeline/rules.js';
     import { trackVisit } from '../assets/js/transport/stats.js';
@@ -161,11 +161,12 @@
     const conSolo = Object.entries(SOLO_TABLES).map(([id, tabla]) => ({ g: gameById(id), tabla }))
       .filter(({ g }) => g?.available && !g.labs && !g.oculto);
     const deUno = [
-      // A game with variants has one table per variant (D-331): the default one is the game's, the others `<id>_<variant>`
+      // A game with variants has one table per variant (D-331): the default one is the game's, the others `<id>_<variant>`;
+      // Sudoku's first level has its own too (FIRST_VARIANT_TABLES): its tab used to read `sudoku`, which nobody writes
       ...juegos.flatMap(g => {
         const conV = v => `${pickLang(g.name, lang)} · ${juegosCopa(lang)[g.id]?.variantes?.[v]?.nombre || v}`;
         const vs = VARIANTES[g.id] || [];
-        return [{ id: g.id, emoji: g.emoji, icon: g.icon, nombre: vs.length ? conV(vs[0]) : pickLang(g.name, lang) },
+        return [{ id: FIRST_VARIANT_TABLES[g.id] || g.id, emoji: g.emoji, icon: g.icon, nombre: vs.length ? conV(vs[0]) : pickLang(g.name, lang) },
           ...vs.slice(1).map(v => ({ id: `${g.id}_${v}`, emoji: g.emoji, icon: g.icon, nombre: conV(v) }))];
       }),
       ...conSolo.map(({ g, tabla }) => ({ id: tabla, emoji: g.emoji, icon: g.icon, nombre: pickLang(g.name, lang) })),
@@ -253,7 +254,9 @@
     );
     // Lo que pide la dirección: #copas (también el #copa de antes), #juegos/<tabla> o, de antes, #<juego>
     const pedido = decodeURIComponent(location.hash.slice(1));
-    const tablaPedida = pedido.startsWith('juegos/') ? pedido.slice(7) : pedido;
+    // An old link to a game whose first variant has its own table (#juegos/sudoku) opens that table
+    const pedida = pedido.startsWith('juegos/') ? pedido.slice(7) : pedido;
+    const tablaPedida = FIRST_VARIANT_TABLES[pedida] || pedida;
     elegirJuego(todasJuegos.some(o => o.id === tablaPedida) || tablaPedida.startsWith('linea-de-tiempo_rel-') ? tablaPedida : todasJuegos[0]?.id);
     mostrar(/^copas?$/.test(pedido) ? 'copas' : 'juegos');
     window.__records = { get seccion() { return seccion; }, get juego() { return juegoElegido; } };
