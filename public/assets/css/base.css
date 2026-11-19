@@ -916,7 +916,9 @@ body.azar-abierto { overflow: hidden; }
 /* The sunset, chosen from twelve variants in /labs/footer/: the page ends in a glow of the site's own purple and pink, the
    phrase in white. Its options are chips, each tinted with its own color and its color circle on the left (variant C2,
    the owner, 2026-11-09): the pill of the cards' tags, so the corner reads as part of the app and not as more game cards */
-footer.atardecer { margin: 0 -18px -32px; padding: 28px 18px 32px; background: linear-gradient(180deg, transparent, rgb(var(--purple-rgb) / 0.28) 45%, rgb(var(--pink-rgb) / 0.32)); }
+/* It reaches the very bottom of the screen: past the column's padding and past the room <body> keeps for the phone's
+   gesture bar (--safe-bottom), which otherwise showed as a dark band of the page's background under the sunset */
+footer.atardecer { margin: 0 -18px calc(-1 * var(--s-32) - var(--safe-bottom)); padding: 28px 18px calc(var(--s-32) + var(--safe-bottom)); background: linear-gradient(180deg, transparent, rgb(var(--purple-rgb) / 0.28) 45%, rgb(var(--pink-rgb) / 0.32)); }
 /* On a screen shorter than the phone the sunset rests on the bottom edge: pushed down, its gradient ends where the page does, no dark band below */
 .screen > footer.atardecer:last-child { margin-top: auto; }
 footer.atardecer .footer-msg { color: var(--ink); opacity: 1; font-weight: 800; font-size: 1.04rem; }
