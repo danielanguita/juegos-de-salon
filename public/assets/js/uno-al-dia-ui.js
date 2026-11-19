@@ -9,7 +9,7 @@ import { GAMES, SUELTOS, PORTADA, gameById, SLUGS_SIN_PAGINA } from './games.js'
 import { tiene } from './parametros.js';
 import { tirar, alAzar, TEXTOS as AZAR } from './azar.js';
 import { botonCompartir, cabecera, laminaResultado, nombreArchivo, compartir, lamina, aArchivo, fuente, COLORES, MARCO } from './compartir.js';
-import { JUEGOS_DIA, estado, rutaDel, numeroDel, sumarDias, COMODINES_MAX, leer, anotar, fechaLocal, juegoDel, semillaDel, settleStarted, unfinished, forfeit, markStarted, GRUPO } from './uno-al-dia.js';
+import { JUEGOS_DIA, estado, rutaDel, numeroDel, sumarDias, COMODINES_MAX, leer, anotar, fechaLocal, juegoDel, semillaDel, settleStarted, unfinished, forfeit, markStarted, GRUPO, todayPending } from './uno-al-dia.js';
 import { UNO_AL_DIA, bandera } from './records.js';
 import { trackUnoAlDia } from './transport/stats.js';
 import { walk, seasonPoints } from './daily-points.js';
@@ -157,6 +157,20 @@ function tarjetaDosDestinos({ lang, raiz, alTocar }) {
     el('div', { class: 'texto' }, el('h2', {}, el('span', {}, T.nombre)), el('div', { class: 'tag' }, T.sub)),
     el('div', { class: 'meta' }, racha && !hecho ? el('span', { class: 'uad-card-estado', 'aria-hidden': 'true' }, `🔥 ${racha}`) : null, chip),
     hecho ? null : el('span', { class: 'btn-uad-punto', 'aria-hidden': 'true' }));
+}
+
+/**
+ * The line under the exits of a game played on its own (lab flag `solo-result-today-card`, #1597):
+ * «📅 Uno al día de hoy: 👑 Reinas · Jugar», a quiet cyan link to today's game, only while it is not
+ * played yet; null otherwise. `fin.js` puts it, never in La Copa or in Uno al día itself (C-19).
+ */
+export function todayLine({ lang, raiz = '', e = estado() }) {
+  const p = todayPending(e, lang);
+  if (!p) return null;
+  const T = textos(lang).uad;
+  return el('a', { class: 'uad-fin', href: raiz + rutaHoy(p.id) },
+    el('span', { class: 'uad-fin-txt' }, `📅 ${fmt(T.endToday, { juego: `${p.emoji} ${p.name}` })}`),
+    el('span', { class: 'uad-fin-ir' }, `· ${T.endPlay}`));
 }
 
 /** The season's month and year, short and without a dot: «Oct 2026», «Out 2026». Pure, for node. */

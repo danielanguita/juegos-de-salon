@@ -21,8 +21,9 @@ export const states = flags => Object.fromEntries(Object.keys(flags || {}).sort(
 export const snapshot = () => JSON.parse(readFileSync(FILE, 'utf8'));
 /**
  * The flags the tests hold at a state whatever Firebase says (`tools/e2e/flags-held.json`): a lab treatment that
- * replaces a whole page (the home page as carousels) would otherwise be on in every script that opens that
- * page, since localhost holds the lab key. Its own script turns it on with `browser.flags()`. A row leaves
+ * replaces a whole page (the home page as carousels), or adds to a screen every game shares (Uno al día's line
+ * under a result, `solo-result-today-card`), would otherwise be on in every script that opens it, since
+ * localhost holds the lab key. Its own script turns it on with `browser.flags()`. A row leaves
  * this file in the PR that removes the flag's gate.
  */
 export const HELD = fileURLToPath(new URL('../e2e/flags-held.json', import.meta.url));

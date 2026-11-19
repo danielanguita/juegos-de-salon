@@ -666,6 +666,8 @@ export const PATHS = {
     game: [START, `1`, `1`, `1`, `1`, `1`, `1`],
     moves: [START, `1`, `1`, `1`, `1`, `1`, `document.querySelector('.rej[data-i="0"]').click()`, `document.querySelector('.rej[data-i="3"]').click()`],
     clear: [START, `1`, `1`, `1`, `1`, `1`, `document.querySelector('.rej[data-i="0"]').click()`, `document.getElementById('btn-borrar').click()`],
+    // Given up and its result: the exits, and under them the lab's Uno al día line (flag solo-result-today-card, #1597)
+    result: [START, `1`, `1`, `1`, `1`, `1`, `window.confirm = () => true; document.getElementById('btn-rendirse').click()`, `1`, `document.getElementById('btn-fin').click()`, `1`, `1`],
   },
   /**
    * ¿En qué año?: the board, the year typed with a. C. on (its label after the boxes) and the

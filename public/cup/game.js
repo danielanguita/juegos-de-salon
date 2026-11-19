@@ -2011,7 +2011,8 @@ function explicacion(J, { s, ms, det, x = 1, final = false, auto = false, copa =
  * de prueba (jugar otra vez ya es probar) ni muestra la semilla, y manda su señal de uso. Desde el
  * laboratorio llega con `&labs` y queda como estaba.
  */
-const volverDePractica = () => salidasFin(LABS ? 'lab' : 'suelto', { lang: LANG, raiz: RAIZ });
+// `portada`: on the cover the exits carry nothing a result offers (Uno al día's line, #1597)
+const volverDePractica = ({ portada = false } = {}) => salidasFin(LABS ? 'lab' : 'suelto', { lang: LANG, raiz: RAIZ, portada });
 
 /**
  * The variant of a standalone game (D-331): the link's (`?mode=hard`; Pintaminas' `?colors=2`
@@ -2120,7 +2121,7 @@ function practica(id, varianteElegida = null) {
     // Un juego `diario` (El caso, D-267) no: lo abre un amigo que no sabe de copas, y arriba ya dice qué caso es (U-8)
     LABS && !gameById(id)?.diario ? el('p', { class: 'muted center' }, T.practiceHint) : null,
     el('button', { class: 'btn btn--yellow', id: 'btn-empezar', onClick: () => { SFX.tap(); jugarPractica(id, semilla, variante); } }, textWithIcon(J, T.start)),
-    volverDePractica(),
+    volverDePractica({ portada: true }),
     // Entrar, pegado a Empezar y a Volver (D-249): sin jugador, la partida no queda en ningún
     // ranking. Arriba de las reglas, o entre los dos, bajaba los botones en alemán (C-8)
     rankea(id) ? bloqueJugador({ destacado: true, alTocar: () => SFX.tap() }) : null,

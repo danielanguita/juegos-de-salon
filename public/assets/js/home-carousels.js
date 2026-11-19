@@ -27,9 +27,9 @@ export const HINT = 'juegos-de-salon:home-carousels';
 export const QUICK_MINUTES = 3;
 
 export const TEXTS = {
-  es: { friends: 'Con amigos', quick: 'Rápidos', details: 'Detalles', play: '▶ Jugar' },
-  en: { friends: 'With friends', quick: 'Quick', details: 'Details', play: '▶ Play' },
-  pt: { friends: 'Com amigos', quick: 'Rápidos', details: 'Detalhes', play: '▶ Jogar' },
+  es: { friends: 'Con amigos', quick: 'Destreza', details: 'Detalles', play: '▶ Jugar' },
+  en: { friends: 'With friends', quick: 'Dexterity', details: 'Details', play: '▶ Play' },
+  pt: { friends: 'Com amigos', quick: 'Destreza', details: 'Detalhes', play: '▶ Jogar' },
 };
 
 /** The longest a game takes, in minutes; a game counted in another unit (La Copa's days) is never quick. */
@@ -46,7 +46,7 @@ export function shelves(games, { favs = [], top = populares(), isNew = esNuevo }
     ['popular', '🔥', g => top.has(g.id)],
     ['new', '✨', g => isNew(g)],
     ['friends', '👥', g => rangoJugadores(g.players)[1] > 1],
-    ['quick', '⚡', g => maxMinutes(g) <= QUICK_MINUTES],
+    ['quick', '🤹', g => maxMinutes(g) <= QUICK_MINUTES],
     ...Object.entries(TIPOS).map(([id, t]) => [id, t.emoji, g => (g.tipos || []).includes(id)]),
   ];
   // A game shows once on the whole page (the owner, 2026-11-18): it stays in the first row that holds it, in this

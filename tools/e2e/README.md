@@ -47,9 +47,10 @@ snapshot when it differs (`node tools/agents/flags-snapshot.mjs check | refresh`
 test that the launch breaks fails once and is fixed.
 
 **Flags the tests hold** (`tools/e2e/flags-held.json`): localhost holds the lab key, so a flag in *lab* is on in
-every script. A lab treatment that replaces a whole page (the home page as carousels, `home-carousels`) is listed
+every script. A lab treatment that replaces a whole page (the home page as carousels, `home-carousels`), or adds to a
+screen every game shares (the Uno al día line under a result, `solo-result-today-card`), is listed
 there at *off*, on top of the snapshot, so the scripts that open that page keep testing what players see; its own
-script (`home/carousels.mjs`) turns it on with `browser.flags()`. The row leaves in the PR that removes the gate.
+script (`home/carousels.mjs`, `queens/today-card.mjs`) turns it on with `browser.flags()`. The row leaves in the PR that removes the gate.
 
 ## Test levels (D-346)
 
@@ -312,6 +313,7 @@ node tools/e2e/contact-sheet.mjs cuarto-rey --out /tmp/contact-sheet
 | `sudoku/game.mjs` | Sudoku (lab): each level, a repeated digit (red, costs 10 points), a note and an undo, the board filled through the hook and its score checked; the conformance checks run it in every language |
 | `sudoku/page.mjs` | #️⃣ Sudoku at /sudoku/ (D-517's way): the waiting room with the drawn icon, the demo and the level lever; the 6×6 board, a wrong digit (−10), a hint (−15), the board filled and the result with its breakdown and card; the lever up to the 9×9 and the red-violet page, giving up (0, the solution); en and pt at 320 px |
 | `tango/give-up.mjs` | ☀️ Tango at `/tango/`: 🏳️ Give up next to 🧹 Clear all asks to confirm, shows the solution and scores 0 points, as in Queens (D-110) |
+| `queens/today-card.mjs` | 📅 Today's Uno al día under the result of a game played on its own (lab flag `solo-result-today-card`, #1597, turned on with `browser.flags()`): Reinas given up to its result; with the flag held off no line; on, one cyan line under «Volver al menú» names today's game and opens it with `?today`, not on the cover, gone once today's game is on the phone; Spanish at 390 px and English at 320 px, one line, even margins, one yellow button |
 | `tango/mistakes-rule.mjs` | ☀️ Tango in La Copa, lab flag `mistakes-rule`: the line under the title says what a mistake costs |
 | `home/carousels.mjs` | The home page as carousels (lab flag `home-carousels`, turned on with `browser.flags()`): the rows, a tile opening the game's sheet, and the sheet playing the game's cover animation framed from `cup/cover/` |
 | `home/cup-today.mjs` | La Copa's card on the home page (lab flag `copa-hoy`): with a day of this phone's cup left to play, ▶ Jugar hoy and a link to that day, read from `juegos-de-salon:copa:hoy:<code>` without loading the cup's files (D-378); once played, the card as always |

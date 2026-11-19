@@ -32,7 +32,7 @@ or any other here), launch it and report what it found; do not ask the owner fir
   (`node tools/agents/retention.mjs check`), proposes at most one hypothesis and action as a one-tap decision on a
   real drop, and writes verdicts two weeks after an approved action ships. It only proposes, never acts on players.
 - **Player**: on every PR that changes a game, it plays the touched games on the preview like a first-time
-  player (phone size, Spanish and one other language, a full game to the result) and comments the friction it met
+  player (phone size, Spanish and one other language, a full game to the result, with an extra pass on the screen the PR changes, known only from its changelog entry) and comments the friction it met
   with steps and screenshots. It reports only: it never edits or pushes, and it does not re-report what `look.mjs`
   and the e2e scripts measure. Launched with the other review agents (MERGING.md step 1); `pr-created.mjs` reminds it.
 - **Documentation** (D-172): a round when the processes agent launches it (D-276), a review of each PR, and on

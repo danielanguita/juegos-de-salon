@@ -20,7 +20,7 @@ export const FLAGS = {
   'uad-share-grids': '🟩 Uno al día: share grids for Agentes, Dudo, Generala and Battleship',
   'cover-facts': '📖 Game pages: who plays and how long, in the rules',
   'uad-night-totals': '📅 Uno al día: totals written by the hourly rebuild',
-  'home-carousels': '🎠 Home page: the games in rows of three (popular, new, with friends, quick and one per type), each game once, in place of the dice, the filters and the list; a tap opens a sheet with the game\'s animation, its ranking, a share button and ▶ Jugar',
+  'home-carousels': '🎠 Icon view: the games in rows of three (popular, new, with friends, dexterity and one per type), each game once, in place of the dice, the filters and the list; a tap opens a sheet with the game\'s animation, its ranking, a share button and ▶ Jugar',
   'home-pill-bar': '💊 Home page: top bar buttons as pills of one height',
   'cup-back-board': '🏆 La Copa: the header ‹ goes back to the board while playing a day',
   'cup-podium-early': '🏆 La Copa: on the last day, once nothing left to play can change the first three places, the board announces the podium before the cup closes',
@@ -47,6 +47,7 @@ export const FLAGS = {
   'pm-pick-brush': '🖌️ Pintaminas: a game starts with no brush chosen; a tap on the board first asks to pick one, so nobody paints by mistake',
   'cover-dialogs': '🎮 Game covers: under Empezar, Instrucciones and Entrar (or your name) open as dialogs, the rankings open below; no «Volver al menú» and no game name chip on top, ‹ Menú as tall as the icons',
   'install-invite': '📲 Install the app: «Instala Juegos de Salón» in an iridescent card that waits for a first finished game, a ✕ that snoozes 14 then 60 days, an invitation from the top a moment after a game (once a week), iPhone steps that draw Safari\'s buttons with an arrow at its toolbar, and a 📲 tile in the home footer',
+  'solo-result-today-card': '📅 A game played on its own: under its result, one cyan line «📅 Uno al día de hoy: 👑 Reinas · Jugar» for whoever has not played today\'s Uno al día yet; never in La Copa or in Uno al día itself (#1597)',
   'lab-ready': '✅ Labs: lab use of each flag is counted, and its card says when it is ready to 🚀 (D-528)',
 };
 

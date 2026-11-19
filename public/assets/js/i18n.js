@@ -222,6 +222,8 @@ export const COMMON = {
     uad: {
       nombre: 'Uno al día',
       jugar: 'Jugar hoy', unirse: 'Únete al mes',
+      // Under the result of a game played on its own (lab flag solo-result-today-card, #1597): «📅 Uno al día de hoy: 👑 Reinas · Jugar»
+      endToday: 'Uno al día de hoy: {juego}', endPlay: 'Jugar',
       tusPuntos: '✅ Tus puntos',
       ariaJugarHoy: 'Jugar hoy el Uno al día',
       ariaTusPuntos: 'Uno al día: tus puntos del mes',
@@ -498,6 +500,7 @@ export const COMMON = {
     uad: {
       nombre: 'One a Day',
       jugar: 'Play today', unirse: 'Join this month',
+      endToday: "Today's One a Day: {juego}", endPlay: 'Play',
       tusPuntos: '✅ Your points',
       ariaJugarHoy: "Play today's One a Day",
       ariaTusPuntos: 'One a Day: your points this month',
@@ -771,6 +774,7 @@ export const COMMON = {
     uad: {
       nombre: 'Um por dia',
       jugar: 'Jogar hoje', unirse: 'Entre no mês',
+      endToday: 'Um por dia de hoje: {juego}', endPlay: 'Jogar',
       tusPuntos: '✅ Seus pontos',
       ariaJugarHoy: 'Jogar hoje o Um por dia',
       ariaTusPuntos: 'Um por dia: seus pontos do mês',

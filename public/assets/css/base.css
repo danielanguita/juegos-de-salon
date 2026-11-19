@@ -876,6 +876,14 @@ body.azar-abierto { overflow: hidden; }
 /* The exits of an end screen (C-19, fin.js): two quiet buttons side by side, compact so they fit
    above the fold at 320 px in every language (C-8) */
 .fin-salidas .btn { min-width: 0; font-size: 0.95rem; padding: 8px 10px; line-height: 1.15; gap: 6px; }
+/* Today's Uno al día under the exits of a game played on its own (lab flag solo-result-today-card, #1597):
+   one quiet cyan line, not a second yellow button (C-19); on a narrow phone a long name takes a second line, never cut */
+.uad-fin { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; column-gap: var(--s-6); min-height: 44px; padding: var(--s-8) var(--s-14); text-align: center; line-height: 1.25;
+  border: 1px solid rgb(var(--cyan-rgb) / 0.45); border-radius: var(--r-pill); background: rgb(var(--cyan-rgb) / 0.08);
+  color: var(--ink); font: 700 var(--fs-90) var(--font-body); text-decoration: none; }
+.uad-fin-txt { min-width: 0; }
+.uad-fin-ir { flex: none; white-space: nowrap; color: var(--cyan); font-weight: 900; }
+@media (max-width: 359px) { .uad-fin { font-size: var(--fs-85); padding-inline: var(--s-10); } }
 
 /* Cuenta regresiva antes de jugar (D-105), de assets/js/cuenta-regresiva.js: La Copa y el laboratorio */
 .cuenta {
