@@ -61,6 +61,9 @@
   background: var(--glass); border: 1px solid var(--glass-border); color: inherit; text-decoration: none;
   transition: transform 0.15s, border-color 0.15s;
 }
+/* A list of games (not a hero, not a teaser): each clip inset from its card's edge, with its own corners, and
+   the cards further apart, so two clips playing at once do not run into each other (the owner, 2026-11-19) */
+.splash:not(.splash--hero) .splash-item:not(.splash-teaser) .splash-media { margin: var(--s-8) var(--s-8) 0; width: calc(100% - 2 * var(--s-8)); border-radius: var(--r-12); }
 a.splash-item:hover, a.splash-item:focus-visible { transform: translateY(-3px); border-color: var(--yellow); }
 /* A few seconds of play, square (marketing/splash/) */
 .splash-media { display: block; width: 100%; aspect-ratio: 1; object-fit: cover; background: var(--sp-pantalla); pointer-events: none; }
@@ -85,9 +88,14 @@ a.splash-item:hover, a.splash-item:focus-visible { transform: translateY(-3px); 
   .splash-items { grid-template-columns: 1fr; gap: 10px; }
   .splash-item { flex-direction: row; align-items: stretch; }
   .splash-media { width: 112px; height: auto; flex: none; }
+  .splash:not(.splash--hero) .splash-items:not(:has(.splash-teaser)) { gap: var(--s-16); grid-auto-rows: 1fr; }
+  /* Every card as tall as the tallest, its name on top and Play at the bottom: the same gap under Play in each (the owner) */
+  .splash:not(.splash--hero) .splash-item:not(.splash-teaser) .splash-item-cuerpo { justify-content: flex-start; padding: var(--s-10); }
+  .splash:not(.splash--hero) .splash-item:not(.splash-teaser) p { flex: 1; }
+  .splash:not(.splash--hero) .splash-item:not(.splash-teaser) .splash-media { margin: var(--s-8) 0 var(--s-8) var(--s-8); width: 104px; align-self: flex-start; }
   .splash-item-cuerpo { padding: 8px 10px; gap: var(--s-4); justify-content: center; }
   .splash-item h3 { font-size: 1rem; }
-  .splash-item p { font-size: var(--fs-75); line-height: 1.3; flex: none; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .splash-item p { font-size: var(--fs-75); line-height: 1.3; flex: none; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
   .splash-jugar { width: auto; align-self: flex-start; padding: 6px 16px; font-size: 1rem; }
   .splash-cerrar { width: 100%; }
 }
@@ -101,6 +109,9 @@ a.splash-item:hover, a.splash-item:focus-visible { transform: translateY(-3px); 
   .splash-titulo { font-size: var(--fs-200); }
   .splash-lead { font-size: var(--fs-85); line-height: 1.3; }
   .splash-media { width: 92px; }
+  .splash:not(.splash--hero) .splash-items:not(:has(.splash-teaser)) { gap: var(--s-10); }
+  .splash:not(.splash--hero) .splash-item:not(.splash-teaser) .splash-item-cuerpo { padding: var(--s-6) var(--s-10); }
+  .splash:not(.splash--hero) .splash-item:not(.splash-teaser) .splash-media { width: 76px; margin: var(--s-6) 0 var(--s-6) var(--s-6); }
   .splash-item p { font-size: var(--fs-75); }
   .splash-jugar { padding: 4px 14px; font-size: var(--fs-90); }
 }

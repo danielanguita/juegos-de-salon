@@ -7,7 +7,8 @@
  * - **M-2 Even padding:** a card (`.panel`, `.notice`, `.mode`, a sheet, a splash window or card) has the same
  *   padding on its left and its right.
  * - **M-3 Even media:** a picture or clip that opens a card (its first child) is flush with the card on
- *   top and both sides, or keeps the same gap above as on each side (rule 7, `splash/margins.mjs`).
+ *   top and both sides, or keeps the same gap above as on each side; in a card laid out in a row, flush on top and
+ *   left or the same gap above as on the left (rule 7, `splash/margins.mjs`).
  *
  * - **M-4 Nothing covers the next block:** in a column, a block in the page's flow (a picture, a demo, a
  *   panel, a title, a text) never starts more than OVERLAP px above the bottom of the visible block before
@@ -51,9 +52,10 @@ export const measureMargins = `(()=>{
     if (!m || !m.matches('img, video, canvas, picture') || !visible(m) || skip(m)) continue;
     const s = getComputedStyle(c), a = m.getBoundingClientRect(), b = c.getBoundingClientRect();
     const top = a.top - b.top - px(s.borderTopWidth), left = a.left - b.left - px(s.borderLeftWidth), right = b.right - px(s.borderRightWidth) - a.right;
-    // a card laid out in a row (a wide, short screen) has its picture at its left corner: flush on top and left
+    // a card laid out in a row (a wide, short screen) has its picture at its left corner: flush on top and left,
+    // or inset by the same gap above as on the left (a splash list's clips, the owner, 2026-11-19)
     if (getComputedStyle(c).flexDirection === 'row') {
-      if (Math.abs(top) > T || Math.abs(left) > T) off.push('M-3 ' + name(m) + ' in ' + name(c) + ': ' + Math.round(top) + ' px above, ' + Math.round(left) + ' px left');
+      if ((Math.abs(top) > T || Math.abs(left) > T) && Math.abs(top - left) > T) off.push('M-3 ' + name(m) + ' in ' + name(c) + ': ' + Math.round(top) + ' px above, ' + Math.round(left) + ' px left');
       continue;
     }
     if (Math.abs(left - right) > T || Math.abs(top - (left + right) / 2) > T)
