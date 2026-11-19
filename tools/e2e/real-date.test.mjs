@@ -60,9 +60,23 @@ export function audit(f, src) {
   return { opens, pinned: OWN_CLOCK.test(src) || launches.every(a => /\bclock:/.test(a)) };
 }
 
+/**
+ * A pinned script whose check compares the page's times with node's clock: node runs on the real date,
+ * the page on E2E_DAY, so the check passes only while the two are close (install-prompt.mjs's snooze, red
+ * from 2026-11-19 13:00 UTC on, #1644). The lines with a check (`ok(`, `assert`) that read Date.now() or
+ * new Date() outside a page string; the page's own clock is `await ev(\`Date.now()\`)`.
+ */
+export function nodeClock(src) {
+  return src.split('\n').map((l, i) => [l, i + 1])
+    .filter(([l]) => /\b(ok|assert(\.\w+)?)\(/.test(l) && /\bDate\.now\(\)|\bnew Date\(/.test(l.replace(/`(?:\\.|[^`])*`/g, '``')))
+    .map(([, n]) => n);
+}
+
 const bad = [], stale = [];
 for (const f of files) {
-  const a = audit(f, readFileSync(join(root, f), 'utf8'));
+  const src = readFileSync(join(root, f), 'utf8');
+  const a = audit(f, src);
+  if (a?.pinned) for (const n of nodeClock(src)) bad.push(`${f}:${n}: a check compares with node's real clock while the page runs on E2E_DAY: read the page's, await ev(\`Date.now()\`)`);
   if (a && !a.pinned && !REAL_CLOCK[f]) bad.push(`${f}: opens ${a.opens} on the real clock: launch({ …, clock: true }) (cdp.mjs E2E_DAY), or list it in REAL_CLOCK with its reason`);
   if (REAL_CLOCK[f] && (!a || a.pinned)) stale.push(`${f}: listed in REAL_CLOCK but ${a ? 'pinned now' : 'opens no page that follows today'}: drop the entry`);
 }
@@ -76,4 +90,7 @@ assert.equal(audit('x.mjs', "await launch({ out, clock: true }); await b.go(`${S
 assert.equal(audit('x.mjs', "await launch({ out }); await b.go(`${SITE}/hangman/?test`)"), null);
 assert.equal(audit('x.mjs', "await launch({ out }); await b.go(`${SITE}/cup/?test&demo=final`)"), null);
 assert.equal(audit('x-common.mjs', "await launch({ out })").opens, 'the paths.mjs catalog');
+assert.deepEqual(nodeClock("ok(x.until > Date.now() + 1, 'snoozed')"), [1]);
+assert.deepEqual(nodeClock("ok(x.until > await ev(`Date.now()`) + 1, 'snoozed')"), []);
+assert.deepEqual(nodeClock("const t0 = Date.now();"), []);
 console.log(`✓ no e2e script depends on the real date: ${files.length} scripts read, ${Object.keys(REAL_CLOCK).length} on the real clock with their reason`);

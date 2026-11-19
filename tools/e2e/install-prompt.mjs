@@ -150,7 +150,7 @@ await b.shot('new-sheet');
 await click('.hoja-fondo'); await sleep(300);
 await click('#btn-globo-cerrar'); await sleep(400);
 const luego = JSON.parse(await ev(`localStorage.getItem('juegos-de-salon:instalar:luego')`) || 'null');
-ok(await bubble() === null && luego?.n === 1 && luego.until > Date.now() + 13 * 864e5, 'new: the ✕ snoozes it 14 days');
+ok(await bubble() === null && luego?.n === 1 && luego.until > await ev(`Date.now()`) + 13 * 864e5, 'new: the ✕ snoozes it 14 days');
 ok(await ev(`localStorage.getItem('juegos-de-salon:instalar:no')`) === null, 'new: and does not turn it off for good');
 await b.go(`${SITE}/`, 3600);
 ok(await bubble() === null, 'new: not back while snoozed');
