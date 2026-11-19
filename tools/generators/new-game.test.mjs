@@ -38,7 +38,7 @@ try {
 
   // The lab's entry gate (D-579): everything public/labs/canons.test.mjs asks, as born
   assert.deepEqual(labCanonGaps({
-    manifest: m, game: readFileSync(join(dir, 'game.js'), 'utf8'),
+    manifest: m, game: ['game.js', 'index.html'].map(f => readFileSync(join(dir, f), 'utf8')).join('\n'),
     inPaths: readFileSync(join(root, 'tools/e2e/paths.mjs'), 'utf8').includes(`  '${id}': { intro: [] },`),
     hasSpec: existsSync(join(root, `docs/games/${id}.md`)),
     e2e: readdirSync(join(root, 'tools/e2e', id)),

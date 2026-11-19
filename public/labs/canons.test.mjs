@@ -9,10 +9,12 @@
 //   rankings  its result in the rankings: finDePartida, bloqueTabla or avisoPartida from ranking.js (C-19)
 //   dialogs   its cover through coverWithDialogs (cover-dialogs.js): Instrucciones and Entrar as dialogs (C-8)
 //   signals   the panel's trackStart and trackFinish (C-7, D-210), so the panel sees it from day one (C-16)
+//   footer    its cover ends with the site footer (footerInto or mountFooter) and keeps a feedback option:
+//             the general inbox, or its own comment in options when it passes inbox: false (C-17)
 //   spec      its docs/games/<folder>.md, with its exceptions to the canons (C-13)
 //   e2e       tools/e2e/<folder>/ with a script that plays it and its languages.mjs (C-12, D-199)
-// The rest of the canons (conformance's files, languages, memory, sharing; design-lint; the footer;
-// the watchdog; double tap) have their own tests; the whole map is in docs/ADD-GAME.md.
+// The rest of the canons (conformance's files, languages, memory, sharing; design-lint; the footer's
+// links; the watchdog; double tap) have their own tests; the whole map is in docs/ADD-GAME.md.
 // A canonException in its game.json whose reason names the subject excuses one, as in conformance.
 // The lab games that came before this rule are debt in docs/labs-canon-debt.json, a ratchet: an entry
 // lists exactly what its game still lacks, it only shrinks, and no new game may join it.
@@ -80,6 +82,6 @@ for (const [g, d] of Object.entries(debt)) {
 }
 
 // The check catches what it claims to: a folder with nothing has no manifest, cover, exits or rankings
-assert.deepEqual(missing('no-such-game'), ['manifest', 'cover-measured', 'exits', 'rankings', 'dialogs', 'signals', 'spec', 'e2e']);
+assert.deepEqual(missing('no-such-game'), ['manifest', 'cover-measured', 'exits', 'rankings', 'dialogs', 'signals', 'footer', 'spec', 'e2e']);
 
 console.log(`lab canons: ${games.length} lab game(s), ${Object.keys(debt).length} with debt, ${PARKED.length} parked in La Bodega`);
