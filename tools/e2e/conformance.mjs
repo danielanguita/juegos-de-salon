@@ -49,6 +49,8 @@ const START = {
   'labs/transfer': [`document.querySelector('.mode').click()`],
   // Its one mode starts the crossing directly, already saved
   'labs/croc': [`document.querySelector('#btn-play').click()`],
+  // The yellow button opens today's clue, already saved
+  'labs/cryptic': [`document.getElementById('btn-play').click()`],
 };
 
 const b = await launch({ port: 0, dir: `${OUT}/p`, out: OUT });

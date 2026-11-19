@@ -166,6 +166,7 @@ const TYF_RESULT = [
 ];
 
 export const PATHS = {
+  'cryptic': { intro: [] },
   // Tembleque (lab): its cover, measured by landing-fold.mjs (D-579)
   'labs/wobbles': { intro: [] },
   // Each level's result (C-19): a round started and ended at once
@@ -197,7 +198,7 @@ export const PATHS = {
     ],
   },
   /**
-   * 🕵️ Agentes (D-421): the board, the end (every clue passed, Terminar confirmed) and its result.
+   * 🗝️ Agentes (D-421): the board, the end (every clue passed, Terminar confirmed) and its result.
    * AG_FINISH passes each clue as soon as its button comes back (a clue takes about a second to
    * turn away), in one step: tapping it on a fixed beat took 14 steps, and the language check runs it
    * eight times.

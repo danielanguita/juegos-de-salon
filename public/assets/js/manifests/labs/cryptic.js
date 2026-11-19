@@ -1,0 +1,58 @@
+// Generated from game.json by node tools/generators/manifests.mjs: do not edit by hand.
+export default {
+  "id": "cryptic",
+  "path": "labs/cryptic/",
+  "emoji": "🗝️",
+  "name": {
+    "es": "Críptico",
+    "en": "Cryptic",
+    "pt": "Críptico"
+  },
+  "tagline": {
+    "es": "Una pista críptica al día: se lee de dos maneras y lleva a una sola palabra.",
+    "en": "One cryptic clue a day: it reads two ways and leads to a single word.",
+    "pt": "Uma pista enigmática por dia: lê-se de dois jeitos e leva a uma só palavra."
+  },
+  "keywords": {
+    "es": [
+      "críptico",
+      "pista",
+      "palabras",
+      "acertijo"
+    ],
+    "en": [
+      "cryptic",
+      "clue",
+      "words",
+      "riddle"
+    ],
+    "pt": [
+      "enigma",
+      "pista",
+      "palavras",
+      "charada"
+    ]
+  },
+  "players": {
+    "min": 1,
+    "max": 1
+  },
+  "duration": "2–5",
+  "tipos": [
+    "words"
+  ],
+  "labs": true,
+  "available": false,
+  "modes": [
+    "solo"
+  ],
+  "ai": false,
+  "memory": "juegos-de-salon:cryptic:session",
+  "languages": [
+    "es",
+    "en",
+    "pt"
+  ],
+  "firebasePaths": [],
+  "canonExceptions": []
+};

@@ -326,7 +326,7 @@ export const SUELTOS = [
     // Uno al día: its place in the deck order (never reorder: the shuffle depends on it) and since when it comes out (#855)
     unoAlDia: { orden: 17, desde: '2026-10-24' },
     slug: 'agents',
-    emoji: '🕵️',
+    emoji: '🗝️',
     name: { es: 'Agentes', en: 'Agents', pt: 'Agentes' },
     tagline: { es: 'Encuentra a tus espías con las pistas, sin tocar al asesino.', en: 'Find your spies from the clues, without touching the assassin.', pt: 'Encontre seus espiões com as pistas, sem tocar no assassino.' },
     keywords: {
@@ -704,6 +704,7 @@ export const idDeSlug = s => (Object.hasOwn(SLUG_DE, s) ? s : Object.hasOwn(ID_D
  * when a game sends signals with an id that has no name.
  */
 export const LAB_NAMES = {
+  'cryptic': { emoji: '🗝️', name: { es: 'Críptico', en: 'Cryptic', pt: 'Críptico' } },
   'croc': { emoji: '🐸', name: { es: 'Croc!', en: 'Croc!', pt: 'Croc!' } },
   blackjack: { emoji: '♠️', name: { es: 'Blackjack', en: 'Blackjack', pt: 'Blackjack' } },
   artifacts: { emoji: '⚙️', name: { es: 'Artefactos', en: 'Artifacts', pt: 'Artefatos' } },
