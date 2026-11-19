@@ -21,9 +21,23 @@ ok(/\(\d+(,\d+)*\)$/.test(await b.evaluate("document.getElementById('clue').text
 const answer = await b.evaluate('window.__cryptic.answer()');
 const n = answer.normalize('NFD').replace(/[̀-ͯ]/g, '').length;
 ok(await b.evaluate("document.querySelectorAll('#tiles .tile').length") === n, 'one box per letter');
+// The player types straight into the boxes (the owner, 2026-11-19): a real tap on them, real keystrokes
+const box = await b.evaluate("(() => { const r = document.querySelector('#tiles .tile').getBoundingClientRect(); return [r.x + r.width / 2, r.y + r.height / 2]; })()");
+await b.tap(...box);
+ok(await b.evaluate("document.activeElement?.id") === 'answer', 'a tap on the boxes is ready to type');
+await b.send('Input.insertText', { text: 'ab1' });
+await b.send('Input.insertText', { text: 'c' });
+await sleep(100);
+ok(await b.evaluate("[...document.querySelectorAll('#tiles .tile')].slice(0, 3).map(t => t.textContent).join('')") === 'ABC', 'letters land in the boxes, one each, other keys are left out');
+ok(await b.evaluate("[...document.querySelectorAll('#tiles .tile')].findIndex(t => t.classList.contains('tile--at'))") === (n > 3 ? 3 : -1), 'the cursor moves on to the next box by itself');
+await b.shot('typing');
+await b.send('Input.insertText', { text: 'x'.repeat(30) });
+await sleep(100);
+ok(await b.evaluate("document.getElementById('answer').value.length") === n, 'no more letters than boxes');
+await b.evaluate("(() => { const i = document.getElementById('answer'); i.value = ''; i.dispatchEvent(new Event('input')); })(); 1");
 
-await type('X'.repeat(n + 1));
-ok(await b.evaluate("document.getElementById('feedback').classList.contains('notice--warn')"), 'a guess of another length is a warning, not counted');
+await type('X'.repeat(n - 1)); // a longer one cannot be typed: the boxes stop it
+ok(await b.evaluate("document.getElementById('feedback').classList.contains('notice--warn')"), 'a guess with empty boxes is a warning, not counted');
 await type('Z'.repeat(n));
 ok(await b.evaluate("document.getElementById('feedback').classList.contains('notice--bad')"), 'a wrong guess says so');
 ok(await b.evaluate('window.__cryptic.state().guesses.length') === 1, 'only the guess of the right length counts');

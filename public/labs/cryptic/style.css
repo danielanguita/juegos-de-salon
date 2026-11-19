@@ -19,10 +19,20 @@
   background: var(--well-deep); font: 900 var(--fs-120) var(--font-display); text-transform: uppercase;
 }
 .tile--on { outline: 2px solid var(--cyan); }
+/* The next box to fill: the cursor, blinking while the keyboard is up */
+.tile--at { outline: 2px solid var(--yellow); }
+.tiles-wrap:focus-within .tile--at { animation: tile-blink 1s steps(1) infinite; }
+@keyframes tile-blink { 50% { outline-color: transparent; } }
+@media (prefers-reduced-motion: reduce) { .tiles-wrap:focus-within .tile--at { animation: none; } }
+
+/* The field the player types into lies, invisible, over the boxes: a tap on them opens the keyboard */
+.tiles-wrap { position: relative; }
+.tiles-input {
+  position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; padding: 0; border: 0;
+  opacity: 0; font-size: var(--fs-100); cursor: text;
+}
 
 .answer { display: grid; gap: var(--s-8); }
-.answer .field { margin: 0; }
-.answer input { text-transform: uppercase; text-align: center; letter-spacing: 0.12em; font-weight: 900; }
 
 /* ---------- The hints given ---------- */
 .hints { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--s-6); }

@@ -117,10 +117,30 @@ function clueNodes(round, c) {
   return [c.c.slice(0, at), el('u', { class: 'def' }, c.d), c.c.slice(at + c.d.length) + end];
 }
 
+/** The boxes show what is typed; the next empty one is marked while the field has focus, so the cursor advances alone. */
 function renderTiles() {
   const want = E.normalize(clue().a);
   const typed = E.normalize($('#answer').value).slice(0, want.length);
-  $('#tiles').replaceChildren(...[...want].map((_, i) => el('span', { class: 'tile' + (typed[i] ? ' tile--on' : '') }, typed[i] || '')));
+  $('#tiles').replaceChildren(...[...want].map((_, i) => el('span', {
+    class: 'tile' + (typed[i] ? ' tile--on' : '') + (i === typed.length ? ' tile--at' : ''),
+  }, typed[i] || '')));
+}
+
+/** Only letters go in, at most one per box, and the caret stays at the end: the boxes fill left to right. */
+function onType(ev) {
+  const input = $('#answer');
+  if (!ev?.isComposing) {
+    const n = E.normalize(clue().a).length;
+    const letters = [...input.value].filter(ch => /\p{L}/u.test(ch)).slice(0, n).join('');
+    if (letters !== input.value) input.value = letters;
+  }
+  renderTiles();
+}
+
+function caretToEnd() {
+  const input = $('#answer');
+  const end = input.value.length;
+  input.setSelectionRange?.(end, end);
 }
 
 function renderHints() {
@@ -140,8 +160,7 @@ function renderPlay() {
   $('#clue').replaceChildren(...clueNodes(state, c));
   const input = $('#answer');
   input.value = '';
-  input.placeholder = T.placeholder;
-  input.maxLength = c.a.length + 4;
+  input.setAttribute('aria-label', T.placeholder);
   $('#feedback').hidden = true;
   const give = $('#btn-give-up');
   delete give.dataset.armed;
@@ -149,6 +168,7 @@ function renderPlay() {
   renderTiles();
   renderHints();
   showScreen('screen-play');
+  input.focus({ preventScroll: true });
 }
 
 function say(text, kind) {
@@ -180,6 +200,7 @@ function submit(ev) {
   // The guess is in the red line: the field and the boxes empty for the next one
   input.value = '';
   renderTiles();
+  input.focus({ preventScroll: true });
 }
 
 function askHint() {
@@ -264,7 +285,9 @@ function init() {
   coverWithDialogs($('#screen-intro'), { lang, alTocar: () => SFX.tap() });
   flapboard($('#flapboard'), lang);
   $('#answer-form').addEventListener('submit', submit);
-  $('#answer').addEventListener('input', renderTiles);
+  const answer = $('#answer');
+  answer.addEventListener('input', onType);
+  for (const ev of ['focus', 'click', 'keyup']) answer.addEventListener(ev, caretToEnd);
   $('#btn-hint').addEventListener('click', askHint);
   $('#btn-give-up').addEventListener('click', giveUp);
   renderModes();
