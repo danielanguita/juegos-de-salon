@@ -199,6 +199,13 @@ ol.como li { line-height: 1.45; }
 
 .tabla { display: grid; gap: 6px; }
 .fila { display: grid; grid-template-columns: 1.6em 1em 1fr auto; align-items: center; gap: 6px; background: rgb(var(--cp-negro-rgb) / 0.22); border-radius: 12px; padding: 8px 10px; }
+.tabla.corta .fila.mas { display: none; }
+.tabla.corta .fila.asoma { display: grid; max-height: 2.9rem; overflow: hidden; -webkit-mask-image: linear-gradient(#000, transparent); mask-image: linear-gradient(#000, transparent); }
+.btn-mas { display: flex; align-items: center; justify-content: center; gap: var(--s-8); width: 100%; min-height: 44px; margin-top: var(--s-6); padding: var(--s-8) var(--s-12); border-radius: 999px; border: 2px solid rgb(255 255 255 / 0.25); background: rgb(255 255 255 / 0.06); color: inherit; font: 700 var(--fs-100, 1rem) var(--font-body); cursor: pointer; }
+.tabla.corta .btn-mas { margin-top: calc(-1 * var(--s-6)); position: relative; }
+.g-resto-caja { margin-top: var(--s-6); }
+.g-resto { margin: var(--s-8) 0 0; padding: 0 0 0 2.2em; display: grid; gap: var(--s-6); font-weight: 700; }
+.g-resto li::marker { color: var(--yellow); font-weight: 900; }
 .fila.yo { box-shadow: 0 0 0 2px var(--cyan) inset; }
 /* Out of the cup (D-347): kept in the table, faded, below everyone still playing (D-376) */
 .fila.fuera { opacity: 0.45; }

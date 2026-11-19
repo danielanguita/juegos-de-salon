@@ -868,7 +868,7 @@ function vistaTabla(filas, { dias, meta, now }) {
     ? el('div', { class: 'charla-pista', role: 'note' }, el('span', {}, T.talkHint),
       el('button', { type: 'button', class: 'charla-pista-x', 'aria-label': T.talkHintClose, onClick: () => { SFX.tap(); cerrarPista(); tableroEnSuSitio(); } }, '✕'))
     : null;
-  return el('div', { class: 'tabla' + (conCharla ? ' con-charla' : '') }, pista, ...filas.flatMap(f => [el('div', { class: 'fila' + (f.pid === S.yo ? ' yo' : '') + (f.fuera ? ' fuera' : ''), 'data-pid': f.pid },
+  const tablaNodo = el('div', { class: 'tabla' + (conCharla ? ' con-charla' : '') }, pista, ...filas.flatMap(f => [el('div', { class: 'fila' + (f.pid === S.yo ? ' yo' : '') + (f.fuera ? ' fuera' : ''), 'data-pid': f.pid },
     // Out of the cup (D-347): a door instead of a place, and faded (D-376)
     el('span', { class: 'lugar', title: f.fuera ? fmt(T.outAdmin, { a: f.fuera.desde, b: f.fuera.hasta }) : null }, f.fuera ? '🚪' : String(f.lugar)),
     el('span', { class: 'flecha ' + (f.flecha > 0 ? 'sube' : f.flecha < 0 ? 'baja' : '') }, f.flecha > 0 ? '▲' : f.flecha < 0 ? '▼' : ''),
@@ -883,6 +883,27 @@ function vistaTabla(filas, { dias, meta, now }) {
     // Today's comments as an extra line of the row, under the name: place, arrow and points stay where they were
     ...(() => { const cs = charla ? comentariosEnFila(f.pid, now) : []; return cs.length ? [el('div', { class: 'fila-comentarios' }, cs)] : []; })()),
   conCharla ? cajonCharla(f.pid, now) : null].filter(Boolean)));
+  return recortarTabla(tablaNodo, filas.length);
+}
+
+// A cup of more than 10 players (up to 20): the table shows the first 10, the 11th peeks faded under
+// a button, and the button opens the rest. Cups of 10 or fewer are as they were.
+const TABLA_VISIBLE = 10;
+let tablaAbierta = false;
+function recortarTabla(nodo, n) {
+  if (n <= TABLA_VISIBLE) return nodo;
+  const filasDom = [...nodo.querySelectorAll(':scope > .fila')];
+  filasDom.forEach((f, i) => { if (i >= TABLA_VISIBLE) f.classList.add('mas'); if (i === TABLA_VISIBLE) f.classList.add('asoma'); });
+  const boton = el('button', { type: 'button', class: 'btn-mas', 'aria-expanded': 'false', id: 'btn-ver-todos' });
+  const pintar = () => {
+    nodo.classList.toggle('corta', !tablaAbierta);
+    boton.setAttribute('aria-expanded', String(tablaAbierta));
+    boton.textContent = `${tablaAbierta ? '▴' : '▾'}  ${tablaAbierta ? T.seeFewer : fmt(T.seeAll, { n })}`;
+  };
+  boton.addEventListener('click', () => { SFX.tap(); tablaAbierta = !tablaAbierta; pintar(); });
+  pintar();
+  nodo.append(boton);
+  return nodo;
 }
 
 /**
@@ -944,8 +965,12 @@ function grafico(now) {
   // Out of the cup (D-347): their line, faded, and 🚪 after their name (D-376)
   const afuera = new Set(filasTabla.filter(f => f.fuera).map(f => f.pid));
   const n = ev.filas.length;
-  const W = 320, fila = 24, arriba = 14, abajo = 26, izq = 26, der = 92; // espacio a la derecha para "Nombre 3º (-1J)"
-  const H = arriba + (n - 1) * fila + abajo;
+  // More than 10 players: the graph draws the first 10 lanes, with no place numbers on the side and no
+  // chips below (the names are on the lines); the others are a ranked list of names under a button
+  const grande = n > TABLA_VISIBLE;
+  const carriles = grande ? TABLA_VISIBLE : n;
+  const W = 320, fila = 24, arriba = 14, abajo = 26, izq = grande ? 10 : 26, der = 92; // espacio a la derecha para "Nombre 3º (-1J)"
+  const H = arriba + (carriles - 1) * fila + abajo;
   const x = k => izq + (meta.days === 1 ? 0 : ((k - 1) * (W - izq - der)) / (meta.days - 1));
   const y = lugar => arriba + (lugar - 1) * fila;
   const NS = 'http://www.w3.org/2000/svg';
@@ -957,9 +982,9 @@ function grafico(now) {
   };
   const leyenda = el('p', { class: 'muted grafico-nota', 'aria-live': 'polite' }, T.progressHint);
   const svg = svgEl('svg', { viewBox: `0 0 ${W} ${H}`, class: 'grafico', role: 'img', 'aria-label': T.progressTitle });
-  for (let l = 1; l <= n; l++) {
+  for (let l = 1; l <= carriles; l++) {
     svg.append(svgEl('line', { x1: izq, x2: W - der, y1: y(l), y2: y(l), class: 'g-grid' }));
-    svg.append(svgEl('text', { x: izq - 8, y: y(l) + 4, class: 'g-eje', 'text-anchor': 'end' }, ord(l)));
+    if (!grande) svg.append(svgEl('text', { x: izq - 8, y: y(l) + 4, class: 'g-eje', 'text-anchor': 'end' }, ord(l)));
   }
   for (let k = 1; k <= meta.days; k++) svg.append(svgEl('text', { x: x(k), y: H - 6, class: 'g-eje', 'text-anchor': 'middle' }, fmt(T.dayShort, { d: k })));
   // Cada jugador con su color (D-125), fijo por orden de inscripción; tu línea, más gruesa y encima
@@ -970,7 +995,12 @@ function grafico(now) {
   // Empatados en el mismo lugar: sus nombres se apilan en vez de encimarse (el lugar siguiente
   // queda vacío en un empate, así que hay espacio)
   const enLugar = {};
+  // The table's own order decides who is in the rest, so players tied on a place split the same way in both
+  const enTabla = filasTabla.map(f => f.pid);
+  const resto = grande ? enTabla.slice(carriles).map(pid => ev.filas.find(f => f.pid === pid)).filter(Boolean) : [];
+  const delResto = new Set(resto.map(f => f.pid));
   for (const f of orden) {
+    if (delResto.has(f.pid)) continue;
     const mia = f.pid === S.yo;
     const g = svgEl('g', { class: 'g-jugador' + (mia ? ' mia' : '') + (afuera.has(f.pid) ? ' fuera' : ''), 'data-pid': f.pid, style: `--c:${color(f.pid)}` });
     grupos[f.pid] = g;
@@ -980,7 +1010,7 @@ function grafico(now) {
       const texto = fmt(T.progressPoint, { d: ev.dias[i], name: f.name, pos: ord(f.lugares[i]) });
       g.append(svgEl('circle', { cx: px, cy: py, r: mia ? 5 : 4, class: 'g-punto' }));
       const blanco = svgEl('circle', { cx: px, cy: py, r: 11, class: 'g-toque' }, svgEl('title', {}, texto));
-      blanco.addEventListener('click', () => { leyenda.textContent = texto; destacar(f.pid); });
+      blanco.addEventListener('click', () => { leyenda.textContent = texto; leyenda.hidden = false; destacar(f.pid); });
       g.append(blanco);
     });
     if (pts.length) {
@@ -999,13 +1029,25 @@ function grafico(now) {
     destacado = destacado === pid ? null : pid;
     svg.classList.toggle('con-destacado', !!destacado);
     Object.entries(grupos).forEach(([p, g]) => g.classList.toggle('destacado', p === destacado));
-    chips.querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.pid === destacado));
+    chips?.querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.pid === destacado));
   };
-  const chips = el('div', { class: 'grafico-chips' }, ev.filas.slice().sort((a, b) => porLlegada.indexOf(a.pid) - porLlegada.indexOf(b.pid)).map(f =>
+  const chips = grande ? null : el('div', { class: 'grafico-chips' }, ev.filas.slice().sort((a, b) => porLlegada.indexOf(a.pid) - porLlegada.indexOf(b.pid)).map(f =>
     el('button', { type: 'button', class: 'g-chip' + (f.pid === S.yo ? ' mia' : '') + (afuera.has(f.pid) ? ' fuera' : ''), 'data-pid': f.pid, style: `--c:${color(f.pid)}`, onClick: () => { SFX.tap(); destacar(f.pid); } },
       el('span', { class: 'g-color', 'aria-hidden': 'true' }), nombreConJuegos(f.pid === S.yo ? fmt(T.progressYou, { name: f.name }) : f.name, menos[f.pid]), afuera.has(f.pid) ? ' 🚪' : null)));
   const notaJuegos = Object.values(menos).some(x => x > 0) ? el('p', { class: 'muted grafico-nota', id: 'nota-juegos' }, T.fewerGamesNote) : null;
-  return el('div', { class: 'panel' }, el('p', { class: 'lead', style: 'margin-bottom:8px' }, T.progressTitle), svg, chips, notaJuegos, leyenda,
+  // The others, ranked by name, behind a button
+  let restoNodo = null;
+  if (resto.length) {
+    const lista = el('ol', { class: 'g-resto', hidden: true, start: carriles + 1 }, resto.map(f => el('li', { 'data-pid': f.pid }, f.name, afuera.has(f.pid) ? ' 🚪' : null, menos[f.pid] > 0 ? ` (-${menos[f.pid]}J)` : null)));
+    const boton = el('button', { type: 'button', class: 'btn-mas', 'aria-expanded': 'false', id: 'btn-ver-resto' });
+    let abierto = false;
+    const pintar = () => { lista.hidden = !abierto; boton.setAttribute('aria-expanded', String(abierto)); boton.textContent = `${abierto ? '▴' : '▾'}  ${abierto ? T.seeFewer : fmt(T.seeRest, { n: resto.length })}`; };
+    boton.addEventListener('click', () => { SFX.tap(); abierto = !abierto; pintar(); });
+    pintar();
+    restoNodo = el('div', { class: 'g-resto-caja' }, boton, lista);
+  }
+  if (grande) leyenda.hidden = true; // its text is filled by tapping a point
+  return el('div', { class: 'panel' }, el('p', { class: 'lead', style: 'margin-bottom:8px' }, T.progressTitle), svg, restoNodo, chips, notaJuegos, leyenda,
     // Once over, the podium's Share the summary does the same: one share button per screen (C-19)
     terminada(L().meta, now) ? null : el('button', { class: 'btn btn--cyan btn--sm', id: 'btn-imagen', onClick: async ev2 => {
       SFX.tap(); const b = ev2.currentTarget; b.disabled = true;
