@@ -177,6 +177,12 @@ The numbers classic, built as a La Copa game the way Aletazo was (D-517), with i
 
 Spec and design: [docs/games/sudoku.md](docs/games/sudoku.md)
 
+### 🎲 Dominorama (prepared, waiting for the owner's launch date)
+
+A dominoes puzzle inspired by *Pips* from The New York Times Games (credited on its cover), built as a La Copa game the way Sudoku was (D-517), with its page `/dominorama/`: lay every domino on the board so each colored zone keeps its rule (a number is the sum of its pips, = all equal, ≠ all different, < and > less or more). Every board has one solution. A cup day plays three boards, the trial plays the easy one; the score is 0 to 100, with a speed part and a cost for each help, and a share card reads like `✅✅⬜ 2/3 · 💡 1`. It is ready but **not launched**: it stays hidden until the owner switches the flag `dominorama` on, and Uno al día will deal it only from the date the owner sets. The lab prototype stays at `/labs/dominorama/` until the cleanup PR.
+
+Spec and design: [docs/games/dominorama.md](docs/games/dominorama.md)
+
 ### Retired cup games
 
 **🔗 Connections** (16 words, 4 groups) was day 3 until Agents replaced it (D-421); old cups keep it and it still opens at `/connections/`, in the lab's Storeroom. **🔍 The Case**, a *Clues by Sam*-style deduction mystery, also sits in the Storeroom at `/labs/case/`, playable but no longer worked on (D-257, D-263, D-267, D-280).

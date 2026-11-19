@@ -13,9 +13,10 @@ Pips stays, as the inspiration.
 
 ## Resumen
 
-- **Where:** `https://juegosdesalon.cl/labs/dominorama/`, in the lab (each person's key, D-281, D-284). Id `dominorama`
+- **Where:** `https://juegosdesalon.cl/dominorama/` (hidden until `flags/dominorama` is on), La Copa and Uno al día;
+  the lab prototype stays at `/labs/dominorama/` (each person's key, D-281, D-284) until the cleanup PR. Id `dominorama`
   in the usage signal.
-- **For whom:** one player. Spanish only (a prototype).
+- **For whom:** one player. Three languages in La Copa's game (es, en, pt); the lab prototype is Spanish only.
 - **Status:** active project, to try with friends. If it catches on, the idea is that it joins La Copa.
 
 ## Cover
