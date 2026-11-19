@@ -1,4 +1,4 @@
-# 🎲 Dominorama (lab prototype, in Juegos en prueba)
+# 🎲 Dominorama (La Copa game, ready to launch by flag; the lab prototype stays until the cleanup)
 
 A dominoes puzzle for one player (D-381): lay every domino on the board so each colored zone keeps its
 rule. **Inspired by [Pips](https://www.nytimes.com/games/pips), by The New York Times Games (2025)**, and
@@ -11,11 +11,12 @@ the id (`pips` → `dominorama`; the usage counted before stays under `pips`) an
 moved with it; `/labs/pips/` is a small redirect for the links already shared. The credit to NYT's
 Pips stays, as the inspiration.
 
-## Summary
+## Resumen
 
-- **Where:** `https://juegosdesalon.cl/labs/dominorama/`, in the lab (each person's key, D-281, D-284). Id `dominorama`
+- **Where:** `https://juegosdesalon.cl/dominorama/` (hidden until `flags/dominorama` is on), La Copa and Uno al día;
+  the lab prototype stays at `/labs/dominorama/` (each person's key, D-281, D-284) until the cleanup PR. Id `dominorama`
   in the usage signal.
-- **For whom:** one player. Spanish only (a prototype).
+- **For whom:** one player. Three languages in La Copa's game (es, en, pt); the lab prototype is Spanish only.
 - **Status:** active project, to try with friends. If it catches on, the idea is that it joins La Copa.
 
 ## Cover
@@ -35,7 +36,7 @@ clock is said by the lab card and the heading of each board.
 The 🎲 stands in for a domino: the domino characters (🁢) are not color emoji on an iPhone and could show
 as an empty box.
 
-## How it is played
+## Reglas
 
 - **Three boards**, easy (4 dominoes, inside 4×3), medium (6, inside 4×4) and hard (8, inside 5×5), one
   after the other, against a clock that runs from the shared 3, 2, 1 ("¡A jugar!"). The heading says
@@ -78,7 +79,13 @@ as an empty box.
   other boards, today's (if played with a seed), back to the lab and, after a line, the comment form.
 - **Sharing:** one mark per board ("✅✅⬜ 2 de 3") and the helps, never the boards.
 
-## How it works
+## Modos
+
+One player. In La Copa (a day plays the three boards; the trial, the easy one), in Uno al día from its launch
+date, and on its page `/dominorama/` (today's boards, or `?seed=`). The lab prototype `/labs/dominorama/`
+plays the same engine until the cleanup PR.
+
+## Flujo
 
 - `engine.js`: `generar(semilla, nivel)` builds a board from a solution: dominoes laid next to each
   other make a compact shape (a new one goes where it touches more of the shape), each gets a different
@@ -105,15 +112,51 @@ friends have played it.
 
 ## Tests
 
-`public/labs/dominorama/engine.test.mjs` (rules, one solution per board, laying, help, score) and
+`public/cup/games/dominorama/engine.test.mjs` (rules, one solution per board, laying, help, score) and
 `tools/e2e/dominorama/lab.mjs` (the lab card, the cover, choosing, turning and laying with taps, the three
 boards solved by taps, the help, the result, giving up).
 
-## Exceptions to the canons
+## Protocolo de mensajes
 
-Those of every lab prototype (D-304): Spanish only, outside La Copa and Uno al día, reached only with a
-lab key.
+None: one player, no room. La Copa's shared screen sends the result (`cup/game.js`).
+
+## Archivos
+
+`public/cup/games/dominorama/` (`engine.js`, `engine.test.mjs`, `ui.js`, `texts.js`, `style.css`, `icon.svg`),
+`public/dominorama/index.html` (generated), the lab prototype `public/labs/dominorama/` (`game.js`, `style.css`,
+`engine.js` a re-export), `tools/e2e/dominorama/` (`page.mjs`, `lab.mjs`), `marketing/splash/dominorama-clip.mjs`.
+
+## Excepciones a los cánones
+
+The lab prototype keeps those of every lab prototype (D-304): Spanish only, reached only with a lab key.
+La Copa's game has none: three languages, in La Copa and Uno al día, hidden until `flags/dominorama`.
 
 ## Migrated to the design system (D-533, #1193)
 
 The lab's stylesheet, `public/labs/dominorama/style.css`, lost its copy of the shell's `.link-btn` (identical to `base.css`'s) and writes the rest on the tokens: 37 lint hits to 0, with no escape. The dominoes' ivory, edge, middle line and dots are the game's own tokens (`--dm-*`); black shadows at an alpha are `rgb(var(--well-rgb) / a)`. What changed for the player, all intended: a cell's and a rule diamond's corner is 8 px (was 6), the rule's number takes the nearer text step and the dots' ink, a broken rule and a wrong placement are `--red` (was `#ff3b3b`), the "wrong" notice and the given-up stamp are `--pink` (was a pale pink of their own), and the stamp is one step larger (1.4 rem, was 1.3).
+
+## Out of the lab, ready to launch (D-517's way, 2026-11-19)
+
+Prepared the way Sudoku was (commit 3f60e2d8), **not launched**: the owner said "only the preparations,
+launch nothing until I say so". It stays hidden until the owner switches `flags/dominorama` to *all*.
+
+- **La Copa's screen** in `public/cup/games/dominorama/`: the engine moved there (the lab's `engine.js` is a
+  re-export, so the prototype plays on it), plus `generateDay` (the three boards from `dominorama:code:day`;
+  the trial plays the easy one) and `card` (`✅✅⬜ 2/3 · 💡 1`, the same in every language); `ui.js` (the
+  waiting room with the swaying domino, the credit to NYT's Pips and the demo board; the game; the result's
+  breakdown), `texts.js` in es, en and pt (keys prefixed `dm`), `style.css` (prefixed `dm-`) and `icon.svg`
+  (the drawn domino; 🎲 is its text stand-in).
+- **Its page** `/dominorama/` (generated by `og.mjs cards`, with the bridges `/minigames/dominorama/` and
+  `/minijuegos/dominorama/`) and its link card `assets/og/dominorama.jpg`.
+- **`games.js`**: a SUELTOS entry with `lanza: 'dominorama'` (so `oculto` until the flag), `copa: { pozo: 20 }`,
+  `unoAlDia: { orden: 25, desde: '2099-01-01' }` and `nuevoDesde: '2099-01-01'`: **both dates are placeholders,
+  set when the owner picks the launch date** (One a Day reads the date, never the flag). Its row in `flag-list.js`.
+  Rankings get its tab on their own (a SUELTOS id, table `dominorama`, D-559).
+- **The score** is the lab's, 0 to 100 already; the cup's clock (`clock`) gives the time for the speed part.
+  The state (board, dominoes laid, helps) is saved after every move with `ctx.guardar`.
+- **What changed from the lab:** the cup provides the countdown, the clock, sharing, the ranking and the
+  comment; the lab's "¿Cómo se juega?" fold is the cup's rules panel; the lab's own clock is gone.
+- **The hook** for the e2e scripts: `window.__dominorama` (`state()`, `board()`, `solveBoard()`).
+- **Splash media** for a future campaign (no campaign names it yet): `assets/splash/dominorama.mp4`,
+  `dominorama-start.jpg` and `dominorama.jpg`, recorded by `marketing/splash/dominorama-clip.mjs`.
+- **Tests:** `public/cup/games/dominorama/engine.test.mjs` and `tools/e2e/dominorama/page.mjs`.

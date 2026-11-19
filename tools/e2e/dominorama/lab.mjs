@@ -43,7 +43,7 @@ async function resolverTablero(t) {
 }
 
 await b.go(`${SITE}/labs/`);
-ok(await ev(`document.querySelector('#activos #seccion-dominorama #btn-dominorama')?.getAttribute('href')`) === 'dominorama/', 'the lab offers Dominorama under Juegos en prueba');
+ok(await ev(`document.querySelector('#activos #seccion-dominorama #btn-dominorama-lab')?.getAttribute('href')`) === 'dominorama/' && await ev(`document.getElementById('btn-dominorama')?.getAttribute('href')`) === '../dominorama/', 'the lab offers Dominorama under Juegos en prueba');
 ok(await ev(`/Pips/.test(document.querySelector('#seccion-dominorama a[href*="nytimes.com/games/pips"]')?.textContent || '')`), 'and says it is inspired by NYT Pips, with its link');
 
 await b.go(`${SITE}/labs/dominorama/?test&seed=${SEED}`, 1200);

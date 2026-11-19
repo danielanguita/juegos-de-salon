@@ -77,6 +77,7 @@ const CODE = {
   aletazo: () => Promise.all([import('./flap/engine.js'), import('./flap/ui.js')]),
   sudoku: () => Promise.all([import('./sudoku/engine.js'), import('./sudoku/ui.js')]),
   memory: () => Promise.all([import('./memory/engine.js'), import('./memory/ui.js')]),
+  dominorama: () => Promise.all([import('./dominorama/engine.js'), import('./dominorama/ui.js')]),
   microgames: () => Promise.all([import('./microgames/engine.js'), import('./microgames/ui.js')]),
   'croc': () => Promise.all([import('./croc/engine.js'), import('./croc/ui.js')]),
   final: () => Promise.all([import('./final/engine.js'), import('./final/ui.js')]),
@@ -123,6 +124,10 @@ const BUILD = {
   }, { portada: ui.cover, titulo: ui.title, montar: ui.mount, resultado: ui.result, desglose: ui.breakdown }),
   // #️⃣ Sudoku, out of the lab like Aletazo (D-517's way), launched by flags/sudoku. Its levels are its
   // variants (easy, the 6×6 mini, by default; hard, the 9×9), its score 0 to 100 already
+  // 🎲 Dominorama, out of the lab like Sudoku (D-517's way), hidden behind flags/dominorama: three boards, 0 to 100
+  dominorama: ([m, ui]) => delLab('dominorama', { generarDia: m.generateDay }, {
+    portada: ui.cover, titulo: ui.title, montar: ui.mount, resultado: ui.result, desglose: ui.breakdown, clock: ui.clock, caro: ui.caro,
+  }),
   sudoku: ([m, ui]) => delLab('sudoku', { generarDia: m.generateDay }, {
     portada: ui.cover, titulo: ui.title, montar: ui.mount, resultado: ui.result, desglose: ui.breakdown, selector: ui.selector, clock: ui.clock, caro: ui.caro,
   }),
