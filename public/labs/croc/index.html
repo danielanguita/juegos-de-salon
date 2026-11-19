@@ -81,19 +81,24 @@
         <div class="croc-logo" aria-hidden="true">🐸</div>
         <h1 class="display display--xl rainbow" data-i18n="title">Croc!</h1>
         <p class="lead" data-i18n="lead"></p>
+        <!-- The cover's demo: the real game playing itself (engine + scene), saying what the frog does -->
+        <figure class="croc-demo-wrap">
+          <canvas class="dash-demo" id="dash-demo" aria-hidden="true"></canvas>
+          <figcaption class="croc-demo-caption" id="demo-caption"></figcaption>
+        </figure>
         <div id="lang-slot"></div>
-        <canvas class="dash-demo" id="dash-demo" aria-hidden="true"></canvas>
       </div>
       <div class="stack">
         <div id="resume-slot"></div>
-        <div id="diff-seg"></div>
         <div class="modes" id="modes"></div>
         <p class="best-line" id="best-cover" hidden></p>
-        <!-- The rules go after the main action (U-39): the goal first and three points (U-18) -->
-        <div class="panel">
-          <p class="lead" data-i18n="howTitle"></p>
+        <!-- The rules go after the main action (U-39), folded (D-550): the goal first and three points (U-18) -->
+        <details class="panel">
+          <summary data-i18n="howTitle"></summary>
           <ol class="how" id="how"></ol>
-        </div>
+        </details>
+        <!-- The ranking and signing in, below the fold, like every game played alone (D-212, D-249) -->
+        <section class="stack" id="cover-ranking"></section>
         <div id="pie" class="pie"></div>
       </div>
     </section>
