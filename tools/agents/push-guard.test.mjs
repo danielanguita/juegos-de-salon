@@ -14,7 +14,7 @@ test('isPush sees a git push, not other commands', () => {
 
 test('problems names the stale index and the stale README block', () => {
   const run = (cmd, args) => cmd === 'node'
-    ? { status: args[0].includes('design-lint') ? 0 : 1, stdout: '' }
+    ? { status: /design-lint|landing-stamp/.test(args[0]) ? 0 : 1, stdout: '' }
     : { status: 1, stdout: 'ERROR · the block "tests" went stale  →  python3 tools/release/readme.py update\nERROR · screenshot x outdated\n' };
   const found = problems(process.cwd(), run);
   assert.equal(found.length, 2);
@@ -28,6 +28,13 @@ test('problems names a design-lint gate failure', () => {
   const found = problems(process.cwd(), run);
   assert.equal(found.length, 1);
   assert.match(found[0], /design-lint\.mjs --gate/);
+});
+
+test('problems names a cover changed without its landing-fold run (#1624, #1629)', () => {
+  const msg = 'a cover changed without its landing-fold run on this content (labs/croc/): node tools/e2e/landing-fold.mjs --only croc';
+  const run = (cmd, args) => ({ status: cmd === 'node' && args[0].includes('landing-stamp') ? 1 : 0, stdout: cmd === 'node' && args[0].includes('landing-stamp') ? `${msg}\n` : '' });
+  const found = problems(process.cwd(), run);
+  assert.deepEqual(found, [msg]);
 });
 
 test('problems is empty when everything is up to date', () => {
