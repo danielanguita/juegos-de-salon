@@ -352,6 +352,8 @@ function renderIntro() {
 
 /* ---------------- Play & Result ---------------- */
 function startRun(seed) {
+  // A second tap while the 3, 2, 1 runs counts once (C-14, D-576)
+  if (counting) return;
   currentSeed = seed;
   paused = false;
   $('#pause-layer').hidden = true;
