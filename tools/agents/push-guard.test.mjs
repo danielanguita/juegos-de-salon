@@ -14,13 +14,28 @@ test('isPush sees a git push, not other commands', () => {
 
 test('problems names the stale index and the stale README block', () => {
   const run = (cmd, args) => cmd === 'node'
-    ? { status: /design-lint|landing-stamp/.test(args[0]) ? 0 : 1, stdout: '' }
+    ? { status: /design-lint|landing-stamp|document/.test(args[0]) ? 0 : 1, stdout: '' }
     : { status: 1, stdout: 'ERROR · the block "tests" went stale  →  python3 tools/release/readme.py update\nERROR · screenshot x outdated\n' };
   const found = problems(process.cwd(), run);
   assert.equal(found.length, 2);
   assert.match(found[0], /decision\.mjs index/);
   assert.match(found[1], /block "tests"/);
   assert.doesNotMatch(found[1], /screenshot/);
+});
+
+test('problems names a decision file document.test.mjs would fail (#1492, #1574)', () => {
+  const bad = 'D-583 has the topic "games", which is not in docs/decisions/topics.json';
+  const run = (cmd, args) => cmd === 'node' && args[0].includes('document.mjs')
+    ? { status: 1, stdout: `✗ ${bad}\n` } : { status: 0, stdout: '' };
+  const found = problems(process.cwd(), run);
+  assert.equal(found.length, 1);
+  assert.match(found[0], /document\.test\.mjs/);
+  assert.ok(found[0].includes(bad));
+});
+
+test('the real decisions check runs and is clean on this repo', async () => {
+  const { decisionProblems } = await import('./document.mjs');
+  assert.deepEqual(decisionProblems(), []);
 });
 
 test('problems names a design-lint gate failure', () => {

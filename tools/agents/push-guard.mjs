@@ -4,6 +4,8 @@
 // It checks the worktree the push runs from:
 //   - docs/DECISIONS.md against docs/decisions/  → node tools/agents/decision.mjs index
 //   - README.md generated blocks (ERROR lines)   → python3 tools/release/readme.py update
+//   - the decision files themselves (unknown topic, Status not canonical, a number twice)
+//     → node tools/agents/document.mjs decisions (signature 754d57b1bc: red `tests` on #1492, #1574)
 //   - stylesheets against the design-lint gate    → node tools/agents/design-lint.mjs --gate
 //     (signature design-lint-gate: red `tests` on #1244 and #1245)
 //   - a game's cover changed without landing-fold.mjs passing on it here (#1624, #1629: five pushes
@@ -38,6 +40,11 @@ export function problems(cwd, run = (cmd, args) => spawnSync(cmd, args, { cwd, e
   if (existsSync(join(cwd, 'tools/agents/decision.mjs'))) {
     const r = run('node', ['tools/agents/decision.mjs', 'index', '--check']);
     if (r.status === 1) out.push('docs/DECISIONS.md is stale: node tools/agents/decision.mjs index, then commit it');
+  }
+  if (existsSync(join(cwd, 'tools/agents/document.mjs'))) {
+    const r = run('node', ['tools/agents/document.mjs', 'decisions']);
+    const lines = (r.stdout || '').split('\n').filter(l => l.startsWith('✗')).map(l => l.replace(/^✗\s*/, ''));
+    if (r.status === 1 && lines.length) out.push(`a decision file would fail document.test.mjs: fix it in docs/decisions/, then commit it\n  ${lines.join('\n  ')}`);
   }
   if (existsSync(join(cwd, 'tools/release/readme.py'))) {
     const r = run('python3', ['tools/release/readme.py', 'check']);
