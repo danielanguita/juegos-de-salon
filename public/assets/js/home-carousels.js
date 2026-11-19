@@ -80,7 +80,13 @@ const fmt = (s, v) => String(s).replace(/\{(\w+)\}/g, (_, k) => v[k] ?? `{${k}}`
  * Draws the carousels under the games list and hides the filters and the list's cards (the CSS
  * does, from `html.carousels`). Returns `{ remove() }`, which puts the page back as it was.
  */
-export async function drawCarousels({ lang, T, games, tap = () => {}, doc = document, openSlug = null }) {
+/** Sub-flag home-carousels-covers: a tap on an icon goes straight to the game's cover, as the list's cards do. */
+function goCover(g) {
+  import('./transport/stats.js').then(m => m.markOrigin('card', new URL(g.path, location.href).href)).catch(() => {});
+  location.href = g.path;
+}
+
+export async function drawCarousels({ lang, T, games, tap = () => {}, doc = document, openSlug = null, direct = false }) {
   const t = TEXTS[lang] || TEXTS.es;
   const root = doc.documentElement;
   root.classList.add('carousels');
@@ -254,7 +260,7 @@ export async function drawCarousels({ lang, T, games, tap = () => {}, doc = docu
       ...shelves(games, { favs: favoritos() }).map(s => {
         const paths = s.games.map(g => new URL(g.path, doc.baseURI).href);
         const row = el('div', { class: 'shelf-row', 'data-shelf': s.id, role: 'list' }, s.games.map(g =>
-          el('div', { role: 'listitem' }, el('button', { type: 'button', class: 'shelf-tile', 'data-id': g.id, 'aria-haspopup': 'dialog', onClick: () => { tap(); open(g, s.id, paths); } },
+          el('div', { role: 'listitem' }, el('button', { type: 'button', class: 'shelf-tile', 'data-id': g.id, 'aria-haspopup': direct ? null : 'dialog', onClick: () => { tap(); if (direct) goCover(g); else open(g, s.id, paths); } },
             el('span', { class: 'emoji', 'aria-hidden': 'true' }, gameIcon(g, { size: 1 })),
             el('span', { class: 'name' }, pickLang(g.name, lang))))));
         return el('section', { class: 'shelf', 'aria-labelledby': `shelf-${s.id}` },

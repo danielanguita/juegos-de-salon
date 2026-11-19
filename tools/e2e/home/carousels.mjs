@@ -22,7 +22,7 @@ for (const width of [390, 320]) {
   ok(await waitFor(`!!document.querySelector('.filtros .tipos button')`) && await ev(`!document.querySelector('.shelves') && !document.documentElement.classList.contains('carousels')`),
     `${width}: flag off, the filters and the list, no carousels`);
 
-  b.flags({ 'home-carousels': 'all' });
+  b.flags({ 'home-carousels': 'all', 'home-carousels-covers': 'off' });
   for (const lang of ['es', 'en', 'pt']) {
     await b.go(`${SITE}/?test&lang=${lang}`);
     ok(await waitFor(`document.querySelectorAll('.shelf').length >= 5`), `${width} ${lang}: the carousels are drawn`);
@@ -142,6 +142,13 @@ for (const width of [390, 320]) {
   const foot = await ev(`(() => { const r = document.querySelector('footer.atardecer').getBoundingClientRect(); return { gap: Math.round(document.documentElement.scrollHeight - (r.bottom + scrollY)), safe: getComputedStyle(document.body).paddingBottom }; })()`);
   ok(foot.gap <= 1, `${width}: the footer reaches the bottom of the page (${foot.gap} px under it, with ${foot.safe} kept for the gesture bar)`);
   await b.send('Emulation.setSafeAreaInsetsOverride', { insets: {} }).catch(() => {});
+
+  // Sub-flag home-carousels-covers: a tap on an icon opens the game's own cover, no sheet
+  b.flags({ 'home-carousels': 'all', 'home-carousels-covers': 'all' });
+  await b.go(`${SITE}/?test&lang=es`);
+  ok(await waitFor(`!!document.querySelector('.shelf-tile[data-id="reinas"]:not([aria-haspopup])')`, 10000), `${width}: with home-carousels-covers, the icons do not announce a sheet`);
+  await ev(`document.querySelector('.shelf-tile[data-id="reinas"]').click(); 1`);
+  ok(await waitFor(`location.pathname.endsWith("/queens/")`, 10000), `${width}: with home-carousels-covers, a tap on Reinas opens its own cover`);
 
   // Switched off again: the next visit draws the list and forgets
   b.flags({ 'home-carousels': 'off' });
