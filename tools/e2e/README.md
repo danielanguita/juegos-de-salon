@@ -61,7 +61,7 @@ Each PR gets the least testing that still keeps the site safe, decided from what
 | **N0 · no browser** | Nothing a page loads: docs, decisions, changelog, the agents, tools the scripts don't import, data in Firebase | Unit tests only (the `tests` check, ~2 min) | A decision, a lab key (D-345), the processes guide |
 | **N1 · lab** | Only pages under `public/labs/` | That game's scripts + `smoke.mjs` | Tren en Vilo's gauge |
 | **N2 · game** | Some public pages: not the home page, under a third of them | Their scripts + `smoke.mjs` | Hangman's rules |
-| **N2 · home** | Only the home page (`public/index.html`, or a file only it loads) | Its own scripts: `home/*`, `smoke.mjs` and those that never leave it (`favorites.mjs`, `landing-fold.mjs`…), not the games that start there (D-388) | the home page's filters |
+| **N2 · home** | Only the home page (`public/index.html`, or a file only it loads) | Its own scripts: `home/*`, `smoke.mjs` and those that never leave it (`favorites.mjs`…), not the games that start there (D-388) | the home page's filters |
 | **N3 · core** | The home page with something else, a third of the pages or more, or what the page graph can't narrow (shared modules and styles, the e2e tools, the workflows, a file no page links) | Every script | `base.css`, `ui.js`, `cdp.mjs` |
 
 `smoke.mjs` is the floor of N1-N3: it opens every page and fails on an uncaught error or a blank screen,
@@ -124,7 +124,9 @@ run, and for each changed file of the site the pages and jobs it reaches and, if
 pages, the import that takes it there.
 A script's pages come from its `${SITE}/…` addresses, its folder (`hangman/` → `/hangman/`,
 `case/` → `/labs/case/`) and the page names it lists when it builds its routes; a part named after a
-game (`cup-games/languages.mjs:year`) runs only with that game. **When in doubt, everything runs:**
+game (`cup-games/languages.mjs:year`) runs only with that game. A script that opens every game's page
+and takes `--only` (`ONLY` in `ci.mjs`: `landing-fold.mjs`) runs only for the games a PR's own files
+reach (`landing-fold.mjs:320@generala`, tested by `node tools/e2e/only.test.mjs`), and whole for a shared file (D-588). **When in doubt, everything runs:**
 a file in `public/` that no page loads (`sw.js`, an image fetched at run time), `tools/e2e/`'s shared
 code, `e2e.yml`, a tool a script imports, a file at the root, or a script that builds routes without
 naming them. A changed script always runs itself. `node tools/e2e/ci.mjs --list --changes <file>`
@@ -191,7 +193,7 @@ node tools/e2e/contact-sheet.mjs cuarto-rey --out /tmp/contact-sheet
 | Script | What it tests |
 |---|---|
 | `panel/views.mjs` | Every panel view in `PATHS.panel` at 900 and 390 px with seeded data: no uncaught error, no `undefined`/`NaN`/`Infinity`/`[object …]` on screen, no sideways overflow, and no offline-log row from the other domain (D-484) |
-| `landing-fold.mjs` | Every game's landing (the `intro` path of each game in `paths.mjs`) at 320×568 and 375×667 in every language: the start button, or the first mode, is above the fold, also each game opened from Uno al día (`?today`) and a cup's day cover (U-39, D-344) |
+| `landing-fold.mjs` | Every game's landing (the `intro` path of each game in `paths.mjs`) at 320×568 and 375×667 in every language: the start button, or the first mode, is above the fold, also each game opened from Uno al día (`?today`, on a day that game comes out: the page clock is moved, so it does not depend on the real date) and a cup's day cover (U-39, D-344) |
 | `play-fold.mjs` | Mid-turn at 320×568 in every language: the turn's confirm button and the latest feedback are above the fold (Hangman with a letter picked, Bulls and Cows solo after a guess); a new game screen with a turn action joins its `SCREENS` (D-520, D-570) |
 | `fourth-king/lab.mjs` | Cuarto Rey in La Bodega (D-420): not on the home page, in the lab's La Bodega folded to its title, a tap shows Play; `/fourth-king/` and `/cuarto-rey/` lead to `/labs/fourth-king/`, which loads behind the lab's door and is not indexed |
 | `fourth-king/game.mjs` | At `/labs/fourth-king/` (D-420): sound button, full deck up to the fourth king and the menu in English; that the table is exactly the script's names, even if the remembered table brings more rows |

@@ -20,9 +20,11 @@ import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { SUELTOS } from '../../public/assets/js/games.js';
 import { noBrowser } from './changes.mjs';
-import { affectedJobs, changeLevel, scopeReport } from './affected.mjs';
+import { affectedJobs, changeLevel, scopeReport, parseJob } from './affected.mjs';
 import { group, readDurations, NOTICE } from './groups.mjs';
-import { visualScreens } from './paths.mjs';
+import { visualScreens, PATHS, routeOf } from './paths.mjs';
+import { JUEGOS_DIA } from '../../public/assets/js/uno-al-dia.js';
+import { rutaHoy } from '../../public/assets/js/uno-al-dia-ui.js';
 import { manifestFolders } from '../generators/manifests.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -64,6 +66,29 @@ export const PARTS = {
   'conformance.mjs': manifestFolders().map(f => f.split('/').pop()),
 };
 
+// landing-fold.mjs's own NOT_LANDINGS: PATHS keys with an intro that are not a game's landing (ci.test.mjs keeps them equal)
+export const NOT_LANDINGS = ['panel', 'labs'];
+/**
+ * What landing-fold.mjs measures, from the same sources it reads, by the id its `--only` takes: each
+ * game's landing (PATHS' `intro`), its Uno al día cover (`?today`) and La Copa's day covers ('copa').
+ */
+export function landingRoutes() {
+  const out = {};
+  const add = (id, route) => (out[id] ||= []).push(route);
+  for (const g of Object.keys(PATHS)) if (PATHS[g].intro && !NOT_LANDINGS.includes(g)) add(g, routeOf(g));
+  for (const id of JUEGOS_DIA.map(j => j.id || j)) add(id, rutaHoy(id));
+  add('copa', 'cup/');
+  return out;
+}
+
+/**
+ * The scripts that open a known set of pages in a loop and take `--only <ids>` (D-588): each id with
+ * the routes it opens. A PR runs them only when the change reaches one of those pages, and only for
+ * the ids it reaches (`landing-fold.mjs:320@croc`); whole when it reaches them all, when the script or
+ * a module it imports changed, when the graph cannot narrow the change, and on main without a PR.
+ */
+export const ONLY = { 'landing-fold.mjs': landingRoutes() };
+
 /** The scripts, with their path from tools/e2e/: each game's go in its folder (D-192). */
 const all = (dir = '') => readdirSync(join(HERE, dir)).flatMap(f => {
   const rel = dir ? `${dir}/${f}` : f;
@@ -101,16 +126,17 @@ const alive = new Set();
 for (const s of ['SIGINT', 'SIGTERM', 'SIGHUP']) process.on(s, () => { for (const p of alive) p.kill(s); process.exit(128 + { SIGINT: 2, SIGTERM: 15, SIGHUP: 1 }[s]); });
 
 /** The screenshot folder of a script or of one of its parts. */
-const folder = script => { const [file, part] = script.split(':'); return join(OUT, file.replace(/\.mjs$/, ''), part || ''); };
+const folder = script => { const [file, part] = parseJob(script).job.split(':'); return join(OUT, file.replace(/\.mjs$/, ''), part || ''); };
 
-/** Runs a script or one of its parts (`script:part`); resolves with { ok, reason, ms, bad }. */
+/** Runs a script or one of its parts (`script:part`, `script:part@id,id` for `--only`, D-588); resolves with { ok, reason, ms, bad }. */
 function run(script, suffix = '') {
-  const [file, part] = script.split(':');
+  const { job, only } = parseJob(script);
+  const [file, part] = job.split(':');
   const dir = join(folder(script), suffix);
   mkdirSync(dir, { recursive: true });
   const t0 = Date.now();
   return new Promise(ok => {
-    const p = spawn(process.execPath, [join(HERE, file), dir, ...(part ? ['--part', part] : [])], { stdio: ['ignore', 'pipe', 'pipe'] });
+    const p = spawn(process.execPath, [join(HERE, file), dir, ...(part ? ['--part', part] : []), ...(only ? ['--only', only.join(',')] : [])], { stdio: ['ignore', 'pipe', 'pipe'] });
     let output = '';
     const record = d => { output += d; process.stdout.write(d); };
     p.stdout.on('data', record);
@@ -136,7 +162,7 @@ function run(script, suffix = '') {
  */
 export function chosenJobs(changes = null, { smoke = false } = {}) {
   if (!changes) return jobs();
-  const chosen = noBrowser(changes) ? [] : affectedJobs(jobs(), changes, shared) || jobs();
+  const chosen = noBrowser(changes) ? [] : affectedJobs(jobs(), changes, shared, ONLY) || jobs();
   // A merge on main always opens every page (D-496), also when its diff reaches no script
   return smoke && !chosen.includes('smoke.mjs') ? [...chosen, 'smoke.mjs'] : chosen;
 }
@@ -144,7 +170,21 @@ export function chosenJobs(changes = null, { smoke = false } = {}) {
 /** What GitHub runs, in groups (D-307); [] if there is nothing to run. */
 export function groups(changes = null, opts = {}) {
   const chosen = chosenJobs(changes, opts);
-  return chosen.length ? group(chosen, readDurations()) : [];
+  return chosen.length ? group(chosen, narrowedDurations(chosen, readDurations())) : [];
+}
+
+/**
+ * The durations with an estimate for each narrowed job (`script:part@a,b`, D-588): its share of the
+ * whole job's time, by ids, plus a quarter of a minute to start Chrome. Never measured: ci.mjs leaves them out.
+ */
+export function narrowedDurations(chosen, dur) {
+  const out = { ...dur };
+  for (const j of chosen) {
+    const { job, only } = parseJob(j);
+    const whole = dur[job], ids = ONLY[job.split(':')[0]];
+    if (only && whole != null && ids) out[j] = Math.min(whole, Math.round(15 + whole * only.length / Object.keys(ids).length));
+  }
+  return out;
 }
 
 /**
@@ -175,10 +215,10 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const changesOf = () => args.includes('--changes') ? readFileSync(args[args.indexOf('--changes') + 1], 'utf8').split('\n') : null;
   // The change's test level (D-346), on stderr so the workflow logs it and the JSON stays clean
   const said = changesOf();
-  if (said) { const l = changeLevel(jobs(), said, shared, noBrowser(said)); console.error(`test level ${l.level} · ${l.name}: ${l.reason}`); }
+  if (said) { const l = changeLevel(jobs(), said, shared, noBrowser(said), ONLY); console.error(`test level ${l.level} · ${l.name}: ${l.reason}`); }
   if (args.includes('--scope')) {
     // The PR's test scope for the run's summary (D-378): what runs, and what reaches where through what
-    const report = scopeReport(jobs(), changesOf() || [], shared).join('\n');
+    const report = scopeReport(jobs(), changesOf() || [], shared, ONLY).join('\n');
     console.log(report);
     if (process.env.GITHUB_STEP_SUMMARY) appendFileSync(process.env.GITHUB_STEP_SUMMARY, report + '\n');
   } else if (args.includes('--groups')) {
@@ -200,7 +240,8 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     if (process.env.GITHUB_STEP_SUMMARY) appendFileSync(process.env.GITHUB_STEP_SUMMARY, summary + '\n');
     if (process.env.GITHUB_ACTIONS) {
       // How long each script took, so `groups.mjs measure` rebuilds the groups with data (D-307)
-      const durs = Object.fromEntries(results.filter(r => r.ok && !r.flaky).map(r => [r.script, Math.round(r.ms / 1000)]));
+      // A narrowed job (`@`, D-588) is not the whole job's time: left out
+      const durs = Object.fromEntries(results.filter(r => r.ok && !r.flaky && !parseJob(r.script).only).map(r => [r.script, Math.round(r.ms / 1000)]));
       console.log(`::notice title=${NOTICE}::${JSON.stringify(durs)}`);
       // The useful screenshots are those of what failed or passed on the second attempt: the rest isn't uploaded
       for (const r of results) if (r.ok && !r.flaky) rmSync(folder(r.script), { recursive: true, force: true });
