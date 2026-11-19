@@ -508,6 +508,16 @@ export const SOLO_TABLES = {
 };
 
 /**
+ * The games whose every variant has its own ranking table, the first one too: game id → its first variant's
+ * table. Everywhere else a game's first variant ranks in the table named after the game and only the others go
+ * apart (`<id>_<variant>`, D-331); Sudoku ranked each level apart in the lab (`sudoku_easy`, `sudoku_hard`) and
+ * keeps those tables, so nothing is ever written to `sudoku`. Whoever names a game's table reads this: the
+ * game's page (cup/game.js), Rankings and the home page's game sheet. `rankings-coverage.test.mjs` checks each
+ * value against the game's first variant.
+ */
+export const FIRST_VARIANT_TABLES = { sudoku: 'sudoku_easy' };
+
+/**
  * Los tipos de juego con que se filtra la portada (D-142), en el orden en que se ofrecen.
  * Cada juego dice los suyos en `tipos`; uno sin tipos solo se ve sin filtro de tipo.
  * La clave es la que va en la URL (`?type=logic`), en inglés como las rutas (D-192, D-214).

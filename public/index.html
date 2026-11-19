@@ -500,9 +500,13 @@
     .pill-bar .portada-barra .tools > span { display: flex; }
     /* Lab flag home-carousels (lab: #seccion-home-carousels): the games as carousels under La Copa and Uno al día, in
        place of the filters and the list's cards. Here and not in home-carousels.css, so it holds before that sheet arrives */
-    html.carousels #filtros-marca, html.carousels #filtros-barra, html.carousels .filtros-fin:not(.lista-fin), html.carousels .filtros-relleno,
+    html.carousels #filtros-marca, html.carousels #filtros-barra, html.carousels .app > .filtros-fin:not(.lista-fin), html.carousels .filtros-relleno,
     html.carousels #games > .game-slot, html.carousels #games > .game-card { display: none; }
-    html.carousels .games { margin-top: var(--s-16); }
+    html.carousels .games { margin-top: 0; }
+    /* With the carousels there is no 🎲 Juego al azar (the owner, 2026-11-18): the rows are the way to choose. The hero
+       gives its room back, so bar, title, the two cards and the first row sit the same 16 px apart */
+    html.carousels #azar-slot { display: none; }
+    html.carousels .hero { padding: var(--s-16) 0 0; }
     .pill-bar .portada-barra .tools .icon-btn, .pill-bar .portada-barra .tools .sound-toggle { width: 48px; height: auto; min-height: 44px; }
     .pill-bar .portada-barra .tools > span:empty { width: 48px; }
     /* Below 441 px the toggle stacks flag over code (54 px) and the buttons may drop to their own row: same height there too */
@@ -777,13 +781,18 @@
     // Drawn at once when this phone last saw the flag on (the script under #games set the class), then confirmed
     {
       const HINT = 'juegos-de-salon:home-carousels';
-      const draw = () => import('./assets/js/home-carousels.js').then(m => m.drawCarousels({ lang, T, games: JUEGOS_PORTADA, tap: () => SFX.tap() }));
+      // A shared sheet (`?game=<folder>`, what the sheet's share button sends) opens that game's sheet over the page;
+      // on a phone without the carousels the same link goes to the game's own cover, so it never leads nowhere
+      const slug = param('game');
+      const shared = slug && JUEGOS_PORTADA.find(g => g.available && !g.torneo && g.path.split('/')[0] === slug);
+      const draw = () => import('./assets/js/home-carousels.js').then(m => m.drawCarousels({ lang, T, games: JUEGOS_PORTADA, tap: () => SFX.tap(), openSlug: shared ? slug : null }));
       const drawn = document.documentElement.classList.contains('carousels') ? draw() : null;
       drawn?.catch(() => document.documentElement.classList.remove('carousels'));
       import('./assets/js/flags.js').then(({ flag }) => flag('home-carousels')).then(async on => {
         try { if (on) localStorage.setItem(HINT, '1'); else localStorage.removeItem(HINT); } catch (_) { /* decided again on the next visit */ }
         if (on && !drawn) await draw();
         if (!on && drawn) (await drawn).remove();
+        if (!on && shared) location.replace(shared.path + (param('test') !== null ? '?test' : ''));
       }).catch(() => {});
     }
     if (copa) import('./assets/js/flags.js').then(({ flag }) => flag('copa-hoy')).then(on => on && import('./assets/js/cup-today.js'))

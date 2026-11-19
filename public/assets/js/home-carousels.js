@@ -3,7 +3,7 @@
  * `home-carousels`, lab: #seccion-home-carousels). The top of the page stays as it is: bar, title,
  * tagline, the dice, La Copa and Uno al día. Under them, one row per way of choosing, each sliding
  * sideways: favourites (once one is marked), popular, new, with friends, quick, and one per type.
- * A game says its icon and its name, nothing else (the owner, 2026-11-18): the row it is in already says what
+ * The rows are grids of three, and a game is in one row only. A game says its icon and its name, nothing else (the owner, 2026-11-18): the row it is in already says what
  * kind it is, and how long it takes and how many play are in its sheet. A tap opens a sheet with what the game is, its
  * ranking and ▶ Jugar; the ⭐ lives there too. On top of the details, the game's cover animation plays (the demo
  * of its waiting room, or its "how to play" drawing), in a frame of `cup/cover/`: it shows how the game is played.
@@ -11,10 +11,12 @@
  * It reads the same games the list does (`PORTADA` without Toque y Fama: Palabra), so a game that
  * reaches the home page reaches a carousel (C-21). Only the home page loads this file.
  */
-import { TIPOS, SOLO_TABLES, SUELTOS, rangoJugadores, esNuevo, populares } from './games.js';
-import { el } from './ui.js';
+import { TIPOS, SOLO_TABLES, FIRST_VARIANT_TABLES, SUELTOS, rangoJugadores, esNuevo, populares } from './games.js';
+import { el, ICONO_COMPARTIR } from './ui.js';
 import { gameIcon } from './game-icon.js';
-import { pickLang } from './i18n.js';
+import { pickLang, homeUrl } from './i18n.js';
+import { compartir } from './compartir.js';
+import { coverShareText } from './cover-share.js';
 import { favoritos, alternarFavorito } from './favoritos.js';
 import { loadCss } from './load-css.js';
 
@@ -35,7 +37,7 @@ export const maxMinutes = g => (g.durationUnit ? Infinity : Number(String(g.dura
 
 /**
  * The rows, in order, each with the games it holds in the home page's own order; a row with no
- * game is left out, so none is ever empty. Pure, for node.
+ * game is left out, so none is ever empty, and no game is in two rows. Pure, for node.
  */
 export function shelves(games, { favs = [], top = populares(), isNew = esNuevo } = {}) {
   const open = games.filter(g => g.available && !g.torneo);
@@ -47,11 +49,23 @@ export function shelves(games, { favs = [], top = populares(), isNew = esNuevo }
     ['quick', '⚡', g => maxMinutes(g) <= QUICK_MINUTES],
     ...Object.entries(TIPOS).map(([id, t]) => [id, t.emoji, g => (g.tipos || []).includes(id)]),
   ];
-  return rows.map(([id, emoji, test]) => ({ id, emoji, games: open.filter(test) })).filter(s => s.games.length);
+  // A game shows once on the whole page (the owner, 2026-11-18): it stays in the first row that holds it, in this
+  // order, and leaves the ones after it; a row left with no game is not drawn
+  const seen = new Set();
+  return rows.map(([id, emoji, test]) => {
+    const mine = open.filter(g => !seen.has(g.id) && test(g));
+    mine.forEach(g => seen.add(g.id));
+    return { id, emoji, games: mine };
+  }).filter(s => s.games.length);
 }
 
+/** A game's name in a link: the folder of its page, in English (`reinas` lives in `queens/`, C-18). */
+export const slugOf = g => String(g.path || '').replace(/^\.?\//, '').split('/')[0];
+/** The link that opens the home page with this game's sheet over it: what the sheet's share button sends. */
+export const sheetUrl = (g, lang, home = homeUrl(lang)) => `${home}?game=${slugOf(g)}`;
+
 /** The table a game's sheet shows: its wins when it is played in a room, else its solo scores (as /records/ does). */
-export const rankingOf = g => (g.jugadas ? { table: `${g.id}_victorias`, wins: true } : { table: SOLO_TABLES[g.id] || g.id, wins: false });
+export const rankingOf = g => (g.jugadas ? { table: `${g.id}_victorias`, wins: true } : { table: SOLO_TABLES[g.id] || FIRST_VARIANT_TABLES[g.id] || g.id, wins: false });
 
 /**
  * The page that draws a game's cover animation alone (cup/cover/), for the sheet's frame; null for a game
@@ -66,7 +80,7 @@ const fmt = (s, v) => String(s).replace(/\{(\w+)\}/g, (_, k) => v[k] ?? `{${k}}`
  * Draws the carousels under the games list and hides the filters and the list's cards (the CSS
  * does, from `html.carousels`). Returns `{ remove() }`, which puts the page back as it was.
  */
-export async function drawCarousels({ lang, T, games, tap = () => {}, doc = document }) {
+export async function drawCarousels({ lang, T, games, tap = () => {}, doc = document, openSlug = null }) {
   const t = TEXTS[lang] || TEXTS.es;
   const root = doc.documentElement;
   root.classList.add('carousels');
@@ -127,9 +141,23 @@ export async function drawCarousels({ lang, T, games, tap = () => {}, doc = docu
     const paintFav = () => { const on = favoritos().includes(g.id); fav.textContent = on ? '★' : '☆'; fav.classList.toggle('on', on); fav.setAttribute('aria-pressed', String(on)); };
     fav.addEventListener('click', () => { tap(); alternarFavorito(g.id); paintFav(); doc.dispatchEvent(new CustomEvent('favoritos')); });
     paintFav();
+    // Share this sheet as the game's cover (the owner, 2026-11-18): the link opens the home page with this sheet over it
+    const share = el('button', { type: 'button', class: 'icon-btn', id: 'btn-game-sheet-share', 'aria-label': T.shareGame, title: T.shareGame });
+    share.innerHTML = ICONO_COMPARTIR;
+    share.addEventListener('click', async () => {
+      tap();
+      const r = await compartir({ titulo: name, texto: coverShareText({ C: T, emoji: g.emoji, name }), url: sheetUrl(g, lang), que: 'cover' });
+      // Without a share menu the message is copied: the icon turns into a check for a moment
+      if (r === 'copied') {
+        share.textContent = '✓'; share.title = T.shareCopied; share.setAttribute('aria-label', T.shareCopied);
+        setTimeout(() => { if (!share.isConnected) return; share.innerHTML = ICONO_COMPARTIR; share.title = T.shareGame; share.setAttribute('aria-label', T.shareGame); }, 2000);
+      }
+    });
 
     // The game's cover animation, in a frame that takes the height its page says; put away if the game has none.
     // It starts with no height (never `hidden`: a demo measures its width to draw) and nothing in it is tapped
+    // A game with no animation shows its icon, big, in the animation's place: the sheet has the room of ten ranking rows
+    const hero = () => el('div', { class: 'game-sheet-hero', id: 'game-sheet-hero', 'aria-hidden': 'true' }, gameIcon(g, { size: 5 }));
     const src = demoUrl(g, lang);
     const demo = src && el('iframe', { class: 'game-sheet-demo', id: 'game-sheet-demo', src, title: name, tabindex: '-1', 'aria-hidden': 'true', scrolling: 'no' });
     if (demo) {
@@ -139,12 +167,13 @@ export async function drawCarousels({ lang, T, games, tap = () => {}, doc = docu
         const h = Number(e.data.height) || 0;
         // Its own height: the frame also takes whatever the sheet has left over (the two tabs share one height), and its page grows the drawing to fill it
         // On a short screen it gives way first, down to half, so the game's line stays in sight under it
-        if (h > 0) { demo.style.flexBasis = `${Math.min(h, 320)}px`; demo.style.minHeight = `${Math.round(Math.min(h, 320) / 2)}px`; demo.classList.add('on'); } else demo.remove();
+        if (h <= 0) demo.replaceWith(hero());
+        else if (h > 0) { demo.style.flexBasis = `${Math.min(h, 320)}px`; demo.style.minHeight = `${Math.round(Math.min(h, 320) / 2)}px`; demo.classList.add('on'); }
       };
       win.addEventListener('message', onDemo);
     }
     const details = el('div', { class: 'game-sheet-details', id: 'game-sheet-details' },
-      demo,
+      demo || hero(),
       el('p', {}, pickLang(g.tagline, lang)),
       el('div', { class: 'chips' },
         el('span', { class: 'chip' }, `👥 ${g.players} ${max === 1 ? T.player : T.players}`),
@@ -166,6 +195,7 @@ export async function drawCarousels({ lang, T, games, tap = () => {}, doc = docu
         const { table, wins } = rankingOf(g);
         ranking.replaceChildren(bloqueRanking({ juego: table, titulo: fmt(wins ? T.rk.winsOf : T.rk.titleOf, { game: name }),
           hint: wins ? T.rk.winsHint : null, pestanas: ['semana', 'siempre'], alTocar: tap, rapido: true }));
+        ranking.firstElementChild?.classList.add('rk-ten');
       }).catch(() => { asked = false; ranking.replaceChildren(); });
     };
     const TABS = [['details', t.details], ['ranking', `🏅 ${T.rk.title}`]];
@@ -201,7 +231,7 @@ export async function drawCarousels({ lang, T, games, tap = () => {}, doc = docu
       el('div', { class: 'hoja-cabeza' },
         el('span', { class: 'game-sheet-icon', 'aria-hidden': 'true' }, gameIcon(g, { size: 1 })),
         el('h2', { id: 'game-sheet-title' }, name),
-        fav,
+        share, fav,
         el('button', { type: 'button', class: 'icon-btn', id: 'btn-game-sheet-close', 'aria-label': T.shareSheet.close, title: T.shareSheet.close, onClick: () => { tap(); close(); } }, '✕')),
       tabs, body, play);
     layer = el('div', { class: 'hoja-capa', id: 'game-sheet-layer' }, el('div', { class: 'hoja-fondo', onClick: close }), panel);
@@ -218,22 +248,25 @@ export async function drawCarousels({ lang, T, games, tap = () => {}, doc = docu
 
   /* ---------------- the rows ---------------- */
   function draw() {
-    // Each row stays where the player left it when the rows are drawn again (a ⭐ marked)
-    const at = Object.fromEntries([...box.querySelectorAll('.shelf-row')].map(r => [r.dataset.shelf, r.scrollLeft]));
-    box.replaceChildren(...shelves(games, { favs: favoritos() }).map(s => {
-      const paths = s.games.map(g => new URL(g.path, doc.baseURI).href);
-      const row = el('div', { class: 'shelf-row', 'data-shelf': s.id, role: 'list' }, s.games.map(g => {
-        return el('div', { role: 'listitem' }, el('button', { type: 'button', class: 'shelf-tile', 'data-id': g.id, 'aria-haspopup': 'dialog', onClick: () => { tap(); open(g, s.id, paths); } },
-          el('span', { class: 'emoji', 'aria-hidden': 'true' }, gameIcon(g, { size: 1 })),
-          el('span', { class: 'name' }, pickLang(g.name, lang))));
+    box.replaceChildren(
+      // A line between La Copa and Uno al día, above, and the games (the list's own divider)
+      el('hr', { class: 'filtros-fin shelves-rule', 'aria-hidden': 'true' }),
+      ...shelves(games, { favs: favoritos() }).map(s => {
+        const paths = s.games.map(g => new URL(g.path, doc.baseURI).href);
+        const row = el('div', { class: 'shelf-row', 'data-shelf': s.id, role: 'list' }, s.games.map(g =>
+          el('div', { role: 'listitem' }, el('button', { type: 'button', class: 'shelf-tile', 'data-id': g.id, 'aria-haspopup': 'dialog', onClick: () => { tap(); open(g, s.id, paths); } },
+            el('span', { class: 'emoji', 'aria-hidden': 'true' }, gameIcon(g, { size: 1 })),
+            el('span', { class: 'name' }, pickLang(g.name, lang))))));
+        return el('section', { class: 'shelf', 'aria-labelledby': `shelf-${s.id}` },
+          el('h2', { class: 'display display--sm', id: `shelf-${s.id}` }, el('span', { 'aria-hidden': 'true' }, `${s.emoji} `), titleOf(s.id)), row);
       }));
-      const section = el('section', { class: 'shelf', 'aria-labelledby': `shelf-${s.id}` },
-        el('h2', { class: 'display display--sm', id: `shelf-${s.id}` }, el('span', { 'aria-hidden': 'true' }, `${s.emoji} `), titleOf(s.id)), row);
-      queueMicrotask(() => { if (at[s.id]) row.scrollLeft = at[s.id]; });
-      return section;
-    }));
   }
   draw();
+  // A shared link (`?game=<slug>`) opens that game's sheet at once, over the page
+  if (openSlug) {
+    const tile = [...box.querySelectorAll('.shelf-tile')].find(b => slugOf(games.find(g => g.id === b.dataset.id) || {}) === openSlug);
+    tile?.click();
+  }
   const onFav = () => draw();
   doc.addEventListener('favoritos', onFav);
 

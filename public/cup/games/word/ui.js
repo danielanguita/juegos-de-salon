@@ -19,6 +19,13 @@ export function montar(raiz, ctx) {
   const letrasPintadas = f => el('span', { class: 'val letras' },
     ...[...f.v].map((l, i) => el('span', { class: 'letra ' + (f.marcas[i] === 'f' ? 'f' : f.marcas[i] === 't' ? 't' : '') }, l)));
 
+  // Tap a box to choose where the next letter goes, as in Número
+  const elegible = pad => { pad.activarElegir(); return pad; };
+  // The word's language is the cup's, not the player's: warned only when they differ, in the player's own language
+  const palabraLang = p.lang || 'es';
+  const aviso = palabraLang === ctx.lang ? null
+    : el('div', { class: 'notice notice--warn', id: 'palabra-idioma' }, fmt(T.wordLang, { idioma: T.langNames[palabraLang] }));
+
   const dibujar = () => {
     const e = motor.estado(p, J.i);
     // Terminado el tablero, el tiempo se detiene aquí y no al tocar el botón (D-130)
@@ -33,10 +40,11 @@ export function montar(raiz, ctx) {
     } else {
       const quedan = p.max - e.usados;
       // Sin los `null`: `append` los escribe como el texto "null"
-      caja.append(...[el('p', { class: 'muted center', style: 'margin:0' }, quedan === 1 ? T.tryLeft1 : fmt(T.triesLeft, { n: quedan })),
+      caja.append(...[aviso,
+        el('p', { class: 'muted center', style: 'margin:0' }, quedan === 1 ? T.tryLeft1 : fmt(T.triesLeft, { n: quedan })),
         // Lo que ya suma (D-108): cada letra en su lugar cuenta una vez
         e.encontradas ? el('p', { class: 'center ok', id: 'letras-encontradas', style: 'margin:0' }, fmt(e.encontradas === 1 ? T.famasFoundOne : T.famasFound, { n: e.encontradas, largo: p.largo, pts: motor.PUNTOS_FAMA * e.encontradas })) : null,
-        teclado({
+        elegible(teclado({
           largo: p.largo, teclas: motor.alfabeto(p.lang), columnas: 10, acciones: 'abajo', submitLabel: TYF.guess, notes: notas, onNotesChange: guardar,
           valido: motor.valido, puede: motor.puede,
           onSubmit: v => {
@@ -45,7 +53,7 @@ export function montar(raiz, ctx) {
             if (u.famas === p.largo) { SFX.win(); vibrate([30, 50, 30]); } else SFX.reveal();
             dibujar();
           },
-        }),
+        })),
         el('p', { class: 'block-hint' }, T.blockHintLetters)].filter(Boolean));
     }
     caja.append(tablero(el, { filas: e.filas, largo: p.largo, titulo: T.yourGuesses, lang: ctx.lang, valor: letrasPintadas, completa: false }));

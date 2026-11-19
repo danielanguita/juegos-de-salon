@@ -13,6 +13,7 @@ Crack a five-letter secret word with bulls and cows, in 8 guesses.
 
 - Any 5 different letters are a valid guess, no dictionary, as Bulls and Cows accepts any number with different digits.
 - Each letter turns green in its place (bull) and yellow elsewhere (cow); the card uses 🟩 and 🟨 (#196).
+- Tap a box to choose where the next letter goes (as in Número). When the word's language differs from the player's, a yellow ⚠️ notice says so ("The word is in English", `wordLang`, `.notice--warn`); the instructions say the word is in the cup's language, not the player's: it matters when friends in different places play one cup.
 - Score: 10 per letter found in its place (once per place) plus, if solved, 50 − 5 × (guesses − 1) (D-108). Tiebreak: the faster player.
 
 The texts the player reads (how to play, scoring, tiebreak) are its entry in `JUEGOS_COPA` of
