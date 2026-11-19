@@ -50,6 +50,7 @@ const ES = [
   { c: 'Dos ingleses se miran de frente, de lunes a domingo', a: 'SIETE', k: 'homophone', d: 'de lunes a domingo', x: 'Dos que se miran de frente SE VEN, y dicho por ingleses suena a SEVEN: SIETE, los días de lunes a domingo.' },
   // The owner's clue (2026-11-19), with A inside PETÓ instead of an anagram
   { c: 'Un beso catalán abraza al primer amor y sigue al norte: va a pie', a: 'PEATÓN', k: 'container', d: 'va a pie', x: 'Beso en catalán es PETÓ; abraza la A, la primera letra de amor (PE·A·TÓ), y le sigue la N del norte: PEATÓN, el que va a pie.' },
+  { c: 'Ojalá se alimente y te ayude a separar las ideas', a: 'COMA', k: 'definitions', d: 'te ayude a separar las ideas', x: 'COMA: «ojalá coma», que se alimente, y la coma, el signo que separa las ideas.' },
 ];
 
 /** Spanish only for now (the owner, 2026-11-19): the mechanics first, the other banks once it works. */
