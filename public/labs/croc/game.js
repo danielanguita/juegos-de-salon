@@ -146,6 +146,49 @@ function setDemoCaption(text) {
   demoCaption = text;
   $('#demo-caption').textContent = text;
 }
+/**
+ * The finger over the demo: each hop of the frog is a short swipe in its direction (up, left or right),
+ * each Dash a long swipe up with a golden trail, so the cover shows the gestures and not only the game.
+ */
+function drawGesture(c, gs, now) {
+  if (!gs) return;
+  const t = (now - gs.t0) / 1000;
+  const move = gs.dash ? 0.75 : 0.5, hold = 0.45;
+  if (t > move + hold) return;
+  const ctx = c.getContext('2d');
+  const dpr = c.width / (c.clientWidth || 1);
+  const w = c.clientWidth, h = c.clientHeight;
+  const p = Math.min(1, t / move), ease = 1 - Math.pow(1 - p, 3);
+  const alpha = t < move ? 1 : 1 - (t - move) / hold;
+  const len = gs.dash ? h * 0.55 : gs.dir === 'up' ? h * 0.24 : w * 0.2;
+  const ax = w * 0.74, ay = h * 0.8;
+  const [dx, dy] = gs.dir === 'left' ? [-1, 0] : gs.dir === 'right' ? [1, 0] : [0, -1];
+  const ox = gs.dir === 'right' ? ax - len : ax, oy = ay;
+  const tx = ox + dx * len * ease, ty = oy + dy * len * ease;
+  ctx.save();
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.globalAlpha = alpha;
+  ctx.lineCap = 'round';
+  const grad = ctx.createLinearGradient(ox, oy, tx, ty);
+  grad.addColorStop(0, gs.dash ? 'rgba(255, 159, 28, 0)' : 'rgba(255, 255, 255, 0)');
+  grad.addColorStop(1, gs.dash ? 'rgba(255, 217, 74, 0.95)' : 'rgba(255, 255, 255, 0.85)');
+  ctx.strokeStyle = gs.dash ? 'rgba(255, 217, 74, 0.35)' : 'rgba(10, 14, 28, 0.45)';
+  ctx.lineWidth = gs.dash ? 26 : 20;
+  ctx.beginPath(); ctx.moveTo(ox, oy); ctx.lineTo(tx, ty); ctx.stroke();
+  ctx.strokeStyle = grad;
+  ctx.lineWidth = gs.dash ? 10 : 7;
+  ctx.beginPath(); ctx.moveTo(ox, oy); ctx.lineTo(tx, ty); ctx.stroke();
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+  ctx.beginPath(); ctx.arc(ox, oy, 7, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = 'rgba(10, 14, 28, 0.55)';
+  ctx.beginPath(); ctx.arc(tx, ty + 20, 24, 0, Math.PI * 2); ctx.fill();
+  ctx.font = `${gs.dash ? 40 : 36}px system-ui, sans-serif`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'top';
+  ctx.fillText('👆', tx, ty - 4);
+  ctx.restore();
+}
+
 function startDashDemo() {
   const c = $('#dash-demo');
   if (!c) return;
@@ -159,25 +202,31 @@ function startDashDemo() {
   let last = performance.now();
   let acc = 0;
   let dashUntil = 0;
+  let sideUntil = 0;
+  let gesture = null;
   const frame = now => {
     if (run !== demoRun) return;
     const dt = Math.min(0.05, (now - last) / 1000);
     last = now;
     if ($('#screen-intro').classList.contains('active')) {
-      if (QUIET()) acc = 0; else acc += dt;
+      // Slower than the real game (55 %), so the cover has time to show each swipe
+      if (QUIET()) acc = 0; else acc += dt * 0.55;
       while (acc >= E.STEP) {
         E.step(demoG, E.STEP);
         demoScene.tick(E.STEP, demoG);
         acc -= E.STEP;
         for (const ev of demoG.events.splice(0)) {
-          if (ev.type === 'dash') dashUntil = now + 1400;
+          if (ev.type === 'dash') dashUntil = now + 2400;
+          if (ev.type === 'hop' && ev.dir !== 'up') sideUntil = now + 1600;
+          if (ev.type === 'hop' || ev.type === 'dash') gesture = { dir: ev.type === 'dash' ? 'up' : ev.dir, dash: ev.type === 'dash', t0: now };
           demoScene.fx(ev, demoG, { closeCall: T.closeCall });
         }
         if (demoG.mode === 'win' || demoG.mode === 'crash') { newDemo(); break; }
       }
       const kind = demoG.lanes[demoG.frog.row + 1]?.kind;
-      setDemoCaption(now < dashUntil ? T.demoHint : (kind === 'water' || demoG.lanes[demoG.frog.row]?.kind === 'water') ? T.demoBoatHint : T.demoHopHint);
+      setDemoCaption(now < dashUntil ? T.demoHint : now < sideUntil ? T.demoSideHint : (kind === 'water' || demoG.lanes[demoG.frog.row]?.kind === 'water') ? T.demoBoatHint : T.demoHopHint);
       demoScene.draw(demoG, null);
+      drawGesture(c, gesture, now);
     }
     requestAnimationFrame(frame);
   };
@@ -287,12 +336,11 @@ function renderIntro() {
   $('#modes').replaceChildren(
     trafficLever(),
     el('button', {
-      class: 'mode',
+      class: 'btn btn--yellow',
+      id: 'btn-play',
       'data-mode': 'solo',
       onClick: () => { SFX.tap(); unlockAudio(); startRun(currentSeed); },
-    },
-    el('span', {}, el('b', {}, T.modeSolo), el('small', {}, T.modeSoloHint)),
-    el('span', { class: 'go' }, '›')),
+    }, T.modeSolo),
   );
   $('#how').replaceChildren(...L.como.map(step => el('li', {}, step)));
 

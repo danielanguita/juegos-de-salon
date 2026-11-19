@@ -11,7 +11,7 @@ const ok = (cond, msg) => { console.log((cond ? '✓ ' : '✗ ') + msg); if (!co
 await b.go(`${SITE}/labs/croc/?seed=4821`);
 await b.evaluate('localStorage.clear(); 1');
 await b.go(`${SITE}/labs/croc/?seed=4821`);
-await b.evaluate("document.querySelector('.mode[data-mode=solo]').click(); 1");
+await b.evaluate("document.querySelector('#btn-play').click(); 1");
 await sleep(450);
 ok(await b.active() === 'screen-play', 'the game starts');
 await b.shot('play');
