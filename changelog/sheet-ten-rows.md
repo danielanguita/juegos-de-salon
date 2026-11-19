@@ -8,3 +8,8 @@ level: patch
   grows to fill that room (up to three times its size), with the game's line and its data centred under it, and a
   game with no animation shows its icon, big, in its place; a tile's icon has no box of its own; and 🎲 Juego al azar
   is gone from that page, the hero giving its room back so the first row shows on the first screen.
+- **In the same lab treatment** (the owner's requests): the rows no longer slide, they are grids of three games; a
+  game shows once on the page, in the first row that holds it; a line parts La Copa and Uno al día from the games;
+  a game's sheet has a share button, whose link (`/?game=<folder>`) opens the home page with that sheet over it, and
+  on a phone without the carousels goes to the game's own page; and Sudoku's animation in the sheet is its board
+  alone, without the icon above it.

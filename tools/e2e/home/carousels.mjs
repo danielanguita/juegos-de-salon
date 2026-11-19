@@ -1,6 +1,6 @@
 // The home page as carousels (lab flag home-carousels): with the flag on, the filters and the list's cards
-// give way to rows that slide sideways (popular, new, with friends, quick, one per type; favourites once one
-// is marked), every game of the home page is in at least one, and a tap on a game opens its sheet with the
+// give way to rows of three (popular, new, with friends, quick, one per type; favourites once one
+// is marked), every game of the home page is in one and only one, and a tap on a game opens its sheet with the
 // details, its ranking, the ⭐ and ▶ Jugar. At 390 and 320 px, in the three languages; with the flag off the
 // home page is the one everybody sees. Each shot measures margins, overlaps and spacing by itself (D-570).
 // Prints ✗ if something fails.
@@ -31,6 +31,7 @@ for (const width of [390, 320]) {
       const tiles = [...document.querySelectorAll('.shelf-tile')];
       const cards = [...document.querySelectorAll('#games .game-slot > .game-card[href]')].map(c => c.dataset.id);
       const inRows = new Set(tiles.map(t => t.dataset.id));
+      const rowsOf = [...document.querySelectorAll('.shelf-row')];
       return {
         filters: vis(document.getElementById('filtros')), list: vis(document.querySelector('#games .game-slot')),
         cup: vis(document.querySelector('.game-card.torneo')), dice: vis(document.querySelector('.btn-azar')), well: getComputedStyle(document.querySelector('.shelf-tile .emoji')).backgroundImage,
@@ -39,7 +40,10 @@ for (const width of [390, 320]) {
         small: tiles.filter(t => t.offsetHeight < 44 || t.offsetWidth < 44).length,
         overflow: tiles.filter(t => t.scrollWidth > t.clientWidth + 1).map(t => t.dataset.id),
         labels: !!document.querySelector('.shelf .nuevo, .shelf .popular'),
-        slides: [...document.querySelectorAll('.shelf-row')].some(r => r.scrollWidth > r.clientWidth),
+        twice: tiles.length - inRows.size,
+        slides: rowsOf.some(r => r.scrollWidth > r.clientWidth + 1),
+        perLine: Math.max(...rowsOf.map(r => { const tops = [...r.children].map(c => Math.round(c.getBoundingClientRect().top)); return Math.max(...[...new Set(tops)].map(t => tops.filter(x => x === t).length)); })),
+        rule: (() => { const h = document.querySelector('.shelves-rule'); return !!h && h.getClientRects().length > 0 && h.getBoundingClientRect().top >= document.querySelector('.fila-alta').getBoundingClientRect().bottom && h.getBoundingClientRect().bottom <= document.querySelector('.shelf').getBoundingClientRect().top; })(),
         titles: [...document.querySelectorAll('.shelf h2')].map(h => h.textContent.trim()),
         fold: [...document.querySelectorAll('.shelf-tile')].some(t => t.getBoundingClientRect().top < innerHeight),
       };
@@ -49,7 +53,8 @@ for (const width of [390, 320]) {
     ok(page.scroll, `${width} ${lang}: the page does not scroll sideways`);
     ok(page.missing.length === 0, `${width} ${lang}: every game of the home page is in a carousel${page.missing.length ? ' (missing: ' + page.missing.join(', ') + ')' : ''}`);
     ok(page.small === 0 && page.overflow.length === 0, `${width} ${lang}: every tile is 44 px or more and holds its text${page.overflow.length ? ' (' + page.overflow.join(', ') + ')' : ''}`);
-    ok(!page.labels && page.slides, `${width} ${lang}: no New or Popular labels, and a row slides`);
+    ok(!page.labels && !page.slides && page.perLine === 3, `${width} ${lang}: no New or Popular labels; a row is a grid of three, nothing slides`);
+    ok(page.twice === 0 && page.rule, `${width} ${lang}: each game shows once on the page, and a line parts the two cards from the games`);
     console.log(`  rows: ${page.titles.join(' · ')}`);
     await b.shot(`carousels-${width}-${lang}`);
 
@@ -75,6 +80,7 @@ for (const width of [390, 320]) {
     ok(sheet.name && sheet.tag && sheet.href, `${width}: the sheet says the game's name and line, and ▶ Jugar goes to its page`);
     ok(sheet.seen && sheet.focus && sheet.fits, `${width}: ▶ Jugar is in sight, focused, and the sheet fits the screen`);
     ok(sheet.chips >= 3 && sheet.tabs === 2, `${width}: who plays, how long and its type; two tabs`);
+    ok(await ev(`(() => { const b = document.getElementById('btn-game-sheet-share'); return !!b && b.offsetWidth >= 44 && b.offsetHeight >= 44 && !!b.getAttribute('aria-label') && getComputedStyle(document.querySelector('#game-sheet .chips')).justifyContent === 'center'; })()`), `${width}: the sheet has its share button, 44 px, and the chips are centred`);
     await b.shot(`carousels-${width}-sheet`);
 
     // A game of La Copa plays its cover animation on top of the details, framed; a game with none has no frame
@@ -111,8 +117,8 @@ for (const width of [390, 320]) {
 
     // The ⭐ marks a favourite: its row appears first, and the sheet stays open
     await ev(`document.getElementById('btn-game-sheet-fav').click(); 1`);
-    ok(await waitFor(`document.querySelector('.shelf-row')?.dataset.shelf === 'favorites' && !!document.querySelector('[data-shelf="favorites"] [data-id="${id}"]')`) && await ev(`!!document.getElementById('game-sheet')`),
-      `${width}: the ⭐ adds the game to a Favourites row, first`);
+    ok(await waitFor(`document.querySelector('.shelf-row')?.dataset.shelf === 'favorites' && !!document.querySelector('[data-shelf="favorites"] [data-id="${id}"]')`) && await ev(`!!document.getElementById('game-sheet') && document.querySelectorAll('.shelf-tile[data-id="${id}"]').length === 1`),
+      `${width}: the ⭐ moves the game to a Favourites row, first, and out of the row it was in`);
 
     // Escape closes it and gives the focus back to a tile of that game
     await b.send('Input.dispatchKeyEvent', { type: 'keyDown', key: 'Escape', code: 'Escape', windowsVirtualKeyCode: 27 });
@@ -123,6 +129,10 @@ for (const width of [390, 320]) {
     // The next visit hides the filters before the modules arrive (this phone remembers the flag)
     ok(await ev(`localStorage.getItem('juegos-de-salon:home-carousels') === '1'`), `${width}: this phone remembers the flag for the next visit`);
   }
+
+  // A shared sheet: the link opens the home page with that game's sheet over it
+  await b.go(`${SITE}/?test&lang=es&game=queens`);
+  ok(await waitFor(`!!document.querySelector('#game-sheet[data-id="reinas"]')`, 10000), `${width}: ?game=queens opens Reinas' sheet over the home page`);
 
   // On a phone with a gesture bar (a safe area at the bottom) the footer's sunset reaches the end of the page: no
   // band of the page's background under it
@@ -139,6 +149,9 @@ for (const width of [390, 320]) {
   ok(await waitFor(`!document.documentElement.classList.contains('carousels') && !document.querySelector('.shelves') && !!document.querySelector('.filtros .tipos button')`)
     && await ev(`localStorage.getItem('juegos-de-salon:home-carousels') === null && document.querySelector('#games .game-slot').getClientRects().length > 0`),
     `${width}: flag off again, the list and the filters are back`);
+  // …and without the carousels a shared sheet's link goes to the game's own cover
+  await b.go(`${SITE}/?test&lang=es&game=queens`);
+  ok(await waitFor(`location.pathname.endsWith('/queens/')`, 10000), `${width}: without the carousels, ?game=queens goes to Reinas' own page`);
   b.close();
 }
 

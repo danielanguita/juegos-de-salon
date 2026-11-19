@@ -7,15 +7,11 @@
 .shelf { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s-8); }
 .shelf h2 { margin: 0; }
 
-/* A row slides sideways from edge to edge of the screen: it reaches past the column's 18 px on both
-   sides and gives them back as padding, so the first tile starts on the column and the last one ends on it */
-.shelf-row {
-  display: flex; gap: var(--s-10); overflow-x: auto; overscroll-behavior-x: contain;
-  margin: 0 calc(-1 * var(--s-18)); padding: var(--s-2) var(--s-18) var(--s-4);
-  scroll-snap-type: x proximity; scroll-padding-inline: var(--s-18); scrollbar-width: none;
-}
-.shelf-row::-webkit-scrollbar { display: none; }
-.shelf-row > [role="listitem"] { flex: 0 0 124px; display: flex; scroll-snap-align: start; }
+/* A row is a widget: its games three to a line, as many lines as it needs; nothing slides (the owner, 2026-11-18) */
+.shelf-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--s-10); }
+.shelf-row > [role="listitem"] { display: flex; min-width: 0; }
+/* The line between La Copa and Uno al día and the games: the list's own divider, the rows' gap around it */
+.shelves-rule { width: 88%; margin: 0 auto; }
 
 /* A game: the home card's glass, its icon and its name in the display font, nothing else.
    The whole tile is one button */
@@ -29,7 +25,7 @@
 .shelf-tile:focus-visible { outline: 3px solid var(--cyan); outline-offset: 2px; }
 /* The icon alone, with no well of its own: the tile's edge is the only box (the owner, 2026-11-18) */
 .shelf-tile .emoji { height: 56px; display: grid; place-items: center; font-size: calc(var(--fs-200) * 1.4); line-height: 1; }
-.shelf-tile .name { font-family: var(--font-display); font-size: var(--fs-120); letter-spacing: 0.04em; line-height: 1.05; text-transform: uppercase; overflow-wrap: anywhere; }
+.shelf-tile .name { font-family: var(--font-display); font-size: var(--fs-110); letter-spacing: 0.04em; line-height: 1.05; text-transform: uppercase; overflow-wrap: anywhere; }
 
 /* The game's sheet: the bottom sheet (.hoja) with its body scrolling between the tabs and ▶ Jugar,
    so the button stays in sight under a long ranking (U-39) */
@@ -61,4 +57,8 @@
 .game-sheet-fav { color: var(--muted); }
 .game-sheet-fav.on { color: var(--yellow); }
 .game-sheet > .btn { flex: none; }
+/* Three to a line on a narrow phone: the name a step smaller, so a long word still fits its tile */
+/* …and the sheet's title a step smaller beside its three buttons (share, ⭐, ✕), so a one-word name is not cut */
+@media (max-width: 359px) { .game-sheet .hoja-cabeza { gap: var(--s-6); } .game-sheet .hoja-cabeza h2 { font-size: var(--fs-140); overflow-wrap: normal; }
+  .shelf-tile { padding: var(--s-10) var(--s-4); } .shelf-tile .name { font-size: var(--fs-90); letter-spacing: 0.02em; } }
 @media (prefers-reduced-motion: reduce) { .shelf-tile { transition: none; } }
