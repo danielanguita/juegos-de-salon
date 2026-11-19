@@ -29,6 +29,11 @@ Several Claude sessions may be working in this repo at the same time:
   the previous run's: a third of the end-to-end compute was going to canceled runs. Since D-392 a
   push after a green `end-to-end` run tests only the files changed since that commit, so it is cheap;
   a push after a red or canceled run retests the whole PR again.
+- **A cover or screen that changes on purpose brings its visual reference in that same push**:
+  `node tools/e2e/visual.mjs /tmp/visual --update --part <game>`, commit the PNG. The Visual references
+  workflow swaps it for the runner's own and commits that to the branch, which starts the checks again
+  (tools/e2e/README.md, visual section): do not push a second time for it, and `git pull --ff-only`
+  before any later push.
 - Before touching another PR's branch, ask that session (ListAgents / SendMessage).
 - **On merge, the worktree is deleted**, in the same move, from the main folder (D-206):
   ```bash

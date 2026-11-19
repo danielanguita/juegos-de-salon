@@ -96,7 +96,7 @@ for (const s of screens) {
   if (r.ratio > MAX_RATIO) {
     failed++;
     if (r.diff) writeFileSync(join(OUT, `${name}-diff.png`), encode(r.diff));
-    console.log(`❌ ${name}: ${r.sizes || `${pct} % of the pixels changed`} (more than ${(MAX_RATIO * 100).toFixed(1)} %). If it is meant, approve it: node tools/e2e/visual.mjs --update --part ${s.part}; the new and the diff images are in ${OUT}`);
+    console.log(`❌ ${name}: ${r.sizes || `${pct} % of the pixels changed`} (more than ${(MAX_RATIO * 100).toFixed(1)} %). If it is meant, approve it: node tools/e2e/visual.mjs --update --part ${s.part}, commit the PNG and push; on a PR the Visual references workflow swaps it for the runner's own (tools/e2e/README.md). The new and the diff images are in ${OUT}`);
   } else console.log(`✓ ${name} (${pct} % differs)`);
 }
 b.close();

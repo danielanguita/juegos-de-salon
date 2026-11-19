@@ -215,6 +215,7 @@ node tools/e2e/contact-sheet.mjs cuarto-rey --out /tmp/contact-sheet
 | `conformance.mjs` | The conformance suite's browser half (#1249 step 8), driven by each `game.json`: the page loads with no console errors, each of its `languages` renders with every `data-i18n` key, the header ‹ goes to its logical parent (home for a registered game, `/labs/` for a lab one), a started game offers to continue after a reload (C-6), and the page goes through `compartir.js` (C-7) and `fin.js` (C-19); a check is skipped by an exception in `canonExceptions` to its canon whose reason names what it checks (`compartir.js`, `fin.js`, `session.js`). `node tools/e2e/conformance.mjs hangman` for one game; CI runs one part per manifest. The node half is `public/assets/js/conformance.test.mjs` |
 | `offline.mjs` | Offline mode end to end (D-538, [OFFLINE.md](../../docs/OFFLINE.md)), flag on: the site is stored while online; with the network cut the offline-capable games, the home page and Uno al día open, the chip and the once-only sheet show, links that need signal are dimmed; a game finished offline is queued and uploads exactly once when the network is back |
 | `png.test.mjs` | The PNG reader, writer and diff that `visual.mjs` uses (`png.mjs`), on synthetic images |
+| `visual-refs.test.mjs` | The Visual references workflow stays safe and narrow: never on a fork's PR (no `pull_request_target`, the same-repo guard), the token out of `.git/config` while the branch's code runs, only the references the PR changes, no loop on its own commit, and its push starts the checks |
 | `hangman/local.mjs` | Chain of three on one phone, buying a letter, resuming and solitaire |
 | `hangman/online.mjs` | Three phones against real Firebase: chain, reconnection midway and rematch |
 | `liars-dice/local.mjs` | Duel against the phone and a three-player game on one phone, with resuming midway |
@@ -348,13 +349,22 @@ node tools/e2e/visual.mjs /tmp/visual --update          # approve: rewrite the r
   game's page, so a PR compares only the games it reaches (`affected.mjs`, D-329), and a change to
   `base.css` compares them all. Each part takes ~8 s (`durations.json`).
 - **Whose pixels:** the site's fonts are its own (`assets/fonts/`), so text renders alike everywhere;
-  what can still differ between a laptop and GitHub's runner is the emoji font and Chrome's build.
-  The references are therefore the runner's: if `end-to-end` fails a screen nobody changed, run the
-  **Visual references** workflow (`.github/workflows/visual-refs.yml`, "Run workflow" on the PR's
-  branch, optionally one game) and it commits the runner's PNGs to that branch; a commit pushed with
-  the workflow's token starts no checks, so push again (or re-run the check) after it. A reference made
-  on your machine is fine when it matches the runner (the first ones were made in a Linux container
-  with the same fonts).
+  what can still differ between a laptop and GitHub's runner is the emoji font and Chrome's build (a
+  Mac renders a cover ~2 % differently). The references are therefore the runner's, and it makes them
+  for you:
+  - **A PR that changes a screen on purpose:** run `node tools/e2e/visual.mjs /tmp/visual --update
+    --part <game>` on your machine and commit the PNG with the change (that is the approval, seen in the
+    diff), then push once as always. The **Visual references** workflow
+    (`.github/workflows/visual-refs.yml`) sees the PR change `visual/ref/<game>-intro.png`, remakes
+    exactly those PNGs on the runner and commits them to the branch ("Visual references from the
+    runner"). Its push starts the checks again (`MERGE_QUEUE_TOKEN`), so the run of your push is
+    cancelled instead of failing on the Mac's pixels: no red round trip, no artifact to download, no
+    second push of yours. Before pushing anything else to that branch, `git pull --ff-only`.
+  - It only rewrites references the PR itself changes: a screen nobody approved still fails the check.
+    Never on a fork's PR (no secret, no write token; it uses `pull_request`, not
+    `pull_request_target`). Each PNG is ~57 KB (D-494). `visual-refs.test.mjs` holds these guards.
+  - **A screen nobody changed fails** (Chrome's build moved on the runner): "Run workflow" on the PR's
+    branch, optionally one game, and it commits every reference that differs there.
 
 ## All languages (D-199)
 
