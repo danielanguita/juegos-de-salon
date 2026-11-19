@@ -1,5 +1,5 @@
 // The home page as carousels (lab flag home-carousels): with the flag on, the filters and the list's cards
-// give way to rows of three (popular, new, with friends, quick, one per type; favourites once one
+// give way to rows of three (popular, new, with friends, dexterity, one per type; favourites once one
 // is marked), every game of the home page is in one and only one, and a tap on a game opens its sheet with the
 // details, its ranking, the ⭐ and ▶ Jugar. At 390 and 320 px, in the three languages; with the flag off the
 // home page is the one everybody sees. Each shot measures margins, overlaps and spacing by itself (D-570).

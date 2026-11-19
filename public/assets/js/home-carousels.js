@@ -2,7 +2,7 @@
  * The home page's games as carousels, in place of the filters and the long list (lab flag
  * `home-carousels`, lab: #seccion-home-carousels). The top of the page stays as it is: bar, title,
  * tagline, the dice, La Copa and Uno al día. Under them, one row per way of choosing, each sliding
- * sideways: favourites (once one is marked), popular, new, with friends, quick, and one per type.
+ * sideways: favourites (once one is marked), popular, new, with friends, dexterity (the quick games and the skill ones together), and one per type.
  * The rows are grids of three, and a game is in one row only. A game says its icon and its name, nothing else (the owner, 2026-11-18): the row it is in already says what
  * kind it is, and how long it takes and how many play are in its sheet. A tap opens a sheet with what the game is, its
  * ranking and ▶ Jugar; the ⭐ lives there too. On top of the details, the game's cover animation plays (the demo
@@ -25,11 +25,13 @@ export const HINT = 'juegos-de-salon:home-carousels';
 
 /** A game is quick when its longest play is this many minutes or fewer. */
 export const QUICK_MINUTES = 3;
+/** The skill type (🎯 Pulso in the list's filters) has no row of its own here: its games go in Destreza (the owner, 2026-11-19). */
+export const IN_DEXTERITY = 'skill';
 
 export const TEXTS = {
-  es: { friends: 'Con amigos', quick: 'Destreza', details: 'Detalles', play: '▶ Jugar' },
-  en: { friends: 'With friends', quick: 'Dexterity', details: 'Details', play: '▶ Play' },
-  pt: { friends: 'Com amigos', quick: 'Destreza', details: 'Detalhes', play: '▶ Jogar' },
+  es: { friends: 'Con amigos', dexterity: 'Destreza', details: 'Detalles', play: '▶ Jugar' },
+  en: { friends: 'With friends', dexterity: 'Dexterity', details: 'Details', play: '▶ Play' },
+  pt: { friends: 'Com amigos', dexterity: 'Destreza', details: 'Detalhes', play: '▶ Jogar' },
 };
 
 /** The longest a game takes, in minutes; a game counted in another unit (La Copa's days) is never quick. */
@@ -46,8 +48,8 @@ export function shelves(games, { favs = [], top = populares(), isNew = esNuevo }
     ['popular', '🔥', g => top.has(g.id)],
     ['new', '✨', g => isNew(g)],
     ['friends', '👥', g => rangoJugadores(g.players)[1] > 1],
-    ['quick', '🤹', g => maxMinutes(g) <= QUICK_MINUTES],
-    ...Object.entries(TIPOS).map(([id, t]) => [id, t.emoji, g => (g.tipos || []).includes(id)]),
+    ['dexterity', '🤹', g => maxMinutes(g) <= QUICK_MINUTES || (g.tipos || []).includes(IN_DEXTERITY)],
+    ...Object.entries(TIPOS).filter(([id]) => id !== IN_DEXTERITY).map(([id, t]) => [id, t.emoji, g => (g.tipos || []).includes(id)]),
   ];
   // A game shows once on the whole page (the owner, 2026-11-18): it stays in the first row that holds it, in this
   // order, and leaves the ones after it; a row left with no game is not drawn
@@ -94,7 +96,7 @@ export async function drawCarousels({ lang, T, games, tap = () => {}, doc = docu
   root.classList.remove('filtrado');
   await loadCss(new URL('../css/home-carousels.css', import.meta.url).href);
 
-  const titles = { favorites: T.favorites, popular: T.filterPopular, new: T.filterNew, friends: t.friends, quick: t.quick };
+  const titles = { favorites: T.favorites, popular: T.filterPopular, new: T.filterNew, friends: t.friends, dexterity: t.dexterity };
   const titleOf = id => titles[id] || pickLang(TIPOS[id].name, lang);
   const unit = g => (g.durationUnit ? pickLang(g.durationUnit, lang) : T.minutes);
 
