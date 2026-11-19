@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+  <meta name="theme-color" content="#150726">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>Críptico 🗝️ · Juegos de Salón</title>
+  <!-- A lab game (D-395): behind the lab's door (D-281) and not indexed -->
+  <script src="../../assets/js/labs-puerta.js"></script>
+  <meta name="robots" content="noindex, nofollow">
+  <!-- No language flash (D-194): the page waits for the chosen language's texts, 1.5 s at most -->
+  <script>
+    (function () {
+      try {
+        var u = (new URLSearchParams(location.search).get('lang') || '').toLowerCase();
+        var l = u || localStorage.getItem('juegos-de-salon:lang') || 'es';
+        if (l === 'es') return;
+        var h = document.documentElement, listo = function () { h.classList.remove('i18n-pendiente'); };
+        h.classList.add('i18n-pendiente');
+        document.addEventListener('DOMContentLoaded', listo);
+        setTimeout(listo, 1500);
+      } catch (_) { /* no storage: it paints as always */ }
+    })();
+  </script>
+  <meta name="description" content="Una pista críptica al día: se lee de dos maneras y lleva a una sola palabra.">
+  <link rel="manifest" href="../../manifest.webmanifest">
+  <script>
+    // The chosen language's manifest, before the browser reads it (D-222)
+    (function () {
+      try {
+        var l = (new URLSearchParams(location.search).get('lang') || localStorage.getItem('juegos-de-salon:lang') || '').toLowerCase();
+        var m = document.querySelector('link[rel="manifest"]');
+        if (m && /^(en|pt)$/.test(l)) m.href = m.href.replace(/manifest\.webmanifest$/, 'manifest.' + l + '.webmanifest');
+      } catch (_) { /* the Spanish one stays */ }
+    })();
+  </script>
+  <link rel="icon" href="../../assets/icon.svg" type="image/svg+xml">
+  <script src="../../assets/js/vigia.js"></script>
+  <link rel="preload" href="../../assets/fonts/nunito-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="../../assets/fonts/bangers-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="../../assets/css/base.css">
+  <link rel="stylesheet" href="../../assets/css/ranking.css">
+  <link rel="stylesheet" href="style.css">
+  <link rel="apple-touch-icon" href="../../assets/icons/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-title" content="Juegos de Salón">
+  <script type="module">import '../../assets/js/instalable.js';</script>
+</head>
+<body>
+  <main class="app" id="app">
+    <div class="topbar">
+      <a class="back" href="../" id="btn-menu" data-i18n="menu">‹ Laboratorio</a>
+      <div class="tools"><span class="chip" data-i18n="gameChip">🗝️ Críptico</span><span id="sound-slot"></span></div>
+    </div>
+
+    <!-- ============ INTRO ============ -->
+    <section class="screen stack active" id="screen-intro">
+      <div class="intro-hero">
+        <!-- The split-flap board (flapboard.js): it flips through words and lands on the name -->
+        <div class="flapboard" id="flapboard" role="img" aria-label="CRÍPTICO"></div>
+        <h1 class="display display--xl rainbow" data-i18n="title">Críptico</h1>
+        <p class="lead" data-i18n="lead"></p>
+        <div id="lang-slot"></div>
+      </div>
+      <div class="stack">
+        <div id="resume-slot"></div>
+        <div class="modes" id="modes"></div>
+        <!-- The rules go after the main action (U-39): the goal first and three points (U-18) -->
+        <div class="panel">
+          <p class="lead" data-i18n="howTitle"></p>
+          <ol class="how" id="how"></ol>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ PLAY ============ -->
+    <section class="screen stack" id="screen-play">
+      <p class="lead center" id="clue-label"></p>
+      <p class="notice notice--warn" id="clue-lang" data-i18n="inSpanish" hidden></p>
+      <div class="panel clue-card" data-tablero="pista">
+        <p class="clue" id="clue"></p>
+        <div class="tiles" id="tiles" aria-hidden="true"></div>
+      </div>
+      <form class="answer" id="answer-form" autocomplete="off">
+        <div class="field"><input type="text" id="answer" autocapitalize="characters" autocorrect="off" spellcheck="false" enterkeyhint="done"></div>
+        <button class="btn btn--yellow" id="btn-check" type="submit" data-i18n="check"></button>
+      </form>
+      <p class="notice" id="feedback" aria-live="polite" hidden></p>
+      <ul class="hints" id="hints"></ul>
+      <div class="btn-row">
+        <button class="btn btn--cyan btn--sm" id="btn-hint" type="button"></button>
+        <button class="btn btn--ghost btn--sm" id="btn-give-up" type="button" data-i18n="giveUp"></button>
+      </div>
+    </section>
+
+    <!-- ============ RESULT (C-19) ============ -->
+    <section class="screen stack" id="screen-result">
+      <div class="result-hero">
+        <span class="trophy" id="result-stars">⭐</span>
+        <div class="display display--md" id="result-title">—</div>
+        <p class="lead" id="result-line"></p>
+      </div>
+      <div class="stack" id="result-actions"></div>
+      <div id="result-exits"></div>
+      <div class="panel">
+        <p class="lead" data-i18n="howSolved"></p>
+        <p class="clue clue--small" id="result-clue"></p>
+        <p id="result-explain"></p>
+        <p class="muted" id="result-next"></p>
+      </div>
+    </section>
+  </main>
+
+
+  <script type="module">import './game.js';</script>
+  <!-- The cover ends with the site footer (C-17, site-footer.test.mjs) -->
+  <script type="module">import('../../assets/js/site-footer.js').then(m => m.mountFooter(document.getElementById('screen-intro'), { screen: 'cryptic-cover' }));</script>
+</body>
+</html>

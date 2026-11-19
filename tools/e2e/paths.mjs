@@ -166,6 +166,7 @@ const TYF_RESULT = [
 ];
 
 export const PATHS = {
+  'cryptic': { intro: [] },
   // Tembleque (lab): its cover, measured by landing-fold.mjs (D-579)
   'labs/wobbles': { intro: [] },
   // Each level's result (C-19): a round started and ended at once

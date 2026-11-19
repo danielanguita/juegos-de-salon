@@ -1264,6 +1264,7 @@
     "public/assets/js/manifests/hangman.js",
     "public/assets/js/manifests/labs/blackjack.js",
     "public/assets/js/manifests/labs/croc.js",
+    "public/assets/js/manifests/labs/cryptic.js",
     "public/assets/js/manifests/labs/fourth-king.js",
     "public/assets/js/manifests/labs/julep.js",
     "public/assets/js/manifests/labs/transfer.js",
@@ -1484,6 +1485,11 @@
     "public/labs/croc/game.js",
     "public/labs/croc/rules.js",
     "public/labs/croc/scene.js",
+    "public/labs/cryptic/clues.js",
+    "public/labs/cryptic/engine.js",
+    "public/labs/cryptic/flapboard.js",
+    "public/labs/cryptic/game.js",
+    "public/labs/cryptic/rules.js",
     "public/labs/dominorama/engine.js",
     "public/labs/dominorama/game.js",
     "public/labs/exploding-numbers/engine.js",
@@ -1676,6 +1682,7 @@
     "public/labs/code/engine-palabra.test.mjs",
     "public/labs/code/engine.test.mjs",
     "public/labs/croc/engine.test.mjs",
+    "public/labs/cryptic/engine.test.mjs",
     "public/labs/exploding-numbers/engine.test.mjs",
     "public/labs/flap/engine.test.mjs",
     "public/labs/fourth-king/engine.test.mjs",
@@ -1836,6 +1843,8 @@
     "cover-gaps.mjs",
     "croc/game.mjs",
     "croc/languages.mjs",
+    "cryptic/game.mjs",
+    "cryptic/languages.mjs",
     "cup-games/languages.mjs",
     "cup/again.mjs",
     "cup/archived.mjs",
@@ -2129,6 +2138,10 @@
     {
       "path": "docs/games/croc.md",
       "title": "🐸 Croc! (lab, in Juegos en prueba)"
+    },
+    {
+      "path": "docs/games/cryptic.md",
+      "title": "🗝️ Cryptic (Críptico; lab, in Juegos en prueba)"
     },
     {
       "path": "docs/games/cup.md",
