@@ -178,6 +178,20 @@ export const CAMPAIGNS = {
         text: { es: 'Toca para soltar cada bloque y levanta tu torre. ¿Hasta dónde llegas?', en: 'Tap to drop each block and raise your tower. How high can you go?', pt: 'Toque para soltar cada bloco e erga sua torre. Até onde você chega?' }, video: 'assets/splash/babel.mp4', img: 'assets/splash/babel-start.jpg', still: 'assets/splash/babel.jpg', ratio: '360 / 234', smooth: true },
     ],
   },
+  // 🎲 Dominorama and 👀 Memorice leave the lab together (the owner's request, 2026-11-19: made now, not
+  // launched). Two games, side by side like `tres-juegos-demo`; `requires` keeps it unseen until both
+  // flags/dominorama and flags/memory are on for this visitor. Off until the owner turns it on in 📣 Campaigns
+  'dominorama-memorice': {
+    emoji: '🎉',
+    requires: ['dominorama', 'memory'],
+    kicker: { es: '¡Dos juegos nuevos!', en: 'Two new games!', pt: 'Dois jogos novos!' },
+    title: { es: 'Dominó y memoria', en: 'Dominoes and memory', pt: 'Dominó e memória' },
+    lead: { es: 'Dos desafíos para jugar solo. Elige uno.', en: 'Two puzzles to play on your own. Pick one.', pt: 'Dois desafios para jogar sozinho. Escolha um.' },
+    items: [
+      { game: 'dominorama', href: 'dominorama/?play', video: 'assets/splash/dominorama.mp4', img: 'assets/splash/dominorama-start.jpg', still: 'assets/splash/dominorama.jpg' },
+      { game: 'memory', href: 'memorice/?play', video: 'assets/splash/memory.mp4', img: 'assets/splash/memory-start.jpg', still: 'assets/splash/memory.jpg' },
+    ],
+  },
   // #️⃣ Sudoku leaves the lab (D-517's way, the owner's request for 2026-11-11 21:00 Pacific): its splash
   // invites to play it. `requires` keeps it unseen until flags/sudoku is on for this visitor, so the
   // `launch` workflow switches both on together and it appears with the game. Play opens its page ready
