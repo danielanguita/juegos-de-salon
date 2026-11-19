@@ -1,5 +1,5 @@
 {
-  "checkedUpTo": "1fe300d8d0391e10e4ed68edc9c289e3f52e8708",
+  "checkedUpTo": "9d92247fdf9fe89e74f934135cd7d9664c0484a3",
   "patterns": [
     {
       "key": "version-hacia-atras",
@@ -853,6 +853,66 @@
       "signatures": [
         "030f46983e"
       ]
+    },
+    {
+      "key": "decision-file-invalid",
+      "what": "CI tests: tools/agents/document.test.mjs · ",
+      "seen": [
+        {
+          "date": "2026-11-16T17:22:25.939Z",
+          "what": "#1492 tests: tools/agents/document.test.mjs",
+          "commit": "e897004dda30fe4b611c4a8ab0ce139e20fd7277"
+        },
+        {
+          "date": "2026-11-18T01:53:17.311Z",
+          "what": "#1574 tests: tools/agents/document.test.mjs",
+          "commit": "514c00641c7c9c92d84eb357ccf4bd5e3d8d2fda"
+        }
+      ],
+      "mechanism": {
+        "date": "2026-11-19",
+        "what": "push-guard.mjs runs document.mjs decisions (unknown topic, non-canonical Status, a number twice) and stops the push (push-guard.test.mjs)",
+        "pr": "pending"
+      },
+      "signatures": [
+        "754d57b1bc"
+      ]
+    },
+    {
+      "key": "visual-ref-nondeterministic",
+      "what": "Croc! cover demo drew a random track, so its visual reference could not be stable; fixed to a still frame of a fixed track under reduced motion",
+      "seen": [
+        {
+          "date": "2026-11-19",
+          "what": "Croc! cover demo drew a random track, so its visual reference could not be stable; fixed to a still frame of a fixed track under reduced motion",
+          "commit": "6a8dd79c"
+        }
+      ],
+      "mechanism": null
+    },
+    {
+      "key": "css-class-clash",
+      "what": "Altoke (microgames) previews shared a class name and transform with another rule, so the previews rendered wrong; fixed by renaming and scoping",
+      "seen": [
+        {
+          "date": "2026-11-19",
+          "what": "Altoke (microgames) previews shared a class name and transform with another rule, so the previews rendered wrong; fixed by renaming and scoping",
+          "commit": "e4f96238"
+        }
+      ],
+      "mechanism": null
+    },
+    {
+      "key": "popularity-merge-blocked",
+      "what": "Weekly popularity opened #1503 green but its direct gh pr merge was refused (base branch policy); the order only landed when the owner enabled auto-merge a day later. Run https://github.com/ellokojavi/juegos-de-salon/actions/runs/43965544267",
+      "seen": [
+        {
+          "date": "2026-11-19",
+          "what": "Weekly popularity opened #1503 green but its direct gh pr merge was refused (base branch policy); the order only landed when the owner enabled auto-merge a day later. Run https://github.com/ellokojavi/juegos-de-salon/actions/runs/43965544267",
+          "commit": null
+        }
+      ],
+      "mechanism": null
     }
   ],
   "mechanisms": [
@@ -1017,6 +1077,12 @@
       "key": "visual-ref-round-trip",
       "what": "visual-refs.yml remakes on the runner the references a same-repo PR changes and commits them with a token that restarts the checks; visual-refs.test.mjs pins its guards",
       "pr": "https://github.com/ellokojavi/juegos-de-salon/pull/1633"
+    },
+    {
+      "date": "2026-11-19",
+      "key": "decision-file-invalid",
+      "what": "push-guard.mjs runs document.mjs decisions (unknown topic, non-canonical Status, a number twice) and stops the push (push-guard.test.mjs)",
+      "pr": "pending"
     }
   ],
   "queueDone": [
@@ -1032,12 +1098,12 @@
   ],
   "dispatches": {
     "documentation": {
-      "date": "2026-11-18",
-      "to": "1fe300d8d0391e10e4ed68edc9c289e3f52e8708"
+      "date": "2026-11-19",
+      "to": "9d92247fdf9fe89e74f934135cd7d9664c0484a3"
     },
     "usability": {
-      "date": "2026-11-18",
-      "to": "1fe300d8d0391e10e4ed68edc9c289e3f52e8708"
+      "date": "2026-11-19",
+      "to": "9d92247fdf9fe89e74f934135cd7d9664c0484a3"
     },
     "ideas": {
       "date": "2026-11-18",
@@ -1288,6 +1354,14 @@
       "issue": null,
       "pr": null,
       "note": "dispatched docs, usability, ideas, ci-health, backlog, retention (#1594); collected 70 changelog entries; durations measured"
+    },
+    {
+      "date": "2026-11-19",
+      "from": "1fe300d8d0391e10e4ed68edc9c289e3f52e8708",
+      "to": "9d92247fdf9fe89e74f934135cd7d9664c0484a3",
+      "issue": null,
+      "pr": null,
+      "note": "dispatched docs (#1641 merged) + usability; queued #1597:1 handed to a build session; collected 40 changelog entries; durations measured; mechanism decision-file-invalid"
     }
   ],
   "ownerDecisions": [
