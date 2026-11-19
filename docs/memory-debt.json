@@ -80,6 +80,10 @@
     {
       "id": "memory",
       "reason": "Built in cup/games/ like Aletazo: a timed game that is not resumed; its state, saved after each round with ctx.guardar, is kept by the Cup's shared screen (public/cup/cuenta.js), and a reload ends the game with the rounds it had; the lab prototype keeps only its best"
+    },
+    {
+      "id": "dominorama",
+      "reason": "Built in cup/games/ like Sudoku: its boards, saved after every move with ctx.guardar, are kept by the Cup's shared screen (public/cup/cuenta.js), not by its own code"
     }
   ]
 }

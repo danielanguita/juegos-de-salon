@@ -54,6 +54,7 @@ The games with their own section below come first; after them, the one-player ga
 | #️⃣ [Sudoku](https://juegosdesalon.cl/sudoku/) | 1 | Play alone | Also in The Cup |
 | ⚡ [In a Flash! / ¡Al toque! / Na Hora!](https://juegosdesalon.cl/in-a-flash/) | 1 | Play alone | Also in The Cup |
 | 👀 [Memorice](https://juegosdesalon.cl/memorice/) | 1 | Play alone | Also in The Cup |
+| 🎲 [Dominorama](https://juegosdesalon.cl/dominorama/) | 1 | Play alone | Also in The Cup |
 <!-- /generated -->
 
 ---
@@ -182,6 +183,12 @@ Spec and design: [docs/games/sudoku.md](docs/games/sudoku.md)
 The Chilean memory game, built as a La Copa game the way Sudoku was (D-517), with its page `/memorice/`: the tiles show some pictures, cover again, and you tap every copy of the one asked for before the bar runs out. It is endless, with 3 lives (five rounds in a row without a miss give one back), and the boards grow up to 6×6 while the time to look shrinks. The score is the rounds cleared, with the pictures found as the tiebreak; a cup day plays it with a trial of 1 life and 3 rounds, and Uno al día takes it from its deck once the owner sets its date. It comes out when the launch workflow switches the flag `memory` on; until then it is played in the lab at `/labs/memory/`, on the same engine.
 
 Spec and design: [docs/games/memory.md](docs/games/memory.md)
+
+### 🎲 Dominorama (prepared, waiting for the owner's launch date)
+
+A dominoes puzzle inspired by *Pips* from The New York Times Games (credited on its cover), built as a La Copa game the way Sudoku was (D-517), with its page `/dominorama/`: lay every domino on the board so each colored zone keeps its rule (a number is the sum of its pips, = all equal, ≠ all different, < and > less or more). Every board has one solution. A cup day plays three boards, the trial plays the easy one; the score is 0 to 100, with a speed part and a cost for each help, and a share card reads like `✅✅⬜ 2/3 · 💡 1`. It is ready but **not launched**: it stays hidden until the owner switches the flag `dominorama` on, and Uno al día will deal it only from the date the owner sets. The lab prototype stays at `/labs/dominorama/` until the cleanup PR.
+
+Spec and design: [docs/games/dominorama.md](docs/games/dominorama.md)
 
 ### Retired cup games
 
@@ -581,6 +588,7 @@ The whole app is translated, Portuguese as spoken in Brazil (German left in D-51
 | Sudoku | Sudoku | Sudoku |
 | ¡Al toque! | In a Flash! | Na Hora! |
 | Memorice | Memorice | Memorice |
+| Dominorama | Dominorama | Dominorama |
 <!-- /generated -->
 
 <!-- generated: screenshots:idiomas · written by python3 tools/release/readme.py update -->
@@ -683,7 +691,7 @@ These documents are being moved to English (D-316); the ones with a Spanish titl
 - [🐸 Croc! (lab, in Juegos en prueba)](docs/games/croc.md)
 - [La Copa](docs/games/cup.md)
 - [🎨 The components page (the design system, in the lab)](docs/games/design.md)
-- [🎲 Dominorama (lab prototype, in Juegos en prueba)](docs/games/dominorama.md)
+- [🎲 Dominorama (La Copa game, ready to launch by flag; the lab prototype stays until the cleanup)](docs/games/dominorama.md)
 - [💥 Números explosivos (prototipo del laboratorio, en Juegos en prueba)](docs/games/exploding-numbers.md)
 - [🐤 Aletazo (La Copa game, launched by flag; the lab prototype stays until the cleanup)](docs/games/flap.md)
 - [Especificación: Cuarto Rey](docs/games/fourth-king.md)

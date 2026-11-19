@@ -111,6 +111,11 @@
         "public/cup/games/croc/texts.js",
         "public/cup/games/croc/ui.js",
         "public/cup/games/deshacer.js",
+        "public/cup/games/dominorama/engine.js",
+        "public/cup/games/dominorama/icon.svg",
+        "public/cup/games/dominorama/style.css",
+        "public/cup/games/dominorama/texts.js",
+        "public/cup/games/dominorama/ui.js",
         "public/cup/games/final/engine.js",
         "public/cup/games/final/ui.js",
         "public/cup/games/flap/engine.js",
@@ -1082,6 +1087,22 @@
       "labs": false,
       "bodega": false,
       "path": "memorice/"
+    },
+    {
+      "id": "dominorama",
+      "emoji": "🎲",
+      "name": {
+        "es": "Dominorama",
+        "en": "Dominorama",
+        "pt": "Dominorama"
+      },
+      "kinds": [
+        "logic"
+      ],
+      "duration": "3–10",
+      "labs": false,
+      "bodega": false,
+      "path": "dominorama/"
     }
   ],
   "themes": [
@@ -1352,6 +1373,9 @@
     "public/cup/games/croc/texts.js",
     "public/cup/games/croc/ui.js",
     "public/cup/games/deshacer.js",
+    "public/cup/games/dominorama/engine.js",
+    "public/cup/games/dominorama/texts.js",
+    "public/cup/games/dominorama/ui.js",
     "public/cup/games/final/engine.js",
     "public/cup/games/final/ui.js",
     "public/cup/games/flap/engine.js",
@@ -1618,6 +1642,7 @@
     "public/cup/games/bridges/physics.test.mjs",
     "public/cup/games/croc/engine.test.mjs",
     "public/cup/games/deshacer.test.mjs",
+    "public/cup/games/dominorama/engine.test.mjs",
     "public/cup/games/flap/engine.test.mjs",
     "public/cup/games/juegos.test.mjs",
     "public/cup/games/lazy.test.mjs",
@@ -1651,7 +1676,6 @@
     "public/labs/code/engine-palabra.test.mjs",
     "public/labs/code/engine.test.mjs",
     "public/labs/croc/engine.test.mjs",
-    "public/labs/dominorama/engine.test.mjs",
     "public/labs/exploding-numbers/engine.test.mjs",
     "public/labs/flap/engine.test.mjs",
     "public/labs/fourth-king/engine.test.mjs",
@@ -1839,6 +1863,7 @@
     "daily.mjs",
     "design/page.mjs",
     "dominorama/lab.mjs",
+    "dominorama/page.mjs",
     "double-tap.mjs",
     "exploding-numbers/lab.mjs",
     "favorites.mjs",
@@ -2115,7 +2140,7 @@
     },
     {
       "path": "docs/games/dominorama.md",
-      "title": "🎲 Dominorama (lab prototype, in Juegos en prueba)"
+      "title": "🎲 Dominorama (La Copa game, ready to launch by flag; the lab prototype stays until the cleanup)"
     },
     {
       "path": "docs/games/exploding-numbers.md",

@@ -1070,15 +1070,15 @@
    "name": "PALABRAS_CLAVE"
   },
   {
-   "file": "public/labs/dominorama/engine.js",
+   "file": "public/cup/games/dominorama/engine.js",
    "name": "PUNTOS_TABLERO"
   },
   {
-   "file": "public/labs/dominorama/engine.js",
+   "file": "public/cup/games/dominorama/engine.js",
    "name": "azar"
   },
   {
-   "file": "public/labs/dominorama/engine.js",
+   "file": "public/cup/games/dominorama/engine.js",
    "name": "tarjeta"
   },
   {

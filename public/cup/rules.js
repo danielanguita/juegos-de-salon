@@ -18,6 +18,7 @@ import STACK from './games/stack/texts.js';
 import ALETAZO from './games/flap/texts.js';
 import SUDOKU from './games/sudoku/texts.js';
 import MEMORY from './games/memory/texts.js';
+import DOMINORAMA from './games/dominorama/texts.js';
 import AL_TOQUE from './games/microgames/texts.js';
 import CROC from './games/croc/texts.js';
 import { SHEETS } from '../assets/js/notification-sheets.js';
@@ -48,6 +49,7 @@ const BASE = {
   aletazo: { emoji: '🐤' },
   sudoku: { emoji: '#️⃣' },
   memory: { emoji: '👀' },
+  dominorama: { emoji: '🎲' },
   microgames: { emoji: '⚡' },
   'croc': { emoji: '🐸', labs: true },
   final: { emoji: '🏁' },
@@ -2853,7 +2855,7 @@ for (const [lang, L] of Object.entries(LOCALES)) {
   }
 }
 // Each game's own texts (D-331): its entry in `juegos` and the keys its screen reads
-for (const [id, textos] of Object.entries({ rutas: RUTAS, loteo: LOTEO, pintaminas: PINTAMINAS, agentes: AGENTES, puentes: PUENTES, stick: STICK, stack: STACK, aletazo: ALETAZO, sudoku: SUDOKU, memory: MEMORY, microgames: AL_TOQUE, 'croc': CROC })) {
+for (const [id, textos] of Object.entries({ rutas: RUTAS, loteo: LOTEO, pintaminas: PINTAMINAS, agentes: AGENTES, puentes: PUENTES, stick: STICK, stack: STACK, aletazo: ALETAZO, sudoku: SUDOKU, memory: MEMORY, dominorama: DOMINORAMA, microgames: AL_TOQUE, 'croc': CROC })) {
   for (const [lang, L] of Object.entries(LOCALES)) {
     const t = textos[lang] || textos.es;
     L.juegos[id] = t.juego;

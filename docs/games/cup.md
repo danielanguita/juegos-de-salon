@@ -344,6 +344,9 @@ por ciudad menos 4 cada 100 km, D-155, D-156, D-200).
   its trial is two clues, and the Gran Final plays it whole. **🔗 Conexiones** stays registered in
   `JUEGOS`, so the cups created before keep playing it, their final included; new cups cannot pick it,
   and outside La Copa it sits in the lab's 📦 La Bodega at `/connections/`.
+- **🎲 Dominorama** (prepared 2026-11-19, D-517's way, not launched) comes from the lab into the pool
+  (`copa: { pozo: 20 }`) when the owner switches `flags/dominorama` on; its page is [dominorama.md](dominorama.md).
+  A day plays its three boards (the trial, the easy one); its score is 0 to 100 already, speed read from the cup's clock.
 - **#️⃣ Sudoku** (2026-11-11, D-517's way) came from the lab into the pool (`copa: { pozo: 17 }`), launched by
   `flags/sudoku`; its page is [sudoku.md](sudoku.md). Its levels are variants (`VARIANTES.sudoku`): a day plays 🟢 easy,
   the 6×6 mini, unless the admin picks 🔴 hard (9×9). Its score is 0 to 100 already, its trial a board with 6 cells

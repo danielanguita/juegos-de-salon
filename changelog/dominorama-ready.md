@@ -1,0 +1,3 @@
+level: minor
+
+- **🎲 Dominorama leaves the lab, ready to launch by flag (D-517's way), not launched**: La Copa's screen in `cup/games/dominorama/` (the lab's engine moved there, plus `generateDay` and `card`; `ui.js`, `texts.js` in es/en/pt, `style.css`, the drawn domino icon), its page `/dominorama/` with its bridges and link card, La Copa (pozo 20) and Uno al día (orden 25, `desde` a placeholder until the owner picks the launch date). Hidden until `flags/dominorama` is on; the credit to NYT's Pips stays on its cover. Splash media recorded for a future campaign (`marketing/splash/dominorama-clip.mjs`). e2e `tools/e2e/dominorama/page.mjs`.
