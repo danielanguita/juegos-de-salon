@@ -22,3 +22,4 @@ width (no sideways scroll), both ▶ buttons on screen.
   M-3 now accepts a row card's clip inset by the same gap above as on the left). Dominorama's clip is the
   board alone, the dominoes turned off camera; Memorice's board is shrunk inside its clip, with room around it (ffmpeg pad, the page's purple); Memorice's card opens
   with "Un clásico de la infancia." (its own text, three lines on a phone).
+- **2026-11-19 (Play's gap):** every card in a list as tall as the tallest, its name and text on top and Play at the bottom, so the gap under Play is the same in each (the owner saw Dominorama's and Memorice's differ).
