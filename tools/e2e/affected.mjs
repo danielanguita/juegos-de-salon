@@ -31,6 +31,9 @@ const isLab = p => p === 'labs' || p.startsWith('labs/');
 export const READ_BY = [
   { test: f => /^manifest(\.\w+)?\.webmanifest$/.test(f), scripts: ['installable.mjs', 'smoke.mjs'], why: 'Chrome reads it to install the app' },
   { test: f => f === 'assets/og/huellas.json', scripts: [], why: 'the link cards\' fingerprints, read only by tools/release/og.mjs' },
+  // No page fetches a game.json: they load its module, manifests/<folder>.js, written from it and changed in the same PR
+  // (manifest.test.mjs keeps them equal), which reaches the game's pages and scripts; a new lab game used to run all
+  { test: f => /(^|\/)game\.json$/.test(f), scripts: [], why: 'a game\'s facts, read through its module in assets/js/manifests/' },
 ];
 
 /** Does a closure file other than `f` name one of `uses` (D-516)? Word match on the uncommented source. */

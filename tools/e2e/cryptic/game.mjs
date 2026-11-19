@@ -51,6 +51,8 @@ ok(/⭐/.test(await b.evaluate("document.getElementById('today-note').textConten
 // Practice: a clue from another day, given up
 await b.evaluate("document.querySelector('#btn-practice-cover').click(); 1"); await sleep(300);
 ok(await b.evaluate('window.__cryptic.state().practice') === true, 'practice opens another clue');
+await b.evaluate("document.getElementById('btn-give-up').click(); 1"); await sleep(200);
+ok(await b.active() === 'screen-play', 'the first tap on «Me rindo» only asks');
 await b.evaluate("document.getElementById('btn-give-up').click(); 1"); await sleep(300);
 ok(await b.active() === 'screen-result', 'giving up reaches the result');
 ok((await b.evaluate("document.getElementById('result-title').textContent")).includes(await b.evaluate('window.__cryptic.answer()')), 'giving up shows the answer');

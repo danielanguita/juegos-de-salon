@@ -198,7 +198,7 @@ export const PATHS = {
     ],
   },
   /**
-   * 🗝️ Agentes (D-421): the board, the end (every clue passed, Terminar confirmed) and its result.
+   * 🕵️ Agentes (D-421): the board, the end (every clue passed, Terminar confirmed) and its result.
    * AG_FINISH passes each clue as soon as its button comes back (a clue takes about a second to
    * turn away), in one step: tapping it on a fixed beat took 14 steps, and the language check runs it
    * eight times.

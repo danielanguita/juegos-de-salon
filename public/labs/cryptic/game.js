@@ -49,7 +49,8 @@ function showScreen(id) {
   window.scrollTo({ top: 0, behavior: 'instant' });
 }
 
-const starText = n => (n ? '⭐'.repeat(n) : '🏳️');
+/** The stars of a round: ✅ for a clue solved with every help, 🏳️ for one given up. */
+const starText = (n, solved = true) => (!solved ? '🏳️' : n ? '⭐'.repeat(n) : '✅');
 
 /* ---------------- Intro ---------------- */
 function renderResumeSlot() {
@@ -75,7 +76,9 @@ function renderModes() {
     el('button', { class: 'btn btn--yellow', id: 'btn-play', 'data-mode': 'today', onClick: () => { SFX.tap(); startToday(); } },
       done ? T.modeTodayAgain : T.modeToday),
     el('p', { class: 'muted center today-note', id: 'today-note' },
-      done ? fmt(T.modeTodayDone, { stars: starText(done.stars) }) : fmt(T.modeTodayHint, { n: E.numberOf(d) })),
+      done ? fmt(T.modeTodayDone, { stars: starText(done.stars, done.solved) }) : fmt(T.modeTodayHint, { n: E.numberOf(d) })),
+    // The clues are in Spanish: said on the cover, before the first tap
+    lang !== CLUE_LANG && el('p', { class: 'notice notice--warn' }, T.inSpanish),
     el('button', { class: 'btn btn--ghost btn--sm', id: 'btn-practice-cover', 'data-mode': 'practice', onClick: () => { SFX.tap(); startPractice(); } }, T.modePractice));
   $('#how').replaceChildren(...L.como.map(step => el('li', {}, step)));
 }
@@ -138,6 +141,9 @@ function renderPlay() {
   input.placeholder = T.placeholder;
   input.maxLength = c.a.length + 4;
   $('#feedback').hidden = true;
+  const give = $('#btn-give-up');
+  delete give.dataset.armed;
+  give.textContent = T.giveUp;
   renderTiles();
   renderHints();
   showScreen('screen-play');
@@ -169,7 +175,9 @@ function submit(ev) {
   say(fmt(T.wrong, { g: state.guesses.at(-1) }), 'bad');
   const card = $('.clue-card');
   card.classList.remove('shake'); void card.offsetWidth; card.classList.add('shake');
-  input.select();
+  // The guess is in the red line: the field and the boxes empty for the next one
+  input.value = '';
+  renderTiles();
 }
 
 function askHint() {
@@ -182,6 +190,9 @@ function askHint() {
 
 function giveUp() {
   SFX.tap();
+  // Two taps: the first asks, so a slip does not lose the clue (and today's streak)
+  const btn = $('#btn-give-up');
+  if (!btn.dataset.armed) { btn.dataset.armed = '1'; btn.textContent = T.giveUpSure; return; }
   state = E.giveUp(state);
   save();
   finish();
@@ -198,7 +209,7 @@ function shareText() {
   const s = E.stars(state);
   const tries = state.guesses.length;
   const line = state.solved
-    ? [starText(s), tries === 1 ? T.triesOne : fmt(T.tries, { n: tries }), state.hints ? (state.hints === 1 ? T.shareHintsOne : fmt(T.shareHints, { n: state.hints })) : ''].filter(Boolean).join(' · ')
+    ? [starText(s, true), tries === 1 ? T.triesOne : fmt(T.tries, { n: tries }), state.hints ? (state.hints === 1 ? T.shareHintsOne : fmt(T.shareHints, { n: state.hints })) : ''].filter(Boolean).join(' · ')
     : T.shareGaveUp;
   const contexto = state.practice ? T.practiceLabel : fmt(T.shareContext, { n: E.numberOf(state.date) });
   return [cabecera({ emoji: manifest.emoji, titulo: T.title, contexto }), line].join('\n\n');
@@ -208,12 +219,16 @@ function renderResult() {
   const c = clue();
   const s = E.stars(state);
   const tries = state.guesses.length;
-  $('#result-stars').textContent = starText(s);
+  $('#result-stars').textContent = starText(s, state.solved);
   $('#result-title').textContent = state.solved ? T.solvedTitle : fmt(T.gaveUpTitle, { a: c.a });
   const parts = [];
   if (state.solved) parts.push(tries === 1 ? T.triesOne : fmt(T.tries, { n: tries }));
   if (state.practice) parts.push(T.practiceNote);
-  else { const n = E.streak(readDays(), today()); if (n) parts.push(n === 1 ? T.streakOne : fmt(T.streakMany, { n })); }
+  else {
+    const n = E.streak(readDays(), today());
+    if (state.gaveUp && n) parts.push(T.streakLost);
+    else if (n) parts.push(n === 1 ? T.streakOne : fmt(T.streakMany, { n }));
+  }
   $('#result-line').textContent = parts.join(' · ');
   $('#result-clue').replaceChildren(...clueNodes(state, c));
   $('#result-explain').textContent = c.x;

@@ -689,6 +689,7 @@ These documents are being moved to English (D-316); the ones with a Spanish titl
 - [🔐 La clave (prototipo del laboratorio, en La Bodega)](docs/games/code.md)
 - [🔗 Connections (Conexiones)](docs/games/connections.md)
 - [🐸 Croc! (lab, in Juegos en prueba)](docs/games/croc.md)
+- [🗝️ Cryptic (Críptico; lab, in Juegos en prueba)](docs/games/cryptic.md)
 - [La Copa](docs/games/cup.md)
 - [🎨 The components page (the design system, in the lab)](docs/games/design.md)
 - [🎲 Dominorama (La Copa game, ready to launch by flag; the lab prototype stays until the cleanup)](docs/games/dominorama.md)
