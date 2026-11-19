@@ -736,14 +736,14 @@
       "available": false,
       "labs": true,
       "status": null,
-      "modes": [
+      "modes": [],
+      "variants": [
         {
           "key": "modeSolo",
           "es": "Cruzar la autopista",
           "en": "Cross the highway"
         }
       ],
-      "variants": [],
       "screens": [
         "intro",
         "play",

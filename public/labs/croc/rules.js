@@ -21,8 +21,8 @@ const ES = {
     demoHint: 'Desliza largo ▲ · Salta 2 carriles',
     demoBoatHint: 'Desliza corto ▲ · Usa los botes',
     demoHopHint: 'Desliza ▲ · Avanza un carril',
+    demoSideHint: 'Desliza ◀ ▶ · Muévete de lado',
     modeSolo: 'Cruzar la autopista',
-    modeSoloHint: '1 jugador · Sin mirar atrás',
     diffSwitch: [
       { title: '🟢 Tráfico normal', sub: '2–3 autos por carril · ritmo clásico' },
       { title: '🔥 Tráfico intenso', sub: '3–4 autos por carril · más rápidos y pegados' },
@@ -75,8 +75,8 @@ const EN = {
     demoHint: 'Long swipe ▲ · Leap 2 lanes',
     demoBoatHint: 'Short swipe ▲ · Hop on boats',
     demoHopHint: 'Swipe ▲ · Hop one lane',
+    demoSideHint: 'Swipe ◀ ▶ · Move sideways',
     modeSolo: 'Cross the highway',
-    modeSoloHint: '1 player · No turning back',
     diffSwitch: [
       { title: '🟢 Normal traffic', sub: '2–3 cars per lane · standard speed' },
       { title: '🔥 Heavy traffic', sub: '3–4 cars per lane · faster with tighter gaps' },
@@ -129,8 +129,8 @@ const PT = {
     demoHint: 'Deslize longo ▲ · Salte 2 faixas',
     demoBoatHint: 'Deslize curto ▲ · Use os barcos',
     demoHopHint: 'Deslize ▲ · Avance uma faixa',
+    demoSideHint: 'Deslize ◀ ▶ · Mova-se para o lado',
     modeSolo: 'Atravessar a rodovia',
-    modeSoloHint: '1 jogador · Sem olhar para trás',
     diffSwitch: [
       { title: '🟢 Trânsito normal', sub: '2–3 carros por faixa · ritmo clássico' },
       { title: '🔥 Trânsito intenso', sub: '3–4 carros por faixa · mais rápidos e juntos' },
