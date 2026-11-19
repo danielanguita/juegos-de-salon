@@ -1,5 +1,6 @@
 // Croc! (lab): starts a seeded run, advances with the overlay controls, and verifies result screen.
 import { output } from '../output.mjs';
+import { doubleTap } from '../double-tap.mjs';
 import { launch, sleep } from '../cdp.mjs';
 
 const SITE = process.env.SITE || 'http://localhost:8765';
@@ -11,8 +12,13 @@ const ok = (cond, msg) => { console.log((cond ? '✓ ' : '✗ ') + msg); if (!co
 await b.go(`${SITE}/labs/croc/?seed=4821`);
 await b.evaluate('localStorage.clear(); 1');
 await b.go(`${SITE}/labs/croc/?seed=4821`);
-await b.evaluate("document.querySelector('#btn-play').click(); 1");
+// A double tap on the start button starts one run, one countdown (C-14, D-576)
+await doubleTap(b, '#btn-play');
+await sleep(300);
+if (await b.evaluate("document.querySelectorAll('#cuenta').length") > 1) throw new Error('double tap started two countdowns');
 await sleep(450);
+ok(await b.evaluate("!!document.getElementById('cuenta')"), "the 3, 2, 1 shows before playing");
+await sleep(3600);
 ok(await b.active() === 'screen-play', 'the game starts');
 await b.shot('play');
 

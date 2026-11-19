@@ -10,6 +10,7 @@ import { trackStart, trackVisit, trackFinish } from '../../assets/js/transport/s
 import { footerInto } from '../../assets/js/site-footer.js';
 import { salidasFin } from '../../assets/js/fin.js';
 import { botonCompartir, cabecera } from '../../assets/js/compartir.js';
+import { cuentaRegresiva } from '../../assets/js/cuenta-regresiva.js';
 import { coverWithDialogs } from '../../assets/js/cover-dialogs.js';
 import { bloqueTabla, avisoPartida } from '../../assets/js/ranking.js';
 import { rankingsVisibles } from '../../assets/js/jugador.js';
@@ -130,21 +131,15 @@ function updateHud() {
 /**
  * The cover's demo is the real game: the engine plays a run on its own (mode 'demo', its autopilot)
  * and the game's own scene draws it, so the cover shows the frog, the cars, the canal and the boats
- * as they are. It follows the lever's traffic, and a caption under it says what the frog is doing.
+ * as they are. It follows the lever's traffic; the finger over it shows each swipe (drawGesture).
  */
 let demoG = null;
 let demoScene = null;
 let demoRun = 0;
-let demoCaption = '';
 function newDemo() {
   // With reduced motion the demo is one still frame: of a fixed track, so it is the same every time
   demoG = E.newGame({ ...DEFAULT_CONFIG, seed: QUIET() ? 4821 : E.randomSeed(), difficulty, mode: 'demo' });
   demoScene?.clear();
-}
-function setDemoCaption(text) {
-  if (text === demoCaption) return;
-  demoCaption = text;
-  $('#demo-caption').textContent = text;
 }
 /**
  * The finger over the demo: each hop of the frog is a short swipe in its direction (up, left or right),
@@ -165,24 +160,26 @@ function drawGesture(c, gs, now) {
   const [dx, dy] = gs.dir === 'left' ? [-1, 0] : gs.dir === 'right' ? [1, 0] : [0, -1];
   const ox = gs.dir === 'right' ? ax - len : ax, oy = ay;
   const tx = ox + dx * len * ease, ty = oy + dy * len * ease;
+  // The trail stops short of the finger, so the finger reads on its own
+  const gap = 30, run = Math.max(0, len * ease - gap), ex = ox + dx * run, ey = oy + dy * run;
   ctx.save();
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   ctx.globalAlpha = alpha;
   ctx.lineCap = 'round';
-  const grad = ctx.createLinearGradient(ox, oy, tx, ty);
+  const grad = ctx.createLinearGradient(ox, oy, ex + 0.01, ey + 0.01);
   grad.addColorStop(0, gs.dash ? 'rgba(255, 159, 28, 0)' : 'rgba(255, 255, 255, 0)');
   grad.addColorStop(1, gs.dash ? 'rgba(255, 217, 74, 0.95)' : 'rgba(255, 255, 255, 0.85)');
   ctx.strokeStyle = gs.dash ? 'rgba(255, 217, 74, 0.35)' : 'rgba(10, 14, 28, 0.45)';
   ctx.lineWidth = gs.dash ? 26 : 20;
-  ctx.beginPath(); ctx.moveTo(ox, oy); ctx.lineTo(tx, ty); ctx.stroke();
+  if (run > 0) { ctx.beginPath(); ctx.moveTo(ox, oy); ctx.lineTo(ex, ey); ctx.stroke(); }
   ctx.strokeStyle = grad;
   ctx.lineWidth = gs.dash ? 10 : 7;
-  ctx.beginPath(); ctx.moveTo(ox, oy); ctx.lineTo(tx, ty); ctx.stroke();
+  if (run > 0) { ctx.beginPath(); ctx.moveTo(ox, oy); ctx.lineTo(ex, ey); ctx.stroke(); }
   ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
   ctx.beginPath(); ctx.arc(ox, oy, 7, 0, Math.PI * 2); ctx.fill();
   ctx.fillStyle = 'rgba(10, 14, 28, 0.55)';
-  ctx.beginPath(); ctx.arc(tx, ty + 20, 24, 0, Math.PI * 2); ctx.fill();
-  ctx.font = `${gs.dash ? 40 : 36}px system-ui, sans-serif`;
+  ctx.beginPath(); ctx.arc(tx, ty + 24, 30, 0, Math.PI * 2); ctx.fill();
+  ctx.font = `${gs.dash ? 50 : 46}px system-ui, sans-serif`;
   ctx.textAlign = 'center';
   ctx.textBaseline = 'top';
   ctx.fillText('👆', tx, ty - 4);
@@ -201,8 +198,6 @@ function startDashDemo() {
   const run = ++demoRun;
   let last = performance.now();
   let acc = 0;
-  let dashUntil = 0;
-  let sideUntil = 0;
   let gesture = null;
   const frame = now => {
     if (run !== demoRun) return;
@@ -216,15 +211,11 @@ function startDashDemo() {
         demoScene.tick(E.STEP, demoG);
         acc -= E.STEP;
         for (const ev of demoG.events.splice(0)) {
-          if (ev.type === 'dash') dashUntil = now + 2400;
-          if (ev.type === 'hop' && ev.dir !== 'up') sideUntil = now + 1600;
           if (ev.type === 'hop' || ev.type === 'dash') gesture = { dir: ev.type === 'dash' ? 'up' : ev.dir, dash: ev.type === 'dash', t0: now };
           demoScene.fx(ev, demoG, { closeCall: T.closeCall });
         }
         if (demoG.mode === 'win' || demoG.mode === 'crash') { newDemo(); break; }
       }
-      const kind = demoG.lanes[demoG.frog.row + 1]?.kind;
-      setDemoCaption(now < dashUntil ? T.demoHint : now < sideUntil ? T.demoSideHint : (kind === 'water' || demoG.lanes[demoG.frog.row]?.kind === 'water') ? T.demoBoatHint : T.demoHopHint);
       demoScene.draw(demoG, null);
       drawGesture(c, gesture, now);
     }
@@ -355,12 +346,14 @@ function renderIntro() {
   $('#cover-ranking').replaceChildren(bloqueTabla({ tabla: GAME_ID, titulo: String((C.rk?.titleOf || '{game}')).replace('{game}', T.title), alTocar: () => SFX.tap() }));
   renderResumeSlot();
   startDashDemo();
-  footerInto($('#pie'), { screen: 'croc-cover', inbox: false, lang });
+  footerInto($('#pie'), { screen: 'croc-cover', lang });
   coverWithDialogs($('#screen-intro'), { lang, alTocar: () => SFX.tap() });
 }
 
 /* ---------------- Play & Result ---------------- */
 function startRun(seed) {
+  // A second tap while the 3, 2, 1 runs counts once (C-14, D-576)
+  if (counting) return;
   currentSeed = seed;
   paused = false;
   $('#pause-layer').hidden = true;
@@ -371,6 +364,9 @@ function startRun(seed) {
   showScreen('screen-play');
   updateHud();
   $('#stage').focus({ preventScroll: true });
+  // The traditional 3, 2, 1 (D-105): the road already moves below, the frog waits until «¡A jugar!»
+  counting = true;
+  cuentaRegresiva({ titulo: `🐸 ${T.title}`, ya: T.go }).then(() => { counting = false; });
 }
 
 function finishRun() {
@@ -447,7 +443,9 @@ function finishRun() {
 }
 
 /* ---------------- Controls (board swipes + keyboard) ---------------- */
+let counting = false;
 function triggerAction(action) {
+  if (counting) return;
   if (!g || g.mode === 'demo' || g.mode === 'win' || g.mode === 'crash') return;
   if (paused) {
     paused = false;
