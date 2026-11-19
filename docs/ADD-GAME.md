@@ -39,7 +39,8 @@ The game inside is a placeholder (a race to ten). Replace it, keeping what surro
 - **The result screen** (C-19): exits from `fin.js` for each context, looked at 390×812 and 320 px. In One a Day it is the only screen after the last move (D-581).
 - **Rankings** (D-212, D-559): whether a game records a score is a question for the owner. One that does
   (`avisoPartida()`) adds its table to `SOLO_TABLES` in `games.js` so Rankings shows its tab
-  (`rankings-coverage.test.mjs` fails otherwise), and its e2e script checks the tab on `/records/`.
+  (`rankings-coverage.test.mjs` fails otherwise; a game whose first variant keeps its own table, like
+  Sudoku's `sudoku_easy`, also adds a row to `FIRST_VARIANT_TABLES`), and its e2e script checks the tab on `/records/`.
   The panel names it on its own (`gameById`).
 
 ## The entry gate: a game enters the lab with its canons (D-579)
@@ -87,7 +88,7 @@ left for "later":
 | Watchdog before the stylesheets, `trackVisit()` (C-7, D-251) | `vigia.test.mjs` |
 | The lab's door and `noindex` (D-395) | `labs-puerta.test.mjs` |
 | Its card in `/labs/` with its drawing (D-409) | `index-nav.test.mjs`, `listed.test.mjs` |
-| A score table in `SOLO_TABLES` so Rankings shows it (D-559) | `rankings-coverage.test.mjs` |
+| A score table in `SOLO_TABLES` (and `FIRST_VARIANT_TABLES` if the first variant has its own) so Rankings shows it (D-559) | `rankings-coverage.test.mjs` |
 | Instructions per U-18, no clumsy text (C-1, C-8) | `usability-lint.test.mjs`, and the usability agent's short review (D-304) |
 | One tap on a button that waits on an animation, its script double-taps it (C-14, D-576) | `tools/e2e/double-tap.mjs` and the game's script; 👁 the reviewer |
 | Rooms: `tryRoom`, `roomMessage()`, chat module, Firebase rules (C-7, C-14, C-15) | `room-state.test.mjs`, conformance; 👁 the reviewer |

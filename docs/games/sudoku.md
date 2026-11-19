@@ -147,8 +147,9 @@ with its link card `assets/og/sudoku.jpg`), La Copa and Uno al día. The id stay
   (`selector`), and remembers it.
 - **Score:** already 0 to 100 (100, −10 a wrong digit, −15 a hint, 0 given up), the same in a cup, in Uno al día
   and in the final; no curve. Ties go to the faster (the cup's clock, `clock`).
-- **Rankings:** one table per level, `sudoku_easy` and `sudoku_hard`, as in the lab: `RK_POR_VARIANTE` in
-  `cup/game.js` keeps the default level's table suffixed too (other games rank their default variant under the bare id).
+- **Rankings:** one table per level, `sudoku_easy` and `sudoku_hard`, as in the lab: `FIRST_VARIANT_TABLES`
+  in `games.js` (`sudoku` → `sudoku_easy`) keeps the easy level's table suffixed too, and the game's page, Rankings and the
+  home page's sheet read it; nothing is written to `sudoku` (other games rank their first variant under the bare id, D-331).
 - **The trial** (D-103) is the day's level with only 6 cells open (`TRIAL_OPEN`).
 - **What the cup page provides stays out of the screen:** the countdown, the clock, the result, sharing,
   the ranking, the usage signal; and the lab's local best (`juegos-de-salon:sudoku:best`), which stays in the
