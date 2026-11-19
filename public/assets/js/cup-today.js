@@ -84,10 +84,25 @@ export function untilText(ms) {
 }
 
 /** Puts the chip on La Copa's card when a day is waiting; returns whether it did. */
-export function decorateCupCard(card, { lang = 'es', store = globalThis.localStorage, now = Date.now(), wait = false, context = false } = {}) {
+export function decorateCupCard(card, { lang = 'es', store = globalThis.localStorage, now = Date.now(), wait = false, context = false, play = false } = {}) {
   const done = decorate(card, { lang, store, now, wait });
   if (context) contextCard(card, { lang, store, now });
+  if (play) playChip(card, lang);
   return done;
+}
+
+/**
+ * Flag copa-jugar: with no day to play and nothing to wait for, the card's button is a gold one-line
+ * «🏆 Jugar» (the owner's choice), as wide as the card, in place of 👥 and ⏱ or of «Crea o únete a una Copa».
+ */
+export function playChip(card, lang = 'es') {
+  const meta = card?.querySelector('.meta');
+  if (!meta) return false;
+  const chip = card.querySelector('#copa-hoy-chip');
+  if (chip && !chip.classList.contains('invita')) return false;
+  const T = (COMMON[lang] || COMMON.es).cupToday;
+  meta.replaceChildren(el('span', { class: 'copa-hoy-chip jugar', id: 'copa-hoy-chip' }, `🏆 ${T.enter}`));
+  return true;
 }
 
 function decorate(card, { lang, store, now, wait }) {
@@ -110,12 +125,12 @@ function decorate(card, { lang, store, now, wait }) {
  * The card as it was, then decorated again from what this phone keeps now: back from a cup's day
  * (bfcache) the page comes as it was, ▶ Jugar el día N included, though that day is played.
  */
-export function redrawCupCard(card, { lang = 'es', store = globalThis.localStorage, now = Date.now(), wait = false, context = false } = {}) {
+export function redrawCupCard(card, { lang = 'es', store = globalThis.localStorage, now = Date.now(), wait = false, context = false, play = false } = {}) {
   if (card?.__original) {
     card.href = card.__original.href; card.classList.remove('copa-hoy'); card.removeAttribute('aria-label');
     card.querySelector('.meta')?.replaceWith(card.__original.meta.cloneNode(true)); restoreContext(card);
   }
-  return decorateCupCard(card, { lang, store, now, wait, context });
+  return decorateCupCard(card, { lang, store, now, wait, context, play });
 }
 
 /**
@@ -124,7 +139,7 @@ export function redrawCupCard(card, { lang = 'es', store = globalThis.localStora
  * last read the cup, leaves this phone's list of days to play, and the card is drawn again from
  * it. `fetchFn` and `base` are for node. Resolves true when it changed the card.
  */
-export async function confirmCupCard(card, { lang = 'es', store = globalThis.localStorage, wait = false, context = false, fetchFn = (...a) => globalThis.fetch(...a), base } = {}) {
+export async function confirmCupCard(card, { lang = 'es', store = globalThis.localStorage, wait = false, context = false, play = false, fetchFn = (...a) => globalThis.fetch(...a), base } = {}) {
   try {
     const p = pendingCup(store);
     const pid = p && JSON.parse(store.getItem(`${PREFIX}sesion:${p.code}`) || 'null')?.pid;
@@ -134,9 +149,9 @@ export async function confirmCupCard(card, { lang = 'es', store = globalThis.loc
     if (!r.ok || (await r.json()) == null) return false;
     const days = JSON.parse(store.getItem(`${PREFIX}hoy:${p.code}`) || '[]').filter(([d]) => d !== p.dia);
     if (days.length) store.setItem(`${PREFIX}hoy:${p.code}`, JSON.stringify(days)); else store.removeItem(`${PREFIX}hoy:${p.code}`);
-    redrawCupCard(card, { lang, store, wait, context });
+    redrawCupCard(card, { lang, store, wait, context, play });
     // Another day of another cup may still be open: confirm that one too
-    await confirmCupCard(card, { lang, store, wait, context, fetchFn, base });
+    await confirmCupCard(card, { lang, store, wait, context, play, fetchFn, base });
     return true;
   } catch (_) { return false; }
 }

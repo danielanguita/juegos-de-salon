@@ -11,6 +11,7 @@ export const FLAGS = {
   'cup-talk-push': '🏆 La Copa: a notification "💬 they commented on your result" when someone comments on your row, grouped, never at night (D-564)',
   'cup-talk': '🏆 La Copa: today\'s comments on each player stacked on their row of the table; a 💬 opens a text field to add one (D-562)',
   'copa-crear': '🏆 La Copa: the new create screen, with the length from 3 to 14 days and the cup\'s zone, and each player\'s own hours in a cup of another zone (D-521)',
+  'copa-jugar': '🏆 La Copa: a gold one-line «🏆 Jugar» button on its home page card when there is no day to play',
   'copa-hoy': '🏆 La Copa: ▶ Jugar hoy on its home page card',
   'copa-espera': '🏆 La Copa: Día N en Xh on its home page card',
   'copa-contexto': '🏆 La Copa: which cup, your place and the day\'s game on its home page card',

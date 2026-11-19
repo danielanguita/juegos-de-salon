@@ -451,7 +451,10 @@
     .game-card.torneo .copa-dias + .copa-fila { margin-top: 8px; }
     .game-card.torneo .copa-fila b { min-width: 0; flex: 0 1 auto; overflow: hidden; text-overflow: ellipsis; }
     .game-card.torneo .copa-fila span { flex: none; padding-left: 0.25em; }
-    .game-card.torneo.copa-ctx .meta .copa-hoy-chip:not(.espera):not(.invita) { font-size: clamp(0.95rem, 3.4vw, 1.15rem); color: #1a0d00; background: linear-gradient(180deg, #ffe066, var(--orange)); box-shadow: 0 4px 0 #b34a00, 0 6px 18px rgba(255, 122, 26, 0.45); text-shadow: 0 1px 0 rgba(255, 255, 255, 0.35); }
+    .game-card.torneo.copa-ctx .meta .copa-hoy-chip:not(.espera):not(.invita):not(.jugar) { font-size: clamp(0.95rem, 3.4vw, 1.15rem); color: #1a0d00; background: linear-gradient(180deg, #ffe066, var(--orange)); box-shadow: 0 4px 0 #b34a00, 0 6px 18px rgba(255, 122, 26, 0.45); text-shadow: 0 1px 0 rgba(255, 255, 255, 0.35); }
+    /* La Copa's gold one-line «🏆 Jugar» with no day to play (flag copa-jugar, the owner's choice) */
+    .game-card.torneo .meta:has(.copa-hoy-chip.jugar) { justify-self: stretch; width: 100%; }
+    .game-card.torneo .meta .copa-hoy-chip.jugar { width: 100%; flex: 1 1 100%; white-space: nowrap; color: var(--ink-on-yellow); background: linear-gradient(180deg, #ffe893 0%, #f7c443 45%, #e9a12e 100%); box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.65), inset 0 -3px 0 rgba(150, 90, 10, 0.35), 0 4px 14px rgba(255, 190, 60, 0.35); }
     /* Two destinations (lab, D-414): the link covers the card; the chip sits above it */
     .uad-card.dos { position: relative; }
     .uad-card .uad-card-mes { position: absolute; top: -11px; right: 12px; z-index: 3; padding: 1px 12px; border-radius: 999px; border: 1px solid rgba(255, 46, 136, 0.6); background: #2a1a4f; color: #ff8cc0; font: 900 0.75rem/1.4 var(--font-body); letter-spacing: 0.04em; text-transform: uppercase; white-space: nowrap; pointer-events: none; }
@@ -775,6 +778,7 @@
     // La Copa's card says what to do today (flag copa-hoy): ▶ Jugar hoy with a day to play. lab: #seccion-copa-hoy
     // With today's day played, Día N en Xh Ym (flag copa-espera). lab: #seccion-copa-espera
     // Which cup, your place, the day's game and a bar of its days (flag copa-contexto). lab: #seccion-copa-contexto
+    // A gold one-line «🏆 Jugar» with no day to play (flag copa-jugar). lab: #seccion-copa-jugar
     // The top bar's buttons as pills of one height (flag home-pill-bar, #1027). lab: #seccion-home-pill-bar
     import('./assets/js/flags.js').then(({ flag }) => flag('home-pill-bar')).then(on => on && document.documentElement.classList.add('pill-bar')).catch(() => {});
     // The games as carousels in place of the filters and the list (flag home-carousels). lab: #seccion-home-carousels
@@ -796,18 +800,18 @@
       }).catch(() => {});
     }
     if (copa) import('./assets/js/flags.js').then(({ flag }) => flag('copa-hoy')).then(on => on && import('./assets/js/cup-today.js'))
-      .then(m => m && import('./assets/js/flags.js').then(({ flag }) => Promise.all([flag('copa-espera'), flag('copa-contexto')])).then(([wait, context]) => {
-        m.decorateCupCard(copa, { lang, wait, context });
+      .then(m => m && import('./assets/js/flags.js').then(({ flag }) => Promise.all([flag('copa-espera'), flag('copa-contexto'), flag('copa-jugar')])).then(([wait, context, play]) => {
+        m.decorateCupCard(copa, { lang, wait, context, play });
         // The copy the next visit draws (D-435) is the card as decorated, not as it was before
         uadListo.then(guardarFoto);
         // ▶ Jugar hoy only for a day the server does not have played (another phone, a late read)
-        if (param('test') === null) m.confirmCupCard(copa, { lang, wait, context }).then(c => c && uadListo.then(guardarFoto));
+        if (param('test') === null) m.confirmCupCard(copa, { lang, wait, context, play }).then(c => c && uadListo.then(guardarFoto));
         // Back from the cup's day (bfcache) the page is as it was, ▶ Jugar el día N included: drawn
         // again from what the cup kept on finishing, then confirmed with the server
         const otraVez = () => {
-          m.redrawCupCard(copa, { lang, wait, context });
+          m.redrawCupCard(copa, { lang, wait, context, play });
           uadListo.then(guardarFoto);
-          if (param('test') === null) m.confirmCupCard(copa, { lang, wait, context }).then(c => c && uadListo.then(guardarFoto));
+          if (param('test') === null) m.confirmCupCard(copa, { lang, wait, context, play }).then(c => c && uadListo.then(guardarFoto));
         };
         addEventListener('pageshow', e => { if (e.persisted) otraVez(); });
         document.addEventListener('visibilitychange', () => { if (!document.hidden) otraVez(); });
