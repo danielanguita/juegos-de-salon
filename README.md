@@ -702,7 +702,7 @@ These documents are being moved to English (D-316); the ones with a Spanish titl
 - [#️⃣ Sudoku (La Copa game, launched by flag; the lab prototype stays until the cleanup)](docs/games/sudoku.md)
 - [☀️ Tango](docs/games/tango.md)
 - [Diseño: Línea de Tiempo](docs/games/timeline.md)
-- [🚉 Transbordo (Transfer, lab, in Juegos en prueba)](docs/games/transfer.md)
+- [🚉 Transbordo (Transfer, lab, in La Bodega)](docs/games/transfer.md)
 - [🧶 Untangle (Desenredo)](docs/games/untangle.md)
 - [📍 Where Is It? (¿Dónde queda?)](docs/games/where.md)
 - [⚖️ The Wobbles (Tembleque; lab, in Juegos en prueba)](docs/games/wobbles.md)

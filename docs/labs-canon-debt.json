@@ -32,14 +32,6 @@
         "dialogs",
         "e2e"
       ]
-    },
-    "transfer": {
-      "missing": [
-        "cover-measured",
-        "rankings",
-        "dialogs",
-        "e2e"
-      ]
     }
   }
 }
