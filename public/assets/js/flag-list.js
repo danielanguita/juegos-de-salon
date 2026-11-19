@@ -37,6 +37,7 @@ export const FLAGS = {
   'no-double-tap-zoom': '👆 Games: a double tap no longer zooms the page (iPhone)',
   'browser-lang': '🌐 First visit in the browser\'s language (English or Portuguese), not always Spanish (D-536)',
   'babel-tally': '🗼 Babel: the score adds itself up on the end screen, floors + bonuses = points, with its show',
+  'word-in-words': '🔤 Home page: Toque y Fama: Palabra gets its own card under the 🔤 Palabras filter (only there: with no filter, Toque y Fama\'s page still picks the number or the word, #767)',
   'game-swipe': '👉 Game covers: swipe left or right to the next or previous game of the list you came from (the home page\'s cards, its filter and search included)',
   'cover-share': '📤 Game covers: a share button in the top bar sends the game\'s link with one line about it',
   'offline': '📴 Offline mode: the app stores the offline-capable games on the phone and opens them with no signal (D-538, PR 2 of 8)',
