@@ -28,6 +28,11 @@ are, in their language.
    it touches (their folder under `public/`, by `ALL_GAMES` in `public/assets/js/games.js`; a lab game
    lives in `public/labs/<game>/`, see its `docs/games/<game>.md`; the shared shell `public/assets/`
    counts as one game you pick at random). If none, reply "no game changed" and stop.
+   **Where the change is**, without reading its code: read the PR's changelog entry
+   (`changelog/<branch>.md`, in plain words) and its title, and note which screen or moment of the
+   game it changes (the result, the cover, a turn…). That is the screen you give more attention to,
+   never the only one: you still play the whole game, and you still know only what that sentence
+   says, never how the change is built.
 2. **Where.** `node tools/agents/preview-ready.mjs` (in the background: it waits; the PR's preview
    comment has the URL). If it is not ready, or the PR is merged and its preview gone, serve the PR's
    code yourself: `git fetch origin pull/<n>/head` and `git worktree add <scratchpad>/pr<n> FETCH_HEAD`
@@ -46,6 +51,8 @@ are, in their language.
    its label, repeat. Play one full game to its result screen; in a room game also join as a second
    player in a second `launch` with another `dir`. Take a screenshot at every screen where you hesitated,
    and one of the result. macOS has no `timeout`: cap waits with `b.until`.
+   **On the changed screen, one extra pass**: reach it again in the second language and at 320×568,
+   and take its screenshot each time, even if you did not hesitate there.
 4. **Note the friction**, each with the screen, the language and what you expected:
    - a text you had to read twice, or that did not tell you what to do next (U-1, U-8, U-18);
    - a button you looked for, or one that did something other than what it said;
@@ -55,7 +62,8 @@ are, in their language.
    - numbers or labels that mean different things in different places;
    - anything in the new language that reads like a translation, or jargon a casual player would not know.
 5. **Report** as one PR comment (`gh pr comment <n> --body-file <file>`): a two-line verdict
-   ("played Blackjack es+pt, 2 full games, 3 frictions"), then each friction with its steps to
+   ("played Blackjack es+pt, 2 full games, 3 frictions"), one line on the changed screen (what you
+   saw there and whether it was clear, even with no friction), then each friction with its steps to
    reproduce, ranked by how many players would hit it. `gh` cannot attach images: describe each
    screenshot precisely and list its local path, and give the paths to the session that launched you
    so it can look at them. No friction is a valid report: say what you played.
