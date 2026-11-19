@@ -97,6 +97,8 @@ main { position: relative; z-index: 1; max-width: 1080px; margin: 0 auto; paddin
 .mo-owner span { color: var(--muted); font-size: var(--fs-90); }
 .mo-team { display: grid; grid-template-columns: 1.3fr repeat(3, 1fr); gap: var(--s-12); }
 .mo-team > .mo-boss { grid-row: span 2; }
+.mo-team--crew { grid-template-columns: repeat(4, 1fr); }
+.mo-team-label { margin: var(--s-16) 0 var(--s-8); }
 .mo-team article { display: flex; flex-direction: column; gap: var(--s-8); background: var(--glass); border: 2px solid var(--glass-border); border-radius: var(--r-16); padding: var(--s-14); }
 .mo-team .mo-boss { border-color: rgb(var(--pink-rgb) / 0.7); }
 .mo-team header { display: flex; align-items: center; gap: var(--s-8); }
@@ -146,7 +148,7 @@ main { position: relative; z-index: 1; max-width: 1080px; margin: 0 auto; paddin
   .mo-split, .mo-learnings { grid-template-columns: 1fr; }
   .mo-play { grid-template-columns: 1fr 1fr; }
   .mo-play-wide { grid-column: 1 / -1; grid-template-columns: 1fr 1fr; }
-  .mo-team { grid-template-columns: 1fr 1fr; }
+  .mo-team, .mo-team--crew { grid-template-columns: 1fr 1fr; }
   .mo-team .mo-boss { grid-column: 1 / -1; grid-row: auto; }
   .mo-flow, .mo-timeline { grid-template-columns: 1fr 1fr; }
   .mo-flow { gap: var(--s-12); }
