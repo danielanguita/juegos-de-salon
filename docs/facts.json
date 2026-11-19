@@ -120,6 +120,11 @@
         "public/cup/games/flap/ui.js",
         "public/cup/games/index.js",
         "public/cup/games/mazos.js",
+        "public/cup/games/memory/engine.js",
+        "public/cup/games/memory/sprites.js",
+        "public/cup/games/memory/style.css",
+        "public/cup/games/memory/texts.js",
+        "public/cup/games/memory/ui.js",
         "public/cup/games/microgames/engine.js",
         "public/cup/games/microgames/intros.js",
         "public/cup/games/microgames/stage.js",
@@ -1061,6 +1066,22 @@
       "labs": false,
       "bodega": false,
       "path": "in-a-flash/"
+    },
+    {
+      "id": "memory",
+      "emoji": "👀",
+      "name": {
+        "es": "Memorice",
+        "en": "Memorice",
+        "pt": "Memorice"
+      },
+      "kinds": [
+        "skill"
+      ],
+      "duration": "1–5",
+      "labs": false,
+      "bodega": false,
+      "path": "memorice/"
     }
   ],
   "themes": [
@@ -1339,6 +1360,10 @@
     "public/cup/games/flap/ui.js",
     "public/cup/games/index.js",
     "public/cup/games/mazos.js",
+    "public/cup/games/memory/engine.js",
+    "public/cup/games/memory/sprites.js",
+    "public/cup/games/memory/texts.js",
+    "public/cup/games/memory/ui.js",
     "public/cup/games/microgames/engine.js",
     "public/cup/games/microgames/intros.js",
     "public/cup/games/microgames/stage.js",
@@ -1596,6 +1621,7 @@
     "public/cup/games/flap/engine.test.mjs",
     "public/cup/games/juegos.test.mjs",
     "public/cup/games/lazy.test.mjs",
+    "public/cup/games/memory/engine.test.mjs",
     "public/cup/games/microgames/engine.test.mjs",
     "public/cup/games/microgames/tr.test.mjs",
     "public/cup/games/paint-mines/engine.test.mjs",
@@ -1705,13 +1731,17 @@
     "tools/e2e/clock-jumps.test.mjs",
     "tools/e2e/groups.test.mjs",
     "tools/e2e/inert.test.mjs",
+    "tools/e2e/landing-stamp.test.mjs",
     "tools/e2e/narrow.test.mjs",
+    "tools/e2e/only.test.mjs",
     "tools/e2e/output.test.mjs",
     "tools/e2e/png.test.mjs",
     "tools/e2e/pool-from-page.test.mjs",
+    "tools/e2e/real-date.test.mjs",
     "tools/e2e/scope-guard.test.mjs",
     "tools/e2e/scope.test.mjs",
     "tools/e2e/since-passed.test.mjs",
+    "tools/e2e/visual-refs.test.mjs",
     "tools/firebase/archive.test.mjs",
     "tools/firebase/launch.test.mjs",
     "tools/firebase/rankings-history.test.mjs",
@@ -1848,6 +1878,8 @@
     "labs/launched.mjs",
     "labs/publish.mjs",
     "landing-fold.mjs",
+    "landing-stamp.mjs",
+    "landing-stamp.test.mjs",
     "lang-from-url.mjs",
     "languages-common.mjs",
     "liars-dice/classic.mjs",
@@ -1859,9 +1891,11 @@
     "look.mjs",
     "margins-common.mjs",
     "memory/lab.mjs",
+    "memory/page.mjs",
     "narrow.mjs",
     "narrow.test.mjs",
     "offline.mjs",
+    "only.test.mjs",
     "output.mjs",
     "output.test.mjs",
     "paint-mines/game.mjs",
@@ -1873,6 +1907,8 @@
     "png.mjs",
     "png.test.mjs",
     "pool-from-page.test.mjs",
+    "queens/today-card.mjs",
+    "real-date.test.mjs",
     "room-cap.mjs",
     "room-error.mjs",
     "rooms/online.mjs",
@@ -1911,6 +1947,7 @@
     "timeline/verdict.mjs",
     "transfer/game.mjs",
     "versioning.mjs",
+    "visual-refs.test.mjs",
     "visual.mjs",
     "wobbles/game.mjs",
     "wobbles/languages.mjs"
@@ -2110,7 +2147,7 @@
     },
     {
       "path": "docs/games/memory.md",
-      "title": "👀 Memorice (lab prototype, in Games being tried)"
+      "title": "👀 Memorice (La Copa game, ready to launch by flag; the lab prototype stays until the cleanup)"
     },
     {
       "path": "docs/games/microgames.md",
