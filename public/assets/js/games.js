@@ -484,6 +484,31 @@ export const SUELTOS = [
     diasNuevo: 10,
   },
   {
+    // Out of the lab like Sudoku (D-517's way): La Copa's screen in cup/games/memory/, its page /memorice/,
+    // launched by flags/memory on the date the owner picks. Endless, 3 lives: its points are the rounds cleared,
+    // with no cap; Uno al día takes its own 0–100 (`dayScore`). The id and the usage signal are the lab's; the
+    // lab prototype /labs/memory/ stays, on the moved engine, until the cleanup PR
+    id: 'memory',
+    lanza: 'memory',
+    copa: { pozo: 19 },
+    // Uno al día: by date, never by flag. PLACEHOLDER: set when the owner picks the launch date (the day after it)
+    unoAlDia: { orden: 24, desde: '2099-01-01' },
+    slug: 'memorice',
+    emoji: '👀',
+    name: { es: 'Memorice', en: 'Memorice', pt: 'Memorice' },
+    tagline: { es: 'Mira los dibujos, espera a que se tapen y encuentra el que te piden.', en: 'Look at the pictures, wait for them to be covered, then find the one asked for.', pt: 'Olhe os desenhos, espere que sejam cobertos e encontre o pedido.' },
+    keywords: {
+      es: ['memorice', 'memoria', 'memorizar', 'parejas', 'pares', 'dibujos', 'pixel art', 'recordar', 'rápido', 'rapido'],
+      en: ['memorice', 'memory', 'memorize', 'pairs', 'match', 'pictures', 'pixel art', 'remember', 'quick'],
+      pt: ['memorice', 'memória', 'memorizar', 'pares', 'desenhos', 'pixel art', 'lembrar', 'rápido'],
+    },
+    tipos: ['skill'],
+    duration: '1–5',
+    // PLACEHOLDER: set when the owner picks the launch date
+    nuevoDesde: '2099-01-01',
+    diasNuevo: 10,
+  },
+  {
     // 🎲 Out of the lab like Sudoku (D-517's way): La Copa's screen in cup/games/dominorama/, its page
     // /dominorama/, hidden until the owner switches flags/dominorama on (not launched yet: the owner picks
     // the date). Inspired by NYT's Pips, credited on its cover. Three boards, easy to hard, 0 to 100. The id
@@ -491,9 +516,9 @@ export const SUELTOS = [
     // 🎲 is the text stand-in; the screen shows the drawn domino (cup/games/dominorama/icon.svg)
     id: 'dominorama',
     lanza: 'dominorama',
-    copa: { pozo: 19 },
+    copa: { pozo: 20 },
     // Uno al día: by date, never by flag. PLACEHOLDER: set when the owner picks the launch date (the day after it)
-    unoAlDia: { orden: 24, desde: '2027-01-01' },
+    unoAlDia: { orden: 25, desde: '2099-01-01' },
     slug: 'dominorama',
     emoji: '🎲',
     icon: 'cup/games/dominorama/icon.svg',
@@ -507,7 +532,7 @@ export const SUELTOS = [
     tipos: ['logic'],
     duration: '3–10',
     // PLACEHOLDER: set when the owner picks the launch date (the ✨ Nuevo label starts with the flag anyway, D-556)
-    nuevoDesde: '2027-01-01',
+    nuevoDesde: '2099-01-01',
     diasNuevo: 10,
   },
   // Los del laboratorio viven en /labs/<slug>/ (D-267): al salir pasan a /<slug>/
@@ -681,7 +706,6 @@ export const idDeSlug = s => (Object.hasOwn(SLUG_DE, s) ? s : Object.hasOwn(ID_D
 export const LAB_NAMES = {
   'croc': { emoji: '🐸', name: { es: 'Croc!', en: 'Croc!', pt: 'Croc!' } },
   blackjack: { emoji: '♠️', name: { es: 'Blackjack', en: 'Blackjack', pt: 'Blackjack' } },
-  memory: { emoji: '👀', name: { es: 'Memorice', en: 'Memorice', pt: 'Memorice' } },
   artifacts: { emoji: '⚙️', name: { es: 'Artefactos', en: 'Artifacts', pt: 'Artefatos' } },
   clave: { emoji: '🔐', name: { es: 'La clave', en: 'The Code', pt: 'A senha' } },
   camaleon: { emoji: '🦎', name: { es: 'El Camaleón', en: 'Chameleon', pt: 'Camaleão' } },

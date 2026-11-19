@@ -1,4 +1,4 @@
-# 🚉 Transbordo (Transfer, lab, in Juegos en prueba)
+# 🚉 Transbordo (Transfer, lab, in La Bodega)
 
 A one-player metro puzzle concept: the player orders route cards and the train runs them on a small
 invented map. Five trips, one new rule each. Its genre (a plan of transit moves on a fixed map) was
@@ -43,7 +43,7 @@ screen (U-39).
 ## Resumen
 
 - **Where:** `/labs/transfer/`, behind the lab's door (D-281, D-395), `noindex`, its card in /labs/'s
-  🎲 Juegos en prueba. Not in `games.js` while it is in the lab. Id `transfer` in the usage signal and in
+  📦 La Bodega → 🎲 Juegos guardados (💤 No prosperó, 2026-11-19: the owner was not convinced). Not in `games.js` while it is in the lab. Id `transfer` in the usage signal and in
   `localStorage` (`juegos-de-salon:transfer:session`). Its facts are in `game.json`.
 - **For whom:** one player (`solo`). In es, en and pt.
 

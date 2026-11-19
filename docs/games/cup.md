@@ -345,12 +345,15 @@ por ciudad menos 4 cada 100 km, D-155, D-156, D-200).
   `JUEGOS`, so the cups created before keep playing it, their final included; new cups cannot pick it,
   and outside La Copa it sits in the lab's 📦 La Bodega at `/connections/`.
 - **🎲 Dominorama** (prepared 2026-11-19, D-517's way, not launched) comes from the lab into the pool
-  (`copa: { pozo: 19 }`) when the owner switches `flags/dominorama` on; its page is [dominorama.md](dominorama.md).
+  (`copa: { pozo: 20 }`) when the owner switches `flags/dominorama` on; its page is [dominorama.md](dominorama.md).
   A day plays its three boards (the trial, the easy one); its score is 0 to 100 already, speed read from the cup's clock.
 - **#️⃣ Sudoku** (2026-11-11, D-517's way) came from the lab into the pool (`copa: { pozo: 17 }`), launched by
   `flags/sudoku`; its page is [sudoku.md](sudoku.md). Its levels are variants (`VARIANTES.sudoku`): a day plays 🟢 easy,
   the 6×6 mini, unless the admin picks 🔴 hard (9×9). Its score is 0 to 100 already, its trial a board with 6 cells
   open, and its standalone rankings stay one per level (`sudoku_easy`, `sudoku_hard`, `RK_POR_VARIANTE` in `game.js`).
+- **👀 Memorice** (2026-11-19, D-517's way) is ready to come from the lab into the pool (`copa: { pozo: 19 }`), launched by
+  `flags/memory` (not yet on); its page is [memory.md](memory.md). Endless with 3 lives: its score is the rounds cleared,
+  no cap (Uno al día takes `dayScore`, 0 to 100), its tiebreak the pictures found, its trial 1 life and 3 rounds.
 - **🚂 Tren en Vilo** (D-456) came from the lab into the pool (`POZO`); its page is [bridges.md](bridges.md).
   It brings its texts, styles and breakdown (`games/bridges/`), its trial is two easy crossings in a minute and
   a half (`NIVELES_ENSAYO`, `TIEMPO_ENSAYO_S`), and a stage's summary pauses the cup's clock (`ctx.pausa`). It is

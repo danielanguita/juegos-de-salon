@@ -3,7 +3,7 @@
 // opens its page with a fixed seed, starts, and plays the solution slowly while it shoots the board
 // about 12 times a second; ffmpeg turns the frames into a small looping MP4 and its poster.
 //
-//   SITE=http://localhost:8771 node marketing/splash/capture.mjs [routes|plots|paint-mines|bridges|shinobi|babel]
+//   SITE=http://localhost:8771 node marketing/splash/capture.mjs [routes|plots|paint-mines|bridges|shinobi|babel|memory]
 //
 // A skill game (`cover`) is not played by the script: its waiting room already plays itself (the cover's
 // demo, drawn by the game's own scene), so the clip is that canvas for `duration` ms, recorded in the page
@@ -97,6 +97,27 @@ const GAMES = {
       await sleep(900);
     },
   },
+  // 👀 Memorice (made before its launch, D-517's way): its page while flags/memory is off for everyone but this
+  // browser. Three rounds at the game's own pace: the pictures show, ⏩ Tapar ya covers them a little early, and
+  // every copy of the one asked opens with its green ring (the 3×3 twice, then the first 4×4)
+  memory: {
+    url: '/memorice/', flags: { memory: 'all' },
+    board: '#mm-board',
+    ready: `!!document.getElementById('mm-board') && !document.getElementById('cuenta') && !!window.__memory`,
+    hold: 1200, keep: 6,
+    play: async ev => {
+      for (let k = 0; k < 3; k++) {
+        await ev(`new Promise(r => { const t = setInterval(() => { if (document.getElementById('btn-tapar') && document.querySelectorAll('#mm-board .mm-tile.open').length) { clearInterval(t); r(1); } }, 50); })`);
+        await sleep(1900);
+        await ev(`document.getElementById('btn-tapar')?.click(); 1`);
+        await ev(`new Promise(r => { const t = setInterval(() => { if (window.__memory.S.answer) { clearInterval(t); r(1); } }, 50); })`);
+        await sleep(700);
+        const cells = JSON.parse(await ev(`JSON.stringify(window.__memory.round.ask.cells)`));
+        for (const c of cells) { await ev(`window.__memory.tocar(${c}); 1`); await sleep(450); }
+        if (k < 2) await sleep(1700);
+      }
+    },
+  },
   // 🥷 Shinobi and 🗼 Babel (D-517): the waiting room's own demo, at its own shape (a cartridge's screen)
   shinobi: { url: '/shinobi/?test', cover: '.sn-demo', native: 360, duration: 9000 },
   babel: { url: '/babel/?test', cover: '.sk-demo', native: 360, duration: 9000 },
@@ -112,6 +133,8 @@ try {
     if (only && only !== name) continue;
     const frames = `${OUT}/${name}`;
     rmSync(frames, { recursive: true, force: true }); mkdirSync(frames, { recursive: true });
+    // A game still behind its flag (`flags`) is recorded with it on for this browser only
+    if (g.flags) b.flags(g.flags);
     await b.go(`${SITE}${g.url}`, 1500);
     if (g.before) await ev(g.before);
     if (!(await b.until(`document.getElementById('btn-empezar')`, 8000))) throw new Error(`${name}: no Start`);

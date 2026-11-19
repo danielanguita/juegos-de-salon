@@ -300,6 +300,24 @@
       "rule": "import",
       "what": "../cup/code.js",
       "why": "debt before #1249 step 5"
+    },
+    {
+      "file": "public/labs/memory/engine.js",
+      "rule": "import",
+      "what": "../../cup/games/memory/engine.js",
+      "why": "Memorice's lab prototype plays on La Copa's engine since the game got ready to leave the lab (D-517's way), until the cleanup PR"
+    },
+    {
+      "file": "public/labs/memory/sprites.js",
+      "rule": "import",
+      "what": "../../cup/games/memory/sprites.js",
+      "why": "Memorice's lab prototype plays on La Copa's engine since the game got ready to leave the lab (D-517's way), until the cleanup PR"
+    },
+    {
+      "file": "public/labs/dominorama/engine.js",
+      "rule": "import",
+      "what": "../../cup/games/dominorama/engine.js",
+      "why": "Dominorama's lab prototype plays on La Copa's engine since the game got ready to leave the lab (D-517's way), until the cleanup PR"
     }
   ]
 }

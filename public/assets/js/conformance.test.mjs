@@ -34,6 +34,8 @@ const FROZEN = ['conexiones', 'letras', 'anio', 'reinas', 'tango', 'zip', 'desen
   'aletazo',
   // #️⃣ Sudoku: built in cup/games/ like Aletazo (D-517's way, 2026-11-11)
   'sudoku',
+  // 👀 Memorice: built in cup/games/ like Sudoku (D-517's way, 2026-11-19)
+  'memory',
   // ⚡ ¡Al toque!: its page made La Copa's screen in cup/games/microgames/ (2026-11-15)
   'microgames',
   // 🎲 Dominorama: built in cup/games/ like Sudoku (D-517's way, 2026-11-19)

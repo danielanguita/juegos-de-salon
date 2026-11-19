@@ -447,6 +447,8 @@ export const REUSES = {
   // A game's reuses live in its entry in games.js, the manifest (#855); the rows below are pages it doesn't list
   ...Object.fromEntries(ALL_GAMES.filter(g => g.reuses).map(g => [g.path.replace(/\/$/, ''), g.reuses])),
   'labs/code': ['cup/games/word/'],
+  // The lab's Memorice prototype plays on La Copa's engine since the game got ready to leave the lab (D-517's way), until the cleanup PR
+  'labs/memory': ['cup/games/memory/'],
   // The owner's sheets of 🚂 Tren en Vilo's trains and visitors, kept in the lab after the game left it (D-456)
   'labs/bridges/trains': ['cup/games/bridges/'],
   'labs/bridges/visitors': ['cup/games/bridges/'],
