@@ -565,11 +565,11 @@
         "sudoku"
       ],
       "revision": {
-        "fecha": "2026-11-18",
-        "app": "1.21.16",
+        "fecha": "2026-11-19",
+        "app": "1.25.16",
         "al_dia": false,
         "pendiente": [
-          "Shows app 1.7.32 (today 1.21.16) and lists none of today's games beside Sudoku; Sudoku's title, hard-mode subtitle and mistakes line changed since."
+          "Shows app 1.7.32 (today 1.25.16) and lists none of today's games beside Sudoku; Sudoku's title, hard-mode subtitle and mistakes line changed since."
         ]
       }
     }
