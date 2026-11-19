@@ -502,7 +502,11 @@
        place of the filters and the list's cards. Here and not in home-carousels.css, so it holds before that sheet arrives */
     html.carousels #filtros-marca, html.carousels #filtros-barra, html.carousels .filtros-fin:not(.lista-fin), html.carousels .filtros-relleno,
     html.carousels #games > .game-slot, html.carousels #games > .game-card { display: none; }
-    html.carousels .games { margin-top: var(--s-16); }
+    html.carousels .games { margin-top: 0; }
+    /* With the carousels there is no 🎲 Juego al azar (the owner, 2026-11-18): the rows are the way to choose. The hero
+       gives its room back, so bar, title, the two cards and the first row sit the same 16 px apart */
+    html.carousels #azar-slot { display: none; }
+    html.carousels .hero { padding: var(--s-16) 0 0; }
     .pill-bar .portada-barra .tools .icon-btn, .pill-bar .portada-barra .tools .sound-toggle { width: 48px; height: auto; min-height: 44px; }
     .pill-bar .portada-barra .tools > span:empty { width: 48px; }
     /* Below 441 px the toggle stacks flag over code (54 px) and the buttons may drop to their own row: same height there too */

@@ -33,7 +33,7 @@ for (const width of [390, 320]) {
       const inRows = new Set(tiles.map(t => t.dataset.id));
       return {
         filters: vis(document.getElementById('filtros')), list: vis(document.querySelector('#games .game-slot')),
-        cup: vis(document.querySelector('.game-card.torneo')), dice: vis(document.querySelector('.btn-azar')),
+        cup: vis(document.querySelector('.game-card.torneo')), dice: vis(document.querySelector('.btn-azar')), well: getComputedStyle(document.querySelector('.shelf-tile .emoji')).backgroundImage,
         scroll: document.documentElement.scrollWidth <= innerWidth,
         missing: cards.filter(id => !inRows.has(id)),
         small: tiles.filter(t => t.offsetHeight < 44 || t.offsetWidth < 44).length,
@@ -45,7 +45,7 @@ for (const width of [390, 320]) {
       };
     })()`);
     ok(!page.filters && !page.list, `${width} ${lang}: no filters and no list cards`);
-    ok(page.cup && page.dice, `${width} ${lang}: La Copa and the dice stay`);
+    ok(page.cup && !page.dice && page.well === 'none', `${width} ${lang}: La Copa stays, no 🎲 Juego al azar, and an icon has no box of its own`);
     ok(page.scroll, `${width} ${lang}: the page does not scroll sideways`);
     ok(page.missing.length === 0, `${width} ${lang}: every game of the home page is in a carousel${page.missing.length ? ' (missing: ' + page.missing.join(', ') + ')' : ''}`);
     ok(page.small === 0 && page.overflow.length === 0, `${width} ${lang}: every tile is 44 px or more and holds its text${page.overflow.length ? ' (' + page.overflow.join(', ') + ')' : ''}`);
@@ -86,7 +86,7 @@ for (const width of [390, 320]) {
     ok(demo.h >= 60 && demo.above && demo.play && demo.fits, `${width}: the animation (${demo.h} px) sits above the game's line, ▶ Jugar still in sight`);
     await b.shot(`carousels-${width}-sheet-demo`);
     await ev(`document.getElementById('btn-game-sheet-close').click(); document.querySelector('[data-shelf="friends"] .shelf-tile').click(); 1`);
-    ok(await waitFor(`!!document.querySelector('#game-sheet[data-id="${id}"]')`) && await ev(`!document.getElementById('game-sheet-demo')`), `${width}: ${id}, not a game of La Copa, has no frame`);
+    ok(await waitFor(`!!document.querySelector('#game-sheet[data-id="${id}"]')`) && await ev(`!document.getElementById('game-sheet-demo') && document.getElementById('game-sheet-hero').getClientRects().length > 0`), `${width}: ${id}, not a game of La Copa, has no frame: its icon, big, in its place`);
     await sleep(500);
 
     // One height for both tabs: the sheet does not move when the tab changes
@@ -100,6 +100,11 @@ for (const width of [390, 320]) {
     ok(await ev(`(() => { const r = document.getElementById('btn-game-sheet-play').getBoundingClientRect(); return r.top >= 0 && r.bottom <= innerHeight; })()`), `${width}: ▶ Jugar still in sight under the ranking`);
     await b.shot(`carousels-${width}-ranking`);
     const inRanking = await tall();
+    // The ranking keeps the room of ten rows, never shows more, and at 390×844 the ten fit without scrolling
+    const ten = await ev(`(() => { const p = document.getElementById('game-sheet-ranking'), l = p.querySelector('.rk-lista'); const cs = getComputedStyle(p.querySelector('.rk-ten') || p);
+      return { list: Math.round(l.getBoundingClientRect().height), ten: !!p.querySelector('.rk-ten'), scrolls: p.scrollHeight > p.clientHeight + 1 }; })()`);
+    ok(ten.ten && ten.list >= 396 && (width < 390 || !ten.scrolls), `${width}: the ranking has the room of ten rows (${ten.list} px)${width >= 390 ? ', all in sight' : ''}`);
+    ok(await ev(`getComputedStyle(document.querySelector('#game-sheet-details p')).textAlign === 'center'`), `${width}: the game's line is centred under its animation`);
     await ev(`document.getElementById('game-sheet-tab-details').click(); 1`);
     await sleep(300);
     ok(before === inRanking && inRanking === await tall(), `${width}: the sheet keeps one height in Detalles and Ranking (${before} → ${inRanking} px)`);
@@ -118,6 +123,15 @@ for (const width of [390, 320]) {
     // The next visit hides the filters before the modules arrive (this phone remembers the flag)
     ok(await ev(`localStorage.getItem('juegos-de-salon:home-carousels') === '1'`), `${width}: this phone remembers the flag for the next visit`);
   }
+
+  // On a phone with a gesture bar (a safe area at the bottom) the footer's sunset reaches the end of the page: no
+  // band of the page's background under it
+  await b.send('Emulation.setSafeAreaInsetsOverride', { insets: { bottom: 34 } }).catch(() => {});
+  await b.go(`${SITE}/?test&lang=es`);
+  await waitFor(`document.querySelectorAll('.shelf').length >= 5`);
+  const foot = await ev(`(() => { const r = document.querySelector('footer.atardecer').getBoundingClientRect(); return { gap: Math.round(document.documentElement.scrollHeight - (r.bottom + scrollY)), safe: getComputedStyle(document.body).paddingBottom }; })()`);
+  ok(foot.gap <= 1, `${width}: the footer reaches the bottom of the page (${foot.gap} px under it, with ${foot.safe} kept for the gesture bar)`);
+  await b.send('Emulation.setSafeAreaInsetsOverride', { insets: {} }).catch(() => {});
 
   // Switched off again: the next visit draws the list and forgets
   b.flags({ 'home-carousels': 'off' });

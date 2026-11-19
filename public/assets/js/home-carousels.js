@@ -130,6 +130,8 @@ export async function drawCarousels({ lang, T, games, tap = () => {}, doc = docu
 
     // The game's cover animation, in a frame that takes the height its page says; put away if the game has none.
     // It starts with no height (never `hidden`: a demo measures its width to draw) and nothing in it is tapped
+    // A game with no animation shows its icon, big, in the animation's place: the sheet has the room of ten ranking rows
+    const hero = () => el('div', { class: 'game-sheet-hero', id: 'game-sheet-hero', 'aria-hidden': 'true' }, gameIcon(g, { size: 5 }));
     const src = demoUrl(g, lang);
     const demo = src && el('iframe', { class: 'game-sheet-demo', id: 'game-sheet-demo', src, title: name, tabindex: '-1', 'aria-hidden': 'true', scrolling: 'no' });
     if (demo) {
@@ -139,12 +141,13 @@ export async function drawCarousels({ lang, T, games, tap = () => {}, doc = docu
         const h = Number(e.data.height) || 0;
         // Its own height: the frame also takes whatever the sheet has left over (the two tabs share one height), and its page grows the drawing to fill it
         // On a short screen it gives way first, down to half, so the game's line stays in sight under it
-        if (h > 0) { demo.style.flexBasis = `${Math.min(h, 320)}px`; demo.style.minHeight = `${Math.round(Math.min(h, 320) / 2)}px`; demo.classList.add('on'); } else demo.remove();
+        if (h <= 0) demo.replaceWith(hero());
+        else if (h > 0) { demo.style.flexBasis = `${Math.min(h, 320)}px`; demo.style.minHeight = `${Math.round(Math.min(h, 320) / 2)}px`; demo.classList.add('on'); }
       };
       win.addEventListener('message', onDemo);
     }
     const details = el('div', { class: 'game-sheet-details', id: 'game-sheet-details' },
-      demo,
+      demo || hero(),
       el('p', {}, pickLang(g.tagline, lang)),
       el('div', { class: 'chips' },
         el('span', { class: 'chip' }, `👥 ${g.players} ${max === 1 ? T.player : T.players}`),
@@ -166,6 +169,7 @@ export async function drawCarousels({ lang, T, games, tap = () => {}, doc = docu
         const { table, wins } = rankingOf(g);
         ranking.replaceChildren(bloqueRanking({ juego: table, titulo: fmt(wins ? T.rk.winsOf : T.rk.titleOf, { game: name }),
           hint: wins ? T.rk.winsHint : null, pestanas: ['semana', 'siempre'], alTocar: tap, rapido: true }));
+        ranking.firstElementChild?.classList.add('rk-ten');
       }).catch(() => { asked = false; ranking.replaceChildren(); });
     };
     const TABS = [['details', t.details], ['ranking', `🏅 ${T.rk.title}`]];

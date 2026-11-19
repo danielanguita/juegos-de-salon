@@ -16,7 +16,7 @@ const game = param('game') || '';
 export const MAX_EXAMPLE = 260;
 const ZOOMS = [1, 0.9, 0.8];
 /** How many times its own size a drawing may grow to fill a taller frame. */
-export const MAX_GROW = 2;
+export const MAX_GROW = 3;
 /** …and how small it may get when the frame is shorter than it. */
 export const MIN_FIT = 0.5;
 const tell = height => { if (parent !== window) parent.postMessage({ type: 'cover-demo', game, height }, location.origin); };
