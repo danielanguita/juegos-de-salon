@@ -805,6 +805,54 @@
       "signatures": [
         "14fef58185"
       ]
+    },
+    {
+      "key": "e2e-real-date",
+      "what": "CI end-to-end: landing-fold.mjs:320 · ✗ linea today 320×568 en: «Play today» ends at 575 px, 7 px below the fold",
+      "seen": [
+        {
+          "date": "2026-11-19T00:13:50.722Z",
+          "what": "#1624 end-to-end: landing-fold.mjs:320",
+          "commit": "c377b35c69c23176e8c0553e3a6ba1b5f6007c6d"
+        },
+        {
+          "date": "2026-11-19T00:14:07.545Z",
+          "what": "#1626 end-to-end: landing-fold.mjs:320",
+          "commit": "bd306f062116660c83979f03dda838f0f3850c6c"
+        }
+      ],
+      "mechanism": {
+        "date": "2026-11-19",
+        "what": "real-date.test.mjs fails a script that opens a page following today on the real clock; launch({ clock }) pins E2E_DAY (D-589); landing-fold measures each Uno al día cover on its own day (#1628); push-guard stops an unmeasured cover push (#1632)",
+        "pr": "https://github.com/ellokojavi/juegos-de-salon/pull/1634"
+      },
+      "signatures": [
+        "b60526ceec"
+      ]
+    },
+    {
+      "key": "visual-ref-round-trip",
+      "what": "CI end-to-end: visual.mjs:sapiondo · ❌ sapiondo-intro: 390×812 vs 195×406 (more than 0.3 %). If it is meant, approve it: node tools/e2e/visual.mjs --update --part sapiondo; the new and the diff images are in /home/runner/work/_temp/e2e/v",
+      "seen": [
+        {
+          "date": "2026-11-18T00:53:22.788Z",
+          "what": "sapiondo end-to-end: visual.mjs:sapiondo",
+          "commit": "50de15a621d3b1f7c783d1ee80611f13ae606771"
+        },
+        {
+          "date": "2026-11-18T07:12:29.804Z",
+          "what": "sapiondo-swipes-lives end-to-end: visual.mjs:sapiondo",
+          "commit": "f4a11b1d44bb7cd55ce4ae8611f845ce69bba833"
+        }
+      ],
+      "mechanism": {
+        "date": "2026-11-19",
+        "what": "visual-refs.yml remakes on the runner the references a same-repo PR changes and commits them with a token that restarts the checks; visual-refs.test.mjs pins its guards",
+        "pr": "https://github.com/ellokojavi/juegos-de-salon/pull/1633"
+      },
+      "signatures": [
+        "030f46983e"
+      ]
     }
   ],
   "mechanisms": [
@@ -957,6 +1005,18 @@
       "key": "e2e-groups-unmeasured",
       "what": "groups.mjs estimate(): an unmeasured job counts as its siblings' median, and TARGET_S 400 gives 46 s of headroom (D-585)",
       "pr": "https://github.com/ellokojavi/juegos-de-salon/pull/1611"
+    },
+    {
+      "date": "2026-11-19",
+      "key": "e2e-real-date",
+      "what": "real-date.test.mjs fails a script that opens a page following today on the real clock; launch({ clock }) pins E2E_DAY (D-589); landing-fold measures each Uno al día cover on its own day (#1628); push-guard stops an unmeasured cover push (#1632)",
+      "pr": "https://github.com/ellokojavi/juegos-de-salon/pull/1634"
+    },
+    {
+      "date": "2026-11-19",
+      "key": "visual-ref-round-trip",
+      "what": "visual-refs.yml remakes on the runner the references a same-repo PR changes and commits them with a token that restarts the checks; visual-refs.test.mjs pins its guards",
+      "pr": "https://github.com/ellokojavi/juegos-de-salon/pull/1633"
     }
   ],
   "queueDone": [
