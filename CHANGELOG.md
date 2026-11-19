@@ -1,5 +1,178 @@
 # Changelog
 
+## 1.25.16 — 2026-11-19
+- **Workshop: no end-to-end script depends on the real date** (D-589). The scripts that open a page following
+  today (the home page and its ✨ New row, `/today/`, `/records/`, La Copa's create screen, the screen catalog
+  of the languages scripts and `look.mjs`) open it on a pinned day, `launch({ clock: true })` in `cdp.mjs`, and
+  `real-date.test.mjs` fails a new one that does not; `landing-fold.mjs` looks for each Uno al día game's day
+  from that day on. On 2026-11-19 the day's Uno al día cover turned every PR red at UTC midnight.
+
+## 1.25.15 — 2026-11-19
+- **Toque y Fama: Palabra**: tap a box to choose where the next letter goes, as in Número. A yellow warning ("⚠️ La palabra está en inglés") shows only when the cup's word language differs from yours, and the instructions say the word follows the cup's language, not the one you picked.
+
+## 1.25.14 — 2026-11-18
+- **Rankings shows Sudoku's easy level.** Its tab «Sudoku · 🟢 Fácil» read a table nobody writes to and always
+  said «Todavía nadie»: Sudoku keeps one table per level since the lab, the first level too. Rankings, the game's
+  page and the home page's game sheet (lab) now name it from one place (`FIRST_VARIANT_TABLES` in `games.js`); an
+  old link to `#juegos/sudoku` opens the right table.
+
+## 1.25.13 — 2026-11-18
+- **The footer's sunset reaches the bottom of the screen.** On a phone with a gesture bar, a dark band of the page's
+  background showed under the footer of the home page, Rankings and the game covers (the owner's report): the footer
+  now covers the room the page keeps for that bar.
+- **In the lab, the home page as carousels** (flag `home-carousels`, the owner's requests): a game's sheet is always
+  as tall as ten rows of its ranking need, and the ranking shows the first ten and no more; the game's animation
+  grows to fill that room (up to three times its size), with the game's line and its data centred under it, and a
+  game with no animation shows its icon, big, in its place; a tile's icon has no box of its own; and 🎲 Juego al azar
+  is gone from that page, the hero giving its room back so the first row shows on the first screen.
+- **In the same lab treatment** (the owner's requests): the rows no longer slide, they are grids of three games; a
+  game shows once on the page, in the first row that holds it; a line parts La Copa and Uno al día from the games;
+  a game's sheet has a share button, whose link (`/?game=<folder>`) opens the home page with that sheet over it, and
+  on a phone without the carousels goes to the game's own page; and Sudoku's animation in the sheet is its board
+  alone, without the icon above it.
+
+## 1.25.12 — 2026-11-19
+- **Workshop: a PR that changes a screen on purpose gets the runner's visual reference on its own.** The
+  session commits the reference it made with `visual.mjs --update --part <game>`; the Visual references
+  workflow remakes exactly the references the PR changes on GitHub's runner and commits them to the branch,
+  with a token that starts the checks again, so the Mac's ~2 % pixel difference no longer turns
+  `end-to-end` red and needs no second push (#1624, #1626, #1629). Never on a fork's PR; a screen nobody
+  approved still fails the check.
+
+## 1.25.11 — 2026-11-18
+- **Croc! (lab): a gap between the result emoji and its title**: the 💥 or 🏆 no longer touches the big title letters.
+
+## 1.25.10 — 2026-11-18
+- **Workshop: the processes ledger records the CI mechanisms of this round** (#1632, #1633, #1634): the
+  real-date failure of the Uno al día covers and the visual-reference round trip, each with what stops it.
+
+## 1.25.9 — 2026-11-18
+- **Workshop: a push that changes a game's cover waits for its fold check.** `push-guard.mjs` stops the
+  push until `node tools/e2e/landing-fold.mjs --only <game>` passed in that worktree on the cover as it is
+  (~15 s a width); a passing run leaves a stamp in the worktree's git folder (`tools/e2e/landing-stamp.mjs`).
+  PRs #1624 and #1629 took five pushes each, finding the cover's fold in CI.
+
+## 1.25.8 — 2026-11-18
+- **Croc! (lab): the traditional 3, 2, 1 before crossing**, and the cover polished: the swipe trail stops short of a bigger finger, the swipe and long-swipe instructions live together in «📖 Instrucciones» (no caption under the demo), and the footer has «Sugerencias y comentarios» next to the coffee.
+- **Every new lab cover keeps its footer and feedback (canon gate)**: the lab entry gate (`public/labs/canons.test.mjs`, D-579) now also fails a lab game whose cover lacks the site footer or a way to leave feedback (the general inbox, or the game's own comment). The new-game generator already passes it; Croc!'s start button counts a double tap once (D-576).
+
+## 1.25.7 — 2026-11-18
+- **Croc! (lab): the cover shows the swipes**: a finger over the demo swipes short up or sideways on each hop and long up with a golden trail on each Dash, the demo runs slower so each gesture can be followed, and the caption says «Desliza ◀ ▶ · Muévete de lado» on side hops; «Cruzar la autopista» is the standard yellow button, and the tab shows the site icon like every game, not a second 🐸.
+
+## 1.25.6 — 2026-11-18
+- **Internal**: the check that every game's start button is above the fold now runs, on a PR, only for the games the PR changes (15 s instead of ~4 min per phone width), and every game's own PR checks its cover; a shared change and `main` still check every game (D-588).
+
+## 1.25.5 — 2026-11-18
+- **Babel's and Aletazo's Uno al día covers show Empezar without scrolling**: on their day the notice pushed it below the fold; their drawing gives up the space on the day's cover.
+- **The fold check measures every game's day cover, every day**: it moves the page's clock to a day each game comes out, instead of measuring only the real day's game, which made every PR fail on the day a too-tall cover came out (Generala, 2026-11-19); it also found Babel's and Aletazo's.
+
+## 1.25.4 — 2026-11-18
+- **Croc! (lab): a grass verge and a wetland**: the rest lanes are a grass verge between curbs, with a lamp, a bin, a bench and a butterfly, and the finish is a wetland that fills the screen, with reeds, a heron, a duck, a dragonfly and lily pads, where there was a dark empty band.
+
+## 1.25.3 — 2026-11-18
+- **Croc! (lab): a cover like the other games**: the demo is the real game playing itself (its frog, cars, canal and boats), taller, with a caption of what the frog does; the traffic lever is the standard one (Pintaminas', Sudoku's) and always starts on normal traffic; the instructions fold into «📖 Instrucciones», with «👤 Entrar» and the ranking on the cover.
+
+## 1.25.2 — 2026-11-18
+- **Generala in One a Day**: the cover's extra line is shorter («Todos reciben los mismos dados.»), so on a 320 px phone the start button no longer falls below the fold in English and Portuguese.
+
+## 1.25.1 — 2026-11-18
+- **Croc! (lab):** its card in `/labs/` says in one short line what the game is today.
+
+## 1.25.0 — 2026-11-18
+- **Croc! (lab): new name, water canal with boats, Dash/boat cover demo and electric difficulty lever**: the lab's highway-crossing frog game (Sapiondo) is now **Croc!** in all three languages, inside and out (`/labs/croc/`, id `croc`, its La Copa game, tests and docs; the phone's `sapiondo` record and settings carry over once on load, C-20). It adds a water canal with passing boats at row 22, after a safe riverbank at row 21, crossed by Dashing over it or hopping onto a boat; a looping cover animation that shows Dash and boat-riding; and Tembleque's electric lever for the difficulty, explaining normal vs. heavy traffic. By Daniel (danielanguita).
+
+## 1.24.2 — 2026-11-18
+- **In the lab, the home page as carousels: a game's sheet keeps one height for Detalles and Ranking** (flag
+  `home-carousels`, the owner's request). The sheet is as tall as the taller of its two tabs, up to what the screen
+  gives, and does not move when the tab changes. The game's animation adapts to it: it grows to fill the room the
+  details leave (up to twice its size) and, on a short screen, shrinks so the game's line stays in sight. The
+  ranking is now read as the sheet opens. A credit line with a link inside a framed drawing (Agentes') is not shown.
+
+## 1.24.1 — 2026-11-18
+- **In the lab, the home page as carousels: a game's sheet plays its cover animation** (flag `home-carousels`). On
+  top of the details, the demo of the game's waiting room plays by itself, or its "how to play" drawing when it has
+  no demo, to show how the game is played: fifteen of La Copa's games bring one; the group games and ¿En qué año?
+  have none yet. It comes framed from a new page, `cup/cover/?game=<id>`, so the home page still loads no game's code.
+- **In the same lab treatment, a carousel's game shows only its icon and its name** (the owner's request): how long
+  it takes and how many play left the tile and stay in the game's sheet. The tester «T» tab no longer draws
+  itself inside a framed page.
+
+## 1.24.0 — 2026-11-18
+- **In the lab: the home page as carousels** (flag `home-carousels`, `/labs/` 🎠, the owner's design). With the
+  flag on, the filters, the search and the long list give way to rows that slide sideways under La Copa and Uno al
+  día: Favoritos (once one is marked), Populares, Nuevos, Con amigos, Rápidos and one per type. A game shows its
+  icon, its name and how long it takes; a tap opens a sheet with its details, its ranking, the ⭐ and ▶ Jugar.
+  Players see no change until the owner launches it. The tests hold the flag off (`tools/e2e/flags-held.json`),
+  so the scripts that open the home page keep testing what players see; `home/carousels.mjs` tests the new one.
+
+## 1.23.0 — 2026-11-18
+- **🏁 La Gran Final reparte puntos por ronda, como un día**: en cada ronda el mejor se lleva 10, el segundo 8… (a igual puntaje, el más rápido), y gana la final quien suma más. La tabla de la final muestra tu lugar en cada ronda. Rige para las finales que se abren desde el 19 de noviembre; las que ya están en curso siguen con el promedio (D-587, pedido de un jugador).
+
+## 1.22.8 — 2026-11-18
+- **Merge queue (trial, D-586)**: a PR behind main is brought up to date one at a time before auto-merge merges it, so two PRs that pass alone can no longer break main together. Nothing changes for players.
+
+## 1.22.7 — 2026-11-18
+- The processes log records the mechanism of PR #1611 for the e2e groups signature. Nothing a player sees changes.
+
+## 1.22.6 — 2026-11-18
+- **Bulls and Cows, playing alone on a small phone**: the Start button sits right under the title, no scrolling to find it.
+- **Hangman**: the hit or miss banner stays long enough to read (2.6 s whole instead of 0.6 s), and a letter's verdict that closes on its own waits 2.8 s.
+
+## 1.22.5 — 2026-11-18
+- Every Altoke game now opens with an animated preview of what the finger does, pinned to the bottom of its intro card: tap, tap, tap on the balloon, tapping one of the options (colors, numbers, clocks, shadows, trays), reordering the bars, dropping the chip into the Connect Four, cutting, tracing and chasing. Under the ones of the previous PR it covers all 29 games except ¡Pinball!, which already had its own.
+- The answer buttons are bigger (taller, and wide enough to hit with a thumb) and now always fit the screen, even on a 320 px phone, where some games' answers were cut off.
+
+## 1.22.4 — 2026-11-18
+- ¡ATRAPA! and ¡EQUILIBRA! (Altoke) open with a small preview of the drag: a faded ghost of the basket or the plate at both ends, the real one sliding between them under a thumb, as ¡Pinball!'s intro does.
+- The five purple (swipe) games, ¡RUEDA!, ¡CORTA!, ¡DIBUJA!, ¡SIGUE! and ¡LIMPIA!, open with the same kind of animated preview at the bottom: the thumb cuts the line, rolls the ball along the road, traces the heart, stays on the running mouse and rubs the dirty glass clean.
+
+## 1.22.3 — 2026-11-18
+- End-to-end groups (D-585): a new game's test jobs are timed from their siblings instead of a flat 90 s each, and the group target is 400 s, so a PR that adds a game no longer turns `groups.test.mjs` red. Nothing a player sees changes.
+
+## 1.22.2 — 2026-11-18
+- **Panel and ideas: home-page shares no longer inflated**: until PR #1478 (2026-11-15) every test run wrote five `comparte/app` to the live numbers, 17,002 in four weeks. The data is left as it is; the panel, the weekly report and `ideas.mjs check` skip `app` shares up to 2026-11-15 and say how many they skipped.
+
+## 1.22.1 — 2026-11-18
+- **Tembleque** (lab): the nine cheers of a balanced drop now sit behind the flag `wobbles-cheers`, with its switch in the «T» tab and its card under Tembleque in /labs/; switched off, it says ¡Perfecto! as before.
+
+## 1.22.0 — 2026-11-18
+- **Sapiondo in the lab & La Copa**: 2.5D arcade highway crossing (`/labs/sapiondo/` and `public/cup/games/sapiondo/`) with `🐸` icon, seasonal frog sweaters (Halloween, Thanksgiving, Christmas, New Year, Winter, Summer), board-wide swipe controls (`2.4`-tile long forward swipe for Dash with glowing arrow preview, 3 Dash charges refilled by fruit/non-ghost Close Calls), 3 lives with `1.5 s` ghost shield, `+1` per lane / `+10` at finish / `+1` per fruit / `−1` per life lost scoring, Normal & Hard difficulties, and deterministic seeded tracks for Cup play.
+
+## 1.21.26 — 2026-11-18
+- **Clearer texts in Bulls and Cows, Hangman and Sudoku**, from a player pass: Bulls and Cows' solo rules now say what a bull and a cow are, and its scoring sentence is shorter; Hangman's result says "Your score: n out of 100", no longer shows the word twice when playing alone, and the English title reads "You were hanged"; Sudoku's card counts its mistakes and hints (❌ 2 · 💡 1) instead of repeating marks, and the ranking invitation reads "Sign in to get on the leaderboard" in every game.
+
+## 1.21.25 — 2026-11-18
+- **Tembleque** (lab): a balanced drop no longer always says ¡Perfecto!: it picks one of nine cheers (¡Perfecto!, ¡Impecable!, ¡Clavado!, ¡Exacto!, ¡Genial!, ¡Tremendo!, ¡Maestro!, ¡Bravo!, ¡Increíble!), never the same twice in a row, in both levels and in es, en and pt. The hard level's streak keeps «Perfecto ×n».
+
+## 1.21.24 — 2026-11-18
+- **Small phones (320×568): the turn fits on screen.** In Hangman, after picking a letter, «Try the E» and «Buy a letter» now sit side by side above the fold (the drawing, the lives and the word tighten; keys stay 44 px). In Bulls and Cows solo and La Copa's number game, the keypad tightens, the hint steps aside from the second guess and the newest guess goes first, so its clues show without scrolling. 390 px is unchanged.
+- New check `tools/e2e/play-fold.mjs` (D-520): mid-turn, the confirm button and the latest feedback must be above the fold at 320×568 in every language.
+
+## 1.21.23 — 2026-11-18
+- **Tembleque, hard mode: the dial that turns the board moved to the top**, under the next pieces, and it
+  fades while you are not using it: at the bottom, an iPhone's swipe there closed the game.
+- **Tembleque, hard mode: the next pieces are centred under the dial**, the next one bigger and brighter than
+  the one after it, so it is clear which comes first.
+
+## 1.21.22 — 2026-11-18
+- **The owner's approval box on a 🔴 PR stays put**: if anyone but the owner edits the description and drops or changes the box, a new workflow (`lane-box.yml`) puts it back as it was. PR 1589 lost its box when a contributor's session rewrote its description.
+- **A 🔴 PR the owner already answered loses its `needs-owner` label**: once the Yes (merged) or the No is carried out, the label goes, so the list of PRs waiting for the owner shows only those still waiting.
+
+## 1.21.21 — 2026-11-18
+- **The panel leaves Labs out**: on the live site the /labs/ pages now write their visits, plays and errors apart (Labs in the panel's environment picker), so every Live number is players' activity only (D-584).
+
+## 1.21.20 — 2026-11-18
+- **A contributor's PR from a fork no longer shows a red `lane` check** for a permission they cannot fix: the job's token is read-only there, so it prints the lane, writes nothing and ends green; `owner-approval` stays missing, so the PR still waits for the owner (19 red runs on three fork PRs in two days).
+
+## 1.21.19 — 2026-11-18
+- Usability round 2026-11-18: marketing note updated (the Sudoku "Coming soon" asset still shows app 1.7.32 and none of the other games). Nothing a player sees changes.
+
+## 1.21.18 — 2026-11-18
+- **Learning piece 1**: step 1.3 (the clue judge) closed below its bar at the owner's call; the piece is paused. Nothing changes for players.
+
+## 1.21.17 — 2026-11-18
+- **Retention ledger**: week of 2026-11-08 recorded (next-day return 42.7%, 40 players, verdict no-history); no proposal.
+
 ## 1.21.16 — 2026-11-18
 - **Agentes**: four decoys that could pass for right answers are replaced (PODER, LIFE, LUCK, MUSEU), and the clue judge's third round agrees with the owner on 16 of 20 labelled clues and catches all 12 bad ones.
 

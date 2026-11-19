@@ -354,12 +354,22 @@ function history() {
   return 0;
 }
 
+/** What document.test.mjs's repo test would fail for in docs/decisions/, minus the stale index
+ *  (push-guard checks that apart): an unknown topic, a non-canonical Status, a repeated number.
+ *  push-guard runs it before a push (D-518 signature 754d57b1bc: red `tests` on #1492 and #1574). */
+export function decisionProblems(root = ROOT) {
+  const files = fileProblems(readAll(root), readTopics(root), null).filter(p => !p.startsWith(`${INDEX} is stale`));
+  const repeated = [...writtenDecisions(allText(root)).repeated].map(n => `D-${n} is twice in ${DIR}/`);
+  return [...files, ...statusProblems(allText(root)), ...repeated];
+}
+
 if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
   const [command, ...rest] = process.argv.slice(2);
   const i = rest.indexOf('--from');
   const code = command === 'check' ? check(i < 0 ? null : rest[i + 1])
     : command === 'record' ? record(rest)
     : command === 'history' ? history()
-    : (console.error('Usage: node tools/agents/document.mjs check [--from <commit>] | record --to <commit> [--pr <url>] [--pending "…"] | history'), 2);
+    : command === 'decisions' ? (p => (p.forEach(x => console.log(`✗ ${x}`)), p.length ? 1 : 0))(decisionProblems())
+    : (console.error('Usage: node tools/agents/document.mjs check [--from <commit>] | record --to <commit> [--pr <url>] [--pending "…"] | decisions | history'), 2);
   process.exit(code);
 }
