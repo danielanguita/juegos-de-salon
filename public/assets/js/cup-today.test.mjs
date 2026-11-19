@@ -100,3 +100,9 @@ console.log('cup-today: ok');
 for (const cal of ['linea,numero,agentes,reinas,letras,anio,final', 'solitario,dudo:x,a+b+c,final', '']) {
   assert.deepEqual(calendarIds(cal), cal ? calendario({ cal }) : [], `calendar ${cal || '(none)'}`);
 }
+
+// Flag copa-jugar: the gold «🏆 Jugar» has its word in every language, one short line
+{
+  const { COMMON } = await import('./i18n.js');
+  for (const l of ['es', 'en', 'pt']) assert.ok(COMMON[l].cupToday.enter && COMMON[l].cupToday.enter.length <= 8, `copa-jugar's word in ${l}`);
+}
