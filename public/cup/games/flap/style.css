@@ -79,3 +79,8 @@
 @media (max-height: 620px) {
   .fl-demo { height: 150px; }
 }
+/* A day of Uno al día also carries its notice above Start: the flight gives up the space (U-39) */
+.stack:has(> .uad-intro) .fl-demo { height: 190px; }
+@media (max-height: 620px) {
+  .stack:has(> .uad-intro) .fl-demo { height: 150px; }
+}
