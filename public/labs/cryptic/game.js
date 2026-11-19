@@ -198,7 +198,7 @@ function shareText() {
   const s = E.stars(state);
   const tries = state.guesses.length;
   const line = state.solved
-    ? [starText(s), tries === 1 ? T.triesOne : fmt(T.tries, { n: tries }), state.hints ? fmt(T.shareHints, { n: state.hints }) : ''].filter(Boolean).join(' · ')
+    ? [starText(s), tries === 1 ? T.triesOne : fmt(T.tries, { n: tries }), state.hints ? (state.hints === 1 ? T.shareHintsOne : fmt(T.shareHints, { n: state.hints })) : ''].filter(Boolean).join(' · ')
     : T.shareGaveUp;
   const contexto = state.practice ? T.practiceLabel : fmt(T.shareContext, { n: E.numberOf(state.date) });
   return [cabecera({ emoji: manifest.emoji, titulo: T.title, contexto }), line].join('\n\n');

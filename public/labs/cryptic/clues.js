@@ -30,11 +30,11 @@ const ES = [
   { c: 'Manila revuelta: bestia', a: 'ANIMAL', k: 'anagram', d: 'bestia', x: 'Las letras de MANILA revueltas forman ANIMAL.' },
   { c: 'Flor descabezada: la que hiberna en el bosque', a: 'OSA', k: 'deletion', d: 'la que hiberna en el bosque', x: 'ROSA sin su cabeza (la R) es OSA.' },
   { c: 'Pera sin principio: tiempo pasado', a: 'ERA', k: 'deletion', d: 'tiempo pasado', x: 'PERA sin su primera letra es ERA.' },
-  { c: 'Se oye un saludo en el mar', a: 'OLA', k: 'homophone', d: 'en el mar', x: 'OLA suena igual que HOLA, un saludo.' },
+  { c: 'Se oye un saludo: rompe en la playa', a: 'OLA', k: 'homophone', d: 'rompe en la playa', x: 'OLA, que rompe en la playa, suena igual que HOLA, un saludo.' },
   { c: 'Hermoso, aunque suena a pelo', a: 'BELLO', k: 'homophone', d: 'Hermoso', x: 'BELLO (hermoso) suena igual que VELLO (pelo).' },
   { c: 'Animal del altiplano que también arde', a: 'LLAMA', k: 'definitions', d: 'Animal del altiplano', x: 'LLAMA es el animal andino y también el fuego.' },
-  { c: 'Felino que levanta el auto', a: 'GATO', k: 'definitions', d: 'Felino', x: 'GATO es el felino y la herramienta que levanta el auto.' },
-  { c: 'Suela del pie y piso del edificio', a: 'PLANTA', k: 'definitions', d: 'Suela del pie', x: 'PLANTA del pie y PLANTA de un edificio.' },
+  { c: 'Felino que se juega con cruces y círculos', a: 'GATO', k: 'definitions', d: 'Felino', x: 'GATO es el felino y también el juego de cruces y círculos.' },
+  { c: 'Base del pie y piso del edificio', a: 'PLANTA', k: 'definitions', d: 'Base del pie', x: 'PLANTA del pie y PLANTA de un edificio.' },
   { c: 'Fila de espera y rabo del perro', a: 'COLA', k: 'definitions', d: 'Fila de espera', x: 'COLA es la fila y también el rabo.' },
   { c: 'Herramienta que corta montañas', a: 'SIERRA', k: 'definitions', d: 'Herramienta que corta', x: 'SIERRA es la herramienta y la cordillera.' },
   { c: 'Nota musical dentro del hogar: prenda con botones', a: 'CAMISA', k: 'container', d: 'prenda con botones', x: 'MI (la nota) dentro de CASA: CA·MI·SA.' },
@@ -44,6 +44,8 @@ const ES = [
   { c: 'Seria confundida: signo del zodiaco', a: 'ARIES', k: 'anagram', d: 'signo del zodiaco', x: 'Las letras de SERIA confundidas forman ARIES.' },
   { c: 'Bebe una infusión: va en la ensalada', a: 'TOMATE', k: 'charade', d: 'va en la ensalada', x: 'TOMA + TÉ = TOMATE.' },
   { c: 'Pan que se regala: oso blanco y negro', a: 'PANDA', k: 'charade', d: 'oso blanco y negro', x: 'PAN + DA (regala) = PANDA.' },
+  // The owner's clue (2026-11-19)
+  { c: 'Dos personas se miran de frente en inglés, todos los días de la semana', a: 'SIETE', k: 'homophone', d: 'todos los días de la semana', x: 'Dos personas que se miran de frente SE VEN, que en inglés suena a SEVEN: SIETE, todos los días de la semana.' },
 ];
 
 /** Spanish only for now (the owner, 2026-11-19): the mechanics first, the other banks once it works. */

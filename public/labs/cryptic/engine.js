@@ -23,15 +23,15 @@ const utc = f => { const [y, m, d] = f.split('-').map(Number); return Date.UTC(y
 export const daysBetween = (a, b) => Math.round((utc(b) - utc(a)) / 86400000);
 /** `date` plus `n` days. */
 export const addDays = (date, n) => new Date(utc(date) + n * 86400000).toISOString().slice(0, 10);
-/** The clue's number, the one that is shared: the launch day is #1. */
-export const numberOf = date => daysBetween(LAUNCH, date) + 1;
+/** The clue's number, the one that is shared: the launch day is #1 (and so is a day before it, west of the launch). */
+export const numberOf = date => Math.max(1, daysBetween(LAUNCH, date) + 1);
 
 const gcd = (a, b) => (b ? gcd(b, a % b) : a);
 /** A step that visits every clue once before any repeats, and does not walk the bank in its written order. */
 const strideFor = n => [7, 11, 13, 17, 19, 23].find(p => gcd(p, n) === 1) || 1;
 /** Which clue of a bank of `size` a date gets. */
 export function indexOf(date, size) {
-  const n = ((numberOf(date) - 1) % size + size) % size;
+  const n = ((daysBetween(LAUNCH, date)) % size + size) % size;
   return (n * strideFor(size)) % size;
 }
 

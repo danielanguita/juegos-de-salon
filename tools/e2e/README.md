@@ -206,6 +206,8 @@ node tools/e2e/contact-sheet.mjs cuarto-rey --out /tmp/contact-sheet
 | `croc/languages.mjs` | Croc!'s screens in every offered language, against Spanish (D-199) |
 | `wobbles/game.mjs` | Tembleque at `/labs/wobbles/`: the cover's lever picks the level and its picture follows; each level starts a round from its card and ends on its game-over card, in es/en/pt, and its ‹ comes back to the cover |
 | `wobbles/languages.mjs` | Tembleque's cover in every offered language, against Spanish (D-199) |
+| `cryptic/game.mjs` | Críptico at `/labs/cryptic/`: today's clue (a guess of another length is only a warning, a wrong one says so, two helps underline the definition), a reload resumes it with its hints, the answer reaches the result (stars minus helps, the streak starts, the exit back to the lab, C-19), the cover then shows today's stars, and a practice clue given up shows its answer |
+| `cryptic/languages.mjs` | Críptico's screens in every offered language, against Spanish (D-199) |
 | `bulls-and-cows/local.mjs` | One phone and playing solo (twice, to see the record), up to the result |
 | `bulls-and-cows/choose-box.mjs` | Playing solo with a lab key: tapping a box chooses where the next digit goes (#604) |
 | `bulls-and-cows/online.mjs` | Two phones against real Firebase: joining by URL, reload midway, rematch |

@@ -14,6 +14,7 @@ assert.equal(E.enumeration('MEDIA NOCHE'), '(5,5)');
 // Dates and the day's clue
 assert.equal(E.numberOf(E.LAUNCH), 1);
 assert.equal(E.numberOf('2026-11-20'), 2);
+assert.equal(E.numberOf('2026-11-18'), 1, 'never 0 or less, for a player west of the launch');
 assert.equal(E.addDays('2026-12-31', 1), '2027-01-01');
 const bank = CLUES[CLUE_LANG];
 const seen = new Set();

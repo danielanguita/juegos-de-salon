@@ -25,7 +25,7 @@ const ES = {
     howSolved: '🧩 Cómo se arma', nextClue: 'La próxima pista sale a medianoche.',
     practiceAgain: 'Otra pista de práctica', practiceNote: 'Pista de práctica: no cuenta para la racha.',
     resumeTitle: '⏯ Tienes una pista a medias', resume: 'Continuar', delete: 'Borrar',
-    shareRotulo: '📤 Compartir', shareContext: 'Pista n.º {n}', shareHints: '💡 {n} ayudas', shareGaveUp: '🏳️ Me rendí',
+    shareRotulo: '📤 Compartir', shareContext: 'Pista n.º {n}', shareHints: '💡 {n} ayudas', shareHintsOne: '💡 1 ayuda', shareGaveUp: '🏳️ Me rendí',
   },
   kinds: {
     anagram: 'anagrama (las letras de una palabra, en otro orden)', reversal: 'al revés (una palabra leída hacia atrás)',
@@ -50,15 +50,15 @@ const EN = {
     modePractice: 'Practice with other clues',
     clueNumber: 'Clue No. {n}', practiceLabel: 'Practice clue', inSpanish: '⚠️ The clues are in Spanish',
     placeholder: 'Type the answer', check: 'Check',
-    wrong: '❌ «{g}» is not it. Try another.', lengthWrong: 'The answer has {n} letters and you typed {m}.',
-    hintBtn: '💡 Help: costs 1 ⭐', hintKind: '🧩 Wordplay: {kind}.', hintDef: '🖍️ The definition is underlined.', hintFirst: '🔤 It starts with {letter}.',
+    wrong: '❌ "{g}" is not it. Try another.', lengthWrong: 'The answer has {n} letters and you typed {m}.',
+    hintBtn: '💡 Hint: costs 1 ⭐', hintKind: '🧩 Wordplay: {kind}.', hintDef: '🖍️ The definition is underlined.', hintFirst: '🔤 It starts with {letter}.',
     giveUp: 'I give up',
     solvedTitle: 'Solved!', gaveUpTitle: 'The answer was {a}',
     tries: '{n} tries', triesOne: '1 try', streakMany: '🔥 {n}-day streak', streakOne: '🔥 1-day streak',
     howSolved: '🧩 How it works', nextClue: 'The next clue comes out at midnight.',
     practiceAgain: 'Another practice clue', practiceNote: 'Practice clue: it does not count for your streak.',
     resumeTitle: '⏯ You have a clue in progress', resume: 'Continue', delete: 'Delete',
-    shareRotulo: '📤 Share', shareContext: 'Clue No. {n}', shareHints: '💡 {n} helps', shareGaveUp: '🏳️ I gave up',
+    shareRotulo: '📤 Share', shareContext: 'Clue No. {n}', shareHints: '💡 {n} hints', shareHintsOne: '💡 1 hint', shareGaveUp: '🏳️ I gave up',
   },
   kinds: {
     anagram: 'anagram (the letters of a word, in another order)', reversal: 'reversal (a word read backwards)',
@@ -70,7 +70,7 @@ const EN = {
   como: [
     '🎯 Guess the word: one part of the clue defines it and the rest builds it with wordplay.',
     '🧩 Anagrams, words reversed or hidden, words joined together and sound-alikes all count.',
-    '⭐ Solving it is worth 3 stars and each help costs one. There is a new clue every day.',
+    '⭐ Solving it is worth 3 stars and each hint costs one. There is a new clue every day.',
   ],
 };
 
@@ -91,7 +91,7 @@ const PT = {
     howSolved: '🧩 Como se monta', nextClue: 'A próxima pista sai à meia-noite.',
     practiceAgain: 'Outra pista de prática', practiceNote: 'Pista de prática: não conta para a sequência.',
     resumeTitle: '⏯ Você tem uma pista pela metade', resume: 'Continuar', delete: 'Apagar',
-    shareRotulo: '📤 Compartilhar', shareContext: 'Pista n.º {n}', shareHints: '💡 {n} ajudas', shareGaveUp: '🏳️ Desisti',
+    shareRotulo: '📤 Compartilhar', shareContext: 'Pista n.º {n}', shareHints: '💡 {n} ajudas', shareHintsOne: '💡 1 ajuda', shareGaveUp: '🏳️ Desisti',
   },
   kinds: {
     anagram: 'anagrama (as letras de uma palavra, em outra ordem)', reversal: 'ao contrário (uma palavra lida de trás para frente)',
