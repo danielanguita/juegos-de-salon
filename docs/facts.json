@@ -1487,6 +1487,7 @@
     "public/labs/croc/scene.js",
     "public/labs/cryptic/clues.js",
     "public/labs/cryptic/engine.js",
+    "public/labs/cryptic/flapboard.js",
     "public/labs/cryptic/game.js",
     "public/labs/cryptic/rules.js",
     "public/labs/dominorama/engine.js",
