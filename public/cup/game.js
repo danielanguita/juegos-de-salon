@@ -978,12 +978,7 @@ function grafico(now) {
   const enTabla = filasTabla.map(f => f.pid);
   const resto = grande ? enTabla.slice(carriles).map(pid => ev.filas.find(f => f.pid === pid)).filter(Boolean) : [];
   const delResto = new Set(resto.map(f => f.pid));
-  // The rest's names go inside the graph, under the last lane, side by side and wrapped: "11 Camila  12 Feña …"
-  const nombresResto = resto.map((f, i) => `${carriles + i + 1} ${f.name.length > 14 ? `${f.name.slice(0, 13)}…` : f.name}${afuera.has(f.pid) ? ' 🚪' : ''}`);
-  const lineasResto = [];
-  for (const t of nombresResto) { const u = lineasResto[lineasResto.length - 1]; if (u && (u + '   ' + t).length <= 46) lineasResto[lineasResto.length - 1] = `${u}   ${t}`; else lineasResto.push(t); }
-  const altoResto = lineasResto.length ? 8 + lineasResto.length * 14 : 0;
-  const H = arriba + (carriles - 1) * fila + abajo + altoResto;
+  let H = arriba + (carriles - 1) * fila + abajo;
   const x = k => izq + (meta.days === 1 ? 0 : ((k - 1) * (W - izq - der)) / (meta.days - 1));
   const y = lugar => arriba + (lugar - 1) * fila;
   const NS = 'http://www.w3.org/2000/svg';
@@ -999,7 +994,8 @@ function grafico(now) {
     svg.append(svgEl('line', { x1: izq, x2: W - der, y1: y(l), y2: y(l), class: 'g-grid' }));
     if (!grande) svg.append(svgEl('text', { x: izq - 8, y: y(l) + 4, class: 'g-eje', 'text-anchor': 'end' }, ord(l)));
   }
-  for (let k = 1; k <= meta.days; k++) svg.append(svgEl('text', { x: x(k), y: H - altoResto - 6, class: 'g-eje', 'text-anchor': 'middle' }, fmt(T.dayShort, { d: k })));
+  const diasEje = [];
+  for (let k = 1; k <= meta.days; k++) svg.append(diasEje[diasEje.push(svgEl('text', { x: x(k), y: H - 6, class: 'g-eje', 'text-anchor': 'middle' }, fmt(T.dayShort, { d: k }))) - 1]);
   // Cada jugador con su color (D-125), fijo por orden de inscripción; tu línea, más gruesa y encima
   const porLlegada = llegada(Lc);
   const color = pid => colorDe(Lc, pid);
@@ -1008,6 +1004,7 @@ function grafico(now) {
   // Empatados en el mismo lugar: sus nombres se apilan en vez de encimarse (el lugar siguiente
   // queda vacío en un empate, así que hay espacio)
   const enLugar = {};
+  let yRotulo = 0, xRotulo = x(ev.dias[ev.dias.length - 1]) + 9;
   for (const f of orden) {
     if (delResto.has(f.pid)) continue;
     const mia = f.pid === S.yo;
@@ -1028,6 +1025,7 @@ function grafico(now) {
       const marca = afuera.has(f.pid) ? ' 🚪' : menos[f.pid] > 0 ? ` (-${menos[f.pid]}J)` : '';
       const ultimo = f.lugares[f.lugares.length - 1];
       const k = (enLugar[ultimo] = (enLugar[ultimo] ?? -1) + 1);
+      yRotulo = Math.max(yRotulo, py + 4 + k * 11); xRotulo = px + 9;
       g.append(svgEl('text', { x: px + 9, y: py + 4 + k * 11, class: 'g-rotulo' }, `${corto} ${ord(ultimo)}${marca}`));
     }
     svg.append(g);
@@ -1044,7 +1042,14 @@ function grafico(now) {
     el('button', { type: 'button', class: 'g-chip' + (f.pid === S.yo ? ' mia' : '') + (afuera.has(f.pid) ? ' fuera' : ''), 'data-pid': f.pid, style: `--c:${color(f.pid)}`, onClick: () => { SFX.tap(); destacar(f.pid); } },
       el('span', { class: 'g-color', 'aria-hidden': 'true' }), nombreConJuegos(f.pid === S.yo ? fmt(T.progressYou, { name: f.name }) : f.name, menos[f.pid]), afuera.has(f.pid) ? ' 🚪' : null)));
   const notaJuegos = Object.values(menos).some(x => x > 0) ? el('p', { class: 'muted grafico-nota', id: 'nota-juegos' }, T.fewerGamesNote) : null;
-  lineasResto.forEach((t, i) => svg.append(svgEl('text', { x: izq, y: H - altoResto + 14 + i * 14, class: 'g-resto' }, t)));
+  // The rest: one label each, in the same column as the names above, ranked and numbered like them
+  if (resto.length) {
+    let yy = Math.max(yRotulo, y(carriles)) + 13;
+    for (const [i, f] of resto.entries()) { svg.append(svgEl('text', { x: xRotulo, y: yy, class: 'g-rotulo g-resto' }, `${f.name.length > 10 ? `${f.name.slice(0, 9)}…` : f.name} ${ord(carriles + i + 1)}${afuera.has(f.pid) ? ' 🚪' : ''}`)); yy += 11; }
+    H = Math.max(H, yy + abajo - 11 - 2);
+    svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+    diasEje.forEach(t => t.setAttribute('y', H - 6));
+  }
   if (grande) leyenda.hidden = true; // its text is filled by tapping a point
   return el('div', { class: 'panel' }, el('p', { class: 'lead', style: 'margin-bottom:8px' }, T.progressTitle), svg, chips, notaJuegos, leyenda,
     // Once over, the podium's Share the summary does the same: one share button per screen (C-19)

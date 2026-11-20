@@ -391,7 +391,7 @@ button.md-fila { cursor: pointer; }
 .g-color { width: 12px; height: 12px; border-radius: 50%; background: var(--c); flex: none; }
 .grafico .g-toque { fill: transparent; cursor: pointer; }
 .grafico .g-rotulo { font: 900 10px var(--font-body); }
-.grafico .g-resto { fill: var(--text, #fff); font: 800 10px var(--font-body); white-space: pre; }
+.grafico .g-rotulo.g-resto { fill: var(--muted); }
 .grafico-nota { font-size: 0.85rem; margin: 6px 0 0; min-height: 1.3em; }
 
 /* Reportes (LIG-42) */
