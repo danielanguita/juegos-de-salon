@@ -13,6 +13,7 @@
 // load La Copa (D-377): the cup code and a random one, and the active-time clock
 import { cryptoRand } from './code.js';
 import { ALL_GAMES } from '../assets/js/games.js';
+import { cachedFlags, stateOf } from '../assets/js/flags.js';
 export { LETRAS, CODIGO, esCodigo, codigoAlAzar } from './code.js';
 export { reloj, pausaDeLectura, mmss } from './clock.js';
 
@@ -43,7 +44,15 @@ export const POZO = [
  * removes the flag puts them in.
  */
 const LANZADOS = ALL_GAMES.filter(g => g.lanza);
-export const POZO_ABIERTO = POZO.filter(id => !LANZADOS.find(g => g.id === id)?.oculto);
+// Only what every player sees on the home page (the owner's rule): no lab or Bodega game, and a
+// flag-launched one only once its flag is 🚀 all, never because this phone holds a lab key
+const enPortada = (g, flags) => !g.labs && !g.bodega && (!g.lanza || stateOf(flags, g.lanza) === 'all');
+const pozoDe = (flags = cachedFlags()) => POZO.filter(id => { const g = ALL_GAMES.find(x => x.id === id); return !g || enPortada(g, flags); });
+// A live binding: games.js reads `oculto` once, from this phone's last saved flags, so a game launched
+// since then (or every launched game, on a phone with nothing saved) was left out of the 🎲 until a
+// reload. The create screen calls refreshPool with the flags it just fetched before drawing.
+export let POZO_ABIERTO = pozoDe();
+export function refreshPool(flags) { POZO_ABIERTO = pozoDe(flags || cachedFlags()); return POZO_ABIERTO; }
 export const POZO_FIJO = POZO.filter(id => !LANZADOS.some(g => g.id === id));
 
 /**

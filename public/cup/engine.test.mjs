@@ -802,3 +802,15 @@ test('the length is the admin\'s choice, 3 to 14 days, the final from 5 (D-521)'
   assert.equal(sin.final, '0');
   assert.throws(() => nuevaMeta({ nombre: 'X', dias: 9, inicio: '2026-11-09', admin: 'abc123', creada: 1 }), /modalidad/, 'a new length needs its calendar');
 });
+
+test('a launched game is in the open pool once its flag is all, and never only for the lab (LAUNCH.md)', async () => {
+  const { refreshPool, POZO } = await import('./engine.js');
+  const { ALL_GAMES } = await import('../assets/js/games.js');
+  for (const g of ALL_GAMES.filter(x => x.copa && x.lanza)) {
+    assert.ok(POZO.includes(g.id), `${g.id} is in POZO`);
+    assert.ok(refreshPool({ [g.lanza]: { state: 'all' } }).includes(g.id), `${g.id} is drawn once its flag is all`);
+    assert.ok(!refreshPool({ [g.lanza]: { state: 'lab' } }).includes(g.id), `${g.id} is not drawn while in the lab`);
+  }
+  for (const g of ALL_GAMES.filter(x => x.copa)) assert.ok(!g.labs && !g.bodega, `${g.id}: a lab or Bodega game is never in the cup`);
+  refreshPool({});
+});
