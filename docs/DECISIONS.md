@@ -23,7 +23,7 @@ Where today's rule is and which decisions explain it: those in force that still 
 
 | Topic | Today's rule | Decisions |
 |---|---|---|
-| Structure and paths | C-2, C-18 | D-1, D-2, D-3, D-24, D-192, D-198, D-214, D-256, D-266, D-269, D-270, D-280, D-281, D-284, D-286, D-289, D-293, D-297, D-310, D-311, D-316, D-372, D-420, D-422, D-434, D-468, D-479, D-480, D-498, D-509, D-510, D-511, D-515, D-516, D-517, D-528, D-529, D-532, D-534, D-535, D-542, D-550, D-556, D-567, D-579, D-588, D-591, D-593 |
+| Structure and paths | C-2, C-18 | D-1, D-2, D-3, D-24, D-192, D-198, D-214, D-256, D-266, D-269, D-270, D-280, D-281, D-284, D-286, D-289, D-293, D-297, D-310, D-311, D-316, D-372, D-420, D-422, D-434, D-468, D-479, D-480, D-498, D-509, D-510, D-511, D-515, D-516, D-517, D-528, D-529, D-532, D-534, D-535, D-542, D-550, D-556, D-567, D-579, D-588, D-591, D-592, D-593 |
 | Identity and texts | C-1 | D-11, D-30, D-49, D-177, D-184, D-324, D-457, D-488, D-533, D-535, D-570, D-576 |
 | Dated card decks | `docs/games/timeline.md` | D-37, D-277, D-278, D-314 |
 | 🕵️ Agentes (board, clues in four languages, traps) | `docs/games/agents.md` | D-286, D-287, D-288, D-421, D-442, D-583 |
@@ -55,7 +55,7 @@ Where today's rule is and which decisions explain it: those in force that still 
 | Marketing | `marketing/README.md` | D-178, D-380, D-410, D-454, D-456, D-494, D-505, D-529, D-591 |
 | Installable app and phone notifications | C-2, [PWA-NOTIFICACIONES.md](PWA-NOTIFICACIONES.md) | D-221, D-222, D-223, D-224, D-225, D-227, D-228, D-229, D-230, D-232, D-233, D-504, D-538, D-544, D-545, D-546, D-564, D-565, D-571, D-574 |
 
-## In force (576)
+## In force (577)
 
 | D | Title | Status |
 |---|---|---|
@@ -609,7 +609,7 @@ Where today's rule is and which decisions explain it: those in force that still 
 | [D-564](decisions/D-564.md) | La Copa: a notification when someone comments on your row, and notifications checked every 5 minutes by a relay on GitHub | amended by D-565, D-574 |
 | [D-565](decisions/D-565.md) | The heartbeat: GitHub's frequent jobs in one relay, measured, with a watchdog | current |
 | [D-566](decisions/D-566.md) | La Copa: a balloon tells players they can comment, once per phone | current |
-| [D-567](decisions/D-567.md) | Lab features get an on/off switch in the «T» tab; launched ones lose it | current |
+| [D-567](decisions/D-567.md) | Lab features get an on/off switch in the «T» tab; launched ones lose it | amended by D-592 |
 | [D-568](decisions/D-568.md) | Outside PRs are reviewed by a cloud agent every hour, and the owner is told only when their Yes is the last step | current |
 | [D-569](decisions/D-569.md) | The Mac mini's chores without Claude ride the heartbeat: feedback upload and lab readiness | current |
 | [D-570](decisions/D-570.md) | Every visual change is measured before it ships, and nothing may cover the next block | current |
@@ -634,6 +634,7 @@ Where today's rule is and which decisions explain it: those in force that still 
 | [D-589](decisions/D-589.md) | No e2e script depends on the real date | current |
 | [D-590](decisions/D-590.md) | Active browsers by game: the random id goes with the game a browser starts, and every WBR games metric says started or finished | current |
 | [D-591](decisions/D-591.md) | A scheduled launch runs only in Claude's cloud, never on the Mac, and checks itself | current |
+| [D-592](decisions/D-592.md) | The «T» tab has two views: what is being tested, and every experiment | current |
 | [D-593](decisions/D-593.md) | A card sent to La Bodega as 💤 loses its switch in the «T» tab | current |
 
 ## No longer in force (12)
