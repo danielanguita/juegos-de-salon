@@ -55,7 +55,7 @@ Where today's rule is and which decisions explain it: those in force that still 
 | Marketing | `marketing/README.md` | D-178, D-380, D-410, D-454, D-456, D-494, D-505, D-529, D-591 |
 | Installable app and phone notifications | C-2, [PWA-NOTIFICACIONES.md](PWA-NOTIFICACIONES.md) | D-221, D-222, D-223, D-224, D-225, D-227, D-228, D-229, D-230, D-232, D-233, D-504, D-538, D-544, D-545, D-546, D-564, D-565, D-571, D-574 |
 
-## In force (574)
+## In force (575)
 
 | D | Title | Status |
 |---|---|---|
@@ -632,8 +632,8 @@ Where today's rule is and which decisions explain it: those in force that still 
 | [D-587](decisions/D-587.md) | The Grand Final ranks each round by place, like a day | current |
 | [D-588](decisions/D-588.md) | A script that opens every game's page runs only for the games a PR reaches | current |
 | [D-589](decisions/D-589.md) | No e2e script depends on the real date | current |
-| [D-591](decisions/D-591.md) | A scheduled launch runs only in Claude's cloud, never on the Mac, and checks itself | current |
 | [D-590](decisions/D-590.md) | Active browsers by game: the random id goes with the game a browser starts, and every WBR games metric says started or finished | current |
+| [D-591](decisions/D-591.md) | A scheduled launch runs only in Claude's cloud, never on the Mac, and checks itself | current |
 
 ## No longer in force (12)
 
