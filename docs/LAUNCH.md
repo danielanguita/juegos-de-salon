@@ -31,9 +31,9 @@ Precedents: Sudoku `3f60e2d8`, ¡Al toque! `54324382`, Dominorama `ba085a29`, Me
 - [ ] **Flag.** A row in `FLAGS` (`public/assets/js/flag-list.js`). Its `/labs/` card points to the finished page and carries the 🚀 switch (D-498).
 - [ ] **Rankings.** Every table it records is a game id or is in `SOLO_TABLES`; variants go in `FIRST_VARIANT_TABLES` (D-559, `rankings-coverage.test.mjs`).
 - [ ] **End-to-end.**
-  - [ ] Its screens go in `tools/e2e/paths.mjs`, with `languages.mjs` and a play script that opens `/records/` and finds its tab (C-12, D-559).
+  - [ ] Its screens go in `tools/e2e/paths.mjs`, with `tools/e2e/<game>/languages.mjs` and a play script that opens `/records/` and finds its tab (C-12, D-559).
   - [ ] Scripts never depend on today's date (D-589).
-  - [ ] A cover with a live demo goes in `VISUAL_SKIP`.
+  - [ ] A cover with a live demo goes in `VISUAL_SKIP` (`tools/e2e/paths.mjs`).
 - [ ] **Texts** in es, en and pt, through the `player-text` skill. U-18 instructions are at most 280 characters.
 - [ ] **Privacy.** What it stores goes in `public/privacy/texts.js` when that is new (C-17).
 - [ ] **Docs.**
@@ -72,15 +72,15 @@ On https://juegosdesalon.cl/ at phone width, as a new visitor and as a lab key h
 - [ ] The splash shows first, with each game's own icon.
 - [ ] The home card is there with ✨ **Nuevo**, newest first; search and the filters find it.
 - [ ] Its page opens and plays; `/records/` has its tab; La Copa can draw it.
-- [ ] The `/labs/` card moved to La Bodega (`launched.js`, D-534).
+- [ ] The `/labs/` card moved to La Bodega (`public/labs/launched.js`, D-534).
 - [ ] The next day: Uno al día deals it from `desde`.
 
 Tell the owner only once all of this was seen working (D-591's alarm covers the hour itself).
 
 ## 4. Cleanup PR (a few days later)
 
-- [ ] **Remove the gate.** Drop `lanza` and the `FLAGS` row; the game joins the fixed pool (`POZO_FIJO`).
-- [ ] **La Bodega card.** Move its card's HTML for good to La Bodega (D-479, D-510, D-534; `bodega.test.mjs`).
+- [ ] **Remove the gate.** Drop `lanza` and the `FLAGS` row; the game joins the fixed pool (`POZO_FIJO` in `public/cup/engine.js`).
+- [ ] **La Bodega card.** Move its card's HTML for good to La Bodega (D-479, D-510, D-534; `public/labs/bodega.test.mjs`).
 - [ ] **Lab prototype.** Retire it; its old path becomes a bridge.
 - [ ] **Docs.** README and docs drop "launching" and the lab notes.
 
@@ -96,7 +96,7 @@ Tell the owner only once all of this was seen working (D-591's alarm covers the 
 | The `off` input of `launch.yml` was read as a boolean | It is `turn_off` |
 | Dominorama's splash card showed 🎲 | Icons come from `games.js` only (rule 9, `splash.test.mjs`) |
 | The Dominorama and Memorice launch task waited on a permission prompt on the Mac; out 46 minutes late by hand | Cloud task plus alarm only (D-591) |
-| Launched cards stayed under "en prueba" | `launched.js` moves them (D-534), `bodega.test.mjs` |
+| Launched cards stayed under "en prueba" | `public/labs/launched.js` moves them (D-534), `public/labs/bodega.test.mjs` |
 | Live flags and demos made visual references flaky | `VISUAL_SKIP` for those covers; e2e pins its flags |
 | Launched flags kept their tester switch | They leave the tester tab (D-567) |
 
