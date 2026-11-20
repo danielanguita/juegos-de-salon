@@ -395,7 +395,7 @@ function armarFinde() {
 
 /**
  * How long the cup lasts on the new create screen (D-521): − n days +, from DIAS_MIN to DIAS_MAX,
- * with shortcuts for the usual lengths; the 🏁 switch from FINAL_DESDE days; a warning on long cups.
+ * with shortcuts for the usual lengths (one lights up when the length matches it; no extra chip for others, it wrapped to a row of its own); the 🏁 switch from FINAL_DESDE days; a warning on long cups.
  */
 function controlDuracion(alCambiar) {
   let n = 7, final = true;
@@ -412,8 +412,7 @@ function controlDuracion(alCambiar) {
   function pintar() {
     num.textContent = fmt(T.lenDays, { n });
     menos.disabled = n <= DIAS_MIN; mas.disabled = n >= DIAS_MAX;
-    atajos.replaceChildren(...ATAJOS.map(k => el('button', { type: 'button', class: 'chip-btn dur-atajo' + (k === n ? ' on' : ''), 'aria-pressed': String(k === n), onClick: () => fijar(k) }, `${k} · ${T.lenPresets[k]}`)),
-      ...(ATAJOS.includes(n) ? [] : [el('span', { class: 'chip-btn dur-atajo on' }, String(n))]));
+    atajos.replaceChildren(...ATAJOS.map(k => el('button', { type: 'button', class: 'chip-btn dur-atajo' + (k === n ? ' on' : ''), 'aria-pressed': String(k === n), onClick: () => fijar(k) }, `${k} · ${T.lenPresets[k]}`)));
     const puede = n >= FINAL_DESDE;
     sw.disabled = !puede; sw.setAttribute('aria-checked', String(puede && final)); sw.classList.toggle('on', puede && final);
     filaFinal.classList.toggle('off', !puede);
