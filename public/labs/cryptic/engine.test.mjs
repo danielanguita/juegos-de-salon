@@ -9,7 +9,7 @@ import { esJid } from '../../assets/js/records.js';
 // Normalizing: accents go, Ñ stays, only letters
 assert.equal(E.normalize(' jamón '), 'JAMON');
 assert.equal(E.normalize('Ñandú'), 'ÑANDU');
-assert.equal(E.normalize('o-c a!s'), 'OCAS');
+assert.equal(E.normalize('x-y z!w'), 'XYZW');
 assert.equal(E.enumeration('LEÓN'), '(4)');
 assert.equal(E.enumeration('MEDIA NOCHE'), '(5,5)');
 
@@ -91,6 +91,31 @@ for (const [lang, list] of Object.entries(CLUES)) {
   }
 }
 assert.ok(bank.length >= 30, 'a month of clues before any repeats');
+
+// No answer in plain text where a player could search for it (D-595): the repo is public
+{
+  const { readFileSync, readdirSync, statSync, existsSync } = await import('node:fs');
+  const { seal, unseal } = await import('./sealed.js');
+  const root = new URL('../../../', import.meta.url);
+  const read = p => readFileSync(new URL(p, root), 'utf8');
+  assert.deepEqual(unseal(seal({ a: 'ÑANDÚ', x: '«x»' })), { a: 'ÑANDÚ', x: '«x»' }, 'sealing opens back the same');
+  for (const l of read('public/labs/cryptic/clues.js').split('\n').filter(l => /^\s*\{ c: /.test(l)))
+    assert.ok(/ s: '/.test(l) && !/\b[ax]: ['"]/.test(l), `a clue line in plain text (seal it: node tools/generators/cryptic-clues.mjs seal): ${l.slice(0, 60)}`);
+  const plain = w => E.normalize(w);
+  const answers = new Set(CLUES.es.map(c => plain(c.a)));
+  const walk = p => (statSync(new URL(p, root)).isDirectory() ? readdirSync(new URL(p, root)).flatMap(f => walk(`${p}/${f}`)) : [p]);
+  const files = [
+    ...readdirSync(new URL('changelog', root)).filter(f => f.endsWith('.md')).map(f => `changelog/${f}`),
+    ...walk('public/labs/cryptic'), ...(existsSync(new URL('tools/e2e/cryptic', root)) ? walk('tools/e2e/cryptic') : []),
+    'docs/games/cryptic.md', 'docs/FEEDBACK-TRIAGE.md',
+  ].filter(p => !p.endsWith('clues.js'));
+  for (const p of files) {
+    const hits = [...new Set((read(p).match(/\b[A-ZÁÉÍÓÚÑ]{3,}\b/g) || []).filter(w => answers.has(plain(w))))];
+    assert.deepEqual(hits, [], `${p} names a clue's answer: say «one more clue» (D-595)`);
+    const name = plain(p.split('/').pop().replace(/\.\w+$/, ''));
+    assert.ok(![...answers].some(a => a.length >= 5 && name.includes(a)), `${p}: the file name gives an answer away`);
+  }
+}
 
 // The texts: the same keys in every language, none empty (C-3)
 const keys = Object.keys(LOCALES.es.ui).sort();
