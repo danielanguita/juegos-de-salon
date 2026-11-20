@@ -41,6 +41,7 @@ import { dayOf as diaDe, toLocalInput, checkPick, switches, status as campaignSt
 import { TEMPLATES as SKINS } from '../assets/season/templates.js';
 import { stateOf as flagState, flag } from '../assets/js/flags.js';
 import { publicGameCheck, withoutLabGames, withoutLabCups } from './public-games.js';
+import { gameReport, reportStart, REPORT_WEEKS, GAME_METRICS } from './game-report.js';
 import { trend, trendStart, weekOf, currentWeek, isoDay, highlights, toPacificDays, pacificDay, dayLabel as wbrDay } from './wbr.js';
 import { FLAGS } from '../assets/js/flag-list.js';
 import { SECCIONES, leerRuta, rutaA, rutaEnIngles, seccionDe } from './rutas.js';
@@ -223,7 +224,7 @@ function listen() {
   // And the period before it, so every number can say how it changed (D-348)
   // The WBR reads back to the first of the month two months before its week
   // One UTC day more: a Pacific date's evening is in the next UTC bucket, its night before in the one before
-  const desde = Math.min(rangoAnterior(rangeOf(S.range)).from - 1, S.desdeDia ?? Infinity, S.ruta?.sec === 'wbr' ? trendStart(weekOf(S.ruta.args[0])) - 1 : Infinity);
+  const desde = Math.min(rangoAnterior(rangeOf(S.range)).from - 1, S.desdeDia ?? Infinity, S.ruta?.sec === 'wbr' ? trendStart(weekOf(S.ruta.args[0])) - 1 : Infinity, S.ruta?.sec === 'reporte' ? reportStart(weekOf(S.ruta.args[0])) - 1 : Infinity);
   S.desdeDia = desde;
   S.unsubDays = onValue(query(ref(db, `stats/${S.env}/days`), orderByKey(), startAt(String(desde))), snap => { S.days = snap.val() || {}; S.daysLoaded = true; render(); }, denied);
   // The cups that were still alive on the first day loaded (D-473): every number of a period
@@ -1410,6 +1411,69 @@ function vistaWbr(now) {
   ];
 }
 
+/**
+ * 🎮 Games, the report by game: every public game ranked by its games finished in the closed week
+ * (with the week in progress apart, the change, its share, its browsers and eight weeks of trend), and
+ * below one toggle per game that unfolds its key usage metrics week by week. Counted as the WBR counts
+ * (D-560, D-561, D-590); the pure part is `game-report.js`.
+ */
+let memoReporte = {};
+function vistaReporte(now) {
+  const w = weekOf(S.ruta.args[0], now);
+  const nota = 'Public games by games finished in the closed week (Sunday to Saturday, Pacific time), counted as in the WBR: lab plays out (D-560), modes and versions together.';
+  const cabeza = [...titulo(`🎮 Games · ${wbrDay(w.from).replace(/, \d{4}$/, '')} – ${wbrDay(w.to)}`, nota),
+    el('div', { class: 'wbr-nav' },
+      el('a', { class: 'btn btn--sm btn--ghost', href: ir('reporte', [isoDay(w.to - 7)]) }, '‹ Week before'),
+      w.to < weekOf(null, now).to ? el('a', { class: 'btn btn--sm btn--ghost', href: ir('reporte', [isoDay(w.to + 7)]) }, 'Week after ›') : null)];
+  if (!S.daysLoaded || !S.torneosLoaded) return [...cabeza, el('p', { class: 'empty' }, 'Loading…')];
+  // Kept until its data or week changes: every Firebase answer and the 30 s tick redraw the panel
+  const dias = wbrDays(), copas = playerCups(), flags = S.flags || SIN_FLAGS;
+  const actual = w.to === weekOf(null, now).to ? currentWeek(now) : null;
+  if (memoReporte.days !== dias || memoReporte.copas !== copas || memoReporte.flags !== flags || memoReporte.to !== w.to || memoReporte.hoy !== actual?.to) memoReporte = { days: dias, copas, flags, to: w.to, hoy: actual?.to, out: gameReport({ days: dias, torneos: copas, flags }, w, { actual }) };
+  const r = memoReporte.out, k = r.cerrada;
+  if (!r.ranking.length) return [...cabeza, el('p', { class: 'empty' }, 'No games played in these weeks.')];
+  const fmt = (v, kind) => (v === null || v === undefined ? 'n/a' : kind === 'pct' ? `${v.toLocaleString(LOCALE, { maximumFractionDigits: 1 })}%` : kind === 'dec' ? v.toLocaleString(LOCALE, { minimumFractionDigits: 1, maximumFractionDigits: 1 }) : n(v));
+  const cambioTxt = c => (c === null || c === undefined ? '' : ` (${c > 0 ? '+' : c < 0 ? '−' : '±'}${Math.abs(c)}%)`);
+  const cerradaTxt = r.columnas[k];
+
+  // The ranking: one row per game
+  const ranking = el('div', { class: 'wbr-scroll' }, el('table', { class: 'wbr' },
+    el('thead', {}, el('tr', {}, el('th', {}, 'Game'), el('th', {}, `Finished ${cerradaTxt}`), ...(k ? [el('th', {}, r.columnas[0])] : []),
+      el('th', {}, 'Share'), el('th', {}, 'Browsers'), el('th', {}, 'Finished of started'), el('th', { title: `The last ${REPORT_WEEKS} closed weeks, oldest first` }, `${REPORT_WEEKS} weeks`))),
+    el('tbody', {}, ...r.ranking.map(g => el('tr', {},
+      el('th', {}, `${g.puesto}. ${g.nombre}`),
+      el('td', { class: 'wbr-ahora' }, el('b', {}, n(g.terminadas)), cambioTxt(g.cambio)),
+      ...(k ? [el('td', {}, n(g.parcial || 0))] : []),
+      el('td', {}, fmt(g.share, 'pct')), el('td', {}, fmt(g.jugadores)), el('td', {}, fmt(g.completan, 'pct')),
+      el('td', { class: 'reporte-spark', 'aria-label': `Trend over ${REPORT_WEEKS} weeks` }, g.tendencia))))));
+
+  // The toggles: one per game, in the ranking's order; the top game opens by default
+  S.reporteAbiertos ||= new Set([r.ranking[0].id]);
+  const alternar = id => { if (S.reporteAbiertos.has(id)) S.reporteAbiertos.delete(id); else S.reporteAbiertos.add(id); render(); };
+  const toggles = el('div', { class: 'chips', role: 'group', 'aria-label': 'Games to unfold' },
+    ...r.ranking.map(g => el('button', { type: 'button', 'aria-pressed': String(S.reporteAbiertos.has(g.id)), onClick: () => alternar(g.id) }, g.nombre)));
+  const nombreMetrica = Object.fromEntries(GAME_METRICS.map(([m, nombre, kind]) => [m, [nombre, kind]]));
+  const tarjetas = r.ranking.filter(g => S.reporteAbiertos.has(g.id)).map(g => {
+    const j = r.juegos[g.id];
+    return el('div', { class: 'reporte-juego' },
+      el('h3', {}, `${g.puesto}. ${j.nombre}`),
+      el('div', { class: 'wbr-scroll' }, el('table', { class: 'wbr' },
+        el('thead', {}, el('tr', {}, el('th', {}, ''), ...r.columnas.map(c => el('th', {}, c)))),
+        el('tbody', {}, ...j.metricas.map(m => { const [nombre, kind] = nombreMetrica[m]; return el('tr', {}, el('th', {}, nombre),
+          ...j.filas[m].map((v, i) => el('td', { class: i === k ? 'wbr-ahora' : null }, i === k ? el('b', {}, fmt(v, kind)) : fmt(v, kind)))); })))));
+  });
+  return [...cabeza,
+    el('h3', {}, 'Ranking'),
+    el('p', { class: 'muted small' }, `Change against the week before. Share: of all games finished. Browsers: those that finished it at least once (n/a before D-590's count). Finished of started: games finished over games started.`),
+    ranking,
+    el('h3', {}, 'By game'),
+    el('p', { class: 'muted small' }, 'Turn a game on to see its key metrics week by week. Its card leaves out a metric that is zero in every week (no rooms for a solo game).'),
+    toggles,
+    ...(tarjetas.length ? tarjetas : [el('p', { class: 'empty' }, 'Turn a game on above.')]),
+    ...(k ? [el('p', { class: 'muted small' }, `* Partial: the week so far, to ${wbrDay(actual.to).replace(/, \d{4}$/, '')}.`)] : []),
+  ];
+}
+
 function vistaSalud(now) {
   const rango = rangeOf(S.range);
   const s = salud(ptDays(), { from: rango.from, to: rango.to });
@@ -2235,6 +2299,7 @@ function vistaCampanas(now) {
 const SECCION = {
   resumen: ['📊', 'Summary'],
   wbr: ['📋', 'WBR'],
+  reporte: ['🎮', 'Games'],
   timeline: ['🕑', 'Timeline'],
   grupo: ['👥', 'Group'],
   individuales: ['🧍', 'Individual'],
@@ -2318,7 +2383,7 @@ function vistaLlaves(now) {
  * A computer keeps the whole column.
  */
 const NAV_TABS = ['resumen', 'wbr', 'timeline', 'feedback'];
-const NAV_GROUPS = [['Players', ['grupo', 'individuales', 'usuarios']], ['Games', ['torneo', 'unoaldia']], ['Owner', ['trafico', 'pantallas', 'salud', 'campanas', 'llaves', 'labs']]];
+const NAV_GROUPS = [['Players', ['grupo', 'individuales', 'usuarios']], ['Games', ['reporte', 'torneo', 'unoaldia']], ['Owner', ['trafico', 'pantallas', 'salud', 'campanas', 'llaves', 'labs']]];
 // Every section is on the bar or under ☰ More: one left out of both could not be reached on a phone
 for (const sec of SECCIONES) if (!NAV_TABS.includes(sec) && !NAV_GROUPS.some(([, secs]) => secs.includes(sec))) console.error(`panel: ${sec} is neither a tab nor under More`);
 flag('panel-nav-more').then(on => { S.navMore = on; if (S.user) render(); }).catch(() => {});
@@ -2408,7 +2473,7 @@ function render() {
   MARCAS = versiones(S.days);
   const { sec, args } = S.ruta;
   // The WBR has its own weeks: the range picker would only mislead there
-  const rangoLabel = $('#range')?.closest('label'); if (rangoLabel) rangoLabel.hidden = sec === 'wbr';
+  const rangoLabel = $('#range')?.closest('label'); if (rangoLabel) rangoLabel.hidden = sec === 'wbr' || sec === 'reporte';
   let nodos;
   if (sec === 'torneo' && args[0]) nodos = vistaFichaCopa(args[0].toUpperCase(), now);
   else if (sec === 'torneo') nodos = vistaCopa(now);
@@ -2423,6 +2488,7 @@ function render() {
   else if (sec === 'salud') nodos = vistaSalud(now);
   else if (sec === 'pantallas') nodos = vistaPantallas(now);
   else if (sec === 'wbr') nodos = vistaWbr(now);
+  else if (sec === 'reporte') nodos = vistaReporte(now);
   else if (sec === 'timeline') nodos = vistaTimeline(now);
   else if (sec === 'feedback') nodos = vistaFeedback(now);
   else if (sec === 'campanas') nodos = vistaCampanas(now);
@@ -2481,6 +2547,7 @@ function alCambiarRuta() {
   const otra = antes.sec !== S.ruta.sec || antes.args.join('/') !== S.ruta.args.join('/');
   // A WBR week further back than what is downloaded asks for it (D-80)
   if (S.ruta.sec === 'wbr' && S.user && S.desdeDia !== null && trendStart(weekOf(S.ruta.args[0])) - 1 < S.desdeDia) { S.daysLoaded = false; listen(); }
+  if (S.ruta.sec === 'reporte' && S.user && S.desdeDia !== null && reportStart(weekOf(S.ruta.args[0])) - 1 < S.desdeDia) { S.daysLoaded = false; listen(); }
   if (otra) {
     S.logPage = 1; S.sinRedTodas = false; S.erroresTodos = false; S.tlPeriod = null; S.tlAll = false;
     if (S.ruta.args[0] !== antes.args[0]) S.fichaTab = 'tabla';

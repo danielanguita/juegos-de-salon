@@ -115,7 +115,7 @@ const inicioMes = (d, atras = 0) => { const f = new Date(d * DAY); return Date.U
 const mesCorto = d => new Date(d * DAY).toLocaleDateString('en-US', { timeZone: 'UTC', month: 'short' });
 /** A week as short as a column allows: "Nov 15–19", or "Oct 26–Nov 1" across two months. */
 const sinAno = d => fechaDia(d).replace(/, \d{4}$/, '');
-const rangoTxt = ({ from, to }) => (mesCorto(from) === mesCorto(to) ? `${sinAno(from)}–${sinAno(to).replace(/^\D+/, '')}` : `${sinAno(from)}–${sinAno(to)}`);
+export const weekRange = ({ from, to }) => (mesCorto(from) === mesCorto(to) ? `${sinAno(from)}–${sinAno(to).replace(/^\D+/, '')}` : `${sinAno(from)}–${sinAno(to)}`);
 /** A game's versions read as one (Bulls and Cows: Word is Bulls and Cows); its modes already split off by `:`. */
 const VERSIONES = { letras: 'toque-y-fama', numero: 'toque-y-fama' };
 export const baseGame = id => { const b = String(id).split(/:| · /)[0]; return VERSIONES[b] || b; };
@@ -133,7 +133,7 @@ export const baseGame = id => { const b = String(id).split(/:| · /)[0]; return 
 export function trend({ days = {}, torneos = {}, flags = {} } = {}, w, { actual = null } = {}) {
   // The panel's WBR puts the week in progress first (partial); every comparison still reads the closed week, at `k`
   const k = actual ? 1 : 0;
-  const cols = [...(actual ? [{ from: actual.from, to: actual.to, titulo: `${rangoTxt(actual)}*`, semana: true }] : []), ...[0, 1, 2, 3, 4].map(i => ({ from: w.from - 7 * i, to: w.to - 7 * i, titulo: rangoTxt({ from: w.from - 7 * i, to: w.to - 7 * i }), semana: true }))];
+  const cols = [...(actual ? [{ from: actual.from, to: actual.to, titulo: `${weekRange(actual)}*`, semana: true }] : []), ...[0, 1, 2, 3, 4].map(i => ({ from: w.from - 7 * i, to: w.to - 7 * i, titulo: weekRange({ from: w.from - 7 * i, to: w.to - 7 * i }), semana: true }))];
   for (const atras of [0, 1, 2]) {
     const from = inicioMes(w.to, atras), to = atras ? inicioMes(w.to, atras - 1) - 1 : w.to;
     cols.push({ from, to, titulo: atras ? mesCorto(from) : `${mesCorto(from)}*`, semana: false });

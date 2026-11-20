@@ -4,6 +4,7 @@
  *
  *   #/summary                    the analyst's front page: each domain's headline, against the period before (D-348)
  *   #/wbr                        the Weekly Business Review: the closed week's trend; #/wbr/2026-11-14 for the week ending that Saturday
+ *   #/game-report                the report by game: games ranked by games finished in the week, and each one's weekly metrics; #/game-report/2026-11-14 for that week
  *   #/now                        lo que está pasando (part of Summary)
  *   #/timeline                   the key events, one by one: games finished, cups, feedback (D-408)
  *   #/feedback                   every player message in full, who sent it, its issue and the PRs that fix it
@@ -30,7 +31,7 @@
 import { slugDe, idDeSlug } from '../assets/js/games.js';
 
 /** Las secciones, en el orden de la navegación. La primera es la que abre el panel. */
-export const SECCIONES = ['resumen', 'wbr', 'timeline', 'grupo', 'individuales', 'torneo', 'unoaldia', 'usuarios', 'trafico', 'pantallas', 'salud', 'feedback', 'campanas', 'llaves'];
+export const SECCIONES = ['resumen', 'wbr', 'reporte', 'timeline', 'grupo', 'individuales', 'torneo', 'unoaldia', 'usuarios', 'trafico', 'pantallas', 'salud', 'feedback', 'campanas', 'llaves'];
 
 /** A qué sección pertenece cada ficha: es la que queda marcada en la navegación. */
 const FICHAS = { juego: 'grupo', sala: 'grupo' };
@@ -40,7 +41,7 @@ const SUELTAS = { ahora: 'resumen' };
 
 /** Cómo se escribe cada sección en la URL (D-266). */
 const EN_URL = {
-  resumen: 'summary', wbr: 'wbr', timeline: 'timeline', ahora: 'now', grupo: 'group', individuales: 'individual', torneo: 'cup', unoaldia: 'daily',
+  resumen: 'summary', wbr: 'wbr', reporte: 'game-report', timeline: 'timeline', ahora: 'now', grupo: 'group', individuales: 'individual', torneo: 'cup', unoaldia: 'daily',
   usuarios: 'users', trafico: 'traffic', pantallas: 'screens', salud: 'health', feedback: 'feedback', campanas: 'campaigns', llaves: 'lab-keys', juego: 'game', sala: 'room',
 };
 /** The sections before D-348 open the one that took their place. */
