@@ -647,7 +647,7 @@ export const PATHS = {
    */
   panel: {
     ...Object.fromEntries([['data', '/users'], ['now', '/now'], ['summary', '/summary'], ['timeline', '/timeline'], ['tournament', '/cup'], ['games', '/group'], ['group', '/group'], ['individual', '/individual'], ['daily', '/daily'], ['users', '/users'], ['audience', '/users'],
-      ['cup-card', '/cup/OFICI'], ['game-card', '/game/liars-dice'], ['room-card', '/room/CPSV'], ['traffic', '/traffic'], ['screens', '/screens'], ['health', '/health'], ['wbr', '/wbr'], ['campaigns', '/campaigns'], ['feedback', '/feedback']].map(([shot, view]) => [shot, [SEED_PANEL(view)]])),
+      ['cup-card', '/cup/OFICI'], ['game-card', '/game/liars-dice'], ['room-card', '/room/CPSV'], ['traffic', '/traffic'], ['screens', '/screens'], ['health', '/health'], ['wbr', '/wbr'], ['game-report', '/game-report'], ['campaigns', '/campaigns'], ['feedback', '/feedback']].map(([shot, view]) => [shot, [SEED_PANEL(view)]])),
     // 📣 Campaigns' other two tabs (D-477)
     ...Object.fromEntries([['campaigns-features', 1], ['campaigns-skins', 2]].map(([shot, i]) => [shot, [SEED_PANEL('/campaigns'), `document.querySelectorAll('.campanas-tabs button')[${i}].click()`]])),
     // A splash card's Quick look, opened
@@ -656,6 +656,8 @@ export const PATHS = {
     'campaigns-link': [SEED_PANEL('/campaigns/splash/stack-pronto')],
     // A campaign's end day being edited: the field sits under its label, the old value hidden
     'campaigns-date-focus': [SEED_PANEL('/campaigns'), `1`, `1`, `const i = document.querySelector('.campana-dia:last-of-type input'); i.scrollIntoView({block:'center'}); i.focus(); 1`],
+    // 🎮 Games: a second game's toggle turned on, its weekly card in view
+    'game-report-card': [SEED_PANEL('/game-report'), `1`, `document.querySelectorAll('.chips button')[1].click()`, `document.querySelectorAll('.reporte-juego')[1]?.scrollIntoView({block:'start'}); 1`],
     // The other two tabs of a cup's card (D-207)
     'cup-days': [SEED_PANEL('/cup/OFICI'), `[...document.querySelectorAll('.subtabs button')][1].click()`],
     'cup-history': [SEED_PANEL('/cup/OFICI'), `[...document.querySelectorAll('.subtabs button')][2].click()`],

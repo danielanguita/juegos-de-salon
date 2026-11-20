@@ -537,3 +537,7 @@ table.pant .num { text-align: right; white-space: nowrap; }
 table.pant .pant-barra { display: inline-block; height: 0.6em; vertical-align: middle; }
 table.pant tr.pant-raro { opacity: 0.45; }
 table.pant-cruce td { text-align: center; }
+/* 🎮 Games, the report by game: the trend reads as one line, and each game's card sits apart */
+table.wbr td.reporte-spark { font-family: ui-monospace, monospace; letter-spacing: 1px; text-align: left; }
+.reporte-juego { margin: var(--s-12) 0 0; }
+.reporte-juego h3 { margin: 0 0 var(--s-8); }
