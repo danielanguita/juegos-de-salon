@@ -120,12 +120,12 @@ test('active browsers by game: real from the counter (D-590), an estimate before
   const t = tendencia({ days }, w), u = t.usuariosJuego;
   assert.deepEqual(u.filas.map(f => f.juego.replace(/^\S+ /, '')), ['Tango', 'Zip'], 'by the closed week, most first; a lab game out');
   const tango = u.filas[0];
-  assert.deepEqual(tango.valores.slice(0, 2), [2, 2], 'real: 2 distinct browsers; the week before, 2 that played × 3/4 of the games finished');
+  assert.deepEqual(tango.valores.slice(0, 2), [2, 1.5], 'real: 2 distinct browsers; the week before, 2 that started a game × 3/4 of the games finished, one decimal');
   assert.equal(tango.valores[2], null, 'no browsers measured yet');
   assert.equal(tango.cambio, null, 'real against an estimate is not compared');
-  assert.deepEqual(u.filas[1].valores.slice(0, 2), [1, 1]);
+  assert.deepEqual(u.filas[1].valores.slice(0, 2), [1, 0.5], 'an estimate under one browser keeps its decimal');
   assert.deepEqual(u.estimado.slice(0, 3), [false, true, false]);
-  assert.equal(tango.valores[5], 2, 'November so far: the average of its full weeks (Nov 1–7 and Nov 8–14)');
+  assert.equal(tango.valores[5], 1.8, 'November so far: the average of its full weeks (2 and 1.5), one decimal');
   assert.equal(u.estimado[5], true, 'a month with an estimated week is an estimate');
   assert.equal(u.desdeReal, 'Nov 8, 2026');
   // Started (1 or 2) as well: Tango 3, Generala 2 that nobody finished

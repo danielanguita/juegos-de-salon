@@ -226,8 +226,8 @@ export function trend({ days = {}, torneos = {}, flags = {} } = {}, w, { actual 
     const tot = Object.values(n).reduce((a, v) => a + v, 0);
     return { por: Object.fromEntries(Object.entries(n).map(([b, x]) => [b, tot ? (act * x) / tot : 0])), real: false };
   };
-  // A game someone played never reads 0: a share under one browser shows as 1
-  const redondo = v => (v > 0 ? Math.max(1, Math.round(v)) : 0);
+  // One decimal: an estimate or a month's average is rarely whole (a real week always is)
+  const redondo = v => Math.round(v * 10) / 10;
   const tablaUsuarios = nivel => {
     const porCol = cols.map(c => {
       if (c.semana) return semanaUsuarios(c, nivel);
