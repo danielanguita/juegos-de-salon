@@ -736,6 +736,16 @@
                 }
               }
             },
+            "juegosPt": {
+              "$pday": {
+                "$game": {
+                  "$id": {
+                    ".write": "$env.matches(/^[a-z]{2,10}$/) && $day.matches(/^[0-9]{5}$/) && $pday.matches(/^[0-9]{5}$/) && $game.matches(/^[a-z0-9-]{1,40}$/) && $id.matches(/^[a-z0-9]{10}$/)",
+                    ".validate": "newData.isNumber() && (newData.val() == 1 || newData.val() == 2) && (!data.exists() || newData.val() >= data.val())"
+                  }
+                }
+              }
+            },
             "entradasPt": {
               "$pday": {
                 "$entrada": {

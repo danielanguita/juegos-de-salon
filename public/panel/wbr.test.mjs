@@ -15,8 +15,9 @@ assert.match(highlights({ cerrada: 1, metricas: [{ valores: [9, 574, 494], cambi
 assert.equal(isoDay(trendStart(w)), '2026-09-01', 'two months back, from the first');
 const h = highlights({ metricas: [{ valores: [574, 494], cambio: 16 }], juegos: [{ juego: 'Flap', valores: [186], nuevo: 'Nov 9, 2026' }, { juego: 'Shinobi', valores: [176] }] });
 assert.equal(h[0], 'Games finished rose 16% (574 vs. 494).');
-assert.match(h[1], /Flap \(186 games finished\), then Shinobi \(176\)/);
+assert.match(h[1], /Most finished: Flap \(186 games finished\), then Shinobi \(176\)/);
 assert.match(h[2], /Flap \(out Nov 9\)/);
+assert.match(highlights({ metricas: [], juegos: [], sinTerminar: [{ juego: 'Zip', empiezan: 4, columna: 'Nov 15–18*' }] })[0], /Zip: 4 browsers started it in Nov 15–18\* and none finished it/, 'a game started and never finished is flagged');
 // Pacific dates (D-561)
 const D = Math.floor(Date.parse('2026-11-15T00:00:00Z') / 864e5), H = 3600e3;
 assert.equal(pacificDay(Date.parse('2026-11-15T07:59:00Z')), D - 1, 'PST: before 08:00 UTC it is still the 14th');
