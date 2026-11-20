@@ -98,7 +98,8 @@ export function gameReport({ days = {}, torneos = {}, flags = {} } = {}, w, { ac
     const valores = {
       terminadas: i => enCol(i, x => x.terminadas),
       empezadas: i => enCol(i, x => x.empezadas),
-      completan: i => enCol(i, x => pct(Math.min(x.terminadas, x.empezadas), x.empezadas)),
+      // More finished than started means a start went uncounted: n/a rather than a 100% that hides it
+      completan: i => enCol(i, x => (x.terminadas > x.empezadas ? null : pct(x.terminadas, x.empezadas))),
       jugadores: i => enCol(i, (x, c) => (real(c) ? x.jugadores.size : null)),
       empiezan: i => enCol(i, (x, c) => (real(c) ? x.empiezan.size : null)),
       porJugador: i => enCol(i, (x, c) => (real(c) ? dec(x.terminadas, x.jugadores.size) : null)),

@@ -24,7 +24,7 @@ const days = {
   // The count by game covers the closed week from its Sunday
   [w.from]: { jugadores: { dudo: { u2: 1 } } },
   [D - 7]: { local: { dudo: { local: { 4: 2 } } }, fin: { dudo: { local: 2 } } },
-  [actual.to]: { local: { ahorcado: { solo: { 1: 3 } } }, fin: { ahorcado: { solo: 3 } } },
+  [actual.to]: { local: { ahorcado: { solo: { 1: 2 } } }, fin: { ahorcado: { solo: 3 } } },
 };
 const r = gameReport({ days }, w, { actual });
 assert.equal(r.columnas.length, 9, 'the week in progress and eight closed ones');
@@ -42,6 +42,7 @@ assert.equal(dudo.tendencia.slice(-2), '▅█', 'oldest first, the closed week 
 const f = r.juegos.dudo.filas;
 assert.equal(f.empezadas[1], 5, 'four on one phone and the room with a rival');
 assert.equal(f.completan[1], 80);
+assert.equal(r.juegos.ahorcado.filas.completan[0], null, 'more finished than started: n/a, not a capped 100%');
 assert.equal(f.jugadores[1], 1, 'browsers that finished it');
 assert.equal(f.empiezan[1], 2, 'and those that started it');
 assert.equal(f.porJugador[1], 4);
