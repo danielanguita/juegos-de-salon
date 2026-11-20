@@ -134,8 +134,10 @@ export function trend({ days = {}, torneos = {}, flags = {} } = {}, w, { actual 
   // The panel's WBR puts the week in progress first (partial); every comparison still reads the closed week, at `k`
   const k = actual ? 1 : 0;
   const cols = [...(actual ? [{ from: actual.from, to: actual.to, titulo: `${weekRange(actual)}*`, semana: true }] : []), ...[0, 1, 2, 3, 4].map(i => ({ from: w.from - 7 * i, to: w.to - 7 * i, titulo: weekRange({ from: w.from - 7 * i, to: w.to - 7 * i }), semana: true }))];
+  // The month so far ends with the newest column: today when the week in progress shows, else the closed week's Saturday
+  const hasta = actual ? actual.to : w.to;
   for (const atras of [0, 1, 2]) {
-    const from = inicioMes(w.to, atras), to = atras ? inicioMes(w.to, atras - 1) - 1 : w.to;
+    const from = inicioMes(hasta, atras), to = atras ? inicioMes(hasta, atras - 1) - 1 : hasta;
     cols.push({ from, to, titulo: atras ? mesCorto(from) : `${mesCorto(from)}*`, semana: false });
   }
   const dias = Object.keys(days).map(Number).filter(Number.isFinite);
@@ -259,7 +261,7 @@ export function trend({ days = {}, torneos = {}, flags = {} } = {}, w, { actual 
     for (const f of usuariosEmpiezan.filas) if (f.valores[i] >= 2 && !fin[f.id] && !sinTerminar.some(x => x.id === f.id)) sinTerminar.push({ id: f.id, juego: f.juego, empiezan: f.valores[i], columna: cols[i].titulo });
   }
   // The * columns, said once under the tables
-  const leyenda = `* Partial: ${actual ? `the week so far (to ${sinAno(actual.to)}) and ` : ''}the month up to ${sinAno(w.to)}.`;
+  const leyenda = `* Partial: ${actual ? `the week so far (to ${sinAno(actual.to)}) and ` : ''}the month up to ${sinAno(hasta)}.`;
   return { columnas: cols.map(c => c.titulo), metricas, juegos, totales, usuariosJuego, usuariosEmpiezan, sinTerminar, cerrada: k, leyenda };
 }
 
