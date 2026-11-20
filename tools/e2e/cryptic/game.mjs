@@ -21,6 +21,18 @@ ok(/\(\d+(,\d+)*\)$/.test(await b.evaluate("document.getElementById('clue').text
 const answer = await b.evaluate('window.__cryptic.answer()');
 const n = answer.normalize('NFD').replace(/[̀-ͯ]/g, '').length;
 ok(await b.evaluate("document.querySelectorAll('#tiles .tile').length") === n, 'one box per letter');
+// One row, always (the owner): the longest answer of the bank fits the card without wrapping or overflowing
+{
+  const longest = await b.evaluate("(() => { const a = window.__cryptic.bank(); let i = 0; a.forEach((w, k) => { if (w.length > a[i].length) i = k; }); return i; })()");
+  const back = await b.evaluate('JSON.stringify(window.__cryptic.state())');
+  await b.evaluate(`window.__cryptic.practice(${longest}); 1`); await sleep(200);
+  const row = await b.evaluate(`(() => { const t = [...document.querySelectorAll('#tiles .tile')], card = document.querySelector('.clue-card').getBoundingClientRect();
+    return { one: new Set(t.map(x => Math.round(x.getBoundingClientRect().top))).size === 1, inside: t.every(x => { const r = x.getBoundingClientRect(); return r.left >= card.left && r.right <= card.right; }),
+      fits: t.every(x => x.scrollWidth <= x.clientWidth + 1), n: t.length }; })()`);
+  ok(row.one && row.inside && row.fits, `the longest answer (${row.n} letters) stays on one row inside the card`);
+  await b.shot('longest');
+  await b.go(SITE + '/labs/cryptic/'); await b.evaluate("document.querySelector('#btn-play').click(); 1"); await sleep(300);
+}
 // The player types straight into the boxes (the owner, 2026-11-19): a real tap on them, real keystrokes
 const box = await b.evaluate("(() => { const r = document.querySelector('#tiles .tile').getBoundingClientRect(); return [r.x + r.width / 2, r.y + r.height / 2]; })()");
 await b.tap(...box);
