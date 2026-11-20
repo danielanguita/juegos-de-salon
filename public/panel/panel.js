@@ -1738,7 +1738,7 @@ function frase(e) {
     case 'cup-end': return [[...copaTxt(e.cup), ' finished: ', e.tie ? 'tied at the top, ' : '🏆 ', quien(e.who[0].name, e.who[0].co), e.tie ? ' among them' : ' won'], e.detail];
     case 'feedback': return [[...quienes(e.who), ` sent ${FEEDBACK_TIPO[e.tipo] || 'feedback'}`, e.tester ? el('span', { class: 'tag' }, 'lab') : null],
       `“${e.text.length > 160 ? `${e.text.slice(0, 157)}…` : e.text}”`];
-    case 'campaign': return [[...quienes(e.who), e.campaign === 'support' ? ' opened ' : ' saw the campaign ', campanaTxt(e.campaign)], e.times > 1 ? `${e.times} times in a row` : ''];
+    case 'campaign': return [[...quienes(e.who), e.campaign === 'support' ? ' opened ' : ' saw the campaign ', campanaTxt(e.campaign)], e.times > 1 ? (e.anon ? `${e.times} views without a name within 2 minutes (could be different people)` : `${e.times} times in a row`) : ''];
     default: return [[e.kind], ''];
   }
 }
