@@ -453,7 +453,7 @@ stats/prod/days/20342/
   activos/k3j9x0q2ab: 2                a browser's random id: 1 visited, 2 started something (D-349)
   activosPt/20773/k3j9x0q2ab: 2        the same, under the Pacific date (day number) of the moment (D-561)
   entradasPt/20773/cup: 4              first pages of a visit, under the Pacific date (D-561)
-  juegosPt/20773/toque-y-fama/k3j9x0q2ab: 1   this browser started that game that Pacific day, once (D-590)
+  juegosPt/20773/toque-y-fama/k3j9x0q2ab: 1   this browser finished that game that Pacific day, once (D-590)
   support/open: 1                      ☕ Buy me a coffee, by step: shown, open, pay, thanks (D-448, in the lab)
   splash/brindis-apoyo/reach: 4        splash windows, by campaign and event (D-461)
 stats/prod/push: { vuelta, vivas, torneos }   notify.mjs's last run and how many subscriptions are still alive

@@ -48,7 +48,7 @@
  *                        this browser, never tied to a name, an IP or anything else (D-349, amends D-44)
  *   activosPt/<pacific day>/<id>, entradasPt/<pacific day>/<page>: the same as `activos/` and
  *                        `entradas/`, filed under the Pacific date of the moment (D-561)
- *   juegosPt/<pacific day>/<game>/<id>: 1, this browser started that game that Pacific day, once
+ *   juegosPt/<pacific day>/<game>/<id>: 1, this browser finished that game that Pacific day, once
  *                        per game and day: the panel's active browsers by game (D-590, amends D-349)
  *
  * Written by other modules into the same day: `support/<event>` (support.js, D-448) and
@@ -561,7 +561,6 @@ export function trackStart(info) {
     if (esEnVivo(info?.mode)) pararVivo = startLive(s.api, s.fp, { ...info, name, origin: origenPagina });
     notePlayed(s.api, s.fp);
     noteActive(s.api, s.fp, { level: 2 });
-    noteGameActive(s.api, s.fp, { game: info?.game });
     noteSplashStep('start');
     return noteStart(s.api, s.fp, info);
   } catch (_) { return Promise.resolve(); }
@@ -775,6 +774,8 @@ export function trackVisit() {
 export function trackFinish(info) {
   try { backGuard().disarm(); } catch (_) { /* the guard never stops the signal */ }
   try {
+    // This browser finished this game today (D-590): La Copa's days too, which keep no live game
+    if (anterior?.game) { const st = stats(); noteGameActive(st.api, st.fp, { game: anterior.game }); }
     const p = pararVivo;
     if (!p?.terminar) return Promise.resolve();
     pararVivo = null;
@@ -880,7 +881,7 @@ export function activeChange({ level, local = globalThis.localStorage, now = Dat
 }
 
 /**
- * `juegosPt/<pacific day>/<game>/<id>` = 1 (D-590): this browser started this game today, once per
+ * `juegosPt/<pacific day>/<game>/<id>` = 1 (D-590): this browser finished this game today, once per
  * game and Pacific day, with the same random id as `activos/` and nothing else. Empty when already
  * written today, without storage, or without a game.
  */

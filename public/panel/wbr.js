@@ -198,7 +198,7 @@ export function trend({ days = {}, torneos = {}, flags = {} } = {}, w, { actual 
     cambio: total[k + 1] ? variacion(total[k], total[k + 1]) : null,
     top10: total.map((t, i) => (t ? Math.round((juegos.reduce((a, g) => a + (g.valores[i] || 0), 0) / t) * 1000) / 10 : null)),
   };
-  // Active browsers by game, week by week (D-590): real (distinct ids in `jugadores/`) where that
+  // Active browsers by game, week by week (D-590): real (distinct ids that finished it, `jugadores/`) where that
   // counter covers the whole week; before it, an estimate: the browsers that played that week split
   // by each game's share of the games finished (it undercounts: one browser plays several games). A month is the average of its full weeks (Sunday to Saturday).
   const conJugadores = dias.filter(d => days[d]?.jugadores && Object.keys(days[d].jugadores).length);
