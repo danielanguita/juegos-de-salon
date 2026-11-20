@@ -15,7 +15,7 @@ import { disposeRoom } from './dispose.js';
 import { claimSeat } from './seat.js';
 import { CONNECT_MS, LEAVE_MS, OP_MS, waitConnected, withTimeout } from './errors.js';
 import { checkQuota, noteCreated } from './ratelimit.js';
-import { stats, noteRoom as recordRoom, notePlayer as recordPlayer, noteStart as recordStart, noteEnd as recordEnd } from './stats.js';
+import { stats, noteRoom as recordRoom, notePlayer as recordPlayer, noteStart as recordStart, noteEnd as recordEnd, noteGameActive } from './stats.js';
 
 /** Código de sala: 4 letras mayúsculas sin las ambiguas (I, O). */
 export function randomRoomCode() {
@@ -229,6 +229,8 @@ export function createFirebaseTransport({ game, maxPlayers = 2 }) {
         if (!this.code || !this.createdAt) return;
         const { api, fp } = stats();
         recordEnd(api, fp, { code: this.code, createdAt: this.createdAt, role, name });
+        // Every phone in the room sees the end: each notes it finished this game today (D-590)
+        noteGameActive(api, fp, { game, level: 2 });
       } catch (_) { /* nada */ }
     },
 

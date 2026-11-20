@@ -81,7 +81,7 @@ test('the trend: five weeks and three months, games finished, versions merged, l
   assert.equal(tango.valores[2], null, 'n/a before the game was first seen');
   assert.equal(t.metricas.find(m => m.nombre === 'Active browsers').valores[1], null, 'n/a before the counter existed');
   assert.equal(t.metricas.find(m => m.nombre === 'Daily active browsers (average)').valores[0], 1);
-  assert.equal(t.metricas.find(m => m.nombre === 'Games per active browser').valores[0], 75, 'all 75 games started (as in the headline) by 1 active browser');
+  assert.equal(t.metricas.find(m => m.nombre === 'Games started per active browser').valores[0], 75, 'all 75 games started (as in the headline) by 1 active browser');
 });
 
 test('the panel: the week in progress first, partial, every comparison still on the closed week', () => {
@@ -107,6 +107,31 @@ test('the panel: the week in progress first, partial, every comparison still on 
   assert.deepEqual(t.totales.valores.slice(0, 3), [32, 5, 4], 'every public game, Zip too');
   assert.equal(t.totales.cambio, 25);
   assert.deepEqual(t.totales.top10.slice(0, 3), [6.3, 100, 100], 'the closed week\'s ten, 2 of 32 in the partial week');
+});
+
+test('active browsers by game: real from the counter (D-590), an estimate before it, months the average of their weeks', () => {
+  const w = semanaCerrada(Date.parse('2026-11-15T12:00:00Z'));
+  const days = {
+    [w.from]: { activos: { aaaaaaaaaa: 2, bbbbbbbbbb: 2, cccccccccc: 1 }, local: { tango: { solo: { 1: 3 } }, zip: { solo: { 1: 1 } } }, fin: { tango: { solo: 3 }, zip: { solo: 1 } },
+      jugadores: { tango: { aaaaaaaaaa: 2, bbbbbbbbbb: 2, cccccccccc: 1 }, zip: { aaaaaaaaaa: 2 }, 'no-publico': { cccccccccc: 2 }, generala: { aaaaaaaaaa: 1, bbbbbbbbbb: 1 } } },
+    [w.from + 2]: { jugadores: { tango: { aaaaaaaaaa: 2 } } },
+    [w.from - 7]: { activos: { aaaaaaaaaa: 2, bbbbbbbbbb: 2, dddddddddd: 1 }, local: { tango: { solo: { 1: 3 } }, zip: { solo: { 1: 1 } } }, fin: { tango: { solo: 3 }, zip: { solo: 1 } } },
+  };
+  const t = tendencia({ days }, w), u = t.usuariosJuego;
+  assert.deepEqual(u.filas.map(f => f.juego.replace(/^\S+ /, '')), ['Tango', 'Zip'], 'by the closed week, most first; a lab game out');
+  const tango = u.filas[0];
+  assert.deepEqual(tango.valores.slice(0, 2), [2, 1.5], 'real: 2 distinct browsers; the week before, 2 that started a game × 3/4 of the games finished, one decimal');
+  assert.equal(tango.valores[2], null, 'no browsers measured yet');
+  assert.equal(tango.cambio, null, 'real against an estimate is not compared');
+  assert.deepEqual(u.filas[1].valores.slice(0, 2), [1, 0.5], 'an estimate under one browser keeps its decimal');
+  assert.deepEqual(u.estimado.slice(0, 3), [false, true, false]);
+  assert.equal(tango.valores[5], 1.8, 'November so far: the average of its full weeks (2 and 1.5), one decimal');
+  assert.equal(u.estimado[5], true, 'a month with an estimated week is an estimate');
+  assert.equal(u.desdeReal, 'Nov 8, 2026');
+  // Started (1 or 2) as well: Tango 3, Generala 2 that nobody finished
+  const emp = Object.fromEntries(t.usuariosEmpiezan.filas.map(f => [f.juego.replace(/^\S+ /, ''), f.valores[0]]));
+  assert.deepEqual(emp, { Tango: 3, Generala: 2, Zip: 1 });
+  assert.deepEqual(t.sinTerminar.map(g => [g.juego.replace(/^\S+ /, ''), g.empiezan]), [['Generala', 2]], 'started by 2 browsers, finished by none: flagged');
 });
 
 console.log(`reports/weekly-data: ${n} tests OK`);

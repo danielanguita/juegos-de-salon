@@ -1386,13 +1386,15 @@ function vistaWbr(now) {
   const actual = w.to === weekOf(null, now).to ? currentWeek(now) : null;
   if (memoTrend.days !== dias || memoTrend.copas !== copas || memoTrend.flags !== flags || memoTrend.to !== w.to || memoTrend.hoy !== actual?.to) memoTrend = { days: dias, copas, flags, to: w.to, hoy: actual?.to, out: trend({ days: dias, torneos: copas, flags }, w, { actual }) };
   const t = memoTrend.out, k = t.cerrada;
-  const fmt = (v, dec) => (v === null ? 'n/a' : dec === '%' ? `${v.toLocaleString(LOCALE, { maximumFractionDigits: 1 })}%` : dec ? v.toFixed(1) : n(v));
+  const fmt = (v, dec) => (v === null ? 'n/a' : dec === 'auto' ? (Number.isInteger(v) ? n(v) : v.toLocaleString(LOCALE, { minimumFractionDigits: 1, maximumFractionDigits: 1 })) : dec === '%' ? `${v.toLocaleString(LOCALE, { maximumFractionDigits: 1 })}%` : dec ? v.toFixed(1) : n(v));
   const cambioTxt = c => (c === null || c === undefined ? '' : ` (${c > 0 ? '+' : c < 0 ? '−' : '±'}${Math.abs(c)}%)`);
   const tabla = (filas, cabezaCol) => el('div', { class: 'wbr-scroll' }, el('table', { class: 'wbr' },
     el('thead', {}, el('tr', {}, el('th', {}, cabezaCol), ...t.columnas.map((c, i) => el('th', { class: i === 5 + k ? 'wbr-mes' : null }, c)))),
-    el('tbody', {}, ...filas.map(([nombre, valores, cambio, dec, clase]) => el('tr', { class: clase || null }, el('th', {}, nombre),
-      ...valores.map((v, i) => el('td', { class: [i === k ? 'wbr-ahora' : '', i === 5 + k ? 'wbr-mes' : ''].filter(Boolean).join(' ') || null },
-        i === k && v !== null ? [el('b', {}, fmt(v, dec)), cambioTxt(cambio)] : fmt(v, dec))))))));
+    el('tbody', {}, ...filas.map(([nombre, valores, cambio, dec, clase, est]) => el('tr', { class: clase || null }, el('th', {}, nombre),
+      ...valores.map((v, i) => { const x = `${est?.[i] && v !== null ? '~' : ''}${fmt(v, dec)}`; return el('td', { class: [i === k ? 'wbr-ahora' : '', i === 5 + k ? 'wbr-mes' : ''].filter(Boolean).join(' ') || null },
+        i === k && v !== null ? [el('b', {}, x), cambioTxt(cambio)] : x); }))))));
+  const u = t.usuariosJuego;
+  const desdeConteo = u.desdeReal ? `the count by game began (${u.desdeReal.replace(/, \d{4}$/, '')}, D-590)` : 'the count by game began (D-590)';
   return [...cabeza,
     el('ul', { class: 'wbr-destacados' }, ...highlights(t).map(x => el('li', {}, x))),
     el('h3', {}, 'Headline'),
@@ -1401,7 +1403,10 @@ function vistaWbr(now) {
     el('h3', {}, 'Top 10 games'),
     el('p', { class: 'muted small' }, 'Games finished, as in the headline; every mode and version, La Copa included. n/a: not measured yet, or the game was not out yet. The last two rows: games finished across every public game, and the share of them these ten take.'),
     tabla([...t.juegos.map((g, i) => [`${i + 1}. ${g.juego}${g.nuevo ? ` (out ${g.nuevo.replace(/, \d{4}$/, '')})` : ''}`, g.valores, g.cambio]),
-      ['Total games finished', t.totales.valores, t.totales.cambio, false, 'wbr-total'], ['Top 10 share of the total', t.totales.top10, null, '%']], 'Game'),
+      ['Total games finished', t.totales.valores, t.totales.cambio, false, 'wbr-total'], ['Top 10 share of games finished', t.totales.top10, null, '%']], 'Game'),
+    el('h3', {}, 'Weekly active users by game'),
+    el('p', { class: 'muted small' }, `Browsers that finished each game at least once in the week; a month is the average of its full weeks (Sunday to Saturday). Sorted by the closed week, most first. ~ estimated: before ${desdeConteo}, the browsers that started a game that week split by each game's share of the games finished; it reads low, since one browser plays several games.`),
+    u.filas.length ? tabla(u.filas.map(f => [f.juego, f.valores, f.cambio, 'auto', null, u.estimado]), 'Game') : el('p', { class: 'empty' }, 'No browsers measured in this week yet.'),
   ];
 }
 

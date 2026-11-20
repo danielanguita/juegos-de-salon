@@ -49,8 +49,8 @@ export function destacados(r) {
   if (norte.cambio !== null && norte.cambio !== 0) out.push(`Games finished ${norte.cambio > 0 ? 'rose' : 'fell'} ${Math.abs(norte.cambio)}% (${num(norte.ahora)} vs. ${num(norte.antes)}).`);
   // Every public game together (group, solo, La Copa), not the group ranking first
   const [uno, dos] = r.tendencia?.juegos || [];
-  if (uno) out.push(`Most played: ${esc(uno.juego)} (${num(uno.valores[0])} games)${dos ? `, then ${esc(dos.juego)} (${num(dos.valores[0])})` : ''}.`);
-  if (r.copa.filas[2].ahora) out.push(`La Copa: ${num(r.copa.filas[2].ahora)} games played, participation ${pctTxt(r.copa.participacion)}${r.copa.embudo.fuera ? `, ${num(r.copa.embudo.fuera)} left out for missing 2 days` : ''}.`);
+  if (uno) out.push(`Most finished: ${esc(uno.juego)} (${num(uno.valores[0])} games finished)${dos ? `, then ${esc(dos.juego)} (${num(dos.valores[0])})` : ''}.`);
+  if (r.copa.filas[2].ahora) out.push(`La Copa: ${num(r.copa.filas[2].ahora)} games finished, participation ${pctTxt(r.copa.participacion)}${r.copa.embudo.fuera ? `, ${num(r.copa.embudo.fuera)} left out for missing 2 days` : ''}.`);
   if (r.salud.noArranco) out.push(`⚠️ ${num(r.salud.noArranco)} page loads did not start: see Health.`);
   if (r.eventos.versiones.length) out.push(`${r.eventos.versiones.length} version${r.eventos.versiones.length === 1 ? '' : 's'} released (${r.eventos.versiones.filter(v => /\.0$/.test(v.v)).length} with something new).`);
   if (r.eventos.reportes) out.push(`${num(r.eventos.reportes)} player report${r.eventos.reportes === 1 ? '' : 's'} (🐞 and suggestions).`);
@@ -96,14 +96,14 @@ export function htmlDelInforme(r, { generado = new Date() } = {}) {
 
 <section><h2>👥 Group games</h2>${tablaFilas(r.grupo.filas)}
 <p>Rooms where a rival came in: <b>${pctTxt(r.grupo.rival)}</b> · rooms that reached the end: <b>${pctTxt(r.grupo.final)}</b> · replays: <b>${num(r.grupo.otras)}</b></p>
-${tabla(['Most played', 'Games'], r.grupo.top.map(g => [esc(g.juego), num(g.n)]))}</section>
+${tabla(['Most started', 'Games started'], r.grupo.top.map(g => [esc(g.juego), num(g.n)]))}</section>
 
 <section><h2>🧍 Individual games</h2>${tablaFilas(r.individual.filas)}
 ${tabla(['Difficulty (finished games)', 'Started', 'Finished', 'Left halfway', 'Median score', 'Median time'], r.individual.dificultad.map(g => [esc(g.juego), num(g.empezadas), num(g.terminadas), num(g.abandonos), g.mediana === null ? '—' : `${g.mediana}/100`, mmss(g.segundos)]))}</section>
 
 <section><h2>🏆 La Copa</h2>${tablaFilas(r.copa.filas)}
 <p>Participation: <b>${pctTxt(r.copa.participacion)}</b> · cups created that started: <b>${num(r.copa.embudo.partieron)}</b> of ${num(r.copa.embudo.creadas)} · left out for missing 2 days in a row: <b>${num(r.copa.embudo.fuera)}</b>, brought back: <b>${num(r.copa.embudo.devueltos)}</b></p>
-${tabla(['Cup game', 'Played', 'Unfinished', 'Average score'], r.copa.juegos.map(g => [esc(g.juego), num(g.jugadas), num(g.abandonos), g.promedio === null ? '—' : `${g.promedio}/100`]))}</section>
+${tabla(['Cup game', 'Finished', 'Unfinished', 'Average score'], r.copa.juegos.map(g => [esc(g.juego), num(g.jugadas), num(g.abandonos), g.promedio === null ? '—' : `${g.promedio}/100`]))}</section>
 
 <section><h2>📅 One a Day</h2>${tablaFilas(r.unoAlDia.filas)}<p>Came back the next day: <b>${pctTxt(r.unoAlDia.d1)}</b> · after 7 days: <b>${pctTxt(r.unoAlDia.d7)}</b></p></section>
 
@@ -114,7 +114,7 @@ ${tabla(['Cup game', 'Played', 'Unfinished', 'Average score'], r.copa.juegos.map
 <section><h2>📈 Traffic</h2>${tablaFilas(r.trafico.filas)}<p>Visits that reached a game: <b>${pctTxt(r.trafico.juegan)}</b></p>
 <div><b>Where they come from</b>${lista(r.trafico.origenes)}</div>
 <!-- Shares stay out until the counter has clean weeks (test runs inflated it until PR #1478) -->
-${tabla(['Entry page', 'Visits that started here', 'Played', 'Views'], r.trafico.paginas.map(p => [esc(p.pagina), num(p.entradas), num(p.juegan), num(p.vistas)]))}</section>
+${tabla(['Entry page', 'Visits that started here', 'Started a game', 'Views'], r.trafico.paginas.map(p => [esc(p.pagina), num(p.entradas), num(p.juegan), num(p.vistas)]))}</section>
 
 <section><h2>🩺 Health</h2><p>Loads with a failure: <b>${pctTxt(r.salud.fallas)}</b> ${r.salud.fallas !== null && r.salud.fallasAntes !== null ? cambio(r.salud.fallas - r.salud.fallasAntes, true) : ''} · loads that did not start: <b>${num(r.salud.noArranco)}</b></p>
 ${tabla(['Top errors', 'Pages', 'Loads'], r.salud.errores.map(e => [esc(e.mensaje).slice(0, 110), esc(e.pagina), num(e.veces)]))}</section>
