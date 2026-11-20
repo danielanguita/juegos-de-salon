@@ -108,21 +108,21 @@ export function semana(data, now = Date.now()) {
       // Shares left the headline until the counter stops overcounting (the home page's share fires far more than visits)
     ],
     grupo: {
-      filas: [fila('Group games', pd.grupo.total, pp.grupo.total), fila('Rooms with a rival', sum('conRival'), Object.values(embudoSalas(days, p)).reduce((x, g) => x + g.conRival, 0))],
+      filas: [fila('Group games started', pd.grupo.total, pp.grupo.total), fila('Rooms with a rival', sum('conRival'), Object.values(embudoSalas(days, p)).reduce((x, g) => x + g.conRival, 0))],
       rival: pctDe(sum('conRival'), sum('creadas')), final: pctDe(sum('terminadas'), sum('conRival')), otras: f.otras,
       top: top(pd.grupo.byGame).map(([id, n]) => ({ juego: nombreJuego(id), n })),
     },
     individual: {
-      filas: [fila('Individual games', pd.individual.total, pp.individual.total)],
+      filas: [fila('Individual games started', pd.individual.total, pp.individual.total)],
       dificultad: dificultad(days, w, fin, { byVariant: false }).slice(0, 8).map(g => ({ juego: nombreJuego(g.k), empezadas: g.empezadas, terminadas: g.terminadas, abandonos: g.abandonos, mediana: g.puntaje[1], segundos: g.tiempo[1] })),
       top: top(pd.individual.byGame).map(([id, n]) => ({ juego: nombreJuego(id), n })),
     },
     copa: {
-      filas: [fila('Cups active', rc.copas, rcp.copas), fila('Cups created', rc.nuevas, rcp.nuevas), fila('Cup games played', rc.jugadas, rcp.jugadas), fila('Players signed up', rc.inscripciones, rcp.inscripciones)],
+      filas: [fila('Cups active', rc.copas, rcp.copas), fila('Cups created', rc.nuevas, rcp.nuevas), fila('Cup games finished', rc.jugadas, rcp.jugadas), fila('Players signed up', rc.inscripciones, rcp.inscripciones)],
       participacion: pct(rc.participacion), embudo: ec,
       juegos: rc.porJuego.slice(0, 8).map(g => ({ juego: nombreJuego(g.id), jugadas: g.jugadas, abandonos: g.abandonos, promedio: g.promedio, mediana: g.medianaMs })),
     },
-    unoAlDia: { filas: [fila('One a Day games', ua.partidas, uap.partidas), fila('Players with a name', ua.jugadores, uap.jugadores)], d1: ua.d1, d7: ua.d7 },
+    unoAlDia: { filas: [fila('One a Day games started', ua.partidas, uap.partidas), fila('Players with a name', ua.jugadores, uap.jugadores)], d1: ua.d1, d7: ua.d7 },
     usuarios: {
       filas: [fila('Active per day (average)', u.diario, up.diario), fila('Active in the week', u.rango, up.rango)],
       pegajosidad: u.pegajosidad, nuevos: u.porDia.reduce((k, d) => k + d.nuevos, 0), desde: u.desde,

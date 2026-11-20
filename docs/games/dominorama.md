@@ -1,4 +1,4 @@
-# 🎲 Dominorama (La Copa game, launching 2026-11-19 19:00 Pacific; the lab prototype stays until the cleanup)
+# 🎲 Dominorama (La Copa game, launched 2026-11-19 18:54 Pacific; the lab prototype stays until the cleanup)
 
 A dominoes puzzle for one player (D-381): lay every domino on the board so each colored zone keeps its
 rule. **Inspired by [Pips](https://www.nytimes.com/games/pips), by The New York Times Games (2025)**, and
@@ -139,7 +139,7 @@ The lab's stylesheet, `public/labs/dominorama/style.css`, lost its copy of the s
 ## Out of the lab (D-517's way, 2026-11-19)
 
 Prepared the way Sudoku was (commit 3f60e2d8). Launch: the `launch` workflow (D-529) switches `flags/dominorama` to *all*
-at 19:00 Pacific on 2026-11-19 (with Memorice, splash `dominorama-memorice`); Uno al día and ✨ Nuevo start 2026-11-20.
+at 18:54 Pacific on 2026-11-19 (with Memorice, splash `dominorama-memorice`); Uno al día and ✨ Nuevo start 2026-11-20.
 
 - **La Copa's screen** in `public/cup/games/dominorama/`: the engine moved there (the lab's `engine.js` is a
   re-export, so the prototype plays on it), plus `generateDay` (the three boards from `dominorama:code:day`;

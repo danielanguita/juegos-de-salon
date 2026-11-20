@@ -1,4 +1,4 @@
-# 👀 Memorice (La Copa game, launching 2026-11-19 19:00 Pacific; the lab prototype stays until the cleanup)
+# 👀 Memorice (La Copa game, launched 2026-11-19 18:54 Pacific; the lab prototype stays until the cleanup)
 
 > First built as «Ojo de lince» in `/labs/eagle-eye/`; renamed before it merged at the owner's request:
 > «Memorice» is what this kind of game is called in Chile. The folder and id became `memory`. «¡Ojo de
@@ -18,7 +18,7 @@ mixed groups and asks after the first standard rounds.
 ## Resumen
 
 - **Where:** ready to leave the lab (D-517's way, see «Out of the lab» below): its page **`/memorice/`**, La Copa and
-  Uno al día, hidden until `flags/memory` is on; launched by the `launch` workflow (D-529) at 19:00 Pacific on 2026-11-19, Uno al día from 2026-11-20. Until then it is
+  Uno al día, hidden until `flags/memory` is on; launched by the `launch` workflow (D-529) at 18:54 Pacific on 2026-11-19, Uno al día from 2026-11-20. Until then it is
   played in the lab, `https://juegosdesalon.cl/labs/memory/` (each person's key, D-281, D-284), on the same engine.
   Id `memory` in the usage signal and the ranking; the lab's best is `juegos-de-salon:memory-best`.
 - **For whom:** one player. Spanish, English and Portuguese (C-3), chosen on the cover with the usual
@@ -123,7 +123,7 @@ Memorice gets ready to leave the lab as Sudoku did (2026-11-19, the owner: "only
   `/minijuegos/memory/` and `/minigames/memorice/` and its link card `assets/og/memory.jpg`.
 - **Launched by a flag** (`lanza: 'memory'`, D-517): hidden from the home page, the search, the filters, /records/ and
   new cups until `flags/memory` is *all*. In the pool `copa: { pozo: 19 }`; Uno al día `orden: 24` with
-  `desde` and `nuevoDesde` `'2026-11-20'`, the day after its launch (2026-11-19 19:00 Pacific, `launch` workflow, D-529).
+  `desde` and `nuevoDesde` `'2026-11-20'`, the day after its launch (2026-11-19 18:54 Pacific, `launch` workflow, D-529).
 - The /labs/ card points to the page, with the prototype under it. The splash media for its campaign are in
   `public/assets/splash/memory*` (the campaign itself is another session's).
 - Left for after the launch: the cleanup PR (drop
