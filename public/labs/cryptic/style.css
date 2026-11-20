@@ -54,3 +54,9 @@
 .flap--tick { animation: flap-tick 0.12s ease-out; }
 @keyframes flap-tick { from { transform: scaleY(0.15); } to { transform: scaleY(1); } }
 .flapboard--done .flap { text-shadow: 0 0 12px rgb(var(--yellow-rgb) / 0.6); }
+
+/* ---------- «Propón tu críptico» (propose.js): the form's labelled fields ---------- */
+.propose-field { display: grid; gap: var(--s-4); }
+.propose-label { font-weight: 800; font-size: var(--fs-90); }
+.propose .btn { justify-self: center; }
+.propose-kind { justify-self: start; display: inline-grid; place-items: center; cursor: default; }

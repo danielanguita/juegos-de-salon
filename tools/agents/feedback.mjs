@@ -44,7 +44,7 @@ import { correoValido as validEmail, enmascararNombre as maskName } from '../../
 export const LABEL = 'feedback';
 
 /** The optional kind the player picked (D-345) → a second label on the issue; anything else, none. */
-export const KIND_LABELS = { sugerencia: 'feedback:suggestion', problema: 'feedback:problem', idea: 'feedback:game-idea', otro: 'feedback:other' };
+export const KIND_LABELS = { sugerencia: 'feedback:suggestion', problema: 'feedback:problem', idea: 'feedback:game-idea', otro: 'feedback:other', criptico: 'feedback:cryptic-clue' };
 export const labelsOf = r => [LABEL, ...(KIND_LABELS[r?.tipo] ? [KIND_LABELS[r.tipo]] : [])];
 const REPO = process.env.GITHUB_REPOSITORY || 'ellokojavi/juegos-de-salon';
 const SITE = 'https://juegosdesalon.cl';
@@ -214,6 +214,8 @@ export function body(r) {
   const date = r.at ? new Date(r.at).toISOString().slice(0, 16).replace('T', ' ') + ' UTC' : 'no date';
   const data = [
     ['Who', r.nombre && maskName(r.nombre)], ['Kind', r.tipo && KIND_LABELS[r.tipo]?.slice(9)], ['Lab key', r.tester && String(r.tester).trim()], ['Game', c.juego], ['Lab', c.labs], ['Cup', c.copa], ['Day', c.dia], ['Seed', c.semilla],
+    // A clue proposed in Críptico (public/labs/cryptic/propose.js): the name to credit and the player who wrote it
+    ['Credit as', c.propuesta && c.autor], ['Player id', c.propuesta && c.j],
     ['Result', c.resumen ?? c.puntaje], ['Mistakes', c.errores], ['Hints', c.ayudas], ['Time', c.tiempo],
     ['Page', c.url && (String(c.url).startsWith('/') ? `${SITE}${c.url}` : c.url)], ['Screen', c.pantalla], ['Window size', c.pantallaTam], ['Version', r.v && `v${r.v}`], ['Date', date],
     ['Email', mask(r.correoMascara) && `\`${mask(r.correoMascara)}\` (wants a reply by email: the processes agent sends it when resolving, D-317)`],

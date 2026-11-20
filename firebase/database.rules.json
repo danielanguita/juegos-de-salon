@@ -1368,7 +1368,7 @@
           ".validate": "newData.isString() && newData.val().matches(/^(.[*][*][*][*][*][*][*][*]@[*][*][*][*][*][*][*][*].|.[*][*][*][*][*][*][*][*].@.[*][*][*][*][*][*][*][*].)$/)"
         },
         "tipo": {
-          ".validate": "newData.isString() && newData.val().matches(/^(sugerencia|problema|idea|otro)$/)"
+          ".validate": "newData.isString() && newData.val().matches(/^(sugerencia|problema|idea|otro|criptico)$/)"
         },
         "at": {
           ".validate": "newData.isNumber() && newData.val() <= now + 60000 && newData.val() > now - 60000"

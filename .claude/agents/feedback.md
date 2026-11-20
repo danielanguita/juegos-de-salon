@@ -34,6 +34,8 @@ outcomes, the reply template and the address rules. In short:
    - **an idea or a request** → one one-tap decision for the owner (`processes.mjs decide`, with
      `origin` naming the player's report);
    - **resolved, duplicate, already a dilemma, or not about the app** → close it saying where or why.
+   - **a clue proposed for Críptico** (`feedback:cryptic-clue`) → judge it, propose better versions,
+     and give the owner a one-tap choice of which to publish, as the triage's section says.
 4. **Replies:** when a report a player wants answered is resolved, one email per player for all their
    reports (`feedback.mjs pending` groups them), `--dry-run` first, then for real, as the triage says.
    Every email goes out from hola@juegosdesalon.cl through `send-mail.py`, never another account.

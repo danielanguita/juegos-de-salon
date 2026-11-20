@@ -1702,7 +1702,7 @@ const campanaTxt = id => (id === 'support' ? '☕ the donation card'
 const TL_GRAINS = [['day', 'By day'], ['week', 'By week'], ['month', 'By month']];
 const GRANO_TL = { dia: 'day', semana: 'week', mes: 'month' };
 const TL_VISIBLES = 100;
-const FEEDBACK_TIPO = { sugerencia: 'a suggestion', problema: 'a problem report', idea: 'an idea', otro: 'a message' };
+const FEEDBACK_TIPO = { sugerencia: 'a suggestion', problema: 'a problem report', idea: 'an idea', otro: 'a message', criptico: 'a cryptic clue for Críptico' };
 
 /** "Javi", "Javi and Cata", "Ana, Leo and Bia", each with their flag; no name is "Someone". */
 const quienes = who => {
