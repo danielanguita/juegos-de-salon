@@ -178,15 +178,15 @@ The numbers classic, built as a La Copa game the way Aletazo was (D-517), with i
 
 Spec and design: [docs/games/sudoku.md](docs/games/sudoku.md)
 
-### 👀 Memorice (launching 2026-11-19, 19:00 Pacific)
+### 👀 Memorice (launched 2026-11-19, 18:54 Pacific)
 
-The Chilean memory game, built as a La Copa game the way Sudoku was (D-517), with its page `/memorice/`: the tiles show some pictures, cover again, and you tap every copy of the one asked for before the bar runs out. It is endless, with 3 lives (five rounds in a row without a miss give one back), and the boards grow up to 6×6 while the time to look shrinks. The score is the rounds cleared, with the pictures found as the tiebreak; a cup day plays it with a trial of 1 life and 3 rounds, and Uno al día takes it from its deck from 2026-11-20. It comes out when the launch workflow switches the flag `memory` on at 19:00 Pacific on 2026-11-19; until then it is played in the lab at `/labs/memory/`, on the same engine.
+The Chilean memory game, built as a La Copa game the way Sudoku was (D-517), with its page `/memorice/`: the tiles show some pictures, cover again, and you tap every copy of the one asked for before the bar runs out. It is endless, with 3 lives (five rounds in a row without a miss give one back), and the boards grow up to 6×6 while the time to look shrinks. The score is the rounds cleared, with the pictures found as the tiebreak; a cup day plays it with a trial of 1 life and 3 rounds, and Uno al día takes it from its deck from 2026-11-20. It comes out when the launch workflow switches the flag `memory` on at 18:54 Pacific on 2026-11-19; until then it is played in the lab at `/labs/memory/`, on the same engine.
 
 Spec and design: [docs/games/memory.md](docs/games/memory.md)
 
-### 🎲 Dominorama (launching 2026-11-19, 19:00 Pacific)
+### 🎲 Dominorama (launched 2026-11-19, 18:54 Pacific)
 
-A dominoes puzzle inspired by *Pips* from The New York Times Games (credited on its cover), built as a La Copa game the way Sudoku was (D-517), with its page `/dominorama/`: lay every domino on the board so each colored zone keeps its rule (a number is the sum of its pips, = all equal, ≠ all different, < and > less or more). Every board has one solution. A cup day plays three boards, the trial plays the easy one; the score is 0 to 100, with a speed part and a cost for each help, and a share card reads like `✅✅⬜ 2/3 · 💡 1`. The launch workflow switches the flag `dominorama` on at 19:00 Pacific on 2026-11-19, and Uno al día deals it from 2026-11-20. The lab prototype stays at `/labs/dominorama/` until the cleanup PR.
+A dominoes puzzle inspired by *Pips* from The New York Times Games (credited on its cover), built as a La Copa game the way Sudoku was (D-517), with its page `/dominorama/`: lay every domino on the board so each colored zone keeps its rule (a number is the sum of its pips, = all equal, ≠ all different, < and > less or more). Every board has one solution. A cup day plays three boards, the trial plays the easy one; the score is 0 to 100, with a speed part and a cost for each help, and a share card reads like `✅✅⬜ 2/3 · 💡 1`. The launch workflow switches the flag `dominorama` on at 18:54 Pacific on 2026-11-19, and Uno al día deals it from 2026-11-20. The lab prototype stays at `/labs/dominorama/` until the cleanup PR.
 
 Spec and design: [docs/games/dominorama.md](docs/games/dominorama.md)
 
@@ -692,7 +692,7 @@ These documents are being moved to English (D-316); the ones with a Spanish titl
 - [🗝️ Cryptic (Críptico; lab, in Juegos en prueba)](docs/games/cryptic.md)
 - [La Copa](docs/games/cup.md)
 - [🎨 The components page (the design system, in the lab)](docs/games/design.md)
-- [🎲 Dominorama (La Copa game, launching 2026-11-19 19:00 Pacific; the lab prototype stays until the cleanup)](docs/games/dominorama.md)
+- [🎲 Dominorama (La Copa game, launched 2026-11-19 18:54 Pacific; the lab prototype stays until the cleanup)](docs/games/dominorama.md)
 - [💥 Números explosivos (prototipo del laboratorio, en Juegos en prueba)](docs/games/exploding-numbers.md)
 - [🐤 Aletazo (La Copa game, launched by flag; the lab prototype stays until the cleanup)](docs/games/flap.md)
 - [Especificación: Cuarto Rey](docs/games/fourth-king.md)
@@ -700,7 +700,7 @@ These documents are being moved to English (D-316); the ones with a Spanish titl
 - [Diseño: El Ahorcado](docs/games/hangman.md)
 - [Diseño: Julepe](docs/games/julep.md)
 - [Diseño: Dudo](docs/games/liars-dice.md)
-- [👀 Memorice (La Copa game, launching 2026-11-19 19:00 Pacific; the lab prototype stays until the cleanup)](docs/games/memory.md)
+- [👀 Memorice (La Copa game, launched 2026-11-19 18:54 Pacific; the lab prototype stays until the cleanup)](docs/games/memory.md)
 - [⚡ ¡Al toque! (/in-a-flash/, La Copa and Uno al día)](docs/games/microgames.md)
 - [🖌️ Pintaminas (Paint Mines · Pinta-Minas · Malminen)](docs/games/paint-mines.md)
 - [📐 Loteo (Plots · Loteamento · Parzellen)](docs/games/plots.md)

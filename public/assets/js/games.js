@@ -485,7 +485,7 @@ export const SUELTOS = [
   },
   {
     // Out of the lab like Sudoku (D-517's way): La Copa's screen in cup/games/memory/, its page /memorice/,
-    // launched by flags/memory at 19:00 Pacific on 2026-11-19 (the `launch` workflow, D-529). Endless, 3 lives: its points are the rounds cleared,
+    // launched by flags/memory at 18:54 Pacific on 2026-11-19 (the `launch` workflow, D-529). Endless, 3 lives: its points are the rounds cleared,
     // with no cap; Uno al día takes its own 0–100 (`dayScore`). The id and the usage signal are the lab's; the
     // lab prototype /labs/memory/ stays, on the moved engine, until the cleanup PR
     id: 'memory',
@@ -509,7 +509,7 @@ export const SUELTOS = [
   },
   {
     // 🎲 Out of the lab like Sudoku (D-517's way): La Copa's screen in cup/games/dominorama/, its page
-    // /dominorama/, launched by flags/dominorama at 19:00 Pacific on 2026-11-19 (the `launch` workflow, D-529). Inspired by NYT's Pips, credited on its cover. Three boards, easy to hard, 0 to 100. The id
+    // /dominorama/, launched by flags/dominorama at 18:54 Pacific on 2026-11-19 (the `launch` workflow, D-529). Inspired by NYT's Pips, credited on its cover. Three boards, easy to hard, 0 to 100. The id
     // and the usage signal are the lab's; the lab prototype /labs/dominorama/ stays until the cleanup PR.
     // 🎲 is the text stand-in; the screen shows the drawn domino (cup/games/dominorama/icon.svg)
     id: 'dominorama',
