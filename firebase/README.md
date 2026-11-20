@@ -453,6 +453,7 @@ stats/prod/days/20342/
   activos/k3j9x0q2ab: 2                a browser's random id: 1 visited, 2 started something (D-349)
   activosPt/20773/k3j9x0q2ab: 2        the same, under the Pacific date (day number) of the moment (D-561)
   entradasPt/20773/cup: 4              first pages of a visit, under the Pacific date (D-561)
+  juegosPt/20773/toque-y-fama/k3j9x0q2ab: 1   this browser started that game that Pacific day, once (D-590)
   support/open: 1                      ☕ Buy me a coffee, by step: shown, open, pay, thanks (D-448, in the lab)
   splash/brindis-apoyo/reach: 4        splash windows, by campaign and event (D-461)
 stats/prod/push: { vuelta, vivas, torneos }   notify.mjs's last run and how many subscriptions are still alive
@@ -487,6 +488,9 @@ stats/prod/push/dias/2026-11-16: { vueltas, maxHueco, uad }   the heartbeat per 
   be 1 or 2 and never go down. Nothing else goes with it. `activosPt/<day>/<id>` and
   `entradasPt/<day>/<page>` (D-561) repeat `activos/` and `entradas/` filed by Pacific date (the day
   number by shape), with the same values and rules (`firebase/stats-pacific.test.mjs`).
+  `juegosPt/<day>/<game>/<id>` (D-590, amends D-349) is 1 once per browser, game and Pacific day
+  (game by shape, id like `activos/`): it feeds the WBR's "Weekly active users by game"; it adds no
+  name and no new identifier.
 - Screens: `pant/<band>` is a counter like the others, one per visit on its first page; the band
   (`w<width>-h<height>-<v|h>`) is validated by list, the same as `BAND_RULE` in
   `public/assets/js/screen-bands.js` (`screen-bands.test.mjs` keeps them equal). Never the exact size.
