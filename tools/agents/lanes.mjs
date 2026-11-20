@@ -20,6 +20,7 @@
  * a one-tap decision at the top of its own description (D-531) whose Yes is `approve-pr` (approve.mjs) for that commit; 🟢/🟡 get a
  * green `owner-approval` at once. A push after the owner's tick asks again, except one that only merges
  * main into the branch (GitHub's "Update branch", D-575): the tick carries over and auto-merge goes on.
+ * On the owner's own PR, a push that touches no 🔴 file since the tick carries it too (D-596).
  */
 import { execFileSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
@@ -113,7 +114,7 @@ export function decision(pr, sha, title, by) {
     summary: `PR #${pr} (${title}) is in the 🔴 lane (docs/LANES.md): it never merges on its own.`,
     decisions: [{
       question: `Approve PR #${pr} at ${sha.slice(0, 7)}`,
-      context: `Files that make it 🔴:\n${by.slice(0, 10).map(x => `- \`${x.file}\` — ${x.reason}`).join('\n')}\n\nYes turns its \`${STATUS}\` check green for this commit, waits for tests and end-to-end, merges it and publishes the site; a later push asks again. No leaves it blocked.`,
+      context: `Files that make it 🔴:\n${by.slice(0, 10).map(x => `- \`${x.file}\` — ${x.reason}`).join('\n')}\n\nYes turns its \`${STATUS}\` check green for this commit, waits for tests and end-to-end, merges it and publishes the site; a later push asks again, unless it only merges main or, on the owner's own PR, touches no 🔴 file (D-596). No leaves it blocked.`,
       // Approved means merged: a 🔴 PR has no auto-merge, and an approval alone left PRs waiting
       yes: [{ type: 'approve-pr', pr, sha }, { type: 'merge', pr }],
       no: [{ type: 'nothing' }],
@@ -190,6 +191,19 @@ export function carries({ parents = [], tree, approved, onMain, cleanTree }) {
   return clean && clean === tree ? mine : null;
 }
 
+/**
+ * Whether the owner's tick carries to the owner's own PR (D-596): `approved` is the latest commit of
+ * the PR the owner approved (or null), `ownFiles` the files the PR changed since then, not counting what
+ * main brought in (null when that could not be worked out, e.g. a conflict resolved by hand). On an
+ * insider's PR (`outside` null) a later push that touches no 🔴 file keeps the tick: a fix for a red
+ * check, a text, a doc. A push that touches a 🔴 file again, or any push to an outside PR, asks again.
+ * Pure, for the test.
+ */
+export function carriesOwn({ outside, approved, ownFiles }) {
+  if (outside || !approved || !Array.isArray(ownFiles)) return null;
+  return ownFiles.every(f => laneOf(f).lane !== 'red') ? approved : null;
+}
+
 const prOf = n => JSON.parse(gh('api', `repos/{owner}/{repo}/pulls/${n}`));
 const prFiles = n => JSON.parse(gh('api', '--paginate', `repos/{owner}/{repo}/pulls/${n}/files?per_page=100`, '--jq', '[.[].filename]').replace(/\]\s*\[/g, ','));
 
@@ -228,10 +242,33 @@ async function ci() {
       });
     } catch (e) { console.log(`Could not check for a carried approval: ${e.message}`); return null; }
   })();
-  if (carried) {
-    status('success', `Approved by the owner (carried from ${carried.slice(0, 7)}: only main merged in, D-575)`);
+  // The owner's own PR (D-596): a later push that touches no 🔴 file keeps the tick
+  const carriedOwn = carried ? null : (() => {
+    if (outsideReason(pr, files)) return null;
+    try {
+      const isApproved = s => JSON.parse(gh('api', `repos/${repo}/commits/${s}/statuses`)).some(x => x.context === STATUS && x.state === 'success' && /^Approved by the owner/.test(x.description));
+      const shas = JSON.parse(gh('api', '--paginate', `repos/${repo}/pulls/${n}/commits?per_page=100`, '--jq', '[.[].sha]').replace(/\]\s*\[/g, ','));
+      const approved = shas.slice(0, -1).reverse().find(isApproved) ?? null;
+      if (!approved) return null;
+      git('fetch', '--quiet', '--depth=200', 'origin', sha, approved, '+main:refs/remotes/origin/main');
+      // What the PR changed since the approved commit, net of main: head against a clean merge of the
+      // approved commit with the main head merged in (a conflict gives null, and the owner is asked)
+      const ownFiles = (() => {
+        try {
+          const mainIn = git('merge-base', sha, 'refs/remotes/origin/main').trim();
+          const clean = git('merge-tree', '--write-tree', approved, mainIn).split('\n')[0].trim();
+          return git('diff', '--name-only', clean, sha).split('\n').filter(Boolean);
+        } catch { return null; }
+      })();
+      const kept = carriesOwn({ outside: null, approved, ownFiles });
+      console.log(kept ? `Changed since the owner's tick on ${approved.slice(0, 7)}, with no 🔴 file: ${ownFiles.join(', ') || '(nothing but main)'}` : `Since the owner's tick on ${approved.slice(0, 7)} a 🔴 file changed (or the change could not be worked out): asking again.`);
+      return kept;
+    } catch (e) { console.log(`Could not check for a carried approval: ${e.message}`); return null; }
+  })();
+  if (carried || carriedOwn) {
+    status('success', carried ? `Approved by the owner (carried from ${carried.slice(0, 7)}: only main merged in, D-575)` : `Approved by the owner (carried from ${carriedOwn.slice(0, 7)}: no red file changed since, D-596)`);
     try { gh('pr', 'merge', String(n), '-R', repo, '--auto', '--merge'); } catch (e) { console.log(`Auto-merge not turned on: ${e.message}`); }
-    console.log(`The owner's approval of ${carried.slice(0, 7)} carries: this push only merged main.`);
+    console.log(carried ? `The owner's approval of ${carried.slice(0, 7)} carries: this push only merged main.` : `The owner's approval of ${carriedOwn.slice(0, 7)} carries: the owner's PR, and no red file changed since (D-596).`);
     return;
   }
   try { gh('label', 'create', LABEL, '-R', repo, '--color', 'B60205', '--description', 'Red lane: needs the owner\'s approval (docs/LANES.md)'); } catch { /* exists */ }
