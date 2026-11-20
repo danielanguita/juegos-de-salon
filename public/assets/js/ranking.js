@@ -436,11 +436,18 @@ export function bloqueVictorias({ juego, nombre, alTocar = () => {} }) {
   const T = R();
   const tabla = tablaId(juego, VARIANTE_VICTORIAS);
   const caja = bloqueTabla({ tabla, titulo: fmt(T.winsOf, { game: nombre }), hint: T.winsHint, alTocar });
-  // A wins table nobody is in yet is not shown; signing in, under it, stays (flag wins-hide-empty, the owner,
-  // 2026-11-19: Generala's, Ahorcado's and Línea de tiempo's had no one since they opened). lab: #seccion-wins-hide-empty
+  // A wins table nobody is in yet is not shown; its hint (wins count only with your name and PIN) and the sign-in
+  // under it stay (flag wins-hide-empty, the owner, 2026-11-19: Generala's, Ahorcado's and Línea de tiempo's had no
+  // one since they opened). lab: #seccion-wins-hide-empty
   const rk = caja.firstChild;
   if (rk) flag('wins-hide-empty').then(on => on && jugador().then(J => J.tabla(tabla, SIEMPRE, { top: 1 })))
-    .then(v => { if (v && !v.top?.length) rk.hidden = true; }).catch(() => {});
+    .then(v => {
+      if (!v || v.top?.length || !rk.isConnected) return;
+      // Only its title and hint stay, in a box of their own: no tabs and no «Todavía nadie»
+      rk.hidden = true;
+      rk.after(el('div', { class: 'panel rk-ranking rk-wins-empty', 'data-tabla': tabla },
+        el('p', { class: 'lead rk-titulo' }, fmt(T.winsOf, { game: nombre })), el('p', { class: 'muted rk-hint' }, T.winsHint)));
+    }).catch(() => {});
   return caja;
 }
 
