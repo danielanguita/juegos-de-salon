@@ -96,6 +96,9 @@ test('the panel: the week in progress first, partial, every comparison still on 
   assert.equal(t.juegos.length, 1, 'the top 10 is the closed week\'s, not the partial one\'s');
   assert.deepEqual(t.metricas.find(m => m.nombre === 'Games started').valores.slice(0, 3), [32, 5, 4]);
   assert.equal(t.metricas.find(m => m.nombre === 'Games started').cambio, 25);
+  assert.deepEqual(t.totales.valores.slice(0, 3), [32, 5, 4], 'every public game, Zip too');
+  assert.equal(t.totales.cambio, 25);
+  assert.deepEqual(t.totales.top10.slice(0, 3), [6.3, 100, 100], 'the closed week\'s ten, 2 of 32 in the partial week');
 });
 
 console.log(`reports/weekly-data: ${n} tests OK`);
