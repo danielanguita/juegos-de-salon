@@ -98,7 +98,7 @@ test('the panel: the week in progress first, partial, every comparison still on 
   assert.equal(t.columnas[0], 'Nov 15–18*');
   assert.equal(t.columnas[3], 'Oct 25–31');
   assert.equal(tendencia({}, semanaCerrada(Date.parse('2026-10-05T12:00:00Z'))).columnas[0], 'Sep 27–Oct 3', 'a week across two months names both');
-  assert.equal(t.leyenda, '* Partial: the week so far (to Nov 18) and the month up to Nov 14.');
+  assert.equal(t.leyenda, '* Partial: the week so far (to Nov 18) and the month up to Nov 18.');
   const tango = t.juegos.find(g => /Tango/.test(g.juego));
   assert.deepEqual([tango.valores[0], tango.valores[1], tango.valores[2], tango.cambio], [2, 5, 4, 25]);
   assert.equal(t.juegos.length, 1, 'the top 10 is the closed week\'s, not the partial one\'s');
@@ -107,6 +107,8 @@ test('the panel: the week in progress first, partial, every comparison still on 
   assert.deepEqual(t.totales.valores.slice(0, 3), [32, 5, 4], 'every public game, Zip too');
   assert.equal(t.totales.cambio, 25);
   assert.deepEqual(t.totales.top10.slice(0, 3), [6.3, 100, 100], 'the closed week\'s ten, 2 of 32 in the partial week');
+  assert.equal(t.columnas[6], 'Nov*');
+  assert.equal(t.metricas.find(m => m.nombre === 'Games started').valores[6], 32 + 5 + 4, 'the month so far reaches today, the week in progress included');
 });
 
 test('active browsers by game: real from the counter (D-590), an estimate before it, months the average of their weeks', () => {
