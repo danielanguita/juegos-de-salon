@@ -47,6 +47,7 @@ leave the lab out too. Data from before stays in Live.
 | 👥 Group | `#/group` | Rooms step by step (created → a rival came in → ended) with their median length, offline group games finished and replayed, by mode and players per game, the timeline, the group offline log and the room log. |
 | 🧍 Individual | `#/individual` | Solo and Uno al día games: finished, left halfway, "otra vez", the **real difficulty** of each game (score and time quartiles from its endings; a variant counts apart), and the solo offline log. |
 | 🏆 La Copa | `#/cup` | As before, plus the period before, the Cups step by step (created → 2 or more → started → finished), participation by day of the Cup, and who was left out (D-347) or brought back. |
+| 🎮 Games | `#/game-report` | Weekly report by game (see above): a ranking of every public game by games finished in the closed week, and one toggle per game with its key metrics week by week. |
 | 📅 Uno al día | `#/daily` | The block that was in Games, with its pulse and its timeline. |
 | 🌎 Users | `#/users` | Active browsers per day, in 7 and 30 days, stickiness, new and returning, days since the last visit, frequency in 28 days, cohorts by week (returns on days 1, 7 and 30), and what Audience showed (where from, languages, hour, quota). |
 | 📈 Traffic | `#/traffic` | As before, plus what is shared and the visits each share brings (the viral factor). |
