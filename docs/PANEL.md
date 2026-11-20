@@ -23,9 +23,9 @@ or month, with 🚀 marking the versions that first showed up in each period). E
 **📋 WBR, the Weekly Business Review** (`#/wbr`, `#/wbr/2026-11-14` for the week ending that Saturday): the
 weekly email's tables for any closed week, by Pacific date (D-561), from `public/panel/wbr.js`, the same module the email uses:
 the headline (games finished and started, active browsers, daily active, games per active browser, visits)
-and the top 10 games, over the week, the four before, this month so far and the two before; "n/a" before
+and the top 10 games by games finished (as the headline counts them: one phone's, rooms that ended, La Copa's plays), over the week, the four before, this month so far and the two before; "n/a" before
 a counter or a game existed. It downloads back to the first of the month two months before its week.
-Its Top 10 table ends with the total games played (every public game) and the share the ten take of it, column by column. Column titles are short ("Nov 8–14", "Oct 26–Nov 1"); a partial range carries a * that the line under the headline explains. On the latest closed week a first column shows the week in progress (Sunday to today, "Nov 15–19*"), for a look only: the % changes, the top 10 and the highlights still read the closed week. On a phone its tables scroll sideways with the names pinned. The Sunday email links to its week.
+Its Top 10 table ends with the total games finished (every public game) and the share the ten take of it, column by column. Column titles are short ("Nov 8–14", "Oct 26–Nov 1"); a partial range carries a * that the line under the headline explains. On the latest closed week a first column shows the week in progress (Sunday to today, "Nov 15–19*"), for a look only: the % changes, the top 10 and the highlights still read the closed week. On a phone its tables scroll sideways with the names pinned. The Sunday email links to its week.
 
 **Lab plays are out of every count of games (D-560).** Summary, Group, Individual and Audience read the
 days through `withoutLabGames(days, publicGameCheck(flags))` (`public/panel/public-games.js`): a play
