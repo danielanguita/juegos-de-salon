@@ -1,5 +1,7 @@
-// Scope guard (D-597): a PreToolUse hook on Edit|Write|NotebookEdit that an agent declares in its own
-// frontmatter (`node tools/agents/scope-guard.mjs <agent>`), so it runs only while that agent works.
+// Scope guard (D-597): a PreToolUse hook on Edit|Write|NotebookEdit in .claude/settings.json. Claude Code
+// passes `agent_type` when the edit comes from a subagent, and only the agents in SCOPES are limited.
+// It lives in settings, not in each agent's frontmatter, because frontmatter hooks do not run in
+// headless (-p) or untrusted sessions, which is where the daily rounds run.
 // It turns "you do not touch app code" from a line in the prompt into a rule: a file outside the
 // agent's scope is blocked with exit 2. Paths are relative to the worktree the file is in; anything
 // outside the repo (memory, scratchpad) passes. Bash can still write files: the guard covers the
@@ -45,9 +47,9 @@ export function verdict(agent, file, root) {
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {
-  const agent = process.argv[2];
   let input = {};
   try { input = JSON.parse(readFileSync(0, 'utf8')); } catch { process.exit(0); }
+  const agent = input.agent_type || process.argv[2];
   const file = input?.tool_input?.file_path || input?.tool_input?.notebook_path;
   const why = file ? verdict(agent, file, worktreeOf(file)) : null;
   if (!why) process.exit(0);
