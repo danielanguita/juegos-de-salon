@@ -1372,6 +1372,70 @@ const pctFino = (a, b) => (!b ? '—' : a && a / b < 0.01 ? `${((a / b) * 100).t
  */
 let memoTrend = {};
 const SIN_FLAGS = {};
+const SVG_NS = 'http://www.w3.org/2000/svg';
+const svgEl = (tag, attrs = {}) => { const n = document.createElementNS(SVG_NS, tag); for (const [k, v] of Object.entries(attrs)) n.setAttribute(k, v); return n; };
+
+/** WBR chart A: games finished, the weeks on one scale and the months on theirs; a partial one dashed. */
+function wbrGraficoSemanas(t) {
+  const fin = t.metricas[0], k = t.cerrada;
+  const grupo = (clase, titulo, idx) => {
+    const max = Math.max(1, ...idx.map(i => fin.valores[i] || 0));
+    return el('div', { class: `wbr-barras ${clase}` },
+      el('p', { class: 'wbr-eje' }, titulo),
+      el('div', { class: 'wbr-barras-fila' }, ...idx.map(i => {
+        const v = fin.valores[i], parcial = t.columnas[i].endsWith('*');
+        return el('div', { class: ['wbr-barra', parcial ? 'wbr-barra--parcial' : '', i === k ? 'wbr-barra--cerrada' : ''].filter(Boolean).join(' ') },
+          el('span', { class: 'wbr-barra-cifra' }, v === null ? 'n/a' : n(v)),
+          el('span', { class: 'wbr-barra-col', style: `--h:${v ? Math.max(2, (v / max) * 100) : 0}%` }),
+          // On a phone a week is named by its Sunday ("Nov 15*"): its range wraps into three lines
+          el('span', { class: 'wbr-barra-rotulo' }, el('span', { class: 'wbr-rotulo-largo' }, t.columnas[i]), el('span', { class: 'wbr-rotulo-corto' }, t.columnas[i].replace(/–.*?(\*?)$/, '$1'))));
+      })));
+  };
+  const semanas = t.columnas.map((_, i) => i).filter(i => t.semanas[i]).reverse();
+  const meses = t.columnas.map((_, i) => i).filter(i => !t.semanas[i]).reverse();
+  return el('div', { class: 'wbr-grafico' },
+    el('h3', {}, 'Games finished: weeks and months'),
+    el('div', { class: 'wbr-barras-par' }, grupo('wbr-barras--semanas', 'Weeks', semanas), grupo('wbr-barras--meses', 'Months, their own scale', meses)),
+    el('p', { class: 'muted small' }, 'Dashed: partial, so far. Bright: the closed week, bold in the table.'));
+}
+
+/** WBR chart B: the newest week's games finished added up from Sunday, against the week before and the four-week average. */
+function wbrGraficoRitmo(t) {
+  const r = t.ritmo, hoy = r.esta.length - 1;
+  const max = Math.max(1, ...r.esta, ...r.pasada, ...r.promedio);
+  const linea = (xs, clase) => svgEl('polyline', { class: clase, 'vector-effect': 'non-scaling-stroke', points: xs.map((v, i) => `${i},${100 - (v / max) * 100}`).join(' ') });
+  const svg = svgEl('svg', { class: 'wbr-ritmo-svg', viewBox: '0 0 6 100', preserveAspectRatio: 'none', 'aria-hidden': 'true' });
+  for (const y of [25, 50, 75]) svg.append(svgEl('line', { class: 'wbr-ritmo-guia', x1: 0, x2: 6, y1: y, y2: y, 'vector-effect': 'non-scaling-stroke' }));
+  svg.append(linea(r.promedio, 'wbr-ritmo-prom'), linea(r.pasada, 'wbr-ritmo-pasada'), linea(r.esta, 'wbr-ritmo-esta'));
+  const mismoDia = r.pasada[hoy], cambio = mismoDia ? Math.round((r.esta[hoy] / mismoDia - 1) * 100) : null;
+  const dia = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][hoy];
+  return el('div', { class: 'wbr-grafico' },
+    el('h3', {}, 'Pace: games finished from Sunday'),
+    el('ul', { class: 'wbr-leyenda' },
+      el('li', { class: 'wbr-leyenda--esta' }, el('b', {}, `${r.semana}: ${n(r.esta[hoy])}`), cambio === null ? '' : `, ${cambio > 0 ? '+' : cambio < 0 ? '−' : '±'}${Math.abs(cambio)}% vs. ${n(mismoDia)} by ${dia} of ${r.anterior.replace('–', '–\u2060')}`),
+      el('li', { class: 'wbr-leyenda--pasada' }, `${r.anterior}: ${n(r.pasada[6])}`),
+      el('li', { class: 'wbr-leyenda--prom' }, `Average of the four weeks before: ${n(Math.round(r.promedio[6]))}`)),
+    el('div', { class: 'wbr-ritmo' },
+      el('div', { class: 'wbr-ritmo-area' }, svg, el('span', { class: 'wbr-ritmo-punto', style: `--x:${(hoy / 6) * 100}%;--y:${100 - (r.esta[hoy] / max) * 100}%` })),
+      el('div', { class: 'wbr-ritmo-dias' }, ...['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(d => el('span', {}, d)))),
+    el('p', { class: 'muted small' }, 'Each line adds up the games finished day by day, Pacific dates: the newest week against the same days of the week before.'));
+}
+
+/** WBR chart D: a game's weeks, oldest to newest, in a line the width of a cell; the partial week dashed. */
+function wbrTendencia(t, valores) {
+  const idx = t.columnas.map((_, i) => i).filter(i => t.semanas[i]).reverse();
+  const xs = idx.map(i => valores[i]), max = Math.max(1, ...xs.filter(v => v !== null));
+  const W = 72, H = 22, x = j => 2 + ((W - 4) * j) / (xs.length - 1), y = v => H - 3 - ((H - 6) * v) / max;
+  const svg = svgEl('svg', { class: 'wbr-tendencia', width: W, height: H, viewBox: `0 0 ${W} ${H}`, 'aria-hidden': 'true' });
+  const tramos = [[], []]; // closed weeks, then the partial one
+  xs.forEach((v, j) => { if (v === null) return; const parcial = t.columnas[idx[j]].endsWith('*'); if (parcial && tramos[0].length) tramos[1].push(tramos[0].at(-1)); tramos[parcial ? 1 : 0].push(`${x(j)},${y(v)}`); });
+  if (tramos[0].length) svg.append(svgEl('polyline', { points: tramos[0].join(' ') }));
+  if (tramos[1].length > 1) svg.append(svgEl('polyline', { class: 'wbr-tendencia-parcial', points: tramos[1].join(' ') }));
+  const j = idx.indexOf(t.cerrada);
+  if (xs[j] !== null && xs[j] !== undefined) svg.append(svgEl('circle', { cx: x(j), cy: y(xs[j]), r: 2.5 }));
+  return svg;
+}
+
 function vistaWbr(now) {
   const w = weekOf(S.ruta.args[0], now);
   const nota = 'The closed week (Sunday to Saturday, Pacific time) against the four before and the last three months, like the Sunday email; on the latest closed week, the week so far goes first and the month runs to today (marked *, partial, not compared). Lab plays left out (D-560). Browsers and visits before Nov 16 follow UTC days (D-561).';
@@ -1388,22 +1452,25 @@ function vistaWbr(now) {
   const t = memoTrend.out, k = t.cerrada;
   const fmt = (v, dec) => (v === null ? 'n/a' : dec === 'auto' ? (Number.isInteger(v) ? n(v) : v.toLocaleString(LOCALE, { minimumFractionDigits: 1, maximumFractionDigits: 1 })) : dec === '%' ? `${v.toLocaleString(LOCALE, { maximumFractionDigits: 1 })}%` : dec ? v.toFixed(1) : n(v));
   const cambioTxt = c => (c === null || c === undefined ? '' : ` (${c > 0 ? '+' : c < 0 ? '−' : '±'}${Math.abs(c)}%)`);
-  const tabla = (filas, cabezaCol) => el('div', { class: 'wbr-scroll' }, el('table', { class: 'wbr' },
-    el('thead', {}, el('tr', {}, el('th', {}, cabezaCol), ...t.columnas.map((c, i) => el('th', { class: i === 5 + k ? 'wbr-mes' : null }, c)))),
+  const tabla = (filas, cabezaCol, tendencia = false) => el('div', { class: 'wbr-scroll' }, el('table', { class: 'wbr' },
+    el('thead', {}, el('tr', {}, el('th', {}, cabezaCol), tendencia ? el('th', {}, 'Trend') : null, ...t.columnas.map((c, i) => el('th', { class: i === 5 + k ? 'wbr-mes' : null }, c)))),
     el('tbody', {}, ...filas.map(([nombre, valores, cambio, dec, clase, est]) => el('tr', { class: clase || null }, el('th', {}, nombre),
+      tendencia ? el('td', { class: 'wbr-tendencia-celda' }, dec === '%' ? '' : wbrTendencia(t, valores)) : null,
       ...valores.map((v, i) => { const x = `${est?.[i] && v !== null ? '~' : ''}${fmt(v, dec)}`; return el('td', { class: [i === k ? 'wbr-ahora' : '', i === 5 + k ? 'wbr-mes' : ''].filter(Boolean).join(' ') || null },
         i === k && v !== null ? [el('b', {}, x), cambioTxt(cambio)] : x); }))))));
   const u = t.usuariosJuego;
   const desdeConteo = u.desdeReal ? `the count by game began (${u.desdeReal.replace(/, \d{4}$/, '')}, D-590)` : 'the count by game began (D-590)';
   return [...cabeza,
     el('ul', { class: 'wbr-destacados' }, ...highlights(t).map(x => el('li', {}, x))),
+    wbrGraficoSemanas(t),
+    wbrGraficoRitmo(t),
     el('h3', {}, 'Headline'),
     tabla(t.metricas.map(m => [m.nombre, m.valores, m.cambio, m.decimales]), ''),
     el('p', { class: 'muted small' }, t.leyenda),
     el('h3', {}, 'Top 10 games'),
-    el('p', { class: 'muted small' }, 'Games finished, as in the headline; every mode and version, La Copa included. n/a: not measured yet, or the game was not out yet. The last two rows: games finished across every public game, and the share of them these ten take.'),
+    el('p', { class: 'muted small' }, 'Games finished, as in the headline; every mode and version, La Copa included. Trend: its weeks, oldest to newest. n/a: not measured yet, or the game was not out yet. The last two rows: games finished across every public game, and the share of them these ten take.'),
     tabla([...t.juegos.map((g, i) => [`${i + 1}. ${g.juego}${g.nuevo ? ` (out ${g.nuevo.replace(/, \d{4}$/, '')})` : ''}`, g.valores, g.cambio]),
-      ['Total games finished', t.totales.valores, t.totales.cambio, false, 'wbr-total'], ['Top 10 share of games finished', t.totales.top10, null, '%']], 'Game'),
+      ['Total games finished', t.totales.valores, t.totales.cambio, false, 'wbr-total'], ['Top 10 share of games finished', t.totales.top10, null, '%']], 'Game', true),
     el('h3', {}, 'Weekly active users by game'),
     el('p', { class: 'muted small' }, `Browsers that finished each game at least once in the week; a month is the average of its full weeks (Sunday to Saturday). Sorted by the closed week, most first. ~ estimated: before ${desdeConteo}, the browsers that started a game that week split by each game's share of the games finished; it reads low, since one browser plays several games.`),
     u.filas.length ? tabla(u.filas.map(f => [f.juego, f.valores, f.cambio, 'auto', null, u.estimado]), 'Game') : el('p', { class: 'empty' }, 'No browsers measured in this week yet.'),
