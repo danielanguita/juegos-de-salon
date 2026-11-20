@@ -726,6 +726,7 @@ These documents are being moved to English (D-316); the ones with a Spanish titl
 - [The design system](docs/DESIGN.md)
 - [Handling 🐞 feedback: the feedback agent's guide (step 3 of the processes round)](docs/FEEDBACK-TRIAGE.md)
 - [Merge lanes (D-519)](docs/LANES.md)
+- [Launching a game: the playbook](docs/LAUNCH.md)
 - [The learning programme: AI in the game, and what the owner learns building it](docs/LEARNING.md)
 - [Merging and publishing](docs/MERGING.md)
 - [Offline mode (RP-13)](docs/OFFLINE.md)

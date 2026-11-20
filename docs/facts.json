@@ -2031,6 +2031,10 @@
       "title": "Merge lanes (D-519)"
     },
     {
+      "path": "docs/LAUNCH.md",
+      "title": "Launching a game: the playbook"
+    },
+    {
       "path": "docs/LEARNING.md",
       "title": "The learning programme: AI in the game, and what the owner learns building it"
     },

@@ -164,3 +164,17 @@ console.log(`games: los ${ALL_GAMES.length} juegos tienen motor, tests, gancho y
   assert.deepEqual([...populares(dia)], esperados, 'the first three of POPULARIDAD, La Copa left out');
   assert.ok(populares(dia).has('stick') && esNuevo(ALL_GAMES.find(g => g.id === 'stick'), dia), 'Shinobi is New and Popular at once');
 }
+
+// D-556: the home page draws again when a launch changes a game's ✨ Nuevo label, not only whether it shows
+// (a lab key holder already saw Dominorama and Memorice, so only their label changed on launch night)
+{
+  const { launchChanges } = await import('./games.js');
+  const g = { id: 'x', lanza: 'x', nuevoDesde: '2099-01-01', diasNuevo: 10 };
+  const night = new Date('2026-11-19T19:00:00');
+  const lab = { x: { state: 'lab' } }, all = { x: { state: 'all', at: night.getTime() - 60000 } };
+  assert.equal(launchChanges([g], lab, all, night), true, 'launch night: the game comes out and becomes new');
+  assert.equal(launchChanges([g], all, all, night), false, 'nothing changed');
+  // only the label changes: out already, but the flag's launch moment was not known yet
+  assert.equal(launchChanges([g], { x: { state: 'all' } }, all, night), true, 'the label starts with the launch moment');
+  assert.equal(launchChanges([{ ...g, lanza: undefined }], lab, all, night), false, 'a game without lanza');
+}
