@@ -769,6 +769,8 @@ PATHS['cuarto-rey']['inbox-end'] = [INBOX_SEED,
   `document.querySelector('#resume-slot .btn--cyan').click()`, `document.getElementById('card').click()`, `1`, `1`,
   `document.querySelector('#result .actions .btn')?.click()`, `1`, `1`, TO_LINK];
 PATHS.copa['inbox-home'] = [`location.href='/'`, `1`, `1`, `document.querySelector('.footer-buzon')?.click()`, `1`];
+// The home carousels' Logic row (six games since Words lost its row, PR #1688)
+PATHS.copa['home-logic'] = [`location.href='/'`, `1`, `1`, `document.querySelector('[data-shelf="logic"]')?.scrollIntoView({ block: 'center' })`, `1`];
 // "☕ Buy me a coffee" (lab): at the end of a Hangman game on a device past its first 5 games, with
 // no inbox link that day, and its fixed place under the inbox in the home page footer
 const SUPPORT_SEED = `localStorage.setItem('juegos-de-salon:support', JSON.stringify({ games: 5 })); localStorage.setItem('juegos-de-salon:buzon', JSON.stringify({ partidas: 0 }))`;
