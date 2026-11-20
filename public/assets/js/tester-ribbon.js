@@ -227,7 +227,7 @@ const SUB = { 'home-carousels-covers': 'home-carousels' };
 
 export async function labSwitches(box, { flags = () => import('./flags.js'), list = () => import('./flag-list.js') } = {}) {
   if (!box) return;
-  const [{ labHere, labOffList, setLabOff }, { FLAGS }] = await Promise.all([flags(), list()]);
+  const [{ labHere, labOffList, setLabOff }, { FLAGS, PARKED = new Set() }] = await Promise.all([flags(), list()]);
   const shown = new Set();
   const add = id => {
     if (shown.has(id)) return;
@@ -248,8 +248,8 @@ export async function labSwitches(box, { flags = () => import('./flags.js'), lis
     count(box);
   };
   // Turned off here, a flag is still asked (and listed), so it can be turned back on. Not the tab's own
-  // flag: off, the tab would go with it
-  const keep = id => id !== 'tester-ribbon' && id !== 'lab-ready' && add(id);
+  // flag (off, the tab would go with it), nor one whose card went to La Bodega as 💤 (D-593)
+  const keep = id => id !== 'tester-ribbon' && !PARKED.has(id) && add(id);
   for (const id of labHere) keep(id);
   addEventListener('lab-flag', e => keep(e.detail));
 }

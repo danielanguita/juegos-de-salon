@@ -34,5 +34,11 @@ for (const f of files) {
   for (const id of ids) assert.ok(labs.includes(`id="${id}"`), `${f} names lab: #${id}, but public/labs/index.html has no card with that id`);
 }
 for (const id of Object.keys(FLAGS)) assert.ok(asked.has(id), `FLAGS has '${id}', but no page asks flag('${id}'): its gate came off, so remove the row (D-498)`);
+// A flag whose card is in La Bodega as 💤 No prosperó has no switch in the T tab (D-593): it is in PARKED, and only those are
+const { PARKED } = await import('../assets/js/flag-list.js');
+const bodega = labs.slice(labs.indexOf('id="bodega"'));
+const parked = new Set([...bodega.matchAll(/id="seccion-([\w-]+)"[\s\S]*?<p[^>]*>\s*💤/g)].map(m => m[1]).filter(id => FLAGS[id]));
+for (const id of parked) assert.ok(PARKED.has(id), `the card #seccion-${id} is in La Bodega as 💤, but '${id}' is not in PARKED (assets/js/flag-list.js): its switch would still show in the T tab (D-593)`);
+for (const id of PARKED) assert.ok(parked.has(id), `PARKED has '${id}', but its card is not in La Bodega as 💤 No prosperó (D-593)`);
 assert.ok(checked >= 1, 'no page asks labAccess(): did lab-access.js move?');
 console.log(`✓ lab listed: ${checked} page(s) behind the lab key, ${asked.size} flag(s), each with its card in /labs/`);

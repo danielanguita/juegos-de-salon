@@ -432,7 +432,7 @@
     /* Beside One a Day's played box (#1 and its points), La Copa's chip is as wide and as tall (#1029) */
     .fila-alta:has(.uad-card.hecho) .game-card.torneo .meta { align-self: end; justify-self: stretch; width: 100%; }
     .fila-alta:has(.uad-card.hecho) .game-card.torneo .meta .copa-hoy-chip { width: 100%; flex: 1 1 100%; border-radius: 18px; min-height: calc(14px + 2.1rem * 0.95 + 0.78rem * 1.1); }
-    /* La Copa's card with its context (lab flag copa-contexto): the cup's name in a pill on the border like
+    /* La Copa's card with its context (flag copa-contexto, not asked any more: did not prosper): the cup's name in a pill on the border like
        One a Day's month, in the Cup's gold; a bar of its days; a louder ▶ (yellow to orange, pressed edge);
        the no-cup invite keeps the plain pill, matching One a Day's «Únete al mes» */
     .game-card.torneo.copa-ctx { position: relative; overflow: visible; }
@@ -785,7 +785,8 @@
     }
     // La Copa's card says what to do today (flag copa-hoy): ▶ Jugar hoy with a day to play. lab: #seccion-copa-hoy
     // With today's day played, Día N en Xh Ym (flag copa-espera). lab: #seccion-copa-espera
-    // Which cup, your place, the day's game and a bar of its days (flag copa-contexto). lab: #seccion-copa-contexto
+    // Which cup, your place, the day's game and a bar of its days (flag copa-contexto) did not prosper (La Bodega):
+    // never asked, so nobody gets it and the T tab has no switch for it. lab: #seccion-copa-contexto
     // A gold one-line «🏆 Jugar» with no day to play (flag copa-jugar). lab: #seccion-copa-jugar
     // The top bar's buttons as pills of one height (flag home-pill-bar, #1027). lab: #seccion-home-pill-bar
     import('./assets/js/flags.js').then(({ flag }) => flag('home-pill-bar')).then(on => on && document.documentElement.classList.add('pill-bar')).catch(() => {});
@@ -812,7 +813,7 @@
       }).catch(() => {});
     }
     if (copa) import('./assets/js/flags.js').then(({ flag }) => flag('copa-hoy')).then(on => on && import('./assets/js/cup-today.js'))
-      .then(m => m && import('./assets/js/flags.js').then(({ flag }) => Promise.all([flag('copa-espera'), flag('copa-contexto'), flag('copa-jugar')])).then(([wait, context, play]) => {
+      .then(m => m && import('./assets/js/flags.js').then(({ flag }) => Promise.all([flag('copa-espera'), false, flag('copa-jugar')])).then(([wait, context, play]) => {
         m.decorateCupCard(copa, { lang, wait, context, play });
         // The copy the next visit draws (D-435) is the card as decorated, not as it was before
         uadListo.then(guardarFoto);
