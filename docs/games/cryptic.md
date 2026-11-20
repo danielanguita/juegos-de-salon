@@ -25,7 +25,7 @@ look. Spanish clues only for now, by the owner's call: the mechanics first, the 
   Solving is worth 3 stars minus the helps; «Me rindo» shows the answer, with no stars.
 - **The day's clue** is the same for everyone on a date, at the player's own midnight: clue number
   `days since 2026-11-19 + 1`, walking the bank with a stride so every clue comes out once before any
-  repeats (`indexOf` in `engine.js`). With 44 clues, six weeks.
+  repeats (`indexOf` in `engine.js`). With 54 clues, almost two months.
 - **The streak:** days in a row with the day's clue solved; given up breaks it. Practice clues (any other
   clue of the bank, at random) count for nothing.
 - Rankings: none yet (D-212: whether it keeps a score is the owner's call).
@@ -67,7 +67,7 @@ Every clue in `clues.js` follows these rules:
 1. **One natural sentence that tells another story.** No colon or semicolon splitting wordplay from
    definition: the seam is the player's to find («Di que se va, pero exige flores en el camarín»).
 2. **Every piece is clued too, never written out**: a synonym (cara for costosa), a note (SOL, RE, LA), a Roman
-   number (V), a chemical symbol (NA), a translation (tour for GIRA), as «beso catalán» is PETÓ. Only anagrams
+   number (V), a chemical symbol (NA), a translation (tour for GIRA), as «beso catalán» is PETÓ. The step must be one the player takes: a word in the sense people use it (DADO as «seis caras», never «regalado», the owner). Only anagrams
    and hidden words show their letters, and then the definition carries the difficulty.
 3. **A fair but sideways definition** at one end: «ni te cases ni te embarques» for MARTES, «tiene cuatro
    esquinas» for MANZANA, never the dictionary line.
