@@ -1398,7 +1398,7 @@ function vistaWbr(now) {
     el('h3', {}, 'Headline'),
     tabla(t.metricas.map(m => [m.nombre, m.valores, m.cambio, m.decimales]), ''),
     el('h3', {}, 'Top 10 games'),
-    el('p', { class: 'muted small' }, 'Games started; every mode and version, La Copa included. n/a: not measured yet, or the game was not out yet. The last two rows: every public game\'s games, and the share these ten take of them.'),
+    el('p', { class: 'muted small' }, 'Games started; every mode and version, La Copa included. n/a: not measured yet, or the game was not out yet. The last two rows: games across every public game, and the share of them these ten take.'),
     tabla([...t.juegos.map((g, i) => [`${i + 1}. ${g.juego}${g.nuevo ? ` (out ${g.nuevo.replace(/, \d{4}$/, '')})` : ''}`, g.valores, g.cambio]),
       ['Total games played', t.totales.valores, t.totales.cambio, false, 'wbr-total'], ['Top 10 share of the total', t.totales.top10, null, '%']], 'Game'),
   ];
