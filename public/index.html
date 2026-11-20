@@ -800,7 +800,8 @@
       // Sub-flag home-carousels-covers: an icon opens the game's cover instead of its sheet. Asked only with the
       // carousels on, so its switch in the T tab shows only under the main one. lab: #seccion-home-carousels-covers
       const direct = () => import('./assets/js/flags.js').then(({ flag }) => flag('home-carousels-covers')).catch(() => false);
-      const draw = () => direct().then(d => import('./assets/js/home-carousels.js').then(m => m.drawCarousels({ lang, T, games: JUEGOS_PORTADA, tap: () => SFX.tap(), openSlug: shared ? slug : null, direct: d && !shared })));
+      // The sub-flag goes in as a promise: the rows do not wait for its read from Firebase
+      const draw = () => import('./assets/js/home-carousels.js').then(m => m.drawCarousels({ lang, T, games: JUEGOS_PORTADA, tap: () => SFX.tap(), openSlug: shared ? slug : null, direct: shared ? false : direct() }));
       const drawn = document.documentElement.classList.contains('carousels') ? draw() : null;
       drawn?.catch(() => document.documentElement.classList.remove('carousels'));
       import('./assets/js/flags.js').then(({ flag }) => flag('home-carousels')).then(async on => {

@@ -40,8 +40,10 @@ assert.ok(row('dexterity').every(g => maxMinutes(g) <= QUICK_MINUTES || g.tipos?
 assert.equal(maxMinutes({ duration: '5–30' }), 30);
 assert.equal(maxMinutes({ duration: '7' }), 7);
 assert.equal(maxMinutes({ duration: '7', durationUnit: { es: 'días' } }), Infinity, 'days are never quick');
-// The ranking a sheet shows: wins for a game played in a room, else its solo table (as /records/)
+// The ranking a sheet shows: its solo table when it has one (as its cover, D-274), else wins for a game played in a room
 assert.deepEqual(rankingOf({ id: 'dudo', jugadas: true }), { table: 'dudo_victorias', wins: true });
+assert.deepEqual(rankingOf({ id: 'generala', jugadas: true }), { table: 'generala_solo', wins: false }, 'Generala shows its solo scores, not its wins');
+assert.deepEqual(rankingOf({ id: 'toque-y-fama', jugadas: true }), { table: 'toque-y-fama_solo', wins: false });
 assert.deepEqual(rankingOf({ id: 'reinas' }), { table: 'reinas', wins: false });
 assert.deepEqual(rankingOf({ id: 'sudoku' }), { table: 'sudoku_easy', wins: false }, "Sudoku's first level has its own table");
 assert.deepEqual(rankingOf({ id: 'croc' }), { table: SOLO_TABLES['croc'], wins: false });

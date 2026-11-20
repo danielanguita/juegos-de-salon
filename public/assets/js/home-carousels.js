@@ -66,8 +66,14 @@ export const slugOf = g => String(g.path || '').replace(/^\.?\//, '').split('/')
 /** The link that opens the home page with this game's sheet over it: what the sheet's share button sends. */
 export const sheetUrl = (g, lang, home = homeUrl(lang)) => `${home}?game=${slugOf(g)}`;
 
-/** The table a game's sheet shows: its wins when it is played in a room, else its solo scores (as /records/ does). */
-export const rankingOf = g => (g.jugadas ? { table: `${g.id}_victorias`, wins: true } : { table: SOLO_TABLES[g.id] || FIRST_VARIANT_TABLES[g.id] || g.id, wins: false });
+/**
+ * The table a game's sheet shows: its solo scores when it has them, else its wins when it is played in a room. A game
+ * with both (Generala, Toque y Fama, Ahorcado) shows the solo one, as its own cover puts it on top (D-274): almost all of
+ * its games are played alone, and its wins table was the empty one (the owner, 2026-11-19).
+ */
+export const rankingOf = g => (SOLO_TABLES[g.id] || !g.jugadas
+  ? { table: SOLO_TABLES[g.id] || FIRST_VARIANT_TABLES[g.id] || g.id, wins: false }
+  : { table: `${g.id}_victorias`, wins: true });
 
 /**
  * The page that draws a game's cover animation alone (cup/cover/), for the sheet's frame; null for a game
@@ -88,8 +94,13 @@ function goCover(g) {
   location.href = g.path;
 }
 
+/**
+ * `direct` (sub-flag home-carousels-covers) may be a promise: the rows are drawn at once, as a sheet, and a tap opens
+ * the cover once it says so. Waiting for it held the whole drawing behind two reads from Firebase (the flags and the lab key).
+ */
 export async function drawCarousels({ lang, T, games, tap = () => {}, doc = document, openSlug = null, direct = false }) {
   const t = TEXTS[lang] || TEXTS.es;
+  let isDirect = direct === true;
   const root = doc.documentElement;
   root.classList.add('carousels');
   // A filter kept in the link hid Uno al día's card: with no filters there is nothing to filter
@@ -262,7 +273,7 @@ export async function drawCarousels({ lang, T, games, tap = () => {}, doc = docu
       ...shelves(games, { favs: favoritos() }).map(s => {
         const paths = s.games.map(g => new URL(g.path, doc.baseURI).href);
         const row = el('div', { class: 'shelf-row', 'data-shelf': s.id, role: 'list' }, s.games.map(g =>
-          el('div', { role: 'listitem' }, el('button', { type: 'button', class: 'shelf-tile', 'data-id': g.id, 'aria-haspopup': direct ? null : 'dialog', onClick: () => { tap(); if (direct) goCover(g); else open(g, s.id, paths); } },
+          el('div', { role: 'listitem' }, el('button', { type: 'button', class: 'shelf-tile', 'data-id': g.id, 'aria-haspopup': isDirect ? null : 'dialog', onClick: () => { tap(); if (isDirect) goCover(g); else open(g, s.id, paths); } },
             el('span', { class: 'emoji', 'aria-hidden': 'true' }, gameIcon(g, { size: 1 })),
             el('span', { class: 'name' }, pickLang(g.name, lang))))));
         return el('section', { class: 'shelf', 'aria-labelledby': `shelf-${s.id}` },
@@ -270,6 +281,12 @@ export async function drawCarousels({ lang, T, games, tap = () => {}, doc = docu
       }));
   }
   draw();
+  if (direct !== true && direct !== false) {
+    Promise.resolve(direct).then(d => {
+      isDirect = !!d;
+      box.querySelectorAll('.shelf-tile').forEach(b => (isDirect ? b.removeAttribute('aria-haspopup') : b.setAttribute('aria-haspopup', 'dialog')));
+    }).catch(() => {});
+  }
   // A shared link (`?game=<slug>`) opens that game's sheet at once, over the page
   if (openSlug) {
     const tile = [...box.querySelectorAll('.shelf-tile')].find(b => slugOf(games.find(g => g.id === b.dataset.id) || {}) === openSlug);
