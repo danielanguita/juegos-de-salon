@@ -27,6 +27,8 @@ export const HINT = 'juegos-de-salon:home-carousels';
 export const QUICK_MINUTES = 3;
 /** The skill type (🎯 Pulso in the list's filters) has no row of its own here: its games go in Destreza (the owner, 2026-11-19). */
 export const IN_DEXTERITY = 'skill';
+/** The words type has no row here either (the owner, 2026-11-20): Agents moved to Logic; the other word games sit in their other rows. */
+export const NO_ROW = ['words'];
 
 export const TEXTS = {
   es: { friends: 'Solo o con amigos', dexterity: 'Destreza', details: 'Detalles', play: '▶ Jugar' },
@@ -49,7 +51,7 @@ export function shelves(games, { favs = [], top = populares(), isNew = esNuevo }
     ['new', '✨', g => isNew(g)],
     ['friends', '👥', g => rangoJugadores(g.players)[1] > 1],
     ['dexterity', '🤹', g => maxMinutes(g) <= QUICK_MINUTES || (g.tipos || []).includes(IN_DEXTERITY)],
-    ...Object.entries(TIPOS).filter(([id]) => id !== IN_DEXTERITY).map(([id, t]) => [id, t.emoji, g => (g.tipos || []).includes(id)]),
+    ...Object.entries(TIPOS).filter(([id]) => id !== IN_DEXTERITY && !NO_ROW.includes(id)).map(([id, t]) => [id, t.emoji, g => (g.tipos || []).includes(id)]),
   ];
   // A game shows once on the whole page (the owner, 2026-11-18): it stays in the first row that holds it, in this
   // order, and leaves the ones after it; a row left with no game is not drawn

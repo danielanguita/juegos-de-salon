@@ -125,15 +125,18 @@ console.log('timeline.test.mjs ✓');
   assert.deepEqual(evs.map(e => [e.kind, e.campaign, e.who[0].name]), [['campaign', 'tres-juegos-demo', 'Cata'], ['campaign', 'support', '']]);
   assert.equal(countKinds(evs).campaign, 2);
 }
-// A burst of identical rows (same campaign, name, country) is one row with its count
+// Identical rows (same campaign, name, country) within two minutes are one row with its count; without a
+// name they cannot be told apart (`anon`, maybe different people), and 3 or more within seconds are a robot: out
 {
   const seen = { [today]: { seen: {
     a: { c: 'flap', at: now - 10 * 60000, co: 'US' }, b: { c: 'flap', at: now - 10 * 60000 + 200, co: 'US' },
     c: { c: 'flap', at: now - 10 * 60000 + 400, co: 'US' }, d: { c: 'flap', at: now - 10 * 60000 + 600, co: 'US' },
     e: { c: 'flap', at: now - 10 * 60000 + 300, co: 'BR' }, f: { c: 'flap', at: now - 2 * 60000, co: 'US' },
+    g: { c: 'flap', at: now - 30 * 60000, co: 'AU' }, h: { c: 'flap', at: now - 30 * 60000 + 30000, co: 'AU' },
+    i: { c: 'support', at: now - 40 * 60000, name: 'Cata', co: 'CL' }, j: { c: 'support', at: now - 40 * 60000 + 5000, name: 'Cata', co: 'CL' }, k: { c: 'support', at: now - 40 * 60000 + 9000, name: 'Cata', co: 'CL' },
   } } };
   const evs = keyEvents({ days: seen }, { from: today - 6, to: today }, now);
-  assert.deepEqual(evs.map(e => [e.who[0].co, e.times || 1]), [['US', 1], ['BR', 1], ['US', 4]]);
+  assert.deepEqual(evs.map(e => [e.who[0].co, e.times || 1, !!e.anon]), [['US', 1, false], ['BR', 1, false], ['AU', 2, true], ['CL', 3, false]], 'the burst of 4 US rows in a second is gone; a named one keeps its count');
 }
 console.log('timeline campaigns ok');
 

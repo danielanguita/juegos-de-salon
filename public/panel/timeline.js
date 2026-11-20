@@ -12,7 +12,7 @@
  * - cups: `torneos/`, read through the cup engine (`historiaCopa`), which has no environment: a lab
  *   cup carries its tag;
  * - feedback: `feedback/`, also with no environment;
- * - campaigns seen: `stats/<env>/days/<day>/seen/` (D-503), one row per phone and splash campaign (its first reach, once the page is visible; identical rows within two minutes are joined)
+ * - campaigns seen: `stats/<env>/days/<day>/seen/` (D-503), one row per phone and splash campaign (its first reach, once the page is visible; identical rows within two minutes are joined; a nameless group is `anon`, possibly different people, and 3+ nameless rows within 10 s are a robot and left out)
  *   or of the donation card (`c: 'support'`), with the name the phone knew; skins are not campaigns.
  *
  * Days are Pacific days (the panel's clock, the one La Copa splits its days with): "the last 7 days"
@@ -48,6 +48,8 @@ export function pacificRange({ from, to }, now = Date.now()) {
  */
 /** Identical campaign rows this close together are one row (`times`). */
 export const SEEN_BURST_MS = 2 * 60000;
+/** Rows without a name this many or more, all within this span, are a robot opening pages at once: out of the Timeline. */
+export const ROBOT_BURST = { rows: 3, ms: 10000 };
 
 export function keyEvents({ days = {}, torneos = {}, feedback = {} } = {}, range, now = Date.now()) {
   const { from, to } = pacificRange(range, now);
@@ -108,15 +110,23 @@ export function keyEvents({ days = {}, torneos = {}, feedback = {} } = {}, range
       seen.push({ at: v.at, kind: 'campaign', id, campaign: v.c, who: [{ name: v.name || '', co: v.co || '', bot: !!v.r }] });
     }
   }
-  const last = new Map(), rows = [];
+  // A row carries no browser id (D-349 keeps it away from names), so rows without a name cannot be
+  // told apart: their group is not one person (`anon`), and a burst of them within seconds is a robot
+  // rendering several pages at once (the bursts of four from the US, Nov 10 to 16): it is left out
+  const last = new Map(), rows = [], finDe = new Map();
   for (const e of seen.sort((a, b) => a.at - b.at)) {
     const key = [e.campaign, e.who[0].name, e.who[0].co, e.who[0].bot].join('|');
     const prev = last.get(key);
-    if (prev && e.at - prev.lastAt <= SEEN_BURST_MS) { prev.row.times = (prev.row.times || 1) + 1; prev.lastAt = e.at; continue; }
+    if (prev && e.at - prev.lastAt <= SEEN_BURST_MS) { prev.row.times = (prev.row.times || 1) + 1; prev.lastAt = e.at; finDe.set(prev.row, e.at); continue; }
     last.set(key, { row: e, lastAt: e.at });
     rows.push(e);
   }
-  rows.forEach(push);
+  for (const e of rows) {
+    if (e.who[0].name || !(e.times > 1)) { push(e); continue; }
+    if (e.times >= ROBOT_BURST.rows && finDe.get(e) - e.at <= ROBOT_BURST.ms) continue;
+    e.anon = true;
+    push(e);
+  }
 
   return out.sort((a, b) => b.at - a.at || KINDS.indexOf(a.kind) - KINDS.indexOf(b.kind));
 }
