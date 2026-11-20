@@ -1,5 +1,198 @@
 # Changelog
 
+## 1.28.12 — 2026-11-19
+- **The tester tab's cloud states go with offline mode** (D-592): «Estados de la nube» shows in «Probando ahora» only while the offline-mode row does, and hides with it.
+
+## 1.28.11 — 2026-11-19
+- **La Copa's home card without the context that did not prosper** (flag `copa-contexto`, in La Bodega): the home page no longer asks it, so testers no longer get it and the «T» tab has no switch for it.
+- **The «T» tab drops the switch of every flag whose card went to La Bodega as 💤** (D-593), as it already did for launched ones.
+
+## 1.28.10 — 2026-11-19
+- **Lab cards, short**: every card being tried in the lab now says what it tries in a sentence or two, and a new rule keeps each one at 25 words or fewer (D-594).
+
+## 1.28.9 — 2026-11-19
+- **Rankings (lab, flag `cup-best-day-all`):** «Mejor día de copa» also lists La Copa's own games: Línea Relámpago, Toque y Fama: Número and La Gran Final. Their best days were already kept but shown nowhere.
+- **Group games (lab, flag `wins-hide-empty`):** while nobody is in a game's «Más victorias», its cover shows only the title and the line saying how wins count, with no tabs and no «Todavía nadie» (today Generala, El Ahorcado and Línea de tiempo); signing in stays.
+
+## 1.28.8 — 2026-11-19
+- **The tester tab «T» opens lighter** (D-592): its first view, «Probando ahora», shows only what the tester pinned with 📌; «Experimentos» lists every switch of the page, each with its 📌. Hiding one never turns it off, and anything turned off on the phone always stays in sight, marked.
+
+## 1.28.7 — 2026-11-19
+- **Lab · 📰 News strip**: a demo of six ways to draw a strip of news above the home page's top bar, over the real home page and unscaled (the phone's own width, or 320, 360, 390 or 430 px on a computer). Each headline is a campaign, and a tap opens its real splash without marking it seen.
+
+## 1.28.6 — 2026-11-19
+- **Home carousels (lab):** the rows show as soon as the page opens. They used to wait for two reads from the server (the flags and the lab key) before the first icon appeared.
+- **Home carousels (lab):** the sheet of a game you can play alone and with others (Generala, Toque y Fama, El Ahorcado) shows its solo scores, as its own cover does. It used to show the wins table, which is almost always empty.
+
+## 1.28.5 — 2026-11-19
+- **Críptico (lab)**: the cover's split-flap board runs through more words before landing on the name (10 in Spanish, 9 in English and Portuguese), so its loop is longer.
+
+## 1.28.4 — 2026-11-19
+- **Home carousels (lab):** the "Con amigos" row is now "Solo o con amigos" (English "Solo or with friends", Portuguese "Sozinho ou com amigos"): its games can be played alone too.
+
+## 1.28.3 — 2026-11-19
+- **Críptico (lab)**: the cover's line now says what the game is in plain words: «Pistas directas, indirectas y con truco para encontrar una palabra.» (in English and Portuguese too).
+
+## 1.28.2 — 2026-11-19
+- ✨ Nuevo shows on launch night for lab key holders too: the home page draws again when a launch starts a game's label.
+- docs/LAUNCH.md: the launch playbook, from preparation to cleanup, with every past miss.
+
+## 1.28.1 — 2026-11-19
+- Scheduled launches run only as Claude cloud tasks with a second task as alarm (D-591), after the desktop-app task waited on a permission prompt; launch times corrected to 18:54 Pacific.
+
+## 1.28.0 — 2026-11-20
+- **Panel (owner):** the WBR has a new table, weekly active users by game: how many browsers finished each game in each week (a month averages its full weeks), most first by the closed week; a game started and never finished gets a ⚠️ highlight. Each browser now notes, once a day, which games it started and finished, with the same random number it already had and nothing else (D-590, /privacy/ updated in the three languages); until that count covers a week, the table shows an estimate marked ~.
+- **Panel and weekly email (owner):** every games metric in the WBR says whether it counts games started or finished ("Games started per active browser", "Most finished", "Cup games finished"…).
+
+## 1.27.27 — 2026-11-19
+- **Críptico (lab): the owner's MANJAR clue** («El hombre junto a un frasco de vidrio. It's delicious!, exclama»). The bank has 56 clues.
+
+## 1.27.26 — 2026-11-20
+- **Críptico (lab): propose your own clue.** At the end of every clue, «✍️ ¿Se te ocurre uno? Propón tu críptico»
+  opens the feedback form with the kind «Críptico» picked: the clue, the answer, how one gets there (optional),
+  the name to sign it with (the registered player's, editable) and the optional email. It reaches the panel as
+  feedback and becomes an issue the feedback agent judges, improving it when it can, for the owner to publish
+  as is, as one of its versions or not at all.
+- **«Hoy es tu críptico».** A published clue carries its author: on its day the author does not play it, sees it
+  with its solution and keeps the streak; practice never gives a player their own clue; everyone else sees
+  «Críptico de <name>». The privacy page says the chosen name is published with the clue.
+
+## 1.27.25 — 2026-11-19
+- **Panel (owner):** the WBR's Top 10 games (and the Sunday email's) rank and count games finished, as the headline does, instead of games started; its total row is now total games finished.
+
+## 1.27.24 — 2026-11-19
+- **Panel (owner):** the WBR's column titles are short ("Nov 8–14", "Oct 26–Nov 1"), so more columns fit on a phone; a partial week or month carries a * explained in one line under the headline table, and in the Sunday email.
+
+## 1.27.23 — 2026-11-19
+- One icon per game: the splash takes every game's icon from games.js, so Dominorama's card shows its drawn domino, not 🎲; a test stops a campaign from mixing in another emoji for a game.
+
+## 1.27.22 — 2026-11-19
+- **Panel (owner):** the WBR's Top 10 games table ends with two rows: the total games played on the platform in each column, and the share of it the top 10 take, to see how play spreads across the games.
+
+## 1.27.21 — 2026-11-19
+- **Panel (owner):** the 📋 WBR shows the week in progress first, as a partial column (Sunday to today, Pacific time), on the latest closed week; the % changes, the top 10 and the highlights still compare the closed week.
+
+## 1.27.20 — 2026-11-19
+- **Críptico (lab): a word never breaks over two lines.** The letter boxes share the card's width in one row, and
+  their letters shrink for the long answers (MEDIANOCHE, MANTEQUILLA). The car-jack clue now answers GATA, as it
+  is said in Chile (the owner).
+
+## 1.27.19 — 2026-11-19
+- **Críptico (lab): the owner's NÓMADA clue** («Madonna sale quinta, enloquece y viaja»). The bank has 55 clues.
+
+## 1.27.18 — 2026-11-19
+- 🎲 **Dominorama** and 👀 **Memorice** leave the lab at 19:00 Pacific on 2026-11-19 (flags and the `dominorama-memorice` splash, by the `launch` workflow); they join Uno al día and show ✨ Nuevo from 2026-11-20.
+
+## 1.27.17 — 2026-11-19
+- **Críptico (lab): ten clues of high difficulty**, thought with the owner (CORAZÓN, MEDIANOCHE, PRIMAVERA, ANTIFAZ,
+  ARES, ALMA, ESPONJA, CANDADO, SOLEDAD, PARAGUAS): each piece takes a step of its own before the word is built.
+  The bank has 54 clues.
+
+## 1.27.16 — 2026-11-19
+- **Críptico (lab): the airport board mixes its words.** Each word reads whole for a moment, then the next one's
+  letters creep in one tile at a time, so for a while the two words mix. CRÍPTICO is one more word of the loop,
+  held as long as the others, so the loop has no start or end.
+
+## 1.27.15 — 2026-11-19
+- **Críptico (lab): you type straight into the boxes.** The separate answer field is gone: a tap on the boxes opens
+  the keyboard, each letter lands in its box and the cursor (the yellow box) moves on by itself. Only letters go in,
+  never more than the answer has.
+
+## 1.27.14 — 2026-11-19
+- **Críptico (lab): two clues from the owner**, MANTEQUILLA («Hombre americano con un litro extra en tequila. Qué
+  maravilla de calorías doradas») and RELAMIDO («Sonaron cuatro notas y no quedó una pizca de dulce de leche en la
+  cuchara»). The bank has 44 clues.
+
+## 1.27.13 — 2026-11-19
+- **🎲 Dominorama: every `>` and `<` rule can fail** (issue #1656): the board builder no longer shows a rule that holds whatever the player does (`>-1`, `>0` on a board with no blank, `<13` on two cells), which read like a bug. It checks each threshold against the board's own dominoes at every step that sets or reshapes a rule, and the engine test checks every zone of every test board.
+
+## 1.27.12 — 2026-11-19
+- **Críptico (lab): sharper clues.** The owner still found ours too easy. The bank grows to 42, and every clue now
+  clues its pieces instead of writing them out (a synonym, a note, a Roman number, a symbol), with a sideways
+  definition, as the owner's own clues do. The spec's rules gain that one.
+
+## 1.27.11 — 2026-11-19
+- **Críptico (lab): harder clues.** The 30 clues of the bank are rewritten as one natural sentence that tells
+  another story, with no colon between the wordplay and the definition, a sideways definition and an indicator
+  blended into the story, so the player has to think and reach for a hint. The owner's two clues stay as written.
+  The rules are in the game's spec.
+- **Críptico (lab): a new clue from the owner**, COMA, a double definition («Ojalá se alimente y te ayude a separar
+  las ideas»). The bank has 33 clues.
+- **Críptico (lab): the owner's CAMISA clue** («En la cumbre, de dos en dos, Camilo miraba Santiago. Hasta que se le
+  salió un botón») replaces the earlier CAMISA one; still 33 clues.
+
+## 1.27.10 — 2026-11-19
+- **🗝️ Críptico** (lab): the cover's airport board never stops. Each word comes in as a wave, tile by tile, its tiles keep flapping while it holds, and it loops through the words endlessly. There is a bit more room between the board and the title.
+
+## 1.27.9 — 2026-11-19
+- **🗝️ Críptico, a new game in the lab**: one cryptic clue a day, in Spanish. Part of the clue defines the word and the rest builds it with wordplay (anagram, reversal, hidden word, charade…). Three helps that cost a star each, a streak, and practice with clues from other days. It starts with 32 clues of our own.
+
+## 1.27.8 — 2026-11-19
+- **🔤 Toque y Fama: Palabra under Palabras** (lab): on the home page, the 🔤 Palabras filter shows its own card, which opens the word version directly. With no filter there is still one Toque y Fama, where you pick number or word.
+
+## 1.27.7 — 2026-11-19
+- **The Dominorama and Memorice splash** (still off) is titled "¿Lógica o memoria?".
+
+## 1.27.6 — 2026-11-19
+- **The splash, polished for Dominorama and Memorice** (still off): on a phone each game's clip sits inside its card with a small border and the cards are further apart; Dominorama's clip shows only the board filling up; Memorice's has room around its board and its card opens with "Un clásico de la infancia."
+
+## 1.27.5 — 2026-11-19
+- **Labs, T tab**: a sub-flag always sits under its main flag, and the icon view's one is called «↳ target: portada».
+
+## 1.27.4 — 2026-11-19
+- **Icon view (lab):** the 🎯 Pulso row joins 🤹 Destreza; one row now holds the quick games and the skill games together.
+
+## 1.27.3 — 2026-11-19
+- **Splash campaign `dominorama-memorice`**, made but off: it presents 🎲 Dominorama and 👀 Memorice side by side, and stays unseen until both games are launched and the owner turns it on in 📣 Campaigns.
+
+## 1.27.2 — 2026-11-19
+- **Labs, icon view**: the T tab calls it «main page con íconos», and a new sub-flag `home-carousels-covers`, shown under it only while it is on, makes a tap on an icon open the game's cover instead of its sheet.
+
+## 1.27.1 — 2026-11-19
+- **The stalled-PR takeover runs in the cloud again**: it had been scheduled on the Mac mini's Remote Control environment, where each hourly run stayed open and filled the server's 32 places, so sessions opened from other devices failed. Its prompt doc now says which environment to pick.
+
+## 1.27.0 — 2026-11-19
+- **🎲 Dominorama leaves the lab, ready to launch by flag (D-517's way), not launched**: La Copa's screen in `cup/games/dominorama/` (the lab's engine moved there, plus `generateDay` and `card`; `ui.js`, `texts.js` in es/en/pt, `style.css`, the drawn domino icon), its page `/dominorama/` with its bridges and link card, La Copa (pozo 20) and Uno al día (orden 25, `desde` a placeholder until the owner picks the launch date). Hidden until `flags/dominorama` is on; the credit to NYT's Pips stays on its cover. Splash media recorded for a future campaign (`marketing/splash/dominorama-clip.mjs`). e2e `tools/e2e/dominorama/page.mjs`.
+
+## 1.26.5 — 2026-11-19
+- **👀 Memorice is ready to leave the lab, launched by flag (D-517's way), not launched yet**: La Copa's game in
+  `public/cup/games/memory/` (the lab's engine and pictures moved there, plus `generateDay`, `card` and Uno al día's
+  `dayScore`; its screen `ui.js`, texts in es/en/pt, `style.css`), serving its page **/memorice/**, La Copa (pozo 19)
+  and Uno al día (orden 24, its date a placeholder until the owner picks the launch). Hidden until `flags/memory` is
+  on; its ranking table is `memory`. The lab card points to the page; the prototype stays on the moved engine. Its
+  link card `assets/og/memory.jpg`, the splash clip `assets/splash/memory.mp4` (with `memory-start.jpg` and
+  `memory.jpg`, recorded by `marketing/splash/capture.mjs memory`) and the e2e `tools/e2e/memory/page.mjs`.
+
+## 1.26.4 — 2026-11-19
+- 🚉 Transbordo leaves the games being tried for 📦 La Bodega → 🎲 Juegos guardados as 💤 No prosperó (the owner was not convinced); still playable with the lab key.
+
+## 1.26.3 — 2026-11-19
+- **The offline copy no longer stores the lab games** on players' phones: Labs is for the team, so its games stay online-only (`precache.mjs`, guarded by `precache.test.mjs`).
+
+## 1.26.2 — 2026-11-19
+- **Making-of setup diagram: the left lane reads THE TEAM** instead of PEOPLE, so players, on the product side, are not read as missing from it. Nothing changes for players.
+
+## 1.26.1 — 2026-11-19
+- **La Copa on the home page**: with no day to play, its card shows a gold one-line «🏆 Jugar» (Play, Jogar) as tall as One a Day's «Únete al mes», behind the new lab flag `copa-jugar`.
+
+## 1.26.0 — 2026-11-19
+- **In the lab: today's Uno al día at the end of a game played on its own** (flag `solo-result-today-card`, #1597). Under «Volver al menú» of any game played on its own, one cyan line says which game Uno al día brings today («📅 Uno al día de hoy: 👑 Reinas · Jugar») and opens it; only while today's game is not played yet on that phone, never in La Copa or in Uno al día itself. In three languages, with its card in /labs/ and its switch in the «T» tab.
+
+## 1.25.21 — 2026-11-19
+- **The making-of page up to 19 November** (`/making-of/`): the four new agents (Feedback, Retention, CI health, Backlog) with their job descriptions, the agents told as seven standing roles plus four specialists Processes sends (cards and diagram), 14 GitHub jobs in the setup diagram, an 18 November step (the merge queue, Croc! by a second contributor) and an 11th learning, «Measure the AI before you trust it» (the clue judge). Nothing changes for players.
+
+## 1.25.20 — 2026-11-19
+- **Workshop: the player agent looks harder at the screen a PR changes.** It still plays the whole game as a first-time player, but it learns from the PR's changelog entry (never its code) which screen changed, plays that screen again in the second language and at 320 px, and its report always says how that screen read. Nothing changes for players.
+
+## 1.25.19 — 2026-11-19
+- **Icon view (lab)**: the home page lab is renamed «Vista de íconos», its groups sit further apart, and «Rápidos» is now «Destreza».
+
+## 1.25.18 — 2026-11-19
+- **The install invitation's e2e check reads the page's clock**: since the scripts run on a fixed day (D-589), the check that the ✕ snoozes the invitation 14 days compared the page's date with node's real one, and went red on every PR that ran it from 2026-11-19 on. `real-date.test.mjs` now fails a pinned script whose check reads node's clock.
+
+## 1.25.17 — 2026-11-19
+- Workshop: the push guard now also stops a `git push` when a decision file would fail `document.test.mjs` (a topic not in `topics.json`, a Status not in canonical form, a number twice), with the new `node tools/agents/document.mjs decisions` (CI failure signature seen on #1492 and #1574).
+
 ## 1.25.16 — 2026-11-19
 - **Workshop: no end-to-end script depends on the real date** (D-589). The scripts that open a page following
   today (the home page and its ✨ New row, `/today/`, `/records/`, La Copa's create screen, the screen catalog
