@@ -492,6 +492,12 @@
       "rule": "space",
       "what": "padding-right: 40px",
       "reason": "room for the date's ✕ button (36 px at 4 px from the edge) beside the value: another element's size, not rhythm"
+    },
+    {
+      "file": "public/cup/style.css",
+      "rule": "colour",
+      "what": "*mask-image: #000",
+      "reason": "The opaque stop of the mask that fades the 11th row peeking under «See all N players»: a mask reads only the alpha."
     }
   ]
 }
