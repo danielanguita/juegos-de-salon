@@ -25,7 +25,7 @@ weekly email's tables for any closed week, by Pacific date (D-561), from `public
 the headline (games finished and started, active browsers, daily active, games per active browser, visits)
 and the top 10 games, over the week, the four before, this month so far and the two before; "n/a" before
 a counter or a game existed. It downloads back to the first of the month two months before its week.
-On the latest closed week a first column shows the week in progress (Sunday to today, partial), for a look only: the % changes, the top 10 and the highlights still read the closed week. On a phone its tables scroll sideways with the names pinned. The Sunday email links to its week.
+Its Top 10 table ends with the total games played (every public game) and the share the ten take of it, column by column. On the latest closed week a first column shows the week in progress (Sunday to today, partial), for a look only: the % changes, the top 10 and the highlights still read the closed week. On a phone its tables scroll sideways with the names pinned. The Sunday email links to its week.
 
 **Lab plays are out of every count of games (D-560).** Summary, Group, Individual and Audience read the
 days through `withoutLabGames(days, publicGameCheck(flags))` (`public/panel/public-games.js`): a play

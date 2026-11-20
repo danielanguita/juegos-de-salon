@@ -120,7 +120,8 @@ export const baseGame = id => { const b = String(id).split(/:| · /)[0]; return 
  * closed week, every mode, version and La Copa's plays together, lab plays left out (a game outside
  * ALL_GAMES, or a play before the day its `flags/<id>` went to all). With `actual` (the week in
  * progress, the panel's view of the latest closed week), a partial column goes first; the % changes,
- * the top 10 and the highlights still read the closed week, at index `cerrada`.
+ * the top 10 and the highlights still read the closed week, at index `cerrada`. `totales`: every
+ * public game's plays per column and the share of them the top 10 take (the same ten in every column).
  */
 export function trend({ days = {}, torneos = {}, flags = {} } = {}, w, { actual = null } = {}) {
   // The panel's WBR puts the week in progress first (partial); every comparison still reads the closed week, at `k`
@@ -177,7 +178,14 @@ export function trend({ days = {}, torneos = {}, flags = {} } = {}, w, { actual 
     const cambio = valores[k + 1] === null || salio(b) > cols[k + 1].from ? null : variacion(valores[k], valores[k + 1]);
     return { juego: nombreJuego(b), valores, cambio, nuevo: salio(b) > cols[k + 1].to ? fechaDia(salio(b)) : null };
   });
-  return { columnas: cols.map(c => c.titulo), metricas, juegos, cerrada: k };
+  // Every public game's plays in each column, and the share the top 10 take of them: how spread the play is
+  const total = porCol.map(p => Object.values(p).reduce((a, v) => a + v, 0));
+  const totales = {
+    valores: total,
+    cambio: total[k + 1] ? variacion(total[k], total[k + 1]) : null,
+    top10: total.map((t, i) => (t ? Math.round((juegos.reduce((a, g) => a + (g.valores[i] || 0), 0) / t) * 1000) / 10 : null)),
+  };
+  return { columnas: cols.map(c => c.titulo), metricas, juegos, totales, cerrada: k };
 }
 
 /** The last full week (Sunday to Saturday, Pacific dates) before `now`, as the weekly email reads it. */
