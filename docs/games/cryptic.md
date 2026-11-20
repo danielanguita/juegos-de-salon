@@ -76,6 +76,23 @@ Every clue in `clues.js` follows these rules:
 5. **One answer only**, and `x` shows every step of the solution. The engine test checks the mechanics it can
    (definition at an end, anagram letters, hidden and reversed words).
 
+## A player's clue (the owner, 2026-11-19)
+
+Part of the game, not a flag: at the end of every clue, «✍️ ¿Se te ocurre uno? Propón tu críptico» opens
+the feedback form (`propose.js`) with the kind «🗝️ Críptico» already picked: the clue, the answer, how one
+gets there (optional), the name to sign it with (the registered player's by default, editable) and the
+optional email. It goes to `feedback/` with `tipo: 'criptico'`, so it reaches the panel's 💬 Feedback and
+becomes a `feedback:cryptic-clue` issue; the feedback agent judges it, proposes better versions and gives
+the owner a one-tap choice (`docs/FEEDBACK-TRIAGE.md`). An approved clue joins `clues.js` with
+`by: { n, j }`: the name, and the player id when the author had one.
+
+- **«Hoy es tu críptico».** Everyone plays the same clue on a day, so its author is never given another
+  one: on that day the author sees their own clue with its solution and the day counts for the streak
+  (🗝️ instead of stars), with nothing to share. Practice never draws a player's own clues. Everyone else
+  sees «Críptico de <name>» under the solution. The author is known by their player id, so on a phone
+  where they did not sign in they get it like anyone else.
+- In English and Portuguese the form asks for the clue in Spanish, as long as the clues are only in Spanish.
+
 ## Excepciones a los cánones
 
 - **C-8b:** a wrong guess is the normal move (as in El Ahorcado, D-56): it does not open a notice to close.

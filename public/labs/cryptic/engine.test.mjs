@@ -4,6 +4,7 @@ import * as E from './engine.js';
 import { LOCALES, KIND_KEYS, CLUE_LANG } from './rules.js';
 import { CLUES } from './clues.js';
 import { BOARD_WORDS } from './flapboard.js';
+import { esJid } from '../../assets/js/records.js';
 
 // Normalizing: accents go, Ñ stays, only letters
 assert.equal(E.normalize(' jamón '), 'JAMON');
@@ -65,6 +66,8 @@ for (const [lang, list] of Object.entries(CLUES)) {
     const tag = `${lang} ${c.a}`;
     assert.ok(KIND_KEYS.includes(c.k), tag + ': a known kind');
     assert.ok(c.c && c.x, tag + ': clue and explanation');
+    // A player's clue names its author: the name shown and, if they had one, their player id (propose.js)
+    if (c.by !== undefined) assert.ok(typeof c.by.n === 'string' && c.by.n.trim() && (c.by.j === undefined || esJid(c.by.j)), tag + ': its author');
     const at = c.c.indexOf(c.d);
     assert.ok(at >= 0, tag + ': the definition is in the clue word for word');
     assert.ok(at === 0 || at + c.d.length === c.c.length, tag + ': the definition is at one end');
@@ -104,4 +107,10 @@ for (const [lang, words] of Object.entries(BOARD_WORDS)) {
   for (const w of words) assert.equal([...w].length, n, `${lang} ${w}: ${n} letters, like ${words.at(-1)}`);
   assert.equal(E.normalize(words.at(-1)), E.normalize(LOCALES[lang].ui.title), `${lang}: the board lands on the name`);
 }
+// A player's own clue (the owner, 2026-11-19): it is theirs to skip, never to play
+const mine = [{ a: 'A' }, { a: 'B', by: { n: 'Ana', j: 'abcdefghijkl' } }, { a: 'C' }, { a: 'D', by: { n: 'Leo', j: 'mnopqrstuvwx' } }];
+assert.ok(E.isAuthor(mine[1], 'abcdefghijkl') && !E.isAuthor(mine[1], 'mnopqrstuvwx') && !E.isAuthor(mine[0], 'abcdefghijkl') && !E.isAuthor(mine[1], null), 'the author is the player whose id the clue carries');
+assert.deepEqual(E.practicePool(mine, 0, 'abcdefghijkl'), [2, 3], "practice leaves out today's clue and the player's own");
+assert.deepEqual(E.practicePool(mine, 2, null), [0, 1, 3], 'without a player, practice leaves out only today\'s');
+
 console.log('cryptic engine: ok');

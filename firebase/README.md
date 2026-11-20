@@ -279,13 +279,13 @@ pareció?" at the end of the lab's El caso (D-265) and the "💬 Sugerencias y c
 end of every game and in the home footer (D-341, `buzon.js`) write to `feedback/<id>` **over REST and without an account**:
 `texto` (up to 1000 characters), optional `nombre`, `tester` (the label of the lab key
 used to enter, up to 24; never the key, D-306), `contexto` (JSON, up to 500), optional `tipo` (the kind picked in the inbox: `sugerencia`,
-`problema`, `idea` or `otro`, D-341), `v` and server `at`.
+`problema`, `idea`, `otro` or, from the lab game Críptico's «Propón tu críptico», `criptico`, D-341), `v` and server `at`.
 It is written only once and **read only by the owner** (D-459, which amends D-104): `node tools/firebase/reports.mjs`
 shows them with the admin key (`--days 3` for recent ones), and the panel reads them signed in as the owner.
 They carry no PIN or account data.
 Every 5 minutes, the heartbeat's `feedback-watch` (notifications.yml, D-569) (`tools/agents/feedback.mjs sync`, D-382) uploads the new ones as
 GitHub issues with the `feedback` label (plus `feedback:suggestion`, `feedback:problem`,
-`feedback:game-idea` or `feedback:other` when it carries a `tipo`, D-341), with the name masked (`C******* A*******`, D-279, D-366) and the key (D-306) and without the
+`feedback:game-idea`, `feedback:other` or `feedback:cryptic-clue` when it carries a `tipo`, D-341), with the name masked (`C******* A*******`, D-279, D-366) and the key (D-306) and without the
 browser, and the processes agent handles them (D-275).
 
 **Where each report stands:** `feedbackEstado/<id>` (`issue`, `state`, `replied`, `prs`), readable only by the owner and written only with the admin key by `tools/agents/feedback.mjs sync`, for the panel's 💬 Feedback section.

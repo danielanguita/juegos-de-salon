@@ -8,6 +8,8 @@ import { versionOf, releaseOf, nombreDelCelular } from './transport/stats.js';
 import { enviarReporte, correoValido } from '../../cup/reportes.js';
 /** The inbox's waiting messages, sent again by instalable.js on every page and when the signal is back. */
 export { reenviarPendientes } from '../../cup/reportes.js';
+/** The sender every feedback form uses, for a game's own form (Críptico's «Propón tu críptico»). */
+export { enviarReporte };
 import { flag } from './flags.js';
 import { followKeyboard } from './keyboard.js';
 
