@@ -1899,6 +1899,7 @@
     "home/popular.mjs",
     "home/recap.mjs",
     "home/search.mjs",
+    "home/word-in-words.mjs",
     "in-a-flash/page.mjs",
     "inert.mjs",
     "inert.test.mjs",
@@ -2153,7 +2154,7 @@
     },
     {
       "path": "docs/games/dominorama.md",
-      "title": "🎲 Dominorama (La Copa game, ready to launch by flag; the lab prototype stays until the cleanup)"
+      "title": "🎲 Dominorama (La Copa game, launching 2026-11-19 19:00 Pacific; the lab prototype stays until the cleanup)"
     },
     {
       "path": "docs/games/exploding-numbers.md",
@@ -2185,7 +2186,7 @@
     },
     {
       "path": "docs/games/memory.md",
-      "title": "👀 Memorice (La Copa game, ready to launch by flag; the lab prototype stays until the cleanup)"
+      "title": "👀 Memorice (La Copa game, launching 2026-11-19 19:00 Pacific; the lab prototype stays until the cleanup)"
     },
     {
       "path": "docs/games/microgames.md",
