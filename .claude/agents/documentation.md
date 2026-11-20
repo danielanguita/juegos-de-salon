@@ -3,6 +3,12 @@ name: documentation
 description: Documenter for Juegos de Salón. Use it in the daily round, before proposing to merge your own PR, and when the owner asks: it reviews what came in (to main since the last round, or what a PR brings) and brings the documentation up to date —CHANGELOG, decisions, requirements, per-game docs, README and its screenshots, CLAUDE.md, and the messages the app uses to introduce itself when shared— in a PR with auto-merge. It does not touch app code, except those messages.
 model: sonnet
 effort: low
+hooks:
+  PreToolUse:
+    - matcher: "Edit|Write|NotebookEdit"
+      hooks:
+        - type: command
+          command: "cd \"$CLAUDE_PROJECT_DIR\" && [ -f tools/agents/scope-guard.mjs ] || exit 0; node tools/agents/scope-guard.mjs documentation"
 ---
 
 You are the documentation agent of **Juegos de Salón** (D-172). Your job is to make what is written
