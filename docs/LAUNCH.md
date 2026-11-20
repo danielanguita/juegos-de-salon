@@ -24,6 +24,7 @@ Precedents: Sudoku `3f60e2d8`, ¡Al toque! `54324382`, Dominorama `ba085a29`, Me
 - [ ] **`games.js` entry** (`public/assets/js/games.js`, in `ALL_GAMES`, C-21):
   - [ ] `lanza: '<flag>'`: hidden (`oculto`) until the flag is *all*. That covers the home page, search, filters, `/records/` and La Copa's open pool.
   - [ ] `copa: { pozo: <next> }`, and variants in `VARIANTES` (`cup/engine.test.mjs`).
+  - [ ] **Eligible in La Copa, not only playable there.** The cup's 🎲 and its list of games draw only what every player sees on the home page: the game must be in `POZO`, out of the open pool while its flag is *lab*, and in it once the flag is *all* (`refreshPool`, `cup/engine.test.mjs`). The cup e2e (`tools/e2e/cup/create-week.mjs`) must find it on the create screen with the flag pinned to *all*, and a cup day with it must play to the end.
   - [ ] `unoAlDia: { orden: <next>, desde: '<the day after launch>' }`. It goes by date, never by flag. If the launch slips, move it.
   - [ ] `nuevoDesde: '<launch day>'` and `diasNuevo: 10`. The label also starts at the flag's `at` (D-333, D-556).
   - [ ] `keywords` in es, en and pt, three or more each (`search.test.mjs`). Also `tipos`, `players`, `duration`, its `POPULARIDAD` place.
@@ -71,7 +72,8 @@ On https://juegosdesalon.cl/ at phone width, as a new visitor and as a lab key h
 - [ ] `flags/<id>` is `state: "all"`; `splash/<campaign>` is `on: true` with its `until`; the previous campaign is off.
 - [ ] The splash shows first, with each game's own icon.
 - [ ] The home card is there with ✨ **Nuevo**, newest first; search and the filters find it.
-- [ ] Its page opens and plays; `/records/` has its tab; La Copa can draw it.
+- [ ] Its page opens and plays; `/records/` has its tab.
+- [ ] **La Copa, as a new visitor with no saved flags:** on the create screen the game is in the list of games, and a few 🎲 rolls of a 14-day cup bring it in. Then a cup day with it opens and plays to the end.
 - [ ] The `/labs/` card moved to La Bodega (`public/labs/launched.js`, D-534).
 - [ ] The next day: Uno al día deals it from `desde`.
 
@@ -96,6 +98,7 @@ Tell the owner only once all of this was seen working (D-591's alarm covers the 
 | The `off` input of `launch.yml` was read as a boolean | It is `turn_off` |
 | Dominorama's splash card showed 🎲 | Icons come from `games.js` only (rule 9, `splash.test.mjs`) |
 | The Dominorama and Memorice launch task waited on a permission prompt on the Mac; out 46 minutes late by hand | Cloud task plus alarm only (D-591) |
+| Stack, Aletazo, Sudoku, Memory and Dominorama, all 🚀, were missing from La Copa's 🎲 on phones that had not seen their launch (the pool was read from the phone's saved flags); lab key holders could draw games still in the lab | The create screen fetches flags before drawing (`refreshPool`); the pool is only what every player sees on the home page; `cup/engine.test.mjs` checks each launched cup game, and the live check opens the create screen as a new visitor |
 | Launched cards stayed under "en prueba" | `public/labs/launched.js` moves them (D-534), `public/labs/bodega.test.mjs` |
 | Live flags and demos made visual references flaky | `VISUAL_SKIP` for those covers; e2e pins its flags |
 | Launched flags kept their tester switch | They leave the tester tab (D-567) |
