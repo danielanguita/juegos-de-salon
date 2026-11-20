@@ -14,7 +14,6 @@ export const FLAGS = {
   'copa-jugar': '🏆 La Copa: a gold one-line «🏆 Jugar» button on its home page card when there is no day to play',
   'copa-hoy': '🏆 La Copa: ▶ Jugar hoy on its home page card',
   'copa-espera': '🏆 La Copa: Día N en Xh on its home page card',
-  'copa-contexto': '🏆 La Copa: which cup, your place and the day\'s game on its home page card',
   'bn-salva': '🎆 Battleship: Salvo',
   'keyboard-lift': '⌨️ Feedback form above the iOS keyboard',
   'uad-share-grids': '🟩 Uno al día: share grids for Agentes, Dudo, Generala and Battleship',
