@@ -9,7 +9,6 @@
 import { el } from '../../assets/js/ui.js';
 import { leerYo } from '../../assets/js/jugador.js';
 import { nombreDelCelular, versionOf, releaseOf } from '../../assets/js/transport/stats.js';
-import { enviarReporte } from '../../cup/reportes.js';
 import { GAME_ID } from './rules.js';
 
 /** The kind the rules accept for a proposed clue (firebase/database.rules.json, `feedback/$id/tipo`). */
@@ -35,9 +34,11 @@ export function defaultName(storage = globalThis.localStorage) {
 }
 
 /** Opens the form over the page. `T` are the game's texts (rules.js), `lang` the page's language. */
-export async function openProposal({ T, lang, send = enviarReporte, onSent = () => {} }) {
+export async function openProposal({ T, lang, send = null, onSent = () => {} }) {
   if (document.querySelector('.labs-capa')) return;
-  const { campoCorreo, fijarFondo } = await import('../../assets/js/buzon-form.js');
+  // The feedback form's module, loaded on the tap (as buzon.js does): its email field, its sender
+  const { campoCorreo, fijarFondo, enviarReporte } = await import('../../assets/js/buzon-form.js');
+  send ||= enviarReporte;
   let layer = null;
   let release = () => {};
   const close = () => { layer.remove(); release(); };
