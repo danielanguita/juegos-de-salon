@@ -15,7 +15,7 @@ assert.match(highlights({ cerrada: 1, metricas: [{ valores: [9, 574, 494], cambi
 assert.equal(isoDay(trendStart(w)), '2026-09-01', 'two months back, from the first');
 const h = highlights({ metricas: [{ valores: [574, 494], cambio: 16 }], juegos: [{ juego: 'Flap', valores: [186], nuevo: 'Nov 9, 2026' }, { juego: 'Shinobi', valores: [176] }] });
 assert.equal(h[0], 'Games finished rose 16% (574 vs. 494).');
-assert.match(h[1], /Flap \(186 games finished\), then Shinobi \(176\)/);
+assert.match(h[1], /Most finished: Flap \(186 games finished\), then Shinobi \(176\)/);
 assert.match(h[2], /Flap \(out Nov 9\)/);
 // Pacific dates (D-561)
 const D = Math.floor(Date.parse('2026-11-15T00:00:00Z') / 864e5), H = 3600e3;

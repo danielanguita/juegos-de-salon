@@ -1,4 +1,4 @@
-// Pacific-day counters (D-561): `activosPt/<pday>/<id>` and `entradasPt/<pday>` in a UTC day's bucket.
+// Pacific-day counters (D-561): `activosPt/<pday>/<id>` and `entradasPt/<pday>` in a UTC day's bucket; `juegosPt/<pday>/<game>/<id>` (D-590).
 // Runs the real rules in tools/firebase/rules-sim.mjs.
 import assert from 'node:assert/strict';
 import { createDb } from '../tools/firebase/rules-sim.mjs';
@@ -12,4 +12,9 @@ assert.equal(w({ [`${B}/activosPt/20772/abcdefghij`]: 1 }), false, 'never lowere
 assert.equal(w({ [`${B}/activosPt/2077/abcdefghij`]: 1 }), false, 'a day number has 5 digits');
 assert.equal(w({ [`${B}/entradasPt/20772/cup`]: { '.sv': { increment: 1 } } }), true, `a visit by Pacific day (${db.why?.join(', ')})`);
 assert.equal(w({ [`${B}/entradasPt/20772/cup`]: 5 }), false, 'only one at a time');
+// Active browsers by game (D-590)
+assert.equal(w({ [`${B}/juegosPt/20772/tango/abcdefghij`]: 1 }), true, `a browser that started Tango that Pacific day (${db.why?.join(', ')})`);
+assert.equal(w({ [`${B}/juegosPt/20772/tango/abcdefghij`]: 2 }), false, 'only 1');
+assert.equal(w({ [`${B}/juegosPt/20772/Tango!/abcdefghij`]: 1 }), false, 'a game is a key');
+assert.equal(w({ [`${B}/juegosPt/20772/tango/abc`]: 1 }), false, 'the id has 10 characters');
 console.log('firebase/stats-pacific: OK');
