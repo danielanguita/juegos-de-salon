@@ -44,7 +44,7 @@ or any other here), launch it and report what it found; do not ask the owner fir
   card) to read them against what landed, and the main things they name are in `LO_PRINCIPAL`
   (`public/assets/js/compartir.js`).
 - **Scopes** (D-597): documentation, ideas and retention can only edit their own files; `tools/agents/scope-guard.mjs`
-  runs as a hook from each agent's frontmatter and blocks the rest. Every PR also runs `document.mjs check --from`
+  runs as a hook from `.claude/settings.json`, reads which agent is editing, and blocks the rest. Every PR also runs `document.mjs check --from`
   in `tests` and shows what it finds as warnings.
 - **Processes** (D-273, D-275, D-276): **the head of the agents.** Daily round at 4:30 Pacific
   time on the owner's Mac mini (a launchd job that runs a headless Claude session, D-451, its instructions in
