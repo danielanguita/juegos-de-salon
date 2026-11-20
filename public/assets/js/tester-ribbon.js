@@ -5,15 +5,24 @@
  * registers with `setTesterContext` (Babel's «Simular final»), and while the flag `offline` is on, a
  * switch that forces offline mode on this phone (connection.js), so testing it needs no airplane mode. It replaces the home page's «tester»
  * chip and Babel's 🧪 tab on the left edge. (ii) A switch for every lab flag this page asked (D-567), to try
- * the page with and without it, on this phone only; a launched flag has none. On every screen (tester-boot.js), hidden while playing. Texts in the three languages (C-3). lab: #seccion-tester-ribbon
+ * the page with and without it, on this phone only; a launched flag has none.
+ * Two views (D-592): «Testing now» shows only the rows the tester pinned (📌) and any row out of its normal
+ * state (a flag turned off, offline mode forced), with the screen's control; «Experiments» lists every row,
+ * each with its 📌 and its switch. Hiding a row never changes it. On every screen (tester-boot.js), hidden while playing. Texts in the three languages (C-3). lab: #seccion-tester-ribbon
  */
 import { el } from './ui.js';
 import { openTesterSheet } from './tester-badge.js';
 
 const T = {
-  es: { tab: 'Tester', info: 'Qué es ser tester', labs: 'Ir a Labs', offline: '📴 Modo sin conexión', offlineHint: 'Solo en este celular', flags: 'En prueba aquí', flagsHint: 'Solo en este celular; la página se recarga' },
-  en: { tab: 'Tester', info: 'What being a tester means', labs: 'Go to Labs', offline: '📴 Offline mode', offlineHint: 'On this phone only', flags: 'In the lab here', flagsHint: 'On this phone only; the page reloads' },
-  pt: { tab: 'Tester', info: 'O que é ser tester', labs: 'Ir para o Labs', offline: '📴 Modo sem conexão', offlineHint: 'Só neste celular', flags: 'Em teste aqui', flagsHint: 'Só neste celular; a página recarrega' },
+  es: { tab: 'Tester', info: 'Qué es ser tester', labs: 'Ir a Labs', offline: '📴 Modo sin conexión', offlineHint: 'Solo en este celular', flagsHint: 'Solo en este celular; la página se recarga',
+    now: 'Probando ahora', all: 'Experimentos', back: 'Probando ahora', pin: 'Fijar en Probando ahora', markOff: 'Apagado', markOn: 'Encendido',
+    hint: '📌 deja el experimento en Probando ahora. Lo que no fijas sigue igual, solo se esconde.', empty: 'Nada fijado todavía. Elige en Experimentos qué estás probando.' },
+  en: { tab: 'Tester', info: 'What being a tester means', labs: 'Go to Labs', offline: '📴 Offline mode', offlineHint: 'On this phone only', flagsHint: 'On this phone only; the page reloads',
+    now: 'Testing now', all: 'Experiments', back: 'Testing now', pin: 'Pin to Testing now', markOff: 'Off', markOn: 'On',
+    hint: '📌 keeps the experiment in Testing now. What you do not pin stays as it is, just hidden.', empty: 'Nothing pinned yet. Pick in Experiments what you are testing.' },
+  pt: { tab: 'Tester', info: 'O que é ser tester', labs: 'Ir para o Labs', offline: '📴 Modo sem conexão', offlineHint: 'Só neste celular', flagsHint: 'Só neste celular; a página recarrega',
+    now: 'Testando agora', all: 'Experimentos', back: 'Testando agora', pin: 'Fixar em Testando agora', markOff: 'Desligado', markOn: 'Ligado',
+    hint: '📌 deixa o experimento em Testando agora. O que você não fixa continua igual, só fica escondido.', empty: 'Nada fixado ainda. Escolha em Experimentos o que está testando.' },
 };
 export const RIBBON_TEXTS = T;
 
@@ -46,13 +55,24 @@ html[data-en-juego] .tr:not(.con-ctx), body.jugando .tr:not(.con-ctx) { display:
 .tr-cab b { font: 400 1.25rem/1 var(--font-display); letter-spacing: 0.05em; color: var(--yellow); }
 .tr-info { flex: none; width: 32px; height: 32px; border-radius: 999px; border: 1px solid var(--glass-border); background: var(--glass); color: var(--ink); font: 900 0.95rem/1 var(--font-body); cursor: pointer; }
 .tr-labs { color: var(--cyan); font-weight: 900; text-decoration: none; display: flex; justify-content: space-between; min-height: 32px; align-items: center; }
-.tr-off { border-top: 1px solid var(--glass-border); padding-top: 10px; }
-.tr-off .toggle-row { padding: var(--s-8) var(--s-10); }
-.tr-off[hidden] { display: none; }
-.tr-flags { border-top: 1px solid var(--glass-border); padding-top: 10px; display: flex; flex-direction: column; gap: 6px; max-height: 50vh; overflow-y: auto; }
+.tr-flags { border-top: 1px solid var(--glass-border); padding-top: 10px; display: flex; flex-direction: column; gap: 6px; }
 .tr-flags[hidden] { display: none; }
 .tr-flags > small { color: var(--muted); font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; font-size: 0.68rem; }
-.tr-flags .toggle-row { padding: var(--s-6) var(--s-8); }
+.tr-flags .toggle-row { padding: var(--s-6) var(--s-8); gap: var(--s-8); }
+.tr-flags .tr-mark { display: block; color: var(--yellow); font-weight: 900; font-size: 0.68rem; letter-spacing: 0.06em; text-transform: uppercase; }
+.tr-flags .tr-mark[hidden] { display: none; }
+.tr-pin { position: relative; flex: none; width: 36px; height: 36px; border-radius: 999px; border: 1px solid var(--glass-border); background: transparent; font-size: 1rem; line-height: 1; cursor: pointer; opacity: 0.45; filter: grayscale(1); }
+.tr-pin::before { content: ''; position: absolute; inset: -4px; }
+.tr-pin.on { opacity: 1; filter: none; background: var(--glass); border-color: var(--yellow); }
+.tr-pin:focus-visible, .tr-back:focus-visible, .tr-all:focus-visible { outline: 2px solid var(--yellow); outline-offset: 2px; }
+.tr-all, .tr-back { background: none; border: 0; padding: 0; color: var(--cyan); font: 900 1rem var(--font-body); min-height: 32px; cursor: pointer; display: flex; align-items: center; justify-content: space-between; text-align: left; }
+.tr-hint { color: var(--muted); font-size: 0.8rem; line-height: 1.3; margin: 0; }
+/* First view: only what is pinned or changed, the way to every experiment, the screen's control */
+.tr:not(.v2) .tr-flags .toggle-row:not(.fijo):not(.cambiado), .tr:not(.v2) .tr-pin, .tr:not(.v2) .tr-back, .tr:not(.v2) .tr-hint--v2 { display: none; }
+/* Second view: every row with its 📌, wider so the pin and the switch fit beside the name */
+.tr.v2 .tr-panel { width: min(300px, calc(100vw - 60px)); }
+.tr.v2 .tr-labs, .tr.v2 .tr-all, .tr.v2 .tr-ctx, .tr.v2 .tr-flags > small, .tr.v2 .tr-hint--empty { display: none; }
+.tr.v2 .tr-flags { border-top: 0; padding-top: 0; }
 .tr-flags .toggle-row--sub { margin-left: var(--s-16); }
 .tr-flags .txt small { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 .tr-ctx { border-top: 1px solid var(--glass-border); padding-top: 10px; display: flex; flex-direction: column; gap: 8px; }
@@ -99,19 +119,21 @@ export function testerRibbon({ lang = 'es', labsUrl = new URL('../../labs/', imp
     el('div', { class: 'tr-cab' }, el('b', {}, '🧪 Tester'),
       el('button', { type: 'button', class: 'tr-info', id: 'tr-info', 'aria-label': t.info, onClick: () => openTesterSheet(lang, labsUrl) }, 'i')),
     el('a', { class: 'tr-labs', id: 'tr-labs', href: labsUrl }, t.labs, el('span', { 'aria-hidden': 'true' }, '›')),
-    el('div', { class: 'tr-off', id: 'tr-off', hidden: true }),
     el('div', { class: 'tr-flags', id: 'tr-flags', hidden: true }),
     el('div', { class: 'tr-ctx', id: 'tr-ctx' }));
   ribbon = el('div', { class: 'tr', id: 'tester-ribbon' }, el('div', { class: 'tr-tab-wrap' }, tab, el('span', { class: 'tr-punto', 'aria-hidden': 'true' })), panel);
-  const toggle = open => { ribbon.classList.toggle('abierto', open); tab.setAttribute('aria-expanded', String(open)); };
+  // Folded, it opens again on the first view
+  const toggle = open => { ribbon.classList.toggle('abierto', open); if (!open) showView(1); tab.setAttribute('aria-expanded', String(open)); };
   tab.addEventListener('click', () => toggle(!ribbon.classList.contains('abierto')));
   // Folds again on a tap outside it or Escape: it acts over the page, it never stays in the way
   document.addEventListener('pointerdown', e => { if (!ribbon.contains(e.target)) toggle(false); }, true);
   ribbon.addEventListener('keydown', e => { if (e.key === 'Escape') { toggle(false); tab.focus(); } });
   document.body.append(ribbon);
   drawContext(); place();
-  offlineSwitch(panel.querySelector('.tr-off'));
-  labSwitches(panel.querySelector('.tr-flags'));
+  const list = panel.querySelector('.tr-flags');
+  views(list);
+  offlineSwitch(list);
+  labSwitches(list);
   addEventListener('resize', placeSoon);
   addEventListener('scroll', placeSoon, { passive: true });
   document.fonts?.ready.then(place);
@@ -130,11 +152,13 @@ export async function offlineSwitch(box, {
   if (!box || !(await isOn().catch(() => false))) return null;
   const c = await conn();
   const sw = el('button', { type: 'button', class: 'switch', role: 'switch', id: 'tr-offline', 'aria-label': t.offline });
-  const draw = () => { const on = c.forced(); sw.classList.toggle('on', on); sw.setAttribute('aria-checked', String(on)); };
+  const r = row(OFFLINE_ROW, t.offline, t.offlineHint, sw, t.markOn);
+  const draw = () => { const on = c.forced(); sw.classList.toggle('on', on); sw.setAttribute('aria-checked', String(on)); r.changed(on); };
   sw.addEventListener('click', () => { c.force(!c.forced()); draw(); });
   c.onChange(draw);
-  box.replaceChildren(el('div', { class: 'toggle-row' },
-    el('div', { class: 'txt' }, el('b', {}, t.offline), el('small', {}, t.offlineHint)), sw));
+  // first in the list, as it was above the flags
+  const first = box.querySelector('.toggle-row') || box.querySelector('.tr-all');
+  if (first) first.before(r.node); else box.append(r.node);
   box.hidden = false;
   draw();
   return sw;
@@ -144,6 +168,58 @@ export async function offlineSwitch(box, {
  * A switch per lab flag this page asked (D-567): off turns the feature off on this phone, and the
  * page reloads to draw without it. Flags asked later (a screen that opens) are added as they come.
  */
+/** The offline switch's row id for the pins: not a flag, so it never clashes with one. */
+const OFFLINE_ROW = 'offline-mode';
+let pins = null;
+const pinStore = () => (pins ??= import('./flags.js'));
+
+/**
+ * The two views' frame inside the list (D-592): the «Testing now» label and its empty line, the
+ * way to every experiment, and for the second view the way back and what the 📌 does. Rows go
+ * between the hints and the way to every experiment.
+ */
+function views(box) {
+  box.replaceChildren(
+    el('small', {}, t.now),
+    el('button', { type: 'button', class: 'tr-back', id: 'tr-back', onClick: () => showView(1) }, el('span', {}, `‹ ${t.back}`)),
+    el('p', { class: 'tr-hint tr-hint--v2' }, t.hint),
+    el('p', { class: 'tr-hint tr-hint--empty', id: 'tr-empty' }, t.empty),
+    el('button', { type: 'button', class: 'tr-all', id: 'tr-all', onClick: () => showView(2) }, el('span', { class: 'tr-all-n' }, t.all), el('span', { 'aria-hidden': 'true' }, '›')));
+}
+
+/** Shows the first view (1, «Testing now») or the second (2, every experiment). */
+function showView(n) {
+  if (!ribbon) return;
+  ribbon.classList.toggle('v2', n === 2);
+  ribbon.querySelector('.tr-cab b').textContent = n === 2 ? `🧪 ${t.all}` : '🧪 Tester';
+  (n === 2 ? ribbon.querySelector('.tr-back') : ribbon.querySelector('.tr-all'))?.focus({ preventScroll: true });
+}
+
+/** The count on the way to every experiment, and the empty line when the first view has no row. */
+function count(box) {
+  const rows = [...box.querySelectorAll('.toggle-row')];
+  box.querySelector('.tr-all-n').textContent = `${t.all} · ${rows.length}`;
+  box.querySelector('.tr-hint--empty').hidden = rows.some(r => r.classList.contains('fijo') || r.classList.contains('cambiado'));
+}
+
+/**
+ * One row of the list: name, line, a mark while it is out of its normal state, its 📌 and its switch.
+ * `changed(on)` marks it (and keeps it in the first view: what is changed is never hidden).
+ */
+function row(id, name, line, sw, mark, title = '') {
+  const markEl = el('span', { class: 'tr-mark', hidden: true }, mark);
+  const pin = el('button', { type: 'button', class: 'tr-pin', 'aria-label': t.pin, 'aria-pressed': 'false', 'data-pin': id }, '📌');
+  const node = el('div', { class: 'toggle-row', 'data-row': id }, el('div', { class: 'txt' }, el('b', {}, name), markEl, el('small', { title }, line)), pin, sw);
+  const drawPin = on => { pin.classList.toggle('on', on); pin.setAttribute('aria-pressed', String(on)); node.classList.toggle('fijo', on); };
+  pinStore().then(({ labPinnedList }) => { drawPin(!!labPinnedList()[id]); node.parentNode && count(node.parentNode); });
+  pin.addEventListener('click', async () => {
+    const { labPinnedList, setLabPinned } = await pinStore();
+    const on = !labPinnedList()[id];
+    setLabPinned(id, on); drawPin(on); count(node.parentNode);
+  });
+  return { node, changed: on => { markEl.hidden = !on; node.classList.toggle('cambiado', !!on); node.parentNode && count(node.parentNode); } };
+}
+
 /** A flag's name in the T tab when it is not its id (the owner, 2026-11-19). */
 const NAMES = { 'home-carousels': 'main page con íconos', 'home-carousels-covers': '↳ target: portada' };
 /** Sub-flags: asked only while their main flag is on, so their switch shows only then, under it. */
@@ -159,15 +235,17 @@ export async function labSwitches(box, { flags = () => import('./flags.js'), lis
     const off = !!labOffList()[id];
     const sw = el('button', { type: 'button', class: 'switch' + (off ? '' : ' on'), role: 'switch', 'aria-checked': String(!off), 'aria-label': id, 'data-flag': id,
       onClick: () => { setLabOff(id, !labOffList()[id]); location.reload(); } });
-    if (!box.childElementCount) box.append(el('small', {}, t.flags));
     const sub = SUB[id];
-    const row = el('div', { class: 'toggle-row' + (sub ? ' toggle-row--sub' : ''), 'data-row': id }, el('div', { class: 'txt' }, el('b', {}, NAMES[id] || id), el('small', { title: FLAGS[id] || '' }, FLAGS[id] || t.flagsHint)), sw);
+    const r = row(id, NAMES[id] || id, FLAGS[id] || t.flagsHint, sw, t.markOff, FLAGS[id] || '');
+    if (sub) r.node.classList.add('toggle-row--sub');
+    r.changed(off);
     // a sub-flag sits right under its main flag's row, indented
     const parent = sub && box.querySelector(`[data-row="${sub}"]`);
-    if (parent) parent.after(row); else box.append(row);
+    if (parent) parent.after(r.node); else box.querySelector('.tr-all').before(r.node);
     // a main flag asked after its sub-flags (they are asked while the page draws): its subs move under it
-    for (const [kid, of] of Object.entries(SUB)) if (of === id) { const k = box.querySelector(`[data-row="${kid}"]`); if (k) row.after(k); }
+    for (const [kid, of] of Object.entries(SUB)) if (of === id) { const k = box.querySelector(`[data-row="${kid}"]`); if (k) r.node.after(k); }
     box.hidden = false;
+    count(box);
   };
   // Turned off here, a flag is still asked (and listed), so it can be turned back on. Not the tab's own
   // flag: off, the tab would go with it

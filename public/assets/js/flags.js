@@ -64,6 +64,21 @@ export function setLabOff(id, off, store = globalThis.localStorage) {
   if (off) v[id] = true; else delete v[id];
   try { store?.setItem(OFF, JSON.stringify(v)); } catch (_) { /* not remembered */ }
 }
+const PINNED = 'juegos-de-salon:flags-pinned';
+/**
+ * What this phone's tester pinned to the tab's first view, «Testing now» (D-592): { <id>: true }.
+ * Pinning only shows or hides a row; it never turns anything on or off.
+ */
+export function labPinnedList(store = globalThis.localStorage) {
+  try { const v = JSON.parse(store?.getItem(PINNED) || '{}'); return v && typeof v === 'object' ? v : {}; } catch (_) { return {}; }
+}
+/** Pins a row to the first view (or unpins it), on this phone only. */
+export function setLabPinned(id, pinned, store = globalThis.localStorage) {
+  const v = labPinnedList(store);
+  if (pinned) v[id] = true; else delete v[id];
+  try { store?.setItem(PINNED, JSON.stringify(v)); } catch (_) { /* not remembered */ }
+}
+
 /** The lab flags this page asked, with the key held: the tester tab lists them. */
 export const labHere = new Set();
 const announce = id => {
