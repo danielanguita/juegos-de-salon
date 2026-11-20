@@ -118,10 +118,14 @@ export const baseGame = id => { const b = String(id).split(/:| · /)[0]; return 
  * far (partial), and the two months before. Every column is one range; `null` is "n/a": nothing
  * measured yet (the counter did not exist), or the game was not out yet. Games: the top 10 of the
  * closed week, every mode, version and La Copa's plays together, lab plays left out (a game outside
- * ALL_GAMES, or a play before the day its `flags/<id>` went to all).
+ * ALL_GAMES, or a play before the day its `flags/<id>` went to all). With `actual` (the week in
+ * progress, the panel's view of the latest closed week), a partial column goes first; the % changes,
+ * the top 10 and the highlights still read the closed week, at index `cerrada`.
  */
-export function trend({ days = {}, torneos = {}, flags = {} } = {}, w) {
-  const cols = [0, 1, 2, 3, 4].map(i => ({ from: w.from - 7 * i, to: w.to - 7 * i, titulo: rangoTxt({ from: w.from - 7 * i, to: w.to - 7 * i }), semana: true }));
+export function trend({ days = {}, torneos = {}, flags = {} } = {}, w, { actual = null } = {}) {
+  // The panel's WBR puts the week in progress first (partial); every comparison still reads the closed week, at `k`
+  const k = actual ? 1 : 0;
+  const cols = [...(actual ? [{ from: actual.from, to: actual.to, titulo: `${rangoTxt(actual)} (partial)`, semana: true }] : []), ...[0, 1, 2, 3, 4].map(i => ({ from: w.from - 7 * i, to: w.to - 7 * i, titulo: rangoTxt({ from: w.from - 7 * i, to: w.to - 7 * i }), semana: true }))];
   for (const atras of [0, 1, 2]) {
     const from = inicioMes(w.to, atras), to = atras ? inicioMes(w.to, atras - 1) - 1 : w.to;
     cols.push({ from, to, titulo: atras ? mesCorto(from) : `${mesCorto(from)} (to ${fechaDia(to).replace(/, \d{4}$/, '')}, partial)`, semana: false });
@@ -143,14 +147,14 @@ export function trend({ days = {}, torneos = {}, flags = {} } = {}, w) {
       visitas: medido(col, 'visitas') === null ? null : trafico(days, col).visitas,
     };
   });
-  const metricas = [['Games finished', 'terminadas'], ['Games started', 'empezadas'], ['Active browsers', 'activos'], ['Daily active browsers (average)', 'diarios'], ['Games per active browser', 'porActivo'], ['Visits', 'visitas']].map(([nombre, k]) => ({
-    nombre, valores: filas.map(x => x[k]), decimales: k === 'porActivo', cambio: filas[0][k] === null || filas[1][k] === null || !filas[1][k] ? null : variacion(filas[0][k], filas[1][k]),
+  const metricas = [['Games finished', 'terminadas'], ['Games started', 'empezadas'], ['Active browsers', 'activos'], ['Daily active browsers (average)', 'diarios'], ['Games per active browser', 'porActivo'], ['Visits', 'visitas']].map(([nombre, m]) => ({
+    nombre, valores: filas.map(x => x[m]), decimales: m === 'porActivo', cambio: filas[k][m] === null || filas[k + 1][m] === null || !filas[k + 1][m] ? null : variacion(filas[k][m], filas[k + 1][m]),
   }));
 
   // Games, day by day so a launch in the middle of a range cuts it on its day (lab plays already out of `days`)
   const esPublico = publicGameCheck(flags);
   const desdeCuando = {}, porCol = cols.map(() => ({}));
-  const inicio = Math.min(...cols.map(c => c.from)), fin = w.to;
+  const inicio = Math.min(...cols.map(c => c.from)), fin = Math.max(...cols.map(c => c.to));
   // La Copa's plays by day read in one pass over the cups, not one pass per day (the panel froze)
   const copasPorDia = resumenCopas(torneos, { from: inicio, to: fin }, pacificEndMs(fin), { dayFn: pacificDay }).porDiaJuego;
   for (let d = inicio; d <= fin; d++) {
@@ -167,13 +171,13 @@ export function trend({ days = {}, torneos = {}, flags = {} } = {}, w) {
   const lanzados = {};
   const lanzadoEl = b => (lanzados[b] ??= (() => { for (let d = inicio; d <= fin; d++) if (esPublico(b, d)) return d; return Infinity; })());
   const salio = b => (lanzadoEl(b) > inicio ? lanzadoEl(b) : desdeCuando[b]);
-  const juegos = Object.entries(porCol[0]).sort((a, b) => b[1] - a[1]).slice(0, 10).map(([b]) => {
+  const juegos = Object.entries(porCol[k]).sort((a, b) => b[1] - a[1]).slice(0, 10).map(([b]) => {
     const valores = cols.map((c, i) => (salio(b) > c.to ? null : porCol[i][b] || 0));
     // A launch inside the week before makes a % that says nothing
-    const cambio = valores[1] === null || salio(b) > cols[1].from ? null : variacion(valores[0], valores[1]);
-    return { juego: nombreJuego(b), valores, cambio, nuevo: salio(b) > cols[1].to ? fechaDia(salio(b)) : null };
+    const cambio = valores[k + 1] === null || salio(b) > cols[k + 1].from ? null : variacion(valores[k], valores[k + 1]);
+    return { juego: nombreJuego(b), valores, cambio, nuevo: salio(b) > cols[k + 1].to ? fechaDia(salio(b)) : null };
   });
-  return { columnas: cols.map(c => c.titulo), metricas, juegos };
+  return { columnas: cols.map(c => c.titulo), metricas, juegos, cerrada: k };
 }
 
 /** The last full week (Sunday to Saturday, Pacific dates) before `now`, as the weekly email reads it. */
@@ -182,6 +186,11 @@ export function closedWeek(now = Date.now()) {
   let sat = pacificDay(now) - 1;
   while ((sat + 4) % 7 !== 6) sat--;
   return { from: sat - 6, to: sat };
+}
+
+/** The week in progress (from Sunday to today, Pacific dates): the panel's partial first column. */
+export function currentWeek(now = Date.now()) {
+  return { from: closedWeek(now).to + 1, to: pacificDay(now) };
 }
 
 /** The week a WBR address names (`#/wbr/2026-11-14`, its Saturday), or the closed week; never one not closed yet. */
@@ -200,10 +209,10 @@ export const isoDay = d => new Date(d * DAY).toISOString().slice(0, 10);
 /** The WBR's highlights from its trend: what moved and what was played most. */
 export function highlights(t) {
   const out = [];
-  const [fin] = t.metricas;
-  if (fin && fin.cambio !== null && fin.cambio !== 0) out.push(`Games finished ${fin.cambio > 0 ? 'rose' : 'fell'} ${Math.abs(fin.cambio)}% (${fin.valores[0].toLocaleString('en-US')} vs. ${fin.valores[1].toLocaleString('en-US')}).`);
+  const k = t.cerrada || 0, [fin] = t.metricas;
+  if (fin && fin.cambio !== null && fin.cambio !== 0) out.push(`Games finished ${fin.cambio > 0 ? 'rose' : 'fell'} ${Math.abs(fin.cambio)}% (${fin.valores[k].toLocaleString('en-US')} vs. ${fin.valores[k + 1].toLocaleString('en-US')}).`);
   const [uno, dos] = t.juegos;
-  if (uno) out.push(`Most played: ${uno.juego} (${uno.valores[0]} games)${dos ? `, then ${dos.juego} (${dos.valores[0]})` : ''}.`);
+  if (uno) out.push(`Most played: ${uno.juego} (${uno.valores[k]} games)${dos ? `, then ${dos.juego} (${dos.valores[k]})` : ''}.`);
   const nuevos = t.juegos.filter(g => g.nuevo);
   if (nuevos.length) out.push(`New this week: ${nuevos.map(g => `${g.juego} (out ${g.nuevo.replace(/, \d{4}$/, '')})`).join(', ')}.`);
   return out;
