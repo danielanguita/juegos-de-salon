@@ -1,5 +1,5 @@
 {
-  "checkedUpTo": "9d92247fdf9fe89e74f934135cd7d9664c0484a3",
+  "checkedUpTo": "267ded6d9f2b69f42061c52c04103ea3d7702f2a",
   "patterns": [
     {
       "key": "version-hacia-atras",
@@ -913,6 +913,79 @@
         }
       ],
       "mechanism": null
+    },
+    {
+      "key": "push-guard-swallowed",
+      "what": "CI tests: tools/agents/design-lint.test.mjs · ",
+      "seen": [
+        {
+          "date": "2026-11-18T05:20:24.508Z",
+          "what": "#1582 tests: tools/agents/design-lint.test.mjs",
+          "commit": "a511223caa6018fc987927ac40a0985d496f6408"
+        },
+        {
+          "date": "2026-11-19T23:11:24.595Z",
+          "what": "#1667 tests: tools/agents/design-lint.test.mjs",
+          "commit": "7c515d132f0500636afa07559440af77e0e91f81"
+        },
+        {
+          "date": "2026-11-20T01:03:34.845Z",
+          "what": "#1667 tests: tools/agents/design-lint.test.mjs",
+          "commit": "c6fb3a1d0a34b79c3cf555fcbab7ba426be0a07f"
+        },
+        {
+          "date": "2026-11-20T01:09:51.106Z",
+          "what": "#1667 tests: tools/agents/design-lint.test.mjs",
+          "commit": "7638f39e835a06072937aee2125e5f4649ebe325"
+        },
+        {
+          "date": "2026-11-20T01:20:34.985Z",
+          "what": "#1667 tests: tools/agents/design-lint.test.mjs",
+          "commit": "edf375043e8583571d9e3de172cdf8c43d4d4e01"
+        },
+        {
+          "date": "2026-11-20T05:35:31.572Z",
+          "what": "#1699 tests: tools/agents/design-lint.test.mjs",
+          "commit": "74cab7aac033d93d416933685a7937d903275c36"
+        }
+      ],
+      "mechanism": {
+        "date": "2026-11-20",
+        "what": "The push-guard hook passes its exit 2 through; push-guard.test.mjs runs every blocking hook's command against a stub",
+        "pr": "https://github.com/ellokojavi/juegos-de-salon/pull/1701"
+      },
+      "signatures": [
+        "91fa192ea2"
+      ]
+    },
+    {
+      "key": "english-hint-term",
+      "what": "A game's English text said help where every other game says hint; fixed after review (Dominorama U-1/U-5)",
+      "seen": [
+        {
+          "date": "2026-11-20",
+          "what": "A game's English text said help where every other game says hint; fixed after review (Dominorama U-1/U-5)",
+          "commit": "cb0ce98d"
+        },
+        {
+          "date": "2026-11-20",
+          "what": "Críptico's English hint/help wording fixed after review, with clue fairness fixes",
+          "commit": "e15582e1"
+        }
+      ],
+      "mechanism": null
+    },
+    {
+      "key": "hook-exit-swallowed",
+      "what": "push-guard's hook command ended in || true, so its exit 2 never blocked a push (since 2026-11-09); worktree-guard has the same wrapper, left advisory because cloud sessions edit their clone's main folder",
+      "seen": [
+        {
+          "date": "2026-11-20",
+          "what": "push-guard's hook command ended in || true, so its exit 2 never blocked a push (since 2026-11-09); worktree-guard has the same wrapper, left advisory because cloud sessions edit their clone's main folder",
+          "commit": "b10718ff"
+        }
+      ],
+      "mechanism": null
     }
   ],
   "mechanisms": [
@@ -1083,6 +1156,12 @@
       "key": "decision-file-invalid",
       "what": "push-guard.mjs runs document.mjs decisions (unknown topic, non-canonical Status, a number twice) and stops the push (push-guard.test.mjs)",
       "pr": "pending"
+    },
+    {
+      "date": "2026-11-20",
+      "key": "push-guard-swallowed",
+      "what": "The push-guard hook passes its exit 2 through; push-guard.test.mjs runs every blocking hook's command against a stub",
+      "pr": "https://github.com/ellokojavi/juegos-de-salon/pull/1701"
     }
   ],
   "queueDone": [
@@ -1094,16 +1173,17 @@
     "#1435:1",
     "#1435:2",
     "#1435:3",
-    "#1381:1"
+    "#1381:1",
+    "#1597:1"
   ],
   "dispatches": {
     "documentation": {
-      "date": "2026-11-19",
-      "to": "9d92247fdf9fe89e74f934135cd7d9664c0484a3"
+      "date": "2026-11-20",
+      "to": "267ded6d9f2b69f42061c52c04103ea3d7702f2a"
     },
     "usability": {
-      "date": "2026-11-19",
-      "to": "9d92247fdf9fe89e74f934135cd7d9664c0484a3"
+      "date": "2026-11-20",
+      "to": "267ded6d9f2b69f42061c52c04103ea3d7702f2a"
     },
     "ideas": {
       "date": "2026-11-18",
@@ -1362,6 +1442,14 @@
       "issue": null,
       "pr": null,
       "note": "dispatched docs (#1641 merged) + usability; queued #1597:1 handed to a build session; collected 40 changelog entries; durations measured; mechanism decision-file-invalid"
+    },
+    {
+      "date": "2026-11-20",
+      "from": "9d92247fdf9fe89e74f934135cd7d9664c0484a3",
+      "to": "267ded6d9f2b69f42061c52c04103ea3d7702f2a",
+      "issue": null,
+      "pr": "https://github.com/ellokojavi/juegos-de-salon/pull/1701",
+      "note": "push-guard hook fixed; usability dispatched, still running at handback"
     }
   ],
   "ownerDecisions": [
