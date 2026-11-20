@@ -55,10 +55,10 @@ import { MAX_COMMENT, cleanComment, commentProblem, canTalk, talkDay, rowTalk } 
 // The four new One a Day share grids wait in the lab (D-508). lab: #seccion-uad-share-grids
 let gridsNuevos = false;
 flag('uad-share-grids').then(v => { gridsNuevos = v; });
-// Inside a cup, the header's ‹ goes back to the cup's board while playing a day or reading its result,
-// not to the menu (#1040). lab: #seccion-cup-back-board
-let pillCopa = false;
-flag('cup-back-board').then(v => { pillCopa = v; rotuloMenu(); });
+// Inside a cup, the header's ‹ climbs one level (#1040): to the board while playing a day or reading its
+// result, and from the board to La Copa's home, where a new cup is created. Launched 2026-10-30; its gate
+// is gone because its flag record went missing and turned it back off for every player.
+const pillCopa = true;
 // The board's report and leave links as tiles of the site footer (U-38), lab: #seccion-cup-footer
 let pieCopa = false;
 // One a Day goes straight to its result when a game's end screen only repeats it (lab: #seccion-uad-skip-end)
