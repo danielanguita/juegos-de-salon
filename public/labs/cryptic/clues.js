@@ -72,7 +72,7 @@ const ES = [
   { c: 'Un japonés confundido bebe sin sed en la ducha', a: 'ESPONJA', k: 'anagram', d: 'bebe sin sed en la ducha', x: 'Las letras de JAPONÉS, confundidas, forman ESPONJA, que bebe sin sed en la ducha.' },
   { c: 'Un perro con seis caras no se abre sin su llave', a: 'CANDADO', k: 'charade', d: 'no se abre sin su llave', x: 'CAN (un perro) + DADO (seis caras) = CANDADO, que no se abre sin su llave.' },
   { c: 'Una nota de cierta edad pasó cien años en Macondo', a: 'SOLEDAD', k: 'charade', d: 'pasó cien años en Macondo', x: 'SOL (una nota) + EDAD = SOLEDAD, la de los cien años de Macondo.' },
-  { c: 'Para las que rompe la embarazada, ya sin cabeza, un techo que se lleva en la mano', a: 'PARAGUAS', k: 'charade', d: 'un techo que se lleva en la mano', x: 'PARA (que no es «para», sino «detiene») + AGUAS (las que rompe la embarazada) sin su cabeza, GUAS = PARAGUAS, un techo que se lleva en la mano.' },
+  { c: 'Para las que rompe la embarazada, ya sin cabeza, se da vuelta con el viento', a: 'PARAGUAS', k: 'charade', d: 'se da vuelta con el viento', x: 'PARA (que no es «para», sino «detiene») + AGUAS (las que rompe la embarazada) sin su cabeza, GUAS = PARAGUAS, el que se da vuelta con el viento.' },
 ];
 
 /** Spanish only for now (the owner, 2026-11-19): the mechanics first, the other banks once it works. */
