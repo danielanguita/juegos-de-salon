@@ -121,6 +121,7 @@ function clueNodes(round, c) {
 function renderTiles() {
   const want = E.normalize(clue().a);
   const typed = E.normalize($('#answer').value).slice(0, want.length);
+  $('#tiles').style.setProperty('--n', String(want.length));
   $('#tiles').replaceChildren(...[...want].map((_, i) => el('span', {
     class: 'tile' + (typed[i] ? ' tile--on' : '') + (i === typed.length ? ' tile--at' : ''),
   }, typed[i] || '')));
@@ -295,5 +296,10 @@ function init() {
 }
 
 // The hook for the end-to-end tests (C-14): the state, the clue and its answer
-window.__cryptic = { state: () => state, clue: () => (state ? clue() : null), answer: () => (state ? clue().a : null) };
+window.__cryptic = {
+  state: () => state, clue: () => (state ? clue() : null), answer: () => (state ? clue().a : null),
+  /** Opens bank clue `i` as practice: the e2e scripts try the longest answer. */
+  practice: i => begin(E.newRound(i, { practice: true })),
+  bank: () => BANK.map(c => c.a),
+};
 init();

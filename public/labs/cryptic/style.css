@@ -13,10 +13,15 @@
 .clue .def { text-decoration-color: var(--yellow); text-decoration-thickness: 3px; text-underline-offset: 4px; }
 
 /* ---------- The answer's letters, one box each ---------- */
-.tiles { display: flex; flex-wrap: wrap; justify-content: center; gap: var(--s-6); }
+/* One row, always (the owner: a word never breaks over two lines): the boxes share the card's width,
+   up to 2.6rem each, and the letter shrinks with them for the long answers (MEDIANOCHE, MANTEQUILLA) */
+.tiles {
+  display: grid; grid-template-columns: repeat(var(--n, 8), minmax(0, 2.6rem)); justify-content: center;
+  gap: var(--s-4);
+}
 .tile {
-  width: 2.1em; height: 2.4em; display: grid; place-items: center; border-radius: var(--r-8);
-  background: var(--well-deep); font: 900 var(--fs-120) var(--font-display); text-transform: uppercase;
+  aspect-ratio: 7 / 8; display: grid; place-items: center; border-radius: var(--r-8); min-width: 0;
+  background: var(--well-deep); font: 900 min(var(--fs-120), calc(60cqi / var(--n, 8))) var(--font-display); text-transform: uppercase;
 }
 .tile--on { outline: 2px solid var(--cyan); }
 /* The next box to fill: the cursor, blinking while the keyboard is up */
@@ -26,7 +31,7 @@
 @media (prefers-reduced-motion: reduce) { .tiles-wrap:focus-within .tile--at { animation: none; } }
 
 /* The field the player types into lies, invisible, over the boxes: a tap on them opens the keyboard */
-.tiles-wrap { position: relative; }
+.tiles-wrap { position: relative; container-type: inline-size; }
 .tiles-input {
   position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; padding: 0; border: 0;
   opacity: 0; font-size: var(--fs-100); cursor: text;

@@ -29,7 +29,7 @@ const ES = [
   { c: 'Le cayó a Newton y tiene cuatro esquinas', a: 'MANZANA', k: 'definitions', d: 'Le cayó a Newton', x: 'MANZANA: la fruta que le cayó a Newton, y la cuadra de la ciudad, con sus cuatro esquinas.' },
   { c: 'Guarda los ahorros y aguanta a los que alimentan palomas', a: 'BANCO', k: 'definitions', d: 'Guarda los ahorros', x: 'BANCO: donde se guardan los ahorros, y el de la plaza, donde se sientan los que alimentan palomas.' },
   { c: 'Carga bultos en el altiplano y se aviva con un soplido', a: 'LLAMA', k: 'definitions', d: 'se aviva con un soplido', x: 'LLAMA: el animal que carga en el altiplano, y el fuego que se aviva al soplar.' },
-  { c: 'Sube el auto con la rueda pinchada y se pasea por el tejado', a: 'GATO', k: 'definitions', d: 'Sube el auto con la rueda pinchada', x: 'GATO: la herramienta que levanta el auto para cambiar la rueda, y el que se pasea por el tejado.' },
+  { c: 'Sube el auto con la rueda pinchada y se pasea por el tejado', a: 'GATA', k: 'definitions', d: 'Sube el auto con la rueda pinchada', x: 'GATA: la herramienta que levanta el auto para cambiar la rueda pinchada, y la que se pasea por el tejado.' },
   { c: 'Crece en la maceta y arma autos en las afueras', a: 'PLANTA', k: 'definitions', d: 'Crece en la maceta', x: 'PLANTA: la que crece en la maceta, y la fábrica donde se arman autos.' },
   { c: 'Se forma frente a la caja y se menea de alegría', a: 'COLA', k: 'definitions', d: 'se menea de alegría', x: 'COLA: la fila que se forma frente a la caja, y la que el perro menea de alegría.' },
   { c: 'Hace aserrín y recorta el horizonte', a: 'SIERRA', k: 'definitions', d: 'Hace aserrín', x: 'SIERRA: la herramienta que deja aserrín, y las montañas que recortan el horizonte.' },
