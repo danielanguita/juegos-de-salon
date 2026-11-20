@@ -9,9 +9,9 @@ export default {
     "pt": "Críptico"
   },
   "tagline": {
-    "es": "Una pista críptica al día: se lee de dos maneras y lleva a una sola palabra.",
-    "en": "One cryptic clue a day: it reads two ways and leads to a single word.",
-    "pt": "Uma pista enigmática por dia: lê-se de dois jeitos e leva a uma só palavra."
+    "es": "Pistas directas, indirectas y con truco para encontrar una palabra.",
+    "en": "Direct, indirect and tricky clues to find a word.",
+    "pt": "Pistas diretas, indiretas e com truque para encontrar uma palavra."
   },
   "keywords": {
     "es": [

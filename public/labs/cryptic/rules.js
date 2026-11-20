@@ -11,7 +11,7 @@ export const KIND_KEYS = ['anagram', 'reversal', 'hidden', 'charade', 'container
 const ES = {
   ui: {
     docTitle: 'Críptico 🗝️ · Juegos de Salón', gameChip: '🗝️ Críptico', menu: '‹ Laboratorio',
-    title: 'Críptico', lead: 'Una pista críptica al día: se lee de dos maneras y lleva a una sola palabra.',
+    title: 'Críptico', lead: 'Pistas directas, indirectas y con truco para encontrar una palabra.',
     howTitle: '🗝️ Cómo se juega',
     modeToday: 'Jugar la pista de hoy', modeTodayHint: 'N.º {n}: una nueva cada día', modeTodayDone: 'Hoy: {stars}. Vuelve mañana por otra.', modeTodayAgain: 'Ver la pista de hoy',
     modePractice: 'Practicar con otras pistas',
@@ -57,7 +57,7 @@ const ES = {
 const EN = {
   ui: {
     docTitle: 'Cryptic 🗝️ · Parlor Games', gameChip: '🗝️ Cryptic', menu: '‹ Lab',
-    title: 'Cryptic', lead: 'One cryptic clue a day: it reads two ways and leads to a single word.',
+    title: 'Cryptic', lead: 'Direct, indirect and tricky clues to find a word.',
     howTitle: '🗝️ How to play',
     modeToday: "Play today's clue", modeTodayHint: 'No. {n}: a new one every day', modeTodayDone: 'Today: {stars}. Come back tomorrow for another.', modeTodayAgain: "See today's clue",
     modePractice: 'Practice with other clues',
@@ -103,7 +103,7 @@ const EN = {
 const PT = {
   ui: {
     docTitle: 'Críptico 🗝️ · Jogos de Salão', gameChip: '🗝️ Críptico', menu: '‹ Laboratório',
-    title: 'Críptico', lead: 'Uma pista enigmática por dia: lê-se de dois jeitos e leva a uma só palavra.',
+    title: 'Críptico', lead: 'Pistas diretas, indiretas e com truque para encontrar uma palavra.',
     howTitle: '🗝️ Como se joga',
     modeToday: 'Jogar a pista de hoje', modeTodayHint: 'N.º {n}: uma nova a cada dia', modeTodayDone: 'Hoje: {stars}. Volte amanhã para outra.', modeTodayAgain: 'Ver a pista de hoje',
     modePractice: 'Praticar com outras pistas',
