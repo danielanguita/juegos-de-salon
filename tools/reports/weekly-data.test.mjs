@@ -79,4 +79,23 @@ test('the trend: five weeks and three months, versions merged, lab plays out, n/
   assert.equal(t.metricas.find(m => m.nombre === 'Games per active browser').valores[0], 67, 'all 67 games started (as in the headline) by 1 active browser');
 });
 
+test('the panel: the week in progress first, partial, every comparison still on the closed week', () => {
+  const w = semanaCerrada(Date.parse('2026-11-15T12:00:00Z'));
+  const actual = { from: w.to + 1, to: w.to + 4 };
+  const days = {
+    [actual.from]: { local: { tango: { solo: { 1: 2 } }, zip: { solo: { 1: 30 } } } },
+    [w.from]: { local: { tango: { solo: { 1: 5 } } } },
+    [w.from - 7]: { local: { tango: { solo: { 1: 4 } } } },
+  };
+  const t = tendencia({ days }, w, { actual });
+  assert.equal(t.cerrada, 1);
+  assert.equal(t.columnas.length, 9);
+  assert.match(t.columnas[0], /^Nov 15 – Nov 18 \(partial\)$/);
+  const tango = t.juegos.find(g => /Tango/.test(g.juego));
+  assert.deepEqual([tango.valores[0], tango.valores[1], tango.valores[2], tango.cambio], [2, 5, 4, 25]);
+  assert.equal(t.juegos.length, 1, 'the top 10 is the closed week\'s, not the partial one\'s');
+  assert.deepEqual(t.metricas.find(m => m.nombre === 'Games started').valores.slice(0, 3), [32, 5, 4]);
+  assert.equal(t.metricas.find(m => m.nombre === 'Games started').cambio, 25);
+});
+
 console.log(`reports/weekly-data: ${n} tests OK`);
