@@ -230,7 +230,7 @@ export function createFirebaseTransport({ game, maxPlayers = 2 }) {
         const { api, fp } = stats();
         recordEnd(api, fp, { code: this.code, createdAt: this.createdAt, role, name });
         // Every phone in the room sees the end: each notes it finished this game today (D-590)
-        noteGameActive(api, fp, { game });
+        noteGameActive(api, fp, { game, level: 2 });
       } catch (_) { /* nada */ }
     },
 

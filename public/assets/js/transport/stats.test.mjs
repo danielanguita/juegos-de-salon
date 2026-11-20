@@ -483,14 +483,17 @@ assert.deepEqual(diasConHoy('basura', 100), [100]);
   assert.equal(pacificDayOf(Date.parse('2026-11-15T07:59:00Z')), pacificDayOf(Date.parse('2026-11-14T12:00:00Z')), 'before 08:00 UTC it is still the day before in Pacific (PST)');
   await noteActive(api, fp, { level: 1, local: st, now: now + DAY });
   assert.equal(api.calls.length, 4);
-  // By game (D-590): once per game and Pacific day, the same id
+  // By game (D-590): 1 started, 2 finished, once per game, Pacific day and level, never lowered; the same id
   const calls = api.calls.length;
-  await noteGameActive(api, fp, { game: 'tango', local: st, now });
-  await noteGameActive(api, fp, { game: 'tango', local: st, now });
-  await noteGameActive(api, fp, { game: 'zip', local: st, now });
-  await noteGameActive(api, fp, { game: '', local: st, now });
-  assert.deepEqual(api.calls.slice(calls).map(c => c.changes), [{ [`juegosPt/99/tango/${id}`]: 1 }, { [`juegosPt/99/zip/${id}`]: 1 }]);
-  await noteGameActive(api, fp, { game: 'tango', local: st, now: now + 9 * 3600e3 });
+  await noteGameActive(api, fp, { game: 'tango', level: 1, local: st, now });
+  await noteGameActive(api, fp, { game: 'tango', level: 1, local: st, now });
+  await noteGameActive(api, fp, { game: 'zip', level: 1, local: st, now });
+  await noteGameActive(api, fp, { game: 'tango', level: 2, local: st, now });
+  await noteGameActive(api, fp, { game: 'tango', level: 1, local: st, now });
+  await noteGameActive(api, fp, { game: 'tango', level: 2, local: st, now });
+  await noteGameActive(api, fp, { game: '', level: 1, local: st, now });
+  assert.deepEqual(api.calls.slice(calls).map(c => c.changes), [{ [`juegosPt/99/tango/${id}`]: 1 }, { [`juegosPt/99/zip/${id}`]: 1 }, { [`juegosPt/99/tango/${id}`]: 2 }]);
+  await noteGameActive(api, fp, { game: 'tango', level: 1, local: st, now: now + 9 * 3600e3 });
   assert.deepEqual(api.calls.at(-1).changes, { [`juegosPt/100/tango/${id}`]: 1 }, 'a new Pacific day writes again');
 }
 assert.equal(shareKey('resultado-hangman'), 'resultado-hangman');

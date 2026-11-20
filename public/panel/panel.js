@@ -1393,7 +1393,8 @@ function vistaWbr(now) {
     el('tbody', {}, ...filas.map(([nombre, valores, cambio, dec, clase, est]) => el('tr', { class: clase || null }, el('th', {}, nombre),
       ...valores.map((v, i) => { const x = `${est?.[i] && v !== null ? '~' : ''}${fmt(v, dec)}`; return el('td', { class: [i === k ? 'wbr-ahora' : '', i === 5 + k ? 'wbr-mes' : ''].filter(Boolean).join(' ') || null },
         i === k && v !== null ? [el('b', {}, x), cambioTxt(cambio)] : x); }))))));
-  const u = t.usuariosJuego;
+  const u = t.usuariosJuego, ue = t.usuariosEmpiezan;
+  const desdeConteo = u.desdeReal ? `the count by game began (${u.desdeReal.replace(/, \d{4}$/, '')}, D-590)` : 'the count by game began (D-590)';
   return [...cabeza,
     el('ul', { class: 'wbr-destacados' }, ...highlights(t).map(x => el('li', {}, x))),
     el('h3', {}, 'Headline'),
@@ -1403,9 +1404,12 @@ function vistaWbr(now) {
     el('p', { class: 'muted small' }, 'Games finished, as in the headline; every mode and version, La Copa included. n/a: not measured yet, or the game was not out yet. The last two rows: games finished across every public game, and the share of them these ten take.'),
     tabla([...t.juegos.map((g, i) => [`${i + 1}. ${g.juego}${g.nuevo ? ` (out ${g.nuevo.replace(/, \d{4}$/, '')})` : ''}`, g.valores, g.cambio]),
       ['Total games finished', t.totales.valores, t.totales.cambio, false, 'wbr-total'], ['Top 10 share of games finished', t.totales.top10, null, '%']], 'Game'),
-    el('h3', {}, 'Weekly active users by game'),
-    el('p', { class: 'muted small' }, `Browsers that finished each game in the week (at least one game finished); a month is the average of its full weeks (Sunday to Saturday). Sorted by the closed week, most first. ~ estimated: before ${u.desdeReal ? `the count by game began (${u.desdeReal.replace(/, \d{4}$/, '')}, D-590)` : 'the count by game began (D-590)'}, the browsers that started a game that week split by each game's share of the games finished; it reads low, since one browser starts several games.`),
+    el('h3', {}, 'Weekly active users by game: finished'),
+    el('p', { class: 'muted small' }, `Browsers that finished each game at least once in the week; a month is the average of its full weeks (Sunday to Saturday). Sorted by the closed week, most first. ~ estimated: before ${desdeConteo}, the browsers that started a game that week split by each game's share of the games finished; it reads low, since one browser plays several games.`),
     u.filas.length ? tabla(u.filas.map(f => [f.juego, f.valores, f.cambio, false, null, u.estimado]), 'Game') : el('p', { class: 'empty' }, 'No browsers measured in this week yet.'),
+    el('h3', {}, 'Weekly active users by game: started'),
+    el('p', { class: 'muted small' }, `Browsers that started each game at least once in the week, finished or not. A game many start and few finish may be breaking before its end. ~ estimated as above, by each game's share of the games started.`),
+    ue.filas.length ? tabla(ue.filas.map(f => [f.juego, f.valores, f.cambio, false, null, ue.estimado]), 'Game') : el('p', { class: 'empty' }, 'No browsers measured in this week yet.'),
   ];
 }
 

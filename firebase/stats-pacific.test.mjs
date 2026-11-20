@@ -13,8 +13,10 @@ assert.equal(w({ [`${B}/activosPt/2077/abcdefghij`]: 1 }), false, 'a day number 
 assert.equal(w({ [`${B}/entradasPt/20772/cup`]: { '.sv': { increment: 1 } } }), true, `a visit by Pacific day (${db.why?.join(', ')})`);
 assert.equal(w({ [`${B}/entradasPt/20772/cup`]: 5 }), false, 'only one at a time');
 // Active browsers by game (D-590)
-assert.equal(w({ [`${B}/juegosPt/20772/tango/abcdefghij`]: 1 }), true, `a browser that started Tango that Pacific day (${db.why?.join(', ')})`);
-assert.equal(w({ [`${B}/juegosPt/20772/tango/abcdefghij`]: 2 }), false, 'only 1');
+assert.equal(w({ [`${B}/juegosPt/20772/tango/abcdefghij`]: 1 }), true, `a browser that started Tango that Pacific day (1) (${db.why?.join(', ')})`);
+assert.equal(w({ [`${B}/juegosPt/20772/tango/abcdefghij`]: 2 }), true, 'raised to 2 when it finishes one');
+assert.equal(w({ [`${B}/juegosPt/20772/tango/abcdefghij`]: 1 }), false, 'never lowered');
+assert.equal(w({ [`${B}/juegosPt/20772/zip/abcdefghij`]: 3 }), false, 'only 1 or 2');
 assert.equal(w({ [`${B}/juegosPt/20772/Tango!/abcdefghij`]: 1 }), false, 'a game is a key');
 assert.equal(w({ [`${B}/juegosPt/20772/tango/abc`]: 1 }), false, 'the id has 10 characters');
 console.log('firebase/stats-pacific: OK');

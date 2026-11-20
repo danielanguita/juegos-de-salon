@@ -48,8 +48,8 @@
  *                        this browser, never tied to a name, an IP or anything else (D-349, amends D-44)
  *   activosPt/<pacific day>/<id>, entradasPt/<pacific day>/<page>: the same as `activos/` and
  *                        `entradas/`, filed under the Pacific date of the moment (D-561)
- *   juegosPt/<pacific day>/<game>/<id>: 1, this browser finished that game that Pacific day, once
- *                        per game and day: the panel's active browsers by game (D-590, amends D-349)
+ *   juegosPt/<pacific day>/<game>/<id>: 1 this browser started that game that Pacific day, 2 it finished
+ *                        one; once per game, day and level, never lowered: the panel's active browsers by game (D-590, amends D-349)
  *
  * Written by other modules into the same day: `support/<event>` (support.js, D-448) and
  * `splash/<campaign>/<event>` (splash.js: shown, reach, play, close, t0–t2 time open; D-461; start and finish of the game its Play opened, D-466).
@@ -561,6 +561,7 @@ export function trackStart(info) {
     if (esEnVivo(info?.mode)) pararVivo = startLive(s.api, s.fp, { ...info, name, origin: origenPagina });
     notePlayed(s.api, s.fp);
     noteActive(s.api, s.fp, { level: 2 });
+    noteGameActive(s.api, s.fp, { game: info?.game, level: 1 });
     noteSplashStep('start');
     return noteStart(s.api, s.fp, info);
   } catch (_) { return Promise.resolve(); }
@@ -775,7 +776,7 @@ export function trackFinish(info) {
   try { backGuard().disarm(); } catch (_) { /* the guard never stops the signal */ }
   try {
     // This browser finished this game today (D-590): La Copa's days too, which keep no live game
-    if (anterior?.game) { const st = stats(); noteGameActive(st.api, st.fp, { game: anterior.game }); }
+    if (anterior?.game) { const st = stats(); noteGameActive(st.api, st.fp, { game: anterior.game, level: 2 }); }
     const p = pararVivo;
     if (!p?.terminar) return Promise.resolve();
     pararVivo = null;
@@ -802,7 +803,7 @@ export const ULTIMA_KEY = 'juegos-de-salon:ultima';            // localStorage: 
 export const DIAS_KEY = 'juegos-de-salon:dias';                // localStorage: distinct visit days, last 28, comma-separated
 export const DISPOSITIVO_KEY = 'juegos-de-salon:dispositivo';  // localStorage: pseudonymous device id
 export const ACTIVO_KEY = 'juegos-de-salon:activo';            // localStorage: `<day>:<level>` already written
-export const GAME_ACTIVE_KEY = 'juegos-de-salon:activo-juegos'; // localStorage: `<pacific day>:<game>,<game>` already written (D-590)
+export const GAME_ACTIVE_KEY = 'juegos-de-salon:activo-juegos'; // localStorage: `<pacific day>:<game>=<level>,…` already written (D-590)
 export const PARTIDAS_KEY = 'juegos-de-salon:partidas';        // localStorage: finished games of every game, on the phone only (D-502)
 export const VENTANA_DIAS = 28;
 
@@ -881,27 +882,29 @@ export function activeChange({ level, local = globalThis.localStorage, now = Dat
 }
 
 /**
- * `juegosPt/<pacific day>/<game>/<id>` = 1 (D-590): this browser finished this game today, once per
- * game and Pacific day, with the same random id as `activos/` and nothing else. Empty when already
- * written today, without storage, or without a game.
+ * `juegosPt/<pacific day>/<game>/<id>` (D-590): 1 this browser started this game today, 2 it finished
+ * one, with the same random id as `activos/` and nothing else. Once per game, Pacific day and level,
+ * never lowered: a game started and never finished stays at 1, which is how the panel sees a game
+ * that breaks before its end. Empty when already written, without storage, or without a game.
  */
-export function gameActiveChange({ game, local = globalThis.localStorage, now = Date.now() } = {}) {
+export function gameActiveChange({ game, level = 1, local = globalThis.localStorage, now = Date.now() } = {}) {
   try {
     const g = clave(game);
-    if (!g) return {};
+    if (!g || (level !== 1 && level !== 2)) return {};
     const pday = pacificDayOf(now);
     const [d, lista = ''] = String(leer(local, GAME_ACTIVE_KEY) || '').split(':');
-    const hechos = Number(d) === pday ? lista.split(',').filter(Boolean) : [];
-    if (hechos.includes(g)) return {};
+    const hechos = new Map(Number(d) === pday ? lista.split(',').filter(Boolean).map(x => { const [k, v] = x.split('='); return [k, Number(v) || 1]; }) : []);
+    if ((hechos.get(g) || 0) >= level) return {};
     const id = deviceId(local);
     if (!id) return {};
-    poner(local, GAME_ACTIVE_KEY, `${pday}:${[...hechos, g].join(',')}`);
-    return { [`juegosPt/${pday}/${g}/${id}`]: 1 };
+    hechos.set(g, level);
+    poner(local, GAME_ACTIVE_KEY, `${pday}:${[...hechos].map(([k, v]) => `${k}=${v}`).join(',')}`);
+    return { [`juegosPt/${pday}/${g}/${id}`]: level };
   } catch (_) { return {}; }
 }
 
-export function noteGameActive(api, fp, { game, local = globalThis.localStorage, now = Date.now() } = {}) {
-  const c = gameActiveChange({ game, local, now });
+export function noteGameActive(api, fp, { game, level = 1, local = globalThis.localStorage, now = Date.now() } = {}) {
+  const c = gameActiveChange({ game, level, local, now });
   if (!Object.keys(c).length) return Promise.resolve();
   return quiet(() => api.patch(dayPath(fp.env, dayOf(now)), c));
 }
