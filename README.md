@@ -1,8 +1,8 @@
-# 🎲 Juegos de Salón
+# 🎲 Juegos de Salón / Parlor Games
 
 Mobile-first web app with party games to play with friends: card and dice games, word and logic puzzles, guessing games. Open it on a phone, pick a game, type in the players, and the phone runs the game. In Spanish, English and Portuguese, with no account needed.
 
-**Play:** https://juegosdesalon.cl/
+**Play:** https://juegosdesalon.app / https://parlorgames.app
 
 <!-- generated: screenshots:portada · written by python3 tools/release/readme.py update -->
 <p align="center"><img src="docs/screenshots/menu.png" width="220" alt="Main menu">&nbsp;&nbsp;<img src="docs/screenshots/compartir.png" width="220" alt="Share sheet with the promo video"></p>
