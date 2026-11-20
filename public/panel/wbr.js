@@ -163,7 +163,7 @@ export function trend({ days = {}, torneos = {}, flags = {} } = {}, w, { actual 
 
   // Games, day by day so a launch in the middle of a range cuts it on its day (lab plays already out of `days`)
   const esPublico = publicGameCheck(flags);
-  const desdeCuando = {}, porCol = cols.map(() => ({})), finPorDia = {}, empPorDia = {};
+  const desdeCuando = {}, porCol = cols.map(() => ({})), finPorDia = {}, empPorDia = {}, totalDia = {};
   const inicio = Math.min(...cols.map(c => c.from)), fin = Math.max(...cols.map(c => c.to));
   // La Copa's plays by day read in one pass over the cups, not one pass per day (the panel froze)
   const copasPorDia = resumenCopas(torneos, { from: inicio, to: fin }, pacificEndMs(fin), { dayFn: pacificDay }).porDiaJuego;
@@ -180,6 +180,8 @@ export function trend({ days = {}, torneos = {}, flags = {} } = {}, w, { actual 
       if (!n || !esPublico(id, d)) continue;
       const b = baseGame(id); hoy[b] = (hoy[b] || 0) + n;
     }
+    // The headline's games finished on this day, for the pace chart: the same sum as its column
+    totalDia[d] = f.terminadas + Object.values(salasDia).reduce((a, g) => a + g.terminadas, 0) + Object.values(copasPorDia[d] || {}).reduce((a, n) => a + n, 0);
     for (const b of empezados) desdeCuando[b] ??= d;
     for (const b in hoy) desdeCuando[b] ??= d;
     finPorDia[d] = hoy;
@@ -260,9 +262,18 @@ export function trend({ days = {}, torneos = {}, flags = {} } = {}, w, { actual 
     const fin = Object.fromEntries(usuariosJuego.filas.map(f => [f.id, f.valores[i] || 0]));
     for (const f of usuariosEmpiezan.filas) if (f.valores[i] >= 2 && !fin[f.id] && !sinTerminar.some(x => x.id === f.id)) sinTerminar.push({ id: f.id, juego: f.juego, empiezan: f.valores[i], columna: cols[i].titulo });
   }
+  // The pace: games finished day by day, added up from Sunday, of the newest week (the week in
+  // progress, or the closed week), against the week before it and the average of the four before it
+  const foco = actual || w, acumula = (from, n) => { const out = []; for (let i = 0; i < n; i++) out.push((out[i - 1] || 0) + (totalDia[from + i] || 0)); return out; };
+  const previas = [1, 2, 3, 4].map(i => acumula(foco.from - 7 * i, 7));
+  const ritmo = {
+    semana: cols[0].titulo, anterior: rangoTxt({ from: foco.from - 7, to: foco.from - 1 }), parcial: !!actual,
+    esta: acumula(foco.from, foco.to - foco.from + 1), pasada: previas[0],
+    promedio: previas[0].map((_, i) => Math.round((previas.reduce((a, x) => a + x[i], 0) / 4) * 10) / 10),
+  };
   // The * columns, said once under the tables
   const leyenda = `* Partial: ${actual ? `the week so far (to ${sinAno(actual.to)}) and ` : ''}the month up to ${sinAno(hasta)}.`;
-  return { columnas: cols.map(c => c.titulo), metricas, juegos, totales, usuariosJuego, usuariosEmpiezan, sinTerminar, cerrada: k, leyenda };
+  return { columnas: cols.map(c => c.titulo), semanas: cols.map(c => c.semana), ritmo, metricas, juegos, totales, usuariosJuego, usuariosEmpiezan, sinTerminar, cerrada: k, leyenda };
 }
 
 /** The last full week (Sunday to Saturday, Pacific dates) before `now`, as the weekly email reads it. */

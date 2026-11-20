@@ -108,6 +108,12 @@ test('the panel: the week in progress first, partial, every comparison still on 
   assert.equal(t.totales.cambio, 25);
   assert.deepEqual(t.totales.top10.slice(0, 3), [6.3, 100, 100], 'the closed week\'s ten, 2 of 32 in the partial week');
   assert.equal(t.columnas[6], 'Nov*');
+  assert.deepEqual(t.ritmo.esta, [32, 32, 32, 32], 'the pace: the week in progress added up from Sunday to today');
+  assert.equal(t.ritmo.esta.at(-1), t.metricas.find(m => m.nombre === 'Games finished').valores[0], 'its last point is the headline\'s partial column');
+  assert.equal(t.ritmo.pasada.at(-1), 5, 'the closed week, whole');
+  assert.equal(t.ritmo.promedio.at(-1), 2.3, 'the four weeks before: (5 + 4 + 0 + 0) / 4');
+  assert.deepEqual([t.ritmo.semana, t.ritmo.anterior, t.ritmo.parcial], ['Nov 15–18*', 'Nov 8–14', true]);
+  assert.deepEqual(t.semanas, [true, true, true, true, true, true, false, false, false]);
   assert.equal(t.metricas.find(m => m.nombre === 'Games started').valores[6], 32 + 5 + 4, 'the month so far reaches today, the week in progress included');
 });
 

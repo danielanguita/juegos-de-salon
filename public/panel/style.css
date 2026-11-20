@@ -485,6 +485,49 @@ table.wbr td.wbr-ahora { font-weight: 400; }
 /* The top 10's total rows, set apart from the ten */
 table.wbr tr.wbr-total > * { border-top: 2px solid var(--glass-border); }
 
+/* The WBR's charts: games finished by week and month (bars), the week's pace (lines), a trend per game */
+.wbr-grafico { margin: 0 0 var(--s-16); padding: var(--s-12); border: 1px solid var(--glass-border); border-radius: var(--r-10); }
+.wbr-grafico h3 { margin: 0 0 var(--s-8); }
+.wbr-grafico > p:last-child { margin: var(--s-8) 0 0; }
+.wbr-barras-par { display: flex; flex-wrap: wrap; gap: var(--s-16); }
+.wbr-barras { min-width: 0; }
+.wbr-barras--semanas { flex: 2 1 280px; }
+.wbr-barras--meses { flex: 1 1 160px; }
+.wbr-eje { margin: 0 0 var(--s-4); font-size: var(--fs-75); color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
+.wbr-barras-fila { display: flex; align-items: flex-end; gap: var(--s-6); height: 170px; border-bottom: 1px solid var(--glass-border); }
+.wbr-barra { flex: 1 1 0; min-width: 0; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; position: relative; }
+.wbr-barra-col { width: 100%; height: var(--h); max-height: calc(100% - 1.6em); border-radius: var(--r-8) var(--r-8) 0 0; background: rgb(var(--pink-rgb) / .55); }
+.wbr-barras--meses .wbr-barra-col { background: rgb(var(--cyan-rgb) / .55); }
+.wbr-barra--cerrada .wbr-barra-col { background: var(--pink); }
+.wbr-barra--parcial .wbr-barra-col { background: transparent; border: 2px dashed var(--pink); border-bottom: 0; }
+.wbr-barras--meses .wbr-barra--parcial .wbr-barra-col { border-color: var(--cyan); }
+.wbr-barra-cifra { font-size: var(--fs-75); font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; margin-bottom: var(--s-2); }
+.wbr-barra-rotulo { position: absolute; top: 100%; margin-top: var(--s-4); font-size: var(--fs-75); color: var(--muted); text-align: center; line-height: 1.2; }
+.wbr-barras { padding-bottom: 2.2em; }
+.wbr-barra-rotulo span { white-space: nowrap; }
+.wbr-rotulo-corto { display: none; }
+@media (max-width: 480px) { .wbr-rotulo-largo { display: none; } .wbr-rotulo-corto { display: inline; } }
+.wbr-leyenda { list-style: none; margin: 0 0 var(--s-8); padding: 0; font-size: var(--fs-85); }
+.wbr-leyenda li { margin: var(--s-2) 0; padding-left: 1.4em; position: relative; }
+.wbr-leyenda li::before { content: ''; position: absolute; left: 0; top: .55em; width: 1em; height: 3px; border-radius: var(--r-pill); background: var(--pink); }
+.wbr-leyenda li.wbr-leyenda--pasada::before { background: var(--cyan); }
+.wbr-leyenda li.wbr-leyenda--prom::before { background: var(--line-faint); }
+.wbr-ritmo-area { position: relative; height: 160px; }
+.wbr-ritmo-svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.wbr-ritmo-svg polyline { fill: none; stroke-linejoin: round; stroke-linecap: round; }
+.wbr-ritmo-guia { stroke: var(--glass-border); stroke-width: 1; }
+.wbr-ritmo-esta { stroke: var(--pink); stroke-width: 3.5; }
+.wbr-ritmo-pasada { stroke: var(--cyan); stroke-width: 2.5; }
+.wbr-ritmo-prom { stroke: var(--line-faint); stroke-width: 2; stroke-dasharray: 5 4; }
+.wbr-ritmo-punto { position: absolute; left: var(--x); top: var(--y); width: 10px; height: 10px; transform: translate(-50%, -50%); border-radius: 50%; background: var(--pink); }
+.wbr-ritmo-dias { display: flex; justify-content: space-between; margin-top: var(--s-4); font-size: var(--fs-75); color: var(--muted); }
+.wbr-ritmo-dias span { width: 0; display: flex; justify-content: center; white-space: nowrap; }
+table.wbr td.wbr-tendencia-celda { padding-top: 0; padding-bottom: 0; vertical-align: middle; }
+.wbr-tendencia { display: block; }
+.wbr-tendencia polyline { fill: none; stroke: var(--pink); stroke-width: 2; stroke-linejoin: round; }
+.wbr-tendencia .wbr-tendencia-parcial { stroke-dasharray: 3 3; }
+.wbr-tendencia circle { fill: var(--pink); }
+
 /* 📱 Screens: the bands with their phones, and the width × height cross */
 .pant-scroll { overflow-x: auto; }
 table.pant { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
