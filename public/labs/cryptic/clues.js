@@ -62,6 +62,17 @@ const ES = [
   { c: 'En la cumbre, de dos en dos, Camilo miraba Santiago. Hasta que se le salió un botón', a: 'CAMISA', k: 'selector', d: 'Hasta que se le salió un botón', x: 'Las cumbres de dos en dos: CA de Camilo, MI de miraba, SA de Santiago. CAMISA, a la que se le sale un botón.' },
   { c: 'Hombre americano con un litro extra en tequila. Qué maravilla de calorías doradas', a: 'MANTEQUILLA', k: 'charade', d: 'calorías doradas', x: 'MAN (hombre, en inglés) + TEQUILA con una L (un litro) de más, TEQUILLA = MANTEQUILLA, una maravilla de calorías doradas.' },
   { c: 'Sonaron cuatro notas y no quedó una pizca de dulce de leche en la cuchara', a: 'RELAMIDO', k: 'charade', d: 'no quedó una pizca de dulce de leche en la cuchara', x: 'RE + LA + MI + DO, cuatro notas = RELAMIDO: así queda la cuchara cuando no le queda ni una pizca de dulce de leche.' },
+  // Ten of high difficulty, thought with the owner (2026-11-19): 1, 3, 5, 6 and 8 in the owner's words or close to them
+  { c: 'El gas del brasero, con juicio, tiene razones que la razón no entiende', a: 'CORAZÓN', k: 'charade', d: 'tiene razones que la razón no entiende', x: 'CO (el monóxido de carbono, el gas del brasero) + RAZÓN (juicio) = CORAZÓN, que tiene razones que la razón no entiende.' },
+  { c: 'Un calcetín en la oscuridad, cuando huye Cenicienta', a: 'MEDIANOCHE', k: 'charade', d: 'cuando huye Cenicienta', x: 'MEDIA (un calcetín) + NOCHE (la oscuridad) = MEDIANOCHE, cuando huye Cenicienta.' },
+  { c: 'Tu papá tiene un hermano cuya hija dice verdades en latín y florece en septiembre', a: 'PRIMAVERA', k: 'charade', d: 'florece en septiembre', x: 'PRIMA (la hija del hermano de tu papá) + VERA (verdades, en latín) = PRIMAVERA, que florece en septiembre.' },
+  { c: 'Contra el rostro, esconde los ojos en el carnaval', a: 'ANTIFAZ', k: 'charade', d: 'esconde los ojos en el carnaval', x: 'ANTI (contra) + FAZ (el rostro) = ANTIFAZ, que esconde los ojos en el carnaval.' },
+  { c: 'El ser del futuro al dar la vuelta es un dios', a: 'ARES', k: 'reversal', d: 'un dios', x: 'SERÁ (el verbo ser en futuro) dado vuelta es ARES, el dios griego de la guerra.' },
+  { c: 'Me vino un fatal mareo justo al centro, que casi se me sale del cuerpo', a: 'ALMA', k: 'hidden', d: 'que casi se me sale del cuerpo', x: 'Justo al centro de «fatAL MAreo»: ALMA, la que casi se te sale del cuerpo.' },
+  { c: 'Un japonés confundido bebe sin sed en la ducha', a: 'ESPONJA', k: 'anagram', d: 'bebe sin sed en la ducha', x: 'Las letras de JAPONÉS, confundidas, forman ESPONJA, que bebe sin sed en la ducha.' },
+  { c: 'Un perro con seis caras no se abre sin su llave', a: 'CANDADO', k: 'charade', d: 'no se abre sin su llave', x: 'CAN (un perro) + DADO (seis caras) = CANDADO, que no se abre sin su llave.' },
+  { c: 'Una nota de cierta edad pasó cien años en Macondo', a: 'SOLEDAD', k: 'charade', d: 'pasó cien años en Macondo', x: 'SOL (una nota) + EDAD = SOLEDAD, la de los cien años de Macondo.' },
+  { c: 'Detiene las aguas, salvo la primera, y se abre cuando llueve', a: 'PARAGUAS', k: 'charade', d: 'se abre cuando llueve', x: 'PARA (detiene) + AGUAS sin la primera letra, GUAS = PARAGUAS, que se abre cuando llueve.' },
 ];
 
 /** Spanish only for now (the owner, 2026-11-19): the mechanics first, the other banks once it works. */
