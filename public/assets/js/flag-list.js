@@ -14,7 +14,6 @@ export const FLAGS = {
   'copa-jugar': '🏆 La Copa: a gold one-line «🏆 Jugar» button on its home page card when there is no day to play',
   'copa-hoy': '🏆 La Copa: ▶ Jugar hoy on its home page card',
   'copa-espera': '🏆 La Copa: Día N en Xh on its home page card',
-  'copa-contexto': '🏆 La Copa: which cup, your place and the day\'s game on its home page card',
   'bn-salva': '🎆 Battleship: Salvo',
   'keyboard-lift': '⌨️ Feedback form above the iOS keyboard',
   'uad-share-grids': '🟩 Uno al día: share grids for Agentes, Dudo, Generala and Battleship',
@@ -56,6 +55,13 @@ export const FLAGS = {
   'solo-result-today-card': '📅 A game played on its own: under its result, one cyan line «📅 Uno al día de hoy: 👑 Reinas · Jugar» for whoever has not played today\'s Uno al día yet; never in La Copa or in Uno al día itself (#1597)',
   'lab-ready': '✅ Labs: lab use of each flag is counted, and its card says when it is ready to 🚀 (D-528)',
 };
+
+/**
+ * Flags whose card went to La Bodega as 💤 No prosperó (D-593): no switch in the T tab, which is for what is
+ * still being tried. Not a launched flag (*all*), which already has none (D-567). `public/labs/listed.test.mjs`
+ * keeps it equal to the 💤 cards of La Bodega that have a row in FLAGS.
+ */
+export const PARKED = new Set(['bn-salva', 'lab-ready']);
 
 /**
  * When a flag in *lab* is ready to publish (D-528): at least `completions` finished loads by at least
