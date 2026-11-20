@@ -40,6 +40,16 @@ export function lanzado(id, { flags = cachedFlags(), store = globalThis.localSto
   try { return !!store?.getItem(SAVED_KEY); } catch (_) { return false; }
 }
 
+/**
+ * Whether what `flags/` says now changes how the home page draws a launched game (D-517, D-556): it came
+ * out or went back (`oculto`), or its ✨ Nuevo label starts or ends. The label counts too: a lab key holder
+ * already sees the game, so only the label changes for them (Dominorama and Memorice, 2026-11-19). Pure.
+ */
+export function launchChanges(games, before, after, hoy = new Date()) {
+  return games.some(g => g.lanza && (lanzado(g.lanza, { flags: before }) !== lanzado(g.lanza, { flags: after })
+    || esNuevo(g, hoy, before) !== esNuevo(g, hoy, after)));
+}
+
 export const GAMES = [
   // copa: from public/cup/game.json
   // No dura minutos sino días. Va en los tres idiomas (D-170): la copa elige el de sus palabras
