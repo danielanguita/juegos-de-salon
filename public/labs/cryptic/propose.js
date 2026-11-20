@@ -37,7 +37,7 @@ export function defaultName(storage = globalThis.localStorage) {
 export async function openProposal({ T, lang, send = null, onSent = () => {} }) {
   if (document.querySelector('.labs-capa')) return;
   // The feedback form's module, loaded on the tap (as buzon.js does): its email field, its sender
-  const { campoCorreo, fijarFondo, enviarReporte } = await import('../../assets/js/buzon-form.js');
+  const { campoCorreo, textosCorreo, fijarFondo, enviarReporte } = await import('../../assets/js/buzon-form.js');
   send ||= enviarReporte;
   let layer = null;
   let release = () => {};
@@ -57,7 +57,8 @@ export async function openProposal({ T, lang, send = null, onSent = () => {} }) 
     el('p', { class: 'muted', style: 'margin:0' }, T.proposeIntro),
     lang !== 'es' ? el('p', { class: 'notice notice--warn', style: 'margin:0' }, T.proposeInSpanish) : null,
     field(T.proposeClue, clue), field(T.proposeAnswer, answer), field(T.proposeHow, how), field(T.proposeName, name),
-    email.input, email.nota, err, sendBtn,
+    // The email with its own label, so its note («never published») is not read as the name's
+    field(textosCorreo(lang).correo, email.input), email.nota, err, sendBtn,
     el('button', { type: 'button', class: 'btn btn--ghost btn--sm', onClick: close }, T.proposeCancel));
   sendBtn.addEventListener('click', async () => {
     const c = clue.value.trim().replace(/\s+/g, ' ');

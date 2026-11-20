@@ -263,7 +263,8 @@ function renderResult() {
   if (state.author) parts.push(T.yourDayLine);
   if (state.solved) parts.push(tries === 1 ? T.triesOne : fmt(T.tries, { n: tries }));
   if (state.practice) parts.push(T.practiceNote);
-  else {
+  // The author's day already says the streak goes on: no second line for it
+  else if (!state.author) {
     const n = E.streak(readDays(), today());
     if (state.gaveUp && n) parts.push(T.streakLost);
     else if (n) parts.push(n === 1 ? T.streakOne : fmt(T.streakMany, { n }));
@@ -288,7 +289,7 @@ function renderResult() {
   // «Propón tu críptico»: under the actions, at the end of every clue
   $('#result-propose').replaceChildren(
     el('p', { class: 'lead', style: 'margin:0' }, T.proposeAsk),
-    el('button', { class: 'btn btn--cyan btn--sm', id: 'btn-propose', type: 'button', onClick: () => { SFX.tap(); openProposal({ T, lang, ...(tiene('test') ? { send: testSend } : {}) }); } }, T.proposeBtn));
+    el('button', { class: 'btn btn--ghost btn--sm', id: 'btn-propose', type: 'button', onClick: () => { SFX.tap(); openProposal({ T, lang, ...(tiene('test') ? { send: testSend } : {}) }); } }, T.proposeBtn));
   $('#result-exits').replaceChildren(salidasFin('lab', { lang, raiz: '../../' }));
   // A solo game: no win to count in the rankings yet (whether it keeps a score is the owner's call, D-212)
   finDePartida({ juego: GAME_ID, modo: 'solo', alTocar: () => SFX.tap() });

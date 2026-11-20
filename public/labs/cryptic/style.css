@@ -59,4 +59,5 @@
 .propose-field { display: grid; gap: var(--s-4); }
 .propose-label { font-weight: 800; font-size: var(--fs-90); }
 .propose .btn { justify-self: center; }
-.propose-kind { justify-self: start; display: inline-grid; place-items: center; cursor: default; }
+/* The kind, already picked (the owner): a tag, not one more button to choose */
+.propose-kind { justify-self: start; display: inline-grid; place-items: center; cursor: default; min-height: 0; padding: var(--s-4) var(--s-12); }

@@ -119,7 +119,7 @@ const PT = {
     resumeTitle: '⏯ Você tem uma pista pela metade', resume: 'Continuar', delete: 'Apagar',
     shareRotulo: '📤 Compartilhar', shareContext: 'Pista n.º {n}', shareHints: '💡 {n} ajudas', shareHintsOne: '💡 1 ajuda', shareGaveUp: '🏳️ Desisti',
     // «Proponha seu críptico» (propose.js) and the day a player's own clue comes up (the owner, 2026-11-19)
-    proposeAsk: '✍️ Tem um seu?', proposeBtn: 'Proponha seu críptico', proposeTitle: 'Proponha seu críptico', proposeKind: '🗝️ Críptico',
+    proposeAsk: '✍️ Quer criar um?', proposeBtn: 'Proponha seu críptico', proposeTitle: 'Proponha seu críptico', proposeKind: '🗝️ Críptico',
     proposeIntro: 'Se gostarmos, publicamos com seu nome. No dia dele, todos jogam sua pista menos você, e sua sequência continua.',
     proposeInSpanish: 'Por enquanto as pistas são em espanhol: escreva a sua em espanhol.',
     proposeClue: 'A pista', proposeCluePh: 'Ex.: Una monja alborotada termina en el sándwich',
