@@ -18,7 +18,7 @@ for (const width of [390, 320]) {
   const open = async () => { await ev(`document.getElementById('tr-tab').click()`); return waitFor(`document.querySelectorAll('#tr-flags .toggle-row').length > 0 && !!document.querySelector('#tr-panel').offsetHeight`); };
 
   // Two lab flags asked by the home page, and nothing pinned or off yet: the first view holds no row
-  b.flags({ 'copa-contexto': 'lab', 'copa-jugar': 'lab' });
+  b.flags({ 'copa-espera': 'lab', 'copa-jugar': 'lab' });
   await b.go(`${SITE}/?test&lang=es`);
   await ev(`localStorage.removeItem('juegos-de-salon:flags-pinned'); localStorage.removeItem('juegos-de-salon:flags-off')`);
   await b.go(`${SITE}/?test&lang=es`);
@@ -53,12 +53,12 @@ for (const width of [390, 320]) {
 
   // An unpinned flag turned off is never hidden: the first view shows it, marked
   await ev(`document.getElementById('tr-all').click()`); await sleep(200);
-  await ev(`document.querySelector('[data-flag="copa-contexto"]').click()`); await sleep(2500);
+  await ev(`document.querySelector('[data-flag="copa-espera"]').click()`); await sleep(2500);
   ok(await open(), `${width}: the page reloaded with the flag off`);
-  ok(JSON.parse(await ev(shown)).includes('copa-contexto') && await ev(`!!document.querySelector('[data-row="copa-contexto"] .tr-mark').offsetHeight`), `${width}: the flag turned off shows in the first view, marked, though not pinned`);
+  ok(JSON.parse(await ev(shown)).includes('copa-espera') && await ev(`!!document.querySelector('[data-row="copa-espera"] .tr-mark').offsetHeight`), `${width}: the flag turned off shows in the first view, marked, though not pinned`);
   await b.shot(`${width}-4-off`);
   await ev(`document.getElementById('tr-all').click()`); await sleep(200);
-  await ev(`document.querySelector('[data-flag="copa-contexto"]').click()`); await sleep(2500);
+  await ev(`document.querySelector('[data-flag="copa-espera"]').click()`); await sleep(2500);
   ok(await open() && await ev(shown) === JSON.stringify(['copa-jugar']), `${width}: switched back on, it hides again`);
 
   // English
