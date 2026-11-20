@@ -334,7 +334,7 @@ export const SUELTOS = [
       en: ['agents', 'codenames', 'spies', 'clues', 'words', 'associate', 'assassin', 'spy', 'secret'],
       pt: ['codenames', 'espiões', 'pistas', 'palavras', 'associar', 'assassino', 'agente', 'segredo'],
     },
-    tipos: ['words'],
+    tipos: ['logic'],
     duration: '3–6',
     deLabs: true,
     nuevoDesde: '2026-10-21', // launched 2026-10-22; the owner retired its "New" a day early (D-507)
