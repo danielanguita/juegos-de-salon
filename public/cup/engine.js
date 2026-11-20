@@ -178,7 +178,10 @@ export function semanaAlAzar(dias, { rand = cryptoRand, familia = null, estilo =
 export const PUNTOS = [10, 8, 6, 5, 4, 3, 2, 1, 1, 1];
 /** Una copa se juega entre 2 y 10 (D-118): con el admin solo, no parte ni avanza de día. */
 export const MIN_JUGADORES = 2;
-export const MAX_JUGADORES = 10;
+/** 20 with the lab flag `cup-big` (the page calls `setPlayerCap`); an exported `let`, so every importer sees the change. */
+export let MAX_JUGADORES = 10;
+export const BIG_CUP_MAX = 20;
+export function setPlayerCap(n) { MAX_JUGADORES = n; }
 export const NOMBRE_MAX = 20;
 /** El nombre de una copa (D-119): antes se recortaba al largo de un nombre de jugador (20). */
 export const COPA_MAX = 40;

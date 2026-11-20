@@ -20,6 +20,8 @@ const JUGADORES = [
   { pid: 'tere08', name: 'Tere' },
   { pid: 'rodr09', name: 'Rodrigo' },
   { pid: 'isid10', name: 'Isidora' },
+  // The crowd scene (20 players): ten more
+  ...['Camila', 'Benja', 'Fran', 'Gabi', 'Lucho', 'Mati', 'Pau', 'Dani', 'Ale', 'Feña'].map((name, i) => ({ pid: `x${String(i + 11).padStart(2, '0')}abc`, name })),
 ];
 
 /** Días que alguien no jugó, para que la escena llena muestre "(-1J)" (D-126). */
@@ -92,6 +94,8 @@ export const ESCENAS = {
   'podium-admin': { inicio: 7, jugadores: 5, jugaron: 7, yo: 'cata01', pantalla: 'tablero' },
   // La máxima densidad del gráfico y de la imagen que se comparte (D-141): 7 días, 10 jugadores
   full: { inicio: 7, jugadores: 10, jugaron: 7, yo: 'javi02', pantalla: 'tablero', faltas: true },
+  // The most players a cup takes (20), three days played
+  crowd: { inicio: 3, jugadores: 20, jugaron: 3, yo: 'javi02', pantalla: 'tablero', fuerza: Object.fromEntries(['x11abc','x12abc','x13abc','x14abc','x15abc','x16abc','x17abc','x18abc','x19abc','x20abc'].map((p, i) => [p, 0.2 + 0.07 * ((i * 7) % 10)])) },
   // Out of the cup (D-347): whoever looks missed days 1 and 2; Tere missed day 3, one away from it
   out: { inicio: 3, jugadores: 5, jugaron: 3, yo: 'javi02', pantalla: 'tablero', faltas: { javi02: [1, 2] } },
   // The warning (D-347): whoever looks missed day 2, and day 3 is in its grace day
