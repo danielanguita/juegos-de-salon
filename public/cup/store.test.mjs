@@ -10,6 +10,7 @@ globalThis.sessionStorage = memoria();
 globalThis.addEventListener ||= () => {};
 
 const { createLocalStore } = await import('./store-local.js');
+const { ponerTope } = await import('./engine.js');
 const { nuevaMeta, hashPin, DIA_MS, fechaEn, moverInicio, sumarDias, inscripcionAbierta, pasarDia, diaActual, terminada, conCierre } = await import('./engine.js');
 const { createCuenta, juntarCopas } = await import('./cuenta.js');
 
@@ -113,8 +114,13 @@ await test('link propio: único mientras dure, libre al eliminar o al vencer (D-
 await test('inscribirse: nombre repetido y cupo', async () => {
   await otro.inscribir(CODE, { pid: 'bbbbbb', name: 'Javi', at: 2, pinHash: await hashPin(CODE, 'bbbbbb', '2222') });
   await rechaza(intruso.inscribir(CODE, { pid: 'cccccc', name: ' javi ', at: 3, pinHash: 'h' }), 'nombre-repetido');
-  for (let i = 0; i < 18; i++) await intruso.inscribir(CODE, { pid: `p${i}aaaa`, name: `J${i}`, at: 3, pinHash: 'h' });
-  await rechaza(intruso.inscribir(CODE, { pid: 'zzzzzz', name: "Veintiuno", at: 3, pinHash: 'h' }), 'llena');
+  // 10 by default; 20 with the lab flag `cup-big`
+  for (let i = 0; i < 8; i++) await intruso.inscribir(CODE, { pid: `p${i}aaaa`, name: `J${i}`, at: 3, pinHash: 'h' });
+  await rechaza(intruso.inscribir(CODE, { pid: 'zzzzzz', name: 'Once', at: 3, pinHash: 'h' }), 'llena');
+  ponerTope(20);
+  for (let i = 8; i < 18; i++) await intruso.inscribir(CODE, { pid: `p${i}aaaa`, name: `J${i}`, at: 3, pinHash: 'h' });
+  await rechaza(intruso.inscribir(CODE, { pid: 'zzzzzz', name: 'Veintiuno', at: 3, pinHash: 'h' }), 'llena');
+  ponerTope(10);
 });
 
 await test('sentarse con el PIN', async () => {

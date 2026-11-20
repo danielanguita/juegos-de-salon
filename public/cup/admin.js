@@ -42,7 +42,7 @@ function pantallaAdmin({ forzar = false } = {}) {
       el('p', { class: 'lead', style: 'margin:0' }, `🎉 ${T.adminWelcomeTitle}`),
       el('ol', { class: 'como' },
         el('li', {}, T.adminWelcome1),
-        el('li', {}, T.adminWelcome2),
+        el('li', {}, fmt(T.adminWelcome2, { max: MAX_JUGADORES })),
         // Con link propio, cerrar la inscripción deja de ser opcional, y el paso dice por qué (#102)
         el('li', {}, meta.alias ? T.adminWelcomeAlias : T.adminWelcome3))));
   }

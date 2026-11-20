@@ -24,7 +24,7 @@ import { shareGrid } from '../assets/js/share-grid.js';
 import { backGuard } from '../assets/js/back-guard.js';
 import { param, tiene, nombres, BANDERAS, ALIAS as PARAMS_ANTES } from '../assets/js/parametros.js';
 import {
-  POZO, VARIANTES, entradaCal, varianteDelDia, calendarioAlAzar, calendario, MAX_JUGADORES, COPA_MAX, aliasLimpio, esAlias, CODIGO, esCodigo, codigoAlAzar, pidAlAzar, limpiarNombre, claveNombre, esPin, hashPin,
+  POZO, VARIANTES, entradaCal, varianteDelDia, calendarioAlAzar, calendario, MAX_JUGADORES, MAX_JUGADORES_GRANDE, ponerTope, COPA_MAX, aliasLimpio, esAlias, CODIGO, esCodigo, codigoAlAzar, pidAlAzar, limpiarNombre, claveNombre, esPin, hashPin,
   fechaEn, sumarDias, nuevaMeta, diaActual, abierto, cerrado, terminada, inscripcionAbierta, estadoDia, comodinDe, comodinEfectivo, ultimoDiaComodin, moverInicio, sinEmpezar, pasarDia, MAX_DIAS_INICIO, faltaGente,
   medianoche, menosJuegos, provisoria, ultimoDiaVisto, marcaDelDia, puedeComodin, multiplicador, posicionesDelDia, tabla, desempate, faltan, fuera, enRiesgo, medallas, evolucion, podioDecidido, visibleDia, reloj, pausaDeLectura, mmss, juegoDelDia, esFinal, finalRounds, diaDeCal, activos, ZONA, zonaDeIdioma,
   conCierre, cerradaAntes, anulado, puedeCerrar, semanaAlAzar, ESTILOS_SEMANA, tieneFinal, SIN_FINAL,
@@ -331,6 +331,10 @@ flag('cup-again').then(v => { otraCopa = v; if (v && L()?.meta && document.query
 // podium before the cup closes (`podioDecidido`); the podium and the closing notice come as always. lab: #seccion-cup-podium-early
 let podioAnticipado = false;
 flag('cup-podium-early').then(v => { podioAnticipado = v; if (v && L()?.meta && document.getElementById('tablero-body')?.childElementCount && !document.getElementById('tablero-body').closest('[hidden]')) tablero(); });
+// Up to 20 players: the cup takes more than 10, and from 11 the board shows the first 10 rows (the 11th peeking
+// under a button) and the graph its first 10 lines, with the other names listed under it. lab: #seccion-cup-big
+let copaGrande = false;
+flag('cup-big').then(v => { copaGrande = v; ponerTope(v ? MAX_JUGADORES_GRANDE : 10); if (v && L()?.meta && document.getElementById('tablero-body')?.childElementCount && !document.getElementById('tablero-body').closest('[hidden]')) tablero(); });
 const zonaPropia = (() => { try { return Intl.DateTimeFormat().resolvedOptions().timeZone || null; } catch (_) { return null; } })();
 const horaEn = (ms, tz) => new Intl.DateTimeFormat(LOCALE[LANG] || LOCALE.es, { timeZone: tz, hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).format(new Date(ms));
 const otraHora = meta => horaPropia && !!zonaPropia && !!meta?.tz && horaEn(Date.now(), meta.tz) !== horaEn(Date.now(), zonaPropia);
@@ -891,7 +895,7 @@ function vistaTabla(filas, { dias, meta, now }) {
 const TABLA_VISIBLE = 10;
 let tablaAbierta = false;
 function recortarTabla(nodo, n) {
-  if (n <= TABLA_VISIBLE) return nodo;
+  if (!copaGrande || n <= TABLA_VISIBLE) return nodo;
   const filasDom = [...nodo.querySelectorAll(':scope > .fila')];
   filasDom.forEach((f, i) => { if (i >= TABLA_VISIBLE) f.classList.add('mas'); if (i === TABLA_VISIBLE) f.classList.add('asoma'); });
   const boton = el('button', { type: 'button', class: 'btn-mas', 'aria-expanded': 'false', id: 'btn-ver-todos' });
@@ -966,8 +970,8 @@ function grafico(now) {
   const afuera = new Set(filasTabla.filter(f => f.fuera).map(f => f.pid));
   const n = ev.filas.length;
   // More than 10 players: the graph draws the first 10 lanes, with no place numbers on the side and no
-  // chips below (the names are on the lines); the others are a ranked list of names under a button
-  const grande = n > TABLA_VISIBLE;
+  // chips below (the names are on the lines); the others are a ranked list of names under the graph
+  const grande = copaGrande && n > TABLA_VISIBLE;
   const carriles = grande ? TABLA_VISIBLE : n;
   const W = 320, fila = 24, arriba = 14, abajo = 26, izq = grande ? 10 : 26, der = 92; // espacio a la derecha para "Nombre 3º (-1J)"
   const H = arriba + (carriles - 1) * fila + abajo;
@@ -1035,17 +1039,10 @@ function grafico(now) {
     el('button', { type: 'button', class: 'g-chip' + (f.pid === S.yo ? ' mia' : '') + (afuera.has(f.pid) ? ' fuera' : ''), 'data-pid': f.pid, style: `--c:${color(f.pid)}`, onClick: () => { SFX.tap(); destacar(f.pid); } },
       el('span', { class: 'g-color', 'aria-hidden': 'true' }), nombreConJuegos(f.pid === S.yo ? fmt(T.progressYou, { name: f.name }) : f.name, menos[f.pid]), afuera.has(f.pid) ? ' 🚪' : null)));
   const notaJuegos = Object.values(menos).some(x => x > 0) ? el('p', { class: 'muted grafico-nota', id: 'nota-juegos' }, T.fewerGamesNote) : null;
-  // The others, ranked by name, behind a button
-  let restoNodo = null;
-  if (resto.length) {
-    const lista = el('ol', { class: 'g-resto', hidden: true, start: carriles + 1 }, resto.map(f => el('li', { 'data-pid': f.pid }, f.name, afuera.has(f.pid) ? ' 🚪' : null, menos[f.pid] > 0 ? ` (-${menos[f.pid]}J)` : null)));
-    const boton = el('button', { type: 'button', class: 'btn-mas', 'aria-expanded': 'false', id: 'btn-ver-resto' });
-    let abierto = false;
-    const pintar = () => { lista.hidden = !abierto; boton.setAttribute('aria-expanded', String(abierto)); boton.textContent = `${abierto ? '▴' : '▾'}  ${abierto ? T.seeFewer : fmt(T.seeRest, { n: resto.length })}`; };
-    boton.addEventListener('click', () => { SFX.tap(); abierto = !abierto; pintar(); });
-    pintar();
-    restoNodo = el('div', { class: 'g-resto-caja' }, boton, lista);
-  }
+  // The other players: their names, ranked, under the graph
+  const restoNodo = resto.length
+    ? el('ol', { class: 'g-resto', start: carriles + 1 }, resto.map(f => el('li', { 'data-pid': f.pid }, f.name, afuera.has(f.pid) ? ' 🚪' : null, menos[f.pid] > 0 ? ` (-${menos[f.pid]}J)` : null)))
+    : null;
   if (grande) leyenda.hidden = true; // its text is filled by tapping a point
   return el('div', { class: 'panel' }, el('p', { class: 'lead', style: 'margin-bottom:8px' }, T.progressTitle), svg, restoNodo, chips, notaJuegos, leyenda,
     // Once over, the podium's Share the summary does the same: one share button per screen (C-19)

@@ -25,6 +25,7 @@ export const FLAGS = {
   'home-pill-bar': '💊 Home page: top bar buttons as pills of one height',
   'cup-back-board': '🏆 La Copa: the header ‹ goes back to the board while playing a day',
   'cup-podium-early': '🏆 La Copa: on the last day, once nothing left to play can change the first three places, the board announces the podium before the cup closes',
+  'cup-big': '🏆 La Copa: up to 20 players (10 without it); from 11 the board and the graph show the first 10 and list the rest',
   'cup-again': '🏆 La Copa: «Otra copa con este grupo» under a finished cup\'s podium, for its admin: the create screen comes filled from that cup, to check and confirm (#1165)',
   'name-guard': '🛡️ Rankings: offensive names refused on sign-up',
   'uad-clean-hero': '📅 Uno al día: a cleaner points box, your place big, last month\'s crown on its own, the streak in one line',
