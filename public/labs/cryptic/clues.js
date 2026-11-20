@@ -74,6 +74,7 @@ const ES = [
   { c: 'Una nota de cierta edad pasó cien años en Macondo', a: 'SOLEDAD', k: 'charade', d: 'pasó cien años en Macondo', x: 'SOL (una nota) + EDAD = SOLEDAD, la de los cien años de Macondo.' },
   { c: 'Para las que rompe la embarazada, ya sin cabeza, siempre se olvida en el bus', a: 'PARAGUAS', k: 'charade', d: 'siempre se olvida en el bus', x: 'PARA (que no es «para», sino «detiene») + AGUAS (las que rompe la embarazada) sin su cabeza, GUAS = PARAGUAS, el que siempre se olvida en el bus.' },
   { c: 'Madonna sale quinta, enloquece y viaja', a: 'NÓMADA', k: 'anagram', d: 'viaja', x: 'Madonna sin su quinta letra queda MADONA; enloquecida, forma NÓMADA, la que viaja.' },
+  { c: "El hombre junto a un frasco de vidrio. It's delicious!, exclama", a: 'MANJAR', k: 'charade', d: "It's delicious!, exclama", x: 'MAN (hombre, en inglés) + JAR (frasco, en inglés) = MANJAR, algo delicioso (y en Chile, el dulce de leche). El inglés de la exclamación avisa en qué idioma están las piezas.' },
 ];
 
 /** Spanish only for now (the owner, 2026-11-19): the mechanics first, the other banks once it works. */
