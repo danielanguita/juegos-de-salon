@@ -57,6 +57,16 @@
             "timeout": 10
           }
         ]
+      },
+      {
+        "matcher": "Edit|Write|NotebookEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cd \"$CLAUDE_PROJECT_DIR\" && [ -f tools/agents/scope-guard.mjs ] || exit 0; node tools/agents/scope-guard.mjs; c=$?; [ $c -eq 2 ] && exit 2 || exit 0",
+            "timeout": 10
+          }
+        ]
       }
     ],
     "UserPromptSubmit": [

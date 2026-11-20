@@ -1,7 +1,7 @@
-// scope-guard.mjs (D-597): each scoped agent edits only its own files, and every scoped agent declares the hook.
+// scope-guard.mjs (D-597): each scoped agent edits only its own files, and the hook is wired in settings.json.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readdirSync, readFileSync } from 'node:fs';
+import { readFileSync } from 'node:fs';
 import { SCOPES, verdict } from './scope-guard.mjs';
 
 const root = '/r/juegos/.claude/worktrees/x';
@@ -28,12 +28,9 @@ test('files outside the repo and unscoped agents pass', () => {
   assert.equal(verdict('usability', `${root}/public/index.html`, root), null);
 });
 
-test('every scoped agent declares the guard in its frontmatter', () => {
-  const dir = new URL('../../.claude/agents/', import.meta.url);
-  for (const f of readdirSync(dir).filter(f => f.endsWith('.md'))) {
-    const front = readFileSync(new URL(f, dir), 'utf8').split('---')[1] || '';
-    const name = /^name:\s*(\S+)/m.exec(front)?.[1];
-    const declares = front.includes(`scope-guard.mjs ${name}`);
-    assert.equal(declares, name in SCOPES, `${f}: ${name in SCOPES ? 'missing' : 'unexpected'} scope-guard hook (D-597)`);
-  }
+test('the guard is wired in settings.json for every edit tool', () => {
+  const settings = JSON.parse(readFileSync(new URL('../../.claude/settings.json', import.meta.url), 'utf8'));
+  const hook = settings.hooks.PreToolUse.find(h => h.hooks.some(x => x.command.includes('scope-guard.mjs')));
+  assert.ok(hook, 'scope-guard.mjs is a PreToolUse hook (D-597)');
+  assert.equal(hook.matcher, 'Edit|Write|NotebookEdit');
 });
