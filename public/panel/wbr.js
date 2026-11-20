@@ -116,6 +116,8 @@ const mesCorto = d => new Date(d * DAY).toLocaleDateString('en-US', { timeZone: 
 /** A week as short as a column allows: "Nov 15–19", or "Oct 26–Nov 1" across two months. */
 const sinAno = d => fechaDia(d).replace(/, \d{4}$/, '');
 export const weekRange = ({ from, to }) => (mesCorto(from) === mesCorto(to) ? `${sinAno(from)}–${sinAno(to).replace(/^\D+/, '')}` : `${sinAno(from)}–${sinAno(to)}`);
+// The name it had inside this file, kept so another branch's new call to it still works
+const rangoTxt = weekRange;
 /** A game's versions read as one (Bulls and Cows: Word is Bulls and Cows); its modes already split off by `:`. */
 const VERSIONES = { letras: 'toque-y-fama', numero: 'toque-y-fama' };
 export const baseGame = id => { const b = String(id).split(/:| · /)[0]; return VERSIONES[b] || b; };
@@ -267,7 +269,7 @@ export function trend({ days = {}, torneos = {}, flags = {} } = {}, w, { actual 
   const foco = actual || w, acumula = (from, n) => { const out = []; for (let i = 0; i < n; i++) out.push((out[i - 1] || 0) + (totalDia[from + i] || 0)); return out; };
   const previas = [1, 2, 3, 4].map(i => acumula(foco.from - 7 * i, 7));
   const ritmo = {
-    semana: cols[0].titulo, anterior: rangoTxt({ from: foco.from - 7, to: foco.from - 1 }), parcial: !!actual,
+    semana: cols[0].titulo, anterior: weekRange({ from: foco.from - 7, to: foco.from - 1 }), parcial: !!actual,
     esta: acumula(foco.from, foco.to - foco.from + 1), pasada: previas[0],
     promedio: previas[0].map((_, i) => Math.round((previas.reduce((a, x) => a + x[i], 0) / 4) * 10) / 10),
   };
