@@ -1404,7 +1404,7 @@ function vistaWbr(now) {
     tabla([...t.juegos.map((g, i) => [`${i + 1}. ${g.juego}${g.nuevo ? ` (out ${g.nuevo.replace(/, \d{4}$/, '')})` : ''}`, g.valores, g.cambio]),
       ['Total games finished', t.totales.valores, t.totales.cambio, false, 'wbr-total'], ['Top 10 share of games finished', t.totales.top10, null, '%']], 'Game'),
     el('h3', {}, 'Weekly active users by game'),
-    el('p', { class: 'muted small' }, `Browsers that started each game in the week; a month is the average of its full weeks (Sunday to Saturday). Most first by the closed week. ~ estimated: before ${u.desdeReal ? `the count by game began (${u.desdeReal.replace(/, \d{4}$/, '')}, D-590)` : 'the count by game began (D-590)'}, the browsers that started a game that week split by each game's share of the games finished; it reads low, since one browser starts several games.`),
+    el('p', { class: 'muted small' }, `Browsers that started each game in the week; a month is the average of its full weeks (Sunday to Saturday). Sorted by the closed week, most first. ~ estimated: before ${u.desdeReal ? `the count by game began (${u.desdeReal.replace(/, \d{4}$/, '')}, D-590)` : 'the count by game began (D-590)'}, the browsers that started a game that week split by each game's share of the games finished; it reads low, since one browser starts several games.`),
     u.filas.length ? tabla(u.filas.map(f => [f.juego, f.valores, f.cambio, false, null, u.estimado]), 'Game') : el('p', { class: 'empty' }, 'No browsers measured in this week yet.'),
   ];
 }
