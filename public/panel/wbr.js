@@ -119,11 +119,11 @@ export const baseGame = id => { const b = String(id).split(/:| · /)[0]; return 
  * The trend the email's tables show: the closed week and the four before it, then this month so
  * far (partial), and the two months before. Every column is one range; `null` is "n/a": nothing
  * measured yet (the counter did not exist), or the game was not out yet. Games: the top 10 of the
- * closed week, every mode, version and La Copa's plays together, lab plays left out (a game outside
+ * closed week by games finished (as the headline counts them), every mode, version and La Copa's plays together, lab plays left out (a game outside
  * ALL_GAMES, or a play before the day its `flags/<id>` went to all). With `actual` (the week in
  * progress, the panel's view of the latest closed week), a partial column goes first; the % changes,
  * the top 10 and the highlights still read the closed week, at index `cerrada`. `totales`: every
- * public game's plays per column and the share of them the top 10 take (the same ten in every column).
+ * public game's finished games per column and the share of them the top 10 take (the same ten in every column).
  */
 export function trend({ days = {}, torneos = {}, flags = {} } = {}, w, { actual = null } = {}) {
   // The panel's WBR puts the week in progress first (partial); every comparison still reads the closed week, at `k`
@@ -161,12 +161,17 @@ export function trend({ days = {}, torneos = {}, flags = {} } = {}, w, { actual 
   // La Copa's plays by day read in one pass over the cups, not one pass per day (the panel froze)
   const copasPorDia = resumenCopas(torneos, { from: inicio, to: fin }, pacificEndMs(fin), { dayFn: pacificDay }).porDiaJuego;
   for (let d = inicio; d <= fin; d++) {
-    const pd = partidasDominio(days, { from: d, to: d });
-    const hoy = {};
-    for (const [id, n] of [...Object.entries(pd.grupo.byGame), ...Object.entries(pd.individual.byGame), ...Object.entries(copasPorDia[d] || {})]) {
-      if (!esPublico(id, d)) continue;
+    // Counted: games finished, as the headline's (one phone's `fin/`, rooms that ended, La Copa's plays);
+    // a game is out from the first day anyone started it
+    const dia = { from: d, to: d }, pd = partidasDominio(days, dia), f = finales(days, dia), salasDia = embudoSalas(days, dia);
+    const hoy = {}, empezados = new Set();
+    for (const [id, n] of [...Object.entries(pd.grupo.byGame), ...Object.entries(pd.individual.byGame), ...Object.entries(copasPorDia[d] || {})]) if (n && esPublico(id, d)) empezados.add(baseGame(id));
+    const terminadosHoy = [...Object.entries(f.porJuego).map(([id, g]) => [id, g.terminadas]), ...Object.entries(salasDia).map(([id, g]) => [id, g.terminadas]), ...Object.entries(copasPorDia[d] || {})];
+    for (const [id, n] of terminadosHoy) {
+      if (!n || !esPublico(id, d)) continue;
       const b = baseGame(id); hoy[b] = (hoy[b] || 0) + n;
     }
+    for (const b of empezados) desdeCuando[b] ??= d;
     for (const b in hoy) desdeCuando[b] ??= d;
     cols.forEach((c, i) => { if (d >= c.from && d <= c.to) for (const b in hoy) porCol[i][b] = (porCol[i][b] || 0) + hoy[b]; });
   }
@@ -180,7 +185,7 @@ export function trend({ days = {}, torneos = {}, flags = {} } = {}, w, { actual 
     const cambio = valores[k + 1] === null || salio(b) > cols[k + 1].from ? null : variacion(valores[k], valores[k + 1]);
     return { juego: nombreJuego(b), valores, cambio, nuevo: salio(b) > cols[k + 1].to ? fechaDia(salio(b)) : null };
   });
-  // Every public game's plays in each column, and the share the top 10 take of them: how spread the play is
+  // Every public game's finished games in each column, and the share the top 10 take of them: how spread the play is
   const total = porCol.map(p => Object.values(p).reduce((a, v) => a + v, 0));
   const totales = {
     valores: total,
@@ -224,7 +229,7 @@ export function highlights(t) {
   const k = t.cerrada || 0, [fin] = t.metricas;
   if (fin && fin.cambio !== null && fin.cambio !== 0) out.push(`Games finished ${fin.cambio > 0 ? 'rose' : 'fell'} ${Math.abs(fin.cambio)}% (${fin.valores[k].toLocaleString('en-US')} vs. ${fin.valores[k + 1].toLocaleString('en-US')}).`);
   const [uno, dos] = t.juegos;
-  if (uno) out.push(`Most played: ${uno.juego} (${uno.valores[k]} games)${dos ? `, then ${dos.juego} (${dos.valores[k]})` : ''}.`);
+  if (uno) out.push(`Most played: ${uno.juego} (${uno.valores[k]} games finished)${dos ? `, then ${dos.juego} (${dos.valores[k]})` : ''}.`);
   const nuevos = t.juegos.filter(g => g.nuevo);
   if (nuevos.length) out.push(`New this week: ${nuevos.map(g => `${g.juego} (out ${g.nuevo.replace(/, \d{4}$/, '')})`).join(', ')}.`);
   return out;
