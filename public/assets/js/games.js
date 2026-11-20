@@ -485,14 +485,14 @@ export const SUELTOS = [
   },
   {
     // Out of the lab like Sudoku (D-517's way): La Copa's screen in cup/games/memory/, its page /memorice/,
-    // launched by flags/memory on the date the owner picks. Endless, 3 lives: its points are the rounds cleared,
+    // launched by flags/memory at 19:00 Pacific on 2026-11-19 (the `launch` workflow, D-529). Endless, 3 lives: its points are the rounds cleared,
     // with no cap; Uno al día takes its own 0–100 (`dayScore`). The id and the usage signal are the lab's; the
     // lab prototype /labs/memory/ stays, on the moved engine, until the cleanup PR
     id: 'memory',
     lanza: 'memory',
     copa: { pozo: 19 },
-    // Uno al día: by date, never by flag. PLACEHOLDER: set when the owner picks the launch date (the day after it)
-    unoAlDia: { orden: 24, desde: '2099-01-01' },
+    // Uno al día: by date, never by flag: from 2026-11-20, the day after its launch
+    unoAlDia: { orden: 24, desde: '2026-11-20' },
     slug: 'memorice',
     emoji: '👀',
     name: { es: 'Memorice', en: 'Memorice', pt: 'Memorice' },
@@ -504,21 +504,19 @@ export const SUELTOS = [
     },
     tipos: ['skill'],
     duration: '1–5',
-    // PLACEHOLDER: set when the owner picks the launch date
-    nuevoDesde: '2099-01-01',
+    nuevoDesde: '2026-11-20',
     diasNuevo: 10,
   },
   {
     // 🎲 Out of the lab like Sudoku (D-517's way): La Copa's screen in cup/games/dominorama/, its page
-    // /dominorama/, hidden until the owner switches flags/dominorama on (not launched yet: the owner picks
-    // the date). Inspired by NYT's Pips, credited on its cover. Three boards, easy to hard, 0 to 100. The id
+    // /dominorama/, launched by flags/dominorama at 19:00 Pacific on 2026-11-19 (the `launch` workflow, D-529). Inspired by NYT's Pips, credited on its cover. Three boards, easy to hard, 0 to 100. The id
     // and the usage signal are the lab's; the lab prototype /labs/dominorama/ stays until the cleanup PR.
     // 🎲 is the text stand-in; the screen shows the drawn domino (cup/games/dominorama/icon.svg)
     id: 'dominorama',
     lanza: 'dominorama',
     copa: { pozo: 20 },
-    // Uno al día: by date, never by flag. PLACEHOLDER: set when the owner picks the launch date (the day after it)
-    unoAlDia: { orden: 25, desde: '2099-01-01' },
+    // Uno al día: by date, never by flag: from 2026-11-20, the day after its launch
+    unoAlDia: { orden: 25, desde: '2026-11-20' },
     slug: 'dominorama',
     emoji: '🎲',
     icon: 'cup/games/dominorama/icon.svg',
@@ -531,8 +529,7 @@ export const SUELTOS = [
     },
     tipos: ['logic'],
     duration: '3–10',
-    // PLACEHOLDER: set when the owner picks the launch date (the ✨ Nuevo label starts with the flag anyway, D-556)
-    nuevoDesde: '2099-01-01',
+    nuevoDesde: '2026-11-20',
     diasNuevo: 10,
   },
   // Los del laboratorio viven en /labs/<slug>/ (D-267): al salir pasan a /<slug>/
