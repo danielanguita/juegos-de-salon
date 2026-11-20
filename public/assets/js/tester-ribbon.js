@@ -54,7 +54,7 @@ html[data-en-juego] .tr:not(.con-ctx), body.jugando .tr:not(.con-ctx) { display:
 .tr-cab { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .tr-cab b { font: 400 1.25rem/1 var(--font-display); letter-spacing: 0.05em; color: var(--yellow); }
 .tr-info { flex: none; width: 32px; height: 32px; border-radius: 999px; border: 1px solid var(--glass-border); background: var(--glass); color: var(--ink); font: 900 0.95rem/1 var(--font-body); cursor: pointer; }
-.tr-labs { color: var(--cyan); font-weight: 900; text-decoration: none; display: flex; justify-content: space-between; min-height: 32px; align-items: center; }
+.tr-labs { color: var(--cyan); font-weight: 900; text-decoration: none; display: flex; justify-content: space-between; min-height: 44px; align-items: center; }
 .tr-flags { border-top: 1px solid var(--glass-border); padding-top: 10px; display: flex; flex-direction: column; gap: 6px; }
 .tr-flags[hidden] { display: none; }
 .tr-flags > small { color: var(--muted); font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; font-size: 0.68rem; }
