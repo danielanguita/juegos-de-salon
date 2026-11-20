@@ -1396,7 +1396,7 @@ function wbrGraficoSemanas(t) {
   return el('div', { class: 'wbr-grafico' },
     el('h3', {}, 'Games finished: weeks and months'),
     el('div', { class: 'wbr-barras-par' }, grupo('wbr-barras--semanas', 'Weeks', semanas), grupo('wbr-barras--meses', 'Months, their own scale', meses)),
-    el('p', { class: 'muted small' }, 'Dashed: partial, so far. The closed week is the bright one with its number in bold in the table.'));
+    el('p', { class: 'muted small' }, 'Dashed: partial, so far. Bright: the closed week, bold in the table.'));
 }
 
 /** WBR chart B: the newest week's games finished added up from Sunday, against the week before and the four-week average. */
@@ -1412,7 +1412,7 @@ function wbrGraficoRitmo(t) {
   return el('div', { class: 'wbr-grafico' },
     el('h3', {}, 'Pace: games finished from Sunday'),
     el('ul', { class: 'wbr-leyenda' },
-      el('li', { class: 'wbr-leyenda--esta' }, el('b', {}, `${r.semana}: ${n(r.esta[hoy])}`), cambio === null ? '' : `, ${cambio > 0 ? '+' : cambio < 0 ? '−' : '±'}${Math.abs(cambio)}% vs. ${n(mismoDia)} by ${dia} of ${r.anterior}`),
+      el('li', { class: 'wbr-leyenda--esta' }, el('b', {}, `${r.semana}: ${n(r.esta[hoy])}`), cambio === null ? '' : `, ${cambio > 0 ? '+' : cambio < 0 ? '−' : '±'}${Math.abs(cambio)}% vs. ${n(mismoDia)} by ${dia} of ${r.anterior.replace('–', '–\u2060')}`),
       el('li', { class: 'wbr-leyenda--pasada' }, `${r.anterior}: ${n(r.pasada[6])}`),
       el('li', { class: 'wbr-leyenda--prom' }, `Average of the four weeks before: ${n(Math.round(r.promedio[6]))}`)),
     el('div', { class: 'wbr-ritmo' },
