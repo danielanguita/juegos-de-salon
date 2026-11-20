@@ -79,7 +79,7 @@ marks the old decision (`amended by` / `replaced by`). A canon that contradicts 
   subscribe to the PR's activity (`subscribe_pr_activity`) so a red check is fixed without the owner asking.
 - **A single push at the end** (D-303), with the agents' fixes included.
 - **Everything in development sits behind the lab** (D-395, D-409, D-498): lab games under `/labs/`, anything
-  new on a player page behind its runtime flag `flag('<id>')` (`public/assets/js/flags.js`, with its own switch in the «T» tester tab, D-567) and listed in
+  new on a player page behind its runtime flag `flag('<id>')` (`public/assets/js/flags.js`, with its own switch in the «T» tester tab, D-567, D-592) and listed in
   `/labs/`; the owner publishes it by flipping `flags/<id>` to *all* on its `/labs/` card (the one place, D-498),
   no PR; its card moves to La Bodega on its own, keeping its switch (D-510, D-534), and a later PR removes the gate. Details: [docs/AGENTS.md](docs/AGENTS.md).
 - **Tests**: run every `*.test.mjs` / `*.test.py` before the PR (commands in [docs/SESSIONS.md](docs/SESSIONS.md));

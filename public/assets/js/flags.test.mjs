@@ -1,6 +1,6 @@
 // The lab's runtime flags (D-498), as a page reads them.
 import assert from 'node:assert/strict';
-import { flag, flagOn, stateOf, cachedFlags, loadFlags, labOffList, setLabOff } from './flags.js';
+import { flag, flagOn, stateOf, cachedFlags, loadFlags, labOffList, setLabOff, labPinnedList, setLabPinned } from './flags.js';
 
 assert.equal(stateOf({}, 'bn-salva'), 'lab', 'nothing saved: the lab, as before flags');
 assert.equal(stateOf({ 'bn-salva': { state: 'all' } }, 'bn-salva'), 'all');
@@ -34,3 +34,17 @@ assert.equal(await flag('bn-salva', { load: async () => ({ 'bn-salva': { state: 
 setLabOff('bn-salva', false, st);
 assert.equal(await flag('bn-salva', { load: async () => ({}), lab: lab(true), store: st }), true, 'and back on');
 console.log('✓ the tester tab switches lab flags');
+
+// The tester tab's pins (D-592): what shows in «Testing now», on this phone only; a pin never turns anything off
+{
+  const st = mem();
+  assert.deepEqual(labPinnedList(st), {}, 'nothing pinned at first: new experiments come in unpinned');
+  setLabPinned('bn-salva', true, st);
+  assert.deepEqual(labPinnedList(st), { 'bn-salva': true });
+  assert.deepEqual(labOffList(st), {}, 'pinning does not turn the flag off');
+  assert.equal(await flag('bn-salva', { load: async () => ({}), lab: lab(true), store: st }), true, 'a pinned flag stays on');
+  setLabPinned('bn-salva', false, st);
+  assert.deepEqual(labPinnedList(st), {}, 'and unpinned');
+  assert.deepEqual(labPinnedList({ getItem: () => 'nope' }), {}, 'a broken copy is nothing pinned');
+  console.log('✓ the tester tab pins rows to its first view');
+}
