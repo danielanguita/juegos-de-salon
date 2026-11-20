@@ -1507,6 +1507,7 @@
     "public/labs/julep/game.js",
     "public/labs/julep/rules.js",
     "public/labs/launched.js",
+    "public/labs/marquee/marquee.js",
     "public/labs/memory/engine.js",
     "public/labs/memory/game.js",
     "public/labs/memory/rules.js",
@@ -1691,6 +1692,7 @@
     "public/labs/julep/engine.test.mjs",
     "public/labs/launched.test.mjs",
     "public/labs/listed.test.mjs",
+    "public/labs/marquee/marquee.test.mjs",
     "public/labs/memory/engine.test.mjs",
     "public/labs/stack/engine.test.mjs",
     "public/labs/sudoku/engine.test.mjs",
@@ -2031,6 +2033,10 @@
       "title": "Merge lanes (D-519)"
     },
     {
+      "path": "docs/LAUNCH.md",
+      "title": "Launching a game: the playbook"
+    },
+    {
       "path": "docs/LEARNING.md",
       "title": "The learning programme: AI in the game, and what the owner learns building it"
     },
@@ -2156,7 +2162,7 @@
     },
     {
       "path": "docs/games/dominorama.md",
-      "title": "🎲 Dominorama (La Copa game, launching 2026-11-19 19:00 Pacific; the lab prototype stays until the cleanup)"
+      "title": "🎲 Dominorama (La Copa game, launched 2026-11-19 18:54 Pacific; the lab prototype stays until the cleanup)"
     },
     {
       "path": "docs/games/exploding-numbers.md",
@@ -2188,7 +2194,7 @@
     },
     {
       "path": "docs/games/memory.md",
-      "title": "👀 Memorice (La Copa game, launching 2026-11-19 19:00 Pacific; the lab prototype stays until the cleanup)"
+      "title": "👀 Memorice (La Copa game, launched 2026-11-19 18:54 Pacific; the lab prototype stays until the cleanup)"
     },
     {
       "path": "docs/games/microgames.md",

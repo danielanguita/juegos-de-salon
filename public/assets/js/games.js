@@ -40,6 +40,16 @@ export function lanzado(id, { flags = cachedFlags(), store = globalThis.localSto
   try { return !!store?.getItem(SAVED_KEY); } catch (_) { return false; }
 }
 
+/**
+ * Whether what `flags/` says now changes how the home page draws a launched game (D-517, D-556): it came
+ * out or went back (`oculto`), or its ✨ Nuevo label starts or ends. The label counts too: a lab key holder
+ * already sees the game, so only the label changes for them (Dominorama and Memorice, 2026-11-19). Pure.
+ */
+export function launchChanges(games, before, after, hoy = new Date()) {
+  return games.some(g => g.lanza && (lanzado(g.lanza, { flags: before }) !== lanzado(g.lanza, { flags: after })
+    || esNuevo(g, hoy, before) !== esNuevo(g, hoy, after)));
+}
+
 export const GAMES = [
   // copa: from public/cup/game.json
   // No dura minutos sino días. Va en los tres idiomas (D-170): la copa elige el de sus palabras
@@ -485,7 +495,7 @@ export const SUELTOS = [
   },
   {
     // Out of the lab like Sudoku (D-517's way): La Copa's screen in cup/games/memory/, its page /memorice/,
-    // launched by flags/memory at 19:00 Pacific on 2026-11-19 (the `launch` workflow, D-529). Endless, 3 lives: its points are the rounds cleared,
+    // launched by flags/memory at 18:54 Pacific on 2026-11-19 (the `launch` workflow, D-529). Endless, 3 lives: its points are the rounds cleared,
     // with no cap; Uno al día takes its own 0–100 (`dayScore`). The id and the usage signal are the lab's; the
     // lab prototype /labs/memory/ stays, on the moved engine, until the cleanup PR
     id: 'memory',
@@ -509,7 +519,7 @@ export const SUELTOS = [
   },
   {
     // 🎲 Out of the lab like Sudoku (D-517's way): La Copa's screen in cup/games/dominorama/, its page
-    // /dominorama/, launched by flags/dominorama at 19:00 Pacific on 2026-11-19 (the `launch` workflow, D-529). Inspired by NYT's Pips, credited on its cover. Three boards, easy to hard, 0 to 100. The id
+    // /dominorama/, launched by flags/dominorama at 18:54 Pacific on 2026-11-19 (the `launch` workflow, D-529). Inspired by NYT's Pips, credited on its cover. Three boards, easy to hard, 0 to 100. The id
     // and the usage signal are the lab's; the lab prototype /labs/dominorama/ stays until the cleanup PR.
     // 🎲 is the text stand-in; the screen shows the drawn domino (cup/games/dominorama/icon.svg)
     id: 'dominorama',

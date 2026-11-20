@@ -43,7 +43,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "cd \"$CLAUDE_PROJECT_DIR\" && [ -f tools/agents/push-guard.mjs ] && node tools/agents/push-guard.mjs || true",
+            "command": "cd \"$CLAUDE_PROJECT_DIR\" && [ -f tools/agents/push-guard.mjs ] || exit 0; node tools/agents/push-guard.mjs; c=$?; [ $c -eq 2 ] && exit 2 || exit 0",
             "timeout": 60
           }
         ]

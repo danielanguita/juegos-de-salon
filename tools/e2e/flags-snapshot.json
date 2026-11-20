@@ -23,6 +23,9 @@
   "copa-hoy": {
     "state": "all"
   },
+  "copa-jugar": {
+    "state": "all"
+  },
   "cover-dialogs": {
     "state": "all"
   },
@@ -53,6 +56,9 @@
   "cup-talk-push": {
     "state": "all"
   },
+  "dominorama": {
+    "state": "all"
+  },
   "flap-tiebreak": {
     "state": "all"
   },
@@ -66,6 +72,9 @@
     "state": "all"
   },
   "launch-test": {
+    "state": "all"
+  },
+  "memory": {
     "state": "all"
   },
   "microgames": {
@@ -123,6 +132,9 @@
     "state": "all"
   },
   "uad-skip-end": {
+    "state": "all"
+  },
+  "word-in-words": {
     "state": "all"
   }
 }

@@ -16,7 +16,8 @@ session moves with `node tools/agents/lab-publish.mjs`. Nobody will answer quest
    read `CLAUDE.md` there. Every step that follows is the normal process of a PR in this repo.
    **`kind: 'bodega'`** (📦 Enviar a La Bodega, D-511): do only step 5, moving the card, and steps 6–9;
    change no gate, no `FLAGS` row and no game code. If `flag` is `all` it goes as `🚀 Lanzado.` under ✨ Mejoras lanzadas,
-   dated that day; otherwise as `💤 No prosperó.` (a game under 🎲 Juegos guardados, still playable with the key).
+   dated that day; otherwise as `💤 No prosperó.` (a game under 🎲 Juegos guardados, still playable with the key),
+   and a card with a `FLAGS` row adds its id to `PARKED` in `assets/js/flag-list.js`, so the T tab drops its switch (D-593).
    The PR title is `Send to La Bodega: <title>`, and the usability pass is not needed (lab-only, D-413).
 4. Find what the card tries:
    - **a flagged improvement** never reaches this session: its 🚀 flips `flags/<id>` at once (D-498).

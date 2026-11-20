@@ -275,8 +275,9 @@ export function offlineReadyButton({ doc = globalThis.document, lang = getLang()
     });
     globalThis.addEventListener?.('online', refresh);
     globalThis.addEventListener?.('offline', refresh);
-    // The T tab, for testers: one button per state, to see each one without cutting the network
-    import('./tester-ribbon.js').then(({ setTesterContext }) => setTesterContext(testerControls(pretend))).catch(() => {});
+    // The T tab, for testers: one button per state, to see each one without cutting the network. Bundled
+    // with the offline-mode row (D-592): it shows in «Probando ahora» only while that row does
+    import('./tester-ribbon.js').then(({ setTesterContext, OFFLINE_ROW }) => setTesterContext(testerControls(pretend), { bundle: OFFLINE_ROW })).catch(() => {});
   }).catch(() => {});
   return btn;
 }

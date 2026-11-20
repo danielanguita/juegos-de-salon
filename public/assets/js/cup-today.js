@@ -4,7 +4,7 @@
  * with today's day played and another to come (lab flag `copa-espera`), a ✅ Día N en Xh chip that counts down;
  * with the final played and nothing else to come, ✅ Final jugada · cierra en X h Y min (same flag);
  * with nothing left, the card stays as it always was.
- * With lab flag `copa-contexto`, the card also says which cup, the player's place and the day's game,
+ * With flag `copa-contexto` (did not prosper, La Bodega: the home page no longer asks it), the card also says which cup, the player's place and the day's game,
  * with a bar of the cup's days, and invites to create or join one when there is none (`contextCard`).
  *
  * It reads only what La Copa keeps on this phone each time a cup is opened (cup/cuenta.js
