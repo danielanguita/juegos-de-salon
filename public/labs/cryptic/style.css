@@ -14,7 +14,7 @@
 
 /* ---------- The answer's letters, one box each ---------- */
 /* One row, always (the owner: a word never breaks over two lines): the boxes share the card's width,
-   up to 2.6rem each, and the letter shrinks with them for the long answers (MEDIANOCHE, MANTEQUILLA) */
+   up to 2.6rem each, and the letter shrinks with them for the long answers (10 and 11 letters) */
 .tiles {
   display: grid; grid-template-columns: repeat(var(--n, 8), minmax(0, 2.6rem)); justify-content: center;
   gap: var(--s-4);

@@ -12,6 +12,7 @@
  *   node tools/agents/feedback.mjs forget <issue> "<reason>"                 # deletes the address, no email
  *   node tools/agents/feedback.mjs expire [--dry-run]                       # deletes the addresses older than 90 days (D-463)
  *   node tools/agents/feedback.mjs repro <issue> <test path>                # the test that reproduces a bug report (D-527)
+ *   node tools/agents/feedback.mjs proposal <issue>                       # a clue proposed for Críptico, kept off GitHub
  *
  * A bug report starts with a failing test (D-527): a `feedback:problem` issue gets its `reply` only
  * once `repro` recorded the test that reproduces it (named after the issue, `#<n>` inside it), or
@@ -200,7 +201,17 @@ export function hideContacts(text) {
 /** A player's @ or # mentions no one and links nothing. */
 const inert = t => String(t).replace(/@/g, '@​').replace(/#(\d)/g, '#​$1');
 
+/**
+ * A clue proposed in Críptico (`criptico`) never reaches GitHub in plain text (the owner, 2026-11-20): the
+ * repo is public, and once the clue is published its answer would sit in an issue anyone can search. The
+ * issue says only that there is one; `proposal <issue>` prints it from Firebase on the owner's machine, and
+ * the panel's 💬 Feedback shows it.
+ */
+export const SEALED = r => r.tipo === 'criptico';
+const SEALED_TEXT = "(A clue proposed for Críptico: the clue, its answer and how one gets there stay off GitHub, which is public. Read them with `node tools/agents/feedback.mjs proposal <this issue>` or in the panel's 💬 Feedback, and never write them here: docs/FEEDBACK-TRIAGE.md.)";
+
 export function title(r) {
+  if (SEALED(r)) return `🐞 ${where(r)}: a clue proposal`;
   const t = inert(hideContacts(r.texto).replace(/\s+/g, ' ').trim());
   return `🐞 ${where(r)}: ${t.length > 70 ? `${t.slice(0, 69)}…` : t}`;
 }
@@ -221,7 +232,7 @@ export function body(r) {
     ['Email', mask(r.correoMascara) && `\`${mask(r.correoMascara)}\` (wants a reply by email: the processes agent sends it when resolving, D-317)`],
   ].filter(([, v]) => v !== undefined && v !== null && v !== '');
   return [
-    inert(hideContacts(r.texto).trim()).split('\n').map(l => `> ${l}`).join('\n'),
+    SEALED(r) ? `> ${SEALED_TEXT}` : inert(hideContacts(r.texto).trim()).split('\n').map(l => `> ${l}`).join('\n'),
     '',
     data.map(([k, v]) => `- **${k}:** ${k === 'Email' ? v : inert(v)}`).join('\n'),
     '',
@@ -489,6 +500,17 @@ async function doubt(number, file) {
   console.log(`#${n}: doubt emailed to the owner; ${url}`);
 }
 
+/** Prints a sealed proposal (`criptico`) from Firebase, for the session that judges or adds it: never paste it on GitHub. */
+async function proposal(number) {
+  const issue = JSON.parse(gh('issue', 'view', String(number), '--json', 'body'));
+  const id = idOf(issue.body);
+  if (!id) throw new Error(`#${number} has no feedback marker.`);
+  const { read } = await import('../firebase/firebase-admin.mjs');
+  const r = await read(`feedback/${id}`, await adminToken());
+  if (!r) throw new Error(`feedback/${id} is no longer in Firebase.`);
+  console.log(`${r.texto}\n\n${r.contexto || ''}`);
+}
+
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const [command, a, b] = process.argv.slice(2);
   const option = n => (process.argv.includes(n) ? process.argv[process.argv.indexOf(n) + 1] : null);
@@ -501,5 +523,6 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   else if (command === 'repro' && a && b) repro(a, b).catch(fail);
   else if (command === 'forget' && a) forget(a, b).catch(fail);
   else if (command === 'doubt' && a && b) doubt(a, b).catch(fail);
-  else { console.error('Usage: node tools/agents/feedback.mjs sync [--dry-run] | pending | reply <n>[,<n>…] <answer.txt> --lang <es|en|pt> [--dry-run | --test-to <address>] [--no-repro "<why>"] | repro <issue> <test> | forget <issue> "<reason>" | expire [--dry-run] | doubt <issue> <notes.txt>'); process.exit(2); }
+  else if (command === 'proposal' && a) proposal(a).catch(fail);
+  else { console.error('Usage: node tools/agents/feedback.mjs sync [--dry-run] | pending | reply <n>[,<n>…] <answer.txt> --lang <es|en|pt> [--dry-run | --test-to <address>] [--no-repro "<why>"] | repro <issue> <test> | forget <issue> "<reason>" | expire [--dry-run] | doubt <issue> <notes.txt> | proposal <issue>'); process.exit(2); }
 }

@@ -61,7 +61,7 @@ result stays on the phone for the streak.
 ## Writing a clue (the owner, 2026-11-19)
 
 The first bank was too direct, and so was its first rewrite: the owner asked for clues that make the player
-think and reach for a hint, while staying solvable. The owner's own (SIETE, PEATÓN, COMA, CAMISA, MANTEQUILLA, RELAMIDO) are the bar.
+think and reach for a hint, while staying solvable. The owner's own clues are the bar.
 Every clue in `clues.js` follows these rules:
 
 1. **One natural sentence that tells another story.** No colon or semicolon splitting wordplay from
@@ -69,12 +69,27 @@ Every clue in `clues.js` follows these rules:
 2. **Every piece is clued too, never written out**: a synonym (cara for costosa), a note (SOL, RE, LA), a Roman
    number (V), a chemical symbol (NA), a translation (tour for GIRA), as «beso catalán» is PETÓ. The step must be one the player takes: a word in the sense people use it (DADO as «seis caras», never «regalado», the owner). Only anagrams
    and hidden words show their letters, and then the definition carries the difficulty.
-3. **A fair but sideways definition** at one end: «ni te cases ni te embarques» for MARTES, «tiene cuatro
-   esquinas» for MANZANA, never the dictionary line.
+3. **A fair but sideways definition** at one end: «donde duermen los barcos» for a port, «tiene cuatro
+   esquinas» for a city block, never the dictionary line.
 4. **A blended indicator**: «alborotada», «vuelve», «sin que se viera», «le cortan la cabeza» read as part of
    the story, not as an instruction.
 5. **One answer only**, and `x` shows every step of the solution. The engine test checks the mechanics it can
    (definition at an end, anagram letters, hidden and reversed words).
+
+## Keeping the answers hidden (D-595)
+
+The repo is public and the browser downloads `clues.js`, so no answer is ever written in plain text where a
+player could search for it:
+
+- **In `clues.js`** each clue keeps its answer and explanation sealed in `s` (`sealed.js`). Add one with
+  `node tools/generators/cryptic-clues.mjs add < clue.json` (`{ c, a, k, d, x, by? }`, the file in the
+  scratchpad, outside the repo); `list` prints the bank opened, in the terminal only.
+- **In git and GitHub**: branch, commit, PR, changelog entry and docs say «one more clue» (its kind at most),
+  never the answer nor the clue's text. A branch is named `cryptic-clue-<n>` or similar.
+- **A player's proposal** becomes an issue without the clue or the answer (`feedback.mjs proposal <issue>`).
+- `engine.test.mjs` fails on a plain clue line in `clues.js` and on a bank answer in capitals in the
+  pending changelog, this game's folder, its e2e scripts and its docs. It is a veil, not a lock: someone set
+  on it can decode the answers, and those added before D-595 stay in git history.
 
 ## A player's clue (the owner, 2026-11-19)
 
@@ -82,8 +97,9 @@ Part of the game, not a flag: at the end of every clue, «✍️ ¿Se te ocurre 
 the feedback form (`propose.js`) with the kind «🗝️ Críptico» already picked: the clue, the answer, how one
 gets there (optional), the name to sign it with (the registered player's by default, editable) and the
 optional email. It goes to `feedback/` with `tipo: 'criptico'`, so it reaches the panel's 💬 Feedback and
-becomes a `feedback:cryptic-clue` issue; the feedback agent judges it, proposes better versions and gives
-the owner a one-tap choice (`docs/FEEDBACK-TRIAGE.md`). An approved clue joins `clues.js` with
+becomes a `feedback:cryptic-clue` issue that holds neither the clue nor its answer (D-595); the feedback
+agent reads it with `feedback.mjs proposal`, judges it and gives the owner a one-tap choice
+(`docs/FEEDBACK-TRIAGE.md`). An approved clue joins `clues.js`, sealed, with
 `by: { n, j }`: the name, and the player id when the author had one.
 
 - **«Hoy es tu críptico».** Everyone plays the same clue on a day, so its author is never given another

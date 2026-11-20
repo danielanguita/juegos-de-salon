@@ -90,6 +90,11 @@ console.log('feedback: ok');
   const { body } = await import('./feedback.mjs');
   const b = body({ id: 'p1', texto: '🗝️ Pista: x', tipo: 'criptico', contexto: JSON.stringify({ juego: 'cryptic', propuesta: 1, autor: 'Ana', j: 'abcd1234' }) });
   assert.ok(b.includes('**Credit as:** Ana') && b.includes('**Player id:** abcd1234') && b.includes('**Kind:** cryptic-clue'), 'the proposal says whom to credit');
+  // ...but never the clue or its answer: the repo is public (the owner, 2026-11-20)
+  const { title: titleOf } = await import('./feedback.mjs');
+  const p = { id: 'p2', texto: '🗝️ Pista: Una monja alborotada\n🔑 Respuesta: JAMÓN', tipo: 'criptico', contexto: '{}' };
+  for (const out of [body(p), titleOf(p)]) assert.ok(!out.includes('JAMÓN') && !out.includes('monja'), 'a proposed clue stays off GitHub');
+  assert.ok(body(p).includes('feedback.mjs proposal'), 'and the issue says where to read it');
 }
 
 // The reply greets with the real name from the report, never the issue's mask (D-366)

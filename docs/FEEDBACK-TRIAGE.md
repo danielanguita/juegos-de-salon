@@ -34,24 +34,25 @@ hasn't changed, you skip:
   or the issue that covers it.
 - **Can't be understood or isn't about the app:** you close it saying why.
 - **A clue proposed for Críptico** (`feedback:cryptic-clue`, sent from «Propón tu críptico» at the end of
-  every clue, `public/labs/cryptic/propose.js`; the owner, 2026-11-19). The issue quotes the clue, the
-  answer and, if given, how one gets there; «Credit as» is the name the player chose to be published
-  under and «Player id» their player, if they had one. You do three things:
+  every clue, `public/labs/cryptic/propose.js`; the owner, 2026-11-19). **The issue holds neither the
+  clue nor its answer** (D-595: the repo is public): read them with
+  `node tools/agents/feedback.mjs proposal <issue>`, and never write the clue, its answer or a version of
+  it on GitHub, in a comment, a decision or a PR. «Credit as» is the name the player chose to be
+  published under and «Player id» their player, if they had one. You do three things:
   1. **Judge it** against the game's rules (`docs/games/cryptic.md`, «Writing a clue»): the wordplay
      gives exactly the answer and nothing else, the definition sits at one end and is fair, the
      sentence reads naturally, the pieces are clued rather than written out, it is not too easy, the
-     answer is not already in `public/labs/cryptic/clues.js`, and it is in Spanish. Say plainly in
-     a comment whether it is a good clue and why.
-  2. **Propose better versions** when it can be improved: one or two alternatives that keep the
-     player's idea and answer, each with its explanation (the `x` it would carry). A clue that does not
-     work at all (two answers, no definition, the answer written in it) gets the fix that makes it work,
-     or the reason it can't.
-  3. **One-tap decision** for the owner (`processes.mjs decide`, `origin` naming the issue): one question
-     per version (the player's as written, then yours), with your recommendation first; the owner ticks
-     the one to publish, or writes their own version in the issue, or answers No to all, which closes it.
-     The Yes queues the work: add that version to `clues.js` with `by: { n: <Credit as>, j: <Player id> }`
-     (`j` only if the issue has one), its `k`, `d` and `x`, `engine.test.mjs` green, a 🟢 lab PR with
-     auto-merge. With `by.j`, the day it comes up its author sees «Hoy es tu críptico» instead of
+     answer is not already in the bank (`node tools/generators/cryptic-clues.mjs list`), and it is in
+     Spanish. Say in a comment whether it is a good clue and why, in general terms (`the wordplay works,
+     the definition is too direct`), without quoting it.
+  2. **Better versions** stay off GitHub: when it can be improved, say so in the comment, and the owner
+     works the version out in a Claude session.
+  3. **One-tap decision** for the owner (`processes.mjs decide`, `origin` naming the issue): publish the
+     player's clue as written, improve it in a session, or No, which closes it; your recommendation first.
+     The Yes queues the work: add it with `node tools/generators/cryptic-clues.mjs add` (sealed, with
+     `by: { n: <Credit as>, j: <Player id> }`, `j` only if the issue has one, its `k`, `d` and `x`),
+     `engine.test.mjs` green, a 🟢 lab PR with auto-merge whose branch, commits and text never name the
+     answer. With `by.j`, the day it comes up its author sees «Hoy es tu críptico» instead of
      playing it, and practice never gives it to them; everyone else sees «Críptico de <name>».
   A player who left an email is told when it is published, or, kindly, that it was not this time.
 **A bug report starts with a failing test** (D-527): for a `feedback:problem` report you can
