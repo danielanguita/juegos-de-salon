@@ -1,3 +1,3 @@
 level: patch
 
-- **La Copa's 🎲 draws from every game again**: the create screen read the launched games (Stack, Aletazo, Sudoku, Memory, Dominorama) from the flags this phone last saved, so on a phone that had not seen a launch yet they were left out of the random week and of the list of games to pick. It now fetches the flags before drawing.
+- **La Copa's 🎲 draws from exactly the games every player sees on the home page**: a launched game (Stack, Aletazo, Sudoku, Memory, Dominorama) is in it once its flag is 🚀 for everyone, read fresh before drawing, not from what the phone last saved; a game still in the lab is never in it, not even for a lab key holder.
