@@ -970,11 +970,20 @@ function grafico(now) {
   const afuera = new Set(filasTabla.filter(f => f.fuera).map(f => f.pid));
   const n = ev.filas.length;
   // More than 10 players: the graph draws the first 10 lanes, with no place numbers on the side and no
-  // chips below (the names are on the lines); the others are a ranked list of names under the graph
+  // chips below (the names are on the lines); the others are names inside it, under the last lane
   const grande = copaGrande && n > TABLA_VISIBLE;
   const carriles = grande ? TABLA_VISIBLE : n;
   const W = 320, fila = 24, arriba = 14, abajo = 26, izq = grande ? 10 : 26, der = 92; // espacio a la derecha para "Nombre 3º (-1J)"
-  const H = arriba + (carriles - 1) * fila + abajo;
+  // The table's own order decides who is in the rest, so players tied on a place split the same way in both
+  const enTabla = filasTabla.map(f => f.pid);
+  const resto = grande ? enTabla.slice(carriles).map(pid => ev.filas.find(f => f.pid === pid)).filter(Boolean) : [];
+  const delResto = new Set(resto.map(f => f.pid));
+  // The rest's names go inside the graph, under the last lane, side by side and wrapped: "11 Camila  12 Feña …"
+  const nombresResto = resto.map((f, i) => `${carriles + i + 1} ${f.name.length > 14 ? `${f.name.slice(0, 13)}…` : f.name}${afuera.has(f.pid) ? ' 🚪' : ''}`);
+  const lineasResto = [];
+  for (const t of nombresResto) { const u = lineasResto[lineasResto.length - 1]; if (u && (u + '   ' + t).length <= 46) lineasResto[lineasResto.length - 1] = `${u}   ${t}`; else lineasResto.push(t); }
+  const altoResto = lineasResto.length ? 8 + lineasResto.length * 14 : 0;
+  const H = arriba + (carriles - 1) * fila + abajo + altoResto;
   const x = k => izq + (meta.days === 1 ? 0 : ((k - 1) * (W - izq - der)) / (meta.days - 1));
   const y = lugar => arriba + (lugar - 1) * fila;
   const NS = 'http://www.w3.org/2000/svg';
@@ -990,7 +999,7 @@ function grafico(now) {
     svg.append(svgEl('line', { x1: izq, x2: W - der, y1: y(l), y2: y(l), class: 'g-grid' }));
     if (!grande) svg.append(svgEl('text', { x: izq - 8, y: y(l) + 4, class: 'g-eje', 'text-anchor': 'end' }, ord(l)));
   }
-  for (let k = 1; k <= meta.days; k++) svg.append(svgEl('text', { x: x(k), y: H - 6, class: 'g-eje', 'text-anchor': 'middle' }, fmt(T.dayShort, { d: k })));
+  for (let k = 1; k <= meta.days; k++) svg.append(svgEl('text', { x: x(k), y: H - altoResto - 6, class: 'g-eje', 'text-anchor': 'middle' }, fmt(T.dayShort, { d: k })));
   // Cada jugador con su color (D-125), fijo por orden de inscripción; tu línea, más gruesa y encima
   const porLlegada = llegada(Lc);
   const color = pid => colorDe(Lc, pid);
@@ -999,10 +1008,6 @@ function grafico(now) {
   // Empatados en el mismo lugar: sus nombres se apilan en vez de encimarse (el lugar siguiente
   // queda vacío en un empate, así que hay espacio)
   const enLugar = {};
-  // The table's own order decides who is in the rest, so players tied on a place split the same way in both
-  const enTabla = filasTabla.map(f => f.pid);
-  const resto = grande ? enTabla.slice(carriles).map(pid => ev.filas.find(f => f.pid === pid)).filter(Boolean) : [];
-  const delResto = new Set(resto.map(f => f.pid));
   for (const f of orden) {
     if (delResto.has(f.pid)) continue;
     const mia = f.pid === S.yo;
@@ -1039,12 +1044,9 @@ function grafico(now) {
     el('button', { type: 'button', class: 'g-chip' + (f.pid === S.yo ? ' mia' : '') + (afuera.has(f.pid) ? ' fuera' : ''), 'data-pid': f.pid, style: `--c:${color(f.pid)}`, onClick: () => { SFX.tap(); destacar(f.pid); } },
       el('span', { class: 'g-color', 'aria-hidden': 'true' }), nombreConJuegos(f.pid === S.yo ? fmt(T.progressYou, { name: f.name }) : f.name, menos[f.pid]), afuera.has(f.pid) ? ' 🚪' : null)));
   const notaJuegos = Object.values(menos).some(x => x > 0) ? el('p', { class: 'muted grafico-nota', id: 'nota-juegos' }, T.fewerGamesNote) : null;
-  // The other players: their names, ranked, under the graph
-  const restoNodo = resto.length
-    ? el('ol', { class: 'g-resto', start: carriles + 1 }, resto.map(f => el('li', { 'data-pid': f.pid }, f.name, afuera.has(f.pid) ? ' 🚪' : null, menos[f.pid] > 0 ? ` (-${menos[f.pid]}J)` : null)))
-    : null;
+  lineasResto.forEach((t, i) => svg.append(svgEl('text', { x: izq, y: H - altoResto + 14 + i * 14, class: 'g-resto' }, t)));
   if (grande) leyenda.hidden = true; // its text is filled by tapping a point
-  return el('div', { class: 'panel' }, el('p', { class: 'lead', style: 'margin-bottom:8px' }, T.progressTitle), svg, restoNodo, chips, notaJuegos, leyenda,
+  return el('div', { class: 'panel' }, el('p', { class: 'lead', style: 'margin-bottom:8px' }, T.progressTitle), svg, chips, notaJuegos, leyenda,
     // Once over, the podium's Share the summary does the same: one share button per screen (C-19)
     terminada(L().meta, now) ? null : el('button', { class: 'btn btn--cyan btn--sm', id: 'btn-imagen', onClick: async ev2 => {
       SFX.tap(); const b = ev2.currentTarget; b.disabled = true;
