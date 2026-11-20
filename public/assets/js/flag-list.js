@@ -55,6 +55,13 @@ export const FLAGS = {
 };
 
 /**
+ * Flags whose card went to La Bodega as 💤 No prosperó (D-593): no switch in the T tab, which is for what is
+ * still being tried. Not a launched flag (*all*), which already has none (D-567). `public/labs/listed.test.mjs`
+ * keeps it equal to the 💤 cards of La Bodega that have a row in FLAGS.
+ */
+export const PARKED = new Set(['bn-salva', 'lab-ready']);
+
+/**
  * When a flag in *lab* is ready to publish (D-528): at least `completions` finished loads by at least
  * `keys` different lab keys over at least `days` days, with at most `errors` loads that failed, all
  * since the flag was last switched. `tools/agents/lab-ready.mjs` applies it; a row of READY_BY
