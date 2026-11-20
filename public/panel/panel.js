@@ -41,7 +41,7 @@ import { dayOf as diaDe, toLocalInput, checkPick, switches, status as campaignSt
 import { TEMPLATES as SKINS } from '../assets/season/templates.js';
 import { stateOf as flagState, flag } from '../assets/js/flags.js';
 import { publicGameCheck, withoutLabGames, withoutLabCups } from './public-games.js';
-import { trend, trendStart, weekOf, isoDay, highlights, toPacificDays, pacificDay, dayLabel as wbrDay } from './wbr.js';
+import { trend, trendStart, weekOf, currentWeek, isoDay, highlights, toPacificDays, pacificDay, dayLabel as wbrDay } from './wbr.js';
 import { FLAGS } from '../assets/js/flag-list.js';
 import { SECCIONES, leerRuta, rutaA, rutaEnIngles, seccionDe } from './rutas.js';
 import { WIDTH_BANDS, HEIGHT_BANDS } from '../assets/js/screen-bands.js';
@@ -1368,13 +1368,13 @@ const pctFino = (a, b) => (!b ? '—' : a && a / b < 0.01 ? `${((a / b) * 100).t
 /**
  * 📋 WBR, the Weekly Business Review: the weekly email's tables, for any closed week (D-352, D-560).
  * The headline and the top 10 games over the week, the four before it, this month so far and the
- * two before; lab plays out. On a phone the tables scroll sideways with the names pinned.
+ * two before, and first the week in progress (partial) on the latest week; lab plays out. On a phone the tables scroll sideways with the names pinned.
  */
 let memoTrend = {};
 const SIN_FLAGS = {};
 function vistaWbr(now) {
   const w = weekOf(S.ruta.args[0], now);
-  const nota = 'The closed week (Sunday to Saturday, Pacific time) against the four before and the last three months, like the Sunday email. Lab plays left out (D-560). Browsers and visits before Nov 16 follow UTC days (D-561).';
+  const nota = 'The closed week (Sunday to Saturday, Pacific time) against the four before and the last three months, like the Sunday email; on the latest closed week, the week so far goes first (marked *, partial, not compared). Lab plays left out (D-560). Browsers and visits before Nov 16 follow UTC days (D-561).';
   const cabeza = [...titulo(`📋 WBR · ${wbrDay(w.from).replace(/, \d{4}$/, '')} – ${wbrDay(w.to)}`, nota),
     el('div', { class: 'wbr-nav' },
       el('a', { class: 'btn btn--sm btn--ghost', href: ir('wbr', [isoDay(w.to - 7)]) }, '‹ Week before'),
@@ -1382,22 +1382,31 @@ function vistaWbr(now) {
   if (!S.daysLoaded || !S.torneosLoaded) return [...cabeza, el('p', { class: 'empty' }, 'Loading…')];
   // Kept until its data or week changes: every Firebase answer and the 30 s tick redraw the panel (it froze)
   const dias = wbrDays(), copas = playerCups(), flags = S.flags || SIN_FLAGS;
-  if (memoTrend.days !== dias || memoTrend.copas !== copas || memoTrend.flags !== flags || memoTrend.to !== w.to) memoTrend = { days: dias, copas, flags, to: w.to, out: trend({ days: dias, torneos: copas, flags }, w) };
-  const t = memoTrend.out;
-  const fmt = (v, dec) => (v === null ? 'n/a' : dec ? v.toFixed(1) : n(v));
+  // The latest closed week also shows the week in progress, first and partial
+  const actual = w.to === weekOf(null, now).to ? currentWeek(now) : null;
+  if (memoTrend.days !== dias || memoTrend.copas !== copas || memoTrend.flags !== flags || memoTrend.to !== w.to || memoTrend.hoy !== actual?.to) memoTrend = { days: dias, copas, flags, to: w.to, hoy: actual?.to, out: trend({ days: dias, torneos: copas, flags }, w, { actual }) };
+  const t = memoTrend.out, k = t.cerrada;
+  const fmt = (v, dec) => (v === null ? 'n/a' : dec === 'auto' ? (Number.isInteger(v) ? n(v) : v.toLocaleString(LOCALE, { minimumFractionDigits: 1, maximumFractionDigits: 1 })) : dec === '%' ? `${v.toLocaleString(LOCALE, { maximumFractionDigits: 1 })}%` : dec ? v.toFixed(1) : n(v));
   const cambioTxt = c => (c === null || c === undefined ? '' : ` (${c > 0 ? '+' : c < 0 ? '−' : '±'}${Math.abs(c)}%)`);
   const tabla = (filas, cabezaCol) => el('div', { class: 'wbr-scroll' }, el('table', { class: 'wbr' },
-    el('thead', {}, el('tr', {}, el('th', {}, cabezaCol), ...t.columnas.map((c, i) => el('th', { class: i === 5 ? 'wbr-mes' : null }, c)))),
-    el('tbody', {}, ...filas.map(([nombre, valores, cambio, dec]) => el('tr', {}, el('th', {}, nombre),
-      ...valores.map((v, i) => el('td', { class: [i === 0 ? 'wbr-ahora' : '', i === 5 ? 'wbr-mes' : ''].filter(Boolean).join(' ') || null },
-        i === 0 && v !== null ? [el('b', {}, fmt(v, dec)), cambioTxt(cambio)] : fmt(v, dec))))))));
+    el('thead', {}, el('tr', {}, el('th', {}, cabezaCol), ...t.columnas.map((c, i) => el('th', { class: i === 5 + k ? 'wbr-mes' : null }, c)))),
+    el('tbody', {}, ...filas.map(([nombre, valores, cambio, dec, clase, est]) => el('tr', { class: clase || null }, el('th', {}, nombre),
+      ...valores.map((v, i) => { const x = `${est?.[i] && v !== null ? '~' : ''}${fmt(v, dec)}`; return el('td', { class: [i === k ? 'wbr-ahora' : '', i === 5 + k ? 'wbr-mes' : ''].filter(Boolean).join(' ') || null },
+        i === k && v !== null ? [el('b', {}, x), cambioTxt(cambio)] : x); }))))));
+  const u = t.usuariosJuego;
+  const desdeConteo = u.desdeReal ? `the count by game began (${u.desdeReal.replace(/, \d{4}$/, '')}, D-590)` : 'the count by game began (D-590)';
   return [...cabeza,
     el('ul', { class: 'wbr-destacados' }, ...highlights(t).map(x => el('li', {}, x))),
     el('h3', {}, 'Headline'),
     tabla(t.metricas.map(m => [m.nombre, m.valores, m.cambio, m.decimales]), ''),
+    el('p', { class: 'muted small' }, t.leyenda),
     el('h3', {}, 'Top 10 games'),
-    el('p', { class: 'muted small' }, 'Games started; every mode and version, La Copa included. n/a: not measured yet, or the game was not out yet.'),
-    tabla(t.juegos.map((g, i) => [`${i + 1}. ${g.juego}${g.nuevo ? ` (out ${g.nuevo.replace(/, \d{4}$/, '')})` : ''}`, g.valores, g.cambio]), 'Game'),
+    el('p', { class: 'muted small' }, 'Games finished, as in the headline; every mode and version, La Copa included. n/a: not measured yet, or the game was not out yet. The last two rows: games finished across every public game, and the share of them these ten take.'),
+    tabla([...t.juegos.map((g, i) => [`${i + 1}. ${g.juego}${g.nuevo ? ` (out ${g.nuevo.replace(/, \d{4}$/, '')})` : ''}`, g.valores, g.cambio]),
+      ['Total games finished', t.totales.valores, t.totales.cambio, false, 'wbr-total'], ['Top 10 share of games finished', t.totales.top10, null, '%']], 'Game'),
+    el('h3', {}, 'Weekly active users by game'),
+    el('p', { class: 'muted small' }, `Browsers that finished each game at least once in the week; a month is the average of its full weeks (Sunday to Saturday). Sorted by the closed week, most first. ~ estimated: before ${desdeConteo}, the browsers that started a game that week split by each game's share of the games finished; it reads low, since one browser plays several games.`),
+    u.filas.length ? tabla(u.filas.map(f => [f.juego, f.valores, f.cambio, 'auto', null, u.estimado]), 'Game') : el('p', { class: 'empty' }, 'No browsers measured in this week yet.'),
   ];
 }
 
@@ -1702,7 +1711,7 @@ const campanaTxt = id => (id === 'support' ? '☕ the donation card'
 const TL_GRAINS = [['day', 'By day'], ['week', 'By week'], ['month', 'By month']];
 const GRANO_TL = { dia: 'day', semana: 'week', mes: 'month' };
 const TL_VISIBLES = 100;
-const FEEDBACK_TIPO = { sugerencia: 'a suggestion', problema: 'a problem report', idea: 'an idea', otro: 'a message' };
+const FEEDBACK_TIPO = { sugerencia: 'a suggestion', problema: 'a problem report', idea: 'an idea', otro: 'a message', criptico: 'a cryptic clue for Críptico' };
 
 /** "Javi", "Javi and Cata", "Ana, Leo and Bia", each with their flag; no name is "Someone". */
 const quienes = who => {

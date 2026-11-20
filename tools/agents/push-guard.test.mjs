@@ -1,6 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { readFileSync, mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
+import { spawnSync } from 'node:child_process';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { isPush, problems, pushDir, missingChangelog } from './push-guard.mjs';
 
 test('isPush sees a git push, not other commands', () => {
@@ -80,4 +83,41 @@ test('missingChangelog asks for the entry only on a topic branch that brings cha
   assert.deepEqual(missingChangelog(git('topic', '')), []);
   assert.deepEqual(missingChangelog(git('main', 'public/a.js\n')), []);
   assert.deepEqual(missingChangelog(git('topic', 'x', 128)), []);
+});
+
+/** Run a hook's command the way Claude Code does (a shell, CLAUDE_PROJECT_DIR set) against a stub
+ *  script that exits with `code`. */
+function hookStatus(command, script, code) {
+  const dir = mkdtempSync(join(tmpdir(), 'hook-'));
+  try {
+    if (code !== null) {
+      mkdirSync(join(dir, 'tools/agents'), { recursive: true });
+      writeFileSync(join(dir, 'tools/agents', script), `process.exit(${code});\n`);
+    }
+    return spawnSync('sh', ['-c', command], { env: { ...process.env, CLAUDE_PROJECT_DIR: dir }, input: '{}' }).status;
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+}
+
+// Hooks whose script exits 2 on purpose but whose command still swallows it, each with why.
+const ADVISORY = {
+  // Cloud sessions edit their clone's main folder, which is all they have: blocking would stop them.
+  'worktree-guard.mjs': 'cloud sessions work in their clone itself (processes round 2026-11-20)',
+};
+
+test('a hook whose script blocks with exit 2 passes the 2 on to Claude Code (#1582, #1667, #1699)', () => {
+  // From 2026-11-09 to 2026-11-20 the push guard's command ended in `|| true`, which turned its
+  // exit 2 into 0: it never stopped a push, and design-lint went red on three PRs it should have caught.
+  const s = JSON.parse(readFileSync('.claude/settings.json', 'utf8'));
+  const hooks = Object.values(s.hooks).flat().flatMap(h => h.hooks.map(x => x.command));
+  let checked = 0;
+  for (const command of hooks) {
+    const script = (command.match(/tools\/agents\/([\w-]+\.mjs)/) || [])[1];
+    if (!script || ADVISORY[script]) continue;
+    if (!/process\.exit\(2\)/.test(readFileSync(join('tools/agents', script), 'utf8'))) continue;
+    checked++;
+    assert.equal(hookStatus(command, script, 2), 2, `${script}: its hook command must exit 2 when the script does`);
+    assert.equal(hookStatus(command, script, 1), 0, `${script}: anything else lets the tool run`);
+    assert.equal(hookStatus(command, script, null), 0, `${script}: a checkout without the script lets the tool run`);
+  }
+  assert.ok(checked >= 2, 'push-guard and stop-tests are checked');
 });

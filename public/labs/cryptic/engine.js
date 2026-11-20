@@ -82,3 +82,9 @@ export function streak(days, today) {
   while (days[d]?.solved) { n++; d = addDays(d, -1); }
   return n;
 }
+
+/** Is `jid` the player who wrote `clue`? Clues a player proposed carry `by: { n, j }` (the owner, 2026-11-19). */
+export const isAuthor = (clue, jid) => !!jid && clue?.by?.j === jid;
+
+/** The clues practice may draw: all but today's (`skip`) and the player's own. */
+export const practicePool = (bank, skip, jid) => bank.map((_, i) => i).filter(i => i !== skip && !isAuthor(bank[i], jid));

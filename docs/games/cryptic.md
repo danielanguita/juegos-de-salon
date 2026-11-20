@@ -25,7 +25,7 @@ look. Spanish clues only for now, by the owner's call: the mechanics first, the 
   Solving is worth 3 stars minus the helps; «Me rindo» shows the answer, with no stars.
 - **The day's clue** is the same for everyone on a date, at the player's own midnight: clue number
   `days since 2026-11-19 + 1`, walking the bank with a stride so every clue comes out once before any
-  repeats (`indexOf` in `engine.js`). With 32 clues, a month.
+  repeats (`indexOf` in `engine.js`). With 56 clues, almost two months.
 - **The streak:** days in a row with the day's clue solved; given up breaks it. Practice clues (any other
   clue of the bank, at random) count for nothing.
 - Rankings: none yet (D-212: whether it keeps a score is the owner's call).
@@ -37,7 +37,7 @@ Solo (`solo`): today's clue (the yellow start button) and practice (the ghost bu
 ## Flujo
 
 Cover (the yellow «Jugar la pista de hoy», under it the clue number or today's stars, then «Practicar con
-otras pistas», how to play) → play (the clue, one box per letter, the answer field and «Comprobar», the
+otras pistas», how to play) → play (the clue, one box per letter that the player types straight into, the cursor moving on by itself (the owner, 2026-11-19), and «Comprobar», the
 helps, «Me rindo») → result (stars, tries, streak; Share and «Otra pista de práctica», the exit to the lab
 from `fin.js`, C-19; then «Cómo se arma», the clue with its definition underlined and how it is solved).
 Today's clue, once played, opens on its result.
@@ -57,6 +57,41 @@ result stays on the phone for the streak.
 - `tools/e2e/cryptic/game.mjs`: plays today's clue (a wrong guess, two helps, a reload, the answer)
   and a practice clue given up; `node tools/e2e/conformance.mjs labs/cryptic` checks the canons.
 - Hook: `window.__cryptic` (`state()`, `clue()`, `answer()`).
+
+## Writing a clue (the owner, 2026-11-19)
+
+The first bank was too direct, and so was its first rewrite: the owner asked for clues that make the player
+think and reach for a hint, while staying solvable. The owner's own (SIETE, PEATÓN, COMA, CAMISA, MANTEQUILLA, RELAMIDO) are the bar.
+Every clue in `clues.js` follows these rules:
+
+1. **One natural sentence that tells another story.** No colon or semicolon splitting wordplay from
+   definition: the seam is the player's to find («Di que se va, pero exige flores en el camarín»).
+2. **Every piece is clued too, never written out**: a synonym (cara for costosa), a note (SOL, RE, LA), a Roman
+   number (V), a chemical symbol (NA), a translation (tour for GIRA), as «beso catalán» is PETÓ. The step must be one the player takes: a word in the sense people use it (DADO as «seis caras», never «regalado», the owner). Only anagrams
+   and hidden words show their letters, and then the definition carries the difficulty.
+3. **A fair but sideways definition** at one end: «ni te cases ni te embarques» for MARTES, «tiene cuatro
+   esquinas» for MANZANA, never the dictionary line.
+4. **A blended indicator**: «alborotada», «vuelve», «sin que se viera», «le cortan la cabeza» read as part of
+   the story, not as an instruction.
+5. **One answer only**, and `x` shows every step of the solution. The engine test checks the mechanics it can
+   (definition at an end, anagram letters, hidden and reversed words).
+
+## A player's clue (the owner, 2026-11-19)
+
+Part of the game, not a flag: at the end of every clue, «✍️ ¿Se te ocurre uno? Propón tu críptico» opens
+the feedback form (`propose.js`) with the kind «🗝️ Críptico» already picked: the clue, the answer, how one
+gets there (optional), the name to sign it with (the registered player's by default, editable) and the
+optional email. It goes to `feedback/` with `tipo: 'criptico'`, so it reaches the panel's 💬 Feedback and
+becomes a `feedback:cryptic-clue` issue; the feedback agent judges it, proposes better versions and gives
+the owner a one-tap choice (`docs/FEEDBACK-TRIAGE.md`). An approved clue joins `clues.js` with
+`by: { n, j }`: the name, and the player id when the author had one.
+
+- **«Hoy es tu críptico».** Everyone plays the same clue on a day, so its author is never given another
+  one: on that day the author sees their own clue with its solution and the day counts for the streak
+  (🗝️ instead of stars), with nothing to share. Practice never draws a player's own clues. Everyone else
+  sees «Críptico de <name>» under the solution. The author is known by their player id, so on a phone
+  where they did not sign in they get it like anyone else.
+- In English and Portuguese the form asks for the clue in Spanish, as long as the clues are only in Spanish.
 
 ## Excepciones a los cánones
 

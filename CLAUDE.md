@@ -39,6 +39,7 @@ text by outsiders (player feedback) and persisted keys (game ids like `'ahorcado
 | Texts, buttons, sharing (U-n) | [docs/USABILIDAD.md](docs/USABILIDAD.md), routed by the `player-text` skill: U-1, U-8 and **U-18** before writing instructions; **U-41** visual proposals as images | Before writing anything the player reads, or proposing a design |
 | Why it is this way (D-n) | [docs/DECISIONS.md](docs/DECISIONS.md), the index (by topic, then one row each), and `docs/decisions/D-<n>.md` for each one (D-394): read the index, open only the ones you need | Before changing something that looks odd |
 | A new game, step by step | [docs/ADD-GAME.md](docs/ADD-GAME.md) | When starting one |
+| Launching a game to everyone (prepare, splash, schedule, check live, clean up) | [docs/LAUNCH.md](docs/LAUNCH.md), the playbook with every past miss | Before preparing or scheduling any launch |
 | Each game | `docs/games/<folder>.md`, with its exceptions to the canons | Before touching it |
 | What was requested (RP-n…) | [docs/REQUERIMIENTOS.md](docs/REQUERIMIENTOS.md) | When closing one |
 | Owner panel | [docs/PANEL.md](docs/PANEL.md) | When touching signals or the panel |
@@ -78,7 +79,7 @@ marks the old decision (`amended by` / `replaced by`). A canon that contradicts 
   subscribe to the PR's activity (`subscribe_pr_activity`) so a red check is fixed without the owner asking.
 - **A single push at the end** (D-303), with the agents' fixes included.
 - **Everything in development sits behind the lab** (D-395, D-409, D-498): lab games under `/labs/`, anything
-  new on a player page behind its runtime flag `flag('<id>')` (`public/assets/js/flags.js`, with its own switch in the «T» tester tab, D-567) and listed in
+  new on a player page behind its runtime flag `flag('<id>')` (`public/assets/js/flags.js`, with its own switch in the «T» tester tab, D-567, D-592) and listed in
   `/labs/`; the owner publishes it by flipping `flags/<id>` to *all* on its `/labs/` card (the one place, D-498),
   no PR; its card moves to La Bodega on its own, keeping its switch (D-510, D-534), and a later PR removes the gate. Details: [docs/AGENTS.md](docs/AGENTS.md).
 - **Tests**: run every `*.test.mjs` / `*.test.py` before the PR (commands in [docs/SESSIONS.md](docs/SESSIONS.md));

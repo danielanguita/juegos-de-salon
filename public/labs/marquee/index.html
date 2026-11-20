@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#150726">
+  <!-- El laboratorio no se anuncia: no está en el menú ni en los buscadores (D-101), y sin la llave no se entra (D-281) -->
+  <script src="../../assets/js/labs-puerta.js"></script>
+  <meta name="robots" content="noindex, nofollow">
+  <title>Franja de novedades 📰 · Laboratorio</title>
+  <link rel="icon" href="../../assets/icon.svg" type="image/svg+xml">
+  <script src="../../assets/js/vigia.js"></script>
+  <link rel="preload" href="../../assets/fonts/nunito-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="../../assets/fonts/bangers-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="../../assets/css/base.css">
+  <!-- The strip's sheet, loaded into the home page in the frame (build() below); fetched here first -->
+  <link rel="preload" href="marquee.css" as="style">
+  <!-- The experiments bar, shared with the other lab demos of a page (D-361) -->
+  <link rel="stylesheet" href="../experiments.css">
+  <style>
+    /* The real home page, unscaled: a frame exactly as wide as the phone being tried, so every pixel is the
+       site's own. On a phone it is the phone's width; on a computer, the width chosen in the bar. It starts
+       under the notch, where the home page's body starts too (--safe-top). */
+    html, body { height: 100%; margin: 0; overflow: hidden; }
+    .demo-portada {
+      position: fixed; top: var(--safe-top); bottom: 0; left: 50%; transform: translateX(-50%);
+      width: min(100%, var(--ancho, 390px)); height: calc(100% - var(--safe-top)); border: 0; background: var(--bg1);
+    }
+    @media (min-width: 501px) { .demo-portada { outline: 1px dashed var(--glass-border); } }
+    @media (max-width: 500px) { #ancho { display: none; } }
+    .demo-nota {
+      position: fixed; z-index: 1000; left: 50%; transform: translateX(-50%); bottom: calc(var(--s-12) + var(--safe-bottom) + 64px);
+      width: max-content; max-width: calc(100vw - 2 * var(--s-24)); box-sizing: border-box; padding: var(--s-8) var(--s-12);
+      border-radius: var(--r-16); background: var(--barra-fondo); border: 1px solid var(--glass-border);
+      font-size: var(--fs-85); color: var(--muted); text-align: center; transition: opacity 0.3s;
+    }
+    @media (max-width: 440px) { .demo-nota { bottom: calc(var(--s-12) + var(--safe-bottom) + 124px); } }
+    .demo-nota b { color: var(--ink); }
+    .demo-nota.oculta { opacity: 0; pointer-events: none; }
+    /* The tester's «T» tab of this demo page sat on the strip; the home page in the frame is what is judged here */
+    .tr { display: none !important; }
+  </style>
+</head>
+<body>
+  <!-- A news strip above the home page's top bar (lab: #seccion-marquee): six treatments over the real home
+       page, each headline a campaign of splash.js; a tap opens that campaign's splash, without marking it seen -->
+  <iframe class="demo-portada" id="portada" src="../../?test" title="Portada"></iframe>
+  <p class="demo-nota" id="nota"></p>
+  <div class="demo-barra" id="barra">
+    <a href="../#seccion-marquee">‹ Lab</a>
+    <select id="tratamiento" aria-label="Tratamiento"></select>
+    <select id="ancho" aria-label="Ancho de pantalla">
+      <option value="320">📱 320 px</option>
+      <option value="360">📱 360 px</option>
+      <option value="390" selected>📱 390 px</option>
+      <option value="430">📱 430 px</option>
+    </select>
+    <button type="button" id="me-gusta" aria-pressed="false">👍 Me gusta</button>
+  </div>
+  <script type="module">
+    import { TREATMENTS, headlines, mount } from './marquee.js';
+    const frame = document.getElementById('portada');
+    const sel = document.getElementById('tratamiento');
+    const nota = document.getElementById('nota');
+    const barra = document.getElementById('barra');
+    const meGusta = document.getElementById('me-gusta');
+    const root = new URL('../../', location.href);
+    const VOTE = 'labs:marquesina';
+    for (const t of TREATMENTS) sel.append(new Option(t.name, t.id));
+    const fromHash = location.hash.slice(1);
+    if (TREATMENTS.some(t => t.id === fromHash)) sel.value = fromHash;
+
+    let strip = null;
+    let splash = null;
+    // The note says what the treatment is, then steps aside so the page is seen as a player would
+    let notaTimer = null;
+    const describe = () => {
+      const t = TREATMENTS.find(x => x.id === sel.value);
+      nota.innerHTML = `<b>${t.name}</b> · ${t.note}`;
+      nota.classList.remove('oculta');
+      clearTimeout(notaTimer);
+      notaTimer = setTimeout(() => nota.classList.add('oculta'), 5000);
+      const liked = localStorage.getItem(VOTE) === t.id;
+      meGusta.setAttribute('aria-pressed', String(liked));
+      meGusta.textContent = liked ? '✅ Elegida' : '👍 Me gusta';
+    };
+
+    const build = async () => {
+      const doc = frame.contentDocument;
+      // Only on the home page: a game opened from it is left as it is
+      if (!doc?.body || frame.contentWindow.location.pathname !== root.pathname) return;
+      strip?.destroy();
+      if (!doc.getElementById('mq-css')) {
+        const link = doc.createElement('link');
+        link.id = 'mq-css'; link.rel = 'stylesheet'; link.href = new URL('marquee.css', location.href).href;
+        await new Promise(res => { link.onload = link.onerror = res; doc.head.append(link); });
+        // The splash is opened inside the home page, by the page's own module, so it is drawn as players see it
+        const s = doc.createElement('script');
+        s.textContent = `window.__mqSplash = import(${JSON.stringify(new URL('assets/js/splash.js', root).href)});`;
+        doc.head.append(s);
+      }
+      const lang = doc.documentElement.lang || 'es';
+      const { CAMPAIGNS } = await frame.contentWindow.__mqSplash;
+      strip = mount(doc, {
+        treatment: sel.value, news: headlines(CAMPAIGNS, lang), root,
+        onPick: async id => {
+          if (splash) return;
+          const { showSplash } = await frame.contentWindow.__mqSplash;
+          splash = id; strip.pause(true); barra.hidden = true; nota.classList.add('oculta');
+          // record: false — the demo never marks a campaign as seen on this phone
+          await showSplash(id, { lang, record: false });
+          splash = null; strip.pause(false); barra.hidden = false;
+        },
+      });
+    };
+    frame.addEventListener('load', build);
+    sel.addEventListener('change', () => { history.replaceState(null, '', `#${sel.value}`); describe(); build(); });
+    document.getElementById('ancho').addEventListener('change', e => document.documentElement.style.setProperty('--ancho', `${e.target.value}px`));
+    meGusta.addEventListener('click', () => { localStorage.setItem(VOTE, sel.value); describe(); });
+    describe();
+  </script>
+</body>
+</html>

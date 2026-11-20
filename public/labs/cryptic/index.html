@@ -24,7 +24,7 @@
       } catch (_) { /* no storage: it paints as always */ }
     })();
   </script>
-  <meta name="description" content="Una pista críptica al día: se lee de dos maneras y lleva a una sola palabra.">
+  <meta name="description" content="Pistas directas, indirectas y con truco para encontrar una palabra.">
   <link rel="manifest" href="../../manifest.webmanifest">
   <script>
     // The chosen language's manifest, before the browser reads it (D-222)
@@ -80,10 +80,13 @@
       <p class="notice notice--warn" id="clue-lang" data-i18n="inSpanish" hidden></p>
       <div class="panel clue-card" data-tablero="pista">
         <p class="clue" id="clue"></p>
-        <div class="tiles" id="tiles" aria-hidden="true"></div>
+        <!-- The player types straight into the boxes (the owner, 2026-11-19): an invisible field over them -->
+        <div class="tiles-wrap">
+          <div class="tiles" id="tiles" aria-hidden="true"></div>
+          <input class="tiles-input" type="text" id="answer" form="answer-form" autocomplete="off" autocapitalize="characters" autocorrect="off" spellcheck="false" enterkeyhint="done">
+        </div>
       </div>
       <form class="answer" id="answer-form" autocomplete="off">
-        <div class="field"><input type="text" id="answer" autocapitalize="characters" autocorrect="off" spellcheck="false" enterkeyhint="done"></div>
         <button class="btn btn--yellow" id="btn-check" type="submit" data-i18n="check"></button>
       </form>
       <p class="notice" id="feedback" aria-live="polite" hidden></p>
@@ -107,8 +110,11 @@
         <p class="lead" data-i18n="howSolved"></p>
         <p class="clue clue--small" id="result-clue"></p>
         <p id="result-explain"></p>
+        <p class="muted" id="result-credit" hidden></p>
         <p class="muted" id="result-next"></p>
       </div>
+      <!-- «Propón tu críptico» (propose.js): a player's own clue, for the owner to review -->
+      <div class="panel stack center propose" id="result-propose"></div>
     </section>
   </main>
 

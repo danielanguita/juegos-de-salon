@@ -14,14 +14,15 @@ export const FLAGS = {
   'copa-jugar': '🏆 La Copa: a gold one-line «🏆 Jugar» button on its home page card when there is no day to play',
   'copa-hoy': '🏆 La Copa: ▶ Jugar hoy on its home page card',
   'copa-espera': '🏆 La Copa: Día N en Xh on its home page card',
-  'copa-contexto': '🏆 La Copa: which cup, your place and the day\'s game on its home page card',
   'bn-salva': '🎆 Battleship: Salvo',
   'keyboard-lift': '⌨️ Feedback form above the iOS keyboard',
   'uad-share-grids': '🟩 Uno al día: share grids for Agentes, Dudo, Generala and Battleship',
   'cover-facts': '📖 Game pages: who plays and how long, in the rules',
   'uad-night-totals': '📅 Uno al día: totals written by the hourly rebuild',
-  'home-carousels': '🎠 Icon view: the games in rows of three (popular, new, with friends, dexterity and one per type), each game once, in place of the dice, the filters and the list; a tap opens a sheet with the game\'s animation, its ranking, a share button and ▶ Jugar',
+  'home-carousels': '🎠 Icon view: the games in rows of three (popular, new, solo or with friends, dexterity and one per type), each game once, in place of the dice, the filters and the list; a tap opens a sheet with the game\'s animation, its ranking, a share button and ▶ Jugar',
   'home-carousels-covers': '🎠 Main page with icons: a tap on an icon goes straight to the game\'s cover, as in production, instead of its sheet',
+  'cup-best-day-all': '🏅 Rankings: «Mejor día de copa» also for La Copa\'s own games (Línea Relámpago, Toque y Fama: Número, La Gran Final), whose bests were kept but shown nowhere',
+  'wins-hide-empty': '🏅 Group games: the «Más victorias» table on a game\'s cover is hidden while nobody is in it',
   'home-pill-bar': '💊 Home page: top bar buttons as pills of one height',
   'cup-back-board': '🏆 La Copa: the header ‹ goes back to the board while playing a day',
   'cup-podium-early': '🏆 La Copa: on the last day, once nothing left to play can change the first three places, the board announces the podium before the cup closes',
@@ -55,6 +56,13 @@ export const FLAGS = {
   'solo-result-today-card': '📅 A game played on its own: under its result, one cyan line «📅 Uno al día de hoy: 👑 Reinas · Jugar» for whoever has not played today\'s Uno al día yet; never in La Copa or in Uno al día itself (#1597)',
   'lab-ready': '✅ Labs: lab use of each flag is counted, and its card says when it is ready to 🚀 (D-528)',
 };
+
+/**
+ * Flags whose card went to La Bodega as 💤 No prosperó (D-593): no switch in the T tab, which is for what is
+ * still being tried. Not a launched flag (*all*), which already has none (D-567). `public/labs/listed.test.mjs`
+ * keeps it equal to the 💤 cards of La Bodega that have a row in FLAGS.
+ */
+export const PARKED = new Set(['bn-salva', 'lab-ready']);
 
 /**
  * When a flag in *lab* is ready to publish (D-528): at least `completions` finished loads by at least

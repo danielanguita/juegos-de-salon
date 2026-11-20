@@ -42,8 +42,8 @@ export function withoutLabGames(days = {}, isPublic) {
     if (!b || typeof b !== 'object' || !Number.isFinite(d)) { out[k] = b; continue; }
     const porJuego = m => m && Object.fromEntries(Object.entries(m).filter(([g]) => isPublic(g, d)));
     const porCampo = m => m && Object.fromEntries(Object.entries(m).filter(([, x]) => !x?.game || isPublic(x.game, d)));
-    out[k] = { ...b, local: porJuego(b.local), fin: porJuego(b.fin), otra: porJuego(b.otra), rooms: porCampo(b.rooms), live: porCampo(b.live) };
-    for (const c of ['local', 'fin', 'otra', 'rooms', 'live']) if (out[k][c] === undefined) delete out[k][c];
+    out[k] = { ...b, local: porJuego(b.local), fin: porJuego(b.fin), otra: porJuego(b.otra), jugadores: porJuego(b.jugadores), rooms: porCampo(b.rooms), live: porCampo(b.live) };
+    for (const c of ['local', 'fin', 'otra', 'jugadores', 'rooms', 'live']) if (out[k][c] === undefined) delete out[k][c];
   }
   return out;
 }

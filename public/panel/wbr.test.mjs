@@ -1,6 +1,6 @@
 // The WBR's weeks and highlights: node public/panel/wbr.test.mjs (the trend itself: tools/reports/weekly-data.test.mjs)
 import assert from 'node:assert/strict';
-import { closedWeek, weekOf, isoDay, highlights, trendStart, toPacificDays, pacificDay, pacificEndMs } from './wbr.js';
+import { closedWeek, currentWeek, weekOf, isoDay, highlights, trendStart, toPacificDays, pacificDay, pacificEndMs } from './wbr.js';
 
 const now = Date.parse('2026-11-15T12:00:00Z');
 const w = closedWeek(now);
@@ -9,11 +9,15 @@ assert.deepEqual(weekOf('2026-11-07', now), { from: w.from - 7, to: w.to - 7 }, 
 assert.deepEqual(weekOf('2026-11-03', now), { from: w.from - 7, to: w.to - 7 }, 'any day names the week holding it');
 assert.deepEqual(weekOf('2026-11-15', now), w, 'a week not closed yet falls back to the closed one');
 assert.deepEqual(weekOf('nonsense', now), w);
+assert.deepEqual([isoDay(currentWeek(now).from), isoDay(currentWeek(now).to)], ['2026-11-15', '2026-11-15'], 'Sunday: the week in progress is one day');
+assert.deepEqual(currentWeek(Date.parse('2026-11-20T03:00:00Z')).to, Math.floor(Date.parse('2026-11-19T00:00:00Z') / 864e5), 'by the Pacific date');
+assert.match(highlights({ cerrada: 1, metricas: [{ valores: [9, 574, 494], cambio: 16 }], juegos: [] })[0], /574 vs\. 494/, 'highlights read the closed week, not the partial one');
 assert.equal(isoDay(trendStart(w)), '2026-09-01', 'two months back, from the first');
 const h = highlights({ metricas: [{ valores: [574, 494], cambio: 16 }], juegos: [{ juego: 'Flap', valores: [186], nuevo: 'Nov 9, 2026' }, { juego: 'Shinobi', valores: [176] }] });
 assert.equal(h[0], 'Games finished rose 16% (574 vs. 494).');
-assert.match(h[1], /Flap \(186 games\), then Shinobi \(176\)/);
+assert.match(h[1], /Most finished: Flap \(186 games finished\), then Shinobi \(176\)/);
 assert.match(h[2], /Flap \(out Nov 9\)/);
+assert.match(highlights({ metricas: [], juegos: [], sinTerminar: [{ juego: 'Zip', empiezan: 4, columna: 'Nov 15–18*' }] })[0], /Zip: 4 browsers started it in Nov 15–18\* and none finished it/, 'a game started and never finished is flagged');
 // Pacific dates (D-561)
 const D = Math.floor(Date.parse('2026-11-15T00:00:00Z') / 864e5), H = 3600e3;
 assert.equal(pacificDay(Date.parse('2026-11-15T07:59:00Z')), D - 1, 'PST: before 08:00 UTC it is still the 14th');
