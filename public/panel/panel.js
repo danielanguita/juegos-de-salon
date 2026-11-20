@@ -1374,7 +1374,7 @@ let memoTrend = {};
 const SIN_FLAGS = {};
 function vistaWbr(now) {
   const w = weekOf(S.ruta.args[0], now);
-  const nota = 'The closed week (Sunday to Saturday, Pacific time) against the four before and the last three months, like the Sunday email; on the latest week, the week in progress goes first (partial, not compared). Lab plays left out (D-560). Browsers and visits before Nov 16 follow UTC days (D-561).';
+  const nota = 'The closed week (Sunday to Saturday, Pacific time) against the four before and the last three months, like the Sunday email; on the latest closed week, the week so far goes first (partial, not compared). Lab plays left out (D-560). Browsers and visits before Nov 16 follow UTC days (D-561).';
   const cabeza = [...titulo(`📋 WBR · ${wbrDay(w.from).replace(/, \d{4}$/, '')} – ${wbrDay(w.to)}`, nota),
     el('div', { class: 'wbr-nav' },
       el('a', { class: 'btn btn--sm btn--ghost', href: ir('wbr', [isoDay(w.to - 7)]) }, '‹ Week before'),
