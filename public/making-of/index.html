@@ -23,6 +23,7 @@
     <a href="#play">See it played</a>
     <a href="#traction">Traction</a>
     <a href="#factory">How it's built</a>
+    <a href="#lab">The lab</a>
     <a href="#setup">The setup</a>
     <a href="#team">The agents</a>
     <a href="#weeks">How it grew</a>
@@ -119,9 +120,31 @@
         <li><span>💡</span><b>I decide</b><small>An idea, a player's report or an agent's proposal becomes a written decision. Agents ask me with one-tap choices on my phone.</small></li>
         <li><span>🤖</span><b>Sessions build</b><small>Several Claude Code sessions work in parallel, each in its own copy of the code.</small></li>
         <li><span>🧪</span><b>Checks gate</b><small>Every change runs the tests and real-browser scripts. Red never merges.</small></li>
-        <li><span>👀</span><b>Agents review</b><small>Usability and documentation agents review each change, sized by its risk.</small></li>
+        <li><span>👀</span><b>Agents review</b><small>Agents review each change, sized by its risk: usability, documentation, and a player agent that plays every changed game first.</small></li>
         <li><span>🚀</span><b>It ships</b><small>Low-risk changes merge on their own. New features sit behind a switch until I flip it.</small></li>
       </ol>
+      <a class="mo-next" href="#lab">Next: The lab <span aria-hidden="true">↓</span></a>
+    </section>
+
+    <section id="lab" class="mo-section">
+      <p class="mo-kicker">The lab</p>
+      <h2 class="display display--lg">Everything new is tried live, before players see it</h2>
+      <div class="mo-split">
+        <ul class="mo-points">
+          <li><b>🧪 Hidden in the real site.</b> Every new game or feature ships to production behind a switch:
+            off, lab or everyone. "Lab" means only lab-key holders see it: me and a few testers.</li>
+          <li><b>🗂 /labs/, what is on trial.</b> One card per game or feature, in 25 words at most. I read it on
+            my phone and decide from there.</li>
+          <li><b>🎛️ The tester tab.</b> On every page, a «T» lists that page's experiments, each with its own
+            switch: the same screen with and without the feature, on that phone only.</li>
+          <li><b>🚀 Launch is a tap.</b> From its card, one tap sends it to everyone; another takes it back. Launched or dropped, the card moves to La Bodega (the cellar), switch kept.</li>
+        </ul>
+        <div class="mo-shots">
+          <img src="img/labs.jpg" alt="The /labs/ page: the games and features on trial" loading="lazy">
+          <img src="img/tester-tab.jpg" alt="The tester tab open on the home page, with a switch for each experiment" loading="lazy">
+          <img src="img/lab-home.jpg" alt="The home page redesign in rows of icons, seen only in the lab" loading="lazy">
+        </div>
+      </div>
       <a class="mo-next" href="#setup">Next: The setup <span aria-hidden="true">↓</span></a>
     </section>
 
@@ -276,6 +299,7 @@
         <li><time>Nov 16</time><b>A heartbeat</b><span>Frequent jobs in one relay, with a watchdog; stalled changes are taken over on their own.</span></li>
         <li><time>Nov 17</time><b>Outsiders and a player</b><span>A contributor ships Blackjack, reviewed by an agent; another agent plays every changed game first.</span></li>
         <li><time>Nov 18</time><b>A merge queue + four new agents</b><span>~30 changes a day merge one at a time; a second contributor ships Croc!; feedback, CI, retention and backlog get their own agents.</span></li>
+        <li><time>Nov 19</time><b>Launches that check themselves</b><span>A launch waited 46 minutes on a prompt nobody was there to answer. Now launches run in Claude's cloud, and a second task checks the game is live.</span></li>
       </ol>
       <a class="mo-next" href="#learnings">Next: Learnings <span aria-hidden="true">↓</span></a>
     </section>
@@ -335,6 +359,10 @@
         <li>
           <h3>Measure the AI before you trust it</h3>
           <p>A model judging new game clues agreed with me 16 times in 20. My bar was 9 in 10, so it stays off and the clues stay hand-written.</p>
+        </li>
+        <li>
+          <h3>Check that the checks fire</h3>
+          <p>For 11 days the guard meant to stop a bad push let everything through: one line turned its "stop" into "go". A check that never fires looks just like one that works, so now each guard has a test that it blocks, and each unattended job an alarm.</p>
         </li>
       </ol>
       <a class="mo-next" href="#end">Next: Try it <span aria-hidden="true">↓</span></a>
