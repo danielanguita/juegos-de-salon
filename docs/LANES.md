@@ -40,7 +40,10 @@ the box itself (it acts as the owner on GitHub) once the head is final, and says
 `node tools/agents/lanes.mjs tick <n>` does both (D-575).
 A push that only merges main into an approved commit (GitHub's "Update branch") keeps the tick: the
 lane job checks the merge is clean and brings nothing else, sets `owner-approval` green and turns on
-auto-merge (D-575). Any other push asks again. A 🔴 PR
+auto-merge (D-575). On the owner's own PR (an insider's, below), a push after the tick that changes no 🔴 file
+(a fix for a red check, a text, a doc; what main brought in does not count) keeps it too: the job finds the
+latest approved commit, sets `owner-approval` green and turns on auto-merge (`carriesOwn`, D-596). Any other push
+asks again: one that changes a 🔴 file, and every push to an outside PR. A 🔴 PR
 from an agent's round, a job or a session's own initiative still waits for the owner.
 Storing something new about players is 🔴 too even when no red file changes: the privacy page
 changes in the same PR (CLAUDE.md), which makes it red.
