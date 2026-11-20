@@ -14,13 +14,13 @@ import { el } from './ui.js';
 import { openTesterSheet } from './tester-badge.js';
 
 const T = {
-  es: { tab: 'Tester', info: 'Qué es ser tester', labs: 'Ir a Labs', offline: '📴 Modo sin conexión', offlineHint: 'Solo en este celular', flagsHint: 'Solo en este celular; la página se recarga',
+  es: { tab: 'Tester', info: 'Qué es ser tester', labs: 'Ir a Labs', offline: '📴 Modo sin conexión', offlineHint: 'Con los estados de la nube', flagsHint: 'Solo en este celular; la página se recarga',
     now: 'Probando ahora', all: 'Experimentos', back: 'Probando ahora', pin: 'Fijar en Probando ahora', markOff: 'Apagado', markOn: 'Encendido',
     hint: '📌 deja el experimento en Probando ahora. Lo que no fijas sigue igual, solo se esconde.', empty: 'Nada fijado todavía. Elige en Experimentos qué estás probando.' },
-  en: { tab: 'Tester', info: 'What being a tester means', labs: 'Go to Labs', offline: '📴 Offline mode', offlineHint: 'On this phone only', flagsHint: 'On this phone only; the page reloads',
+  en: { tab: 'Tester', info: 'What being a tester means', labs: 'Go to Labs', offline: '📴 Offline mode', offlineHint: 'With the cloud states', flagsHint: 'On this phone only; the page reloads',
     now: 'Testing now', all: 'Experiments', back: 'Testing now', pin: 'Pin to Testing now', markOff: 'Off', markOn: 'On',
     hint: '📌 keeps the experiment in Testing now. What you do not pin stays as it is, just hidden.', empty: 'Nothing pinned yet. Pick in Experiments what you are testing.' },
-  pt: { tab: 'Tester', info: 'O que é ser tester', labs: 'Ir para o Labs', offline: '📴 Modo sem conexão', offlineHint: 'Só neste celular', flagsHint: 'Só neste celular; a página recarrega',
+  pt: { tab: 'Tester', info: 'O que é ser tester', labs: 'Ir para o Labs', offline: '📴 Modo sem conexão', offlineHint: 'Com os estados da nuvem', flagsHint: 'Só neste celular; a página recarrega',
     now: 'Testando agora', all: 'Experimentos', back: 'Testando agora', pin: 'Fixar em Testando agora', markOff: 'Desligado', markOn: 'Ligado',
     hint: '📌 deixa o experimento em Testando agora. O que você não fixa continua igual, só fica escondido.', empty: 'Nada fixado ainda. Escolha em Experimentos o que está testando.' },
 };
@@ -86,7 +86,7 @@ html[data-en-juego] .tr:not(.con-ctx), body.jugando .tr:not(.con-ctx) { display:
 @media (prefers-reduced-motion: reduce) { .tr { transition: none; } }
 `;
 
-let ribbon = null, ctx = null, t = T.es;
+let ribbon = null, ctx = null, ctxRow = null, t = T.es;
 
 function place() {
   if (!ribbon) return;
@@ -105,8 +105,19 @@ function drawContext() {
   if (!ribbon) return;
   const box = ribbon.querySelector('.tr-ctx');
   box.replaceChildren(...(ctx ? [ctx] : []));
-  // The red dot on the folded tab: this screen has something to try. Without it, only (i) and Labs
-  ribbon.classList.toggle('con-ctx', !!ctx);
+  syncContext();
+}
+
+/**
+ * Whether the screen's control shows. One bundled with a row (the cloud states with offline mode, D-592)
+ * shows only while that row is in the first view: pinned, or out of its normal state; hidden with it.
+ * The red dot on the folded tab follows: this screen has something to try. Without it, only (i) and Labs
+ */
+function syncContext() {
+  if (!ribbon) return;
+  const r = ctxRow && ribbon.querySelector(`.tr-flags [data-row="${ctxRow}"]`);
+  const shown = !!ctx && (!ctxRow || (!!r && (r.classList.contains('fijo') || r.classList.contains('cambiado'))));
+  ribbon.classList.toggle('con-ctx', shown);
 }
 
 /** Shows the ribbon (once). The caller has already checked the key and the flag. */
@@ -169,7 +180,7 @@ export async function offlineSwitch(box, {
  * page reloads to draw without it. Flags asked later (a screen that opens) are added as they come.
  */
 /** The offline switch's row id for the pins: not a flag, so it never clashes with one. */
-const OFFLINE_ROW = 'offline-mode';
+export const OFFLINE_ROW = 'offline-mode';
 let pins = null;
 const pinStore = () => (pins ??= import('./flags.js'));
 
@@ -200,6 +211,7 @@ function count(box) {
   const rows = [...box.querySelectorAll('.toggle-row')];
   box.querySelector('.tr-all-n').textContent = `${t.all} · ${rows.length}`;
   box.querySelector('.tr-hint--empty').hidden = rows.some(r => r.classList.contains('fijo') || r.classList.contains('cambiado'));
+  syncContext();
 }
 
 /**
@@ -254,9 +266,13 @@ export async function labSwitches(box, { flags = () => import('./flags.js'), lis
   addEventListener('lab-flag', e => keep(e.detail));
 }
 
-/** The current screen's control (a node), or null when it has none. Folds the ribbon when it changes. */
-export function setTesterContext(node) {
+/**
+ * The current screen's control (a node), or null when it has none. Folds the ribbon when it changes.
+ * `bundle`: the row it goes with (`'offline-mode'` for the cloud states), shown and hidden with it.
+ */
+export function setTesterContext(node, { bundle = null } = {}) {
   ctx = node || null;
+  ctxRow = ctx ? bundle : null;
   ribbon?.classList.remove('abierto');
   drawContext();
 }
