@@ -2,7 +2,7 @@
  * The home page's games as carousels, in place of the filters and the long list (lab flag
  * `home-carousels`, lab: #seccion-home-carousels). The top of the page stays as it is: bar, title,
  * tagline, the dice, La Copa and Uno al día. Under them, one row per way of choosing, each sliding
- * sideways: favourites (once one is marked), popular, new, with friends, dexterity (the quick games and the skill ones together), and one per type.
+ * sideways: favourites (once one is marked), popular, new, solo or with friends (the owner, 2026-11-19), dexterity (the quick games and the skill ones together), and one per type.
  * The rows are grids of three, and a game is in one row only. A game says its icon and its name, nothing else (the owner, 2026-11-18): the row it is in already says what
  * kind it is, and how long it takes and how many play are in its sheet. A tap opens a sheet with what the game is, its
  * ranking and ▶ Jugar; the ⭐ lives there too. On top of the details, the game's cover animation plays (the demo
@@ -29,9 +29,9 @@ export const QUICK_MINUTES = 3;
 export const IN_DEXTERITY = 'skill';
 
 export const TEXTS = {
-  es: { friends: 'Con amigos', dexterity: 'Destreza', details: 'Detalles', play: '▶ Jugar' },
-  en: { friends: 'With friends', dexterity: 'Dexterity', details: 'Details', play: '▶ Play' },
-  pt: { friends: 'Com amigos', dexterity: 'Destreza', details: 'Detalhes', play: '▶ Jogar' },
+  es: { friends: 'Solo o con amigos', dexterity: 'Destreza', details: 'Detalles', play: '▶ Jugar' },
+  en: { friends: 'Solo or with friends', dexterity: 'Dexterity', details: 'Details', play: '▶ Play' },
+  pt: { friends: 'Sozinho ou com amigos', dexterity: 'Destreza', details: 'Detalhes', play: '▶ Jogar' },
 };
 
 /** The longest a game takes, in minutes; a game counted in another unit (La Copa's days) is never quick. */
