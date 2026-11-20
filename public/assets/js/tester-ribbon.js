@@ -65,7 +65,7 @@ html[data-en-juego] .tr:not(.con-ctx), body.jugando .tr:not(.con-ctx) { display:
 .tr-pin::before { content: ''; position: absolute; inset: -4px; }
 .tr-pin.on { opacity: 1; filter: none; background: var(--glass); border-color: var(--yellow); }
 .tr-pin:focus-visible, .tr-back:focus-visible, .tr-all:focus-visible { outline: 2px solid var(--yellow); outline-offset: 2px; }
-.tr-all, .tr-back { background: none; border: 0; padding: 0; color: var(--cyan); font: 900 1rem var(--font-body); min-height: 32px; cursor: pointer; display: flex; align-items: center; justify-content: space-between; text-align: left; }
+.tr-all, .tr-back { background: none; border: 0; padding: 0; color: var(--cyan); font: 900 1rem var(--font-body); min-height: 44px; cursor: pointer; display: flex; align-items: center; justify-content: space-between; text-align: left; }
 .tr-hint { color: var(--muted); font-size: 0.8rem; line-height: 1.3; margin: 0; }
 /* First view: only what is pinned or changed, the way to every experiment, the screen's control */
 .tr:not(.v2) .tr-flags .toggle-row:not(.fijo):not(.cambiado), .tr:not(.v2) .tr-pin, .tr:not(.v2) .tr-back, .tr:not(.v2) .tr-hint--v2 { display: none; }
