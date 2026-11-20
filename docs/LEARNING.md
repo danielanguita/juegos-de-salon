@@ -22,7 +22,9 @@ This programme works on the border between the two halves, with two goals of equ
    source does not answer, so refresh them now and then. The *Traction* numbers (games finished,
    different phones) come from `controls/traction`, which the daily `traction` workflow writes
    with the panel's own functions (`tools/firebase/traction.mjs`, D-554). Its gameplay clips
-   (`public/making-of/clips/`) are recorded by `node tools/generators/making-of-clips.mjs`.
+   (`public/making-of/clips/`) are recorded by `node tools/generators/making-of-clips.mjs`. Its lab screenshots (`public/making-of/img/labs.jpg`, `tester-tab.jpg`,
+   `lab-home.jpg`) are taken by hand, not generated: `tools/e2e/cdp.mjs` at 390 px on the lab, with the
+   `home-carousels` flags on; retake them if `/labs/`, the «T» tab or the home page change a lot.
 
 The owner is a product-management lead. The programme is a conversation (2026-11-04) turned into
 a plan; this file is its memory, so a later session does not need to rediscover it.
