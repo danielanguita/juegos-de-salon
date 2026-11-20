@@ -249,12 +249,16 @@ its copy wins the cascade meanwhile, so nothing changes for it. Ahorcado was the
    cover hero, its result heading and Play/Start/Resume buttons, La Copa's day screens, game picker,
    calendar (create and join) and day result, Rankings (`/records/`), Uno al día's page (`/today/`)
    the dice (its no-3D fallback, and the 3D die's face, drawn into its texture by `dado3d.js`) and the
-   splash's name and Play button (its own `icon` per item), and the result image to share
+   splash's name and Play button (taken from `games.js` by the item's `game`, never set per item), and the result image to share
    (`laminaResultado()` in `compartir.js` loads the drawing and draws it). **Text keeps the emoji**:
    share messages and invitations, `<title>`, notifications, the owner's panel, and a sentence
    formatted as text. A new game sets `icon` from the start (docs/ADD-GAME.md).
    `public/assets/js/game-icons.test.mjs` fails when a screen writes a game's `.emoji` into the page,
    or draws it on a canvas (`fillText`), without the helper; a text-only place joins its `ALLOWED` list with its reason.
+   **One icon per game, never a mix** (the owner, 2026-11-19): a game is always shown by its own icon, the
+   drawing in `games.js` (or its emoji when it has none), never by another emoji that looks close (a 🎲 for
+   Dominorama's domino). A splash item about a game names it (`game`) and gets its emoji and drawing from
+   `games.js`; a campaign head that shows a game's emoji shows its drawing too. `splash.test.mjs` fails otherwise.
 10. **Every visual change is measured before it ships** (D-570, the owner, 2026-11-17: "una constante
    cada vez que hagamos tratamiento visual de elementos"). Whatever changes how something looks or
    where it sits, a new screen or a retouch of an old one, a game or the home page, flag on or off:

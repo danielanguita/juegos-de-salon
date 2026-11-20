@@ -187,13 +187,14 @@
   },
   {
    "id": "game-icons",
-   "title": "A game's icon on screen goes through gameIcon(): its drawing when it has one, the emoji only in text (DESIGN.md rule 9)",
+   "title": "A game's icon on screen goes through gameIcon(): its drawing when it has one, the emoji only in text, and never another emoji mixed in for a game (DESIGN.md rule 9)",
    "doc": "docs/DESIGN.md",
    "form": [
     "check"
    ],
    "enforcedBy": [
-    "public/assets/js/game-icons.test.mjs"
+    "public/assets/js/game-icons.test.mjs",
+    "public/assets/js/splash.test.mjs"
    ],
    "applies": [
     "public/**/*.js",

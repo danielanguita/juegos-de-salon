@@ -34,9 +34,9 @@ const tablaTrend = (cabeza, filas, cols) => `<table style="border-collapse:colla
 export function tablasTendencia(t) {
   if (!t) return '';
   return `${tablaTrend('', t.metricas.map(m => [esc(m.nombre), m.valores, m.cambio, m.decimales]), t.columnas)}
-<p style="margin:14px 0 4px;font-weight:600">Top 10 games (games started; every mode and version, La Copa included, lab plays left out)</p>
+<p style="margin:14px 0 4px;font-weight:600">Top 10 games (games finished; every mode and version, La Copa included, lab plays left out)</p>
 ${tablaTrend('', t.juegos.map((g, i) => [`${i + 1}. ${esc(g.juego)}${g.nuevo ? ` <span style="color:#6b6280">(out ${esc(g.nuevo.replace(/, \d{4}$/, ''))})</span>` : ''}`, g.valores, g.cambio]), t.columnas)}
-<p style="color:#6b6280;font-size:12px">n/a: not measured yet, or the game was not out yet.</p>`;
+<p style="color:#6b6280;font-size:12px">n/a: not measured yet, or the game was not out yet.${t.leyenda ? ` ${esc(t.leyenda)}` : ''}</p>`;
 }
 
 const VUELTA = { nueva: 'First visit', d1: 'Next day', 'd2-7': '2–7 days', 'd8-30': '8–30 days', d31: 'Over 30 days' };

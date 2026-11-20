@@ -208,7 +208,7 @@ export const CAMPAIGNS = {
     title: { es: '¿Te atreves con un Sudoku?', en: 'Up for a Sudoku?', pt: 'Topa um Sudoku?' },
     hero: true,
     items: [{
-      emoji: '#️⃣', icon: 'cup/games/sudoku/icon.svg', href: 'sudoku/?play', video: 'assets/splash/sudoku.mp4', img: 'assets/splash/sudoku-start.jpg', still: 'assets/splash/sudoku.jpg', ratio: '1 / 1', smooth: true,
+      game: 'sudoku', href: 'sudoku/?play', video: 'assets/splash/sudoku.mp4', img: 'assets/splash/sudoku-start.jpg', still: 'assets/splash/sudoku.jpg', ratio: '1 / 1', smooth: true,
       title: { es: 'Sudoku', en: 'Sudoku', pt: 'Sudoku' },
       text: {
         es: 'Mini sudoku de 6×6 para una partida rápida, o el clásico de 9×9. Ya está en La Copa y en Uno al día.',
@@ -582,8 +582,9 @@ async function resolve(items, lang) {
   return items.map(i => {
     const g = i.game ? all.find(x => x.id === i.game) : null;
     return {
-      emoji: i.emoji ?? g?.emoji ?? '',
-      icon: i.icon ? new URL(i.icon, ROOT).href : null,
+      // A game's icon is its own, from games.js, never the item's (docs/DESIGN.md rule 9: one icon per game)
+      emoji: g ? g.emoji : i.emoji ?? '',
+      icon: (g ? g.icon : i.icon) ? new URL(g ? g.icon : i.icon, ROOT).href : null,
       name: pick(i.title, lang) ?? pick(g?.name, lang) ?? '',
       text: pick(i.text, lang) ?? pick(g?.tagline, lang) ?? '',
       href: i.href ? new URL(i.href, ROOT).href : g?.path ? new URL(g.path, ROOT).href : null,
