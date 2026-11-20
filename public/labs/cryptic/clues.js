@@ -17,7 +17,7 @@ const ES = [
   // Harder since the owner's ask (2026-11-19): a sentence that tells another story, no colon between the halves,
   // every piece clued too (a synonym, a note, a number, a symbol), the definition sideways (docs/games/cryptic.md)
   { c: 'Lo que siente Julieta, vuelto atrás, es adonde llevan todos los caminos', a: 'ROMA', k: 'reversal', d: 'adonde llevan todos los caminos', x: 'AMOR (lo que siente Julieta) vuelto atrás es ROMA, adonde llevan todos los caminos.' },
-  { c: 'Va al frente con una nota y algo regalado', a: 'SOLDADO', k: 'charade', d: 'Va al frente', x: 'SOL (una nota) + DADO (regalado) = SOLDADO, el que va al frente.' },
+  { c: 'Con una nota y algo que sirve para jugar y dudar, va al frente', a: 'SOLDADO', k: 'charade', d: 'va al frente', x: 'SOL (una nota) + DADO (lo que sirve para jugar y dudar, como en el Dudo) = SOLDADO, el que va al frente.' },
   { c: 'Costosa es la col que deja un rastro brillante en el muro', a: 'CARACOL', k: 'charade', d: 'deja un rastro brillante en el muro', x: 'CARA (costosa) + COL = CARACOL, que deja un rastro de baba brillante en el muro.' },
   { c: 'Un tour con una nota tiene la cabeza llena de pepitas', a: 'GIRASOL', k: 'charade', d: 'tiene la cabeza llena de pepitas', x: 'GIRA (un tour) + SOL (una nota) = GIRASOL, con la cabeza llena de pepitas.' },
   { c: 'Un océano de infusiones, y ni te cases ni te embarques', a: 'MARTES', k: 'charade', d: 'ni te cases ni te embarques', x: 'MAR (un océano) + TÉS (infusiones) = MARTES: ni te cases ni te embarques.' },
