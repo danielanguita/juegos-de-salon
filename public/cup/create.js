@@ -4,13 +4,13 @@
  */
 import { gameIcon, withIcon, textWithIcon } from '../assets/js/game-icon.js';
 import { $, el, vibrate } from '../assets/js/ui.js';
-import { ZONA, DIAS_MIN, DIAS_MAX, FINAL_DESDE, FINAL_RONDAS, COPA_MAX, ESTILOS_SEMANA, MAX_DIAS_INICIO, POZO_ABIERTO as POZO, TRIO_SEP, VARIANTES, aliasLimpio, calendario, calendarioAlAzar, codigoAlAzar, diaDeCal, entradaCal, esAlias, esPin, fechaEn, findeAbierto, findeAlAzar, fuera, hashPin, limpiarNombre, nuevaMeta, pidAlAzar, semanaAlAzar, sumarDias, tieneFinal, zonaDeIdioma } from './engine.js';
+import { ZONA, DIAS_MIN, DIAS_MAX, FINAL_DESDE, FINAL_RONDAS, COPA_MAX, ESTILOS_SEMANA, MAX_DIAS_INICIO, POZO_ABIERTO as POZO, refreshPool, TRIO_SEP, VARIANTES, aliasLimpio, calendario, calendarioAlAzar, codigoAlAzar, diaDeCal, entradaCal, esAlias, esPin, fechaEn, findeAbierto, findeAlAzar, fuera, hashPin, limpiarNombre, nuevaMeta, pidAlAzar, semanaAlAzar, sumarDias, tieneFinal, zonaDeIdioma } from './engine.js';
 import { JUEGOS_COPA as JUEGOS_COPA_ES } from './rules.js';
 import { LANGS } from '../assets/js/i18n.js';
 import { SFX } from '../assets/js/sound.js';
 import { crearArrastre } from '../assets/js/arrastre.js';
 import { esNuevo, gameById } from '../assets/js/games.js';
-import { flag } from '../assets/js/flags.js';
+import { flag, loadFlags } from '../assets/js/flags.js';
 import { leerYo } from '../assets/js/jugador.js';
 import { param, tiene } from '../assets/js/parametros.js';
 
@@ -443,6 +443,8 @@ const zonaDelTelefono = () => { try { const z = Intl.DateTimeFormat().resolvedOp
  * is created until the admin checks it and taps Crear la copa. The link is not repeated (the old cup keeps it).
  */
 async function pantallaCrearCopa({ nombreInicial = '', desde = null, quien = '' } = {}) {
+  // The pool from the flags as they are now, not as this phone last saved them: a launched game is drawn too
+  refreshPool(await loadFlags().catch(() => undefined));
   const nuevo = await formularioNuevo();
   mostrar('crear');
   const body = $('#crear-body');
