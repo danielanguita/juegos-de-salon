@@ -1374,7 +1374,7 @@ let memoTrend = {};
 const SIN_FLAGS = {};
 function vistaWbr(now) {
   const w = weekOf(S.ruta.args[0], now);
-  const nota = 'The closed week (Sunday to Saturday, Pacific time) against the four before and the last three months, like the Sunday email; on the latest closed week, the week so far goes first (partial, not compared). Lab plays left out (D-560). Browsers and visits before Nov 16 follow UTC days (D-561).';
+  const nota = 'The closed week (Sunday to Saturday, Pacific time) against the four before and the last three months, like the Sunday email; on the latest closed week, the week so far goes first (marked *, partial, not compared). Lab plays left out (D-560). Browsers and visits before Nov 16 follow UTC days (D-561).';
   const cabeza = [...titulo(`📋 WBR · ${wbrDay(w.from).replace(/, \d{4}$/, '')} – ${wbrDay(w.to)}`, nota),
     el('div', { class: 'wbr-nav' },
       el('a', { class: 'btn btn--sm btn--ghost', href: ir('wbr', [isoDay(w.to - 7)]) }, '‹ Week before'),
@@ -1397,6 +1397,7 @@ function vistaWbr(now) {
     el('ul', { class: 'wbr-destacados' }, ...highlights(t).map(x => el('li', {}, x))),
     el('h3', {}, 'Headline'),
     tabla(t.metricas.map(m => [m.nombre, m.valores, m.cambio, m.decimales]), ''),
+    el('p', { class: 'muted small' }, t.leyenda),
     el('h3', {}, 'Top 10 games'),
     el('p', { class: 'muted small' }, 'Games started; every mode and version, La Copa included. n/a: not measured yet, or the game was not out yet. The last two rows: games across every public game, and the share of them these ten take.'),
     tabla([...t.juegos.map((g, i) => [`${i + 1}. ${g.juego}${g.nuevo ? ` (out ${g.nuevo.replace(/, \d{4}$/, '')})` : ''}`, g.valores, g.cambio]),

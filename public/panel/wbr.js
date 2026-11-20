@@ -108,7 +108,9 @@ export const trendStart = w => { const f = new Date(w.to * DAY); return Date.UTC
 /** The UTC day number of the first day of the month `atras` months before the one holding day `d`. */
 const inicioMes = (d, atras = 0) => { const f = new Date(d * DAY); return Date.UTC(f.getUTCFullYear(), f.getUTCMonth() - atras, 1) / DAY; };
 const mesCorto = d => new Date(d * DAY).toLocaleDateString('en-US', { timeZone: 'UTC', month: 'short' });
-const rangoTxt = ({ from, to }) => `${fechaDia(from).replace(/, \d{4}$/, '')} – ${fechaDia(to).replace(/, \d{4}$/, '')}`;
+/** A week as short as a column allows: "Nov 15–19", or "Oct 26–Nov 1" across two months. */
+const sinAno = d => fechaDia(d).replace(/, \d{4}$/, '');
+const rangoTxt = ({ from, to }) => (mesCorto(from) === mesCorto(to) ? `${sinAno(from)}–${sinAno(to).replace(/^\D+/, '')}` : `${sinAno(from)}–${sinAno(to)}`);
 /** A game's versions read as one (Bulls and Cows: Word is Bulls and Cows); its modes already split off by `:`. */
 const VERSIONES = { letras: 'toque-y-fama', numero: 'toque-y-fama' };
 export const baseGame = id => { const b = String(id).split(/:| · /)[0]; return VERSIONES[b] || b; };
@@ -126,10 +128,10 @@ export const baseGame = id => { const b = String(id).split(/:| · /)[0]; return 
 export function trend({ days = {}, torneos = {}, flags = {} } = {}, w, { actual = null } = {}) {
   // The panel's WBR puts the week in progress first (partial); every comparison still reads the closed week, at `k`
   const k = actual ? 1 : 0;
-  const cols = [...(actual ? [{ from: actual.from, to: actual.to, titulo: `${rangoTxt(actual)} (partial)`, semana: true }] : []), ...[0, 1, 2, 3, 4].map(i => ({ from: w.from - 7 * i, to: w.to - 7 * i, titulo: rangoTxt({ from: w.from - 7 * i, to: w.to - 7 * i }), semana: true }))];
+  const cols = [...(actual ? [{ from: actual.from, to: actual.to, titulo: `${rangoTxt(actual)}*`, semana: true }] : []), ...[0, 1, 2, 3, 4].map(i => ({ from: w.from - 7 * i, to: w.to - 7 * i, titulo: rangoTxt({ from: w.from - 7 * i, to: w.to - 7 * i }), semana: true }))];
   for (const atras of [0, 1, 2]) {
     const from = inicioMes(w.to, atras), to = atras ? inicioMes(w.to, atras - 1) - 1 : w.to;
-    cols.push({ from, to, titulo: atras ? mesCorto(from) : `${mesCorto(from)} (to ${fechaDia(to).replace(/, \d{4}$/, '')}, partial)`, semana: false });
+    cols.push({ from, to, titulo: atras ? mesCorto(from) : `${mesCorto(from)}*`, semana: false });
   }
   const dias = Object.keys(days).map(Number).filter(Number.isFinite);
   const primerDato = clave => Math.min(...dias.filter(d => days[d]?.[clave] && Object.keys(days[d][clave]).length), Infinity);
@@ -185,7 +187,9 @@ export function trend({ days = {}, torneos = {}, flags = {} } = {}, w, { actual 
     cambio: total[k + 1] ? variacion(total[k], total[k + 1]) : null,
     top10: total.map((t, i) => (t ? Math.round((juegos.reduce((a, g) => a + (g.valores[i] || 0), 0) / t) * 1000) / 10 : null)),
   };
-  return { columnas: cols.map(c => c.titulo), metricas, juegos, totales, cerrada: k };
+  // The * columns, said once under the tables
+  const leyenda = `* Partial: ${actual ? `the week so far (to ${sinAno(actual.to)}) and ` : ''}the month up to ${sinAno(w.to)}.`;
+  return { columnas: cols.map(c => c.titulo), metricas, juegos, totales, cerrada: k, leyenda };
 }
 
 /** The last full week (Sunday to Saturday, Pacific dates) before `now`, as the weekly email reads it. */

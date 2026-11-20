@@ -64,7 +64,10 @@ test('the trend: five weeks and three months, versions merged, lab plays out, n/
   };
   const t = tendencia({ days, flags: { aletazo: { state: 'all', at: (w.from + 1) * DAY } } }, w);
   assert.equal(t.columnas.length, 8);
-  assert.match(t.columnas[5], /partial/);
+  assert.equal(t.columnas[0], 'Nov 8–14');
+  assert.equal(t.columnas[5], 'Nov*');
+  assert.equal(t.columnas[6], 'Oct');
+  assert.equal(t.leyenda, '* Partial: the month up to Nov 14.');
   assert.equal(baseGame('letras'), 'toque-y-fama');
   const por = Object.fromEntries(t.juegos.map(g => [g.juego, g]));
   assert.ok(!Object.keys(por).some(k => /no-publico/.test(k)), 'a game outside ALL_GAMES is a lab game');
@@ -90,7 +93,10 @@ test('the panel: the week in progress first, partial, every comparison still on 
   const t = tendencia({ days }, w, { actual });
   assert.equal(t.cerrada, 1);
   assert.equal(t.columnas.length, 9);
-  assert.match(t.columnas[0], /^Nov 15 – Nov 18 \(partial\)$/);
+  assert.equal(t.columnas[0], 'Nov 15–18*');
+  assert.equal(t.columnas[3], 'Oct 25–31');
+  assert.equal(tendencia({}, semanaCerrada(Date.parse('2026-10-05T12:00:00Z'))).columnas[0], 'Sep 27–Oct 3', 'a week across two months names both');
+  assert.equal(t.leyenda, '* Partial: the week so far (to Nov 18) and the month up to Nov 14.');
   const tango = t.juegos.find(g => /Tango/.test(g.juego));
   assert.deepEqual([tango.valores[0], tango.valores[1], tango.valores[2], tango.cambio], [2, 5, 4, 25]);
   assert.equal(t.juegos.length, 1, 'the top 10 is the closed week\'s, not the partial one\'s');
