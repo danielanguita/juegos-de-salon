@@ -2,7 +2,7 @@
 // tester pinned with 📌 and any row out of its normal state, plus the screen's control; «Experiments · N»
 // opens the second view with every row, its 📌 and its switch. A pin shows or hides a row and never turns it
 // off; a flag turned off stays in the first view, marked, even unpinned. At 390 and 320 px, in Spanish and
-// English; each shot measures margins, overlaps and spacing by itself (D-570). Prints ✗ if something fails.
+// English. The cloud states go with offline mode's row. Each shot measures margins, overlaps and spacing by itself (D-570). Prints ✗ if something fails.
 import { output } from '../output.mjs';
 import { launch, sleep } from '../cdp.mjs';
 const OUT = output('/tmp/home-tester-tab');
@@ -46,6 +46,20 @@ for (const width of [390, 320]) {
   await ev(`document.getElementById('tr-back').click()`); await sleep(300);
   ok(await ev(shown) === JSON.stringify(['copa-jugar']) && await ev(`!document.getElementById('tr-empty').offsetHeight`), `${width}: back on the first view, only the pinned row`);
   await b.shot(`${width}-3-pinned`);
+
+  // The cloud states go with offline mode (D-592): hidden while its row is, shown once it is pinned
+  const cloud = `!!document.getElementById('tr-offline-ready')?.offsetHeight`;
+  ok(!await ev(cloud) && !await ev(`!!document.querySelector('.tr-punto').offsetHeight`), `${width}: offline mode unpinned: no cloud states, no red dot`);
+  await ev(`document.getElementById('tr-all').click()`); await sleep(200);
+  await ev(`document.querySelector('[data-pin="offline-mode"]').click()`); await sleep(200);
+  ok(!await ev(cloud), `${width}: the second view holds only the switches, not the cloud states`);
+  await ev(`document.getElementById('tr-back').click()`); await sleep(300);
+  ok(await ev(cloud) && JSON.parse(await ev(shown)).includes('offline-mode'), `${width}: offline mode pinned: its row and the cloud states show in the first view`);
+  await b.shot(`${width}-3b-cloud`);
+  await ev(`document.getElementById('tr-all').click()`); await sleep(200);
+  await ev(`document.querySelector('[data-pin="offline-mode"]').click()`); await sleep(200);
+  await ev(`document.getElementById('tr-back').click()`); await sleep(300);
+  ok(!await ev(cloud), `${width}: unpinned again, the cloud states hide with it`);
 
   // Folded and opened again: the first view, the pin kept across a reload
   await b.go(`${SITE}/?test&lang=es`);
