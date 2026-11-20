@@ -1,5 +1,6 @@
 // The 🐞 feedback as issues (D-275, D-279): with the name and without the browser, without mentions, and never the same report twice.
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import { greetingName, title, body, pending, uploaded, unrecorded, looksShort, marker, where, idOf, wantsEmail, handled, readAnswers, textOf, nameOf, EMAILED, FORGOTTEN, firstBatch, MAX_PER_RUN, hideContacts } from './feedback.mjs';
 
 const r = {
@@ -81,7 +82,14 @@ console.log('feedback: ok');
   assert.deepEqual(labelsOf({ texto: 'x' }), ['feedback'], 'without a kind, only feedback');
   assert.deepEqual(labelsOf({ texto: 'x', tipo: 'idea' }), ['feedback', 'feedback:game-idea'], 'a game idea gets its label');
   assert.deepEqual(labelsOf({ texto: 'x', tipo: 'hack' }), ['feedback'], 'an unknown kind adds nothing');
-  assert.deepEqual(Object.keys(KIND_LABELS).sort(), ['idea', 'otro', 'problema', 'sugerencia'], 'the same list the rules accept');
+  const rules = JSON.parse(readFileSync(new URL('../../firebase/database.rules.json', import.meta.url), 'utf8'));
+  const accepted = rules.rules.feedback.$id.tipo['.validate'].match(/\^\(([^)]+)\)/)[1].split('|').sort();
+  assert.deepEqual(Object.keys(KIND_LABELS).sort(), accepted, 'the same list the rules accept');
+  // A clue proposed in Críptico: its own label, and the issue says whom to credit
+  assert.deepEqual(labelsOf({ texto: 'x', tipo: 'criptico' }), ['feedback', 'feedback:cryptic-clue']);
+  const { body } = await import('./feedback.mjs');
+  const b = body({ id: 'p1', texto: '🗝️ Pista: x', tipo: 'criptico', contexto: JSON.stringify({ juego: 'cryptic', propuesta: 1, autor: 'Ana', j: 'abcd1234' }) });
+  assert.ok(b.includes('**Credit as:** Ana') && b.includes('**Player id:** abcd1234') && b.includes('**Kind:** cryptic-clue'), 'the proposal says whom to credit');
 }
 
 // The reply greets with the real name from the report, never the issue's mask (D-366)
