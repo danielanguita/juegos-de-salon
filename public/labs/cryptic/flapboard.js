@@ -7,9 +7,9 @@
 const FLIPS = 'ABCDEFGHIJKLMNÑOPQRSTUVWXYZ';
 /** The words it passes through, per language; the last one is the game's name and has its length. */
 export const BOARD_WORDS = {
-  es: ['MISTERIO', 'ANAGRAMA', 'ACERTIJO', 'PALABRAS', 'SECRETOS', 'CRÍPTICO'],
-  pt: ['MISTÉRIO', 'ANAGRAMA', 'PALAVRAS', 'SEGREDOS', 'CRÍPTICO'],
-  en: ['MYSTERY', 'ANAGRAM', 'RIDDLES', 'SECRETS', 'CRYPTIC'],
+  es: ['MISTERIO', 'ANAGRAMA', 'ADIVINAR', 'ACERTIJO', 'MENSAJES', 'PALABRAS', 'PREGUNTA', 'SECRETOS', 'SORPRESA', 'CRÍPTICO'],
+  pt: ['MISTÉRIO', 'ANAGRAMA', 'ADIVINHA', 'PALAVRAS', 'MENSAGEM', 'SEGREDOS', 'PERGUNTA', 'SURPRESA', 'CRÍPTICO'],
+  en: ['MYSTERY', 'ANAGRAM', 'PUZZLES', 'RIDDLES', 'CIPHERS', 'SECRETS', 'ENIGMAS', 'LETTERS', 'CRYPTIC'],
 };
 
 const wait = ms => new Promise(ok => setTimeout(ok, ms));
