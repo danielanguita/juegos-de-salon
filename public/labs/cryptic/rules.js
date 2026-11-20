@@ -37,7 +37,7 @@ const ES = {
     proposeMissing: 'Escribe la pista y su respuesta.', proposeCancel: 'Cancelar', proposeClose: 'Cerrar',
     proposeThanks: '¡Gracias! Lo vamos a revisar. Si sale publicado, verás tu nombre en la pista.',
     proposeSaved: 'Quedó guardado en tu celular y se envía apenas haya conexión.', proposeError: 'No se pudo enviar. Prueba de nuevo.',
-    credit: 'Críptico de {n}', yourDayTitle: 'Hoy es tu críptico', yourDayLine: 'Hoy todos juegan tu pista menos tú. Tu racha sigue.',
+    credit: 'Críptico de {n}', yourDayTitle: 'Hoy es tu críptico', yourDayLine: 'Todos la juegan menos tú, y tu racha sigue.',
     modeTodayYours: 'Ver tu críptico de hoy', modeTodayYoursHint: 'Hoy todos juegan tu pista',
   },
   kinds: {
@@ -83,7 +83,7 @@ const EN = {
     proposeMissing: 'Write the clue and its answer.', proposeCancel: 'Cancel', proposeClose: 'Close',
     proposeThanks: 'Thanks! We will look at it. If it is published, you will see your name on the clue.',
     proposeSaved: 'It is saved on your phone and goes out as soon as there is a connection.', proposeError: 'It could not be sent. Try again.',
-    credit: 'Clue by {n}', yourDayTitle: 'Today is your clue', yourDayLine: 'Today everyone plays your clue but you. Your streak goes on.',
+    credit: 'Clue by {n}', yourDayTitle: 'Today\'s clue is yours', yourDayLine: 'Everyone plays it but you, and your streak goes on.',
     modeTodayYours: 'See your clue of the day', modeTodayYoursHint: 'Today everyone plays your clue',
   },
   kinds: {
@@ -129,7 +129,7 @@ const PT = {
     proposeMissing: 'Escreva a pista e a resposta.', proposeCancel: 'Cancelar', proposeClose: 'Fechar',
     proposeThanks: 'Obrigado! Vamos revisar. Se for publicado, você verá seu nome na pista.',
     proposeSaved: 'Ficou salvo no seu celular e é enviado assim que houver conexão.', proposeError: 'Não deu para enviar. Tente de novo.',
-    credit: 'Críptico de {n}', yourDayTitle: 'Hoje é o seu críptico', yourDayLine: 'Hoje todos jogam sua pista menos você. Sua sequência continua.',
+    credit: 'Críptico de {n}', yourDayTitle: 'Hoje é o seu críptico', yourDayLine: 'Todos jogam menos você, e sua sequência continua.',
     modeTodayYours: 'Ver seu críptico de hoje', modeTodayYoursHint: 'Hoje todos jogam sua pista',
   },
   kinds: {
