@@ -197,3 +197,22 @@ console.log('splash ✓');
   assert.equal(firstReach('x', store), true);
   assert.equal(firstReach('x', store), false);
 }
+
+// One icon per game (docs/DESIGN.md rule 9, the owner, 2026-11-19): a campaign never mixes another emoji in
+// for a game. An item about a game names it (`game`) and takes its emoji and drawing from games.js, never its
+// own; an item without `game` never borrows a game's emoji; a campaign's head that shows a game's emoji shows
+// that game's drawing when it has one.
+{
+  const byEmoji = new Map(ALL_GAMES.map(g => [g.emoji, g]));
+  const bad = [];
+  for (const [id, c] of Object.entries(CAMPAIGNS)) {
+    for (const i of c.items || []) {
+      if (i.game && ('emoji' in i || 'icon' in i)) bad.push(`${id}: item ${i.game} sets its own emoji/icon (it comes from games.js)`);
+      if (!i.game && byEmoji.has(i.emoji)) bad.push(`${id}: an item uses ${i.emoji}, ${byEmoji.get(i.emoji).id}'s emoji, without game: '${byEmoji.get(i.emoji).id}'`);
+    }
+    const g = byEmoji.get(c.emoji);
+    if (g && (c.icon ?? null) !== (g.icon ?? null)) bad.push(`${id}: its head shows ${g.id}'s emoji but not its icon (${g.icon})`);
+    if (c.icon && !ALL_GAMES.some(x => x.icon === c.icon)) bad.push(`${id}: its icon ${c.icon} is no game's icon`);
+  }
+  assert.deepEqual(bad, [], `A campaign mixes icons for a game:\n${bad.join('\n')}`);
+}
