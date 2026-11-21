@@ -174,5 +174,5 @@ or any other here), launch it and report what it found; do not ask the owner fir
   `node tools/reports/weekly.mjs --send` once a week: the week that ended on Saturday, by Pacific dates (D-561), with the panel's numbers,
   as a PDF in `~/Documents/Juegos de Salón/Weekly reports/` and emailed to the owner.
   Its counts of games leave lab plays out, like the panel's (D-560). Its tables come from
-  `public/panel/wbr.js`, shared with the panel's 📋 WBR (`#/wbr/<Saturday>`), and the email links to that week there.
+  `public/panel/wbr.js`, shared with the panel's 📋 WBR (`#/wbr/<Saturday>`), and the email links to that week there. The owner can also share a week by link (`/wbr/?id=…`, a public noindex page; `wbrShared/<id>` in Firebase; see PANEL.md).
 - **Panel, La Copa reports and rankings** (D-44, D-104, D-207, D-212): in the `owner-tools` skill (`.claude/skills/owner-tools/SKILL.md`); read it before touching them.
