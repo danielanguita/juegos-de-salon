@@ -432,6 +432,25 @@
       sections[i].scrollIntoView({ behavior: 'smooth' });
     });
 
+    // On a phone the agents and the learnings slide sideways: dots under each row say which card is on screen
+    document.querySelectorAll('.mo-team, .mo-learnings').forEach(row => {
+      const dots = document.createElement('div');
+      dots.className = 'mo-dots';
+      dots.setAttribute('aria-hidden', 'true');
+      dots.append(...[...row.children].map(() => document.createElement('i')));
+      row.after(dots);
+      const mark = () => {
+        const x = row.scrollLeft + row.children[0].offsetLeft;
+        let n = 0, best = Infinity;
+        [...row.children].forEach((c, i) => { const d = Math.abs(c.offsetLeft - x); if (d < best) { best = d; n = i; } });
+        // At the end of the row the last card is the one on screen, even if it cannot reach the left edge
+        if (row.scrollLeft + row.clientWidth >= row.scrollWidth - 2) n = row.children.length - 1;
+        [...dots.children].forEach((d, i) => d.classList.toggle('on', i === n));
+      };
+      row.addEventListener('scroll', mark, { passive: true });
+      mark();
+    });
+
     // Where the presenter is: "3 / 10" in the corner
     const count = document.querySelector('.mo-count');
     // The section bar follows: the section on screen is marked, and on a phone, where the bar slides

@@ -123,6 +123,8 @@ main { position: relative; z-index: 1; max-width: 1080px; margin: 0 auto; paddin
 .mo-timeline b { font-size: var(--fs-110); }
 .mo-timeline span { color: var(--muted); font-size: var(--fs-90); line-height: 1.4; }
 
+.mo-dots { display: none; }
+
 /* The learnings: numbered cards, the line to say in yellow */
 .mo-learnings { margin: 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--s-12); counter-reset: learning; }
 .mo-learnings li {
@@ -159,7 +161,33 @@ main { position: relative; z-index: 1; max-width: 1080px; margin: 0 auto; paddin
   .mo-flow li::after { display: none; }
 }
 @media (max-width: 560px) {
-  .mo-stats, .mo-flow, .mo-team, .mo-timeline, .mo-play-wide { grid-template-columns: 1fr; }
+  .mo-flow, .mo-timeline, .mo-play-wide { grid-template-columns: 1fr; }
+  /* Compact on a phone, each block by what it holds (the owner, 2026-11-21): the numbers two by two,
+     the steps and the weeks as rows, the agents and the learnings as cards that slide sideways */
+  .mo-stats { grid-template-columns: 1fr 1fr; gap: var(--s-8); }
+  .mo-stats div { padding: var(--s-10) var(--s-12); }
+  .mo-stats b { font-size: var(--fs-160); }
+  .mo-stats span { display: block; font-size: var(--fs-85); line-height: 1.3; }
+  .mo-flow { gap: var(--s-8); }
+  .mo-flow li { display: grid; grid-template-columns: auto 1fr; column-gap: var(--s-12); row-gap: var(--s-2); padding: var(--s-10) var(--s-14); }
+  .mo-flow span { grid-row: span 2; align-self: center; font-size: var(--fs-160); }
+  .mo-flow b { font-size: var(--fs-110); }
+  .mo-flow small { font-size: var(--fs-85); }
+  .mo-timeline { gap: 0; }
+  .mo-timeline li { display: grid; grid-template-columns: 4rem 1fr; column-gap: var(--s-12); border-top: 0; border-left: 3px solid var(--cyan); padding: var(--s-6) 0 var(--s-6) var(--s-12); }
+  .mo-timeline time { grid-row: span 2; }
+  .mo-timeline span { font-size: var(--fs-85); }
+  .mo-team, .mo-team--crew, .mo-learnings {
+    grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: 84%; gap: var(--s-12);
+    overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; overscroll-behavior-x: contain;
+  }
+  .mo-team::-webkit-scrollbar, .mo-learnings::-webkit-scrollbar { display: none; }
+  .mo-team > *, .mo-learnings > li { scroll-snap-align: start; }
+  .mo-team .mo-boss { grid-column: auto; grid-row: auto; }
+  /* Which card is on screen: drawn by the page's script under each sliding row, not tapped */
+  .mo-dots { display: flex; justify-content: center; gap: var(--s-6); margin-top: var(--s-10); }
+  .mo-dots i { width: var(--s-8); height: var(--s-8); border-radius: var(--r-pill); background: var(--glass-border); transition: width 0.2s, background 0.2s; }
+  .mo-dots i.on { width: var(--s-20); background: var(--yellow); }
   .mo-diagram-svg { min-width: 860px; max-height: none; }
   .mo-section { min-height: auto; }
   /* The section bar on a phone: one row, the 🎲 held at the left and the sections as chips that slide
