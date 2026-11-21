@@ -19,7 +19,7 @@ export const FLAGS = {
   'uad-share-grids': '🟩 Uno al día: share grids for Agentes, Dudo, Generala and Battleship',
   'cover-facts': '📖 Game pages: who plays and how long, in the rules',
   'uad-night-totals': '📅 Uno al día: totals written by the hourly rebuild',
-  'profile': '🎖️ Your profile: the player\'s page with badges (some locked, three secret), their places in each game\'s ranking and their settings; on the home page, 🏅 becomes their initial and 🔥 streak and opens it (/records/ stays meanwhile)',
+  'profile': '🎖️ Your profile: the player\'s page with badges (some locked, three secret), their places in each game\'s ranking and their settings; every top bar ends in a pill with their flag and name that opens it, the language as one flag with a ▾, and a cover drops its «🏅 <name>» button (/records/ stays meanwhile)',
   'home-carousels': '🎠 Icon view: the games in rows of three (popular, new, solo or with friends, dexterity and one per type), each game once, in place of the dice, the filters and the list; a tap opens the game\'s cover',
   'home-carousels-sheet': '🎠 Icon view: a tap on an icon opens a sheet with tabs (the game\'s animation and details, its ranking, a share button and ▶ Jugar) instead of the game\'s cover',
   'cup-best-day-all': '🏅 Rankings: «Mejor día de copa» also for La Copa\'s own games (Línea Relámpago, Toque y Fama: Número, La Gran Final), whose bests were kept but shown nowhere',
