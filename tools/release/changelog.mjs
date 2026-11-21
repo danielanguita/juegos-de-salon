@@ -30,9 +30,17 @@ import { execFileSync } from 'node:child_process';
 import { readFileSync, writeFileSync, readdirSync, existsSync, unlinkSync, mkdirSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { isSpanish, propose } from '../agents/english.mjs';
 
 export const ROOT = join(dirname(fileURLToPath(import.meta.url)), '../..');
 export const FOLDER = 'changelog';
+// The entry's file is named after the branch, in English (D-316): a branch with a Spanish word
+// (copa-gold-play, cryptic-donde) gets the English name, so english.test.mjs never fails on it
+// (three PRs went red that way in November 2026, signature e2c4295683)
+export function entryFile(branchName) {
+  const name = branchName.replace(/[^A-Za-z0-9._-]+/g, '-');
+  return `${FOLDER}/${isSpanish(name) ? propose(name) : name}.md`;
+}
 const GAMES = 'public/assets/js/games.js';
 export const LEVELS = ['patch', 'minor', 'major'];
 /** Level names of entries written in Spanish, before D-316. */
@@ -225,7 +233,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const option = (n, fallback) => args.includes(n) ? args[args.indexOf(n) + 1] : fallback;
   const read = f => readFileSync(join(ROOT, f), 'utf8');
   const branch = () => git(ROOT, 'rev-parse', '--abbrev-ref', 'HEAD').trim();
-  const fileFor = r => `${FOLDER}/${r.replace(/[^A-Za-z0-9._-]+/g, '-')}.md`;
+  const fileFor = entryFile;
   const inGit = (ref, f) => { try { return git(ROOT, 'show', `${ref}:${f}`); } catch (_) { return ''; } };
   const shallow = () => { try { return git(ROOT, 'rev-parse', '--is-shallow-repository').trim() === 'true'; } catch (_) { return false; } };
 

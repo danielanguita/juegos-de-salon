@@ -6,7 +6,13 @@ import { execFileSync } from 'node:child_process';
 import { mkdtempSync, writeFileSync, mkdirSync, rmSync, readFileSync, unlinkSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
-import { bump, parseEntry, compute, collect, newEntries, levelBetween, checkPR, suggestLevel, levelWarning, arrivalOrder, pending, todayVersion, firstVersion, archive, ROOT } from './changelog.mjs';
+import { bump, parseEntry, compute, collect, newEntries, levelBetween, checkPR, suggestLevel, levelWarning, arrivalOrder, pending, todayVersion, firstVersion, archive, entryFile, ROOT } from './changelog.mjs';
+
+// The entry's file name is English even when the branch has a Spanish word (D-316)
+assert.equal(entryFile('cup-gold-play'), 'changelog/cup-gold-play.md');
+assert.equal(entryFile('copa-gold-play'), 'changelog/cup-gold-play.md');
+assert.equal(entryFile('claude/fix x'), 'changelog/claude-fix-x.md');
+assert.ok(!entryFile('cryptic-donde').includes('donde'));
 
 // Bump and parse
 assert.equal(bump('0.167.3', 'patch'), '0.167.4');

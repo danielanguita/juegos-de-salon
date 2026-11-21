@@ -1,5 +1,94 @@
 # Changelog
 
+## 1.33.1 — 2026-11-20
+- **Críptico (lab)**: seven more clues (six easy, one medium) and a new kind of wordplay, «cambia una letra», in the three languages.
+
+## 1.33.0 — 2026-11-20
+- **Críptico (lab)**: a day is now three clues, easy, medium and hard, worth 20, 30 and 50 points, so a perfect day is 100 (D-598). The day has 3 hints for its three clues, and a hint costs more on a harder clue (5, 8 and 15 points); giving up scores 0 for that clue and the day goes on. After each clue its answer and how it is solved, then the next; at the end the score, how the three are solved, and a spoiler-free share. The streak counts the days finished. Every clue of the bank has its level.
+
+## 1.32.2 — 2026-11-20
+- **Críptico (lab)**: one more clue by the owner, and an earlier one of theirs reads as one sentence, without a full stop before the definition.
+
+## 1.32.1 — 2026-11-20
+- **Críptico (lab)**: docs/games/cryptic.md, «The owner's clue»: a clue the owner proposes in a session is evaluated, commented and improved with them before it goes into the game.
+
+## 1.32.0 — 2026-11-20
+- **📋 WBR: share it by link.** In the panel's WBR, **🔗 Share** freezes the week as it reads now and copies a link
+  (`juegosdesalon.cl/wbr/?id=…`) to a light HTML page anyone can open without signing in: the same charts and
+  tables, no PDF. Under the week's buttons the panel lists its shares, each with **Copy link** and **Stop sharing**,
+  which turns the link off at once. Firebase: `wbrShared/<id>`, readable only by its id, written only by the owner.
+
+## 1.31.5 — 2026-11-20
+- 🧪 Lab · **News strip** (`/labs/marquee/`): only treatments A, B and F remain (C, D and E are gone), and each gets
+  calmer sub-variants that tell the news without taking over the home page: A1 faint slow ticker, A2 ticker that
+  glides one headline every 6 s and rests, A3 ticker that runs one lap and stops, B1 serene headline (no band, no
+  timer line, soft fade every 8 s), B2 one round then still, F1 soft stories (grey ring, faint segments), F2 still
+  bubbles (nothing moves, the ring goes grey once opened).
+
+## 1.31.4 — 2026-11-20
+- **Panel, WBR: each column ranks its own games for the top 3, 5, 10 and 20 shares**, so the week in progress reads its own concentration, not the closed week's ranking.
+
+## 1.31.3 — 2026-11-20
+- **Panel, WBR: every game, not only the top 10**, ranked by the closed week, with the share of the games finished the top 3, 5, 10 and 20 take under the total.
+
+## 1.31.2 — 2026-11-20
+- **Panel, WBR: the pace chart has a Y axis with its numbers**, and a game's monthly active users average only the weeks it was out: the weeks before its launch no longer count as zeros.
+
+## 1.31.1 — 2026-11-20
+- **Panel, WBR: the n/a cells are faded**, so the measured numbers stand out.
+
+## 1.31.0 — 2026-11-20
+- **Panel (owner):** a new 🎮 Games view (`#/game-report`) ranks every public game by games finished in the closed week, with the week in progress, the change, its share, its browsers, finished of started and an 8-week trend; below it, one toggle per game unfolds that game's key metrics week by week (games finished and started, browsers, games per browser, "play again", finished by channel and rooms).
+
+## 1.30.0 — 2026-11-20
+- **Panel, WBR: three charts.** Games finished by week and by month (the partial ones dashed), the week's pace from Sunday against the week before and the four-week average, and a trend line for each game in the Top 10.
+
+## 1.29.10 — 2026-11-20
+- **Panel, WBR: this month's partial column runs to today**, not to the last closed Saturday, when the week in progress shows.
+
+## 1.29.9 — 2026-11-20
+- **Críptico (lab)**: one more clue by the owner.
+
+## 1.29.8 — 2026-11-20
+- **La Copa, new cup: no extra chip for a length outside the shortcuts.** With 12 days the 3 · 7 · 14 shortcuts stay as they are, none lit, and the one that matches lights up; the extra «12» chip wrapped to a row of its own.
+
+## 1.29.7 — 2026-11-20
+- **La Copa: from a cup's board, ‹ goes back to La Copa's home again**, where «Crear una copa» and your other cups are. Launched for everyone on 2026-10-30, it had turned itself off: its flag record was gone, and a missing flag reads as lab only. Its gate is removed, so it no longer depends on the flag.
+
+## 1.29.6 — 2026-11-20
+- **Internal:** the agents' edit guard now runs from the shared settings, so it also works in headless rounds (D-597). Nothing changes for players.
+
+## 1.29.5 — 2026-11-20
+- **La Copa's 🎲 draws from exactly the games every player sees on the home page**: a launched game (Stack, Aletazo, Sudoku, Memory, Dominorama) is in it once its flag is 🚀 for everyone, read fresh before drawing, not from what the phone last saved; a game still in the lab is never in it, not even for a lab key holder.
+- **Launch playbook**: a game's launch now checks it can be drawn in La Copa, not only played there: a test per launched cup game, and a live check of the create screen as a new visitor.
+
+## 1.29.4 — 2026-11-20
+- **Internal:** the documentation, ideas and retention agents can now only edit their own files, and every PR shows documentation drift as warnings (D-597). Nothing changes for players.
+
+## 1.29.3 — 2026-11-20
+- **Making of (owner):** a new "The lab" section explains how everything new is tried live before players see it: the switch (off, lab, everyone), the `/labs/` cards, the «T» tester tab and launching with a tap, with three screenshots. Also a Nov 19 step (launches that check themselves, D-591), a 12th learning ("Check that the checks fire": the push guard that never blocked, the launch that waited on a prompt), and the review step now names the player agent.
+
+## 1.29.2 — 2026-11-20
+- **Críptico (lab)**: the answers no longer show in the public repo (D-595). `clues.js` keeps each answer and explanation sealed (`sealed.js`, added with `tools/generators/cryptic-clues.mjs`); a clue a player proposes becomes an issue without the clue or its answer (`feedback.mjs proposal <issue>` reads it); and `engine.test.mjs` fails when an answer shows in the pending changelog, the game's files or its docs. The example clue on the proposal form left the bank, since the form gives its answer.
+
+## 1.29.1 — 2026-11-20
+- **The owner approves their own 🔴 PRs once** (D-596): after the tick, a push that touches no 🔴 file (a fix for a red check, a text, a doc) keeps the approval and the PR merges on its own; a push that changes a 🔴 file again, or any push to an outside PR, still asks.
+
+## 1.29.0 — 2026-11-20
+- **La Copa: up to 20 players, in the lab** (flag `cup-big`; 10 without it). From the 11th, the board shows the first 10 rows with the 11th peeking under a "See all" button, and the day-by-day graph draws its first 10 lines, with no place numbers or name chips, and continues the names column with the other players, one under another with their place. Cups of 10 or fewer look as before.
+
+## 1.28.16 — 2026-11-20
+- **Críptico (lab)**: one more clue by the owner (initials).
+
+## 1.28.15 — 2026-11-20
+- **Panel (owner):** the Timeline no longer reads nameless campaign views as one person seeing a campaign several times: a burst of 3 or more within 10 seconds is a robot and is left out, and the rest say "N views without a name within 2 minutes (could be different people)".
+
+## 1.28.14 — 2026-11-20
+- **Agents moved from Words to Logic** on the home page, and the Words row is gone from the carousels.
+
+## 1.28.13 — 2026-11-20
+- Workshop: the push guard really stops a push now. Its hook command ended in `|| true`, which turned the guard's "stop" (exit 2) into "go on", so since November 9 it never blocked anything and the design-lint gate went red on three PRs it should have caught (#1582, #1667, #1699). `push-guard.test.mjs` now runs every blocking hook's command and fails if the 2 does not get through.
+
 ## 1.28.12 — 2026-11-19
 - **The tester tab's cloud states go with offline mode** (D-592): «Estados de la nube» shows in «Probando ahora» only while the offline-mode row does, and hides with it.
 
