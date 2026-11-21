@@ -105,7 +105,7 @@ function begin(game) {
 function startToday() {
   const d = today();
   const saved = store.load();
-  if (isGame(saved?.state) && !saved.state.practice && saved.state.date === d) { state = saved.state; return renderPlay(); }
+  if (isGame(saved?.state) && !saved.done && !saved.state.practice && saved.state.date === d) { state = saved.state; return renderPlay(); }
   const kept = doneToday();
   if (kept) { state = kept.state; return renderResult(); }
   begin(E.newDay(d, picksToday()));
@@ -160,11 +160,12 @@ function renderHints() {
   const lines = [fmt(T.hintKind, { kind: L.kinds[c.k] }), T.hintDef, fmt(T.hintFirst, { letter: E.normalize(c.a)[0] })];
   $('#hints').replaceChildren(...lines.slice(0, r.hints).map(t => el('li', {}, t)));
   const btn = $('#btn-hint');
-  btn.textContent = fmt(T.hintBtn, { cost: E.HINT_COST[c.l], left: E.hintsLeft(state) });
+  btn.textContent = fmt(T.hintBtn, { cost: E.HINT_COST[c.l] });
   btn.hidden = !E.canHint(state);
-  // The day's three are spent while this clue still had one to give: said once, under the hints
-  $('#hints-none').textContent = T.hintsNone;
-  $('#hints-none').hidden = E.canHint(state) || r.hints >= E.MAX_HINTS || E.isOver(r);
+  // How many of the day's three are left, under the buttons (a practice clue has its own three: no line)
+  const left = E.hintsLeft(state);
+  $('#hints-left').textContent = !left ? T.hintsNone : left === 1 ? T.hintsLeftOne : fmt(T.hintsLeft, { n: left });
+  $('#hints-left').hidden = state.practice;
 }
 
 function renderPlay() {

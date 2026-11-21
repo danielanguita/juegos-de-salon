@@ -74,3 +74,4 @@
 .solution + .solution { padding-top: var(--s-14); border-top: 1px solid var(--glass-border); }
 .solution p { margin: 0; }
 .solution-head { font-weight: 800; }
+.hints-left { margin: 0; }

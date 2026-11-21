@@ -166,7 +166,13 @@ const TYF_RESULT = [
 ];
 
 export const PATHS = {
-  'cryptic': { intro: [] },
+  // Críptico: today's first clue, a clue's answer between two (given up), and the day's score (the owner, 2026-11-20)
+  'cryptic': {
+    intro: [],
+    play: [`document.getElementById('btn-play').click()`],
+    step: [`document.getElementById('btn-play').click()`, `document.getElementById('btn-give-up').click(); document.getElementById('btn-give-up').click()`],
+    result: [`document.getElementById('btn-play').click()`, `document.getElementById('btn-give-up').click(); document.getElementById('btn-give-up').click()`, `document.getElementById('btn-next').click()`, `document.getElementById('btn-give-up').click(); document.getElementById('btn-give-up').click()`, `document.getElementById('btn-next').click()`, `document.getElementById('btn-give-up').click(); document.getElementById('btn-give-up').click()`, `document.getElementById('btn-next').click()`],
+  },
   // Tembleque (lab): its cover, measured by landing-fold.mjs (D-579)
   'labs/wobbles': { intro: [] },
   // Each level's result (C-19): a round started and ended at once

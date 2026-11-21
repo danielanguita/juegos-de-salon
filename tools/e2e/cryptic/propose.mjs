@@ -1,8 +1,8 @@
-// Cryptic (lab): «Propón tu críptico» and «Hoy es tu críptico» (the owner, 2026-11-19). At the end of a
-// clue the call to action opens the feedback form with the kind «Críptico» picked and the registered
+// Cryptic (lab): «Propón tu críptico» and a player's own clue (the owner, 2026-11-19). At the end of a
+// game the call to action opens the feedback form with the kind «Críptico» picked and the registered
 // player's name in it; it asks for the clue and the answer, and sends (with `?test`, to the phone) the
-// proposal with its kind and whom to credit. Then today's clue signed as this player's: the author
-// does not play it, sees it solved, the day counts, and practice never gives it to them.
+// proposal with its kind and whom to credit. Then one of today's clues signed as this player's: the author
+// gets another clue of its level and the result says why, and practice never gives it to them.
 // Usage: SITE=http://localhost:8765 node tools/e2e/cryptic/propose.mjs /tmp/cryptic-propose
 import { output } from '../output.mjs';
 import { launch, sleep } from '../cdp.mjs';
@@ -16,10 +16,17 @@ const URL_ = SITE + '/labs/cryptic/?test';
 const ME = { jid: 'abcd1234', n: 'Ana' };
 
 await b.go(URL_); await b.evaluate(`localStorage.clear(); localStorage.setItem('juegos-de-salon:jugador', '${JSON.stringify(ME)}'); 1`); await b.go(URL_);
+/** Today's three clues to the end: giving up each one is the shortest way. */
+const giveUpAll = async () => {
+  for (let k = 0; k < 3; k++) {
+    await b.evaluate("document.getElementById('btn-give-up').click(); document.getElementById('btn-give-up').click(); 1"); await sleep(250);
+    await b.evaluate("document.getElementById('btn-next').click(); 1"); await sleep(250);
+  }
+};
 
-// A clue to the end: giving up is the shortest way
+// A game to the end
 await b.evaluate("document.querySelector('#btn-play').click(); 1"); await sleep(300);
-await b.evaluate("document.getElementById('btn-give-up').click(); document.getElementById('btn-give-up').click(); 1"); await sleep(300);
+await giveUpAll();
 ok(await b.active() === 'screen-result', 'the clue reaches its result');
 ok(await b.evaluate("!!document.querySelector('#result-propose #btn-propose')"), 'the result invites to propose a clue');
 
@@ -43,31 +50,34 @@ ok(ctx.juego === 'cryptic' && ctx.autor === ME.n && ctx.j === ME.jid, 'and whom 
 await b.evaluate("document.querySelector('.labs-capa .btn--yellow').click(); 1"); await sleep(300);
 ok(await b.evaluate("!document.querySelector('.labs-capa')"), 'the form closes');
 
-// «Hoy es tu críptico»: today's clue signed by this player
+// The player's own clue among today's: they get another of its level, and the result says why
 await b.go(URL_); await b.evaluate(`localStorage.removeItem('juegos-de-salon:cryptic:days'); 1`); await b.go(URL_);
-await b.evaluate(`window.__cryptic.sign(window.__cryptic.today(), { n: 'Ana', j: '${ME.jid}' }); 1`); await sleep(200);
-ok(/tu pista/.test(await b.evaluate("document.getElementById('today-note').textContent")), 'the cover says today everyone plays their clue');
+const theirs = await b.evaluate('window.__cryptic.today()[0]');
+await b.evaluate(`window.__cryptic.sign(${theirs}, { n: 'Ana', j: '${ME.jid}' }); 1`); await sleep(200);
 await b.evaluate("document.querySelector('#btn-play').click(); 1"); await sleep(400);
-ok(await b.active() === 'screen-result', 'the author does not play it: straight to its solution');
-ok(/tu críptico/i.test(await b.evaluate("document.getElementById('result-title').textContent")), 'titled «Hoy es tu críptico»');
-ok(await b.evaluate("document.getElementById('result-credit').hidden"), 'no «Críptico de…» for its own author');
+ok(await b.active() === 'screen-play', 'the day opens as always');
+const played = await b.evaluate('window.__cryptic.state().clues[0].index');
+ok(played !== theirs && await b.evaluate('window.__cryptic.state().mine') === true, 'the author does not play their clue: another of its level');
+await giveUpAll();
+ok(await b.active() === 'screen-result', 'the three to the end reach the result');
+ok(/tu críptico/i.test(await b.evaluate("document.getElementById('result-mine').textContent")), 'the result says their clue came out today');
 ok(await b.evaluate(`JSON.parse(localStorage.getItem('juegos-de-salon:cryptic:days'))[window.__cryptic.state().date]?.solved === true`), 'the day counts for the streak');
-ok(await b.evaluate("!document.getElementById('btn-share')"), 'nothing to share');
 await b.shot('your-day-320');
 for (let k = 0; k < 6; k++) {
   await b.evaluate("document.getElementById('btn-practice').click(); 1"); await sleep(200);
-  if (await b.evaluate('window.__cryptic.state().index === window.__cryptic.today()')) { ok(false, 'practice gave the player their own clue'); break; }
+  if (await b.evaluate(`window.__cryptic.state().clues[0].index === ${theirs}`)) { ok(false, 'practice gave the player their own clue'); break; }
   await b.evaluate("document.getElementById('btn-give-up').click(); document.getElementById('btn-give-up').click(); 1"); await sleep(200);
 }
 ok(true, 'practice never gives the player their own clue');
 
-// Another player sees whose clue it is
+// Another player plays it and sees whose clue it is
 await b.go(URL_); await b.evaluate(`localStorage.clear(); 1`); await b.go(URL_);
-await b.evaluate(`window.__cryptic.sign(window.__cryptic.today(), { n: 'Ana', j: '${ME.jid}' }); 1`);
+const first = await b.evaluate('window.__cryptic.today()[0]');
+await b.evaluate(`window.__cryptic.sign(${first}, { n: 'Ana', j: '${ME.jid}' }); 1`);
 await b.evaluate("document.querySelector('#btn-play').click(); 1"); await sleep(300);
-ok(await b.active() === 'screen-play', 'everyone else plays it');
+ok(await b.evaluate('window.__cryptic.state().clues[0].index') === first, 'everyone else plays it');
 await b.evaluate("document.getElementById('btn-give-up').click(); document.getElementById('btn-give-up').click(); 1"); await sleep(300);
-ok(await b.evaluate("document.getElementById('result-credit').textContent") === 'Críptico de Ana', 'and sees «Críptico de Ana» with the solution');
+ok((await b.evaluate("document.getElementById('step-solution').textContent")).includes('Críptico de Ana'), 'and sees «Críptico de Ana» with the solution');
 
 ok(!b.errors.length, 'no console errors' + (b.errors.length ? ': ' + b.errors.join(' | ') : ''));
 await b.close?.();

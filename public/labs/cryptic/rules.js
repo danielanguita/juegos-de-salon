@@ -18,7 +18,7 @@ const ES = {
     clueNumber: 'Críptico n.º {n}', practiceLabel: 'Pista de práctica', inSpanish: '⚠️ Las pistas están en español',
     placeholder: 'Escribe la respuesta', check: 'Comprobar',
     wrong: '❌ «{g}» no es. Prueba otra.', lengthWrong: 'La respuesta tiene {n} letras y escribiste {m}.',
-    hintBtn: '💡 Ayuda: cuesta {cost} puntos ({left} de 3)', hintKind: '🧩 Juego de palabras: {kind}.', hintDef: '🖍️ La definición está subrayada.', hintFirst: '🔤 Empieza con {letter}.',
+    hintBtn: '💡 Ayuda: −{cost} puntos', hintKind: '🧩 Juego de palabras: {kind}.', hintDef: '🖍️ La definición está subrayada.', hintFirst: '🔤 Empieza con {letter}.',
     giveUp: 'Me rindo', giveUpSure: 'Sí, mostrar la respuesta',
     solvedTitle: '¡Resuelta!', gaveUpTitle: 'La respuesta era {a}',
     tries: '{n} intentos', triesOne: '1 intento', streakMany: '🔥 Racha de {n} días', streakOne: '🔥 Racha de 1 día',
@@ -39,7 +39,7 @@ const ES = {
     proposeSaved: 'Quedó guardado en tu celular y se envía apenas haya conexión.', proposeError: 'No se pudo enviar. Prueba de nuevo.',
     credit: 'Críptico de {n}', yourDayLine: '🗝️ Hoy salió tu críptico: lo juegan todos menos tú, y te tocó otra pista.',
     // The day's three clues and their score (the owner, 2026-11-20)
-    hintsNone: 'Ya usaste tus 3 ayudas de hoy.', levelE: '🟢 Fácil', levelM: '🟡 Media', levelH: '🔴 Difícil', stepLabel: '{level} · pista {i} de 3 · vale {p} puntos', practiceWorth: '{level} · vale {p} puntos', stepSolved: '¡Resuelta! +{p} puntos', stepNext: 'Siguiente: {level}', stepEnd: 'Ver tu puntaje', points: '{p} puntos', scoreTitle: '{score} de 100', practicePoints: 'Sumaste {p} de {worth} puntos.',
+    hintsNone: 'Ya usaste tus 3 ayudas de hoy.', hintsLeft: 'Te quedan {n} de 3 ayudas para hoy.', hintsLeftOne: 'Te queda 1 de 3 ayudas para hoy.', levelE: '🟢 Fácil', levelM: '🟡 Media', levelH: '🔴 Difícil', stepLabel: '{level} · pista {i} de 3 · vale {p} puntos', practiceWorth: '{level} · vale {p} puntos', stepSolved: '¡Resuelta! +{p} puntos', stepNext: 'Siguiente: {level}', stepEnd: 'Ver tu puntaje', points: '{p} puntos', scoreTitle: '{score} de 100', practicePoints: 'Sumaste {p} de {worth} puntos.',
   },
   kinds: {
     anagram: 'anagrama (las letras de una palabra, en otro orden)', reversal: 'al revés (una palabra leída hacia atrás)',
@@ -65,7 +65,7 @@ const EN = {
     clueNumber: 'Cryptic No. {n}', practiceLabel: 'Practice clue', inSpanish: '⚠️ The clues are in Spanish',
     placeholder: 'Type the answer', check: 'Check',
     wrong: '❌ "{g}" is not it. Try another.', lengthWrong: 'The answer has {n} letters and you typed {m}.',
-    hintBtn: '💡 Hint: costs {cost} points ({left} of 3)', hintKind: '🧩 Wordplay: {kind}.', hintDef: '🖍️ The definition is underlined.', hintFirst: '🔤 It starts with {letter}.',
+    hintBtn: '💡 Hint: −{cost} points', hintKind: '🧩 Wordplay: {kind}.', hintDef: '🖍️ The definition is underlined.', hintFirst: '🔤 It starts with {letter}.',
     giveUp: 'I give up', giveUpSure: 'Yes, show the answer',
     solvedTitle: 'Solved!', gaveUpTitle: 'The answer was {a}',
     tries: '{n} tries', triesOne: '1 try', streakMany: '🔥 {n}-day streak', streakOne: '🔥 1-day streak',
@@ -86,7 +86,7 @@ const EN = {
     proposeSaved: 'It is saved on your phone and goes out as soon as there is a connection.', proposeError: 'It could not be sent. Try again.',
     credit: 'Clue by {n}', yourDayLine: '🗝️ Your clue came out today: everyone plays it but you, so you got another one.',
     // The day's three clues and their score (the owner, 2026-11-20)
-    hintsNone: 'You have used your 3 hints for today.', levelE: '🟢 Easy', levelM: '🟡 Medium', levelH: '🔴 Hard', stepLabel: '{level} · clue {i} of 3 · worth {p} points', practiceWorth: '{level} · worth {p} points', stepSolved: 'Solved! +{p} points', stepNext: 'Next: {level}', stepEnd: 'See your score', points: '{p} points', scoreTitle: '{score} out of 100', practicePoints: 'You scored {p} of {worth} points.',
+    hintsNone: 'You have used your 3 hints for today.', hintsLeft: 'You have {n} of 3 hints left for today.', hintsLeftOne: 'You have 1 of 3 hints left for today.', levelE: '🟢 Easy', levelM: '🟡 Medium', levelH: '🔴 Hard', stepLabel: '{level} · clue {i} of 3 · worth {p} points', practiceWorth: '{level} · worth {p} points', stepSolved: 'Solved! +{p} points', stepNext: 'Next: {level}', stepEnd: 'See your score', points: '{p} points', scoreTitle: '{score} out of 100', practicePoints: 'You scored {p} of {worth} points.',
   },
   kinds: {
     anagram: 'anagram (the letters of a word, in another order)', reversal: 'reversal (a word read backwards)',
@@ -112,7 +112,7 @@ const PT = {
     clueNumber: 'Críptico n.º {n}', practiceLabel: 'Pista de prática', inSpanish: '⚠️ As pistas estão em espanhol',
     placeholder: 'Escreva a resposta', check: 'Conferir',
     wrong: '❌ «{g}» não é. Tente outra.', lengthWrong: 'A resposta tem {n} letras e você escreveu {m}.',
-    hintBtn: '💡 Ajuda: custa {cost} pontos ({left} de 3)', hintKind: '🧩 Jogo de palavras: {kind}.', hintDef: '🖍️ A definição está sublinhada.', hintFirst: '🔤 Começa com {letter}.',
+    hintBtn: '💡 Ajuda: −{cost} pontos', hintKind: '🧩 Jogo de palavras: {kind}.', hintDef: '🖍️ A definição está sublinhada.', hintFirst: '🔤 Começa com {letter}.',
     giveUp: 'Desisto', giveUpSure: 'Sim, mostrar a resposta',
     solvedTitle: 'Resolvida!', gaveUpTitle: 'A resposta era {a}',
     tries: '{n} tentativas', triesOne: '1 tentativa', streakMany: '🔥 Sequência de {n} dias', streakOne: '🔥 Sequência de 1 dia',
@@ -133,7 +133,7 @@ const PT = {
     proposeSaved: 'Ficou salvo no seu celular e é enviado assim que houver conexão.', proposeError: 'Não deu para enviar. Tente de novo.',
     credit: 'Críptico de {n}', yourDayLine: '🗝️ Hoje saiu o seu críptico: todos jogam menos você, e você ganhou outra pista.',
     // The day's three clues and their score (the owner, 2026-11-20)
-    hintsNone: 'Você já usou suas 3 ajudas de hoje.', levelE: '🟢 Fácil', levelM: '🟡 Média', levelH: '🔴 Difícil', stepLabel: '{level} · pista {i} de 3 · vale {p} pontos', practiceWorth: '{level} · vale {p} pontos', stepSolved: 'Resolvida! +{p} pontos', stepNext: 'Próxima: {level}', stepEnd: 'Ver sua pontuação', points: '{p} pontos', scoreTitle: '{score} de 100', practicePoints: 'Você fez {p} de {worth} pontos.',
+    hintsNone: 'Você já usou suas 3 ajudas de hoje.', hintsLeft: 'Restam {n} de 3 ajudas para hoje.', hintsLeftOne: 'Resta 1 de 3 ajudas para hoje.', levelE: '🟢 Fácil', levelM: '🟡 Média', levelH: '🔴 Difícil', stepLabel: '{level} · pista {i} de 3 · vale {p} pontos', practiceWorth: '{level} · vale {p} pontos', stepSolved: 'Resolvida! +{p} pontos', stepNext: 'Próxima: {level}', stepEnd: 'Ver sua pontuação', points: '{p} pontos', scoreTitle: '{score} de 100', practicePoints: 'Você fez {p} de {worth} pontos.',
   },
   kinds: {
     anagram: 'anagrama (as letras de uma palavra, em outra ordem)', reversal: 'ao contrário (uma palavra lida de trás para frente)',
