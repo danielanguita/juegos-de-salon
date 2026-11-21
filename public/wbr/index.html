@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#150726">
+  <!-- A shared WBR: open to whoever has its link, kept out of search engines -->
+  <meta name="robots" content="noindex">
+  <title>WBR 📋 · Juegos de Salón</title>
+  <meta name="description" content="Juegos de Salón's Weekly Business Review: games finished, browsers and visits, week by week.">
+  <meta property="og:title" content="WBR 📋 · Juegos de Salón">
+  <meta property="og:description" content="Juegos de Salón's Weekly Business Review: games finished, browsers and visits, week by week.">
+  <script src="../assets/js/vigia.js"></script>
+  <link rel="icon" href="../assets/icon.svg" type="image/svg+xml">
+  <link rel="preload" href="../assets/fonts/nunito-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="../assets/fonts/bangers-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="../assets/css/base.css">
+  <link rel="stylesheet" href="../panel/style.css">
+</head>
+<body>
+  <main class="app app--panel" id="app">
+    <section class="screen active" id="screen-wbr">
+      <!-- page.js draws the snapshot the link names (?id=…) with the panel's own drawing (panel/wbr-view.js) -->
+      <div class="vista" id="vista" aria-live="polite"><p class="empty">Loading…</p></div>
+      <p class="muted center small pie">Juegos de Salón · <a href="../">juegosdesalon.cl</a></p>
+    </section>
+  </main>
+  <script type="module">import './page.js';</script>
+</body>
+</html>

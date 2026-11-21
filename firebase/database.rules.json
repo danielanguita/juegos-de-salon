@@ -1608,6 +1608,29 @@
         ".validate": false
       }
     },
+    "wbrShared": {
+      ".read": "auth != null && auth.uid === 'TrNylkeOFXNhnTPWAApebKvbI3F2'",
+      ".write": "auth != null && auth.uid === 'TrNylkeOFXNhnTPWAApebKvbI3F2'",
+      "$id": {
+        ".read": true,
+        ".validate": "$id.matches(/^[A-Za-z0-9_-]{22}$/) && newData.hasChildren(['json', 'from', 'to', 'at'])",
+        "json": {
+          ".validate": "newData.isString() && newData.val().length <= 300000"
+        },
+        "from": {
+          ".validate": "newData.isNumber()"
+        },
+        "to": {
+          ".validate": "newData.isNumber()"
+        },
+        "at": {
+          ".validate": "newData.isNumber()"
+        },
+        "$other": {
+          ".validate": false
+        }
+      }
+    },
     "flags": {
       ".read": true,
       ".write": "auth != null && auth.uid === 'TrNylkeOFXNhnTPWAApebKvbI3F2'",
