@@ -21,13 +21,17 @@ look. Spanish clues only for now, by the owner's call: the mechanics first, the 
 - The player types the answer as many times as needed. Accents do not matter, Ñ is its own letter.
   A guess of another length is a yellow warning and does not count; a wrong one is red, shakes the clue
   and stays until the next guess (the exception below).
-- Up to three helps, in order: the kind of wordplay, the definition underlined, the first letter.
-  Solving is worth 3 stars minus the helps; «Me rindo» shows the answer, with no stars.
-- **The day's clue** is the same for everyone on a date, at the player's own midnight: clue number
-  `days since 2026-11-19 + 1`, walking the bank with a stride so every clue comes out once before any
-  repeats (`indexOf` in `engine.js`). With 56 clues, almost two months.
-- **The streak:** days in a row with the day's clue solved; given up breaks it. Practice clues (any other
-  clue of the bank, at random) count for nothing.
+- **The day: three clues** (D-598, the owner, 2026-11-20), the same for everyone on a date, at the
+  player's own midnight: an easy one (20 points), a medium one (30) and a hard one (50), in that order, so a
+  perfect day is 100. Each clue has its level in `clues.js` (`l`); each level is walked on its own with a
+  stride, so every clue of a level comes out once before any repeats (`dayPicks`, `indexOf` in `engine.js`).
+  The day is number `days since 2026-11-19 + 1`.
+- **Hints:** 3 for the whole day, shared by its three clues; on one clue they come in order (the kind of
+  wordplay, the definition underlined, the first letter). A hint costs 5 points on the easy clue, 8 on the
+  medium one and 15 on the hard one. «Me rindo» shows the answer and scores 0 for that clue; the day goes on.
+- **The streak:** days in a row with the day's three clues played to the end, whatever the score.
+- **Practice:** one clue of any level at random (never today's three nor the player's own), with its own 3
+  hints, scored out of its worth; it counts for nothing.
 - Rankings: none yet (D-212: whether it keeps a score is the owner's call).
 
 ## Modos
@@ -36,11 +40,14 @@ Solo (`solo`): today's clue (the yellow start button) and practice (the ghost bu
 
 ## Flujo
 
-Cover (the yellow «Jugar la pista de hoy», under it the clue number or today's stars, then «Practicar con
-otras pistas», how to play) → play (the clue, one box per letter that the player types straight into, the cursor moving on by itself (the owner, 2026-11-19), and «Comprobar», the
-helps, «Me rindo») → result (stars, tries, streak; Share and «Otra pista de práctica», the exit to the lab
-from `fin.js`, C-19; then «Cómo se arma», the clue with its definition underlined and how it is solved).
-Today's clue, once played, opens on its result.
+Cover (the yellow «Jugar las pistas de hoy», under it the day's number or today's score, then «Practicar
+con otras pistas», how to play) → play (the level, «pista 1 de 3» and its worth; the clue, one box per
+letter that the player types straight into, the cursor moving on by itself (the owner, 2026-11-19), and
+«Comprobar», the hint with its cost, «Me rindo», and the day's hints left) → step (✅ and the points, or 🏳️
+and the answer; «Siguiente: 🟡 Media», then «Ver tu puntaje»; «Cómo se arma») → result (the score out of
+100, the streak; Share, spoiler-free: each level's colour with ✅, a 💡 per hint or 🏳️; «Otra pista de
+práctica», the exit to the lab from `fin.js`, C-19; then «Cómo se arma» for the three, with their points).
+Today, once finished, opens on its result. A practice clue goes from play straight to its result.
 
 ## Protocolo de mensajes
 
@@ -51,11 +58,12 @@ result stays on the phone for the streak.
 
 - `public/labs/cryptic/game.json`: the manifest; `rules.js`: data and LOCALES (the kinds' names too);
   `clues.js`: the clue bank (`{ c, a, k, d, x }`, described at its top); `engine.js`: the pure rules
-  (dates, the day's clue, guesses, helps, stars, streak); `engine.test.mjs`: the rules and every clue
+  (dates, the day's three clues, guesses, hints, points, streak); `engine.test.mjs`: the rules and every clue
   (its definition at one end, anagrams with the same letters, hidden words really hidden, reversals);
   `game.js`: screens and drawing; `style.css`: only its own, on the tokens.
-- `tools/e2e/cryptic/game.mjs`: plays today's clue (a wrong guess, two helps, a reload, the answer)
-  and a practice clue given up; `node tools/e2e/conformance.mjs labs/cryptic` checks the canons.
+- `tools/e2e/cryptic/game.mjs`: plays today's three clues (the easy one with a wrong guess, a hint and a
+  reload; the medium one given up; the hard one with the day's last two hints) to the score, and a practice
+  clue given up; `node tools/e2e/conformance.mjs labs/cryptic` checks the canons.
 - Hook: `window.__cryptic` (`state()`, `clue()`, `answer()`).
 
 ## Writing a clue (the owner, 2026-11-19)
@@ -81,7 +89,7 @@ Every clue in `clues.js` follows these rules:
 The repo is public and the browser downloads `clues.js`, so no answer is ever written in plain text where a
 player could search for it:
 
-- **In `clues.js`** each clue keeps its answer and explanation sealed in `s` (`sealed.js`). Add one with
+- **In `clues.js`** each clue keeps its level in `l` (e, m, h; not secret) and its answer and explanation sealed in `s` (`sealed.js`). Add one with
   `node tools/generators/cryptic-clues.mjs add < clue.json` (`{ c, a, k, d, x, by? }`, the file in the
   scratchpad, outside the repo); `list` prints the bank opened, in the terminal only.
 - **In git and GitHub**: branch, commit, PR, changelog entry and docs say «one more clue» (its kind at most),
@@ -105,7 +113,7 @@ it straight away. In order:
 3. **Propose improvements** if there are any: one or two versions that keep the owner's idea and answer.
    None when it is already good; say so.
 4. **Wait for the owner's choice**, then write it in the game: `cryptic-clues.mjs add`, sealed, its `k`,
-   `d` and `x`, in a 🟢 lab PR with auto-merge whose branch, commits and text never name the answer
+   its level `l` (easy, medium or hard, D-598), `d` and `x`, in a 🟢 lab PR with auto-merge whose branch, commits and text never name the answer
    (D-595).
 
 ## A player's clue (the owner, 2026-11-19)
@@ -119,11 +127,10 @@ agent reads it with `feedback.mjs proposal`, judges it and gives the owner a one
 (`docs/FEEDBACK-TRIAGE.md`). An approved clue joins `clues.js`, sealed, with
 `by: { n, j }`: the name, and the player id when the author had one.
 
-- **«Hoy es tu críptico».** Everyone plays the same clue on a day, so its author is never given another
-  one: on that day the author sees their own clue with its solution and the day counts for the streak
-  (🗝️ instead of stars), with nothing to share. Practice never draws a player's own clues. Everyone else
-  sees «Críptico de <name>» under the solution. The author is known by their player id, so on a phone
-  where they did not sign in they get it like anyone else.
+- **Their clue's day.** Everyone plays the same clues on a day, so when the author's clue is among them the
+  author gets the next clue of its level instead, and the result says «Hoy salió tu críptico» (D-598).
+  Practice never draws a player's own clues. Everyone else sees «Críptico de <name>» under its solution. The
+  author is known by their player id, so on a phone where they did not sign in they get it like anyone else.
 - In English and Portuguese the form asks for the clue in Spanish, as long as the clues are only in Spanish.
 
 ## Excepciones a los cánones

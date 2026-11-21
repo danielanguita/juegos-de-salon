@@ -50,7 +50,7 @@ hasn't changed, you skip:
   3. **One-tap decision** for the owner (`processes.mjs decide`, `origin` naming the issue): publish the
      player's clue as written, improve it in a session, or No, which closes it; your recommendation first.
      The Yes queues the work: add it with `node tools/generators/cryptic-clues.mjs add` (sealed, with
-     `by: { n: <Credit as>, j: <Player id> }`, `j` only if the issue has one, its `k`, `d` and `x`),
+     `by: { n: <Credit as>, j: <Player id> }`, `j` only if the issue has one, its `k`, its level `l`, `d` and `x`),
      `engine.test.mjs` green, a 🟢 lab PR with auto-merge whose branch, commits and text never name the
      answer. With `by.j`, the day it comes up its author sees «Hoy es tu críptico» instead of
      playing it, and practice never gives it to them; everyone else sees «Críptico de <name>».

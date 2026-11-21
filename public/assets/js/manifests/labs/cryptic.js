@@ -37,7 +37,7 @@ export default {
     "min": 1,
     "max": 1
   },
-  "duration": "2–5",
+  "duration": "5–10",
   "tipos": [
     "words"
   ],

@@ -1,8 +1,8 @@
 /**
  * Cryptic: screens and drawing (C-2), the only file that touches the DOM. The rules are in
- * engine.js, the texts in rules.js, the clues in clues.js. Screens: intro → play → result.
- * The round is saved after every move to resume it (C-6); each day's result is kept on the phone for
- * the streak. Lab only (D-395).
+ * engine.js, the texts in rules.js, the clues in clues.js. Screens: intro → play → step (each clue's
+ * answer, then the next) → result (the day's score out of 100). The game is saved after every move to resume
+ * it (C-6); each day's result is kept on the phone for the streak. Lab only (D-395).
  */
 import { $, $$, el, vibrate, confetti } from '../../assets/js/ui.js';
 import { getLang, coverLangToggle, applyStatic, COMMON } from '../../assets/js/i18n.js';
@@ -37,36 +37,40 @@ const fmt = (s, vars = {}) => s.replace(/\{(\w+)\}/g, (_, k) => (vars[k] !== und
 const today = () => E.localDate();
 
 let state = null;
-const clue = () => BANK[state.index];
-const save = () => store.save({ mode: 'solo', state, done: !!state && E.isOver(state) });
+/** The clue being played: its round, its bank entry and its level's name. */
+const round = () => E.current(state);
+const clue = () => BANK[round().index];
+const LEVEL = { e: T.levelE, m: T.levelM, h: T.levelH };
+const save = () => store.save({ mode: 'solo', state, done: !!state && E.gameOver(state) });
+/** A saved game of the three-clue kind (an older save, one clue a day, is left behind). */
+const isGame = g => !!g && Array.isArray(g.clues) && g.clues.length > 0;
 
-/** Each day's result on this phone: { 'YYYY-MM-DD': { solved, stars, round } }. */
+/** Each day's result on this phone: { 'YYYY-MM-DD': { solved, score, state } }, `solved` meaning finished. */
 function readDays() { try { return JSON.parse(localStorage.getItem(DAYS_KEY) || '{}') || {}; } catch (_) { return {}; } }
-function writeDay(date, round) {
+function writeDay(date, game) {
   const days = readDays();
-  // The day of the player's own clue counts as played (the owner, 2026-11-19): the streak goes on
-  days[date] = round.author ? { solved: true, stars: null, author: true } : { solved: round.solved, stars: E.stars(round), round };
+  days[date] = { solved: true, score: E.score(game, BANK), state: game };
   try { localStorage.setItem(DAYS_KEY, JSON.stringify(days)); } catch (_) { /* no storage: the streak is not kept */ }
 }
+/** Today's game, if it was finished on this phone. */
+const doneToday = () => { const d = readDays()[today()]; return isGame(d?.state) ? d : null; };
 
 function showScreen(id) {
   $$('.screen').forEach(s => s.classList.toggle('active', s.id === id));
   window.scrollTo({ top: 0, behavior: 'instant' });
 }
 
-/** The stars of a round: ✅ for a clue solved with every help, 🏳️ for one given up, 🗝️ for the player's own. */
-const starText = (n, solved = true) => (!solved ? '🏳️' : n === null ? '🗝️' : n ? '⭐'.repeat(n) : '✅');
-
 /** This phone's player, if they entered: their own clues are not theirs to play. */
 const me = () => leerYo()?.jid || null;
+const picksToday = () => E.dayPicks(BANK, today(), me());
 
 /* ---------------- Intro ---------------- */
 function renderResumeSlot() {
   const slot = $('#resume-slot');
   slot.innerHTML = '';
   const saved = store.load();
-  // A clue half played (C-6): a practice one, or today's while it is still today
-  if (!saved || saved.done || !saved.state || (!saved.state.practice && saved.state.date !== today())) return;
+  // A game half played (C-6): a practice clue, or today's clues while it is still today
+  if (!saved || saved.done || !isGame(saved.state) || (!saved.state.practice && saved.state.date !== today())) return;
   slot.append(el('div', { class: 'panel pop' },
     el('p', { class: 'lead' }, T.resumeTitle),
     el('div', { class: 'btn-row' },
@@ -77,15 +81,13 @@ function renderResumeSlot() {
 }
 
 function renderModes() {
-  const d = today();
-  const done = readDays()[d];
-  const mine = E.isAuthor(BANK[E.indexOf(d, BANK.length)], me());
+  const done = doneToday();
   // One way to play: the yellow start button (C-8); practice is a quiet second button under it
   $('#modes').replaceChildren(...[
     el('button', { class: 'btn btn--yellow', id: 'btn-play', 'data-mode': 'today', onClick: () => { SFX.tap(); startToday(); } },
-      mine ? T.modeTodayYours : done ? T.modeTodayAgain : T.modeToday),
+      done ? T.modeTodayAgain : T.modeToday),
     el('p', { class: 'muted center today-note', id: 'today-note' },
-      mine ? T.modeTodayYoursHint : done ? fmt(T.modeTodayDone, { stars: starText(done.stars, done.solved) }) : fmt(T.modeTodayHint, { n: E.numberOf(d) })),
+      done ? fmt(T.modeTodayDone, { score: done.score }) : fmt(T.modeTodayHint, { n: E.numberOf(today()) })),
     // The clues are in Spanish: said on the cover, before the first tap
     lang !== CLUE_LANG ? el('p', { class: 'notice notice--warn' }, T.inSpanish) : null,
     el('button', { class: 'btn btn--ghost btn--sm', id: 'btn-practice-cover', 'data-mode': 'practice', onClick: () => { SFX.tap(); startPractice(); } }, T.modePractice),
@@ -93,8 +95,8 @@ function renderModes() {
   $('#how').replaceChildren(...L.como.map(step => el('li', {}, step)));
 }
 
-function begin(round) {
-  state = round;
+function begin(game) {
+  state = game;
   save();
   trackStart({ game: GAME_ID, mode: 'solo', players: 1 }); // usage signal (C-7, D-210)
   renderPlay();
@@ -102,32 +104,24 @@ function begin(round) {
 
 function startToday() {
   const d = today();
-  const index = E.indexOf(d, BANK.length);
-  // «Hoy es tu críptico»: its author does not play it; the day counts and they see it with its solution
-  if (E.isAuthor(BANK[index], me())) {
-    state = { ...E.newRound(index, { date: d }), author: true };
-    writeDay(d, state);
-    return renderResult();
-  }
   const saved = store.load();
-  if (saved?.state && !saved.state.practice && saved.state.date === d) { state = saved.state; return renderPlay(); }
-  const kept = readDays()[d];
-  if (kept?.round) { state = kept.round; return renderPlay(); }
-  begin(E.newRound(index, { date: d }));
+  if (isGame(saved?.state) && !saved.done && !saved.state.practice && saved.state.date === d) { state = saved.state; return renderPlay(); }
+  const kept = doneToday();
+  if (kept) { state = kept.state; return renderResult(); }
+  begin(E.newDay(d, picksToday()));
 }
 
 function startPractice() {
-  // Any clue but today's, and never one of the player's own
-  const pool = E.practicePool(BANK, E.indexOf(today(), BANK.length), me());
-  const i = pool.length ? pool[Math.floor(Math.random() * pool.length)] : E.indexOf(today(), BANK.length);
-  begin(E.newRound(i, { practice: true }));
+  // Any clue but today's three, and never one of the player's own
+  const pool = E.practicePool(BANK, picksToday().map(p => p.index), me());
+  begin(E.newPractice(pool[Math.floor(Math.random() * pool.length)] ?? 0));
 }
 
 /* ---------------- Play ---------------- */
-/** The clue with its definition underlined once the second hint is out. */
-function clueNodes(round, c) {
+/** The clue with its definition underlined once the second hint is out, or once it is over. */
+function clueNodes(r, c) {
   const end = ' ' + E.enumeration(c.a);
-  const at = round.hints >= 2 || E.isOver(round) || round.author ? c.c.indexOf(c.d) : -1;
+  const at = r.hints >= 2 || E.isOver(r) ? c.c.indexOf(c.d) : -1;
   if (at < 0) return [c.c + end];
   return [c.c.slice(0, at), el('u', { class: 'def' }, c.d), c.c.slice(at + c.d.length) + end];
 }
@@ -159,21 +153,31 @@ function caretToEnd() {
   input.setSelectionRange?.(end, end);
 }
 
+/** The hints given on this clue, and the button for the next one with what it costs and how many the day has left. */
 function renderHints() {
   const c = clue();
+  const r = round();
   const lines = [fmt(T.hintKind, { kind: L.kinds[c.k] }), T.hintDef, fmt(T.hintFirst, { letter: E.normalize(c.a)[0] })];
-  $('#hints').replaceChildren(...lines.slice(0, state.hints).map(t => el('li', {}, t)));
-  const left = E.MAX_HINTS - state.hints;
-  $('#btn-hint').textContent = T.hintBtn;
-  $('#btn-hint').hidden = left <= 0;
+  $('#hints').replaceChildren(...lines.slice(0, r.hints).map(t => el('li', {}, t)));
+  const btn = $('#btn-hint');
+  btn.textContent = fmt(T.hintBtn, { cost: E.HINT_COST[c.l] });
+  btn.hidden = !E.canHint(state);
+  // How many of the day's three are left, under the buttons (a practice clue has its own three: no line)
+  const left = E.hintsLeft(state);
+  $('#hints-left').textContent = !left ? T.hintsNone : left === 1 ? T.hintsLeftOne : fmt(T.hintsLeft, { n: left });
+  $('#hints-left').hidden = state.practice;
 }
 
 function renderPlay() {
-  if (E.isOver(state)) return renderResult();
+  const r = round();
+  if (E.isOver(r)) return E.gameOver(state) && (state.practice || doneToday()) ? renderResult() : renderStep();
   const c = clue();
   $('#clue-label').textContent = state.practice ? T.practiceLabel : fmt(T.clueNumber, { n: E.numberOf(state.date) });
+  $('#clue-step').textContent = state.practice
+    ? fmt(T.practiceWorth, { level: LEVEL[c.l], p: E.POINTS[c.l] })
+    : fmt(T.stepLabel, { level: LEVEL[c.l], i: state.step + 1, p: E.POINTS[c.l] });
   $('#clue-lang').hidden = lang === CLUE_LANG;
-  $('#clue').replaceChildren(...clueNodes(state, c));
+  $('#clue').replaceChildren(...clueNodes(r, c));
   const input = $('#answer');
   input.value = '';
   input.setAttribute('aria-label', T.placeholder);
@@ -207,10 +211,10 @@ function submit(ev) {
   }
   state = next;
   save();
-  if (verdict === 'right') { SFX.win(); vibrate([30, 40, 30]); return finish(); }
+  if (verdict === 'right') { SFX.win(); vibrate([30, 40, 30]); return clueOver(); }
   // A wrong guess is the normal move (C-8b, D-56): colour, shake, sound and a line that stays until the next one
   SFX.error(); vibrate(60);
-  say(fmt(T.wrong, { g: state.guesses.at(-1) }), 'bad');
+  say(fmt(T.wrong, { g: round().guesses.at(-1) }), 'bad');
   const card = $('.clue-card');
   card.classList.remove('shake'); void card.offsetWidth; card.classList.add('shake');
   // The guess is in the red line: the field and the boxes empty for the next one
@@ -223,59 +227,98 @@ function askHint() {
   SFX.reveal();
   state = E.hint(state);
   save();
-  $('#clue').replaceChildren(...clueNodes(state, clue()));
+  $('#clue').replaceChildren(...clueNodes(round(), clue()));
   renderHints();
 }
 
 function giveUp() {
   SFX.tap();
-  // Two taps: the first asks, so a slip does not lose the clue (and today's streak)
+  // Two taps: the first asks, so a slip does not lose the clue's points
   const btn = $('#btn-give-up');
   if (!btn.dataset.armed) { btn.dataset.armed = '1'; btn.textContent = T.giveUpSure; return; }
   state = E.giveUp(state);
   save();
-  finish();
+  clueOver();
 }
 
-function finish() {
-  if (!state.practice) writeDay(state.date, state);
-  trackFinish({ ganador: state.solved ? 'yo' : null });
-  renderResult();
+/** A clue just ended: the day is kept once its third is over; practice goes to its result, a day to the clue's answer. */
+function clueOver() {
+  if (E.gameOver(state)) {
+    if (!state.practice) writeDay(state.date, state);
+    trackFinish({ ganador: E.score(state, BANK) > 0 ? 'yo' : null });
+  }
+  return state.practice ? renderResult() : renderStep();
+}
+
+/* ---------------- Between clues: how it was solved, then the next one ---------------- */
+/** A clue as it ended: its clue with the definition underlined, how it is solved and whose it is. */
+function solutionNode(r, c, head = null) {
+  return el('div', { class: 'solution' },
+    head ? el('p', { class: 'solution-head' }, head) : null,
+    el('p', { class: 'clue clue--small' }, ...clueNodes(r, c)),
+    el('p', {}, c.x),
+    c.by?.n ? el('p', { class: 'muted' }, fmt(T.credit, { n: c.by.n })) : null);
+}
+const triesText = r => (r.guesses.length === 1 ? T.triesOne : fmt(T.tries, { n: r.guesses.length }));
+
+function renderStep() {
+  const r = round();
+  const c = clue();
+  $('#step-mark').textContent = r.solved ? '✅' : '🏳️';
+  $('#step-title').textContent = r.solved ? fmt(T.stepSolved, { p: E.pointsOf(r, c.l) }) : fmt(T.gaveUpTitle, { a: c.a });
+  // Why it scored what it did (the player agent): the hints it cost, or that giving up is worth 0
+  const why = !r.solved ? T.stepZero : !r.hints ? '' : fmt(r.hints === 1 ? T.stepHintsOne : T.stepHints, { worth: E.POINTS[c.l], h: r.hints, cost: E.HINT_COST[c.l] });
+  $('#step-line').textContent = [r.solved ? triesText(r) : '', why].filter(Boolean).join(' · ');
+  const last = E.gameOver(state);
+  const btn = $('#btn-next');
+  btn.textContent = last ? T.stepEnd : fmt(T.stepNext, { level: LEVEL[BANK[state.clues[state.step + 1].index].l] });
+  btn.onclick = () => {
+    SFX.tap();
+    if (last) return renderResult();
+    state = E.next(state);
+    save();
+    renderPlay();
+  };
+  $('#step-solution').replaceChildren(el('p', { class: 'lead' }, T.howSolved), solutionNode(r, c));
+  if (r.solved) confetti();
+  showScreen('screen-step');
 }
 
 /* ---------------- Result (C-19) ---------------- */
+/** A clue in the share text, spoiler-free: its level's colour and ✅, one 💡 per hint, or 🏳️. */
+const shareMark = r => `${LEVEL[BANK[r.index].l].split(' ')[0]} ${!r.solved ? '🏳️' : r.hints ? '💡'.repeat(r.hints) : '✅'}`;
+
 function shareText() {
-  const s = E.stars(state);
-  const tries = state.guesses.length;
-  const line = state.solved
-    ? [starText(s, true), tries === 1 ? T.triesOne : fmt(T.tries, { n: tries }), state.hints ? (state.hints === 1 ? T.shareHintsOne : fmt(T.shareHints, { n: state.hints })) : ''].filter(Boolean).join(' · ')
-    : T.shareGaveUp;
   const contexto = state.practice ? T.practiceLabel : fmt(T.shareContext, { n: E.numberOf(state.date) });
-  return [cabecera({ emoji: manifest.emoji, titulo: T.title, contexto }), line].join('\n\n');
+  const line = `${state.clues.map(shareMark).join('  ')}\n${E.score(state, BANK)}/100`;
+  return [cabecera({ emoji: manifest.emoji, titulo: T.title, contexto }), state.practice ? state.clues.map(shareMark).join('') : line].join('\n\n');
 }
 
 function renderResult() {
-  const c = clue();
-  const s = E.stars(state);
-  const tries = state.guesses.length;
-  $('#result-stars').textContent = state.author ? '🗝️' : starText(s, state.solved);
-  $('#result-title').textContent = state.author ? T.yourDayTitle : state.solved ? T.solvedTitle : fmt(T.gaveUpTitle, { a: c.a });
+  const total = E.score(state, BANK);
   const parts = [];
-  if (state.author) parts.push(T.yourDayLine);
-  if (state.solved) parts.push(tries === 1 ? T.triesOne : fmt(T.tries, { n: tries }));
-  if (state.practice) parts.push(T.practiceNote);
-  // The author's day already says the streak goes on: no second line for it
-  else if (!state.author) {
+  if (state.practice) {
+    const r = state.clues[0];
+    const c = BANK[r.index];
+    $('#result-stars').textContent = r.solved ? '✅' : '🏳️';
+    $('#result-title').textContent = r.solved ? T.solvedTitle : fmt(T.gaveUpTitle, { a: c.a });
+    parts.push(fmt(T.practicePoints, { p: total, worth: E.POINTS[c.l] }));
+    if (r.solved) parts.push(triesText(r));
+    parts.push(T.practiceNote);
+  } else {
+    $('#result-stars').textContent = total === 100 ? '🏆' : total >= 50 ? '⭐' : '🗝️';
+    $('#result-title').textContent = fmt(T.scoreTitle, { score: total });
     const n = E.streak(readDays(), today());
-    if (state.gaveUp && n) parts.push(T.streakLost);
-    else if (n) parts.push(n === 1 ? T.streakOne : fmt(T.streakMany, { n }));
+    if (n) parts.push(n === 1 ? T.streakOne : fmt(T.streakMany, { n }));
   }
   $('#result-line').textContent = parts.join(' · ');
-  $('#result-clue').replaceChildren(...clueNodes(state, c));
-  $('#result-explain').textContent = c.x;
-  // Whose clue it is, for everyone but its author (a clue a player proposed, the owner, 2026-11-19)
-  $('#result-credit').textContent = c.by?.n && !state.author ? fmt(T.credit, { n: c.by.n }) : '';
-  $('#result-credit').hidden = !$('#result-credit').textContent;
+  $('#result-mine').textContent = state.mine ? T.yourDayLine : '';
+  $('#result-mine').hidden = !state.mine;
+  // How each clue is solved, with what it scored
+  $('#result-solutions').replaceChildren(...state.clues.map(r => {
+    const c = BANK[r.index];
+    return solutionNode(r, c, `${LEVEL[c.l]} · ${fmt(T.points, { p: E.pointsOf(r, c.l) })}`);
+  }));
   $('#result-next').textContent = state.practice ? '' : T.nextClue;
   $('#result-next').hidden = state.practice;
 
@@ -284,17 +327,16 @@ function renderResult() {
     avisos: { copied: C.shareCopied, downloaded: C.shareDownloaded },
     armar: async () => ({ titulo: T.title, url: location.origin + location.pathname, texto: shareText() }),
   });
-  const practice = el('button', { class: state.practice || state.author ? 'btn btn--yellow' : 'btn btn--cyan', id: 'btn-practice', onClick: () => { SFX.tap(); startPractice(); } }, T.practiceAgain);
-  // Their own clue's day has nothing to share: practice is the way on
-  $('#result-actions').replaceChildren(...(state.author ? [practice] : state.practice ? [practice, share] : [share, practice]));
-  // «Propón tu críptico»: under the actions, at the end of every clue
+  const practice = el('button', { class: state.practice ? 'btn btn--yellow' : 'btn btn--cyan', id: 'btn-practice', onClick: () => { SFX.tap(); startPractice(); } }, T.practiceAgain);
+  $('#result-actions').replaceChildren(...(state.practice ? [practice, share] : [share, practice]));
+  // «Propón tu críptico»: under the actions, at the end of every game
   $('#result-propose').replaceChildren(
     el('p', { class: 'lead', style: 'margin:0' }, T.proposeAsk),
     el('button', { class: 'btn btn--ghost btn--sm', id: 'btn-propose', type: 'button', onClick: () => { SFX.tap(); openProposal({ T, lang, ...(tiene('test') ? { send: testSend } : {}) }); } }, T.proposeBtn));
   $('#result-exits').replaceChildren(salidasFin('lab', { lang, raiz: '../../' }));
   // A solo game: no win to count in the rankings yet (whether it keeps a score is the owner's call, D-212)
   finDePartida({ juego: GAME_ID, modo: 'solo', alTocar: () => SFX.tap() });
-  if (state.solved && !state.author) confetti();
+  if (total >= 50) confetti();
   renderModes();
   showScreen('screen-result');
 }
@@ -328,13 +370,13 @@ function init() {
   renderResumeSlot();
 }
 
-// The hook for the end-to-end tests (C-14): the state, the clue and its answer
+// The hook for the end-to-end tests (C-14): the game, the clue being played and its answer
 window.__cryptic = {
   state: () => state, clue: () => (state ? clue() : null), answer: () => (state ? clue().a : null),
   /** Opens bank clue `i` as practice: the e2e scripts try the longest answer. */
-  practice: i => begin(E.newRound(i, { practice: true })),
+  practice: i => begin(E.newPractice(i)),
   bank: () => BANK.map(c => c.a),
 };
-// With `?test`, signs a clue as a player's (`by`), to try «Hoy es tu críptico» without one in the bank
-if (tiene('test')) Object.assign(window.__cryptic, { today: () => E.indexOf(today(), BANK.length), sign: (i, by) => { BANK[i].by = by; renderModes(); } });
+// With `?test`, today's three clues, and signing a clue as a player's (`by`) to try a day with their own clue in it
+if (tiene('test')) Object.assign(window.__cryptic, { today: () => picksToday().map(p => p.index), sign: (i, by) => { BANK[i].by = by; renderModes(); } });
 init();
