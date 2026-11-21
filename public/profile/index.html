@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#150726">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>Tu perfil 🎖️ · Juegos de Salón</title>
+  <meta name="description" content="Tus logros, tus rankings y tus ajustes en Juegos de Salón.">
+  <meta name="robots" content="noindex">
+  <link rel="canonical" href="https://juegosdesalon.cl/profile/">
+  <!-- Sin destello de idioma (D-194): si el idioma elegido no es el español, no se pinta hasta tener sus textos -->
+  <script>
+    (function () {
+      try {
+        var u = (new URLSearchParams(location.search).get('lang') || '').toLowerCase();
+        var l = u || localStorage.getItem('juegos-de-salon:lang') || 'es';
+        if (l === 'es') return;
+        var h = document.documentElement, listo = function () { h.classList.remove('i18n-pendiente'); };
+        h.classList.add('i18n-pendiente');
+        document.addEventListener('DOMContentLoaded', listo);
+        setTimeout(listo, 1500);
+      } catch (_) { /* sin almacenamiento: se pinta como siempre */ }
+    })();
+    // Offline mode (D-538): a phone already offline paints its first frame in the offline palette,
+    // with no flash of the normal one (offline-ui.js takes over once the page has loaded)
+    (function () {
+      try {
+        var f = localStorage.getItem('juegos-de-salon:offline-forced');
+        if (localStorage.getItem('juegos-de-salon:offline-flag') === '1' && f !== '0' && (f === '1' || navigator.onLine === false)) document.documentElement.classList.add('offline', 'offline-shell');
+      } catch (_) { /* sin almacenamiento: se pinta como siempre */ }
+    })();
+  </script>
+  <link rel="manifest" href="../manifest.webmanifest">
+  <script>
+    // El manifest del idioma elegido, antes de que el navegador lo lea: cambiarlo después no siempre alcanza (D-222)
+    (function () {
+      try {
+        var l = (new URLSearchParams(location.search).get('lang') || localStorage.getItem('juegos-de-salon:lang') || '').toLowerCase();
+        var m = document.querySelector('link[rel="manifest"]');
+        if (m && /^(en|pt)$/.test(l)) m.href = m.href.replace(/manifest\.webmanifest$/, 'manifest.' + l + '.webmanifest');
+      } catch (_) { /* queda el del español */ }
+    })();
+  </script>
+  <link rel="icon" href="../assets/icon.svg" type="image/svg+xml">
+  <script src="../assets/js/vigia.js"></script>
+  <link rel="preload" href="../assets/fonts/nunito-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="../assets/fonts/bangers-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="../assets/css/base.css">
+  <link rel="stylesheet" href="../assets/css/ranking.css">
+  <link rel="stylesheet" href="profile.css">
+  <link rel="apple-touch-icon" href="../assets/icons/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-title" content="Juegos de Salón">
+  <script type="module">import '../assets/js/instalable.js';</script>
+</head>
+<body>
+  <main class="app">
+    <div class="topbar">
+      <a class="back" href="../" id="btn-menu">‹ Menú</a>
+    </div>
+    <header class="intro-hero center">
+      <span class="pf-hero-icon" aria-hidden="true">🎖️</span>
+      <h1 class="display display--lg rainbow" id="pf-h1">Tu perfil</h1>
+      <p class="sub muted" id="pf-sub"></p>
+    </header>
+    <div class="pf-page" id="pf-page"></div>
+  </main>
+  <script type="module">
+    // The player's profile (lab flag profile, lab: #seccion-profile). With the flag off, the page is Rankings
+    import { flag } from '../assets/js/flags.js';
+    import { getLang, applyStatic, COMMON } from '../assets/js/i18n.js';
+    import { initSound } from '../assets/js/sound.js';
+    import { trackVisit } from '../assets/js/transport/stats.js';
+    import '../assets/js/season.js'; // the seasonal touches (D-457)
+    import { TEXTS } from './texts.js';
+    if (!(await flag('profile'))) location.replace(`../records/${location.search}`);
+    else {
+      trackVisit(); // the site's traffic (D-208)
+      initSound();
+      const lang = getLang();
+      document.documentElement.lang = lang;
+      const C = COMMON[lang] || COMMON.es, T = TEXTS[lang] || TEXTS.es;
+      applyStatic(C);
+      document.title = `${T.pageTitle} 🎖️ · ${C.appTitle}`;
+      document.getElementById('pf-h1').textContent = T.pageTitle;
+      document.getElementById('btn-menu').textContent = `‹ ${C.menu}`;
+      const { drawProfile } = await import('./profile.js');
+      await drawProfile(document.getElementById('pf-page'), { sub: document.getElementById('pf-sub') });
+      import('../assets/js/site-footer.js').then(m => m.mountFooter(document.querySelector('main.app'), { phrase: true, screen: 'profile' }));
+    }
+  </script>
+</body>
+</html>
