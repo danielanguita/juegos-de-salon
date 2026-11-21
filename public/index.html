@@ -498,6 +498,10 @@
     .portada-barra .tools { min-height: 44px; }
     .portada-barra .tools > span:empty { width: 44px; height: 44px; }
     .azar-slot:empty { min-height: 48px; }
+    /* Lab flag profile (lab: #seccion-profile): 🏅 becomes the player's initial and their 🔥 streak, opening /profile/ */
+    html .portada-barra .tools .icon-btn.pf-home { width: auto; display: inline-flex; align-items: center; gap: var(--s-6); padding: 0 var(--s-12) 0 var(--s-4); font-size: var(--fs-100); }
+    .pf-home-face { flex: none; width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; background: linear-gradient(135deg, var(--yellow), var(--orange)); color: var(--ink-on-yellow); font: var(--fs-120) var(--font-display); }
+    .pf-home-streak { font: 900 var(--fs-100) var(--font-num); font-variant-numeric: tabular-nums; }
     /* Lab flag home-pill-bar (#1027): the round buttons become pills as tall as the language toggle, so the bar reads as one row */
     .pill-bar .portada-barra, .pill-bar .portada-barra .tools { align-items: stretch; }
     .pill-bar .portada-barra .tools > span { display: flex; }
@@ -663,9 +667,12 @@
     // Mientras estén en el laboratorio, solo en los celulares que los activaron
     import('./assets/js/jugador.js').then(({ rankingsVisibles }) => {
       const b = document.getElementById('btn-rankings');
+      if (b.classList.contains('pf-home')) return; // already the profile's (flag profile)
       for (const k of ['title', 'aria-label']) b.setAttribute(k, T.rk.rankings);
       b.hidden = !rankingsVisibles();
     }).catch(() => {});
+    // The player's profile in the top bar: their initial and streak instead of 🏅, the sound out of the bar (flag profile). lab: #seccion-profile
+    import('./assets/js/flags.js').then(({ flag }) => flag('profile')).then(on => on && import('./assets/js/profile-button.js').then(m => m.profileButton({ lang }))).catch(() => {});
     // Compartir la app: el botón abre una hoja con el video promocional y dos maneras de
     // compartir (compartir-portada.js): invitar a jugar, con la tarjeta social del idioma en que se
     // está mirando (D-74, D-226), o mandar el video

@@ -13,5 +13,8 @@
   },
   "wins-hide-empty": {
     "state": "off"
+  },
+  "profile": {
+    "state": "off"
   }
 }
