@@ -148,7 +148,7 @@ export function montar(raiz, ctx) {
   raiz.replaceChildren(escenario);
   const sc = escena(lienzo);
   sc.empezar(g);
-  let cayo = false, ultimoTic = 0;
+  let cayo = false;
   const vivo = () => raiz.isConnected && escenario.isConnected;
 
   const decir = (nodo, clase) => {
@@ -194,7 +194,6 @@ export function montar(raiz, ctx) {
   const presionar = t => {
     if (S.fin || S.pausa) return;
     if (!press(g, t)) return;
-    ultimoTic = 0;
     aviso.classList.add('sn-fuera');
   };
   const soltar = t => {
@@ -320,11 +319,6 @@ export function montar(raiz, ctx) {
   const paso = now => {
     if (!vivo()) { fuera.abort(); return sc.cerrar(); }
     const reloj = S.pausa || now;
-    // Stretching: a soft tick every so often, rising, so the length is heard too
-    if (g.phase === 'growing') {
-      const k = Math.floor(stickAt(g, reloj) / 36);
-      if (k > ultimoTic) { ultimoTic = k; SFX.letterHit?.(Math.min(k, 11)); }
-    }
     if (g.phase === 'walking' && !S.pausa) {
       const w = g.walk;
       // The stick lands: on the flag, the pulse; on the pillar, a thud
