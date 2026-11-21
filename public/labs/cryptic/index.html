@@ -77,6 +77,8 @@
     <!-- ============ PLAY ============ -->
     <section class="screen stack" id="screen-play">
       <p class="lead center" id="clue-label"></p>
+      <!-- The clue's level, its place in the day and its worth (the owner, 2026-11-20) -->
+      <p class="muted center clue-step" id="clue-step"></p>
       <p class="notice notice--warn" id="clue-lang" data-i18n="inSpanish" hidden></p>
       <div class="panel clue-card" data-tablero="pista">
         <p class="clue" id="clue"></p>
@@ -91,10 +93,22 @@
       </form>
       <p class="notice" id="feedback" aria-live="polite" hidden></p>
       <ul class="hints" id="hints"></ul>
+      <p class="muted center" id="hints-none" hidden></p>
       <div class="btn-row">
         <button class="btn btn--cyan btn--sm" id="btn-hint" type="button"></button>
         <button class="btn btn--ghost btn--sm" id="btn-give-up" type="button" data-i18n="giveUp"></button>
       </div>
+    </section>
+
+    <!-- ============ STEP: a clue's answer, then the next one ============ -->
+    <section class="screen stack" id="screen-step">
+      <div class="result-hero">
+        <span class="trophy" id="step-mark">✅</span>
+        <div class="display display--md" id="step-title">—</div>
+        <p class="lead" id="step-line"></p>
+      </div>
+      <button class="btn btn--yellow" id="btn-next" type="button"></button>
+      <div class="panel" id="step-solution"></div>
     </section>
 
     <!-- ============ RESULT (C-19) ============ -->
@@ -103,14 +117,13 @@
         <span class="trophy" id="result-stars">⭐</span>
         <div class="display display--md" id="result-title">—</div>
         <p class="lead" id="result-line"></p>
+        <p class="muted" id="result-mine" hidden></p>
       </div>
       <div class="stack" id="result-actions"></div>
       <div id="result-exits"></div>
       <div class="panel">
         <p class="lead" data-i18n="howSolved"></p>
-        <p class="clue clue--small" id="result-clue"></p>
-        <p id="result-explain"></p>
-        <p class="muted" id="result-credit" hidden></p>
+        <div class="solutions" id="result-solutions"></div>
         <p class="muted" id="result-next"></p>
       </div>
       <!-- «Propón tu críptico» (propose.js): a player's own clue, for the owner to review -->

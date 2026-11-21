@@ -19,44 +19,67 @@ assert.equal(E.numberOf('2026-11-20'), 2);
 assert.equal(E.numberOf('2026-11-18'), 1, 'never 0 or less, for a player west of the launch');
 assert.equal(E.addDays('2026-12-31', 1), '2027-01-01');
 const bank = CLUES[CLUE_LANG];
-const seen = new Set();
-for (let i = 0; i < bank.length; i++) seen.add(E.indexOf(E.addDays(E.LAUNCH, i), bank.length));
-assert.equal(seen.size, bank.length, 'every clue comes out once before any repeats');
-assert.equal(E.indexOf(E.addDays(E.LAUNCH, bank.length), bank.length), E.indexOf(E.LAUNCH, bank.length), 'then the cycle repeats');
-assert.equal(E.indexOf('2026-11-01', bank.length) >= 0, true, 'a date before the launch still has a clue');
+for (const l of E.LEVELS) {
+  const n = bank.filter(c => c.l === l).length;
+  const seen = new Set();
+  for (let i = 0; i < n; i++) seen.add(E.dayPicks(bank, E.addDays(E.LAUNCH, i))[E.LEVELS.indexOf(l)].index);
+  assert.equal(seen.size, n, `every ${l} clue comes out once before any repeats`);
+  assert.ok(n >= 14, `${l}: at least two weeks of clues`);
+}
+assert.ok(bank.every(c => E.LEVELS.includes(c.l)), 'every clue has a level');
+const today3 = E.dayPicks(bank, '2026-11-01');
+assert.deepEqual(today3.map(p => bank[p.index].l), E.LEVELS, 'a day plays easy, medium and hard, in that order (a date before the launch too)');
 
-// A round
-const clue = { c: 'Ramo revuelto: lo que sientes por tu pareja', a: 'AMOR', k: 'anagram', d: 'lo que sientes por tu pareja', x: '' };
-let s = E.newRound(0, { date: E.LAUNCH });
+// The score (the owner, 2026-11-20): 20 + 30 + 50, a hint costs more on a harder clue, solving beats giving up
+assert.equal(E.POINTS.e + E.POINTS.m + E.POINTS.h, 100, 'a perfect day is 100');
+assert.ok(E.HINT_COST.e < E.HINT_COST.m && E.HINT_COST.m < E.HINT_COST.h, 'a hint costs more on a harder clue');
+for (const l of E.LEVELS) assert.ok(E.POINTS[l] - E.MAX_HINTS * E.HINT_COST[l] > 0, `${l}: solved with every hint is still worth more than giving up`);
+
+// A game
+const clue = { c: 'Ramo revuelto: lo que sientes por tu pareja', a: 'AMOR', k: 'anagram', d: 'lo que sientes por tu pareja', x: '', l: 'e' };
+const mini = [clue, { ...clue, l: 'm' }, { ...clue, l: 'h' }];
+let s = E.newDay(E.LAUNCH, E.dayPicks(mini, E.LAUNCH));
+assert.equal(s.clues.length, 3);
 assert.equal(E.guess(s, '', clue).verdict, 'empty');
 assert.equal(E.guess(s, 'AMORES', clue).verdict, 'length', 'a guess of another length is not counted');
 let r = E.guess(s, 'mora', clue);
 assert.equal(r.verdict, 'wrong');
 s = r.state;
-assert.deepEqual(s.guesses, ['MORA']);
-s = E.hint(s); s = E.hint(s);
-assert.equal(s.hints, 2);
-r = E.guess(s, 'Amor', clue);
-assert.equal(r.verdict, 'right');
-s = r.state;
-assert.ok(E.isOver(s));
-assert.equal(E.stars(s), 1, 'three stars minus two hints');
-assert.equal(E.guess(s, 'AMOR', clue).verdict, 'over', 'nothing moves after the end');
-assert.equal(E.hint(s), s);
-let h = E.newRound(0);
+assert.deepEqual(E.current(s).guesses, ['MORA']);
+assert.equal(E.next(s), s, 'no next clue while this one is open');
+s = E.hint(s);
+assert.equal(E.hintsLeft(s), 2);
+s = E.guess(s, 'Amor', clue).state;
+assert.ok(E.isOver(E.current(s)) && !E.gameOver(s));
+assert.equal(E.guess(s, 'AMOR', clue).verdict, 'over', 'nothing moves on a clue that is over');
+assert.equal(E.hint(s), s, 'no hint on a clue that is over');
+s = E.next(s);
+assert.equal(s.step, 1);
+s = E.giveUp(s);
+s = E.next(s);
+s = E.hint(E.hint(E.hint(s)));
+assert.equal(E.hintsLeft(s), 0, 'three hints for the whole day');
+assert.equal(E.hint(s), s, 'none left');
+s = E.guess(s, 'amor', clue).state;
+assert.ok(E.gameOver(s));
+assert.equal(E.next(s), s, 'the last clue has no next');
+assert.equal(E.score(s, mini), (20 - 5) + 0 + (50 - 2 * 15), 'easy with 1 hint, medium given up, hard with 2');
+assert.equal(E.score(E.guess(E.newPractice(0), 'AMOR', clue).state, mini), 20, 'practice: one clue, its full worth');
+let h = E.newPractice(0);
 for (let i = 0; i < 5; i++) h = E.hint(h);
-assert.equal(h.hints, E.MAX_HINTS, 'three hints at most');
-const g = E.giveUp(E.newRound(0));
-assert.ok(E.isOver(g) && !g.solved);
-assert.equal(E.stars(g), 0);
-assert.equal(E.stars(E.guess(E.newRound(0), 'AMOR', clue).state), 3, 'solved with no hints: three stars');
+assert.equal(E.current(h).hints, E.MAX_HINTS, 'three hints at most on one clue');
+// A clue the player wrote is not theirs to play: the next of its level
+const authored = [{ ...clue, by: { n: 'Ana', j: 'abcdefghijkl' } }, { ...clue }, { ...clue, l: 'm' }, { ...clue, l: 'h' }];
+const at = E.dayPicks(authored, E.LAUNCH)[0].index;
+const theirs = E.dayPicks(authored, E.LAUNCH, 'abcdefghijkl')[0];
+assert.ok(at === 0 ? theirs.index === 1 && theirs.mine : theirs.index === at && !theirs.mine, 'the author gets another clue of the level');
 
 // The streak
 const days = { '2026-11-17': { solved: true }, '2026-11-18': { solved: true }, '2026-11-19': { solved: true } };
 assert.equal(E.streak(days, '2026-11-19'), 3);
 assert.equal(E.streak(days, '2026-11-20'), 3, 'today not played yet: the streak holds');
 assert.equal(E.streak(days, '2026-11-21'), 0, 'a missed day breaks it');
-assert.equal(E.streak({ ...days, '2026-11-20': { solved: false } }, '2026-11-20'), 3, 'given up today: the streak up to yesterday');
+assert.equal(E.streak({ ...days, '2026-11-20': { solved: false } }, '2026-11-20'), 3, 'today not finished: the streak up to yesterday');
 
 // Every clue: a known kind, its definition inside it at one end, a unique answer, and its wordplay adds up
 const sorted = w => [...E.normalize(w)].sort().join('');
@@ -90,7 +113,6 @@ for (const [lang, list] of Object.entries(CLUES)) {
     }
   }
 }
-assert.ok(bank.length >= 30, 'a month of clues before any repeats');
 
 // No answer in plain text where a player could search for it (D-595): the repo is public
 {

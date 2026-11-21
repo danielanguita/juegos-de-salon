@@ -3,7 +3,7 @@
  * Críptico's clue bank, with the answers sealed (public/labs/cryptic/sealed.js; the owner, 2026-11-20).
  * clues.js never holds an answer or an explanation in plain text: the repo is public.
  *
- *   node tools/generators/cryptic-clues.mjs add < clue.json   one clue { c, a, k, d, x, by? }, sealed, at the end of the bank
+ *   node tools/generators/cryptic-clues.mjs add < clue.json   one clue { c, a, k, l, d, x, by? }, sealed, at the end of the bank
  *   node tools/generators/cryptic-clues.mjs seal              seals any clue line still written in plain text
  *   node tools/generators/cryptic-clues.mjs list              the bank opened, to read in the terminal (never paste it in a PR)
  *
@@ -18,10 +18,10 @@ const FILE = fileURLToPath(new URL('../../public/labs/cryptic/clues.js', import.
 const q = s => `'${String(s).replace(/\\/g, '\\\\').replace(/'/g, "\\'")}'`;
 
 /** A clue → its line in clues.js, sealed. */
-export function line({ c, a, k, d, x, by }) {
-  if (!c || !a || !k || !d || !x) throw new Error('a clue needs c, a, k, d and x');
+export function line({ c, a, k, l, d, x, by }) {
+  if (!c || !a || !k || !d || !x || !['e', 'm', 'h'].includes(l)) throw new Error('a clue needs c, a, k, l (e, m or h), d and x');
   const author = by ? `, by: { n: ${q(by.n)}${by.j ? `, j: ${q(by.j)}` : ''} }` : '';
-  return `  { c: ${q(c)}, k: ${q(k)}, d: ${q(d)}, s: ${q(seal({ a, x }))}${author} },`;
+  return `  { c: ${q(c)}, k: ${q(k)}, l: ${q(l)}, d: ${q(d)}, s: ${q(seal({ a, x }))}${author} },`;
 }
 
 /** A clue line still in plain text (it has `a:`) → sealed; any other line as it was. */
@@ -43,7 +43,7 @@ if (cmd === 'seal' || cmd === 'add') {
   console.log(cmd === 'add' ? 'added, sealed: run node public/labs/cryptic/engine.test.mjs' : 'sealed');
 } else if (cmd === 'list') {
   const { CLUES } = await import('../../public/labs/cryptic/clues.js');
-  for (const [lang, bank] of Object.entries(CLUES)) bank.forEach((c, i) => console.log(`${lang} ${i + 1}. ${c.c} → ${c.a}`));
+  for (const [lang, bank] of Object.entries(CLUES)) bank.forEach((c, i) => console.log(`${lang} ${i + 1}. [${c.l}] ${c.c} → ${c.a}`));
 } else if (cmd) {
   console.error('commands: add, seal, list'); process.exit(1);
 }
