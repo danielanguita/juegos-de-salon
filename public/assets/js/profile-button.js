@@ -3,10 +3,12 @@
  * with the player's flag and name, as a ranking row shows them, and opens /profile/; the sound button
  * leaves the bar (it is in the profile's ⚙️ and in every game). Without a player, «👤 Entrar» opens the
  * same page, which invites to sign in. The streak is not repeated here: Uno al día's card shows it.
- * What it shows is the phone's own: no read waits for the network.
+ * The language toggle shrinks to the current flag and a ▾, which opens the three (the covers' `langButton`);
+ * the profile's ⚙️ keeps the full toggle too. What it shows is the phone's own: no read waits for the network.
  */
 import { leerYo } from './jugador.js';
 import { bandera } from './records.js';
+import { langButton } from './i18n.js';
 
 /** The button's name, as the profile page's title (profile/texts.js `pageTitle`). */
 export const LABEL = { es: 'Tu perfil', en: 'Your profile', pt: 'Seu perfil' };
@@ -30,4 +32,15 @@ export function profileButton({ lang = 'es', doc = document } = {}) {
   name.textContent = yo?.n || GUEST[lang] || GUEST.es;
   b.replaceChildren(flag, name);
   doc.getElementById('sound-slot')?.remove();
+  const slot = doc.getElementById('lang-slot');
+  if (slot && !slot.querySelector('.lang-btn')) {
+    const lb = langButton();
+    lb.classList.add('pf-lang');
+    const caret = doc.createElement('span');
+    caret.className = 'pf-lang-caret';
+    caret.setAttribute('aria-hidden', 'true');
+    caret.textContent = '▾';
+    lb.querySelector('button')?.append(caret);
+    slot.replaceChildren(lb);
+  }
 }

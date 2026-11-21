@@ -1,7 +1,7 @@
 // The player's profile at /profile/ (lab flag profile): with the flag off the page is Rankings; without a player it
 // invites to sign in, shows this phone's badges and the rankings; with one, its card, then 🎖️ badges (earned, locked
 // with progress, secret), 🏅 its places in each game it played (a tap opens the game's table) and ⚙️ its settings;
-// on the home page 🏅 becomes a pill with the player's flag and name. At 320 and 390 px nothing scrolls sideways and
+// on the home page 🏅 becomes a pill with the player's flag and name, and the language one flag with a ▾. At 320 and 390 px nothing scrolls sideways and
 // every tappable thing is 44 px or more (U-10). Prints ✗ if anything fails.
 import { output } from '../output.mjs';
 import { launch, sleep } from '../cdp.mjs';
@@ -94,8 +94,12 @@ for (const W of [320, 390]) {
   ok(await ev(`!!document.querySelector('#offline-ready-slot')`), `${W}: offline mode's ☁️ stays on the home page`);
   ok(await ev(`(() => { const a = document.getElementById('btn-rankings'), t = document.querySelector('.portada-barra .tools'); return a.getBoundingClientRect().right <= t.getBoundingClientRect().right + 1 && a.scrollWidth <= a.clientWidth + 1; })()`), `${W}: the name pill fits the bar`);
   ok(await ev(`!document.getElementById('sound-slot')`), `${W}: the sound button left the home page's bar`);
-  ok(await ev(`document.documentElement.scrollWidth <= ${W}`), `${W}: home, no sideways scroll`);
+  ok(await ev(`(() => { const l = document.querySelector('#lang-slot .pf-lang'); return !!l && !document.querySelector('#lang-slot > .lang-toggle') && l.querySelector('.icon-btn').textContent.includes('▾'); })()`), `${W}: the home page's language is one flag with a ▾`);
   await b.shot(`home-${W}`);
+  await ev(`document.querySelector('.pf-lang .icon-btn').click()`); await sleep(300);
+  ok(await ev(`(() => { const p = document.querySelector('.pf-lang .lang-pop'); if (!p || p.hidden) return false; const r = p.getBoundingClientRect(); return p.querySelectorAll('button').length === 3 && r.left >= 0 && r.right <= ${W}; })()`), `${W}: its ▾ opens the three languages, inside the screen`);
+  await b.shot(`home-lang-${W}`);
+  ok(await ev(`document.documentElement.scrollWidth <= ${W}`), `${W}: home, no sideways scroll`);
   b.close();
 }
 console.log(failures ? `✗ profile page: ${failures} failure(s)` : '✓ profile page');

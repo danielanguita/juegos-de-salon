@@ -502,6 +502,12 @@
     html .portada-barra .tools .icon-btn.pf-home { width: auto; max-width: 11rem; display: inline-flex; align-items: center; gap: var(--s-6); padding: 0 var(--s-14); font: 900 var(--fs-100) var(--font-body); }
     .pf-home-flag { flex: none; }
     .pf-home-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    /* …and the language toggle as one flag with a ▾ that opens the three; on the left, so its menu opens to the right */
+    .pf-lang .icon-btn { width: auto; display: inline-flex; align-items: center; gap: var(--s-4); padding: 0 var(--s-12); }
+    @media (max-width: 440px) { html.pill-bar .pf-lang .icon-btn { min-height: 54px; } }
+    .pf-lang-caret { font-size: var(--fs-85); color: var(--muted); }
+    .pf-lang .lang-pop { left: 0; right: auto; }
+    #lang-slot:has(.pf-lang) { min-width: 0; }
     /* Lab flag home-pill-bar (#1027): the round buttons become pills as tall as the language toggle, so the bar reads as one row */
     .pill-bar .portada-barra, .pill-bar .portada-barra .tools { align-items: stretch; }
     .pill-bar .portada-barra .tools > span { display: flex; }
