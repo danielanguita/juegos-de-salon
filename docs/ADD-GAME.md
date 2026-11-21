@@ -23,7 +23,7 @@ born (`tools/generators/new-game.test.mjs` proves it on a fresh one, untouched):
 - `public/assets/js/manifests/labs/<id>.js`, the manifest as a module (`game.js` reads it).
 - Its card in `public/labs/index.html`, first in 🎲 Juegos en prueba (D-409), its title opening with the game's drawing (or its emoji), which the lab's index pill shows too (`index-nav.test.mjs`).
 - `docs/games/<id>.md` with C-13's sections, `tools/e2e/<id>/game.mjs`, a script that plays it to the result, and `tools/e2e/<id>/languages.mjs`.
-- A game La Copa plays shows its `portada` (or else its `ejemplo`) alone in `cup/cover/?game=<id>`, which the home page's game sheet frames in the lab (flag `home-carousels`): keep that animation self-contained: the frame may show it from 0.5× to 3× its size (it fills the room the sheet leaves), and a paragraph with a link inside it (a credit line) is hidden there.
+- A game La Copa plays shows its `portada` (or else its `ejemplo`) alone in `cup/cover/?game=<id>`, which the home page's game sheet frames in the lab (sub-flag `home-carousels-sheet` of `home-carousels`): keep that animation self-contained: the frame may show it from 0.5× to 3× its size (it fills the room the sheet leaves), and a paragraph with a link inside it (a credit line) is hidden there.
 - Its cover in `tools/e2e/paths.mjs` (`'<id>': { intro: [] }`), so `landing-fold.mjs` measures it; the cover goes through `coverWithDialogs` and the result through `finDePartida` (the rankings).
 
 The game inside is a placeholder (a race to ten). Replace it, keeping what surrounds it:

@@ -625,7 +625,7 @@ public/                     The site (juegosdesalon.cl/): the only folder that g
   en/ · pt/ · de/             Language doors
   cup/                        The Cup: engine, stores (store-offline.js plays a pending day from the phone's copy, D-544), score breakdown, CSV export, reports, comments in the table (talk.js, D-562), demos, table image, recap (D-423, D-427)
     games/                    The Cup's games, one folder each (engine.js + ui.js + word content per language)
-    cover/                    One game's cover animation alone in a page (cover.js), for the frame in the home page's game sheet (lab: flag `home-carousels`)
+    cover/                    One game's cover animation alone in a page (cover.js), for the frame in the home page's game sheet (lab: sub-flag `home-carousels-sheet`)
   timeline/ · bulls-and-cows/ · hangman/ · liars-dice/ · generala/ · battleship/
                               The group games (engine.js + tests, game.js, rules.js, decks/ where needed)
   agents/ · queens/ …         The Cup's games played on their own (generated from cup/suelto/)
