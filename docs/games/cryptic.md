@@ -91,6 +91,23 @@ player could search for it:
   pending changelog, this game's folder, its e2e scripts and its docs. It is a veil, not a lock: someone set
   on it can decode the answers, and those added before D-595 stay in git history.
 
+## The owner's clue (the owner, 2026-11-20)
+
+When the owner proposes a clue in a session (the clue, its pieces and the answer), the session does not add
+it straight away. In order:
+
+1. **Evaluate it** against «Writing a clue» above: the wordplay gives exactly the answer and nothing else,
+   every piece is clued and right (a verb in the person and tense the clue says), the definition sits at one
+   end and is fair, the sentence reads as one story with no full stop or colon at the seam, it is not too
+   easy, the answer is not already in the bank (`cryptic-clues.mjs list`), and its trick does not repeat
+   the last few clues'.
+2. **Comment**: what works and what does not, briefly and with the reason.
+3. **Propose improvements** if there are any: one or two versions that keep the owner's idea and answer.
+   None when it is already good; say so.
+4. **Wait for the owner's choice**, then write it in the game: `cryptic-clues.mjs add`, sealed, its `k`,
+   `d` and `x`, in a 🟢 lab PR with auto-merge whose branch, commits and text never name the answer
+   (D-595).
+
 ## A player's clue (the owner, 2026-11-19)
 
 Part of the game, not a flag: at the end of every clue, «✍️ ¿Se te ocurre uno? Propón tu críptico» opens
