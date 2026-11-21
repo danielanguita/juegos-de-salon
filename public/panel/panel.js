@@ -1403,10 +1403,13 @@ function wbrGraficoSemanas(t) {
 /** WBR chart B: the newest week's games finished added up from Sunday, against the week before and the four-week average. */
 function wbrGraficoRitmo(t) {
   const r = t.ritmo, hoy = r.esta.length - 1;
-  const max = Math.max(1, ...r.esta, ...r.pasada, ...r.promedio);
+  // The Y axis: about four steps of 1, 2 or 5 × 10ⁿ games, the top one above every line
+  const alto = Math.max(1, ...r.esta, ...r.pasada, ...r.promedio);
+  const crudo = alto / 4, mag = 10 ** Math.floor(Math.log10(crudo)), paso = Math.max(1, [1, 2, 5, 10].map(m => m * mag).find(x => x >= crudo));
+  const max = Math.ceil(alto / paso) * paso, marcas = Array.from({ length: max / paso + 1 }, (_, i) => i * paso);
   const linea = (xs, clase) => svgEl('polyline', { class: clase, 'vector-effect': 'non-scaling-stroke', points: xs.map((v, i) => `${i},${100 - (v / max) * 100}`).join(' ') });
   const svg = svgEl('svg', { class: 'wbr-ritmo-svg', viewBox: '0 0 6 100', preserveAspectRatio: 'none', 'aria-hidden': 'true' });
-  for (const y of [25, 50, 75]) svg.append(svgEl('line', { class: 'wbr-ritmo-guia', x1: 0, x2: 6, y1: y, y2: y, 'vector-effect': 'non-scaling-stroke' }));
+  for (const m of marcas.slice(1)) svg.append(svgEl('line', { class: 'wbr-ritmo-guia', x1: 0, x2: 6, y1: 100 - (m / max) * 100, y2: 100 - (m / max) * 100, 'vector-effect': 'non-scaling-stroke' }));
   svg.append(linea(r.promedio, 'wbr-ritmo-prom'), linea(r.pasada, 'wbr-ritmo-pasada'), linea(r.esta, 'wbr-ritmo-esta'));
   const mismoDia = r.pasada[hoy], cambio = mismoDia ? Math.round((r.esta[hoy] / mismoDia - 1) * 100) : null;
   const dia = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][hoy];
@@ -1417,9 +1420,11 @@ function wbrGraficoRitmo(t) {
       el('li', { class: 'wbr-leyenda--pasada' }, `${r.anterior}: ${n(r.pasada[6])}`),
       el('li', { class: 'wbr-leyenda--prom' }, `Average of the four weeks before: ${n(Math.round(r.promedio[6]))}`)),
     el('div', { class: 'wbr-ritmo' },
+      el('div', { class: 'wbr-ritmo-eje' }, ...marcas.map(m => el('span', { style: `--y:${100 - (m / max) * 100}%` }, n(m)))),
       el('div', { class: 'wbr-ritmo-area' }, svg, el('span', { class: 'wbr-ritmo-punto', style: `--x:${(hoy / 6) * 100}%;--y:${100 - (r.esta[hoy] / max) * 100}%` })),
+      el('span', {}),
       el('div', { class: 'wbr-ritmo-dias' }, ...['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(d => el('span', {}, d)))),
-    el('p', { class: 'muted small' }, 'Each line adds up the games finished day by day, Pacific dates: the newest week against the same days of the week before.'));
+    el('p', { class: 'muted small' }, 'Games finished, added up day by day (Pacific dates): the newest week against the same days of the week before.'));
 }
 
 /** WBR chart D: a game's weeks, oldest to newest, in a line the width of a cell; the partial week dashed. */

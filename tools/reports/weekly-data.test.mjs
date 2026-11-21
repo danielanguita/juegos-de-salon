@@ -142,4 +142,17 @@ test('active browsers by game: real from the counter (D-590), an estimate before
   assert.deepEqual(t.sinTerminar.map(g => [g.juego.replace(/^\S+ /, ''), g.empiezan]), [['Generala', 2]], 'started by 2 browsers, finished by none: flagged');
 });
 
+test('active browsers by game: a month averages only the weeks a game was out, not zeros before its launch', () => {
+  const w = semanaCerrada(Date.parse('2026-11-15T12:00:00Z'));
+  const days = {
+    [w.from + 1]: { activos: { aaaaaaaaaa: 2, bbbbbbbbbb: 2 }, local: { aletazo: { solo: { 1: 2 } }, tango: { solo: { 1: 1 } } }, fin: { aletazo: { solo: 2 }, tango: { solo: 1 } },
+      jugadores: { aletazo: { aaaaaaaaaa: 2, bbbbbbbbbb: 2 }, tango: { aaaaaaaaaa: 2 } } },
+    [w.from - 7]: { activos: { cccccccccc: 2 }, jugadores: { tango: { cccccccccc: 2 } }, local: { tango: { solo: { 1: 1 } } }, fin: { tango: { solo: 1 } } },
+  };
+  const t = tendencia({ days, flags: { aletazo: { state: 'all', at: (w.from + 1) * DAY } } }, w), u = t.usuariosJuego;
+  const por = Object.fromEntries(u.filas.map(f => [f.juego.replace(/^\S+ /, ''), f]));
+  assert.deepEqual([por.Flap.valores[0], por.Flap.valores[5]], [2, 2], 'Flap, out on Monday of the closed week: November is that week alone, not (0 + 2) / 2');
+  assert.deepEqual([por.Tango.valores[0], por.Tango.valores[1], por.Tango.valores[5]], [1, 1, 1], 'a game out all along still averages every full week');
+});
+
 console.log(`reports/weekly-data: ${n} tests OK`);
