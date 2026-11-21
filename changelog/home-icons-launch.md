@@ -6,3 +6,5 @@ level: minor
   which replaces `home-carousels-covers` with the opposite meaning.
 - **✨ Sudoku and ¡Al toque! are no longer new** (the owner, 2026-11-21): their label ends, so in the icon view they
   move from ✨ Nuevos to their own rows.
+- **🔗 A shared game link** (`?game=<slug>`) still opens that game's sheet, but the taps after it now follow the
+  flag: a game's cover, not another sheet.

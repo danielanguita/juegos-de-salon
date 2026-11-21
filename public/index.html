@@ -802,7 +802,7 @@
       // only with the carousels on, so its switch in the T tab shows only under the main one. lab: #seccion-home-carousels-sheet
       const direct = () => import('./assets/js/flags.js').then(({ flag }) => flag('home-carousels-sheet')).then(sheet => !sheet).catch(() => true);
       // The sub-flag goes in as a promise: the rows do not wait for its read from Firebase
-      const draw = () => import('./assets/js/home-carousels.js').then(m => m.drawCarousels({ lang, T, games: JUEGOS_PORTADA, tap: () => SFX.tap(), openSlug: shared ? slug : null, direct: shared ? false : direct() }));
+      const draw = () => import('./assets/js/home-carousels.js').then(m => m.drawCarousels({ lang, T, games: JUEGOS_PORTADA, tap: () => SFX.tap(), openSlug: shared ? slug : null, direct: direct() }));
       const drawn = document.documentElement.classList.contains('carousels') ? draw() : null;
       drawn?.catch(() => document.documentElement.classList.remove('carousels'));
       import('./assets/js/flags.js').then(({ flag }) => flag('home-carousels')).then(async on => {

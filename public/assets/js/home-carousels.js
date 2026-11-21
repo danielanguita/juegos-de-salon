@@ -293,7 +293,11 @@ export async function drawCarousels({ lang, T, games, tap = () => {}, doc = docu
   // A shared link (`?game=<slug>`) opens that game's sheet at once, over the page
   if (openSlug) {
     const tile = [...box.querySelectorAll('.shelf-tile')].find(b => slugOf(games.find(g => g.id === b.dataset.id) || {}) === openSlug);
+    // The shared sheet opens whatever the taps do; the taps after it still follow the flag (a cover, or a sheet in the lab)
+    const was = isDirect;
+    isDirect = false;
     tile?.click();
+    isDirect = was;
   }
   const onFav = () => draw();
   doc.addEventListener('favoritos', onFav);
