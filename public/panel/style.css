@@ -533,6 +533,10 @@ table.wbr td.wbr-tendencia-celda { padding-top: 0; padding-bottom: 0; vertical-a
 .wbr-tendencia .wbr-tendencia-parcial { stroke-dasharray: 3 3; }
 .wbr-tendencia circle { fill: var(--pink); }
 
+/* The WBR's shared links (🔗 Share): one row each, the link then its buttons */
+.wbr-compartidos { margin: 0 0 var(--s-12); }
+.wbr-compartido { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-8); margin: var(--s-4) 0; }
+
 /* 📱 Screens: the bands with their phones, and the width × height cross */
 .pant-scroll { overflow-x: auto; }
 table.pant { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }

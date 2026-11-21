@@ -457,6 +457,8 @@ export const REUSES = {
   'labs/bridges/visitors': ['cup/games/bridges/'],
   // The lab's Dominorama prototype plays on La Copa's engine since the game left the lab (D-517's way), until the cleanup PR
   'labs/dominorama': ['cup/games/dominorama/'],
+  // The shared WBR page draws a week with the panel's own drawing and look (panel/wbr-view.js), no panel data
+  wbr: ['panel/wbr-view.js', 'panel/style.css'],
   // The home page's lab experiments (D-363, D-387): loaded only with ?lab or their parameter
   '': ['labs/home/', 'labs/experiments.css'],
 };

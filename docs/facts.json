@@ -1541,6 +1541,7 @@
     "public/panel/rooms-watch.js",
     "public/panel/rutas.js",
     "public/panel/timeline.js",
+    "public/panel/wbr-view.js",
     "public/panel/wbr.js",
     "public/privacy/texts.js",
     "public/sw.js",
@@ -1553,7 +1554,8 @@
     "public/timeline/decks/pop.js",
     "public/timeline/engine.js",
     "public/timeline/game.js",
-    "public/timeline/rules.js"
+    "public/timeline/rules.js",
+    "public/wbr/page.js"
   ],
   "tests": [
     "firebase/controls.test.mjs",
@@ -1568,6 +1570,7 @@
     "firebase/room-limits.test.mjs",
     "firebase/splash.test.mjs",
     "firebase/stats-pacific.test.mjs",
+    "firebase/wbr-shared.test.mjs",
     "marketing/served.test.mjs",
     "marketing/splash/campaigns.test.mjs",
     "marketing/splash/teaser.test.mjs",
@@ -1994,6 +1997,7 @@
     "versioning.mjs",
     "visual-refs.test.mjs",
     "visual.mjs",
+    "wbr/shared.mjs",
     "wobbles/game.mjs",
     "wobbles/languages.mjs"
   ],

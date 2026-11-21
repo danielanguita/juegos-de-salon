@@ -329,6 +329,13 @@ the panel: the daily `traction` workflow writes it as administrator with
 `tools/firebase/traction.mjs --write`. Public read, like the rest of `controls`; only these
 aggregate numbers, never an id, game, country or time, and any other field is rejected.
 
+## Shared WBRs (`wbrShared`)
+
+The owner's 🔗 Share in the panel's WBR writes `wbrShared/<id>`: `{ json, from, to, at }`, the frozen week as a JSON
+string (≤ 300,000 characters; a string because RTDB drops the nulls of an array), its Pacific day range and when.
+Only the owner writes or lists it; each `<id>` (22 characters of `A-Za-z0-9_-`) is readable by anyone who has it, for
+the public page `/wbr/?id=<id>`. Tests: `firebase/wbr-shared.test.mjs`.
+
 ## Lab flags (`flags`, D-498)
 
 `flags/<id>` = `{ state: 'lab'|'all'|'off', at }`: a runtime gate for something still in the lab,
