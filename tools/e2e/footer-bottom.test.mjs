@@ -6,7 +6,7 @@ import { readdirSync, readFileSync, statSync, existsSync } from 'node:fs';
 import { join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { manifestFolders } from '../generators/manifests.mjs';
-import { SUELTOS } from '../../public/assets/js/games.js';
+import { COVER_GAMES } from './footer-bottom.mjs';
 import { PAGES, NO_FOOTER } from './pages-footer-bottom.mjs';
 
 const ROOT = fileURLToPath(new URL('../../public/', import.meta.url));
@@ -20,7 +20,7 @@ const walk = dir => {
 };
 walk(ROOT);
 
-const byScript = { 'conformance.mjs': manifestFolders(), 'cup-games/footer-bottom.mjs': SUELTOS.map(m => m.slug), 'pages-footer-bottom.mjs': PAGES };
+const byScript = { 'conformance.mjs': manifestFolders(), 'cup-games/footer-bottom.mjs': COVER_GAMES, 'pages-footer-bottom.mjs': PAGES };
 const placed = new Set([...Object.values(byScript).flat(), ...Object.keys(NO_FOOTER)]);
 const lost = pages.filter(p => !placed.has(p));
 assert.deepEqual(lost, [], `pages no script measures under the footer: ${lost.map(p => '/' + p).join(', ')}.

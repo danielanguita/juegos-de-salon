@@ -7,8 +7,12 @@
 // own last row. Returns null when it does, else what was found.
 import { readFileSync } from 'node:fs';
 import { decode } from './png.mjs';
+import { SUELTOS } from '../../public/assets/js/games.js';
 
 export const TALL = 1016, HIDDEN = 56;
+
+/** La Copa's games whose cover is measured: the ones out of the lab (a lab one may not have its cover yet). */
+export const COVER_GAMES = SUELTOS.filter(g => !g.labs && g.available !== false).map(g => g.slug);
 
 /** The median color of one row of the screenshot, in CSS px (the shot is at 2×). */
 const rowColor = (img, y) => {

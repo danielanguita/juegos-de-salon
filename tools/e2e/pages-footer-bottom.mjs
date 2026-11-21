@@ -14,6 +14,7 @@ export const PAGES = ['', 'en', 'pt', 'de', 'cup/suelto', 'records', 'today', 'l
 
 /** The pages with no footer of their own, each with why (R-4). */
 export const NO_FOOTER = {
+  case: 'a lab game of La Copa played full screen, no cover yet',
   'cup/cover': "a game's cover animation alone, framed by the home page's game sheet",
   'cup/recap': "La Copa's recap card, a single image-like screen",
   'labs/bridges/trains': "a lab demo of one piece of Tren en Vilo, no page around it",
