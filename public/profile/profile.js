@@ -276,18 +276,20 @@ function accountPanel(yo) {
     btn.addEventListener('click', () => {
       tap();
       const open = box.hidden;
-      for (const f of forms) { f.box.hidden = true; f.btn.setAttribute('aria-expanded', 'false'); }
+      for (const f of forms) { f.box.hidden = true; f.btn.setAttribute('aria-expanded', 'false'); f.btn.textContent = T.change; }
       box.hidden = !open; btn.setAttribute('aria-expanded', String(open));
+      // While its form is open, the row's button closes it
+      btn.textContent = open ? T.cancel : T.change;
       if (open) box.querySelector('input')?.focus();
     });
     return el('div', { class: 'pf-account-item' },
-      el('div', { class: 'toggle-row pf-account-row' }, el('span', { class: 'txt' }, el('small', { class: 'pf-account-label' }, label), value, el('small', {}, hint)), btn), box);
+      el('div', { class: 'pf-account-row' }, el('span', { class: 'txt' }, el('small', { class: 'pf-account-label' }, label), value, el('small', {}, hint)), btn), box);
   };
   const say = (p, cls, text) => { p.className = cls; p.textContent = text; };
 
   // The name: the new one and the PIN
   const name = el('input', { id: 'pf-new-name', maxlength: '20', autocomplete: 'nickname', 'aria-label': T.newName, value: yo.n });
-  const namePin = pinInput('pf-name-pin', RK.pinLabel);
+  const namePin = pinInput('pf-name-pin', RK.currentPin);
   const nameMsg = el('p', { class: 'rk-error', role: 'alert' });
   const saveName = el('button', { type: 'button', class: 'btn btn--cyan btn--sm', id: 'pf-save-name' }, T.saveName);
   saveName.addEventListener('click', async () => {
@@ -338,7 +340,7 @@ function accountPanel(yo) {
   return el('section', { class: 'panel pf-settings', id: 'pf-account' }, el('p', { class: 'lead rk-titulo' }, T.account),
     row(T.nameRow, T.nameHint, nameNow, [
       el('label', { class: 'rk-campo' }, el('span', {}, T.newName), name),
-      el('label', { class: 'rk-campo' }, el('span', {}, RK.pinLabel), namePin),
+      el('label', { class: 'rk-campo' }, el('span', {}, RK.currentPin), namePin),
       saveName, nameMsg,
     ]),
     done,

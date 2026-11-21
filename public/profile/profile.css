@@ -78,13 +78,16 @@
 .pf-settings .rk-titulo { margin-bottom: var(--s-4); }
 .pf-name-now { font-weight: 900; white-space: nowrap; }
 /* 👤 Your account: each row's value and its «Cambiar», its form under it; «Salir de tu cuenta» asks once */
-.pf-account-item { display: grid; gap: var(--s-8); }
+/* Each row is one card with its form inside it, so the form reads as that row's */
+.pf-account-item { display: grid; gap: var(--s-8); background: var(--well); border-radius: var(--r-14); padding: var(--s-10) var(--s-14); }
+.pf-account-row { display: flex; align-items: center; justify-content: space-between; gap: var(--s-12); }
+.pf-account-row .txt small { color: var(--muted); font-weight: 700; font-size: var(--fs-75); line-height: 1.25; display: block; }
 .pf-account-row .txt { min-width: 0; display: grid; gap: var(--s-2); }
 .pf-account-row .pf-account-label { text-transform: uppercase; letter-spacing: 0.08em; font-weight: 900; }
 .pf-account-row .pf-name-now, .pf-account-row .pf-pin-dots { display: block; font-size: var(--fs-110); white-space: normal; overflow-wrap: anywhere; }
 .pf-account-row .pf-change { flex: none; }
 .pf-pin-dots { letter-spacing: 0.15em; }
-.pf-form { display: grid; gap: var(--s-8); padding: var(--s-4) var(--s-4) 0; }
+.pf-form { display: grid; gap: var(--s-8); padding: var(--s-4) 0 var(--s-4); }
 .pf-form[hidden], .pf-logout-ask[hidden], .pf-logout[hidden] { display: none; }
 .pf-form .btn { justify-self: center; }
 .pf-logout { justify-self: center; margin-top: var(--s-6); }
