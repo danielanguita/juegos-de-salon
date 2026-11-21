@@ -167,11 +167,10 @@ function badgePanels(list, { only = null } = {}) {
 }
 
 function card(yo, f, list) {
-  const initial = (yo.n || '?').trim().charAt(0).toUpperCase();
   const got = list.filter(b => b.got).length;
+  // The flag and the name are the player, as on every table (the owner, 2026-11-21: no initial in a circle)
   return el('section', { class: 'panel pf-card' },
     el('div', { class: 'pf-who' },
-      el('span', { class: 'pf-avatar', 'aria-hidden': 'true' }, initial),
       el('div', {},
         el('p', { class: 'pf-player' }, conBandera(yo.co, yo.n)),
         el('p', { class: 'muted pf-since' }, [f.since ? fmt(T.since, { month: monthName(f.since) }) : null, fmt(T.badgesOf, { n: got, total: BADGES.length })].filter(Boolean).join(' · ')))),

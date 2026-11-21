@@ -11,13 +11,8 @@
 .pf-tab { display: grid; gap: var(--s-12); }
 .pf-tab[hidden] { display: none; }
 
-/* The player's card: initial, name, since when; three figures */
-.pf-who { display: grid; grid-template-columns: auto 1fr; gap: var(--s-14); align-items: center; }
-.pf-avatar {
-  width: 64px; height: 64px; border-radius: 50%; display: grid; place-items: center;
-  font: var(--fs-200) var(--font-display); background: linear-gradient(135deg, var(--yellow), var(--orange)); color: var(--ink-on-yellow);
-  box-shadow: 0 0 0 3px rgb(var(--cyan-rgb) / 0.6);
-}
+/* The player's card: flag and name, since when; three figures */
+.pf-who { display: grid; text-align: center; }
 .pf-player { margin: 0; font-weight: 900; font-size: var(--fs-140); line-height: 1.2; overflow-wrap: anywhere; }
 .pf-since { margin: var(--s-2) 0 0; font-size: var(--fs-90); }
 .pf-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--s-8); margin-top: var(--s-14); }

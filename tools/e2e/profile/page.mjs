@@ -63,7 +63,7 @@ for (const W of [320, 390]) {
   })()`);
   await b.go(`${SITE}/profile/?test`, 4000);
   ok(await ev(`document.querySelector('.pf-player')?.textContent.includes('Javi')`), `${W}: the card names the player`);
-  ok(await ev(`document.querySelector('.pf-avatar')?.textContent`) === 'J', `${W}: the card shows the player's initial`);
+  ok(await ev(`!document.querySelector('.pf-avatar') && !!document.querySelector('.pf-card .pf-player .rk-flag, .pf-card .pf-player')`), `${W}: the card is the player's flag and name, no initial in a circle`);
   ok(/14/.test(await ev(`document.querySelector('.pf-stat b')?.textContent`)), `${W}: the card shows the 14-day streak`);
   ok(await ev(`!!document.querySelector('[data-badge="streak-10"]:not(.pf-badge--locked)')`), `${W}: 🔥 10 in a row is earned`);
   ok(/14 \/ 30/.test(await ev(`document.querySelector('[data-badge="streak-30"]')?.textContent`)), `${W}: 🔥 30 in a row shows its progress, 14 / 30`);
@@ -105,7 +105,7 @@ for (const W of [320, 390]) {
   for (const page of ['queens', 'today', 'records']) {
     await b.go(`${SITE}/${page}/?test`, 3000);
     ok(await ev(`(() => { const t = document.querySelector('.topbar .tools'), a = t?.querySelector('.pf-home'); if (!a || t.lastElementChild !== a || !/\\/profile\\/$/.test(a.getAttribute('href'))) return false; const r = a.getBoundingClientRect(), tr = document.querySelector('.topbar').getBoundingClientRect(); return r.right <= tr.right + 1 && r.height >= 43.5 && r.width >= 43.5 && Math.abs(r.top - t.getBoundingClientRect().top) < 2; })()`), `${W}: /${page}/ ends its top bar with the profile's pill, on the same row, 44 px or more`);
-    ok(await ev(`${W} >= 375 ? document.querySelector('.topbar .pf-home-name')?.textContent === 'Javi' : getComputedStyle(document.querySelector('.topbar .pf-home-initial')).display !== 'none' && document.querySelector('.topbar .pf-home-initial').textContent === 'J'`), `${W}: /${page}/'s pill shows ${W >= 375 ? 'the name' : 'the initial'}`);
+    ok(await ev(`${W} >= 375 ? document.querySelector('.topbar .pf-home-name')?.textContent === 'Javi' : getComputedStyle(document.querySelector('.topbar .pf-home-icon')).display !== 'none' && getComputedStyle(document.querySelector('.topbar .pf-home-name')).display === 'none'`), `${W}: /${page}/'s pill shows ${W >= 375 ? 'the name' : '👤, no initial'}`);
     ok(await ev(`(() => { const l = document.querySelectorAll('.topbar .lang-btn'); return l.length === 1 && l[0].classList.contains('pf-lang') && !document.querySelector('.topbar .lang-toggle:not(.lang-pop .lang-toggle)'); })()`), `${W}: /${page}/'s language is one flag button`);
     await ev(`document.querySelector('.topbar .pf-lang .icon-btn').click()`); await sleep(300);
     ok(await ev(`(() => { const p = document.querySelector('.topbar .lang-pop'); if (!p || p.hidden) return false; const r = p.getBoundingClientRect(); return r.left >= 0 && r.right <= ${W}; })()`), `${W}: /${page}/'s language opens inside the screen`);
