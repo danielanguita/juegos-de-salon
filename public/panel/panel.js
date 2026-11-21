@@ -1457,7 +1457,7 @@ function vistaWbr(now) {
     el('thead', {}, el('tr', {}, el('th', {}, cabezaCol), tendencia ? el('th', {}, 'Trend') : null, ...t.columnas.map((c, i) => el('th', { class: i === 5 + k ? 'wbr-mes' : null }, c)))),
     el('tbody', {}, ...filas.map(([nombre, valores, cambio, dec, clase, est]) => el('tr', { class: clase || null }, el('th', {}, nombre),
       tendencia ? el('td', { class: 'wbr-tendencia-celda' }, dec === '%' ? '' : wbrTendencia(t, valores)) : null,
-      ...valores.map((v, i) => { const x = `${est?.[i] && v !== null ? '~' : ''}${fmt(v, dec)}`; return el('td', { class: [i === k ? 'wbr-ahora' : '', i === 5 + k ? 'wbr-mes' : ''].filter(Boolean).join(' ') || null },
+      ...valores.map((v, i) => { const x = `${est?.[i] && v !== null ? '~' : ''}${fmt(v, dec)}`; return el('td', { class: [i === k ? 'wbr-ahora' : '', i === 5 + k ? 'wbr-mes' : '', v === null ? 'wbr-na' : ''].filter(Boolean).join(' ') || null },
         i === k && v !== null ? [el('b', {}, x), cambioTxt(cambio)] : x); }))))));
   const u = t.usuariosJuego;
   const desdeConteo = u.desdeReal ? `the count by game began (${u.desdeReal.replace(/, \d{4}$/, '')}, D-590)` : 'the count by game began (D-590)';

@@ -482,6 +482,8 @@ table.wbr thead th { font-size: var(--fs-75); font-weight: 600; opacity: .75; }
 table.wbr tbody th, table.wbr thead th:first-child { position: sticky; left: 0; z-index: 1; text-align: left; background: var(--bg1); font-weight: 600; white-space: normal; min-width: 7.5em; max-width: 34vw; }
 table.wbr .wbr-mes { border-left: 2px solid var(--glass-border); }
 table.wbr td.wbr-ahora { font-weight: 400; }
+/* n/a: nothing measured yet, faded so the numbers stand out */
+table.wbr td.wbr-na { color: rgb(var(--ink-rgb) / .4); }
 /* The top 10's total rows, set apart from the ten */
 table.wbr tr.wbr-total > * { border-top: 2px solid var(--glass-border); }
 
