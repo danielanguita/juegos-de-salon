@@ -95,6 +95,8 @@ const ES = [
   { c: 'El océano ante el puesto de guardia, y se sirve con sal en el borde', k: 'charade', l: 'm', d: 'se sirve con sal en el borde', s: 'EVcERVVRYCU3ajIzJTsvDU9QEVJOSy4uOFVNAgNTQgemhBIPA0ZOBEM1KCI9PSJPQgUQAhwHQkQBSFMGGQ4cSwoTQFBJSS4uODIkNSYnbEhFSB9BD6zdTBcXBVAFHAZPGRBFFAYBWwFFThwPTBwPQ0MXB1ARBUMNBQcBAk8XSEQJTFMCAx8PDR4=' },
   { c: 'Una resina alborotada me llama desde las olas', k: 'anagram', l: 'm', d: 'me llama desde las olas', s: 'EVcERVVRfi03aD0gTkNMV0FISzwVGkMDDwEXBhxTSQFFfzYyJSEvA0MTBRIbGwwbCxEEFENTSwsXQBIPTDwnfSY8KFxUGBYKShkJBgISDQVFQRwSTAIPXQocDAIbGkMLDwYBAk8fTBdFQh8AH00T' },
   { c: 'Se da cuenta al revés y es difícil de atrapar', k: 'reversal', l: 'm', d: 'es difícil de atrapar', s: 'EVcERVVRfyUx7uAvTkNMV0FISz47PSI9Sl0WAk8XTEQGWBYPGA5HDwIeSQIRH6DGGVVYRz0yeaf2Y19BCAYI7M4RABxUDQZPCwEXBh8SX0YY' },
+  { c: 'La novia, un tanto alterada, cruzó el Atlántico en cosa de horas', k: 'anagram', l: 'h', d: 'cruzó el Atlántico en cosa de horas', s: 'EVcERVVRbDIs7uAvTkNMV0FISzwVGkMDDwEXBhxTSQFFYzw3JS5CDwIeHRUGCAcOGVlFAQABQAULDTI3Jaz9YU9SGAURSQAdHw8ERwofDSURQbDAAhsHTAxSDB5UCgwcC1UBAk8bQhYEXlEc' },
+  { c: 'La flecha salió de ahí, le dio en el color del ojo y apareció cuando paró de llover', k: 'charade', l: 'h', d: 'apareció cuando paró de llover', s: 'EVcERVVRbDYmYrDsPiY9DU9QEVJOSycKShEKCQsWDRcEQRZBAA5OSQ8XChgVU0MuODYqXE8WQUQGQh8OHk8KSg9SBhobU0MmODw2SU85WAoRQgBNTC48bCyx5CI9Ok9PGwAARw4DTBYAThZBDxoPQQcdSQAVGwJPDhBFCwMcWwEXDw4=' },
 ];
 
 /** Spanish only for now (the owner, 2026-11-19): the mechanics first, the other banks once it works. */
