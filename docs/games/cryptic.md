@@ -75,7 +75,7 @@ Every clue in `clues.js` follows these rules:
 1. **One natural sentence that tells another story.** No colon or semicolon splitting wordplay from
    definition: the seam is the player's to find («Di que se va, pero exige flores en el camarín»).
 2. **Every piece is clued too, never written out**: a synonym (cara for costosa), a note (SOL, RE, LA), a Roman
-   number (V), a chemical symbol (NA), a translation (tour for GIRA), as «beso catalán» is PETÓ. The step must be one the player takes: a word in the sense people use it (DADO as «seis caras», never «regalado», the owner). Only anagrams
+   number (V), a chemical symbol (NA), a translation (tour for GIRA), as «beso catalán» is PETÓ. The step must be one the player takes: a word in the sense people use it (a die as «seis caras», never the participle «regalado», the owner). Only anagrams
    and hidden words show their letters, and then the definition carries the difficulty.
 3. **A fair but sideways definition** at one end: «donde duermen los barcos» for a port, «tiene cuatro
    esquinas» for a city block, never the dictionary line.

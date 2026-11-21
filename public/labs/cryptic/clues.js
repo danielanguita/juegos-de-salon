@@ -89,6 +89,12 @@ const ES = [
   { c: 'Trae noticias y casi siempre aparece en el restaurante', k: 'definitions', l: 'e', d: 'Trae noticias', s: 'EVcERVVRbiU3eTJDQE0WDVlQKjEmPSJVShkERx4GSEQRXxIETAEBWwoRABEHSQYBSgALRxwcTxYAAVMYTAMPDwcXBVAGDBAbCwAXBgEHSEhFThwPTBwbXEMCBREABhBBSAg=' },
   { c: 'Manda menos que un sargento y se mete en el mar', k: 'definitions', l: 'e', d: 'Manda menos que un sargento', s: 'EVcERVVRbiUnYlFNThdMFUExKDI7U0MKBlUCFQ4XQkQHTBkOTAoCDxATGxcRBxcARlUcRwMSDRQQQwcATAsLDxcbDAIGCEMeHxBFFApTQAERSFMEAk8LQ0MfCAJaSx4=' },
   { c: 'Mientras sostiene la pintura, grita «¡También fui plata en Alemania!»', k: 'definitions', l: 'e', d: 'Mientras sostiene la pintura', s: 'EVcERVVRYCU3bjxDQE0WDVlQJDEmKixVShAJRx4GSEQWQgAVBQoASkMeCFAEAA0bHwcERwodDQgEDQMAHgoKA0MLSRwVSQ4ABBABBk8CWAFFWQYXA08vQwYfCB4dCEMOBAEAFE8XSAhFSAYTA0FMUg==' },
+  { c: 'Un tsunami en el desayuno', k: 'charade', l: 'e', d: 'en el desayuno', s: 'EVcERVVRajYkYzwtLU1CDRtQU1IhB0MbGQALBgIaDQEWDQYPDU8pfSI8ST84KFlPAAALEw4AAUQifzIvIyMvA0MDHBVUGgZPCRoIAk8WQ0QAQVMFCRwPVhYcBlIJ' },
+  { c: 'Un santo de 24 horas, ¡qué refrescante!', k: 'charade', l: 'm', d: '¡qué refrescante!', s: 'EVcERVVRfiUrabDsLU1CDRtQU1InKC1PQgYECRscBERODTei4S5OB1FGSRgbGwIcQ1VYRzwyYyCmoDJNTK3PXhaxwFAGDAUdDwYGBgEHSEVHUA==' },
+  { c: 'Se le hizo de noche al soldado y ahora rueda por la mesa', k: 'deletion', l: 'm', d: 'ahora rueda por la mesa', s: 'EVcERVVRaSUhYlFNThdMFUEzBVAcCAAKGAYARwsWDQoKThsETBwLDxUTSRUYSTAgJk9FNCA/aSUhYlMSBQFOfCw+SU1ULSIrJVlFFhoWDRYQSBcATB8BXUMeCFAZDBAOSAg=' },
+  { c: 'El océano ante el puesto de guardia, y se sirve con sal en el borde', k: 'charade', l: 'm', d: 'se sirve con sal en el borde', s: 'EVcERVVRYCU3ajIzJTsvDU9QEVJOSy4uOFVNAgNTQgemhBIPA0ZOBEM1KCI9PSJPQgUQAhwHQkQBSFMGGQ4cSwoTQFBJSS4uODIkNSYnbEhFSB9BD6zdTBcXBVAFHAZPGRBFFAYBWwFFThwPTBwPQ0MXB1ARBUMNBQcBAk8XSEQJTFMCAx8PDR4=' },
+  { c: 'Una resina alborotada me llama desde las olas', k: 'anagram', l: 'm', d: 'me llama desde las olas', s: 'EVcERVVRfi03aD0gTkNMV0FISzwVGkMDDwEXBhxTSQFFfzYyJSEvA0MTBRIbGwwbCxEEFENTSwsXQBIPTDwnfSY8KFxUGBYKShkJBgISDQVFQRwSTAIPXQocDAIbGkMLDwYBAk8fTBdFQh8AH00T' },
+  { c: 'Se da cuenta al revés y es difícil de atrapar', k: 'reversal', l: 'm', d: 'es difícil de atrapar', s: 'EVcERVVRfyUx7uAvTkNMV0FISz47PSI9Sl0WAk8XTEQGWBYPGA5HDwIeSQIRH6DGGVVYRz0yeaf2Y19BCAYI7M4RABxUDQZPCwEXBh8SX0YY' },
 ];
 
 /** Spanish only for now (the owner, 2026-11-19): the mechanics first, the other banks once it works. */
