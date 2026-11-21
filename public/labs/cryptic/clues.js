@@ -80,6 +80,7 @@ const ES = [
   { c: 'El hombre junto a un frasco de vidrio. It\'s delicious!, exclama', k: 'charade', d: 'It\'s delicious!, exclama', s: 'EVcERVVRYCUrZzIzTkNMV0FISz01J0NHAhoIBR0WAUQAQ1MIAggC7MoBQFBfSSkuOFVNAR0SXgcKAVMEAk8HQQQeqtkHQENSSjgkKSUyf0hFTB8GA08KSg8bChkbGgxPQgxFAgFTbgwMQRZNTAoCDwcHBRMRSQcKShkABAcWBEpFaB9BBQEJQ6DbGlAQDEMDC1UAHwwfTAkEThqi3wFOThUbGhFUDA1PGwCmzk8aSQ0KQBJBCRwa7MIcSRwVGkMfAxAfBhxdDxk=' },
   { c: 'A principios de 2892, encontré por fin el lugar indicado', k: 'selector', d: 'el lugar indicado', s: 'EVcERVVRaSsraTZDQE0WDVlQJR8HSRMdAxsGDh8aQhdFSRZBXldXHU9SDRkXAQxPLhoWS088TgwKAVMvGQoYSk9SLR8HU0MrJTshXE8KDabOSB0CAwEaXaDbq8tUGQwdShMMCUNTXhFF7skNGAYDTkMeDAQGCFlPL1tFIyA9aURODTZBUU8qYC02LFxUDA9PBgACBh1TRAoBRBAACABADR4=' },
   { c: 'El ruido del silencio y los hombres de Nueva York. Fue horrible', k: 'charade', d: 'Fue horrible', s: 'EVcERVVRbjYsYDYvTkNMV0FISzMmIENHDxlFFRoaSQtFSRYNTBwHQwYcChkbU0MMGBxJRwwBRE1FBlMsKSFOBwsdBBIGDBBDShALRwofDQ0LSh+ixRxOSwZSJwURHwJPMxoXDEZTEEQmfzosKSFADyUHDFAcBhEdAxcJAkFRUA==' },
+  { c: 'El ser de mi pasado en España y el ir hoy por Inglaterra. ¡Cómo arde!', k: 'charade', d: '¡Cómo arde!', s: 'EVcERVVRazEgajxDQE0WDVlQLyUxSUsKBlUTAh0RQkQWSAFBCQFOXwIBCBQbRUMKBFUAFB8S7tUKQVpBR08pYENaAAJYSQYBShwLAAOwhBdMDU5BKjoraCxcSbLVKqDcBxpFBh0XSEVHUA==' },
 ];
 
 /** Spanish only for now (the owner, 2026-11-19): the mechanics first, the other banks once it works. */
