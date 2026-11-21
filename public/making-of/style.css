@@ -165,8 +165,8 @@ main { position: relative; z-index: 1; max-width: 1080px; margin: 0 auto; paddin
   /* The section bar on a phone: one row, the 🎲 held at the left and the sections as chips that slide
      sideways (the one on screen is yellow and slides into view), instead of three or four wrapped lines */
   html { scroll-padding-top: calc(var(--s-32) * 2); }
-  .mo-nav { flex-wrap: nowrap; gap: var(--s-8); padding: var(--s-6) 0 var(--s-6) var(--s-12); }
-  .mo-nav .mo-brand { flex: none; margin-right: 0; font-size: var(--fs-120); }
+  .mo-nav { flex-wrap: nowrap; gap: var(--s-4); padding: var(--s-6) 0 var(--s-6) var(--s-4); }
+  .mo-nav .mo-brand { flex: none; display: flex; align-items: center; justify-content: center; min-width: 44px; min-height: 44px; margin-right: 0; font-size: var(--fs-120); }
   .mo-nav .mo-brand .mo-brand-name { display: none; }
   .mo-links {
     display: flex; gap: var(--s-8); min-width: 0; overflow-x: auto; scrollbar-width: none; overscroll-behavior-x: contain;
