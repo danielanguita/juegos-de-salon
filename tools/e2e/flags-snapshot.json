@@ -134,6 +134,9 @@
   "uad-skip-end": {
     "state": "all"
   },
+  "wins-hide-empty": {
+    "state": "all"
+  },
   "word-in-words": {
     "state": "all"
   }

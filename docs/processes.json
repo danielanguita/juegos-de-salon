@@ -1,5 +1,5 @@
 {
-  "checkedUpTo": "267ded6d9f2b69f42061c52c04103ea3d7702f2a",
+  "checkedUpTo": "a1befe7ec08699c412eca8b25021ecb1a39f69a8",
   "patterns": [
     {
       "key": "version-hacia-atras",
@@ -986,6 +986,40 @@
         }
       ],
       "mechanism": null
+    },
+    {
+      "key": "changelog-spanish-name",
+      "what": "CI tests: tools/agents/english.test.mjs · ",
+      "seen": [
+        {
+          "date": "2026-11-19T00:58:44.061Z",
+          "what": "#1628 tests: tools/agents/english.test.mjs",
+          "commit": "7a67c90dfe4d150fc64883b367ef06cb2914e8fc"
+        },
+        {
+          "date": "2026-11-19T16:14:36.002Z",
+          "what": "#1648 tests: tools/agents/english.test.mjs",
+          "commit": "6f216bfc427e7568e58a93b8ca21c84689609d99"
+        },
+        {
+          "date": "2026-11-19T16:15:05.841Z",
+          "what": "#1648 tests: tools/agents/english.test.mjs",
+          "commit": "5778971e3132fab9c9bdb6998123d42e088626b0"
+        },
+        {
+          "date": "2026-11-20T16:51:41.894Z",
+          "what": "#1704 tests: tools/agents/english.test.mjs",
+          "commit": "d484ad84dbda48b1004d766231a29d14d6583e18"
+        }
+      ],
+      "mechanism": {
+        "date": "2026-11-21",
+        "what": "changelog.mjs new names the entry file in English (entryFile, changelog.test.mjs), so a branch with a Spanish word no longer fails english.test.mjs",
+        "pr": "https://github.com/ellokojavi/juegos-de-salon/pull/1731"
+      },
+      "signatures": [
+        "e2c4295683"
+      ]
     }
   ],
   "mechanisms": [
@@ -1162,6 +1196,12 @@
       "key": "push-guard-swallowed",
       "what": "The push-guard hook passes its exit 2 through; push-guard.test.mjs runs every blocking hook's command against a stub",
       "pr": "https://github.com/ellokojavi/juegos-de-salon/pull/1701"
+    },
+    {
+      "date": "2026-11-21",
+      "key": "changelog-spanish-name",
+      "what": "changelog.mjs new names the entry file in English (entryFile, changelog.test.mjs), so a branch with a Spanish word no longer fails english.test.mjs",
+      "pr": "https://github.com/ellokojavi/juegos-de-salon/pull/1731"
     }
   ],
   "queueDone": [
@@ -1178,12 +1218,12 @@
   ],
   "dispatches": {
     "documentation": {
-      "date": "2026-11-20",
-      "to": "267ded6d9f2b69f42061c52c04103ea3d7702f2a"
+      "date": "2026-11-21",
+      "to": "a1befe7ec08699c412eca8b25021ecb1a39f69a8"
     },
     "usability": {
-      "date": "2026-11-20",
-      "to": "267ded6d9f2b69f42061c52c04103ea3d7702f2a"
+      "date": "2026-11-21",
+      "to": "a1befe7ec08699c412eca8b25021ecb1a39f69a8"
     },
     "ideas": {
       "date": "2026-11-18",
@@ -1450,6 +1490,14 @@
       "issue": null,
       "pr": "https://github.com/ellokojavi/juegos-de-salon/pull/1701",
       "note": "push-guard hook fixed; usability dispatched, still running at handback"
+    },
+    {
+      "date": "2026-11-21",
+      "from": "267ded6d9f2b69f42061c52c04103ea3d7702f2a",
+      "to": "a1befe7ec08699c412eca8b25021ecb1a39f69a8",
+      "issue": null,
+      "pr": "https://github.com/ellokojavi/juegos-de-salon/pull/1731",
+      "note": "dispatched docs (#1730) + usability; collected 27 changelog entries; flags snapshot refreshed (wins-hide-empty); durations measured; mechanism changelog-spanish-name"
     }
   ],
   "ownerDecisions": [
