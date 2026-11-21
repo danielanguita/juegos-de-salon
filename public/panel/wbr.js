@@ -193,18 +193,26 @@ export function trend({ days = {}, torneos = {}, flags = {} } = {}, w, { actual 
   const lanzados = {};
   const lanzadoEl = b => (lanzados[b] ??= (() => { for (let d = inicio; d <= fin; d++) if (esPublico(b, d)) return d; return Infinity; })());
   const salio = b => (lanzadoEl(b) > inicio ? lanzadoEl(b) : desdeCuando[b]);
-  const juegos = Object.entries(porCol[k]).sort((a, b) => b[1] - a[1]).slice(0, 10).map(([b]) => {
+  const filaJuego = b => {
     const valores = cols.map((c, i) => (salio(b) > c.to ? null : porCol[i][b] || 0));
     // A launch inside the week before makes a % that says nothing
-    const cambio = valores[k + 1] === null || salio(b) > cols[k + 1].from ? null : variacion(valores[k], valores[k + 1]);
+    const cambio = valores[k + 1] === null || salio(b) > cols[k + 1].from || (!valores[k] && !valores[k + 1]) ? null : variacion(valores[k], valores[k + 1]);
     return { juego: nombreJuego(b), valores, cambio, nuevo: salio(b) > cols[k + 1].to ? fechaDia(salio(b)) : null };
-  });
+  };
+  const juegos = Object.entries(porCol[k]).sort((a, b) => b[1] - a[1]).slice(0, 10).map(([b]) => filaJuego(b));
+  // Every public game finished in any column, for the panel's "all games": the closed week's order, then the
+  // week in progress, then the whole trend
+  const suma = b => porCol.reduce((a, p) => a + (p[b] || 0), 0);
+  const todos = [...new Set(porCol.flatMap(p => Object.keys(p)))]
+    .sort((a, b) => (porCol[k][b] || 0) - (porCol[k][a] || 0) || (porCol[0][b] || 0) - (porCol[0][a] || 0) || suma(b) - suma(a))
+    .map(filaJuego);
   // Every public game's finished games in each column, and the share the top 10 take of them: how spread the play is
   const total = porCol.map(p => Object.values(p).reduce((a, v) => a + v, 0));
   const totales = {
     valores: total,
     cambio: total[k + 1] ? variacion(total[k], total[k + 1]) : null,
-    top10: total.map((t, i) => (t ? Math.round((juegos.reduce((a, g) => a + (g.valores[i] || 0), 0) / t) * 1000) / 10 : null)),
+    // The share the top N take, N = 3, 5, 10, 20, ranked as \`todos\` (by the closed week): the same N games in every column
+    cuota: Object.fromEntries([3, 5, 10, 20].map(nn => [nn, total.map((t, i) => (t ? Math.round((todos.slice(0, nn).reduce((a, g) => a + (g.valores[i] || 0), 0) / t) * 1000) / 10 : null))])),
   };
   // Active browsers by game, week by week (D-590), at two levels: those that finished it (2, the one
   // that matters) and those that started it (1 or 2). Real (distinct ids in `jugadores/`) where that
@@ -281,7 +289,7 @@ export function trend({ days = {}, torneos = {}, flags = {} } = {}, w, { actual 
   };
   // The * columns, said once under the tables
   const leyenda = `* Partial: ${actual ? `the week so far (to ${sinAno(actual.to)}) and ` : ''}the month up to ${sinAno(hasta)}.`;
-  return { columnas: cols.map(c => c.titulo), semanas: cols.map(c => c.semana), ritmo, metricas, juegos, totales, usuariosJuego, usuariosEmpiezan, sinTerminar, cerrada: k, leyenda };
+  return { columnas: cols.map(c => c.titulo), semanas: cols.map(c => c.semana), ritmo, metricas, juegos, todos, totales, usuariosJuego, usuariosEmpiezan, sinTerminar, cerrada: k, leyenda };
 }
 
 /** The last full week (Sunday to Saturday, Pacific dates) before `now`, as the weekly email reads it. */

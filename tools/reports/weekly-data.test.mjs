@@ -106,7 +106,9 @@ test('the panel: the week in progress first, partial, every comparison still on 
   assert.equal(t.metricas.find(m => m.nombre === 'Games started').cambio, 25);
   assert.deepEqual(t.totales.valores.slice(0, 3), [32, 5, 4], 'every public game, Zip too');
   assert.equal(t.totales.cambio, 25);
-  assert.deepEqual(t.totales.top10.slice(0, 3), [6.3, 100, 100], 'the closed week\'s ten, 2 of 32 in the partial week');
+  assert.deepEqual(t.todos.map(g => g.juego.replace(/^\S+ /, '')), ['Tango', 'Zip'], 'every game: the closed week\'s order, then the week in progress');
+  assert.deepEqual(t.totales.cuota[3].slice(0, 3), [100, 100, 100], 'two games: the top 3 hold them all');
+  assert.deepEqual(t.totales.cuota[10], t.totales.cuota[20]);
   assert.equal(t.columnas[6], 'Nov*');
   assert.deepEqual(t.ritmo.esta, [32, 32, 32, 32], 'the pace: the week in progress added up from Sunday to today');
   assert.equal(t.ritmo.esta.at(-1), t.metricas.find(m => m.nombre === 'Games finished').valores[0], 'its last point is the headline\'s partial column');
@@ -153,6 +155,16 @@ test('active browsers by game: a month averages only the weeks a game was out, n
   const por = Object.fromEntries(u.filas.map(f => [f.juego.replace(/^\S+ /, ''), f]));
   assert.deepEqual([por.Flap.valores[0], por.Flap.valores[5]], [2, 2], 'Flap, out on Monday of the closed week: November is that week alone, not (0 + 2) / 2');
   assert.deepEqual([por.Tango.valores[0], por.Tango.valores[1], por.Tango.valores[5]], [1, 1, 1], 'a game out all along still averages every full week');
+});
+
+test('games: every one, and the share the top 3, 5, 10 and 20 take of the games finished', () => {
+  const w = semanaCerrada(Date.parse('2026-11-15T12:00:00Z'));
+  const days = { [w.from]: { local: {}, fin: {} } };
+  ['tango', 'zip', 'dudo', 'ahorcado', 'generala'].forEach((id, i) => { days[w.from].local[id] = { solo: { 1: 5 - i } }; days[w.from].fin[id] = { solo: 5 - i }; });
+  const t = tendencia({ days }, w);
+  assert.equal(t.todos.length, 5);
+  assert.equal(t.totales.valores[0], 15);
+  assert.deepEqual([3, 5, 10, 20].map(nn => t.totales.cuota[nn][0]), [80, 100, 100, 100], '5 + 4 + 3 of 15, then all of them');
 });
 
 console.log(`reports/weekly-data: ${n} tests OK`);
