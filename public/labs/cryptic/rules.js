@@ -46,7 +46,7 @@ const ES = {
     hidden: 'escondida (la respuesta va dentro de otras palabras)', charade: 'suma (palabras pegadas una tras otra)',
     container: 'dentro de otra (una palabra metida en otra)', deletion: 'le falta una letra (una palabra sin un pedazo)',
     homophone: 'suena igual (dos palabras que se oyen parecido)', definitions: 'dos definiciones (la palabra tiene dos significados)',
-    selector: 'iniciales (las primeras letras de varias palabras)',
+    selector: 'letras sueltas (la primera, la segunda o la última de varias palabras)',
     substitution: 'cambia una letra (una palabra con una letra en lugar de otra)',
   },
   como: [
@@ -94,7 +94,7 @@ const EN = {
     hidden: 'hidden (the answer sits inside other words)', charade: 'charade (words joined one after another)',
     container: 'container (one word put inside another)', deletion: 'deletion (a word missing a piece)',
     homophone: 'sounds like (two words that sound alike)', definitions: 'double definition (the word has two meanings)',
-    selector: 'initials (the first letters of several words)',
+    selector: 'picked letters (the first, second or last of several words)',
     substitution: 'a letter changed (a word with one letter in place of another)',
   },
   como: [
@@ -142,7 +142,7 @@ const PT = {
     hidden: 'escondida (a resposta está dentro de outras palavras)', charade: 'soma (palavras coladas uma após a outra)',
     container: 'dentro de outra (uma palavra posta dentro de outra)', deletion: 'falta uma letra (uma palavra sem um pedaço)',
     homophone: 'soa igual (duas palavras que soam parecido)', definitions: 'duas definições (a palavra tem dois sentidos)',
-    selector: 'iniciais (as primeiras letras de várias palavras)',
+    selector: 'letras soltas (a primeira, a segunda ou a última de várias palavras)',
     substitution: 'troca uma letra (uma palavra com uma letra no lugar de outra)',
   },
   como: [
