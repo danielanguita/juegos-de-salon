@@ -266,7 +266,9 @@ function renderStep() {
   const c = clue();
   $('#step-mark').textContent = r.solved ? '✅' : '🏳️';
   $('#step-title').textContent = r.solved ? fmt(T.stepSolved, { p: E.pointsOf(r, c.l) }) : fmt(T.gaveUpTitle, { a: c.a });
-  $('#step-line').textContent = r.solved ? triesText(r) : '';
+  // Why it scored what it did (the player agent): the hints it cost, or that giving up is worth 0
+  const why = !r.solved ? T.stepZero : !r.hints ? '' : fmt(r.hints === 1 ? T.stepHintsOne : T.stepHints, { worth: E.POINTS[c.l], h: r.hints, cost: E.HINT_COST[c.l] });
+  $('#step-line').textContent = [r.solved ? triesText(r) : '', why].filter(Boolean).join(' · ');
   const last = E.gameOver(state);
   const btn = $('#btn-next');
   btn.textContent = last ? T.stepEnd : fmt(T.stepNext, { level: LEVEL[BANK[state.clues[state.step + 1].index].l] });

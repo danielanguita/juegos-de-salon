@@ -70,11 +70,13 @@ const step = async () => { await b.evaluate("document.getElementById('btn-next')
 await type(answer.toLowerCase());
 ok(await b.active() === 'screen-step', "the answer shows how it is solved before the next clue");
 ok(/\+15/.test(await b.evaluate("document.getElementById('step-title').textContent")), 'easy with one hint: 20 − 5 = +15');
+ok(/20.*1.*5/.test(await b.evaluate("document.getElementById('step-line').textContent")), 'and it says why: worth 20, one hint of 5');
 await b.shot('step');
 await step();
 ok(await b.evaluate('window.__cryptic.clue().l') === 'm' && /2 .* 3/.test(await b.evaluate("document.getElementById('clue-step').textContent")), 'then the medium clue, 2 of 3');
 await b.evaluate("document.getElementById('btn-give-up').click(); document.getElementById('btn-give-up').click(); 1"); await sleep(300);
 ok((await b.evaluate("document.getElementById('step-title').textContent")).includes(await b.evaluate('window.__cryptic.answer()')), 'giving up shows the answer');
+ok(/0/.test(await b.evaluate("document.getElementById('step-line').textContent")), 'and that it scores 0');
 await step();
 ok(await b.evaluate('window.__cryptic.clue().l') === 'h', 'then the hard clue');
 ok(/15/.test(await b.evaluate("document.getElementById('btn-hint').textContent")), 'a hint on the hard clue costs 15 points');
