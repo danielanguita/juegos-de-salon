@@ -253,7 +253,7 @@ function rankingsTab(J, f) {
   };
 }
 
-/** The ⚙️ tab: the account, the preferences and the phone's offline state (writing to us and privacy are in the footer). */
+/** The ⚙️ tab: the account and the preferences (offline mode's ☁️ stays on the home page; writing to us and privacy are in the footer). */
 function settingsTab(yo) {
   const row = (label, hint, control) => el('div', { class: 'toggle-row' }, el('span', { class: 'txt' }, el('b', {}, label), hint ? el('small', {}, hint) : null), control);
   const account = el('section', { class: 'panel pf-settings' }, el('p', { class: 'lead rk-titulo' }, T.account),
@@ -265,16 +265,7 @@ function settingsTab(yo) {
     const draw = () => { const b = m.bloque({ lang, alTocar: tap, redibujar: draw }); notices.replaceChildren(...(b ? [b] : [])); };
     draw();
   }).catch(() => {});
-  const cloud = el('span', {});
-  const offline = el('section', { class: 'panel pf-settings', hidden: true }, el('p', { class: 'lead rk-titulo' }, T.offline), row(T.offlineRow, T.offlineHint, cloud));
-  import('../assets/js/offline-ready.js').then(({ offlineReadyButton }) => {
-    const b = offlineReadyButton({ tap });
-    cloud.append(b);
-    // The cloud shows only where offline mode is on: the section with it
-    new MutationObserver(() => { offline.hidden = b.hidden; }).observe(b, { attributes: true, attributeFilter: ['hidden'] });
-    offline.hidden = b.hidden;
-  }).catch(() => {});
-  return el('div', { class: 'pf-tab' }, account, bloqueJugador({ alTocar: tap }), prefs, notices, offline);
+  return el('div', { class: 'pf-tab' }, account, bloqueJugador({ alTocar: tap }), prefs, notices);
 }
 
 /* ------------------------------------------------------------------ */
