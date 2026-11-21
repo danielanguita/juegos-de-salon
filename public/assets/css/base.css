@@ -455,6 +455,31 @@ details.panel summary::-webkit-details-marker { display: none; }
 /* With the cover's share button (cover-share.js) a 320 px bar has no room for the game's chip: the
    cover's title right below names the game, so the chip steps aside there */
 @media (max-width: 359px) { .topbar:has(#btn-share-cover:not([hidden])) .tools .chip { display: none; } }
+/* Lab flag profile (lab: #seccion-profile, profile-button.js): every top bar ends in the player's pill (flag,
+   name, ›) that opens /profile/, and its language is one flag with a ▾; a signed-in player's cover drops its
+   «🏅 <name>» button (the PIN is in the profile's ⚙️), and Instrucciones takes the whole row */
+html.pf-on .topbar .tools, html.pf-on .topbar .tools:has(> #lang-slot) { flex-wrap: nowrap; }
+html.pf-on .topbar .tools .chip { flex-shrink: 100; }
+html.pf-on .topbar .tools .pf-home { width: auto; max-width: 9rem; min-width: 44px; flex: 0 1 auto; justify-content: center; display: inline-flex; align-items: center; gap: var(--s-6); padding: 0 var(--s-12); font: 900 var(--fs-100) var(--font-body); }
+html.pf-on .topbar .pf-home-flag { flex: none; }
+html.pf-on .topbar .pf-home-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+html.pf-on .topbar .pf-home-go { flex: none; color: var(--muted); font-size: var(--fs-120); line-height: 1; }
+html.pf-on .topbar .pf-lang .icon-btn { width: auto; display: inline-flex; align-items: center; gap: var(--s-4); padding: 0 var(--s-10); }
+html.pf-on .topbar .pf-lang-caret { font-size: var(--fs-85); color: var(--muted); }
+.pf-home-initial { display: none; }
+html.pf-on .topbar #lang-slot:not(:has(.lang-btn, .lang-toggle)) { display: none; }
+/* A narrow phone keeps every button: the pill shows the flag only, the language loses its ▾ */
+@media (max-width: 374px) {
+  html.pf-on .topbar { gap: var(--s-8); }
+  html.pf-on .topbar .tools { gap: var(--s-6); }
+  html.pf-on .topbar .tools .pf-home { padding: 0; }
+  html.pf-on .topbar .tools .pf-home:not(.pf-guest) { background: linear-gradient(135deg, var(--yellow), var(--orange)); color: var(--ink-on-yellow); font: var(--fs-120) var(--font-display); }
+  html.pf-on .topbar .pf-home-flag, html.pf-on .topbar .pf-home-name, html.pf-on .topbar .pf-home-go, html.pf-on .topbar .pf-lang-caret { display: none; }
+  html.pf-on .topbar .pf-home-initial { display: inline; }
+  html.pf-on .topbar .pf-lang .icon-btn { padding: 0; width: 44px; justify-content: center; }
+}
+html.pf-signed #btn-cuenta { display: none; }
+html.pf-signed .opciones.dos.portada-acciones { grid-template-columns: minmax(0, 1fr); }
 
 /* --- Transición entre turnos (overlay compartido: salud / pásale el celular) --- */
 .handoff {

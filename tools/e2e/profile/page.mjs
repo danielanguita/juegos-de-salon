@@ -1,7 +1,8 @@
 // The player's profile at /profile/ (lab flag profile): with the flag off the page is Rankings; without a player it
 // invites to sign in, shows this phone's badges and the rankings; with one, its card, then 🎖️ badges (earned, locked
 // with progress, secret), 🏅 its places in each game it played (a tap opens the game's table) and ⚙️ its settings;
-// on the home page 🏅 becomes a pill with the player's flag and name, and the language one flag with a ▾. At 320 and 390 px nothing scrolls sideways and
+// on the home page 🏅 becomes a pill with the player's flag and name, and the language one flag with a ▾; every other page's
+// top bar (a game's cover, Uno al día, Rankings) ends in the same pill and its cover drops «🏅 <name>». At 320 and 390 px nothing scrolls sideways and
 // every tappable thing is 44 px or more (U-10). Prints ✗ if anything fails.
 import { output } from '../output.mjs';
 import { launch, sleep } from '../cdp.mjs';
@@ -100,6 +101,20 @@ for (const W of [320, 390]) {
   ok(await ev(`(() => { const p = document.querySelector('.pf-lang .lang-pop'); if (!p || p.hidden) return false; const r = p.getBoundingClientRect(); return p.querySelectorAll('button').length === 3 && r.left >= 0 && r.right <= ${W}; })()`), `${W}: its ▾ opens the three languages, inside the screen`);
   await b.shot(`home-lang-${W}`);
   ok(await ev(`document.documentElement.scrollWidth <= ${W}`), `${W}: home, no sideways scroll`);
+  // Every other page's top bar: a game's cover, Uno al día, Rankings
+  for (const page of ['queens', 'today', 'records']) {
+    await b.go(`${SITE}/${page}/?test`, 3000);
+    ok(await ev(`(() => { const t = document.querySelector('.topbar .tools'), a = t?.querySelector('.pf-home'); if (!a || t.lastElementChild !== a || !/\\/profile\\/$/.test(a.getAttribute('href'))) return false; const r = a.getBoundingClientRect(), tr = document.querySelector('.topbar').getBoundingClientRect(); return r.right <= tr.right + 1 && r.height >= 43.5 && r.width >= 43.5 && Math.abs(r.top - t.getBoundingClientRect().top) < 2; })()`), `${W}: /${page}/ ends its top bar with the profile's pill, on the same row, 44 px or more`);
+    ok(await ev(`${W} >= 375 ? document.querySelector('.topbar .pf-home-name')?.textContent === 'Javi' : getComputedStyle(document.querySelector('.topbar .pf-home-initial')).display !== 'none' && document.querySelector('.topbar .pf-home-initial').textContent === 'J'`), `${W}: /${page}/'s pill shows ${W >= 375 ? 'the name' : 'the initial'}`);
+    ok(await ev(`(() => { const l = document.querySelectorAll('.topbar .lang-btn'); return l.length === 1 && l[0].classList.contains('pf-lang') && !document.querySelector('.topbar .lang-toggle:not(.lang-pop .lang-toggle)'); })()`), `${W}: /${page}/'s language is one flag button`);
+    await ev(`document.querySelector('.topbar .pf-lang .icon-btn').click()`); await sleep(300);
+    ok(await ev(`(() => { const p = document.querySelector('.topbar .lang-pop'); if (!p || p.hidden) return false; const r = p.getBoundingClientRect(); return r.left >= 0 && r.right <= ${W}; })()`), `${W}: /${page}/'s language opens inside the screen`);
+    await ev(`document.body.click()`);
+    ok(await ev(`document.documentElement.scrollWidth <= ${W}`), `${W}: /${page}/, no sideways scroll`);
+    await b.shot(`${page}-${W}`);
+  }
+  await b.go(`${SITE}/queens/?test`, 3000);
+  ok(await ev(`!document.getElementById('btn-cuenta')?.offsetParent && !document.querySelector('main .rk-yo')?.offsetParent`), `${W}: a signed-in player's cover has no «🏅 <name>» button: the PIN is in the profile`);
   b.close();
 }
 console.log(failures ? `✗ profile page: ${failures} failure(s)` : '✓ profile page');
