@@ -209,7 +209,7 @@ export const CAMPAIGNS = {
     title: { es: '¡Nos volvimos locos!', en: "We've gone crazy!", pt: 'Enlouquecemos!' },
     lead: {
       es: 'No paramos de lanzar juegos. Hoy entran 2 de destreza.',
-      en: "We can't stop launching games. Today, 2 skill games join.",
+      en: "We can't stop launching games. Today, 2 skill games arrive.",
       pt: 'Não paramos de lançar jogos. Hoje chegam 2 de destreza.',
     },
     items: [
