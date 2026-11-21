@@ -16,7 +16,7 @@ look. Spanish clues only for now, by the owner's call: the mechanics first, the 
 ## Reglas
 
 - A cryptic clue reads two ways: a **definition** of the answer at one end, and a **wordplay** that builds
-  it (anagram, reversal, hidden, charade, container, deletion, homophone, two definitions, initials).
+  it (anagram, reversal, hidden, charade, container, deletion, homophone, two definitions, letters picked from several words (first, second or last), a letter changed).
   The clue ends with the answer's length, «(4)».
 - The player types the answer as many times as needed. Accents do not matter, Ñ is its own letter.
   A guess of another length is a yellow warning and does not count; a wrong one is red, shakes the clue
