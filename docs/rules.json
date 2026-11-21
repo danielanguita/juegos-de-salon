@@ -168,7 +168,7 @@
   },
   {
    "id": "footer-bottom",
-   "title": "Nothing under the footer: every cover ends in its sunset down to the bottom edge of the screen, also with the browser's bar hidden (D-599)",
+   "title": "Nothing under the footer, on every page: a page with a footer ends in it down to the bottom edge of the screen, also with the browser's bar hidden; a page without one says why (D-599)",
    "doc": "docs/DESIGN.md",
    "form": [
     "check"
@@ -176,7 +176,9 @@
    "enforcedBy": [
     "tools/e2e/footer-bottom.mjs",
     "tools/e2e/conformance.mjs",
-    "tools/e2e/cup-games/footer-bottom.mjs"
+    "tools/e2e/cup-games/footer-bottom.mjs",
+    "tools/e2e/pages-footer-bottom.mjs",
+    "tools/e2e/footer-bottom.test.mjs"
    ],
    "applies": [
     "public/**/*.css",

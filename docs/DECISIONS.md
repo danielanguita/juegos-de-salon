@@ -641,7 +641,7 @@ Where today's rule is and which decisions explain it: those in force that still 
 | [D-596](decisions/D-596.md) | On the owner's own PR, the tick survives a later push that touches no 🔴 file | current |
 | [D-597](decisions/D-597.md) | Agents that must not touch code are stopped by a hook, and PRs flag documentation drift | current |
 | [D-598](decisions/D-598.md) | Críptico: three clues a day, scored out of 100 | current |
-| [D-599](decisions/D-599.md) | Nothing under the footer: the sunset reaches the bottom edge of every cover | current |
+| [D-599](decisions/D-599.md) | Nothing under the footer, on every page | current |
 
 ## No longer in force (12)
 

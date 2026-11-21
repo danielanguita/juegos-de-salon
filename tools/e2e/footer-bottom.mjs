@@ -1,5 +1,5 @@
-// Nothing under the footer (DESIGN.md §3, the owner 2026-11-21): a cover ends in its sunset footer down to the bottom
-// edge of the screen, never above a band of the page's background. On Android the band is the browser's hidden bar:
+// Nothing under the footer (DESIGN.md §3, the owner 2026-11-21, «esto aplica a toda página»): every page with a footer
+// ends in it down to the bottom edge of the screen, never above a band of the page's background. On Android the band is the browser's hidden bar:
 // .app is built for the small height (svh, D-77), and the page grows to the large one when the bar hides. Headless
 // Chrome has svh == dvh, so this simulates the phone D-77 measured (dvh 1016, svh 960): a TALL screen, the column made
 // HIDDEN px shorter than it. A cover taller than the screen has no band to show, hence the tall phone.
@@ -21,11 +21,13 @@ export async function footerGapUnder(b, out, name) {
   await b.resize(390, TALL);
   await b.evaluate(`(() => { const s = document.createElement('style'); s.id = 'hidden-bar'; s.textContent = '.app { min-height: calc(100svh - ${HIDDEN}px - var(--safe-top) - var(--safe-bottom)) !important }'; document.head.append(s); scrollTo(0, document.documentElement.scrollHeight); return 1 })()`);
   const m = JSON.parse(await b.evaluate(`(() => {
-    const f = [...document.querySelectorAll('footer.atardecer')].find(e => e.getClientRects().length);
+    // The page's footer: the lowest one on screen, whatever its kind
+    const f = [...document.querySelectorAll('footer')].filter(e => e.getClientRects().length && getComputedStyle(e).visibility !== 'hidden')
+      .sort((a, b) => b.getBoundingClientRect().bottom - a.getBoundingClientRect().bottom)[0];
     return JSON.stringify(f ? { bottom: f.getBoundingClientRect().bottom, screen: innerHeight } : null);
   })()`));
   let r = null;
-  if (!m) r = 'no sunset footer on the screen';
+  if (!m) r = 'no footer on the screen';
   else if (m.screen - m.bottom > 1) {
     await b.shot(name);
     const img = decode(readFileSync(`${out}/${name}.png`));

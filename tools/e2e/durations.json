@@ -152,6 +152,7 @@
  "memory/page.mjs": 27,
  "microgames/lab.mjs": 97,
  "offline.mjs": 16,
+ "pages-footer-bottom.mjs": 70,
  "paint-mines/game.mjs": 35,
  "panel/views.mjs": 50,
  "play-fold.mjs": 30,
