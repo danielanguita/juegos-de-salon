@@ -1,6 +1,6 @@
 /**
  * The home page's top bar with the profile (lab flag profile, lab: #seccion-profile): 🏅 becomes a pill
- * with the player's flag and name, as a ranking row shows them, and opens /profile/; the sound button
+ * with the player's flag and name, as a ranking row shows them, and a ›, and opens /profile/; the sound button
  * leaves the bar (it is in the profile's ⚙️ and in every game). Without a player, «👤 Entrar» opens the
  * same page, which invites to sign in. The streak is not repeated here: Uno al día's card shows it.
  * The language toggle shrinks to the current flag and a ▾, which opens the three (the covers' `langButton`);
@@ -30,7 +30,12 @@ export function profileButton({ lang = 'es', doc = document } = {}) {
   const name = doc.createElement('span');
   name.className = 'pf-home-name';
   name.textContent = yo?.n || GUEST[lang] || GUEST.es;
-  b.replaceChildren(flag, name);
+  // A › says the pill opens something (the owner's pick, 2026-11-21: option C)
+  const go = doc.createElement('span');
+  go.className = 'pf-home-go';
+  go.setAttribute('aria-hidden', 'true');
+  go.textContent = '›';
+  b.replaceChildren(flag, name, go);
   doc.getElementById('sound-slot')?.remove();
   const slot = doc.getElementById('lang-slot');
   if (slot && !slot.querySelector('.lang-btn')) {

@@ -90,7 +90,7 @@ for (const W of [320, 390]) {
   await full(b, `settings-${W}`, W);
   // The home page's top bar
   await b.go(`${SITE}/?test`, 3000);
-  ok(await ev(`(() => { const a = document.getElementById('btn-rankings'); return a.classList.contains('pf-home') && a.getAttribute('href') === 'profile/' && a.querySelector('.pf-home-name')?.textContent === 'Javi' && !!a.querySelector('.pf-home-flag')?.textContent && !a.textContent.includes('🔥'); })()`), `${W}: on the home page 🏅 is a pill with the player's flag and name, no streak (Uno al día's card has it), to /profile/`);
+  ok(await ev(`(() => { const a = document.getElementById('btn-rankings'); return a.classList.contains('pf-home') && a.getAttribute('href') === 'profile/' && a.querySelector('.pf-home-name')?.textContent === 'Javi' && !!a.querySelector('.pf-home-flag')?.textContent && a.querySelector('.pf-home-go')?.textContent === '›' && !a.textContent.includes('🔥'); })()`), `${W}: on the home page 🏅 is a pill with the player's flag, name and ›, no streak (Uno al día's card has it), to /profile/`);
   ok(await ev(`!!document.querySelector('#offline-ready-slot')`), `${W}: offline mode's ☁️ stays on the home page`);
   ok(await ev(`(() => { const a = document.getElementById('btn-rankings'), t = document.querySelector('.portada-barra .tools'); return a.getBoundingClientRect().right <= t.getBoundingClientRect().right + 1 && a.scrollWidth <= a.clientWidth + 1; })()`), `${W}: the name pill fits the bar`);
   ok(await ev(`!document.getElementById('sound-slot')`), `${W}: the sound button left the home page's bar`);
