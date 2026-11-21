@@ -1474,7 +1474,7 @@ function vistaWbr(now) {
     tabla(t.metricas.map(m => [m.nombre, m.valores, m.cambio, m.decimales]), ''),
     el('p', { class: 'muted small' }, t.leyenda),
     el('h3', {}, 'Games'),
-    el('p', { class: 'muted small' }, 'Every game finished in the trend, ranked by the closed week. Games finished, as in the headline; every mode and version, La Copa included. Trend: its weeks, oldest to newest. n/a: not measured yet, or the game was not out yet. Under the total, the share of it the top 3, 5, 10 and 20 take: the same games in every column.'),
+    el('p', { class: 'muted small' }, 'Every game finished at least once in the trend's weeks, ranked by the closed week. Games finished, as in the headline; every mode and version, La Copa included. Trend: its weeks, oldest to newest. n/a: not measured yet, or the game was not out yet. Under the total, the share of games finished the top 3, 5, 10 and 20 take, counted with the closed week\'s ranking in every column.'),
     tabla([...t.todos.map((g, i) => [`${i + 1}. ${g.juego}${g.nuevo ? ` (out ${g.nuevo.replace(/, \d{4}$/, '')})` : ''}`, g.valores, g.cambio]),
       ['Total games finished', t.totales.valores, t.totales.cambio, false, 'wbr-total'],
       ...[3, 5, 10, 20].map(nn => [`Top ${nn} share`, t.totales.cuota[nn], null, '%'])], 'Game', true),
