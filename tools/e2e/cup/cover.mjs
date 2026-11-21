@@ -1,5 +1,5 @@
 // A game's cover animation alone in a page (cup/cover/?game=<id>), the one the home page's game sheet frames
-// (lab flag home-carousels): every game of La Copa that the home page offers draws its cover demo or, without
+// (lab sub-flag home-carousels-sheet): every game of La Copa that the home page offers draws its cover demo or, without
 // one, its "how to play" drawing, as wide as the frame and no wider, grown to fill a taller frame and never past it; a
 // game with neither, or no game, draws nothing. In the three languages for one of each kind.
 // Prints ✗ if something fails.
