@@ -4,7 +4,8 @@
  * tagline, the dice, La Copa and Uno al día. Under them, one row per way of choosing, each sliding
  * sideways: favourites (once one is marked), popular, new, solo or with friends (the owner, 2026-11-19), dexterity (the quick games and the skill ones together), and one per type.
  * The rows are grids of three, and a game is in one row only. A game says its icon and its name, nothing else (the owner, 2026-11-18): the row it is in already says what
- * kind it is, and how long it takes and how many play are in its sheet. A tap opens a sheet with what the game is, its
+ * kind it is, and how long it takes and how many play are in its sheet. A tap opens the game's cover (for everyone since
+ * 2026-11-21, the owner); with lab sub-flag home-carousels-sheet it opens a sheet instead, with what the game is, its
  * ranking and ▶ Jugar; the ⭐ lives there too. On top of the details, the game's cover animation plays (the demo
  * of its waiting room, or its "how to play" drawing), in a frame of `cup/cover/`: it shows how the game is played.
  *
@@ -90,19 +91,19 @@ const fmt = (s, v) => String(s).replace(/\{(\w+)\}/g, (_, k) => v[k] ?? `{${k}}`
  * Draws the carousels under the games list and hides the filters and the list's cards (the CSS
  * does, from `html.carousels`). Returns `{ remove() }`, which puts the page back as it was.
  */
-/** Sub-flag home-carousels-covers: a tap on an icon goes straight to the game's cover, as the list's cards do. */
+/** A tap on an icon goes straight to the game's cover, as the list's cards do; sub-flag home-carousels-sheet opens its sheet instead. */
 function goCover(g) {
   import('./transport/stats.js').then(m => m.markOrigin('card', new URL(g.path, location.href).href)).catch(() => {});
   location.href = g.path;
 }
 
 /**
- * `direct` (sub-flag home-carousels-covers) may be a promise: the rows are drawn at once, as a sheet, and a tap opens
- * the cover once it says so. Waiting for it held the whole drawing behind two reads from Firebase (the flags and the lab key).
+ * `direct` (false with sub-flag home-carousels-sheet) may be a promise: the rows are drawn at once, a tap opening the
+ * cover, and they open the sheet once it says so. Waiting for it held the whole drawing behind two reads from Firebase (the flags and the lab key).
  */
 export async function drawCarousels({ lang, T, games, tap = () => {}, doc = document, openSlug = null, direct = false }) {
   const t = TEXTS[lang] || TEXTS.es;
-  let isDirect = direct === true;
+  let isDirect = direct !== false;
   const root = doc.documentElement;
   root.classList.add('carousels');
   // A filter kept in the link hid Uno al día's card: with no filters there is nothing to filter

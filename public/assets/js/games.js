@@ -468,7 +468,8 @@ export const SUELTOS = [
     tipos: ['logic'],
     duration: '3–15',
     nuevoDesde: '2026-11-12',
-    diasNuevo: 10,
+    // The owner retired its "New" on 2026-11-21 (as D-507 did for one game): new from its flag (2026-11-11 21:03), 9 days
+    diasNuevo: 9,
   },
   {
     // ⚡ ¡Al toque!: launched by flags/microgames at 21:00 Pacific on 2026-11-14 on a page of its own, then
@@ -491,7 +492,8 @@ export const SUELTOS = [
     tipos: ['skill'],
     duration: '1–2',
     nuevoDesde: '2026-11-14',
-    diasNuevo: 10,
+    // The owner retired its "New" on 2026-11-21 (as D-507 did for one game): new from its flag (2026-11-14 21:00), 6 days
+    diasNuevo: 6,
   },
   {
     // Out of the lab like Sudoku (D-517's way): La Copa's screen in cup/games/memory/, its page /memorice/,

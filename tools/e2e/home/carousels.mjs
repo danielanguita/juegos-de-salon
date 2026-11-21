@@ -1,6 +1,7 @@
 // The home page as carousels (lab flag home-carousels): with the flag on, the filters and the list's cards
 // give way to rows of three (popular, new, solo or with friends, dexterity, one per type; favourites once one
-// is marked), every game of the home page is in one and only one, and a tap on a game opens its sheet with the
+// is marked), every game of the home page is in one and only one, and a tap on a game opens its cover, or with
+// sub-flag home-carousels-sheet its sheet with the
 // details, its ranking, the ⭐ and ▶ Jugar. At 390 and 320 px, in the three languages; with the flag off the
 // home page is the one everybody sees. Each shot measures margins, overlaps and spacing by itself (D-570).
 // Prints ✗ if something fails.
@@ -22,7 +23,7 @@ for (const width of [390, 320]) {
   ok(await waitFor(`!!document.querySelector('.filtros .tipos button')`) && await ev(`!document.querySelector('.shelves') && !document.documentElement.classList.contains('carousels')`),
     `${width}: flag off, the filters and the list, no carousels`);
 
-  b.flags({ 'home-carousels': 'all', 'home-carousels-covers': 'off' });
+  b.flags({ 'home-carousels': 'all', 'home-carousels-sheet': 'all' });
   for (const lang of ['es', 'en', 'pt']) {
     await b.go(`${SITE}/?test&lang=${lang}`);
     ok(await waitFor(`document.querySelectorAll('.shelf').length >= 5`), `${width} ${lang}: the carousels are drawn`);
@@ -143,12 +144,12 @@ for (const width of [390, 320]) {
   ok(foot.gap <= 1, `${width}: the footer reaches the bottom of the page (${foot.gap} px under it, with ${foot.safe} kept for the gesture bar)`);
   await b.send('Emulation.setSafeAreaInsetsOverride', { insets: {} }).catch(() => {});
 
-  // Sub-flag home-carousels-covers: a tap on an icon opens the game's own cover, no sheet
-  b.flags({ 'home-carousels': 'all', 'home-carousels-covers': 'all' });
+  // Without sub-flag home-carousels-sheet (what everyone gets): a tap on an icon opens the game's own cover, no sheet
+  b.flags({ 'home-carousels': 'all', 'home-carousels-sheet': 'off' });
   await b.go(`${SITE}/?test&lang=es`);
-  ok(await waitFor(`!!document.querySelector('.shelf-tile[data-id="reinas"]:not([aria-haspopup])')`, 10000), `${width}: with home-carousels-covers, the icons do not announce a sheet`);
+  ok(await waitFor(`!!document.querySelector('.shelf-tile[data-id="reinas"]:not([aria-haspopup])')`, 10000), `${width}: without home-carousels-sheet, the icons do not announce a sheet`);
   await ev(`document.querySelector('.shelf-tile[data-id="reinas"]').click(); 1`);
-  ok(await waitFor(`location.pathname.endsWith("/queens/")`, 10000), `${width}: with home-carousels-covers, a tap on Reinas opens its own cover`);
+  ok(await waitFor(`location.pathname.endsWith("/queens/")`, 10000), `${width}: without home-carousels-sheet, a tap on Reinas opens its own cover`);
 
   // Switched off again: the next visit draws the list and forgets
   b.flags({ 'home-carousels': 'off' });

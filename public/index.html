@@ -798,9 +798,9 @@
       // on a phone without the carousels the same link goes to the game's own cover, so it never leads nowhere
       const slug = param('game');
       const shared = slug && JUEGOS_PORTADA.find(g => g.available && !g.torneo && g.path.split('/')[0] === slug);
-      // Sub-flag home-carousels-covers: an icon opens the game's cover instead of its sheet. Asked only with the
-      // carousels on, so its switch in the T tab shows only under the main one. lab: #seccion-home-carousels-covers
-      const direct = () => import('./assets/js/flags.js').then(({ flag }) => flag('home-carousels-covers')).catch(() => false);
+      // An icon opens the game's cover; sub-flag home-carousels-sheet opens its sheet (Detalles / Ranking) instead. Asked
+      // only with the carousels on, so its switch in the T tab shows only under the main one. lab: #seccion-home-carousels-sheet
+      const direct = () => import('./assets/js/flags.js').then(({ flag }) => flag('home-carousels-sheet')).then(sheet => !sheet).catch(() => true);
       // The sub-flag goes in as a promise: the rows do not wait for its read from Firebase
       const draw = () => import('./assets/js/home-carousels.js').then(m => m.drawCarousels({ lang, T, games: JUEGOS_PORTADA, tap: () => SFX.tap(), openSlug: shared ? slug : null, direct: shared ? false : direct() }));
       const drawn = document.documentElement.classList.contains('carousels') ? draw() : null;

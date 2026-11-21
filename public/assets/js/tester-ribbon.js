@@ -233,9 +233,9 @@ function row(id, name, line, sw, mark, title = '') {
 }
 
 /** A flag's name in the T tab when it is not its id (the owner, 2026-11-19). */
-const NAMES = { 'home-carousels': 'main page con íconos', 'home-carousels-covers': '↳ target: portada' };
+const NAMES = { 'home-carousels': 'main page con íconos', 'home-carousels-sheet': '↳ target: hoja con tabs' };
 /** Sub-flags: asked only while their main flag is on, so their switch shows only then, under it. */
-const SUB = { 'home-carousels-covers': 'home-carousels' };
+const SUB = { 'home-carousels-sheet': 'home-carousels' };
 
 export async function labSwitches(box, { flags = () => import('./flags.js'), list = () => import('./flag-list.js') } = {}) {
   if (!box) return;
