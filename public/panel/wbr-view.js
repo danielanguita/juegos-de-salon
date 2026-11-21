@@ -22,7 +22,8 @@ function weeksChart(t) {
         const v = fin.valores[i], parcial = t.columnas[i].endsWith('*');
         return el('div', { class: ['wbr-barra', parcial ? 'wbr-barra--parcial' : '', i === k ? 'wbr-barra--cerrada' : ''].filter(Boolean).join(' ') },
           el('span', { class: 'wbr-barra-cifra' }, v === null ? 'n/a' : n(v)),
-          el('span', { class: 'wbr-barra-col', style: `--h:${v ? Math.max(2, (v / max) * 100) : 0}%` }),
+          el('span', { class: 'wbr-barra-col', style: `--h:${v ? Math.max(0.02, v / max) : 0}` }),
+          // --h: its share of the tallest; the room above the bars is kept for the figures, so heights stay proportional
           // On a phone a week is named by its Sunday ("Nov 15*"): its range wraps into three lines
           el('span', { class: 'wbr-barra-rotulo' }, el('span', { class: 'wbr-rotulo-largo' }, t.columnas[i]), el('span', { class: 'wbr-rotulo-corto' }, t.columnas[i].replace(/–.*?(\*?)$/, '$1'))));
       })));
