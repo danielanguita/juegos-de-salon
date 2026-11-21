@@ -97,6 +97,8 @@ const ES = [
   { c: 'Se da cuenta al revés y es difícil de atrapar', k: 'reversal', l: 'm', d: 'es difícil de atrapar', s: 'EVcERVVRfyUx7uAvTkNMV0FISz47PSI9Sl0WAk8XTEQGWBYPGA5HDwIeSQIRH6DGGVVYRz0yeaf2Y19BCAYI7M4RABxUDQZPCwEXBh8SX0YY' },
   { c: 'La novia, un tanto alterada, cruzó el Atlántico en cosa de horas', k: 'anagram', l: 'h', d: 'cruzó el Atlántico en cosa de horas', s: 'EVcERVVRbDIs7uAvTkNMV0FISzwVGkMDDwEXBhxTSQFFYzw3JS5CDwIeHRUGCAcOGVlFAQABQAULDTI3Jaz9YU9SGAURSQAdHw8ERwofDSURQbDAAhsHTAxSDB5UCgwcC1UBAk8bQhYEXlEc' },
   { c: 'La flecha salió de ahí, le dio en el color del ojo y apareció cuando paró de llover', k: 'charade', l: 'h', d: 'apareció cuando paró de llover', s: 'EVcERVVRbDYmYrDsPiY9DU9QEVJOSycKShEKCQsWDRcEQRZBAA5OSQ8XChgVU0MuODYqXE8WQUQGQh8OHk8KSg9SBhobU0MmODw2SU85WAoRQgBNTC48bCyx5CI9Ok9PGwAARw4DTBYAThZBDxoPQQcdSQAVGwJPDhBFCwMcWwEXDw4=' },
+  { c: 'Padre de familia sobrealimentado que además es poeta y ciego', k: 'definitions', l: 'm', d: 'Padre de familia sobrealimentado', s: 'EVcERVVRZSsoaCEuTkNMV0FISzQbGkMnBRgAFQAAF0QAQVMRDQscSkMWDFASCA4GBhwERxwcTxYATB8IAQoAWwIWBlAQDEMDC1UWAh0aSEQcDRYNTB8BShcTSRMdDAQAShIXDgoUQkpFYRwSTAsBXEMBBh5UISwiLycqRRI=' },
+  { c: 'No me digas la primera de Marcela, que viene mi padre, y la saltean con ajo', k: 'charade', l: 'h', d: 'la saltean con ajo', s: 'EVcERVVRbiUpYTIsPC5MA0EKS0pWJwxPBxBFAwYUTBdfDTAgICMvFEMeCFAEGwoCDwcERwsWDSkEXxAEAA5UDy5JSR0dSRMODgcAXU8jbEpFZwYPGAAdA0MxKDw4KC4/K1lFFhoWDRcADQAAABsLTkMRBh5UCAkASAg=' },
 ];
 
 /** Spanish only for now (the owner, 2026-11-19): the mechanics first, the other banks once it works. */
