@@ -514,7 +514,10 @@ table.wbr tr.wbr-total > * { border-top: 2px solid var(--glass-border); }
 .wbr-leyenda li::before { content: ''; position: absolute; left: 0; top: .55em; width: 1em; height: 3px; border-radius: var(--r-pill); background: var(--pink); }
 .wbr-leyenda li.wbr-leyenda--pasada::before { background: var(--cyan); }
 .wbr-leyenda li.wbr-leyenda--prom::before { background: var(--line-faint); }
-.wbr-ritmo-area { position: relative; height: 160px; }
+.wbr-ritmo { display: grid; grid-template-columns: auto 1fr; column-gap: var(--s-8); margin-top: var(--s-12); }
+.wbr-ritmo-eje { position: relative; height: 160px; min-width: 2.2em; font-size: var(--fs-75); color: var(--muted); font-variant-numeric: tabular-nums; }
+.wbr-ritmo-eje span { position: absolute; right: 0; top: var(--y); transform: translateY(-50%); line-height: 1; }
+.wbr-ritmo-area { position: relative; height: 160px; border-left: 1px solid var(--glass-border); border-bottom: 1px solid var(--glass-border); }
 .wbr-ritmo-svg { display: block; width: 100%; height: 100%; overflow: visible; }
 .wbr-ritmo-svg polyline { fill: none; stroke-linejoin: round; stroke-linecap: round; }
 .wbr-ritmo-guia { stroke: var(--glass-border); stroke-width: 1; }

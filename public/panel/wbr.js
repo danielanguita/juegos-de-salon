@@ -238,10 +238,16 @@ export function trend({ days = {}, torneos = {}, flags = {} } = {}, w, { actual 
     const porCol = cols.map(c => {
       if (c.semana) return semanaUsuarios(c, nivel);
       const semanas = [];
-      for (let s = c.from + ((7 - ((c.from + 4) % 7)) % 7); s + 6 <= c.to; s += 7) { const u = semanaUsuarios({ from: s, to: s + 6 }, nivel); if (u) semanas.push(u); }
+      for (let s = c.from + ((7 - ((c.from + 4) % 7)) % 7); s + 6 <= c.to; s += 7) { const u = semanaUsuarios({ from: s, to: s + 6 }, nivel); if (u) semanas.push({ ...u, to: s + 6 }); }
       if (!semanas.length) return null;
+      // Each game's average over the full weeks it was out (any day of them): the weeks before its
+      // launch are not zeros, and a game with no such week yet is n/a (null). Launch is its flag's day
+      // to all; a game out before the trend starts counts every week, its quiet ones too
       const por = {};
-      for (const u of semanas) for (const [b, x] of Object.entries(u.por)) por[b] = (por[b] || 0) + x / semanas.length;
+      for (const b of new Set(semanas.flatMap(u => Object.keys(u.por)))) {
+        const suyas = semanas.filter(u => u.to >= (lanzadoEl(b) > inicio ? lanzadoEl(b) : -Infinity));
+        por[b] = suyas.length ? suyas.reduce((a, u) => a + (u.por[b] || 0), 0) / suyas.length : null;
+      }
       return { por, real: semanas.every(u => u.real) };
     });
     const en = new Set([...Object.keys(porCol[k]?.por || {}), ...Object.keys(k ? porCol[0]?.por || {} : {})]);
@@ -250,7 +256,7 @@ export function trend({ days = {}, torneos = {}, flags = {} } = {}, w, { actual 
       real: porCol.map(u => !!u?.real),
       desdeReal: Number.isFinite(desdeReal) ? fechaDia(desdeReal) : null,
       filas: [...en].map(b => {
-        const valores = cols.map((c, i) => (!porCol[i] || salio(b) > c.to ? null : redondo(porCol[i].por[b] || 0)));
+        const valores = cols.map((c, i) => (!porCol[i] || salio(b) > c.to || porCol[i].por[b] === null ? null : redondo(porCol[i].por[b] || 0)));
         const comparable = valores[k] !== null && valores[k + 1] && porCol[k].real === porCol[k + 1].real;
         return { id: b, juego: nombreJuego(b), valores, cambio: comparable ? variacion(valores[k], valores[k + 1]) : null };
       }).filter(f => f.valores[k] || (k && f.valores[0])).sort((a, b) => (b.valores[k] || 0) - (a.valores[k] || 0) || (b.valores[0] || 0) - (a.valores[0] || 0)),
