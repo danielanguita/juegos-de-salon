@@ -211,8 +211,9 @@ export function trend({ days = {}, torneos = {}, flags = {} } = {}, w, { actual 
   const totales = {
     valores: total,
     cambio: total[k + 1] ? variacion(total[k], total[k + 1]) : null,
-    // The share the top N take, N = 3, 5, 10, 20, ranked as \`todos\` (by the closed week): the same N games in every column
-    cuota: Object.fromEntries([3, 5, 10, 20].map(nn => [nn, total.map((t, i) => (t ? Math.round((todos.slice(0, nn).reduce((a, g) => a + (g.valores[i] || 0), 0) / t) * 1000) / 10 : null))])),
+    // The share the top N take, N = 3, 5, 10, 20: each column ranks its own games, most finished first, so a
+    // week (the partial one too) or a month reads its own concentration, not the closed week's ranking
+    cuota: Object.fromEntries([3, 5, 10, 20].map(nn => [nn, total.map((t, i) => (t ? Math.round((Object.values(porCol[i]).sort((a, b) => b - a).slice(0, nn).reduce((a, v) => a + v, 0) / t) * 1000) / 10 : null))])),
   };
   // Active browsers by game, week by week (D-590), at two levels: those that finished it (2, the one
   // that matters) and those that started it (1 or 2). Real (distinct ids in `jugadores/`) where that

@@ -165,6 +165,12 @@ test('games: every one, and the share the top 3, 5, 10 and 20 take of the games 
   assert.equal(t.todos.length, 5);
   assert.equal(t.totales.valores[0], 15);
   assert.deepEqual([3, 5, 10, 20].map(nn => t.totales.cuota[nn][0]), [80, 100, 100, 100], '5 + 4 + 3 of 15, then all of them');
+  // The week in progress ranks its own games: Generala, last in the closed week, leads it
+  const a = { from: w.to + 1, to: w.to + 3 };
+  days[a.from] = { local: { generala: { solo: { 1: 10 } }, tango: { solo: { 1: 1 } }, zip: { solo: { 1: 1 } }, dudo: { solo: { 1: 1 } }, ahorcado: { solo: { 1: 1 } } }, fin: { generala: { solo: 10 }, tango: { solo: 1 }, zip: { solo: 1 }, dudo: { solo: 1 }, ahorcado: { solo: 1 } } };
+  const p = tendencia({ days }, w, { actual: a });
+  assert.equal(p.totales.cuota[3][0], 85.7, 'the partial week: 10 + 1 + 1 of 14, not the closed week\'s top 3 (3 of 14)');
+  assert.equal(p.totales.cuota[3][1], 80, 'the closed week keeps its own');
 });
 
 console.log(`reports/weekly-data: ${n} tests OK`);
