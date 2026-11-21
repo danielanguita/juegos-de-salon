@@ -523,6 +523,7 @@ table.wbr tr.wbr-total > * { border-top: 2px solid var(--glass-border); }
 .wbr-ritmo-guia { stroke: var(--glass-border); stroke-width: 1; }
 .wbr-ritmo-esta { stroke: var(--pink); stroke-width: 3.5; }
 .wbr-ritmo-pasada { stroke: var(--cyan); stroke-width: 2.5; }
+.wbr-ritmo-hoy { stroke-dasharray: 4 4; }
 .wbr-ritmo-prom { stroke: var(--line-faint); stroke-width: 2; stroke-dasharray: 5 4; }
 .wbr-ritmo-punto { position: absolute; left: var(--x); top: var(--y); width: 10px; height: 10px; transform: translate(-50%, -50%); border-radius: 50%; background: var(--pink); }
 .wbr-ritmo-dias { display: flex; justify-content: space-between; margin-top: var(--s-4); font-size: var(--fs-75); color: var(--muted); }
