@@ -6,7 +6,7 @@
 export const GAME_ID = 'cryptic';
 /** The language of the clues: Spanish only for now (clues.js). */
 export const CLUE_LANG = 'es';
-export const KIND_KEYS = ['anagram', 'reversal', 'hidden', 'charade', 'container', 'deletion', 'homophone', 'definitions', 'selector'];
+export const KIND_KEYS = ['anagram', 'reversal', 'hidden', 'charade', 'container', 'deletion', 'homophone', 'definitions', 'selector', 'substitution'];
 
 const ES = {
   ui: {
@@ -47,6 +47,7 @@ const ES = {
     container: 'dentro de otra (una palabra metida en otra)', deletion: 'le falta una letra (una palabra sin un pedazo)',
     homophone: 'suena igual (dos palabras que se oyen parecido)', definitions: 'dos definiciones (la palabra tiene dos significados)',
     selector: 'iniciales (las primeras letras de varias palabras)',
+    substitution: 'cambia una letra (una palabra con una letra en lugar de otra)',
   },
   como: [
     '🎯 Adivina la palabra: una parte de la pista la define y el resto la arma con un juego de palabras.',
@@ -94,6 +95,7 @@ const EN = {
     container: 'container (one word put inside another)', deletion: 'deletion (a word missing a piece)',
     homophone: 'sounds like (two words that sound alike)', definitions: 'double definition (the word has two meanings)',
     selector: 'initials (the first letters of several words)',
+    substitution: 'a letter changed (a word with one letter in place of another)',
   },
   como: [
     '🎯 Guess the word: one part of the clue defines it and the rest builds it with wordplay.',
@@ -141,6 +143,7 @@ const PT = {
     container: 'dentro de outra (uma palavra posta dentro de outra)', deletion: 'falta uma letra (uma palavra sem um pedaço)',
     homophone: 'soa igual (duas palavras que soam parecido)', definitions: 'duas definições (a palavra tem dois sentidos)',
     selector: 'iniciais (as primeiras letras de várias palavras)',
+    substitution: 'troca uma letra (uma palavra com uma letra no lugar de outra)',
   },
   como: [
     '🎯 Adivinhe a palavra: uma parte da pista a define e o resto a monta com um jogo de palavras.',
