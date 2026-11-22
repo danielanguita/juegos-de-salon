@@ -83,7 +83,7 @@ await waitFor(`!!document.getElementById('btn-level')`);
 await ev(`document.getElementById('btn-level').getAttribute('aria-checked') === 'true' && document.getElementById('btn-level').click(); 1`);
 
 // The languages
-for (const [lang, start, lever] of [['en', /Start/, /Normal traffic/], ['pt', /Começar/, /Trânsito normal/]]) {
+for (const [lang, start, lever] of [['en', /Start/, /Easy mode/], ['pt', /Começar/, /Modo fácil/]]) {
   await b.go(`${SITE}/croc/?test&lang=${lang}`, 1500);
   ok(await waitFor(`!!document.getElementById('btn-empezar')`), `${lang}: the waiting room`);
   ok(start.test(await ev(`document.getElementById('btn-empezar').textContent`)), `${lang}: Empezar in ${lang}`);
