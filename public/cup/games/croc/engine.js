@@ -259,6 +259,10 @@ function startHop(g, action) {
     if (f.row >= g.finishRow) return false;
     toRow = f.row + 1;
     dir = 'up';
+  } else if (action === 'down') {
+    if (f.row <= 0) return false;
+    toRow = f.row - 1;
+    dir = 'down';
   } else if (action === 'dash') {
     if (g.dashes <= 0 || f.row >= g.finishRow) return false;
     toRow = Math.min(g.finishRow, f.row + 2);
