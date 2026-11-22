@@ -59,11 +59,10 @@ export const localDay = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padS
 
 /**
  * What stays for good, for the profile's badges that cannot wait for a 60-day log (lab flag `profile`).
- * On the phone only, never sent: `{ first, days, wk, mon, sat, t13 }`: the day each game was first finished
+ * On the phone only, never sent: `{ first, days, wk, mon, sat, played }`: the day each game was first finished
  * here (`first: { <game>: 'YYYY-MM-DD' }`, 🎬 De estreno), the special days played (`days: { xmas, newyear,
  * fiestas, halloween }`), the Saturdays whose Sunday was played too (`wk`, 🛋️ Finde a tope) and the Mondays
- * with a game before 08:00 (`mon`, ☕ Odio los lunes), the last Saturday played (`sat`), the most games
- * finished on one Tuesday the 13th (`t13: { day, n, best }`) and the days with a game (`played`, the last 400, 🏠 De la casa). `stats.js`' `trackFinish` notes every game.
+ * with a game before 08:00 (`mon`, ☕ Odio los lunes), the last Saturday played (`sat`) and the days with a game (`played`, the last 400, 🏠 De la casa). `stats.js`' `trackFinish` notes every game.
  */
 export const MARKS_KEY = 'juegos-de-salon:play-marks';
 const SPECIAL = { '12-25': 'xmas', '01-01': 'newyear', '09-18': 'fiestas', '10-31': 'halloween' };
@@ -85,11 +84,6 @@ export function addMark(marks = {}, g, ms = Date.now()) {
     if (marks.sat === sat) out.wk = addDay(marks.wk, sat);
   }
   if (wd === 1 && d.getHours() < 8) out.mon = addDay(marks.mon, day);
-  if (wd === 2 && d.getDate() === 13) {
-    const t = marks.t13?.day === day ? marks.t13 : { day, n: 0, best: marks.t13?.best || 0 };
-    const n = (Number(t.n) || 0) + 1;
-    out.t13 = { day, n, best: Math.max(Number(t.best) || 0, n) };
-  }
   return out;
 }
 

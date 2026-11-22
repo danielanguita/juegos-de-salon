@@ -791,6 +791,8 @@ export function trackFinish(info) {
     noteRun(prev?.game);
     // The first day of each game, the special days, weekends and early Mondays, for the profile's badges (lab flag profile; on the phone only)
     noteMark(prev?.game);
+    // A secret achievement this game earned opens its window, once (lab flag profile, achievement-window.js)
+    if (typeof document !== 'undefined') import('../flags.js').then(m => m.flag('profile')).then(on => on && import('../achievement-window.js').then(m => m.celebrate({ lang: getLang() }))).catch(() => {});
     // Which games this phone finished, by id (D-546): a splash announcing only those is not news to it
     try { if (prev?.game) { const l = globalThis.localStorage, k = 'juegos-de-salon:jugados'; let v = []; try { v = JSON.parse(l?.getItem(k) || '[]'); } catch (_) { v = []; } if (Array.isArray(v) && !v.includes(prev.game)) l?.setItem(k, JSON.stringify([...v, prev.game].slice(-200))); } } catch (_) { /* no storage */ }
     // A moment after the game, the invitation to install, once a week at most (flag install-invite, lab: #seccion-install-invite)
