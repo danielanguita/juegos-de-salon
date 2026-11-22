@@ -62,13 +62,14 @@ export const localDay = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padS
  * On the phone only, never sent: `{ first, days, wk, mon, sat, t13 }`: the day each game was first finished
  * here (`first: { <game>: 'YYYY-MM-DD' }`, 🎬 De estreno), the special days played (`days: { xmas, newyear,
  * fiestas, halloween }`), the Saturdays whose Sunday was played too (`wk`, 🛋️ Finde a tope) and the Mondays
- * with a game before 08:00 (`mon`, ☕ Odio los lunes), the last Saturday played (`sat`), and the most games
- * finished on one Tuesday the 13th (`t13: { day, n, best }`). `stats.js`' `trackFinish` notes every game.
+ * with a game before 08:00 (`mon`, ☕ Odio los lunes), the last Saturday played (`sat`), the most games
+ * finished on one Tuesday the 13th (`t13: { day, n, best }`) and the days with a game (`played`, the last 400, 🏠 De la casa). `stats.js`' `trackFinish` notes every game.
  */
 export const MARKS_KEY = 'juegos-de-salon:play-marks';
 const SPECIAL = { '12-25': 'xmas', '01-01': 'newyear', '09-18': 'fiestas', '10-31': 'halloween' };
 const KEEP_DAYS = 30;
-const addDay = (list, day) => (Array.isArray(list) && list.includes(day) ? list : [...(Array.isArray(list) ? list : []), day].slice(-KEEP_DAYS));
+const KEEP_PLAYED = 400;
+const addDay = (list, day, keep = KEEP_DAYS) => (Array.isArray(list) && list.includes(day) ? list : [...(Array.isArray(list) ? list : []), day].slice(-keep));
 
 /** The marks with one more game `g` finished at `ms`, by the phone's clock. Pure. */
 export function addMark(marks = {}, g, ms = Date.now()) {
@@ -77,6 +78,7 @@ export function addMark(marks = {}, g, ms = Date.now()) {
   if (typeof g === 'string' && g && !out.first[g]) out.first[g] = day;
   const special = SPECIAL[day.slice(5)];
   if (special) out.days[special] = true;
+  out.played = addDay(marks.played, day, KEEP_PLAYED);
   if (wd === 6) out.sat = day;
   if (wd === 0) {
     const sat = localDay(new Date(d.getFullYear(), d.getMonth(), d.getDate() - 1));

@@ -62,7 +62,7 @@ for (const W of [320, 390]) {
     const h = {}; for (let i = 1; i <= 4; i++) h['2026-11-0' + i] = { e: 3 };
     localStorage.setItem('juegos-de-salon:play-hours', JSON.stringify(h));
     localStorage.setItem('juegos-de-salon:play-run', JSON.stringify({ g: 'queens', n: 3, best: 10 }));
-    localStorage.setItem('juegos-de-salon:play-marks', JSON.stringify({ days: { xmas: true, halloween: true }, wk: ['2025-01-04', '2025-01-11', '2025-01-18'], mon: ['2025-01-06'] }));
+    localStorage.setItem('juegos-de-salon:play-marks', JSON.stringify({ days: { xmas: true, halloween: true }, wk: ['2025-01-04', '2025-01-11', '2025-01-18'], mon: ['2025-01-06'], played: ['2025-01-01', '2025-01-02'] }));
   })()`);
   await b.go(`${SITE}/profile/?test`, 4000);
   ok(await ev(`document.querySelector('.pf-player')?.textContent.includes('Javi')`), `${W}: the card names the player`);
@@ -73,6 +73,7 @@ for (const W of [320, 390]) {
   ok(/4 \/ 7/.test(await ev(`document.querySelector('[data-badge="early-bird"]')?.textContent`)), `${W}: 🌅 the early bird counts the mornings, 4 / 7`);
   ok(await ev(`document.querySelector('[data-badge="obsession"]')?.classList.contains('pf-badge--silver')`), `${W}: 😬 Se llama obsesión is earned with one game 10 times in a row`);
   ok(await ev(`!document.querySelector('[data-badge="weekends"]')?.classList.contains('pf-badge--locked')`), `${W}: 🛋️ Finde a tope joins Uno al día's weekends and the phone's`);
+  ok(/1[67] \/ 100/.test(await ev(`document.querySelector('[data-badge="regular"]')?.textContent`)), `${W}: 🏠 De la casa counts Uno al día's days and the phone's, 16 / 100`);
   ok(/1 \/ 4/.test(await ev(`document.querySelector('[data-badge="mondays"]')?.textContent`)), `${W}: ☕ Odio los lunes counts the Mondays, 1 / 4`);
   ok(/Viejito Pascuero/.test(await ev(`document.querySelector('[data-badge="xmas"]')?.textContent`)), `${W}: 🎅 the secret Christmas badge shows its name once earned`);
   ok(await ev(`!!document.querySelector('[data-badge="new-year"].pf-badge--locked, [data-badge="new-year"]:not(:has(.pf-name))') || !/Año nuevo/.test(document.querySelector('[data-badge="new-year"]')?.textContent || '')`), `${W}: 🎆 New Year stays secret until earned`);

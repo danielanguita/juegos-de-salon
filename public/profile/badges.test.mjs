@@ -1,6 +1,6 @@
 // The profile's badges (lab flag profile): each one is earned by what it says, stays earned, and is new once.
 import assert from 'node:assert/strict';
-import { BADGES, GROUPS, earned, fullMonths, EARLY_GAMES, EARLY_DAYS, weekendsOf, cupsInAWeek, premieres, lastOnDay } from './badges.js';
+import { BADGES, GROUPS, earned, fullMonths, EARLY_GAMES, EARLY_DAYS, weekendsOf, cupsInAWeek, premieres, lastOnDay, daysPlayed } from './badges.js';
 
 const ids = BADGES.map(b => b.id);
 assert.equal(new Set(ids).size, ids.length, 'one id per badge');
@@ -97,6 +97,11 @@ assert.ok(!lastOnDay({ a: { s: 100 }, b: { s: 100 } }, 'b'), 'all tied: nobody i
 assert.ok(lastOnDay({ a: { s: 100 } }, 'b'), 'did not play day 1');
 assert.ok(!lastOnDay({}, 'b'), 'a day nobody played');
 assert.equal(got('climber', { climbs: 2 }).count, 2);
+// 🏠 De la casa: 100 days with a game, not in a row (the owner, 2026-11-22)
+assert.equal(daysPlayed({ '2026-11-01': true, '2026-11-02': true }, ['2026-11-02', '2026-11-05']), 3, 'a day counts once');
+const hundred = [...Array(100)].map((_, i) => new Date(Date.UTC(2026, 0, 1 + 2 * i)).toISOString().slice(0, 10));
+assert.ok(got('regular', { marks: { played: hundred } }).got);
+assert.deepEqual(got('regular', { dailyDays: { '2026-11-01': true }, marks: { played: hundred.slice(0, 36) } }).progress, [37, 100]);
 // The secret dates and Martes 13
 assert.ok(got('tuesday-13', { marks: { t13: { best: 13 } } }).got && !got('tuesday-13', { marks: { t13: { best: 12 } } }).got);
 for (const [id, k] of [['fiestas', 'fiestas'], ['halloween', 'halloween'], ['xmas', 'xmas'], ['new-year', 'newyear']]) {

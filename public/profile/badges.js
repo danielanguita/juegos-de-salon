@@ -39,6 +39,7 @@ export const MONDAYS = 4;       // Mondays with a game before 8
 export const PARTY_CUPS = 3;    // cups within 7 days
 export const SPECIALIST = 50;   // games of one same game
 export const TUESDAY_13 = 13;   // games on one Tuesday the 13th
+export const HOUSE_DAYS = 100;  // days with a game, not in a row
 const DAY = 86400000;
 const isoDay = ms => new Date(ms).toISOString().slice(0, 10);
 
@@ -52,6 +53,9 @@ export function weekendsOf(days = {}, wk = []) {
   }
   return out.size;
 }
+
+/** The days with a game: Uno al día's `days` joined with the phone's `played`. */
+export const daysPlayed = (days = {}, played = []) => new Set([...Object.keys(days || {}).filter(d => days[d]), ...(Array.isArray(played) ? played : [])]).size;
 
 /** The most cups joined within any 7 days, from `[{ at }]`. */
 export function cupsInAWeek(cups = []) {
@@ -126,6 +130,7 @@ export const BADGES = [
   { id: 'obsession', group: 'games', tier: 'silver', icon: '😬', check: f => progress(f.bestRun, RUN_GAMES) },
   { id: 'specialist', group: 'games', tier: 'silver', icon: '🎓', check: f => progress(Math.max(0, ...(f.byGame || []).map(g => n(g?.n))), SPECIALIST) },
   { id: 'premiere', group: 'games', tier: 'bronze', icon: '🎬', check: f => { const c = premieres(f.marks?.first, f.launches); return { got: c > 0, count: c }; } },
+  { id: 'regular', group: 'games', tier: 'silver', icon: '🏠', check: f => progress(daysPlayed(f.dailyDays, f.marks?.played), HOUSE_DAYS) },
   { id: 'weekends', group: 'games', tier: 'silver', icon: '🛋️', check: f => progress(weekendsOf(f.dailyDays, f.marks?.wk), WEEKENDS) },
   { id: 'mondays', group: 'games', tier: 'bronze', icon: '☕', check: f => progress(Array.isArray(f.marks?.mon) ? f.marks.mon.length : 0, MONDAYS) },
   { id: 'number-one', group: 'games', tier: 'gold', icon: '🥇', check: f => ({ got: n(f.firsts) > 0, count: n(f.firsts) }) },
