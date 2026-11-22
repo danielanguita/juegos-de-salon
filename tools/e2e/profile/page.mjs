@@ -42,6 +42,20 @@ for (const W of [320, 390]) {
   await ev('localStorage.clear()');
   await b.go(`${SITE}/profile/?test`, 3000);
   ok(await ev(`!!document.querySelector('#pf-page .rk-invita[open] #rk-entrar')`), `${W}: a guest is invited to sign in, the form open`);
+  // 👋 The welcome: open by itself on the first visit, closed after; «¿Cómo funciona?» opens it again (the owner, 2026-11-22)
+  ok(await ev(`(() => { const i = document.getElementById('pf-intro'); return !!i && !i.hidden && i.querySelectorAll('.pf-intro-list li').length === 3 && document.querySelector('.pf-help').hidden && i.getBoundingClientRect().right <= ${W} && !!localStorage.getItem('juegos-de-salon:profile-intro') && !!localStorage.getItem('juegos-de-salon:profile-bubble'); })()`), `${W}: 👋 the first visit opens the welcome: three points, and the pill's bubble is retired`);
+  await b.shot(`intro-${W}`);
+  const si = await small(b);
+  ok(!si, `${W}: 👋 the welcome, every tappable thing is 44 px or more${si ? ` (${si})` : ''}`);
+  await ev(`document.querySelector('.pf-intro-ok').click()`); await sleep(300);
+  ok(await ev(`document.getElementById('pf-intro').hidden && !document.querySelector('.pf-help').hidden`), `${W}: 👋 «Entendido» closes it and «¿Cómo funciona?» shows under the title`);
+  await b.go(`${SITE}/profile/?test`, 3000);
+  ok(await ev(`document.getElementById('pf-intro').hidden && !document.querySelector('.pf-help').hidden`), `${W}: 👋 the next visit starts with it closed`);
+  await b.shot(`intro-closed-${W}`);
+  await ev(`document.querySelector('.pf-help').click()`); await sleep(500);
+  ok(await ev(`!document.getElementById('pf-intro').hidden`), `${W}: 👋 «¿Cómo funciona?» opens it again`);
+  await ev(`document.querySelector('.pf-intro-x').click()`); await sleep(300);
+  ok(await ev(`document.getElementById('pf-intro').hidden`), `${W}: 👋 ✕ closes it too`);
   ok(await ev(`document.querySelectorAll('#pf-page .pf-group .pf-badge').length`) >= 5, `${W}: a guest sees the badges this phone can earn`);
   ok(await ev(`document.querySelectorAll('#pf-page .rk-ranking, #pf-page .rk-lista').length`) >= 2, `${W}: a guest sees the rankings, as on /records/`);
   ok(await ev(`document.documentElement.scrollWidth <= ${W}`), `${W}: guest, no sideways scroll`);
@@ -171,8 +185,18 @@ for (const W of [320, 390]) {
   await ev(`document.querySelector('#pf-peek .pf-peek-ok').click()`); await sleep(300);
   await ev(`document.querySelector('.pf-public .switch').click()`); await sleep(800);
   ok(await ev(`(async () => { const { jugador, leerYo } = await import('/assets/js/jugador.js'); return (await (await jugador()).perfil(leerYo().jid))?.abierto == null; })()`), `${W}: 👁️ turned off, it is gone from the server`);
-  // The home page's top bar
+  // 🎖️ The pill's bubble: shown until the profile is opened or ✕ (?profile-intro=demo shows it again)
   await b.go(`${SITE}/?test`, 3000);
+  ok(await ev(`!document.getElementById('pf-bubble')`), `${W}: 🎖️ no bubble once the profile was opened`);
+  await b.go(`${SITE}/?test&profile-intro=demo`, 3500);
+  ok(await ev(`(() => { const x = document.getElementById('pf-bubble')?.getBoundingClientRect(), p = document.querySelector('.topbar .pf-home').getBoundingClientRect(); return !!x && x.left >= 0 && x.right <= ${W} && x.top > p.bottom && x.top - p.bottom < 24 && document.documentElement.scrollWidth <= ${W}; })()`), `${W}: 🎖️ the bubble rises right under the pill and fits the screen`);
+  await sleep(700); await b.shot(`bubble-${W}`);
+  ok(await ev(`(() => { const x = document.querySelector('.pf-bubble-x'); return x.offsetWidth >= 44 && x.offsetHeight >= 44; })()`), `${W}: 🎖️ its ✕ is 44 px`);
+  await ev(`document.querySelector('.pf-bubble-x').click()`); await sleep(400);
+  ok(await ev(`!document.getElementById('pf-bubble') && !!localStorage.getItem('juegos-de-salon:profile-bubble')`), `${W}: 🎖️ ✕ closes it for good`);
+  await b.go(`${SITE}/?test`, 3000);
+  ok(await ev(`!document.getElementById('pf-bubble')`), `${W}: 🎖️ and it does not come back`);
+  // The home page's top bar
   ok(await ev(`(() => { const a = document.getElementById('btn-rankings'); return a.classList.contains('pf-home') && a.getAttribute('href') === 'profile/' && a.querySelector('.pf-home-name')?.textContent === 'Javi' && !!a.querySelector('.pf-home-flag')?.textContent && a.querySelector('.pf-home-go')?.textContent === '›' && !a.textContent.includes('🔥'); })()`), `${W}: on the home page 🏅 is a pill with the player's flag, name and ›, no streak (Uno al día's card has it), to /profile/`);
   ok(await ev(`!!document.querySelector('#offline-ready-slot')`), `${W}: offline mode's ☁️ stays on the home page`);
   ok(await ev(`(() => { const a = document.getElementById('btn-rankings'), t = document.querySelector('.portada-barra .tools'); return a.getBoundingClientRect().right <= t.getBoundingClientRect().right + 1 && a.scrollWidth <= a.clientWidth + 1; })()`), `${W}: the name pill fits the bar`);
