@@ -61,4 +61,8 @@ assert.equal(first.seen['number-one'], NOW);
 const later = earned({ now: NOW + 1000, firsts: 0 }, first.seen);
 const one = later.list.find(b => b.id === 'number-one');
 assert.ok(one.got && !one.new, 'a first place lost this week keeps its badge, no longer new');
+// 😬 Se llama obsesión: one same game 10 times in a row (the owner, 2026-11-21)
+const obs = f => earned({ now: NOW, ...f }).list.find(b => b.id === 'obsession');
+assert.deepEqual(obs({ bestRun: 7 }).progress, [7, 10]);
+assert.ok(!obs({ bestRun: 9 }).got && obs({ bestRun: 10 }).got);
 console.log('profile badges: ok');

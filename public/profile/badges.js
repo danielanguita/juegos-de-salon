@@ -19,6 +19,7 @@
  *   firsts         in how many games the player is 1st this week or ever
  *   allRounder     the player's place in the overall ranking, ever (null if not in it)
  *   hours          { 'YYYY-MM-DD': { e, n } } games finished early (04:00–06:59) and at night (00:00–03:59), by local day
+ *   bestRun        the most times this phone finished one same game in a row
  *   since          when the player was created (ms)
  *   now            ms
  */
@@ -27,6 +28,7 @@ export const GROUPS = ['daily', 'cup', 'games'];
 export const EARLY_GAMES = 3;   // games before 7 in one morning…
 export const EARLY_DAYS = 7;    // …on this many mornings
 export const NIGHT_GAMES = 3;   // games between midnight and 4 in one night
+export const RUN_GAMES = 10;    // one same game in a row
 
 /** Whole calendar months fully played in `days` (`{ 'YYYY-MM-DD': true }`), up to `today`. */
 export function fullMonths(days = {}, today = '9999-12-31') {
@@ -66,6 +68,7 @@ export const BADGES = [
   { id: 'collector', group: 'games', tier: 'gold', icon: '🧩', check: f => progress(f.gamesPlayed, Math.max(1, n(f.gamesTotal))) },
   { id: 'plays-100', group: 'games', tier: 'bronze', icon: '🎲', check: f => progress(f.plays, 100) },
   { id: 'plays-1000', group: 'games', tier: 'gold', icon: '🎲', check: f => progress(f.plays, 1000) },
+  { id: 'obsession', group: 'games', tier: 'silver', icon: '😬', check: f => progress(f.bestRun, RUN_GAMES) },
   { id: 'number-one', group: 'games', tier: 'gold', icon: '🥇', check: f => ({ got: n(f.firsts) > 0, count: n(f.firsts) }) },
   { id: 'all-rounder', group: 'games', tier: 'silver', icon: '🎯', check: f => ({ got: Number.isInteger(f.allRounder) && f.allRounder >= 1 && f.allRounder <= 10 }) },
   // Secret: shown as «?» until earned
