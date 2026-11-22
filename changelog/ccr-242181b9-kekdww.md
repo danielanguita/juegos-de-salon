@@ -1,0 +1,5 @@
+level: patch
+
+- Profile (lab): the top bar no longer jumps on load. The language as one flag with a ▾ and the profile pill are drawn from the first frame, using what the phone saw last time, instead of showing the three flags until the network answered.
+- Profile (lab): on Android the share button shows Android's own icon (three dots joined by two lines) in white and turquoise, instead of the box with an arrow.
+- Profile (lab): on the home page the profile pill moves to the right end of the top bar, after share, as on every other page.
