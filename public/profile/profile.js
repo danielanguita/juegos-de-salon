@@ -120,6 +120,7 @@ async function playerFacts(J, yo) {
   f.cupList = cups;
   const mine = medallero(podios).find(x => x.jid === yo.jid);
   f.medals = { gold: mine?.oro || 0, silver: mine?.plata || 0, bronze: mine?.bronce || 0 };
+  f.podiumsByCode = podios || {};
   f.podiums = Object.entries(podios || {}).flatMap(([code, c]) => Object.values(c?.p || {}).filter(x => x.j === yo.jid).map(x => ({ code, name: c.name, end: c.end || 0, l: x.l }))).sort((a, b) => b.end - a.end);
   // Finished months of Uno al día points: the player's place when on the podium
   const months = [];
@@ -249,12 +250,7 @@ function rankingsTab(J, f) {
   }
   // Uno al día's month and the player's cups
   const month = bloqueRanking({ juego: UAD_PUNTOS, titulo: fmt(T.dailyMonth, { month: monthName(Date.now()) }), pestanas: ['mes', 'amigosMes'], alTocar: tap });
-  const medal = l => ['🥇', '🥈', '🥉'][l - 1] || '🏆';
-  const cups = el('section', { class: 'panel pf-cups' }, el('p', { class: 'lead rk-titulo' }, T.yourCups),
-    f.podiums?.length
-      ? el('div', { class: 'rk-lista' }, f.podiums.slice(0, 8).map(p => el('div', { class: 'rk-fila' },
-        el('span', { class: 'rk-puesto' }, medal(p.l)), el('span', { class: 'rk-nombre' }, el('span', { class: 'rk-n' }, p.name || p.code)), el('span', {}), el('span', { class: 'rk-puntos' }, place(p.l)))))
-      : el('p', { class: 'muted rk-centro' }, f.cups ? `${f.cups} 🏆` : T.noCups));
+  const cups = cupsPanel(f);
   const all = el('a', { class: 'btn btn--ghost', href: '../records/', onClick: tap }, T.allRankings);
   box.append(general, games, month, cups, all);
   return {
@@ -273,6 +269,75 @@ function rankingsTab(J, f) {
       setPlace(1, g.ever);
     },
   };
+}
+
+/**
+ * 🏆 Your cups (the owner, 2026-11-22): each cup with its name, its dates, the player's final place and who won,
+ * the ones in progress first and then the newest, five at a time. First what the podiums already say; then each
+ * cup as La Copa's own table ranks it, from /cup/history/ in a hidden frame (the engine stays out of this page, D-377).
+ */
+const CUPS_PAGE = 5;
+const CUPS_FRAME_MS = 15000;
+const dayFmt = (ms, withYear) => new Date(ms).toLocaleDateString(lang, { day: 'numeric', month: 'short', ...(withYear ? { year: 'numeric' } : {}) });
+function cupDates(a, b) {
+  if (!a && !b) return '';
+  const y = new Date().getFullYear(), yb = new Date(b || a).getFullYear();
+  if (!a || !b) return dayFmt(a || b, yb !== y);
+  const da = new Date(a), db = new Date(b);
+  // The same month says it once: «16 – 23 nov»
+  if (da.getMonth() === db.getMonth() && da.getFullYear() === db.getFullYear()) return `${da.getDate()} – ${dayFmt(b, yb !== y)}`;
+  return `${dayFmt(a, false)} – ${dayFmt(b, yb !== y)}`;
+}
+function askCups(list) {
+  return new Promise(resolve => {
+    const frame = el('iframe', { hidden: true, 'aria-hidden': 'true', tabindex: '-1' });
+    const done = lines => { clearTimeout(timer); removeEventListener('message', onMessage); frame.remove(); resolve(lines || {}); };
+    const onMessage = e => { if (e.source === frame.contentWindow && e.origin === location.origin && e.data?.type === 'cup-history') done(e.data.lines); };
+    const timer = setTimeout(() => done({}), CUPS_FRAME_MS);
+    addEventListener('message', onMessage);
+    frame.src = `../cup/history/${realDb() ? '' : '?test'}#c=${list.slice(0, 60).map(c => `${c.code}.${c.p}`).join(',')}`;
+    document.body.append(frame);
+  });
+}
+function cupsPanel(f) {
+  const box = el('section', { class: 'panel pf-cups' }, el('p', { class: 'lead rk-titulo' }, T.yourCups));
+  const list = (f.cupList || []).filter(c => c?.code && c.p);
+  if (!list.length) { box.append(el('p', { class: 'muted rk-centro' }, T.noCups)); return box; }
+  // What the podiums say at once: the name, the end, the place when on the podium, the champion
+  const fromPodium = Object.fromEntries(list.map(c => {
+    const pod = f.podiumsByCode?.[c.code];
+    if (!pod) return [c.code, { name: c.code, start: 0, end: Number(c.at) || 0, over: false, place: null, of: 0, champions: [], pending: true }];
+    const ps = Object.entries(pod.p || {});
+    const mine = ps.find(([pid]) => pid === c.p)?.[1];
+    return [c.code, { name: pod.name || c.code, start: pod.end && pod.dias ? pod.end - pod.dias * 86400000 : 0, end: Number(pod.end) || 0, over: true,
+      place: mine?.l || null, of: Number(pod.de) || 0, champions: ps.filter(([, x]) => x.l === 1).map(([, x]) => x.n) }];
+  }));
+  const wrap = el('div', { class: 'pf-cup-list' });
+  let shown = CUPS_PAGE;
+  const draw = lines => {
+    const all = list.map(c => ({ code: c.code, ...(lines[c.code] || fromPodium[c.code]) }))
+      .sort((a, b) => (a.over === b.over ? 0 : a.over ? 1 : -1) || (b.end || 0) - (a.end || 0));
+    const medal = p => ['🥇', '🥈', '🥉'][p - 1] || '';
+    wrap.replaceChildren(...all.slice(0, shown).map(c => {
+      const won = c.over && c.place === 1;
+      const champ = !c.over ? T.cupRunning : won ? T.cupYouWon : c.champions?.length ? fmt(c.champions.length > 1 ? T.cupChampions : T.cupChampion, { names: c.champions.join(', ') }) : '';
+      const tier = c.place === 1 ? 'gold' : c.place === 2 ? 'silver' : c.place === 3 ? 'bronze' : '';
+      return el('a', { class: `pf-cup${tier ? ` pf-cup--${tier}` : ''}${c.over ? '' : ' pf-cup--live'}`, href: `../cup/?${c.alias || c.code}${realDb() ? '' : '&test'}`, 'data-cup': c.code, onClick: tap },
+        el('span', { class: 'pf-cup-place' }, c.place ? el('b', {}, medal(c.place) || place(c.place)) : el('b', {}, c.pending ? '…' : '–'),
+          c.place && c.of ? el('small', {}, fmt(T.cupOf, { n: num(c.of) })) : null),
+        el('span', { class: 'pf-cup-txt' },
+          el('b', { class: 'pf-cup-name' }, c.name || c.code),
+          el('small', {}, [cupDates(c.start, c.end), c.of ? fmt(T.cupPlayers, { n: num(c.of) }) : ''].filter(Boolean).join(' · ')),
+          champ ? el('small', { class: 'pf-cup-champ' }, `${won ? '🏆 ' : c.over ? '👑 ' : '⏳ '}${champ}`) : null),
+        el('span', { class: 'go', 'aria-hidden': 'true' }, '›'));
+    }));
+    const rest = all.length - shown;
+    if (rest > 0) wrap.append(el('button', { type: 'button', class: 'btn btn--ghost btn--sm pf-more', onClick: () => { tap(); shown += CUPS_PAGE; draw(lines); } }, rest === 1 ? T.moreCupsOne : fmt(T.moreCups, { n: num(Math.min(rest, CUPS_PAGE)) })));
+  };
+  draw({});
+  box.append(wrap);
+  askCups(list).then(lines => { if (Object.keys(lines).length && wrap.isConnected) draw(lines); }).catch(() => {});
+  return box;
 }
 
 /** The ⚙️ tab: the account and the preferences (offline mode's ☁️ stays on the home page; writing to us and privacy are in the footer). */
