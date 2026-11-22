@@ -31,7 +31,8 @@ function h(tag, attrs = {}, ...hijos) {
 }
 
 /** One color per zone, in order; a zone with no rule is plain. */
-const COLORES = ['#ff2e88', '#2ee6d6', '#ffd23f', '#9dff3a', '#ff8a3d', '#b98bff', '#4fa3ff', '#ff6b6b', '#5fe0a0', '#e0a85f'];
+// The zones' colors stay away from red, so a broken rule's red stands out (the owner, 2026-11-22)
+const COLORES = ['#2ee6d6', '#ffd23f', '#b98bff', '#9dff3a', '#4fa3ff', '#e0a85f', '#5fe0a0', '#c8d3e6'];
 
 /* ------------------------------------------------------------------ */
 /* Drawing dominoes and boards                                         */
