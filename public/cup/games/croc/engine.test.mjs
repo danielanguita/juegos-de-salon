@@ -14,7 +14,7 @@ assert.deepEqual(
 );
 assert.deepEqual(a.fruits, b.fruits, 'identical seed creates identical fruit placement');
 
-// 2. Movement rules: forward, left, right only (clamped to board bounds, no backward)
+// 2. Movement rules: forward, back, left, right (clamped to board bounds)
 const g = newGame({ seed: 1234 });
 for (const l of g.lanes) l.vehicles = []; // isolate movement bounds from traffic
 assert.equal(act(g, 'up'), true);
@@ -36,7 +36,16 @@ for (let i = 0; i < COLS + 2; i++) {
   for (let k = 0; k < 25; k++) step(g, STEP);
 }
 assert.equal(g.frog.col, COLS - 1, 'clamps at right edge');
-assert.equal(act(g, 'back'), false, 'no backward movement supported');
+assert.equal(act(g, 'back'), false, 'unknown actions are refused');
+{
+  const b = newGame({ seed: 7 });
+  assert.equal(act(b, 'down'), false, 'cannot retreat from row 0');
+  act(b, 'up'); for (let k = 0; k < 25; k++) step(b, STEP);
+  assert.equal(b.frog.row, 1);
+  act(b, 'down'); for (let k = 0; k < 25; k++) step(b, STEP);
+  assert.equal(b.frog.row, 0, 'a hop back moves one row down');
+  assert.equal(b.maxRow, 1, 'going back never lowers the progress');
+}
 
 // 3. Dash starts with 3 charges, consumes 1 per Dash, and refuses when empty
 const d = newGame({ seed: 2026 });

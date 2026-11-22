@@ -5,10 +5,13 @@
  * Being on every page, it also carries what every page's top bar gets while in the lab.
  */
 import { labAccess } from './lab-access.js';
-import { flag } from './flags.js';
+import { flag, flagGuess } from './flags.js';
 
 // The profile's pill and the compact language on every page's top bar (profile-button.js). lab: #seccion-profile
-flag('profile').then(on => on && import('./profile-button.js').then(m => m.profileEverywhere())).catch(() => {});
+// Drawn from the first frame when this phone saw it on last time: waiting for the network showed the old bar first
+const pf = () => import('./profile-button.js').then(m => m.profileEverywhere());
+if (flagGuess('profile')) pf().catch(() => {});
+else flag('profile').then(on => on && pf()).catch(() => {});
 
 if (await labAccess().catch(() => false)) {
   const { testerRibbon } = await import('./tester-ribbon.js');
