@@ -73,7 +73,7 @@ button.dm-ficha:active { transform: scale(0.94); }
 .dm-ficha.arrastrada { opacity: 0.3; }
 .dm-ficha.fantasma { position: fixed; z-index: 50; pointer-events: none; transform: scale(1.06); box-shadow: 0 10px 24px rgb(var(--well-rgb) / 0.55); }
 /* A placed domino sits on its two cells, small enough that the zone's color and edge show around it */
-.dm-puesta { --t: calc(var(--s) - 12px); z-index: 1; align-self: center; justify-self: center; }
+.dm-puesta { --t: calc(var(--s) - 8px); z-index: 1; align-self: center; justify-self: center; }
 .dm-board .dm-puesta.cae { animation: dm-cae 0.28s ease-out; }
 .dm-board .dm-puesta.pista { box-shadow: 0 0 0 3px var(--yellow), 0 0 18px var(--yellow); }
 @keyframes dm-cae {
