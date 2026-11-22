@@ -88,6 +88,18 @@ function fichasPuestas(g, p, { conBotones = false } = {}) {
     }));
   });
   const est = E.estadoZonas(p);
+  // A full zone that breaks its rule is marked over the dominoes (they hide its cells): red stripes and its edge
+  g.querySelectorAll('.dm-mala').forEach(x => x.remove());
+  const zonaDe = []; p.t.zonas.forEach((z, k) => z.celdas.forEach(i => { zonaDe[i] = k; }));
+  const en = (r, c) => p.t.celdas.findIndex(x => x.r === r && x.c === c);
+  p.t.zonas.forEach((z, k) => {
+    if (est[k] !== false) return;
+    z.celdas.forEach(i => {
+      const c = p.t.celdas[i];
+      const borde = [[-1, 0, 'bt'], [0, 1, 'br'], [1, 0, 'bb'], [0, -1, 'bl']].filter(([dr, dc]) => { const j = en(c.r + dr, c.c + dc); return j < 0 || zonaDe[j] !== k; }).map(x => x[2]);
+      g.append(h('span', { class: `dm-mala ${borde.join(' ')}`, 'aria-hidden': 'true', style: `grid-row:${c.r + 1};grid-column:${c.c + 1}` }));
+    });
+  });
   g.querySelectorAll('.dm-regla').forEach(r => { const e = est[+r.dataset.zona]; r.classList.toggle('ok', e === true); r.classList.toggle('mal', e === false); });
 }
 
@@ -211,6 +223,18 @@ export function mount(raiz, ctx) {
     } });
     dosToques(botonRendirse, { listo: () => T.dmRendirse, seguro: () => T.dmRendirseSeguro, accion: () => terminar('rendido') });
 
+    /** A laid domino settles with a squash and leaves a ring on the cells it took. */
+    const aterriza = f => {
+      const x = g.querySelector(`.dm-puesta[data-f="${f}"]`); if (!x) return;
+      x.classList.add('cae');
+      if (QUIETO()) return;
+      const sitio = p.puestas[f]; if (!sitio) return;
+      for (const i of [sitio.a, sitio.b]) {
+        const c = t.celdas[i];
+        const onda = h('span', { class: 'dm-onda', 'aria-hidden': 'true', style: `grid-row:${c.r + 1};grid-column:${c.c + 1}` });
+        g.append(onda); setTimeout(() => onda.remove(), 500);
+      }
+    };
     const dibujar = () => {
       cortar();
       botonDeshacer.disabled = !historial.length;
@@ -322,7 +346,7 @@ export function mount(raiz, ctx) {
       if (sel === a.f) sel = null;
       SFX.hit?.(); vibrate(15);
       dibujar();
-      g.querySelector(`.dm-puesta[data-f="${a.f}"]`)?.classList.add('cae');
+      aterriza(a.f);
       decir(sel === null ? T.dmElegir : T.dmElegida);
       anotar(); revisar();
     };
@@ -363,7 +387,7 @@ export function mount(raiz, ctx) {
       const f = sel; sel = null;
       SFX.hit?.(); vibrate(15);
       dibujar();
-      g.querySelector(`.dm-puesta[data-f="${f}"]`)?.classList.add('cae');
+      aterriza(f);
       decir(T.dmElegir);
       anotar(); revisar();
     });

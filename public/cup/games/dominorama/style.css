@@ -53,7 +53,7 @@ button.dm-ficha:active { transform: scale(0.94); }
 @keyframes dm-no { 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
 /* The rule: a small diamond inside the zone's last cell, bottom right (D-385); a tap lights its zone */
 .dm-regla {
-  z-index: 2; cursor: pointer; align-self: end; justify-self: end; margin: 0 var(--s-4) var(--s-4) 0;
+  z-index: 3; cursor: pointer; align-self: end; justify-self: end; margin: 0 var(--s-4) var(--s-4) 0;
   width: 22px; height: 22px; display: grid; place-items: center; transform: rotate(45deg);
   background: var(--z); border: 2px solid var(--ink); border-radius: var(--r-8); box-shadow: 0 2px 6px rgb(var(--well-rgb) / 0.45);
 }
@@ -76,7 +76,24 @@ button.dm-ficha:active { transform: scale(0.94); }
 .dm-puesta { --t: calc(var(--s) - 4px); z-index: 1; align-self: center; justify-self: center; }
 .dm-board .dm-puesta.cae { animation: dm-cae 0.28s ease-out; }
 .dm-board .dm-puesta.pista { box-shadow: 0 0 0 3px var(--yellow), 0 0 18px var(--yellow); }
-@keyframes dm-cae { from { transform: scale(1.25); opacity: 0.4; } to { transform: scale(1); opacity: 1; } }
+@keyframes dm-cae {
+  0% { transform: scale(1.3) translateY(-6px); opacity: 0.5; box-shadow: 0 12px 18px rgb(var(--well-rgb) / 0.4); }
+  55% { transform: scale(0.94, 0.9); opacity: 1; }
+  78% { transform: scale(1.03, 1.05); }
+  100% { transform: scale(1); }
+}
+/* A ring spreads from the two cells a domino just took */
+.dm-onda { z-index: 1; pointer-events: none; margin: 1px; border-radius: var(--r-8); animation: dm-onda 0.45s ease-out forwards; }
+@keyframes dm-onda { from { box-shadow: 0 0 0 0 rgb(var(--ink-rgb) / 0.55); } to { box-shadow: 0 0 0 10px rgb(var(--ink-rgb) / 0); } }
+/* A full zone that breaks its rule: red stripes over its cells, through the dominoes, and its edge in red */
+.dm-mala {
+  z-index: 2; pointer-events: none; margin: 1px; border-radius: var(--r-8);
+  background: repeating-linear-gradient(135deg, rgb(var(--red-rgb) / 0.34) 0 6px, rgb(var(--red-rgb) / 0.08) 6px 12px);
+  animation: dm-mala 1.6s ease-in-out infinite;
+}
+.dm-mala.bt { border-top: 2px dashed var(--red); } .dm-mala.br { border-right: 2px dashed var(--red); }
+.dm-mala.bb { border-bottom: 2px dashed var(--red); } .dm-mala.bl { border-left: 2px dashed var(--red); }
+@keyframes dm-mala { 50% { opacity: 0.6; } }
 .dm-board.resuelto { filter: drop-shadow(0 0 14px rgb(var(--lime-rgb) / 0.6)); }
 
 /* ---------- While playing ---------- */
@@ -97,7 +114,7 @@ button.dm-ficha:active { transform: scale(0.94); }
 .dm-sello.mal { color: var(--pink); }
 
 @media (prefers-reduced-motion: reduce) {
-  .dm-titulo .dm-logo, .dm-board .dm-puesta.cae, .dm-celda.no, .dm-regla.mal, .dm-sello { animation: none; }
+  .dm-titulo .dm-logo, .dm-board .dm-puesta.cae, .dm-celda.no, .dm-regla.mal, .dm-sello, .dm-mala, .dm-onda { animation: none; }
 }
 /* A short phone (320×568): the cover's demo board shrinks so Empezar stays above the fold (U-39) */
 @media (max-height: 620px) {
