@@ -6,8 +6,8 @@ const ES = {
     nombre: 'Croc!',
     habilidad: 'reflejos',
     como: [
-      'Cruza hasta la laguna: desliza hacia adelante o a un lado, nunca hacia atrás.',
-      'Desliza largo hacia adelante para el Dash, que salta dos carriles; cada fruta o auto que pasas raspando te devuelve una carga.',
+      'Cruza hasta la laguna: desliza en cualquier dirección para saltar.',
+      'Toca dos veces rápido para el Dash, que salta dos carriles; cada fruta o auto que pasas raspando te devuelve una carga.',
       'Tienes 3 vidas: un choque o caer al agua te quita una.',
     ],
     puntaje: '🛣️ +1 por carril, 🏁 +10 al llegar, 🍓 +1 por fruta y 💔 -1 por vida perdida.',
@@ -40,8 +40,8 @@ const EN = {
     nombre: 'Croc!',
     habilidad: 'reflexes',
     como: [
-      'Cross the highway to the pond: swipe forward or sideways, never back.',
-      'Swipe far forward to Dash over two lanes; each fruit or car you barely miss gives a charge back.',
+      'Cross the highway to the pond: swipe in any direction to hop.',
+      'Double-tap to Dash over two lanes; each fruit or car you barely miss gives a charge back.',
       'You have 3 lives: a crash or a fall into the water costs one.',
     ],
     puntaje: '🛣️ +1 per lane, 🏁 +10 at finish, 🍓 +1 per fruit, and 💔 -1 per life lost.',
@@ -73,8 +73,8 @@ const PT = {
     nombre: 'Croc!',
     habilidad: 'reflexos',
     como: [
-      'Atravesse até a lagoa: deslize para frente ou para os lados, nunca para trás.',
-      'Deslize longo para frente para o Dash, que pula duas faixas; cada fruta ou carro que você passa raspando devolve uma carga.',
+      'Atravesse até a lagoa: deslize em qualquer direção para pular.',
+      'Toque duas vezes rápido para o Dash, que pula duas faixas; cada fruta ou carro que você passa raspando devolve uma carga.',
       'Você tem 3 vidas: uma batida ou uma queda na água tira uma.',
     ],
     puntaje: '🛣️ +1 por faixa, 🏁 +10 ao chegar, 🍓 +1 por fruta e 💔 -1 por vida perdida.',
