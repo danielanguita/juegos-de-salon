@@ -1,5 +1,101 @@
 # Changelog
 
+## 1.38.1 — 2026-11-21
+- **⚖️ Tembleque's cover shows the real game**: the drawing above the level lever is now a loop of each level as it really plays, the claw dropping pieces on the plank or pieces landing on the disc, with a calm camera that leans in a little as each piece lands and melts back into the start, so it never stops. Only the level on the lever plays; with reduced motion it stands still. Recorded by `tools/generators/wobbles-cover.mjs`, which borrows the splash's takes.
+
+## 1.38.0 — 2026-11-21
+- **⚖️ Tembleque is out of the lab, ready to launch, not launched.** Its page is now /wobbles/, with both levels (the lab's links lead there), and once the owner switches `wobbles` on it reaches the home page with ✨ Nuevo, the search and Rankings, a tab per level. Not La Copa or Uno al día for now (the owner's choice, 2026-11-21, D-601). Until then it stays hidden; the ¡Nos volvimos locos! splash (off) now opens its cover.
+- **Its cover on a short phone (320×568)**: a smaller icon and picture keep ¡A jugar! above the fold with either level on the lever; `landing-fold.mjs` now measures a cover's Play button (`#btn-play`) rather than the lever above it, which had let it pass.
+
+## 1.37.0 — 2026-11-21
+- **🐸 Croc! is ready to launch, and not launched yet**: it leaves the lab the way Sudoku did (D-517), as La Copa's game with its own page `/croc/`, hidden until the owner switches the `croc` flag on from its `/labs/` card (a lab key opens it before). Its cover is the lab's: the real game crossing on its own with a finger showing each swipe and each Dash, and the traffic lever, now La Copa's variant (normal by default; heavy traffic turns the page red-violet and ranks apart). Once launched it is in La Copa's pool and in Uno al día from the day after its launch (both dates are placeholders until the owner picks it). `/labs/croc/` now leads to `/croc/`, and the `nos-volvimos-locos` splash (still off) opens Croc!'s cover there. By Daniel (danielanguita), prepared for launch by Claude.
+
+## 1.36.1 — 2026-11-21
+- **🤪 ¡Nos volvimos locos!: bigger game names and texts on its cards** (16 px text instead of 12, on phones with room; a step smaller on short or 320 px phones). Only campaigns with `bigClips`, so far only this one, still off.
+
+## 1.36.0 — 2026-11-22
+- **🎖️ Your profile, in Labs** (flag `profile`): in ⚙️, «👤 Tu cuenta» now changes your name and your PIN (each asks for your PIN) and signs you out after asking once. Your scores and badges stay with you; the tables show the new name within an hour (D-600).
+
+## 1.35.5 — 2026-11-21
+- **Every game's result**: the big 🏆 above the result no longer pushes the page sideways for a moment as it pops in; it is as wide as the emoji now.
+- **🃏 Blackjack, in Labs**: when you lose a hand the table shakes, and for that moment the page could scroll sideways by a few pixels; now it never does.
+
+## 1.35.4 — 2026-11-21
+- **🎖️ Your profile, in Labs** (flag `profile`): the profile's card no longer has a circle with your initial: your flag and your name say who you are, as on every table. On a narrow phone the top bar's profile button shows 👤 instead of the initial.
+
+## 1.35.3 — 2026-11-21
+- **🤪 ¡Nos volvimos locos!: bigger clips on a phone.** A campaign can ask for `bigClips`: each clip takes what the screen's height leaves for it (193 px on a Pixel 9 instead of 104) and the window grows taller. Only this campaign, still off, uses it.
+
+## 1.35.2 — 2026-11-21
+- **🎖️ Your profile, in Labs** (flag `profile`): the badge for one same game 10 times in a row is now **😬 Se llama obsesión** (en «Called obsession», pt «Se chama obsessão»).
+- **🎖️ Your profile, in Labs**: at 320 px a long one-word badge name (Madrugador, Explorador, Coleccionista, Todoterreno) no longer spills out of its card.
+
+## 1.35.1 — 2026-11-22
+- **🎖️ Your profile, in Labs** (flag `profile`): a new silver badge, **🎵 Es una obsesión**, for playing one same game 10 times in a row. The phone counts the run (never sent); the privacy page says so in the three languages.
+
+## 1.35.0 — 2026-11-21
+- **🤪 ¡Nos volvimos locos!, the splash for 🐸 Croc! and ⚖️ Tembleque**, made and kept off until both games launch (`requires: ['croc', 'wobbles']`). Each card shows real play with a camera that pushes in on the action, in the player's language, and its ▶ Jugar opens the game's cover so a newcomer first sees what it is about. A campaign's clip can now be one per language (`video: { es, en, pt }`).
+
+## 1.34.7 — 2026-11-21
+- **🎖️ Your profile, in Labs** (flag `profile`): every page's top bar (each game, Uno al día, La Copa, Rankings) now ends in the same pill as the home page, with your flag, your name and a › that open your profile; on a narrow phone it is a round button with your initial. The language there is one flag with a ▾ too. A game's cover no longer has its «🏅 <name>» button: changing the PIN and signing out are in the profile's ⚙️.
+
+## 1.34.6 — 2026-11-21
+- **🎖️ Your profile, in Labs** (flag `profile`): on the home page the profile's button is now a pill with your flag, your name and a ›, as a ranking row shows them (or «👤 Entrar» without a name), without the streak, which Uno al día's card already shows. Offline mode's ☁️ stays on the home page and is no longer in the profile's settings.
+- **🎖️ Your profile, in Labs**: on the home page the language selector is one flag with a ▾ that opens the three languages, so the whole bar fits in one row, even at 320 px. The profile's ⚙️ keeps the full selector too.
+
+## 1.34.5 — 2026-11-21
+- **🎖️ Your profile, in Labs** (flag `profile`): a page of your own at `/profile/` with your card (initial, since when, 🔥 streak, games, cups won) and three tabs. **Badges**: 21 in bronze, silver and gold for One a Day, The Cup and the games; the ones still to earn show greyed with their progress (14 / 30), three are secret until earned, and a new one says so. **Rankings**: your places this week, all time and among friends, and every game you played with your best and your place; a tap opens its table. **Settings**: your name, PIN, language, sound, One a Day's notices and the offline state. Without a name it invites you to sign in, shows the badges this phone already earned and the rankings. On the home page 🏅 becomes your initial and 🔥 streak; /records/ stays as it is meanwhile.
+- The phone now counts how many games end early in the morning or at night (for the 🌅 early bird and 🦉 night owl badges); it never leaves the phone, and the privacy page says so.
+
+## 1.34.4 — 2026-11-21
+- **Críptico (lab)**: one more hard clue, of a new shape (the second letters of several words); the hint that names its kind now says «letras sueltas (la primera, la segunda o la última de varias palabras)» instead of «iniciales».
+
+## 1.34.3 — 2026-11-21
+- **Críptico (lab)**: two more clues by the owner, one medium and one hard.
+
+## 1.34.2 — 2026-11-21
+- **Críptico (lab)**: two more hard clues, reworked with the owner from a list of candidates.
+
+## 1.34.1 — 2026-11-21
+- **Críptico (lab)**: six more clues, five medium and one easy, picked and reworked by the owner from a list of candidates.
+
+## 1.34.0 — 2026-11-21
+- **🎠 Home page with icons, ready for everyone.** In the icon view a tap on a game now opens the game's own cover,
+  for everyone: the view launches with flag `home-carousels` to *all* (the owner, 2026-11-21), with the same rows
+  as in the lab. The sheet with tabs (Detalles / Ranking) stays in the lab as the sub-flag `home-carousels-sheet`,
+  which replaces `home-carousels-covers` with the opposite meaning.
+- **✨ Sudoku and ¡Al toque! are no longer new** (the owner, 2026-11-21): their label ends, so in the icon view they
+  move from ✨ Nuevos to their own rows.
+- **🔗 A shared game link** (`?game=<slug>`) still opens that game's sheet, but the taps after it now follow the
+  flag: a game's cover, not another sheet.
+
+## 1.33.6 — 2026-11-21
+- **No dark band under the footer on any page**: on Android, when the browser hid its address bar (and on tall phones
+  even without that), the covers of La Copa's games, Reinas among them, five lab games, and seven other pages with a footer showed a strip of dark blue
+  background under the violet sunset. The sunset's last colour now carries on down to the bottom edge, without making
+  the page any longer. A new check measures it on every page with a footer, and a new page has to join it (D-599).
+
+## 1.33.5 — 2026-11-21
+- **📋 WBR, bar chart: heights in proportion.** The tallest bars were capped to leave room for their figures, so a
+  week of 647 looked as tall as one of 572; now every bar is scaled inside that room, each height true to its number.
+
+## 1.33.4 — 2026-11-21
+- **The making-of page is a third shorter on a phone** (16,413 → 11,046 px at 390 px): the numbers sit two
+  by two, the factory's steps and the weeks as compact rows (the weeks along a cyan line), and the agents
+  and the learnings as cards that slide sideways, with dots under each row showing which card is on
+  screen. A laptop sees no change. Nothing changes for players.
+
+## 1.33.3 — 2026-11-21
+- **📋 WBR, Pace chart: today dashed.** In the week in progress, today's stretch of the line is dashed (the day is not
+  over: on a Saturday morning it read flat), and the % compares the full days only, up to yesterday, against the same
+  days of the week before.
+
+## 1.33.2 — 2026-11-21
+- **The making-of page's section bar on a phone**: one row instead of three or four wrapped lines
+  (57 px tall instead of 91 at 390 px and 114 at 320), the 🎲 held at the left (a 44 px tap back to the top) and the sections as
+  44 px chips that slide sideways. The section on screen is marked in yellow, on a laptop too, and on
+  a phone its chip slides into view as you scroll. Nothing changes for players.
+
 ## 1.33.1 — 2026-11-20
 - **Críptico (lab)**: seven more clues (six easy, one medium) and a new kind of wordplay, «cambia una letra», in the three languages.
 
