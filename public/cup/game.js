@@ -983,7 +983,7 @@ function grafico(now) {
   const carriles = grande ? TABLA_VISIBLE : n;
   const W = 320, fila = 24, arriba = 14, abajo = 26, izq = grande ? 10 : 26, der = 92; // espacio a la derecha para "Nombre 3º (-1J)"
   const bajoCarriles = grande ? 20 : 0; // room under the last lane for the lines that come in from below
-  const H = arriba + (carriles - 1) * fila + abajo + bajoCarriles;
+  let H = arriba + (carriles - 1) * fila + abajo + bajoCarriles;
   const x = k => izq + (meta.days === 1 ? 0 : ((k - 1) * (W - izq - der)) / (meta.days - 1));
   const y = lugar => arriba + (lugar - 1) * fila;
   const NS = 'http://www.w3.org/2000/svg';
@@ -1001,7 +1001,9 @@ function grafico(now) {
   }
   const defs = svgEl('defs');
   svg.append(defs);
-  for (let k = 1; k <= meta.days; k++) svg.append(svgEl('text', { x: x(k), y: H - 6, class: 'g-eje', 'text-anchor': 'middle' }, fmt(T.dayShort, { d: k })));
+  const diasEje = [];
+  for (let k = 1; k <= meta.days; k++) svg.append(diasEje[diasEje.push(svgEl('text', { x: x(k), y: H - 6, class: 'g-eje', 'text-anchor': 'middle' }, fmt(T.dayShort, { d: k }))) - 1]);
+  let yRotulo = 0;
   // Cada jugador con su color (D-125), fijo por orden de inscripción; tu línea, más gruesa y encima
   const porLlegada = llegada(Lc);
   const color = pid => colorDe(Lc, pid);
@@ -1050,6 +1052,7 @@ function grafico(now) {
       const marca = afuera.has(f.pid) ? ' 🚪' : menos[f.pid] > 0 ? ` (-${menos[f.pid]}J)` : '';
       const ultimo = f.lugares[f.lugares.length - 1];
       const k = (enLugar[ultimo] = (enLugar[ultimo] ?? -1) + 1);
+      yRotulo = Math.max(yRotulo, py + 4 + k * 11);
       g.append(svgEl('text', { x: px + 9, y: py + 4 + k * 11, class: 'g-rotulo' }, `${corto} ${ord(ultimo)}${marca}`));
     }
     svg.append(g);
@@ -1066,6 +1069,8 @@ function grafico(now) {
     el('button', { type: 'button', class: 'g-chip' + (f.pid === S.yo ? ' mia' : '') + (afuera.has(f.pid) ? ' fuera' : ''), 'data-pid': f.pid, style: `--c:${color(f.pid)}`, onClick: () => { SFX.tap(); destacar(f.pid); } },
       el('span', { class: 'g-color', 'aria-hidden': 'true' }), nombreConJuegos(f.pid === S.yo ? fmt(T.progressYou, { name: f.name }) : f.name, menos[f.pid]), afuera.has(f.pid) ? ' 🚪' : null)));
   const notaJuegos = Object.values(menos).some(x => x > 0) ? el('p', { class: 'muted grafico-nota', id: 'nota-juegos' }, T.fewerGamesNote) : null;
+  // Names tied on the last lanes stack downward: the graph grows so they never sit on the day axis
+  if (yRotulo + 6 > H - 18) { H = yRotulo + 24; svg.setAttribute('viewBox', `0 0 ${W} ${H}`); diasEje.forEach(t => t.setAttribute('y', H - 6)); }
   if (grande) leyenda.hidden = true; // its text is filled by tapping a point
   return el('div', { class: 'panel' }, el('p', { class: 'lead', style: 'margin-bottom:8px' }, T.progressTitle), svg, chips, notaJuegos, leyenda,
     // Once over, the podium's Share the summary does the same: one share button per screen (C-19)
