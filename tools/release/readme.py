@@ -590,7 +590,9 @@ def cmd_screenshots(section=None, offline=False):
         site = os.environ.get('SITE') or os.environ.get('SITIO') or f'http://localhost:{PORT}'
         port = str(cdp_base + 10 * i)
         # The new and the old names, while the e2e scripts switch to English (D-316)
-        env = {**os.environ, 'SITE': site, 'SITIO': site, 'CDP_PORT': port, 'PUERTO_CDP': port}
+        env = {**os.environ, 'SITE': site, 'SITIO': site, 'CDP_PORT': port, 'PUERTO_CDP': port,
+               # the screenshots show the player's view, without the tester tab (cdp.mjs shot)
+               'README_SHOTS': '1'}
         return subprocess.run(['node', f"tools/e2e/{script['archivo']}", tmp], cwd=ROOT, env=env,
                               stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
 
