@@ -21,7 +21,11 @@
 .pf-stat span { font-size: var(--fs-75); color: var(--muted); font-weight: 800; }
 
 /* The three tabs: always in view while scrolling */
-.pf-tabs { position: sticky; top: var(--s-8); z-index: 3; box-shadow: var(--shadow-panel); }
+/* Sticky over the badges: nearly opaque in the page's own colour, blurred behind and edged, so it reads as a bar
+   above what scrolls under it, not as part of it (the owner, 2026-11-22) */
+.pf-tabs { position: sticky; top: var(--s-8); z-index: 3; box-shadow: var(--shadow-panel);
+  background: rgb(var(--bg2-rgb) / 0.92); border: 1px solid var(--glass-border);
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
 .pf-tabs button { white-space: nowrap; }
 
 /* A group of badges */
