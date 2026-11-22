@@ -1,6 +1,6 @@
 // The hours games end at (lab flag profile's 🌅 and 🦉): early 04:00–06:59, night 00:00–03:59, local time, 60 days kept.
 import assert from 'node:assert/strict';
-import { addHour, readHours, noteHour, HOURS_KEY, addRun, readRun, noteRun } from './play-hours.js';
+import { addHour, readHours, noteHour, HOURS_KEY, addRun, readRun, noteRun, addMark, readMarks, noteMark, MARKS_KEY } from './play-hours.js';
 
 const at = (d, h, m = 0) => new Date(2026, 10, d, h, m).getTime();
 let log = addHour({}, at(5, 6, 59));
@@ -38,3 +38,38 @@ const store2 = { getItem: k => mem2.get(k) ?? null, setItem: (k, v) => mem2.set(
 for (let i = 0; i < 10; i++) noteRun('sudoku', store2);
 assert.equal(readRun(store2).best, 10);
 console.log('✓ play-hours run');
+
+// The marks kept for good: first day per game, special days, weekends, early Mondays, Tuesday the 13th
+const on = (y, mo, d, h = 12) => new Date(y, mo - 1, d, h).getTime();
+let marks = addMark({}, 'queens', on(2026, 12, 25, 20));
+assert.deepEqual(marks, { first: { queens: '2026-12-25' }, days: { xmas: true } });
+marks = addMark(marks, 'queens', on(2027, 1, 1, 0));
+assert.deepEqual(marks.first, { queens: '2026-12-25' }, 'the first day stays');
+marks = addMark(addMark(marks, 'tango', on(2026, 9, 18)), 'tango', on(2026, 10, 31));
+assert.deepEqual(marks.days, { xmas: true, newyear: true, fiestas: true, halloween: true });
+// Saturday 21 and Sunday 22 November 2026: one weekend; a Sunday alone is none
+let wk = addMark({}, 'x', on(2026, 11, 22));
+assert.equal(wk.wk, undefined, 'a Sunday without its Saturday');
+wk = addMark(addMark(addMark({}, 'x', on(2026, 11, 21)), 'x', on(2026, 11, 22)), 'x', on(2026, 11, 22, 20));
+assert.deepEqual(wk.wk, ['2026-11-21'], 'once per weekend');
+wk = addMark(addMark(wk, 'x', on(2026, 11, 28)), 'x', on(2026, 11, 30));
+assert.deepEqual(wk.wk, ['2026-11-21'], 'a Saturday and the Monday after are not a weekend');
+// Monday 23 November 2026
+assert.deepEqual(addMark({}, 'x', on(2026, 11, 23, 7)).mon, ['2026-11-23'], 'a Monday before 8');
+assert.equal(addMark({}, 'x', on(2026, 11, 23, 8)).mon, undefined, 'a Monday from 8 on');
+let mons = {};
+for (let i = 0; i < 40; i++) mons = addMark(mons, 'x', on(2026, 1, 5 + 7 * i, 6));
+assert.equal(mons.mon.length, 30, 'the last 30 Mondays kept');
+// Tuesday 13 October 2026 and Tuesday 13 July 2027
+for (let i = 0; i < 5; i++) marks = addMark(marks, 'sudoku', on(2026, 10, 13));
+assert.deepEqual(marks.t13, { day: '2026-10-13', n: 5, best: 5 });
+marks = addMark(marks, 'sudoku', on(2027, 7, 13));
+assert.deepEqual(marks.t13, { day: '2027-07-13', n: 1, best: 5 }, 'another Tuesday the 13th starts over, keeps the best');
+assert.deepEqual(addMark({}, undefined, on(2026, 11, 10)).first, {}, 'no game, no first day');
+const mem3 = new Map();
+const store3 = { getItem: k => mem3.get(k) ?? null, setItem: (k, v) => mem3.set(k, v) };
+noteMark('hangman', store3, on(2026, 11, 10));
+assert.deepEqual(readMarks(store3), { first: { hangman: '2026-11-10' }, days: {} });
+assert.ok(mem3.has(MARKS_KEY));
+noteMark('x', { getItem: () => { throw new Error('x'); } }); // never throws
+console.log('✓ play-hours marks');

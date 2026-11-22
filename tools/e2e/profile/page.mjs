@@ -62,6 +62,7 @@ for (const W of [320, 390]) {
     const h = {}; for (let i = 1; i <= 4; i++) h['2026-11-0' + i] = { e: 3 };
     localStorage.setItem('juegos-de-salon:play-hours', JSON.stringify(h));
     localStorage.setItem('juegos-de-salon:play-run', JSON.stringify({ g: 'queens', n: 3, best: 10 }));
+    localStorage.setItem('juegos-de-salon:play-marks', JSON.stringify({ days: { xmas: true, halloween: true }, wk: ['2025-01-04', '2025-01-11', '2025-01-18'], mon: ['2025-01-06'] }));
   })()`);
   await b.go(`${SITE}/profile/?test`, 4000);
   ok(await ev(`document.querySelector('.pf-player')?.textContent.includes('Javi')`), `${W}: the card names the player`);
@@ -71,6 +72,10 @@ for (const W of [320, 390]) {
   ok(/14 \/ 30/.test(await ev(`document.querySelector('[data-badge="streak-30"]')?.textContent`)), `${W}: 🔥 30 in a row shows its progress, 14 / 30`);
   ok(/4 \/ 7/.test(await ev(`document.querySelector('[data-badge="early-bird"]')?.textContent`)), `${W}: 🌅 the early bird counts the mornings, 4 / 7`);
   ok(await ev(`document.querySelector('[data-badge="obsession"]')?.classList.contains('pf-badge--silver')`), `${W}: 😬 Se llama obsesión is earned with one game 10 times in a row`);
+  ok(await ev(`!document.querySelector('[data-badge="weekends"]')?.classList.contains('pf-badge--locked')`), `${W}: 🛋️ Finde a tope joins Uno al día's weekends and the phone's`);
+  ok(/1 \/ 4/.test(await ev(`document.querySelector('[data-badge="mondays"]')?.textContent`)), `${W}: ☕ Odio los lunes counts the Mondays, 1 / 4`);
+  ok(/Viejito Pascuero/.test(await ev(`document.querySelector('[data-badge="xmas"]')?.textContent`)), `${W}: 🎅 the secret Christmas badge shows its name once earned`);
+  ok(await ev(`!!document.querySelector('[data-badge="new-year"].pf-badge--locked, [data-badge="new-year"]:not(:has(.pf-name))') || !/Año nuevo/.test(document.querySelector('[data-badge="new-year"]')?.textContent || '')`), `${W}: 🎆 New Year stays secret until earned`);
   const spill = await ev(`[...document.querySelectorAll('.pf-badge')].filter(x => { const n = x.querySelector('.pf-name'), r = n.getBoundingClientRect(), c = x.getBoundingClientRect(); return n.scrollWidth > n.clientWidth + 1 || r.left < c.left - 0.5 || r.right > c.right + 0.5; }).map(x => x.dataset.badge).join(', ')`);
   ok(!spill, `${W}: every badge's name fits inside its card${spill ? ` (${spill})` : ''}`);
   ok(await ev(`!!document.querySelector('[data-badge="number-one"]:not(.pf-badge--locked) .pf-new')`), `${W}: 🥇 number 1 is earned and new`);
@@ -100,6 +105,7 @@ for (const W of [320, 390]) {
   ok(await ev(`!!document.querySelector('#offline-ready-slot')`), `${W}: offline mode's ☁️ stays on the home page`);
   ok(await ev(`(() => { const a = document.getElementById('btn-rankings'), t = document.querySelector('.portada-barra .tools'); return a.getBoundingClientRect().right <= t.getBoundingClientRect().right + 1 && a.scrollWidth <= a.clientWidth + 1; })()`), `${W}: the name pill fits the bar`);
   ok(await ev(`!document.getElementById('sound-slot')`), `${W}: the sound button left the home page's bar`);
+  ok(await ev(`(() => { const t = [...document.querySelectorAll('.portada-barra .tools > *')].filter(x => x.offsetParent || x.id === 'share-slot'); const i = id => t.findIndex(x => x.id === id); return i('share-slot') < i('offline-ready-slot') && t[t.length - 1]?.id === 'btn-rankings'; })()`), `${W}: the home page's bar has the covers' order: share, then ☁️, the pill last`);
   ok(await ev(`(() => { const l = document.querySelector('#lang-slot .pf-lang'); return !!l && !document.querySelector('#lang-slot > .lang-toggle') && l.querySelector('.icon-btn').textContent.includes('▾'); })()`), `${W}: the home page's language is one flag with a ▾`);
   await b.shot(`home-${W}`);
   await ev(`document.querySelector('.pf-lang .icon-btn').click()`); await sleep(300);
@@ -119,6 +125,8 @@ for (const W of [320, 390]) {
     await b.shot(`${page}-${W}`);
   }
   await b.go(`${SITE}/queens/?test`, 3000);
+  // Signed out elsewhere, a page brought back with ‹ (the browser's back-forward cache) says «Entrar» (the owner, 2026-11-22)
+  ok(await ev(`(async () => { const k = 'juegos-de-salon:jugador', v = localStorage.getItem(k); localStorage.removeItem(k); dispatchEvent(new PageTransitionEvent('pageshow', { persisted: true })); await new Promise(r => setTimeout(r, 100)); const ok = document.querySelector('.topbar .pf-home-name')?.textContent === 'Entrar' && !document.documentElement.classList.contains('pf-signed'); localStorage.setItem(k, v); dispatchEvent(new PageTransitionEvent('pageshow', { persisted: true })); await new Promise(r => setTimeout(r, 100)); return ok && document.querySelector('.topbar .pf-home-name')?.textContent === 'Javi'; })()`), `${W}: a page brought back after signing out says «Entrar», and the name once signed in again`);
   ok(await ev(`!document.getElementById('btn-cuenta')?.offsetParent && !document.querySelector('main .rk-yo')?.offsetParent`), `${W}: a signed-in player's cover has no «🏅 <name>» button: the PIN is in the profile`);
   // 👤 Your account (D-600): change the name and the PIN with the PIN, then sign out
   await b.go(`${SITE}/profile/?test#settings`, 3000);

@@ -20,10 +20,10 @@ import { TODOTERRENO, UAD_PUNTOS, SIEMPRE, semana, medallero, limpiarNombre, esP
 import { nombreOfensivo } from '../assets/js/name-guard.js';
 import { flag } from '../assets/js/flags.js';
 import { leer as leerDia, recorrer, fechaLocal } from '../assets/js/uno-al-dia.js';
-import { readHours, readRun } from '../assets/js/play-hours.js';
+import { readHours, readRun, readMarks } from '../assets/js/play-hours.js';
 import { PARTIDAS_KEY } from '../assets/js/transport/stats.js';
 import { firebaseConfig } from '../assets/js/firebase-config.js';
-import { BADGES, GROUPS, earned } from './badges.js';
+import { BADGES, GROUPS, earned, lastOnDay } from './badges.js';
 import { TEXTS } from './texts.js';
 
 const lang = getLang();
@@ -69,6 +69,8 @@ function localFacts() {
     dailyDays: Object.fromEntries(Object.keys(d.dias || {}).map(f => [f, true])),
     hours: readHours(),
     bestRun: Number(readRun().best) || 0,
+    marks: readMarks(),
+    launches: Object.fromEntries(ALL_GAMES.filter(g => /^\d{4}-\d{2}-\d{2}$/.test(g.nuevoDesde || '')).map(g => [g.id, g.nuevoDesde])),
     plays: Number(localStorage.getItem(PARTIDAS_KEY)) || 0,
     gamesPlayed: Array.isArray(played) ? played.filter(id => ids.has(id)).length : 0,
     gamesTotal: CATALOGUE.length,
@@ -84,6 +86,16 @@ async function hostedOf(cups) {
   const base = firebaseConfig.databaseURL;
   const admins = await Promise.all(cups.slice(0, 40).map(c => fetch(`${base}/torneos/${c.code}/meta/admin.json`).then(r => (r.ok ? r.json() : null)).catch(() => null)));
   return cups.slice(0, 40).filter((c, i) => admins[i] === c.p).length;
+}
+
+/** How many cups the player won (`podios`, by pid) after being last on day 1: each won cup's day 1, read on the published site. */
+async function climbsOf(podios, jid) {
+  if (!realDb()) return 0;
+  const won = Object.entries(podios || {}).flatMap(([code, c]) => (Number(c?.dias) || 2) > 1
+    ? Object.entries(c?.p || {}).filter(([, x]) => x?.j === jid && x.l === 1).map(([pid]) => ({ code, pid })) : []).slice(-20);
+  const base = firebaseConfig.databaseURL;
+  const days = await Promise.all(won.map(w => fetch(`${base}/torneos/${w.code}/results/1.json`).then(r => (r.ok ? r.json() : null)).catch(() => null)));
+  return won.filter((w, i) => days[i] && lastOnDay(days[i], w.pid)).length;
 }
 
 /** The player's facts: the phone's, plus their server record. Each read on its own: one failing leaves the rest. */
@@ -115,7 +127,7 @@ async function playerFacts(J, yo) {
   f.months = (await Promise.all(months.map(async m => {
     try { const v = await J.tabla(UAD_PUNTOS, `s${m}`, { top: 3 }); const i = v.top.findIndex(x => x.jid === yo.jid); return { period: `s${m}`, place: i >= 0 ? v.top[i].puesto : null }; } catch (_) { return null; }
   }))).filter(Boolean);
-  f.hosted = await hostedOf(cups).catch(() => 0);
+  [f.hosted, f.climbs] = await Promise.all([hostedOf(cups).catch(() => 0), climbsOf(podios, yo.jid).catch(() => 0)]);
   return f;
 }
 const nextMonth = m => { const [y, mo] = m.split('-').map(Number); return mo === 12 ? `${y + 1}-01` : `${y}-${String(mo + 1).padStart(2, '0')}`; };
@@ -421,7 +433,8 @@ function drawGuest(root) {
   const r = earned(localFacts(), readSeen(null));
   writeSeen(null, r.seen);
   // The badges this phone could earn without a name: Uno al día's streaks and hours, and the games played
-  const local = new Set(['streak-10', 'streak-30', 'month-full', 'early-bird', 'explorer', 'plays-100', 'obsession', 'night-owl']);
+  const local = new Set(['streak-10', 'streak-30', 'month-full', 'early-bird', 'explorer', 'plays-100', 'obsession', 'premiere', 'weekends', 'mondays',
+    'night-owl', 'tuesday-13', 'fiestas', 'halloween', 'xmas', 'new-year']);
   const list = r.list.filter(b => local.has(b.id) && (b.got || !b.secret));
   root.replaceChildren(
     bloqueJugador({ abierto: true, destacado: true, alTocar: tap }),

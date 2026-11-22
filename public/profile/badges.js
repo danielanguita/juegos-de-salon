@@ -20,6 +20,11 @@
  *   allRounder     the player's place in the overall ranking, ever (null if not in it)
  *   hours          { 'YYYY-MM-DD': { e, n } } games finished early (04:00–06:59) and at night (00:00–03:59), by local day
  *   bestRun        the most times this phone finished one same game in a row
+ *   marks          the phone's marks kept for good (play-hours.js `addMark`): { first, days, wk, mon, t13 }
+ *   launches       { <game>: 'YYYY-MM-DD' } the day each game came out (games.js `nuevoDesde`)
+ *   byGame         [{ id, n }] games finished with the player, by game
+ *   cupList        [{ code, at }] the cups the player sat in, with when
+ *   climbs         how many cups the player won after being last on day 1
  *   since          when the player was created (ms)
  *   now            ms
  */
@@ -29,6 +34,54 @@ export const EARLY_GAMES = 3;   // games before 7 in one morning…
 export const EARLY_DAYS = 7;    // …on this many mornings
 export const NIGHT_GAMES = 3;   // games between midnight and 4 in one night
 export const RUN_GAMES = 10;    // one same game in a row
+export const WEEKENDS = 4;      // weekends with Saturday and Sunday played
+export const MONDAYS = 4;       // Mondays with a game before 8
+export const PARTY_CUPS = 3;    // cups within 7 days
+export const SPECIALIST = 50;   // games of one same game
+export const TUESDAY_13 = 13;   // games on one Tuesday the 13th
+const DAY = 86400000;
+const isoDay = ms => new Date(ms).toISOString().slice(0, 10);
+
+/** The weekends (their Saturdays) with both days played: Uno al día's `days` joined with the phone's `wk`. */
+export function weekendsOf(days = {}, wk = []) {
+  const out = new Set(Array.isArray(wk) ? wk : []);
+  for (const d of Object.keys(days || {})) {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(d)) continue;
+    const t = Date.parse(`${d}T12:00:00Z`);
+    if (new Date(t).getUTCDay() === 6 && days[isoDay(t + DAY)]) out.add(d);
+  }
+  return out.size;
+}
+
+/** The most cups joined within any 7 days, from `[{ at }]`. */
+export function cupsInAWeek(cups = []) {
+  const t = (Array.isArray(cups) ? cups : []).map(c => Number(c?.at)).filter(x => x > 0).sort((a, b) => a - b);
+  let best = 0;
+  for (let i = 0, j = 0; i < t.length; i++) {
+    while (t[i] - t[j] >= 7 * DAY) j++;
+    best = Math.max(best, i - j + 1);
+  }
+  return best;
+}
+
+/** How many games the phone first finished in their launch week (`first` and `launches` by game, 'YYYY-MM-DD'). */
+export function premieres(first = {}, launches = {}) {
+  return Object.entries(first || {}).filter(([g, d]) => {
+    const from = launches?.[g];
+    if (!from || typeof d !== 'string') return false;
+    return d >= from && d <= isoDay(Date.parse(`${from}T12:00:00Z`) + 6 * DAY);
+  }).length;
+}
+
+/** Was `pid` last on a Cup's day (`results`: { pid: { s } }): below everyone's best score, at the lowest, or absent. */
+export function lastOnDay(results, pid) {
+  const all = Object.values(results || {}).map(r => Number(r?.s) || 0);
+  if (!all.length) return false;
+  const best = Math.max(...all);
+  if (!results[pid]) return true;
+  const mine = Number(results[pid].s) || 0;
+  return mine < best && mine <= Math.min(...all);
+}
 
 /** Whole calendar months fully played in `days` (`{ 'YYYY-MM-DD': true }`), up to `today`. */
 export function fullMonths(days = {}, today = '9999-12-31') {
@@ -63,18 +116,29 @@ export const BADGES = [
   { id: 'cup-host', group: 'cup', tier: 'silver', icon: '🎤', check: f => progress(f.hosted, 3) },
   { id: 'cup-podium', group: 'cup', tier: 'bronze', icon: '🥉', check: f => { const m = f.medals || {}; const c = n(m.gold) + n(m.silver) + n(m.bronze); return { got: c > 0, count: c }; } },
   { id: 'cup-champion', group: 'cup', tier: 'gold', icon: '🏆', check: f => { const c = n(f.medals?.gold); return { got: c > 0, count: c }; } },
+  { id: 'climber', group: 'cup', tier: 'gold', icon: '🧗', check: f => { const c = n(f.climbs); return { got: c > 0, count: c }; } },
+  { id: 'party', group: 'cup', tier: 'silver', icon: '🥂', check: f => progress(cupsInAWeek(f.cupList), PARTY_CUPS) },
   // Games
   { id: 'explorer', group: 'games', tier: 'bronze', icon: '🧭', check: f => progress(f.gamesPlayed, 10) },
   { id: 'collector', group: 'games', tier: 'gold', icon: '🧩', check: f => progress(f.gamesPlayed, Math.max(1, n(f.gamesTotal))) },
   { id: 'plays-100', group: 'games', tier: 'bronze', icon: '🎲', check: f => progress(f.plays, 100) },
   { id: 'plays-1000', group: 'games', tier: 'gold', icon: '🎲', check: f => progress(f.plays, 1000) },
   { id: 'obsession', group: 'games', tier: 'silver', icon: '😬', check: f => progress(f.bestRun, RUN_GAMES) },
+  { id: 'specialist', group: 'games', tier: 'silver', icon: '🎓', check: f => progress(Math.max(0, ...(f.byGame || []).map(g => n(g?.n))), SPECIALIST) },
+  { id: 'premiere', group: 'games', tier: 'bronze', icon: '🎬', check: f => { const c = premieres(f.marks?.first, f.launches); return { got: c > 0, count: c }; } },
+  { id: 'weekends', group: 'games', tier: 'silver', icon: '🛋️', check: f => progress(weekendsOf(f.dailyDays, f.marks?.wk), WEEKENDS) },
+  { id: 'mondays', group: 'games', tier: 'bronze', icon: '☕', check: f => progress(Array.isArray(f.marks?.mon) ? f.marks.mon.length : 0, MONDAYS) },
   { id: 'number-one', group: 'games', tier: 'gold', icon: '🥇', check: f => ({ got: n(f.firsts) > 0, count: n(f.firsts) }) },
   { id: 'all-rounder', group: 'games', tier: 'silver', icon: '🎯', check: f => ({ got: Number.isInteger(f.allRounder) && f.allRounder >= 1 && f.allRounder <= 10 }) },
   // Secret: shown as «?» until earned
   { id: 'night-owl', group: 'games', tier: 'silver', icon: '🦉', secret: true, check: f => ({ got: Object.values(f.hours || {}).some(h => n(h?.n) >= NIGHT_GAMES) }) },
   { id: 'triple-crown', group: 'games', tier: 'gold', icon: '💎', secret: true, check: f => ({ got: n(f.medals?.gold) > 0 && (f.months || []).some(m => m.place === 1) && n(f.firsts) > 0 }) },
   { id: 'one-year', group: 'games', tier: 'gold', icon: '🎂', secret: true, check: f => ({ got: n(f.since) > 0 && n(f.now) - f.since >= 365 * 86400000 }) },
+  { id: 'tuesday-13', group: 'games', tier: 'silver', icon: '🐈‍⬛', secret: true, check: f => ({ got: n(f.marks?.t13?.best) >= TUESDAY_13 }) },
+  { id: 'fiestas', group: 'games', tier: 'bronze', icon: '🪁', secret: true, check: f => ({ got: !!f.marks?.days?.fiestas }) },
+  { id: 'halloween', group: 'games', tier: 'bronze', icon: '🎃', secret: true, check: f => ({ got: !!f.marks?.days?.halloween }) },
+  { id: 'xmas', group: 'games', tier: 'bronze', icon: '🎅', secret: true, check: f => ({ got: !!f.marks?.days?.xmas }) },
+  { id: 'new-year', group: 'games', tier: 'bronze', icon: '🎆', secret: true, check: f => ({ got: !!f.marks?.days?.newyear }) },
 ];
 
 /**

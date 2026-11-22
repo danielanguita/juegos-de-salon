@@ -53,3 +53,50 @@ export function noteRun(g, storage = globalThis.localStorage) {
     if (after !== before) storage?.setItem(RUN_KEY, JSON.stringify(after));
   } catch (_) { /* no storage: nothing noted */ }
 }
+
+/** A local date as 'YYYY-MM-DD'. */
+export const localDay = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+
+/**
+ * What stays for good, for the profile's badges that cannot wait for a 60-day log (lab flag `profile`).
+ * On the phone only, never sent: `{ first, days, wk, mon, sat, t13 }`: the day each game was first finished
+ * here (`first: { <game>: 'YYYY-MM-DD' }`, 🎬 De estreno), the special days played (`days: { xmas, newyear,
+ * fiestas, halloween }`), the Saturdays whose Sunday was played too (`wk`, 🛋️ Finde a tope) and the Mondays
+ * with a game before 08:00 (`mon`, ☕ Odio los lunes), the last Saturday played (`sat`), and the most games
+ * finished on one Tuesday the 13th (`t13: { day, n, best }`). `stats.js`' `trackFinish` notes every game.
+ */
+export const MARKS_KEY = 'juegos-de-salon:play-marks';
+const SPECIAL = { '12-25': 'xmas', '01-01': 'newyear', '09-18': 'fiestas', '10-31': 'halloween' };
+const KEEP_DAYS = 30;
+const addDay = (list, day) => (Array.isArray(list) && list.includes(day) ? list : [...(Array.isArray(list) ? list : []), day].slice(-KEEP_DAYS));
+
+/** The marks with one more game `g` finished at `ms`, by the phone's clock. Pure. */
+export function addMark(marks = {}, g, ms = Date.now()) {
+  const d = new Date(ms), day = localDay(d), wd = d.getDay();
+  const out = { ...marks, first: { ...(marks.first || {}) }, days: { ...(marks.days || {}) } };
+  if (typeof g === 'string' && g && !out.first[g]) out.first[g] = day;
+  const special = SPECIAL[day.slice(5)];
+  if (special) out.days[special] = true;
+  if (wd === 6) out.sat = day;
+  if (wd === 0) {
+    const sat = localDay(new Date(d.getFullYear(), d.getMonth(), d.getDate() - 1));
+    if (marks.sat === sat) out.wk = addDay(marks.wk, sat);
+  }
+  if (wd === 1 && d.getHours() < 8) out.mon = addDay(marks.mon, day);
+  if (wd === 2 && d.getDate() === 13) {
+    const t = marks.t13?.day === day ? marks.t13 : { day, n: 0, best: marks.t13?.best || 0 };
+    const n = (Number(t.n) || 0) + 1;
+    out.t13 = { day, n, best: Math.max(Number(t.best) || 0, n) };
+  }
+  return out;
+}
+
+/** This phone's marks, or {}. */
+export function readMarks(storage = globalThis.localStorage) {
+  try { const v = JSON.parse(storage?.getItem(MARKS_KEY) || '{}'); return v && typeof v === 'object' ? v : {}; } catch (_) { return {}; }
+}
+
+/** Notes one more finished game `g`. Never throws. */
+export function noteMark(g, storage = globalThis.localStorage, ms = Date.now()) {
+  try { storage?.setItem(MARKS_KEY, JSON.stringify(addMark(readMarks(storage), g, ms))); } catch (_) { /* no storage: nothing noted */ }
+}
