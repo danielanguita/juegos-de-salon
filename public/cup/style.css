@@ -203,7 +203,15 @@ ol.como li { line-height: 1.45; }
 .tabla.corta .fila.asoma { display: grid; max-height: 2.9rem; overflow: hidden; -webkit-mask-image: linear-gradient(rgb(var(--cp-negro-rgb)), transparent); mask-image: linear-gradient(rgb(var(--cp-negro-rgb)), transparent); }
 .btn-mas { display: flex; align-items: center; justify-content: center; gap: var(--s-8); width: 100%; min-height: 44px; margin-top: var(--s-6); padding: var(--s-8) var(--s-12); border-radius: 999px; border: 2px solid var(--glass-border); background: var(--well); color: inherit; font: 700 var(--fs-100) var(--font-body); cursor: pointer; }
 .tabla.corta .btn-mas { margin-top: calc(-1 * var(--s-6)); position: relative; }
-.tabla.con-cambio .fila { grid-template-columns: 1.6em 1fr auto; }
+.tabla.con-cambio .fila { grid-template-columns: 1.6em 1fr auto; row-gap: var(--s-4); }
+/* The big-cup board: place, name (with the (you) and the places moved right after it) and points on one line; the day blocks under them, the whole width */
+.tabla.con-cambio .fila .quien { display: contents; }
+.tabla.con-cambio .fila .lugar { grid-column: 1; grid-row: 1; }
+.tabla.con-cambio .fila .quien b { grid-column: 2; grid-row: 1; min-width: 0; }
+.tabla.con-cambio .fila .quien b small { display: inline; }
+.tabla.con-cambio .fila .total, .tabla.con-cambio .fila .fila-der { grid-column: 3; grid-row: 1; }
+.tabla.con-cambio .fila .puntitos { grid-column: 1 / -1; grid-row: 2; }
+.tabla.con-cambio .fila .fila-comentarios { grid-column: 1 / -1; grid-row: 3; }
 .fila .quien .mov { margin-left: var(--s-6); font-size: var(--fs-75); font-weight: 800; white-space: nowrap; }
 .fila .quien .mov.sube { color: var(--lime); }
 .fila .quien .mov.baja { color: var(--pink); }
