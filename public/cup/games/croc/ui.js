@@ -113,16 +113,37 @@ function vigilarFondo() {
 
 /**
  * The finger over the demo: each hop of the frog is a short swipe in its direction (up, left or right), each
- * Dash a long swipe up with a golden trail, so the cover shows the gestures and not only the game.
+ * Dash a double tap with golden rings, so the cover shows the gestures and not only the game.
  */
 function drawGesture(c, gs, now) {
   if (!gs) return;
   const t = (now - gs.t0) / 1000;
-  const move = gs.dash ? 0.75 : 0.5, hold = 0.45;
+  const move = gs.dash ? 0.5 : 0.5, hold = 0.45;
   if (t > move + hold) return;
   const ctx = c.getContext('2d');
   const dpr = c.width / (c.clientWidth || 1);
   const w = c.clientWidth, hh = c.clientHeight;
+  if (gs.dash) {
+    // Double tap: two golden rings, the second 0.25 s after the first, under a 👆
+    const cx = w * 0.74, cy = hh * 0.8;
+    ctx.save();
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.lineWidth = 6;
+    [0, 0.25].forEach(d => {
+      const q = (t - d) / 0.35;
+      if (q < 0 || q > 1) return;
+      ctx.globalAlpha = 1 - q;
+      ctx.strokeStyle = 'rgba(255, 217, 74, 0.95)';
+      ctx.beginPath(); ctx.arc(cx, cy, 14 + q * 34, 0, Math.PI * 2); ctx.stroke();
+    });
+    ctx.globalAlpha = t < move ? 1 : 1 - (t - move) / hold;
+    ctx.font = '50px system-ui, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'top';
+    ctx.fillText('👆', cx, cy - 4);
+    ctx.restore();
+    return;
+  }
   const p = Math.min(1, t / move), ease = 1 - Math.pow(1 - p, 3);
   const alpha = t < move ? 1 : 1 - (t - move) / hold;
   const len = gs.dash ? hh * 0.55 : gs.dir === 'up' ? hh * 0.24 : w * 0.2;
@@ -399,8 +420,10 @@ export function mount(raiz, ctx) {
   const SWIPE_EDGE_PAD = 18;
   const HOP_DIST = 24;
   const tileDashDist = rect => Math.max(84, Math.round(Math.min(rect.width / COLS, rect.height / 11.5) * 2.4));
+  const TAP_MAX_MS = 250, DOUBLE_TAP_MS = 320;
+  let lastTap = 0;
   const swipe = {
-    active: false, committed: false, pointerId: null, x0: 0, y0: 0, x1: 0, y1: 0,
+    t0: 0, active: false, committed: false, pointerId: null, x0: 0, y0: 0, x1: 0, y1: 0,
     dashDist: 120, hopDist: HOP_DIST, forwardProgress: 0,
     dashReady: true, notifiedDash: false, dir: null, fade: 0,
   };
@@ -416,6 +439,7 @@ export function mount(raiz, ctx) {
     e.preventDefault();
     unlockAudio();
     swipe.active = true;
+    swipe.t0 = performance.now();
     swipe.committed = false;
     swipe.pointerId = e.pointerId;
     swipe.dashDist = tileDashDist(rect);
@@ -436,13 +460,10 @@ export function mount(raiz, ctx) {
     const dx = swipe.x1 - swipe.x0;
     const dy = swipe.y1 - swipe.y0;
     swipe.dashReady = g.dashes > 0;
-    if (-dy > 10 && -dy >= Math.abs(dx)) {
-      swipe.forwardProgress = -dy / swipe.dashDist;
-      swipe.dir = swipe.forwardProgress >= 1 && swipe.dashReady ? 'dash' : 'up';
-      if (swipe.forwardProgress >= 1 && swipe.dashReady && !swipe.notifiedDash) {
-        swipe.notifiedDash = true;
-        vibrate(8);
-      }
+    if (Math.abs(dy) >= HOP_DIST && Math.abs(dy) > Math.abs(dx)) {
+      swipe.committed = true;
+      swipe.dir = dy < 0 ? 'up' : 'down';
+      trigger(swipe.dir);
     } else if (Math.abs(dx) >= HOP_DIST && Math.abs(dx) > Math.abs(dy)) {
       swipe.committed = true;
       swipe.forwardProgress = 0;
@@ -460,13 +481,13 @@ export function mount(raiz, ctx) {
     swipe.committed = false;
     swipe.pointerId = null;
     if (commit && !alreadyCommitted) {
-      const dx = swipe.x1 - swipe.x0;
-      const dy = swipe.y1 - swipe.y0;
-      let action = null;
-      if (-dy >= swipe.dashDist && -dy >= Math.abs(dx)) action = g.dashes > 0 ? 'dash' : 'up';
-      else if (-dy >= HOP_DIST && -dy >= Math.abs(dx)) action = 'up';
-      if (action) trigger(action);
-      swipe.fade = swipe.forwardProgress > 0 || swipe.dir ? 0.18 : 0;
+      // A short, still touch is a tap; two quick taps are the Dash
+      const moved = Math.hypot(swipe.x1 - swipe.x0, swipe.y1 - swipe.y0);
+      const now = performance.now();
+      if (moved < HOP_DIST && now - swipe.t0 < TAP_MAX_MS) {
+        if (now - lastTap < DOUBLE_TAP_MS) { lastTap = 0; trigger('dash'); } else lastTap = now;
+      }
+      swipe.fade = 0;
     } else {
       swipe.fade = 0;
     }
@@ -477,6 +498,7 @@ export function mount(raiz, ctx) {
   addEventListener('keydown', e => {
     if (S.fin || runId !== activeRun || e.target.closest?.('input, textarea')) return;
     if (e.code === 'ArrowUp' || e.code === 'KeyW') { e.preventDefault(); trigger('up'); }
+    else if (e.code === 'ArrowDown' || e.code === 'KeyS') { e.preventDefault(); trigger('down'); }
     else if (e.code === 'ArrowLeft' || e.code === 'KeyA') { e.preventDefault(); trigger('left'); }
     else if (e.code === 'ArrowRight' || e.code === 'KeyD') { e.preventDefault(); trigger('right'); }
     else if (e.code === 'Space' || e.code === 'ShiftLeft' || e.code === 'ShiftRight') { e.preventDefault(); trigger('dash'); }
