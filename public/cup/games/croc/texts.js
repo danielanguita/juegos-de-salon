@@ -16,7 +16,7 @@ const ES = {
   ui: {
     spLema: 'Cruza la autopista sin mirar atrás.',
     // The traffic lever (the lab's), its two positions: off is normal, on is heavy
-    spModo: [{ titulo: '🟢 Tráfico normal', sub: '2–3 autos por carril · ritmo clásico' }, { titulo: '🔥 Tráfico intenso', sub: '3–4 autos por carril · más rápidos y pegados' }],
+    spModo: [{ titulo: 'Modo fácil', sub: '2–3 autos por carril · ritmo clásico' }, { titulo: 'Modo difícil', sub: '3–4 autos por carril · más rápidos y pegados' }],
     spDist: 'Carril {row}/{total}',
     spDashReady: '⚡ DASH LISTO',
     spDashWait: '⚡ {s}s',
@@ -49,7 +49,7 @@ const EN = {
   },
   ui: {
     spLema: 'Cross the highway with no turning back.',
-    spModo: [{ titulo: '🟢 Normal traffic', sub: '2–3 cars per lane · standard speed' }, { titulo: '🔥 Heavy traffic', sub: '3–4 cars per lane · faster with tighter gaps' }],
+    spModo: [{ titulo: 'Easy mode', sub: '2–3 cars per lane · standard speed' }, { titulo: 'Hard mode', sub: '3–4 cars per lane · faster with tighter gaps' }],
     spDist: 'Lane {row}/{total}',
     spDashReady: '⚡ DASH READY',
     spDashWait: '⚡ {s}s',
@@ -82,7 +82,7 @@ const PT = {
   },
   ui: {
     spLema: 'Atravesse a rodovia sem olhar para trás.',
-    spModo: [{ titulo: '🟢 Trânsito normal', sub: '2–3 carros por faixa · ritmo clássico' }, { titulo: '🔥 Trânsito intenso', sub: '3–4 carros por faixa · mais rápidos e juntos' }],
+    spModo: [{ titulo: 'Modo fácil', sub: '2–3 carros por faixa · ritmo clássico' }, { titulo: 'Modo difícil', sub: '3–4 carros por faixa · mais rápidos e juntos' }],
     spDist: 'Faixa {row}/{total}',
     spDashReady: '⚡ DASH PRONTO',
     spDashWait: '⚡ {s}s',
