@@ -887,7 +887,8 @@ function vistaTabla(filas, { dias, meta, now }) {
         // The moves board: places gained or lost since the last round, beside the name, none on the last round
         conCambio && !sinFlechas && f.flecha ? el('span', { class: 'mov ' + (f.flecha > 0 ? 'sube' : 'baja'), title: `${f.flecha > 0 ? '+' : '−'}${Math.abs(f.cambio)}` }, `${f.flecha > 0 ? '▲' : '▼'}${Math.abs(f.cambio)}`) : null,
         f.pid === S.yo ? el('small', { class: 'muted' }, ` (${T.you})`) : null),
-      el('div', { class: 'puntitos' }, bloques(f)),
+      // A big cup of more than 8 days: the blocks in two equal runs (14 days: 7 and 7), not one long and one short
+      conCambio && dias.length > 8 ? el('div', { class: 'puntitos dos', style: `--cols:${Math.ceil(dias.length / 2)}` }, bloques(f)) : el('div', { class: 'puntitos' }, bloques(f)),
       // Today's first comment, for everyone, even before playing (the owner, 2026-11-16)
       ),
     // With talk on, the 💬 goes under the points, so the day blocks keep their width

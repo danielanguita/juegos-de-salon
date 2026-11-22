@@ -80,7 +80,8 @@ const azar = (pid, d) => { let h = 7; for (const c of `${pid}:${d}`) h = (h * 31
  */
 const fuerzaCrowd = ventanas => Object.fromEntries(JUGADORES.map((j, i) => [j.pid,
   ventanas.map(w => (w.includes(i) ? 0.97 - 0.09 * w.indexOf(i) : 0.04 + 0.008 * i))]));
-const CROWD = fuerzaCrowd([[0, 1, 2, 3, 4, 5, 6], [1, 0, 3, 2, 7, 4, 8], [0, 2, 1, 9, 3, 5, 10], [1, 0, 2, 11, 12, 3, 4], [13, 14, 0, 1, 2, 15, 3], [14, 13, 1, 0, 16, 2, 17], [0, 1, 14, 18, 2, 19, 3]]);
+const CROWD = fuerzaCrowd([[0, 1, 2, 3, 4, 5, 6], [1, 0, 3, 2, 7, 4, 8], [0, 2, 1, 9, 3, 5, 10], [4, 2, 3, 1, 0, 11, 12]]);
+const CROWD_14 = fuerzaCrowd([[0, 1, 2, 3, 4, 5, 6], [1, 0, 3, 2, 7, 4, 8], [0, 2, 1, 9, 3, 5, 10], [1, 0, 2, 11, 12, 3, 4], [13, 14, 0, 1, 2, 15, 3], [14, 13, 1, 0, 16, 2, 17], [0, 1, 14, 18, 2, 19, 3], [2, 0, 1, 3, 4, 13, 5]]);
 
 /**
  * Las escenas. `inicio` es cuántos días atrás partió (negativo: parte en el futuro); `jugaron`,
@@ -106,7 +107,7 @@ export const ESCENAS = {
   // The most players a cup takes (20), three days played
   crowd: { inicio: 4, jugadores: 20, jugaron: 4, yo: 'javi02', pantalla: 'tablero', fuerza: CROWD },
   // The longest cup (14 days) with 20 players, eight days played: the table's day blocks at their widest
-  'crowd-14': { inicio: 8, jugadores: 20, jugaron: 8, yo: 'javi02', pantalla: 'tablero', cal: ['loteo', 'donde', 'microgames', 'tango', 'desenredo', 'agentes', 'rutas', 'linea', 'stick', 'numero', 'puentes', 'pintaminas', 'letras', 'final'], fuerza: CROWD },
+  'crowd-14': { inicio: 8, jugadores: 20, jugaron: 8, yo: 'javi02', pantalla: 'tablero', cal: ['loteo', 'donde', 'microgames', 'tango', 'desenredo', 'agentes', 'rutas', 'linea', 'stick', 'numero', 'puentes', 'pintaminas', 'letras', 'final'], fuerza: CROWD_14 },
   // The same crowd on the last day: no arrows on the moves board
   'crowd-final': { inicio: 6, jugadores: 20, jugaron: 6, yo: 'javi02', pantalla: 'tablero' },
   // Out of the cup (D-347): whoever looks missed days 1 and 2; Tere missed day 3, one away from it

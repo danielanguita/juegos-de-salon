@@ -212,6 +212,15 @@ ol.como li { line-height: 1.45; }
 .tabla.con-cambio .fila .total, .tabla.con-cambio .fila .fila-der { grid-column: 3; grid-row: 1; }
 .tabla.con-cambio .fila .puntitos { grid-column: 1 / -1; grid-row: 2; }
 .tabla.con-cambio .fila .fila-comentarios { grid-column: 1 / -1; grid-row: 3; }
+.tabla.con-cambio .puntitos.dos { display: grid; grid-template-columns: repeat(var(--cols), max-content); }
+/* From 375 px up there is room: the points go back to the right, centred on the row, and the blocks take the space left beside them */
+@media (min-width: 375px) {
+  .tabla.con-cambio .fila .quien { display: block; grid-column: 2; grid-row: 1; }
+  .tabla.con-cambio .fila .quien b { grid-column: auto; grid-row: auto; }
+  .tabla.con-cambio .fila .total, .tabla.con-cambio .fila .fila-der { grid-column: 3; grid-row: 1; align-self: center; }
+  .tabla.con-cambio .fila .puntitos { grid-column: auto; grid-row: auto; }
+  .tabla.con-cambio .fila .fila-comentarios { grid-column: auto; grid-row: auto; }
+}
 .fila .quien .mov { margin-left: var(--s-6); font-size: var(--fs-75); font-weight: 800; white-space: nowrap; }
 .fila .quien .mov.sube { color: var(--lime); }
 .fila .quien .mov.baja { color: var(--pink); }
