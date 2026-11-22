@@ -12,7 +12,7 @@ import { TEXTS } from './duels-texts.js';
 export function cardDuelos(fila, { lang = 'es', tap = () => {} } = {}) {
   const T = TEXTS[lang] || TEXTS.es;
   const insignia = el('span', { class: 'duelos-mes' }, T.badgeNone);
-  const card = el('a', { class: 'game-card torneo alta duelos-card', href: 'duels/', 'data-id': 'duelos', onClick: tap },
+  const card = el('a', { class: 'game-card torneo alta duelos-card', href: 'duels/', 'data-duels': '', onClick: tap },
     insignia,
     el('div', { class: 'emoji' }, el('span', { 'aria-hidden': 'true' }, '⚔️')),
     el('div', { class: 'texto' }, el('h2', {}, el('span', {}, T.cardTitle)), el('div', { class: 'tag' }, T.cardTag)),
