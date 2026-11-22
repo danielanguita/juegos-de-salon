@@ -30,7 +30,7 @@ await b.go(`${SITE}/croc/?test&lang=es`, 1500);
 ok(await waitFor(`!!document.getElementById('btn-empezar')`), 'with flags/croc on, the waiting room has Empezar');
 ok(await waitFor(`!!document.querySelector('.sp-titulo .sp-logo') && /Croc!/.test(document.querySelector('.sp-titulo').textContent)`), 'with the frog by the name');
 ok(await waitFor(`!!document.querySelector('.sp-portada canvas.sp-demo') && document.querySelector('.sp-demo').width > 0`), 'and the demo, the real game playing itself');
-ok(await ev(`document.getElementById('btn-level')?.getAttribute('aria-checked') === 'false' && /Tráfico normal/.test(document.getElementById('btn-level').textContent)`), 'the lever starts on normal traffic');
+ok(await ev(`document.getElementById('btn-level')?.getAttribute('aria-checked') === 'false' && /Modo fácil/.test(document.getElementById('btn-level').textContent)`), 'the lever starts on easy mode');
 ok(await noSideScroll(), 'no sideways scroll in the waiting room');
 await b.shot('01-lobby');
 await narrow();
@@ -40,7 +40,7 @@ await wide();
 
 // The lever: up is heavy traffic and the red-violet page; down again, normal
 await ev(`document.getElementById('btn-level').click(); 1`);
-ok(await waitFor(`document.getElementById('btn-level')?.getAttribute('aria-checked') === 'true' && /Tráfico intenso/.test(document.getElementById('btn-level').textContent)`), 'the lever up says heavy traffic');
+ok(await waitFor(`document.getElementById('btn-level')?.getAttribute('aria-checked') === 'true' && /Modo difícil/.test(document.getElementById('btn-level').textContent)`), 'the lever up says hard mode');
 ok(await waitFor(`document.body.classList.contains('sp-hard')`), 'and turns the page red-violet');
 await sleep(700);
 await b.shot('02-lobby-hard');
@@ -83,7 +83,7 @@ await waitFor(`!!document.getElementById('btn-level')`);
 await ev(`document.getElementById('btn-level').getAttribute('aria-checked') === 'true' && document.getElementById('btn-level').click(); 1`);
 
 // The languages
-for (const [lang, start, lever] of [['en', /Start/, /Normal traffic/], ['pt', /Começar/, /Trânsito normal/]]) {
+for (const [lang, start, lever] of [['en', /Start/, /Easy mode/], ['pt', /Começar/, /Modo fácil/]]) {
   await b.go(`${SITE}/croc/?test&lang=${lang}`, 1500);
   ok(await waitFor(`!!document.getElementById('btn-empezar')`), `${lang}: the waiting room`);
   ok(start.test(await ev(`document.getElementById('btn-empezar').textContent`)), `${lang}: Empezar in ${lang}`);
