@@ -81,6 +81,35 @@ function medal(face) {
 }
 
 /**
+ * Confetti bursting out of the medal as it turns over (the owner, 2026-11-22: confetti for the reveal, then the
+ * fireworks behind): pieces thrown up and out from `x, y`, falling over the card for about two and a half seconds.
+ */
+function confettiBurst(cv, x, y) {
+  if (globalThis.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return () => {};
+  const ctx = cv.getContext('2d'), dpr = Math.min(globalThis.devicePixelRatio || 1, 2);
+  cv.width = innerWidth * dpr; cv.height = innerHeight * dpr;
+  ctx.scale(dpr, dpr);
+  const cols = ['#ffd23f', '#ff2e88', '#2ee6d6', '#9dff3a', '#8a4dff', '#ff7a1a', '#ffffff'];
+  const parts = Array.from({ length: 140 }, () => {
+    const a = -Math.PI / 2 + (Math.random() - 0.5) * Math.PI * 1.3, v = 6 + Math.random() * 9;
+    return { x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v, w: 5 + Math.random() * 6, h: 8 + Math.random() * 8, r: Math.random() * 6, vr: (Math.random() - 0.5) * 0.5, c: cols[Math.random() * cols.length | 0] };
+  });
+  let stop = false;
+  const t0 = performance.now();
+  (function frame(t) {
+    if (stop || !cv.isConnected) return;
+    ctx.clearRect(0, 0, innerWidth, innerHeight);
+    const left = 1 - Math.max(0, (t - t0 - 1800) / 800);
+    for (const p of parts) {
+      p.x += p.vx; p.y += p.vy; p.vy += 0.32; p.vx *= 0.985; p.r += p.vr;
+      ctx.save(); ctx.globalAlpha = Math.max(left, 0); ctx.translate(p.x, p.y); ctx.rotate(p.r); ctx.fillStyle = p.c; ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h); ctx.restore();
+    }
+    if (left > 0) requestAnimationFrame(frame); else ctx.clearRect(0, 0, innerWidth, innerHeight);
+  })(t0);
+  return () => { stop = true; };
+}
+
+/**
  * Opens the window for `badge` (`{ id, tier, icon, name }`). `secret`: `{ n, total }`. Resolves with 'go'
  * or 'close'. `profileHref`: where «Ver mis logros» goes.
  */
@@ -115,19 +144,23 @@ export function showAchievement(badge, { lang = 'es', secret = { n: 1, total: 8 
   x.setAttribute('aria-label', T.close);
   card.append(count, go, later, x);
   layer.append(el('div', 'aw-franjas'), el('canvas', 'me-fuegos'));
-  layer.append(card);
+  layer.append(card, el('canvas', 'aw-confeti'));
   if (extra) layer.append(extra);
   document.body.append(layer);
-  let stopFire = () => {};
-  // The fireworks wait for the medal to turn over
-  const t = setTimeout(() => { stopFire = fireworks(layer.querySelector('canvas')); }, 1500);
+  // The medal turns over at 1.55 s: confetti bursts out of it then, and the fireworks follow behind the card
+  let stopFire = () => {}, stopConfetti = () => {};
+  const t = setTimeout(() => {
+    const m = card.querySelector('.aw-medalla')?.getBoundingClientRect();
+    if (m) stopConfetti = confettiBurst(layer.querySelector('.aw-confeti'), m.left + m.width / 2, m.top + m.height / 2);
+  }, 1550);
+  const t2 = setTimeout(() => { stopFire = fireworks(layer.querySelector('.me-fuegos')); }, 2300);
   const prevOverflow = document.body.style.overflow;
   document.body.style.overflow = 'hidden';
   card.tabIndex = -1;
   card.focus({ preventScroll: true });
   return new Promise(res => {
     const close = how => {
-      clearTimeout(t); stopFire();
+      clearTimeout(t); clearTimeout(t2); stopFire(); stopConfetti();
       document.removeEventListener('keydown', onKey);
       layer.classList.add('sale');
       setTimeout(() => { layer.remove(); document.body.style.overflow = prevOverflow; res(how); }, 180);

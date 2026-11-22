@@ -72,6 +72,7 @@ for (const W of [320, 390]) {
   ok(await ev(`!!document.querySelector('.aw-capa .aw-franjas') && !!document.querySelector('.aw-medalla .aw-dorso')`), `${W}: 🎃 its medal first shows «?» over diagonal stripes, then turns over (look B)`);
   await sleep(2200);
   ok(await ev(`getComputedStyle(document.querySelector('.aw-dorso')).opacity === '0'`), `${W}: 🎃 the medal turned over: the achievement shows`);
+  ok(await ev(`(() => { const c = document.querySelector('.aw-capa .aw-confeti'); return !!c && c.width > 0 && getComputedStyle(c).pointerEvents === 'none'; })()`), `${W}: 🎃 confetti bursts out of the medal as it turns over, the fireworks behind`);
   await b.shot(`achievement-${W}`);
   await ev(`document.querySelector('.aw-capa .me-x').click()`); await sleep(400);
   ok(await ev(`!document.querySelector('.aw-capa') && !!JSON.parse(localStorage.getItem('juegos-de-salon:logros-anunciados') || '{}').halloween`), `${W}: 🎃 told once: the phone remembers it`);

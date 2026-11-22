@@ -1,7 +1,8 @@
 /* The secret achievement's window (achievement-window.js, lab flag profile): month-end.css's comic card and
    fireworks; the card's room above it for the medal is month-end.css's own (`.me-p1…3`). The owner's pick
    (2026-11-22, look B): the round metal, no ribbon, shows «?», shakes, flips to reveal the achievement with a
-   flash, then the fireworks; diagonal stripes run behind and the card leans the other way. */
+   flash and a burst of confetti over the card, then the fireworks behind it; diagonal stripes run behind and the card leans the other way. */
+.aw-confeti { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; }
 .aw-titulo { font-size: clamp(1.9rem, 9vw, 2.5rem); }
 .aw-capa .me-tarjeta { transform: rotate(2deg); animation-name: aw-pop; }
 @keyframes aw-pop { from { transform: rotate(2deg) scale(0.6); opacity: 0; } }
