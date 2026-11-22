@@ -1,6 +1,6 @@
 // The profile's badges (lab flag profile): each one is earned by what it says, stays earned, and is new once.
 import assert from 'node:assert/strict';
-import { BADGES, GROUPS, earned, fullMonths, EARLY_GAMES, EARLY_DAYS } from './badges.js';
+import { BADGES, GROUPS, earned, fullMonths, EARLY_GAMES, EARLY_DAYS, weekendsOf, cupsInAWeek, premieres, lastOnDay, daysPlayed } from './badges.js';
 
 const ids = BADGES.map(b => b.id);
 assert.equal(new Set(ids).size, ids.length, 'one id per badge');
@@ -65,4 +65,47 @@ assert.ok(one.got && !one.new, 'a first place lost this week keeps its badge, no
 const obs = f => earned({ now: NOW, ...f }).list.find(b => b.id === 'obsession');
 assert.deepEqual(obs({ bestRun: 7 }).progress, [7, 10]);
 assert.ok(!obs({ bestRun: 9 }).got && obs({ bestRun: 10 }).got);
+
+// The badges of 2026-11-22 (the owner)
+const got = (id, f) => earned({ now: NOW, ...f }).list.find(b => b.id === id);
+// 🛋️ Finde a tope: Saturday and Sunday on 4 weekends, from Uno al día's days and the phone's marks
+const weekend = sat => ({ [sat]: true, [new Date(Date.parse(`${sat}T12:00:00Z`) + 86400000).toISOString().slice(0, 10)]: true });
+const days3 = { ...weekend('2026-10-31'), ...weekend('2026-11-07'), ...weekend('2026-11-14'), '2026-11-21': true };
+assert.equal(weekendsOf(days3), 3, 'a Saturday without its Sunday is no weekend');
+assert.deepEqual(got('weekends', { dailyDays: days3 }).progress, [3, 4]);
+assert.ok(got('weekends', { dailyDays: days3, marks: { wk: ['2026-11-21'] } }).got, 'the phone adds its weekend');
+assert.equal(weekendsOf(days3, ['2026-11-07']), 3, 'a weekend counts once');
+// ☕ Odio los lunes: 4 Mondays before 8
+assert.ok(got('mondays', { marks: { mon: ['2026-11-02', '2026-11-09', '2026-11-16', '2026-11-23'] } }).got);
+assert.deepEqual(got('mondays', { marks: { mon: ['2026-11-02'] } }).progress, [1, 4]);
+// 🥂 El canapé: 3 cups within 7 days
+const D = 86400000;
+assert.equal(cupsInAWeek([{ at: NOW }, { at: NOW + 3 * D }, { at: NOW + 6.9 * D }]), 3);
+assert.equal(cupsInAWeek([{ at: NOW }, { at: NOW + 3 * D }, { at: NOW + 7 * D }]), 2, 'the seventh day after is another week');
+assert.ok(got('party', { cupList: [{ at: NOW }, { at: NOW + D }, { at: NOW + 2 * D }] }).got);
+assert.ok(!got('party', { cupList: [{ at: NOW }, { at: NOW + 10 * D }, { at: NOW + 20 * D }] }).got);
+// 🎓 Especialista: 50 games of one same game
+assert.ok(got('specialist', { byGame: [{ id: 'queens', n: 50 }] }).got);
+assert.deepEqual(got('specialist', { byGame: [{ id: 'queens', n: 30 }, { id: 'tango', n: 40 }] }).progress, [40, 50]);
+// 🎬 De estreno: a game first finished in its launch week
+assert.equal(premieres({ a: '2026-10-15', b: '2026-10-21', c: '2026-10-22', d: '2026-10-14', e: '2026-11-01' }, { a: '2026-10-15', b: '2026-10-15', c: '2026-10-15', d: '2026-10-15' }), 2);
+assert.ok(got('premiere', { marks: { first: { a: '2026-10-16' } }, launches: { a: '2026-10-15' } }).got);
+// 🧗 El Alpinista: won a cup after being last on day 1
+assert.ok(lastOnDay({ a: { s: 100 }, b: { s: 70 }, c: { s: 70 } }, 'b'), 'last, tied');
+assert.ok(!lastOnDay({ a: { s: 100 }, b: { s: 80 }, c: { s: 70 } }, 'b'));
+assert.ok(!lastOnDay({ a: { s: 100 }, b: { s: 100 } }, 'b'), 'all tied: nobody is last');
+assert.ok(lastOnDay({ a: { s: 100 } }, 'b'), 'did not play day 1');
+assert.ok(!lastOnDay({}, 'b'), 'a day nobody played');
+assert.equal(got('climber', { climbs: 2 }).count, 2);
+// 🏠 De la casa: 100 days with a game, not in a row (the owner, 2026-11-22)
+assert.equal(daysPlayed({ '2026-11-01': true, '2026-11-02': true }, ['2026-11-02', '2026-11-05']), 3, 'a day counts once');
+const hundred = [...Array(100)].map((_, i) => new Date(Date.UTC(2026, 0, 1 + 2 * i)).toISOString().slice(0, 10));
+assert.ok(got('regular', { marks: { played: hundred } }).got);
+assert.deepEqual(got('regular', { dailyDays: { '2026-11-01': true }, marks: { played: hundred.slice(0, 36) } }).progress, [37, 100]);
+// The secret dates and Martes 13
+assert.ok(got('tuesday-13', { marks: { t13: { best: 13 } } }).got && !got('tuesday-13', { marks: { t13: { best: 12 } } }).got);
+for (const [id, k] of [['fiestas', 'fiestas'], ['halloween', 'halloween'], ['xmas', 'xmas'], ['new-year', 'newyear']]) {
+  assert.ok(got(id, { marks: { days: { [k]: true } } }).got, id);
+  assert.ok(got(id, {}).secret && !got(id, {}).got, `${id}: secret until earned`);
+}
 console.log('profile badges: ok');
