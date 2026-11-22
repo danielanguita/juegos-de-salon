@@ -24,7 +24,6 @@ import battleshipManifest from './manifests/battleship.js';
 import generalaManifest from './manifests/generala.js';
 import julepManifest from './manifests/labs/julep.js';
 import fourthKingManifest from './manifests/labs/fourth-king.js';
-import crocManifest from './manifests/labs/croc.js';
 import cupManifest from './manifests/cup.js';
 
 /**
@@ -89,8 +88,6 @@ export const GAMES = [
   // /labs/fourth-king/; /fourth-king/ and /cuarto-rey/ are bridges there
   // Its name in URLs and its docs/games/ and docs/screenshots/ folders, without the lab (C-18)
   catalogEntry(fourthKingManifest),
-  // croc: from public/labs/croc/game.json (in the lab, recorded to SOLO_TABLES)
-  { ...catalogEntry(crocManifest), oculto: true },
 ];
 
 /**
@@ -544,6 +541,33 @@ export const SUELTOS = [
     nuevoDesde: '2026-11-20',
     diasNuevo: 10,
   },
+  {
+    // 🐸 Out of the lab like Sudoku (D-517's way): La Copa's screen in cup/games/croc/, its page /croc/, hidden
+    // until the owner switches flags/croc on (prepared, not launched: the owner picks the date). Its traffic
+    // levels are La Copa's variants (normal by default, hard as heavy traffic; ranked apart, D-331). The id, its
+    // ranking table and the usage signal are the lab's. Its lab page /labs/croc/ is a bridge to /croc/ (`deLabs`,
+    // C-18): the prototype's code is this game's now, and a lab key opens /croc/ before the launch
+    id: 'croc',
+    deLabs: 'croc',
+    lanza: 'croc',
+    copa: { pozo: 21 },
+    // Uno al día: by date, never by flag. PLACEHOLDER: the launch PR sets it to the day after the launch
+    unoAlDia: { orden: 26, desde: '2027-01-02' },
+    slug: 'croc',
+    emoji: '🐸',
+    name: { es: 'Croc!', en: 'Croc!', pt: 'Croc!' },
+    tagline: { es: 'Cruza la autopista esquivando autos, agarra frutas y haz dash con estilo.', en: 'Cross the highway dodging cars, grab bonus fruit, and dash past danger.', pt: 'Atravesse a rodovia desviando de carros, pegue frutas e dê dash com estilo.' },
+    keywords: {
+      es: ['croc', 'rana', 'sapo', 'autopista', 'cruzar', 'tráfico', 'trafico', 'autos', 'frogger', 'reflejos', 'habilidad'],
+      en: ['croc', 'frog', 'highway', 'cross', 'road', 'traffic', 'cars', 'frogger', 'reflexes', 'skill'],
+      pt: ['croc', 'sapo', 'rã', 'rodovia', 'atravessar', 'trânsito', 'carros', 'frogger', 'reflexos', 'habilidade'],
+    },
+    tipos: ['skill'],
+    duration: '1–2',
+    // PLACEHOLDER: the launch PR sets it to the launch day (the ✨ Nuevo label starts with the flag anyway, D-556)
+    nuevoDesde: '2027-01-01',
+    diasNuevo: 10,
+  },
   // Los del laboratorio viven en /labs/<slug>/ (D-267): al salir pasan a /<slug>/
 ].map(m => ({ ...m, players: '1', path: `${m.labs ? 'labs/' : ''}${m.slug}/`, available: !m.labs, suelto: true, ...(m.lanza ? { oculto: !lanzado(m.lanza) } : {}) }));
 
@@ -565,7 +589,6 @@ export const SOLO_TABLES = {
   'toque-y-fama': 'toque-y-fama_solo',
   ahorcado: 'ahorcado_solo',
   generala: 'generala_solo',
-  'croc': 'croc',
 };
 
 /**
@@ -714,7 +737,6 @@ export const idDeSlug = s => (Object.hasOwn(SLUG_DE, s) ? s : Object.hasOwn(ID_D
  */
 export const LAB_NAMES = {
   'cryptic': { emoji: '🗝️', name: { es: 'Críptico', en: 'Cryptic', pt: 'Críptico' } },
-  'croc': { emoji: '🐸', name: { es: 'Croc!', en: 'Croc!', pt: 'Croc!' } },
   blackjack: { emoji: '♠️', name: { es: 'Blackjack', en: 'Blackjack', pt: 'Blackjack' } },
   artifacts: { emoji: '⚙️', name: { es: 'Artefactos', en: 'Artifacts', pt: 'Artefatos' } },
   clave: { emoji: '🔐', name: { es: 'La clave', en: 'The Code', pt: 'A senha' } },

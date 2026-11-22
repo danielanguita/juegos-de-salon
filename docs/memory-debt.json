@@ -84,6 +84,10 @@
     {
       "id": "dominorama",
       "reason": "Built in cup/games/ like Sudoku: its boards, saved after every move with ctx.guardar, are kept by the Cup's shared screen (public/cup/cuenta.js), not by its own code"
+    },
+    {
+      "id": "croc",
+      "reason": "Built in cup/games/ like Sudoku: its run, saved after every move and every hit with ctx.guardar, is kept by the Cup's shared screen (public/cup/cuenta.js), not by its own code; a finished run reopens finished"
     }
   ]
 }
