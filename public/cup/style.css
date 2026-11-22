@@ -203,6 +203,7 @@ ol.como li { line-height: 1.45; }
 .tabla.corta .fila.asoma { display: grid; max-height: 2.9rem; overflow: hidden; -webkit-mask-image: linear-gradient(rgb(var(--cp-negro-rgb)), transparent); mask-image: linear-gradient(rgb(var(--cp-negro-rgb)), transparent); }
 .btn-mas { display: flex; align-items: center; justify-content: center; gap: var(--s-8); width: 100%; min-height: 44px; margin-top: var(--s-6); padding: var(--s-8) var(--s-12); border-radius: 999px; border: 2px solid var(--glass-border); background: var(--well); color: inherit; font: 700 var(--fs-100) var(--font-body); cursor: pointer; }
 .tabla.corta .btn-mas { margin-top: calc(-1 * var(--s-6)); position: relative; }
+.tabla.con-cambio .fila { grid-template-columns: 1.6em 1fr auto; }
 .fila .quien .mov { margin-left: var(--s-6); font-size: var(--fs-75); font-weight: 800; white-space: nowrap; }
 .fila .quien .mov.sube { color: var(--lime); }
 .fila .quien .mov.baja { color: var(--pink); }
@@ -394,6 +395,7 @@ button.md-fila { cursor: pointer; }
 .g-color { width: 12px; height: 12px; border-radius: 50%; background: var(--c); flex: none; }
 .grafico .g-toque { fill: transparent; cursor: pointer; }
 .grafico .g-rotulo { font: 900 10px var(--font-body); }
+.grafico .g-entra { fill: none; stroke-width: 2px; stroke-dasharray: 4 3; stroke-linecap: round; }
 .grafico .g-rotulo.g-resto { fill: var(--muted); }
 .grafico-nota { font-size: 0.85rem; margin: 6px 0 0; min-height: 1.3em; }
 

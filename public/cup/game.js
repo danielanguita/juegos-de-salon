@@ -335,8 +335,8 @@ flag('cup-podium-early').then(v => { podioAnticipado = v; if (v && L()?.meta && 
 // under a button) and the graph its first 10 lines, with the other names listed under it. lab: #seccion-cup-big
 let copaGrande = false;
 flag('cup-big').then(v => { copaGrande = v; setPlayerCap(v ? BIG_CUP_MAX : 10); if (v && L()?.meta && document.getElementById('tablero-body')?.childElementCount && !document.getElementById('tablero-body').closest('[hidden]')) tablero(); });
-// More than 10 players (lab flag `cup-big`): no graph; the table says how many places each player moved since
-// the last round, except on the last one. lab: #seccion-cup-big
+// More than 10 players (lab flag `cup-big`): the table says how many places each player moved since the last
+// round, except on the last one, and the graph draws the first 10 lanes. lab: #seccion-cup-big
 const movesBoard = n => copaGrande && n > TABLA_VISIBLE;
 const zonaPropia = (() => { try { return Intl.DateTimeFormat().resolvedOptions().timeZone || null; } catch (_) { return null; } })();
 const horaEn = (ms, tz) => new Intl.DateTimeFormat(LOCALE[LANG] || LOCALE.es, { timeZone: tz, hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).format(new Date(ms));
@@ -881,7 +881,7 @@ function vistaTabla(filas, { dias, meta, now }) {
   const tablaNodo = el('div', { class: 'tabla' + (conCharla ? ' con-charla' : '') + (conCambio ? ' con-cambio' : '') }, pista, ...filas.flatMap(f => [el('div', { class: 'fila' + (f.pid === S.yo ? ' yo' : '') + (f.fuera ? ' fuera' : ''), 'data-pid': f.pid },
     // Out of the cup (D-347): a door instead of a place, and faded (D-376)
     el('span', { class: 'lugar', title: f.fuera ? fmt(T.outAdmin, { a: f.fuera.desde, b: f.fuera.hasta }) : null }, f.fuera ? '🚪' : String(f.lugar)),
-    el('span', { class: 'flecha ' + (!conCambio && f.flecha > 0 ? 'sube' : !conCambio && f.flecha < 0 ? 'baja' : '') }, conCambio ? '' : f.flecha > 0 ? '▲' : f.flecha < 0 ? '▼' : ''),
+    conCambio ? null : el('span', { class: 'flecha ' + (f.flecha > 0 ? 'sube' : f.flecha < 0 ? 'baja' : '') }, f.flecha > 0 ? '▲' : f.flecha < 0 ? '▼' : ''),
     el('div', { class: 'quien' },
       el('b', {}, f.name,
         // The moves board: places gained or lost since the last round, beside the name, none on the last round
@@ -962,15 +962,6 @@ function misDias(d, now) {
   return el('div', { class: 'panel mis-dias' }, el('p', { class: 'lead', style: 'margin-bottom:8px' }, T.myDays), filas);
 }
 
-/** The moves board has no graph; the share button it carried stays, in a panel of its own (C-19). */
-function panelCompartir(now) {
-  if (terminada(L().meta, now)) return null;
-  return el('div', { class: 'panel' }, el('button', { class: 'btn btn--cyan btn--sm', id: 'btn-imagen', onClick: async ev2 => {
-    SFX.tap(); const b = ev2.currentTarget; b.disabled = true;
-    try { await compartirTabla(); } catch (e) { toast(errorDe(e)); } finally { b.disabled = false; }
-  } }, `📤 ${T.shareImage}`));
-}
-
 /**
  * Tu posición día a día: una línea por jugador, la tuya de color y el resto en gris, con el
  * 1º arriba. Solo los días que ya puedes ver (los que jugaste o los cerrados), así el gráfico
@@ -987,8 +978,13 @@ function grafico(now) {
   // Out of the cup (D-347): their line, faded, and 🚪 after their name (D-376)
   const afuera = new Set(filasTabla.filter(f => f.fuera).map(f => f.pid));
   const n = ev.filas.length;
-  const W = 320, fila = 24, arriba = 14, abajo = 26, izq = 26, der = 92; // espacio a la derecha para "Nombre 3º (-1J)"
-  const H = arriba + (n - 1) * fila + abajo;
+  // More than 10 players (lab flag `cup-big`): the first 10 lanes; whoever climbs in from below comes as a dashed
+  // line that fades in from under the last lane, whoever falls out just ends, and the names are on the lines
+  const grande = copaGrande && n > TABLA_VISIBLE;
+  const carriles = grande ? TABLA_VISIBLE : n;
+  const W = 320, fila = 24, arriba = 14, abajo = 26, izq = grande ? 10 : 26, der = 92; // espacio a la derecha para "Nombre 3º (-1J)"
+  const bajoCarriles = grande ? 20 : 0; // room under the last lane for the lines that come in from below
+  const H = arriba + (carriles - 1) * fila + abajo + bajoCarriles;
   const x = k => izq + (meta.days === 1 ? 0 : ((k - 1) * (W - izq - der)) / (meta.days - 1));
   const y = lugar => arriba + (lugar - 1) * fila;
   const NS = 'http://www.w3.org/2000/svg';
@@ -1000,10 +996,12 @@ function grafico(now) {
   };
   const leyenda = el('p', { class: 'muted grafico-nota', 'aria-live': 'polite' }, T.progressHint);
   const svg = svgEl('svg', { viewBox: `0 0 ${W} ${H}`, class: 'grafico', role: 'img', 'aria-label': T.progressTitle });
-  for (let l = 1; l <= n; l++) {
+  for (let l = 1; l <= carriles; l++) {
     svg.append(svgEl('line', { x1: izq, x2: W - der, y1: y(l), y2: y(l), class: 'g-grid' }));
-    svg.append(svgEl('text', { x: izq - 8, y: y(l) + 4, class: 'g-eje', 'text-anchor': 'end' }, ord(l)));
+    if (!grande) svg.append(svgEl('text', { x: izq - 8, y: y(l) + 4, class: 'g-eje', 'text-anchor': 'end' }, ord(l)));
   }
+  const defs = svgEl('defs');
+  svg.append(defs);
   for (let k = 1; k <= meta.days; k++) svg.append(svgEl('text', { x: x(k), y: H - 6, class: 'g-eje', 'text-anchor': 'middle' }, fmt(T.dayShort, { d: k })));
   // Cada jugador con su color (D-125), fijo por orden de inscripción; tu línea, más gruesa y encima
   const porLlegada = llegada(Lc);
@@ -1018,15 +1016,35 @@ function grafico(now) {
     const g = svgEl('g', { class: 'g-jugador' + (mia ? ' mia' : '') + (afuera.has(f.pid) ? ' fuera' : ''), 'data-pid': f.pid, style: `--c:${color(f.pid)}` });
     grupos[f.pid] = g;
     const pts = f.lugares.map((l, i) => [x(ev.dias[i]), y(l)]);
-    if (pts.length > 1) g.append(svgEl('polyline', { points: pts.map(p => p.join(',')).join(' '), class: 'g-linea' }));
+    // The first 10 lanes: the days inside them in runs; a run that starts after a day outside comes in from below
+    const dentro = i => f.lugares[i] <= carriles;
+    if (grande && !f.lugares.some((_, i) => dentro(i))) continue;
+    if (grande) {
+      let tramo = [];
+      const cerrar = () => { if (tramo.length > 1) g.append(svgEl('polyline', { points: tramo.map(p => p.join(',')).join(' '), class: 'g-linea' })); tramo = []; };
+      f.lugares.forEach((l, i) => {
+        if (!dentro(i)) { cerrar(); return; }
+        if (i > 0 && !dentro(i - 1)) {
+          const [x1, y1, x2, y2] = [x(ev.dias[i - 1]), y(carriles) + bajoCarriles - 2, pts[i][0], pts[i][1]];
+          const id = `gv-${f.pid}-${i}`;
+          const degradado = svgEl('linearGradient', { id, gradientUnits: 'userSpaceOnUse', x1, y1, x2, y2 },
+            svgEl('stop', { offset: '0', 'stop-color': color(f.pid), 'stop-opacity': '0' }), svgEl('stop', { offset: '1', 'stop-color': color(f.pid), 'stop-opacity': '0.9' }));
+          defs.append(degradado);
+          g.append(svgEl('line', { x1, y1, x2, y2, class: 'g-entra', stroke: `url(#${id})` }));
+        }
+        tramo.push(pts[i]);
+      });
+      cerrar();
+    } else if (pts.length > 1) g.append(svgEl('polyline', { points: pts.map(p => p.join(',')).join(' '), class: 'g-linea' }));
     pts.forEach(([px, py], i) => {
+      if (grande && !dentro(i)) return;
       const texto = fmt(T.progressPoint, { d: ev.dias[i], name: f.name, pos: ord(f.lugares[i]) });
       g.append(svgEl('circle', { cx: px, cy: py, r: mia ? 5 : 4, class: 'g-punto' }));
       const blanco = svgEl('circle', { cx: px, cy: py, r: 11, class: 'g-toque' }, svgEl('title', {}, texto));
-      blanco.addEventListener('click', () => { leyenda.textContent = texto; destacar(f.pid); });
+      blanco.addEventListener('click', () => { leyenda.textContent = texto; leyenda.hidden = false; destacar(f.pid); });
       g.append(blanco);
     });
-    if (pts.length) {
+    if (pts.length && (!grande || dentro(pts.length - 1))) { // whoever fell out of the first 10 has no name on the graph
       const [px, py] = pts[pts.length - 1];
       const corto = f.name.length > 10 ? `${f.name.slice(0, 9)}…` : f.name;
       const marca = afuera.has(f.pid) ? ' 🚪' : menos[f.pid] > 0 ? ` (-${menos[f.pid]}J)` : '';
@@ -1042,12 +1060,13 @@ function grafico(now) {
     destacado = destacado === pid ? null : pid;
     svg.classList.toggle('con-destacado', !!destacado);
     Object.entries(grupos).forEach(([p, g]) => g.classList.toggle('destacado', p === destacado));
-    chips.querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.pid === destacado));
+    chips?.querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.pid === destacado));
   };
-  const chips = el('div', { class: 'grafico-chips' }, ev.filas.slice().sort((a, b) => porLlegada.indexOf(a.pid) - porLlegada.indexOf(b.pid)).map(f =>
+  const chips = grande ? null : el('div', { class: 'grafico-chips' }, ev.filas.slice().sort((a, b) => porLlegada.indexOf(a.pid) - porLlegada.indexOf(b.pid)).map(f =>
     el('button', { type: 'button', class: 'g-chip' + (f.pid === S.yo ? ' mia' : '') + (afuera.has(f.pid) ? ' fuera' : ''), 'data-pid': f.pid, style: `--c:${color(f.pid)}`, onClick: () => { SFX.tap(); destacar(f.pid); } },
       el('span', { class: 'g-color', 'aria-hidden': 'true' }), nombreConJuegos(f.pid === S.yo ? fmt(T.progressYou, { name: f.name }) : f.name, menos[f.pid]), afuera.has(f.pid) ? ' 🚪' : null)));
   const notaJuegos = Object.values(menos).some(x => x > 0) ? el('p', { class: 'muted grafico-nota', id: 'nota-juegos' }, T.fewerGamesNote) : null;
+  if (grande) leyenda.hidden = true; // its text is filled by tapping a point
   return el('div', { class: 'panel' }, el('p', { class: 'lead', style: 'margin-bottom:8px' }, T.progressTitle), svg, chips, notaJuegos, leyenda,
     // Once over, the podium's Share the summary does the same: one share button per screen (C-19)
     terminada(L().meta, now) ? null : el('button', { class: 'btn btn--cyan btn--sm', id: 'btn-imagen', onClick: async ev2 => {
@@ -1289,7 +1308,7 @@ function dibujarTablero() {
       vistaTabla(filas, { dias, meta, now }),
       leyenda,
       hayOcultos ? el('small', { class: 'muted' }, T.tableHidden) : null));
-    poner(body, movesBoard(filas.length) ? panelCompartir(now) : grafico(now));
+    poner(body, grafico(now));
   } else {
     const jug = activos(Lc);
     poner(body, el('div', { class: 'panel' },

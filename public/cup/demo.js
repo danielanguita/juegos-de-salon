@@ -74,6 +74,15 @@ const PUNTAJE = {
 const azar = (pid, d) => { let h = 7; for (const c of `${pid}:${d}`) h = (h * 31 + c.charCodeAt(0)) >>> 0; return (h % 1000) / 1000; };
 
 /**
+ * The crowd scenes' strengths, one per player and day: each day seven players are strong (in windows that
+ * slide), so some players stay among the first 10, some fall out of them and some come in later.
+ * `ventanas`: for each day, the indices of the strong ones, best first.
+ */
+const fuerzaCrowd = ventanas => Object.fromEntries(JUGADORES.map((j, i) => [j.pid,
+  ventanas.map(w => (w.includes(i) ? 0.97 - 0.09 * w.indexOf(i) : 0.04 + 0.008 * i))]));
+const CROWD = fuerzaCrowd([[0, 1, 2, 3, 4, 5, 6], [1, 0, 3, 2, 7, 4, 8], [0, 2, 1, 9, 3, 5, 10], [1, 0, 2, 11, 12, 3, 4], [13, 14, 0, 1, 2, 15, 3], [14, 13, 1, 0, 16, 2, 17], [0, 1, 14, 18, 2, 19, 3]]);
+
+/**
  * Las escenas. `inicio` es cuántos días atrás partió (negativo: parte en el futuro); `jugaron`,
  * cuántos días completos hay jugados; `yo`, quién mira (null: alguien que abre la invitación).
  * El nombre es el de la URL (`&demo=podium`), en inglés (D-266); los de antes (`podio`) los traduce
@@ -95,7 +104,9 @@ export const ESCENAS = {
   // La máxima densidad del gráfico y de la imagen que se comparte (D-141): 7 días, 10 jugadores
   full: { inicio: 7, jugadores: 10, jugaron: 7, yo: 'javi02', pantalla: 'tablero', faltas: true },
   // The most players a cup takes (20), three days played
-  crowd: { inicio: 3, jugadores: 20, jugaron: 3, yo: 'javi02', pantalla: 'tablero', fuerza: Object.fromEntries(['x11abc','x12abc','x13abc','x14abc','x15abc','x16abc','x17abc','x18abc','x19abc','x20abc'].map((p, i) => [p, 0.2 + 0.07 * ((i * 7) % 10)])) },
+  crowd: { inicio: 4, jugadores: 20, jugaron: 4, yo: 'javi02', pantalla: 'tablero', fuerza: CROWD },
+  // The longest cup (14 days) with 20 players, eight days played: the table's day blocks at their widest
+  'crowd-14': { inicio: 8, jugadores: 20, jugaron: 8, yo: 'javi02', pantalla: 'tablero', cal: ['loteo', 'donde', 'microgames', 'tango', 'desenredo', 'agentes', 'rutas', 'linea', 'stick', 'numero', 'puentes', 'pintaminas', 'letras', 'final'], fuerza: CROWD },
   // The same crowd on the last day: no arrows on the moves board
   'crowd-final': { inicio: 6, jugadores: 20, jugaron: 6, yo: 'javi02', pantalla: 'tablero' },
   // Out of the cup (D-347): whoever looks missed days 1 and 2; Tere missed day 3, one away from it
@@ -171,7 +182,8 @@ export function escena(nombre, { now, uid = 'demo' }) {
       if (hoyEsEste && (e.hoyFaltan ? e.hoyFaltan.includes(j.pid) : j.pid === e.yo ? !e.alDia : azar(j.pid, d) < 0.5)) continue;
       if (e.faltas && (e.faltas === true ? FALTAS : e.faltas)[j.pid]?.includes(d)) continue;
       // `fuerza` fixes how well a player does every day, for a scene whose table must come out one way
-      const k = e.fuerza?.[j.pid] ?? 0.35 + 0.6 * azar(j.pid, d);
+      const fz = e.fuerza?.[j.pid]; // a number, or one per day (a player who climbs or falls)
+      const k = (Array.isArray(fz) ? fz[d - 1] ?? fz[fz.length - 1] : fz) ?? 0.35 + 0.6 * azar(j.pid, d);
       const r = PUNTAJE[cal[d - 1]](k);
       const at = Math.min(now - 3600000, meta.win[d].a + 3600000 * (8 + 10 * azar(j.pid, -d)));
       (L.started[d] ||= {})[j.pid] = at - 120000;
