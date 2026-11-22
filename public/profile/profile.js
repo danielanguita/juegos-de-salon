@@ -199,14 +199,22 @@ function card(yo, f, list) {
 function rankingsTab(J, f) {
   const box = el('div', { class: 'pf-tab' });
   // The overall ranking, with the player's three places on top of its table
-  const pos = (v, label) => el('div', { class: 'pf-place' }, el('b', {}, v), el('span', {}, label));
+  const pos = (v, label) => el('div', { class: 'pf-place' }, el('i', { 'aria-hidden': 'true' }), el('b', {}, v), el('span', {}, label));
   const places = el('div', { class: 'pf-places' }, pos('…', T.week), pos('…', T.ever), pos('…', T.friends));
+  // Each place with some joy (the owner, 2026-11-22): a medal and its metal on the podium, 🔥 in the top 10, a pop when it arrives
+  const setPlace = (i, p) => {
+    const box = places.children[i], ok = Number.isInteger(p) && p >= 1;
+    const tier = !ok ? '' : p === 1 ? 'gold' : p === 2 ? 'silver' : p === 3 ? 'bronze' : p <= 10 ? 'top' : 'rest';
+    box.className = `pf-place${tier ? ` pf-place--${tier}` : ''}`;
+    box.children[0].textContent = { gold: '🥇', silver: '🥈', bronze: '🥉', top: '🔥', rest: '🎲' }[tier] || '';
+    box.children[1].textContent = ok ? place(p) : T.noPlace;
+  };
   const general = bloqueRanking({ juego: TODOTERRENO, titulo: T.general, hint: RK.allRounderHint, alTocar: tap });
   general.insertBefore(places, general.querySelector('.rk-seg'));
   J.tablaAmigos(TODOTERRENO, SIEMPRE).then(rows => {
     const i = rows.findIndex(x => x.jid === leerYo()?.jid);
-    places.children[2].firstChild.textContent = i >= 0 && rows.length > 1 ? place(rows[i].puesto) : T.noPlace;
-  }).catch(() => { places.children[2].firstChild.textContent = T.noPlace; });
+    setPlace(2, i >= 0 && rows.length > 1 ? rows[i].puesto : null);
+  }).catch(() => setPlace(2, null));
   // The player's games, most played first: their best, their place ever and this week
   const games = el('section', { class: 'panel pf-games' }, el('p', { class: 'lead rk-titulo' }, T.yourGames));
   const rows = new Map();
@@ -261,8 +269,8 @@ function rankingsTab(J, f) {
       if (r.week?.puesto) x.where.append(el('small', {}, fmt(T.placeWeek, { place: place(r.week.puesto) })));
     },
     general(g) {
-      places.children[0].firstChild.textContent = place(g.week);
-      places.children[1].firstChild.textContent = place(g.ever);
+      setPlace(0, g.week);
+      setPlace(1, g.ever);
     },
   };
 }
