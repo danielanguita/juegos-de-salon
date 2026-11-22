@@ -103,7 +103,7 @@ export function loadActive({ fetchFn = globalThis.fetch, timeout = 2500 } = {}) 
  * of play: `video` (a looping MP4, muted) with its `img` as the poster, or just `img` (a still, with
  * `still` for reduced motion, each a path or one per language; a clip is never a GIF: an MP4 weighs a fifth, #846). An item with no name, text or link is a teaser: its picture
  * alone, wide (`ratio`), scaled as pixel art unless `smooth` (a teaser drawn at full size). `hero` draws a campaign's one game big: its clip as wide as the window at its
- * `ratio`, and under it its card, with the text and Play. `langs` limits a campaign to some languages: the others get it in English
+ * `ratio`, and under it its card, with the text and Play. `bigClips` makes a list's clips as big as a phone's height allows, the window taller. `langs` limits a campaign to some languages: the others get it in English
  * (the owner's request for a teaser in Spanish and English). Paths are from the site root; the clips
  * are made with marketing/splash/capture.mjs and the teasers with teaser.mjs, and each campaign is
  * kept in marketing/splash/campaigns/<id>/ (D-355).
@@ -206,6 +206,8 @@ export const CAMPAIGNS = {
   'nos-volvimos-locos': {
     emoji: '🤪',
     requires: ['croc', 'wobbles'],
+    // Its clips as big as a phone's height allows, so the games' action is felt (the owner, 2026-11-21)
+    bigClips: true,
     title: { es: '¡Nos volvimos locos!', en: "We've gone crazy!", pt: 'Enlouquecemos!' },
     lead: {
       es: 'No paramos de lanzar juegos. Hoy entran 2 de destreza.',
@@ -639,6 +641,8 @@ export async function showSplash(id, { lang = 'es', record = true, onClose } = {
   const layer = node('div', 'splash-capa');
   const backdrop = node('div', 'splash-fondo');
   const card = node('section', c.hero ? 'splash splash--hero' : c.look === 'cartuchos' ? 'splash splash--cartuchos' : 'splash');
+  // Bigger clips on a phone (`bigClips`, the owner, 2026-11-21: on a Pixel 9 they felt small): the window grows taller for them
+  if (c.bigClips && !c.hero) card.classList.add('splash--big');
   card.setAttribute('role', 'dialog');
   card.setAttribute('aria-modal', 'true');
   card.setAttribute('aria-labelledby', 'splash-titulo');
