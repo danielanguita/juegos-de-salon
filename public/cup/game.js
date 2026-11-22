@@ -336,7 +336,7 @@ flag('cup-podium-early').then(v => { podioAnticipado = v; if (v && L()?.meta && 
 let copaGrande = false;
 flag('cup-big').then(v => { copaGrande = v; setPlayerCap(v ? BIG_CUP_MAX : 10); if (v && L()?.meta && document.getElementById('tablero-body')?.childElementCount && !document.getElementById('tablero-body').closest('[hidden]')) tablero(); });
 // More than 10 players (lab flag `cup-big`): the table says how many places each player moved since the last
-// round, except on the last one, and the graph draws the first 10 lanes. lab: #seccion-cup-big
+// round (what yesterday did, relative to the day being looked at: it goes by itself), and the graph draws the first 10 lanes. lab: #seccion-cup-big
 const movesBoard = n => copaGrande && n > TABLA_VISIBLE;
 const zonaPropia = (() => { try { return Intl.DateTimeFormat().resolvedOptions().timeZone || null; } catch (_) { return null; } })();
 const horaEn = (ms, tz) => new Intl.DateTimeFormat(LOCALE[LANG] || LOCALE.es, { timeZone: tz, hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).format(new Date(ms));
@@ -868,9 +868,7 @@ function vistaTabla(filas, { dias, meta, now }) {
     return [...dias.slice(0, ultimo + 1).map(d => bloque(f, d)),
       resto ? el('span', { class: 'pd eliminado', style: `min-width:calc(${resto} * 1.368rem + ${resto - 1} * 4px)` }, T.outBadge) : null];
   };
-  // The moves board: places moved shown beside the arrow, and no arrows once the last round is open
   const conCambio = movesBoard(filas.length);
-  const sinFlechas = conCambio && now >= meta.win[meta.days].a;
   // Reactions and comments (D-562, lab): a 💬 at the end of each row, its drawer under it
   const conCharla = charla && !!talkDay(L(), now) && !!L().results?.[talkDay(L(), now)]?.[S.yo] && !!seguirCharla();
   // Once, the first time a 💬 shows: a balloon that says comments exist (D-566, lab)
@@ -884,9 +882,9 @@ function vistaTabla(filas, { dias, meta, now }) {
     conCambio ? null : el('span', { class: 'flecha ' + (f.flecha > 0 ? 'sube' : f.flecha < 0 ? 'baja' : '') }, f.flecha > 0 ? '▲' : f.flecha < 0 ? '▼' : ''),
     el('div', { class: 'quien' },
       el('b', {}, f.name,
-        // The moves board: places gained or lost since the last round, beside the name, none on the last round
-        conCambio && !sinFlechas && f.flecha ? el('span', { class: 'mov ' + (f.flecha > 0 ? 'sube' : 'baja'), title: `${f.flecha > 0 ? '+' : '−'}${Math.abs(f.cambio)}` }, `${f.flecha > 0 ? '▲' : '▼'}${Math.abs(f.cambio)}`) : null,
-        f.pid === S.yo ? el('small', { class: 'muted' }, ` (${T.you})`) : null),
+        f.pid === S.yo ? el('small', { class: 'muted' }, ` (${T.you})`) : null,
+        // The big-cup board: the places gained or lost by the last day that closed, after the (you)
+        conCambio && f.cambioAyer ? el('span', { class: 'mov ' + (f.cambioAyer > 0 ? 'sube' : 'baja'), title: `${f.cambioAyer > 0 ? '+' : '−'}${Math.abs(f.cambioAyer)}` }, `${f.cambioAyer > 0 ? '▲' : '▼'}${Math.abs(f.cambioAyer)}`) : null),
       // A big cup of more than 8 days: the blocks in two equal runs (14 days: 7 and 7), not one long and one short
       conCambio && dias.length > 8 ? el('div', { class: 'puntitos dos', style: `--cols:${Math.ceil(dias.length / 2)}` }, bloques(f)) : el('div', { class: 'puntitos' }, bloques(f)),
       // Today's first comment, for everyone, even before playing (the owner, 2026-11-16)

@@ -80,7 +80,7 @@ const azar = (pid, d) => { let h = 7; for (const c of `${pid}:${d}`) h = (h * 31
  */
 const fuerzaCrowd = ventanas => Object.fromEntries(JUGADORES.map((j, i) => [j.pid,
   ventanas.map(w => (w.includes(i) ? 0.97 - 0.09 * w.indexOf(i) : 0.04 + 0.008 * i))]));
-const CROWD = fuerzaCrowd([[0, 1, 2, 3, 4, 5, 6], [1, 0, 3, 2, 7, 4, 8], [0, 2, 1, 9, 3, 5, 10], [4, 2, 3, 1, 0, 11, 12]]);
+const CROWD = fuerzaCrowd([[0, 1, 2, 3, 4, 5, 6], [1, 0, 3, 2, 7, 4, 8], [2, 3, 0, 1, 4, 9, 10], [4, 2, 3, 1, 0, 11, 12]]);
 const CROWD_14 = fuerzaCrowd([[0, 1, 2, 3, 4, 5, 6], [1, 0, 3, 2, 7, 4, 8], [0, 2, 1, 9, 3, 5, 10], [1, 0, 2, 11, 12, 3, 4], [13, 14, 0, 1, 2, 15, 3], [14, 13, 1, 0, 16, 2, 17], [0, 1, 14, 18, 2, 19, 3], [2, 0, 1, 3, 4, 13, 5]]);
 
 /**
