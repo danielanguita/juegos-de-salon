@@ -384,6 +384,12 @@ test('tabla: oculta lo que no jugaste, suma comodín y final', () => {
   const tc = tabla(L, 'aaaaaa', dia(3));
   assert.equal(tc.find(f => f.pid === 'aaaaaa').dias[2].pts, 0);
   assert.equal(tc.find(f => f.pid === 'dddddd').total, 0);
+  // Places moved by the last day that closed (the big-cup board): a day closes two days after it opens, so on day 4
+  // day 2 against day 1; nothing before two days have closed, or once the cup is over
+  const ayer = tabla(L, 'aaaaaa', dia(3));
+  assert.deepEqual([ayer.find(f => f.pid === 'cccccc').cambioAyer, ayer.find(f => f.pid === 'bbbbbb').cambioAyer, ayer.find(f => f.pid === 'aaaaaa').cambioAyer], [2, 0, -2]);
+  assert.ok(tabla(L, 'aaaaaa', dia(2)).every(f => f.cambioAyer === 0), 'on day 3 only day 1 has closed');
+  assert.ok(tabla(L, 'aaaaaa', meta7.end + 1).every(f => f.cambioAyer === 0), 'once the cup is over');
 });
 
 test('tabla: un jugador sacado no cuenta ni empuja posiciones', () => {
