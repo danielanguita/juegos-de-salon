@@ -468,16 +468,15 @@ html.pf-on .topbar .pf-lang .icon-btn { width: auto; display: inline-flex; align
 html.pf-on .topbar .pf-lang-caret { font-size: var(--fs-85); color: var(--muted); }
 /* The bar's language now sits mid-bar: its three flags open centred under it, never past the screen's left edge */
 html.pf-on .topbar:not(.portada-barra) .pf-lang .lang-pop { left: 50%; right: auto; transform: translateX(-50%); }
-.pf-home-initial { display: none; }
+.pf-home-icon { display: none; }
 html.pf-on .topbar #lang-slot:not(:has(.lang-btn, .lang-toggle)) { display: none; }
 /* A narrow phone keeps every button: the pill shows the flag only, the language loses its ▾ */
 @media (max-width: 374px) {
   html.pf-on .topbar { gap: var(--s-8); }
   html.pf-on .topbar .tools { gap: var(--s-6); }
   html.pf-on .topbar .tools .pf-home { padding: 0; }
-  html.pf-on .topbar .tools .pf-home:not(.pf-guest) { background: linear-gradient(135deg, var(--yellow), var(--orange)); color: var(--ink-on-yellow); font: var(--fs-120) var(--font-display); }
   html.pf-on .topbar .pf-home-flag, html.pf-on .topbar .pf-home-name, html.pf-on .topbar .pf-home-go, html.pf-on .topbar .pf-lang-caret { display: none; }
-  html.pf-on .topbar .pf-home-initial { display: inline; }
+  html.pf-on .topbar .pf-home-icon { display: inline; font-size: var(--fs-120); }
   html.pf-on .topbar .pf-lang .icon-btn { padding: 0; width: 44px; justify-content: center; }
 }
 html.pf-signed #btn-cuenta { display: none; }
