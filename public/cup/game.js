@@ -335,11 +335,9 @@ flag('cup-podium-early').then(v => { podioAnticipado = v; if (v && L()?.meta && 
 // under a button) and the graph its first 10 lines, with the other names listed under it. lab: #seccion-cup-big
 let copaGrande = false;
 flag('cup-big').then(v => { copaGrande = v; setPlayerCap(v ? BIG_CUP_MAX : 10); if (v && L()?.meta && document.getElementById('tablero-body')?.childElementCount && !document.getElementById('tablero-body').closest('[hidden]')) tablero(); });
-// More than 10 players, a different board (lab flag `cup-big-moves`): no graph; the table says how many places
-// each player moved since the last round, except on the last one. lab: #seccion-cup-big-moves
-let bigMoves = false;
-flag('cup-big-moves').then(v => { bigMoves = v; if (v && L()?.meta && document.getElementById('tablero-body')?.childElementCount && !document.getElementById('tablero-body').closest('[hidden]')) tablero(); });
-const movesBoard = n => copaGrande && bigMoves && n > TABLA_VISIBLE;
+// More than 10 players (lab flag `cup-big`): no graph; the table says how many places each player moved since
+// the last round, except on the last one. lab: #seccion-cup-big
+const movesBoard = n => copaGrande && n > TABLA_VISIBLE;
 const zonaPropia = (() => { try { return Intl.DateTimeFormat().resolvedOptions().timeZone || null; } catch (_) { return null; } })();
 const horaEn = (ms, tz) => new Intl.DateTimeFormat(LOCALE[LANG] || LOCALE.es, { timeZone: tz, hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).format(new Date(ms));
 const otraHora = meta => horaPropia && !!zonaPropia && !!meta?.tz && horaEn(Date.now(), meta.tz) !== horaEn(Date.now(), zonaPropia);
@@ -989,16 +987,8 @@ function grafico(now) {
   // Out of the cup (D-347): their line, faded, and 🚪 after their name (D-376)
   const afuera = new Set(filasTabla.filter(f => f.fuera).map(f => f.pid));
   const n = ev.filas.length;
-  // More than 10 players: the graph draws the first 10 lanes, with no place numbers on the side and no
-  // chips below (the names are on the lines); the others are names inside it, under the last lane
-  const grande = copaGrande && n > TABLA_VISIBLE;
-  const carriles = grande ? TABLA_VISIBLE : n;
-  const W = 320, fila = 24, arriba = 14, abajo = 26, izq = grande ? 10 : 26, der = 92; // espacio a la derecha para "Nombre 3º (-1J)"
-  // The table's own order decides who is in the rest, so players tied on a place split the same way in both
-  const enTabla = filasTabla.map(f => f.pid);
-  const resto = grande ? enTabla.slice(carriles).map(pid => ev.filas.find(f => f.pid === pid)).filter(Boolean) : [];
-  const delResto = new Set(resto.map(f => f.pid));
-  let H = arriba + (carriles - 1) * fila + abajo;
+  const W = 320, fila = 24, arriba = 14, abajo = 26, izq = 26, der = 92; // espacio a la derecha para "Nombre 3º (-1J)"
+  const H = arriba + (n - 1) * fila + abajo;
   const x = k => izq + (meta.days === 1 ? 0 : ((k - 1) * (W - izq - der)) / (meta.days - 1));
   const y = lugar => arriba + (lugar - 1) * fila;
   const NS = 'http://www.w3.org/2000/svg';
@@ -1010,12 +1000,11 @@ function grafico(now) {
   };
   const leyenda = el('p', { class: 'muted grafico-nota', 'aria-live': 'polite' }, T.progressHint);
   const svg = svgEl('svg', { viewBox: `0 0 ${W} ${H}`, class: 'grafico', role: 'img', 'aria-label': T.progressTitle });
-  for (let l = 1; l <= carriles; l++) {
+  for (let l = 1; l <= n; l++) {
     svg.append(svgEl('line', { x1: izq, x2: W - der, y1: y(l), y2: y(l), class: 'g-grid' }));
-    if (!grande) svg.append(svgEl('text', { x: izq - 8, y: y(l) + 4, class: 'g-eje', 'text-anchor': 'end' }, ord(l)));
+    svg.append(svgEl('text', { x: izq - 8, y: y(l) + 4, class: 'g-eje', 'text-anchor': 'end' }, ord(l)));
   }
-  const diasEje = [];
-  for (let k = 1; k <= meta.days; k++) svg.append(diasEje[diasEje.push(svgEl('text', { x: x(k), y: H - 6, class: 'g-eje', 'text-anchor': 'middle' }, fmt(T.dayShort, { d: k }))) - 1]);
+  for (let k = 1; k <= meta.days; k++) svg.append(svgEl('text', { x: x(k), y: H - 6, class: 'g-eje', 'text-anchor': 'middle' }, fmt(T.dayShort, { d: k })));
   // Cada jugador con su color (D-125), fijo por orden de inscripción; tu línea, más gruesa y encima
   const porLlegada = llegada(Lc);
   const color = pid => colorDe(Lc, pid);
@@ -1024,9 +1013,7 @@ function grafico(now) {
   // Empatados en el mismo lugar: sus nombres se apilan en vez de encimarse (el lugar siguiente
   // queda vacío en un empate, así que hay espacio)
   const enLugar = {};
-  let yRotulo = 0, xRotulo = x(ev.dias[ev.dias.length - 1]) + 9;
   for (const f of orden) {
-    if (delResto.has(f.pid)) continue;
     const mia = f.pid === S.yo;
     const g = svgEl('g', { class: 'g-jugador' + (mia ? ' mia' : '') + (afuera.has(f.pid) ? ' fuera' : ''), 'data-pid': f.pid, style: `--c:${color(f.pid)}` });
     grupos[f.pid] = g;
@@ -1036,7 +1023,7 @@ function grafico(now) {
       const texto = fmt(T.progressPoint, { d: ev.dias[i], name: f.name, pos: ord(f.lugares[i]) });
       g.append(svgEl('circle', { cx: px, cy: py, r: mia ? 5 : 4, class: 'g-punto' }));
       const blanco = svgEl('circle', { cx: px, cy: py, r: 11, class: 'g-toque' }, svgEl('title', {}, texto));
-      blanco.addEventListener('click', () => { leyenda.textContent = texto; leyenda.hidden = false; destacar(f.pid); });
+      blanco.addEventListener('click', () => { leyenda.textContent = texto; destacar(f.pid); });
       g.append(blanco);
     });
     if (pts.length) {
@@ -1045,7 +1032,6 @@ function grafico(now) {
       const marca = afuera.has(f.pid) ? ' 🚪' : menos[f.pid] > 0 ? ` (-${menos[f.pid]}J)` : '';
       const ultimo = f.lugares[f.lugares.length - 1];
       const k = (enLugar[ultimo] = (enLugar[ultimo] ?? -1) + 1);
-      yRotulo = Math.max(yRotulo, py + 4 + k * 11); xRotulo = px + 9;
       g.append(svgEl('text', { x: px + 9, y: py + 4 + k * 11, class: 'g-rotulo' }, `${corto} ${ord(ultimo)}${marca}`));
     }
     svg.append(g);
@@ -1056,21 +1042,12 @@ function grafico(now) {
     destacado = destacado === pid ? null : pid;
     svg.classList.toggle('con-destacado', !!destacado);
     Object.entries(grupos).forEach(([p, g]) => g.classList.toggle('destacado', p === destacado));
-    chips?.querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.pid === destacado));
+    chips.querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.pid === destacado));
   };
-  const chips = grande ? null : el('div', { class: 'grafico-chips' }, ev.filas.slice().sort((a, b) => porLlegada.indexOf(a.pid) - porLlegada.indexOf(b.pid)).map(f =>
+  const chips = el('div', { class: 'grafico-chips' }, ev.filas.slice().sort((a, b) => porLlegada.indexOf(a.pid) - porLlegada.indexOf(b.pid)).map(f =>
     el('button', { type: 'button', class: 'g-chip' + (f.pid === S.yo ? ' mia' : '') + (afuera.has(f.pid) ? ' fuera' : ''), 'data-pid': f.pid, style: `--c:${color(f.pid)}`, onClick: () => { SFX.tap(); destacar(f.pid); } },
       el('span', { class: 'g-color', 'aria-hidden': 'true' }), nombreConJuegos(f.pid === S.yo ? fmt(T.progressYou, { name: f.name }) : f.name, menos[f.pid]), afuera.has(f.pid) ? ' 🚪' : null)));
   const notaJuegos = Object.values(menos).some(x => x > 0) ? el('p', { class: 'muted grafico-nota', id: 'nota-juegos' }, T.fewerGamesNote) : null;
-  // The rest: one label each, in the same column as the names above, ranked and numbered like them
-  if (resto.length) {
-    let yy = Math.max(yRotulo, y(carriles)) + 13;
-    for (const [i, f] of resto.entries()) { svg.append(svgEl('text', { x: xRotulo, y: yy, class: 'g-rotulo g-resto' }, `${f.name.length > 10 ? `${f.name.slice(0, 9)}…` : f.name} ${ord(carriles + i + 1)}${afuera.has(f.pid) ? ' 🚪' : ''}`)); yy += 11; }
-    H = Math.max(H, yy + abajo - 11 - 2);
-    svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
-    diasEje.forEach(t => t.setAttribute('y', H - 6));
-  }
-  if (grande) leyenda.hidden = true; // its text is filled by tapping a point
   return el('div', { class: 'panel' }, el('p', { class: 'lead', style: 'margin-bottom:8px' }, T.progressTitle), svg, chips, notaJuegos, leyenda,
     // Once over, the podium's Share the summary does the same: one share button per screen (C-19)
     terminada(L().meta, now) ? null : el('button', { class: 'btn btn--cyan btn--sm', id: 'btn-imagen', onClick: async ev2 => {
