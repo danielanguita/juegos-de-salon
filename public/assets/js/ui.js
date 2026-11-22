@@ -131,16 +131,15 @@ const ICONO_COMPARTIR_IOS = `<svg class="icon-share" viewBox="0 0 32 32" width="
 <path d="${FLECHA}" transform="translate(0 1.6)" stroke="#a3104f"/><path d="${FLECHA}" stroke="url(#icono-compartir-flecha)"/></svg>`;
 
 /**
- * Android's own share icon (three dots joined by two lines, not the box with an arrow of iOS), in the
- * same colours and shadow. Only on Android, and only with the profile flag on as this phone last saw it
+ * Android's own share icon (three dots joined by two lines, not the box with an arrow of iOS), white lines and turquoise dots, with the buttons' shadow. Only on Android, and only with the profile flag on as this phone last saw it
  * (lab: #seccion-profile): `flagGuess` reads it with no wait, so the icon is not swapped after drawing.
  */
 const PUNTOS = [[24, 6], [8, 16], [24, 26]];
 const ICONO_COMPARTIR_ANDROID = `<svg class="icon-share icon-share-android" viewBox="0 0 32 32" width="26" height="26" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-<defs><linearGradient id="icono-compartir-caja" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7ff5ea"/><stop offset="1" stop-color="#2ee6d6"/></linearGradient>
-<linearGradient id="icono-compartir-flecha" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff7fb8"/><stop offset="1" stop-color="#ff2e88"/></linearGradient></defs>
-<path d="M24 6L8 16l16 10" transform="translate(0 1.6)" stroke="#149a8f"/><path d="M24 6L8 16l16 10" stroke="url(#icono-compartir-caja)"/>
-${PUNTOS.map(([x, y]) => `<circle cx="${x}" cy="${y + 1.6}" r="4" fill="#a3104f" stroke="none"/><circle cx="${x}" cy="${y}" r="4" fill="url(#icono-compartir-flecha)" stroke="none"/>`).join('\n')}</svg>`;
+<defs><linearGradient id="icono-compartir-caja" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#d9d0e6"/></linearGradient>
+<linearGradient id="icono-compartir-flecha" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7ff5ea"/><stop offset="1" stop-color="#2ee6d6"/></linearGradient></defs>
+<path d="M24 6L8 16l16 10" transform="translate(0 1.6)" stroke="#6b5a85"/><path d="M24 6L8 16l16 10" stroke="url(#icono-compartir-caja)"/>
+${PUNTOS.map(([x, y]) => `<circle cx="${x}" cy="${y + 1.6}" r="4" fill="#149a8f" stroke="none"/><circle cx="${x}" cy="${y}" r="4" fill="url(#icono-compartir-flecha)" stroke="none"/>`).join('\n')}</svg>`;
 
 const esAndroid = () => /android/i.test(globalThis.navigator?.userAgent || '');
 export const ICONO_COMPARTIR = esAndroid() && flagGuess('profile') ? ICONO_COMPARTIR_ANDROID : ICONO_COMPARTIR_IOS;
