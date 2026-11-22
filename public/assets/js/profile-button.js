@@ -25,6 +25,7 @@ export function profileButton({ lang = 'es', doc = document } = {}) {
   if (!b) return;
   b.href = 'profile/';
   b.hidden = false;
+  b.parentElement?.append(b);   // the bar's last place, after share, as on every other page (the owner, 2026-11-22)
   pillFace(b, { lang, doc });
   doc.getElementById('sound-slot')?.remove();
   const slot = doc.getElementById('lang-slot');
