@@ -50,8 +50,11 @@ as after N pieces); on the hard one also `?spin=0` (skip the opening turn).
 
 The level lever is Sudoku's, which is Pintaminas' hard-mode switch, copied as is (the owner: "exactly the
 same"): down and green is easy, up and red is hard, with its wave, flash, sparks and the cover turning
-red. The picture above it is the level it shows, moving (2D: the claw and the rocking plank; 3D: the
-tipping disc and a hovering piece), and so is how to play (each level's own three steps, from its page);
+red. The picture above it is the level it shows, a 10 s loop of its real play (the owner, 2026-11-21: like the
+real game, with zooms and a smooth endless loop): `public/wobbles/cover/easy.mp4` and `hard.mp4`, recorded by
+`tools/generators/wobbles-cover.mjs` with the splash's bots, a camera that follows each falling piece and
+pushes in as it lands, and a 0.8 s crossfade at the seam. No words on them, so one clip serves every
+language; only the level on the lever plays, and with reduced motion its poster stands still. So is how to play (each level's own three steps, from its page);
 it starts on easy, as in Sudoku. The player never reads "2D" or "3D" (the owner): only easy and hard,
 and the hard level's name is plain Tembleque too.
 

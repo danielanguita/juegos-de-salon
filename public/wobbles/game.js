@@ -32,48 +32,25 @@ const QUIET = () => !!globalThis.matchMedia?.('(prefers-reduced-motion: reduce)'
 /** The level the lever shows: easy until it is flipped, as in Sudoku. */
 let chosen = 'easy';
 
-/* ---------------- The picture: each level, moving ---------------- */
-const cube = (x, y, s, [top, right, left]) => `<polygon points="${x},${y - s * 0.5} ${x + s * 0.87},${y} ${x},${y + s * 0.5} ${x - s * 0.87},${y}" fill="${top}"/><polygon points="${x - s * 0.87},${y} ${x},${y + s * 0.5} ${x},${y + s * 1.5} ${x - s * 0.87},${y + s}" fill="${left}"/><polygon points="${x},${y + s * 0.5} ${x + s * 0.87},${y} ${x + s * 0.87},${y + s} ${x},${y + s * 1.5}" fill="${right}"/>`;
-const TEAL = ['#5fefe2', '#23ac9f', '#19806f'], ROSE = ['#ff6fae', '#d92574', '#a01a55'], GOLD = ['#ffe27a', '#e0a91a', '#a87a08'];
-const neon = (x, y, w, h, col) => `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="2" fill="${col}" fill-opacity="0.18" stroke="${col}" stroke-width="2.2"/><rect x="${x}" y="${y}" width="${w}" height="${h}" rx="2" fill="none" stroke="#fff" stroke-opacity="0.75" stroke-width="0.8"/>`;
-const PIC_2D = `<svg class="wb-2d" viewBox="0 0 200 140" aria-hidden="true">
-  <defs><linearGradient id="wb-plank" x1="0" x2="1"><stop offset="0" stop-color="#ffd23f"/><stop offset="1" stop-color="#ff2e88"/></linearGradient>
-    <filter id="wb-glow" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="2.2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
-  <circle cx="168" cy="22" r="8" fill="#ffe9a8" opacity="0.9"/><circle cx="172" cy="19" r="7" fill="#1e0a3c"/>
-  <clipPath id="wb-land"><rect x="0" y="0" width="200" height="140" rx="12"/></clipPath>
-  <g clip-path="url(#wb-land)"><path d="M0 116 Q40 96 80 112 T160 106 T200 112 V140 H0Z" fill="#2e1258"/>
-  <rect x="0" y="122" width="200" height="18" fill="#173f7a"/><line x1="0" y1="122" x2="200" y2="122" stroke="#2ee6d6" stroke-width="1.4" filter="url(#wb-glow)"/></g>
-  <path d="M95 100h10l14 22h-38z" fill="#1a0b38" stroke="#2ee6d6" stroke-opacity="0.6" stroke-width="1"/>
-  <line x1="40" y1="14" x2="160" y2="14" stroke="#bea0ff" stroke-opacity="0.45" stroke-width="2" stroke-linecap="round"/>
-  <g class="wb-claw"><rect x="93" y="9" width="14" height="10" rx="3" fill="#2ee6d6" filter="url(#wb-glow)"/><line x1="100" y1="19" x2="100" y2="27" stroke="#2ee6d6" stroke-width="1.2"/>
-    <g class="wb-drop">${neon(92, 27, 16, 16, '#ffd23f')}</g></g>
-  <g class="wb-stars" fill="#fff"><circle cx="30" cy="30" r="1"/><circle cx="62" cy="44" r="0.8"/><circle cx="142" cy="40" r="1"/><circle cx="186" cy="52" r="0.8"/></g>
-  <g class="wb-plank" filter="url(#wb-glow)">
-    <rect x="40" y="94" width="120" height="7" rx="3.5" fill="url(#wb-plank)"/>
-    ${neon(62, 76, 18, 18, '#2ee6d6')}${neon(84, 76, 18, 18, '#2ee6d6')}${neon(64, 64, 36, 11, '#ff2e88')}<circle cx="142" cy="85" r="9" fill="#9dff3a" fill-opacity="0.18" stroke="#9dff3a" stroke-width="2.2"/>
-    <g class="wb-landed">${neon(108, 78, 16, 16, '#ffd23f')}</g>
-  </g>
-  <circle cx="100" cy="98" r="3.4" fill="#9dff3a" filter="url(#wb-glow)"/>
-</svg>`;
-const PIC_3D = `<svg class="wb-3d" viewBox="0 0 200 140" aria-hidden="true">
-  <defs><linearGradient id="wb-rim" x1="0" x2="1"><stop offset="0" stop-color="#ffd23f"/><stop offset=".35" stop-color="#9dff3a"/><stop offset=".65" stop-color="#2ee6d6"/><stop offset="1" stop-color="#ff2e88"/></linearGradient>
-    <linearGradient id="wb-col" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3a1464"/><stop offset="1" stop-color="#3a1464" stop-opacity="0"/></linearGradient>
-    <radialGradient id="wb-halo"><stop offset="0" stop-color="#8a4dff" stop-opacity="0.35"/><stop offset="1" stop-color="#8a4dff" stop-opacity="0"/></radialGradient></defs>
-  <ellipse cx="100" cy="92" rx="95" ry="56" fill="url(#wb-halo)"/>
-  <path d="M93 98h14v42H93z" fill="url(#wb-col)"/>
-  <ellipse class="wb-hoop" cx="100" cy="86" rx="72" ry="38" fill="none" stroke="#fff" stroke-width="1.4" stroke-dasharray="1 0"/>
-  <g class="wb-disc">
-    <ellipse cx="100" cy="97" rx="66" ry="33" fill="#3a1464"/>
-    <ellipse cx="100" cy="91" rx="66" ry="33" fill="#7a56b8" stroke="url(#wb-rim)" stroke-width="5"/>
-    <ellipse cx="100" cy="91" rx="44" ry="22" fill="none" stroke="#fff" stroke-opacity="0.15"/><path d="M38 91H162M100 61V121" stroke="#fff" stroke-opacity="0.18"/>
-    ${cube(78, 70, 15, TEAL)}${cube(78, 55, 15, TEAL)}${cube(122, 78, 13, ROSE)}${cube(104, 94, 11, GOLD)}
-  </g>
-  <g class="wb-hover"><ellipse cx="100" cy="86" rx="14" ry="7" fill="#0e0222" opacity="0.45"/>${cube(100, 18, 14, ROSE)}</g>
-</svg>`;
+/* ---------------- The picture: each level, as it really plays ---------------- */
+// A loop of each level recorded from the real game (tools/generators/wobbles-cover.mjs, the owner's request,
+// 2026-11-21): the camera follows the falling pieces and pushes in as they land, and the seam is a crossfade.
+// No words on them, so one clip serves every language. Only the level the lever shows plays; with reduced
+// motion neither plays, and its first frame (the poster) stands still.
+const clip = level => `<video class="wb-${level === 'easy' ? '2d' : '3d'}" src="cover/${level}.mp4" poster="cover/${level}.jpg" muted loop playsinline disablepictureinpicture preload="${level === 'easy' ? 'auto' : 'none'}" aria-hidden="true"></video>`;
+
+/** Plays the clip of the level on the lever and pauses the other. */
+function playClip() {
+  for (const v of $('#pic').querySelectorAll('video')) {
+    const on = v.classList.contains(chosen === 'hard' ? 'wb-3d' : 'wb-2d');
+    if (on && !QUIET()) { v.muted = true; v.play?.()?.catch?.(() => {}); } else v.pause?.();
+  }
+}
 
 /** The picture and how to play follow the lever. */
 function drawPicture() {
   $('#pic').classList.toggle('hard', chosen === 'hard');
+  playClip();
   $('#how').replaceChildren(...L.como[chosen].map(step => el('li', {}, step)));
 }
 
@@ -157,7 +134,7 @@ function init() {
   document.documentElement.lang = lang;
   document.title = T.docTitle;
   applyStatic(T);
-  $('#pic').innerHTML = PIC_2D + PIC_3D;
+  $('#pic').innerHTML = clip('easy') + clip('hard');
   $('#lang-slot').append(coverLangToggle());
   $('#sound-slot').append(soundToggle());
   initSound();
