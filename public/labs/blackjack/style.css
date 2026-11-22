@@ -171,6 +171,8 @@
   letter-spacing: 0.04em; text-shadow: var(--shadow-text);
 }
 #app.bj-shake { animation: bjScreenShake 0.65s ease-in-out; }
+/* The shake moves the table 10 px sideways: the page clips it, so it never scrolls sideways for that moment (C-8) */
+html:has(#app.bj-shake), html:has(#app.bj-shake) body { overflow-x: clip; }
 
 @keyframes bjPopBanner {
   0% { opacity: 0; transform: scale(0.55) rotate(-4deg); }

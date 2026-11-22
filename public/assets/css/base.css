@@ -343,7 +343,8 @@ p { line-height: 1.5; margin: 0 0 12px; }
 .snackbar { position: fixed; left: var(--s-16); right: var(--s-16); margin: 0 auto; width: fit-content; bottom: calc(var(--s-24) + var(--safe-bottom)); background: var(--snackbar-bg); border: 1px solid var(--glass-border); color: var(--ink); font-weight: 800; padding: var(--s-12) var(--s-18); border-radius: var(--r-14); z-index: 50; animation: slideUp 0.25s both; }
 /* The result's hero: the trophy popping above the title */
 .result-hero { text-align: center; padding: var(--s-2) 0 var(--s-6); }
-.result-hero .trophy { font-size: 4.2rem; display: block; animation: pop 0.8s cubic-bezier(0.2, 0.9, 0.3, 1.4) both; }
+/* As wide as the emoji, centred: a full-width block grown by the pop's overshoot spilled past the screen for a moment (C-8) */
+.result-hero .trophy { font-size: 4.2rem; display: block; width: fit-content; margin-inline: auto; animation: pop 0.8s cubic-bezier(0.2, 0.9, 0.3, 1.4) both; }
 
 /* --- Tarjetas de vidrio --- */
 .panel {
