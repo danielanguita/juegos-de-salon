@@ -753,6 +753,10 @@
       ],
       "chat": false,
       "files": [
+        "public/wobbles/cover/easy.jpg",
+        "public/wobbles/cover/easy.mp4",
+        "public/wobbles/cover/hard.jpg",
+        "public/wobbles/cover/hard.mp4",
         "public/wobbles/easy/index.html",
         "public/wobbles/game.js",
         "public/wobbles/game.json",

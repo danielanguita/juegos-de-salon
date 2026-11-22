@@ -17,7 +17,7 @@
 // Tembleque's clip is both levels: easy (2D) and, through a zoom, hard (3D) with its opening turn.
 import { mkdirSync, rmSync, writeFileSync, readdirSync, copyFileSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { dirname, join } from 'node:path';
 import { launch } from '../../tools/e2e/cdp.mjs';
 
@@ -58,11 +58,11 @@ const CAMERA = `(() => {
 })();`;
 
 /** Plays one take: `setup` once the page is ready, then `frame` (bot + camera, returns a JPEG) every 1/30 s. */
-async function take({ url, width, height, storage = {}, start, setup, frame, frames, sub = 1, dir }) {
+export async function take({ url, width, height, storage = {}, start, setup, frame, frames, sub = 1, dir, inject = '' }) {
   rmSync(dir, { recursive: true, force: true }); mkdirSync(dir, { recursive: true });
   const b = await launch({ dir: `${TMP}/profile-${width}`, out: TMP, width, height });
   const ev = e => b.evaluate(e);
-  await b.send('Page.addScriptToEvaluateOnNewDocument', { source: CLOCK + CAMERA });
+  await b.send('Page.addScriptToEvaluateOnNewDocument', { source: CLOCK + CAMERA + inject });
   await b.go(url, 1200);
   await ev(`localStorage.clear(); ${Object.entries(storage).map(([k, v]) => `localStorage.setItem(${JSON.stringify(k)}, ${JSON.stringify(v)});`).join(' ')} 1`);
   await b.go(url, 1500);
@@ -143,7 +143,7 @@ const CROC = {
 };
 
 // ⚖️ Tembleque, easy: the claw over the plank, the bot dropping each piece to bring the plank back level
-const EASY = {
+export const EASY = {
   url: lang => `${SITE}/wobbles/easy/?test&quality=1&seed=7&from=10&lang=${lang}`,
   width: 480, height: 560,
   storage: lang => ({ 'juegos-de-salon:lang': lang, 'balanza-lab:start-pieces': '3' }),
@@ -182,7 +182,7 @@ const EASY = {
 };
 
 // ⚖️ Tembleque, hard: the disc in 3D, its opening turn, then the bot moves each piece with the arrow keys and drops it
-const HARD = {
+export const HARD = {
   url: lang => `${SITE}/wobbles/hard/?test&res=2&seed=7&lang=${lang}`,
   width: 400, height: 560,
   storage: lang => ({ 'juegos-de-salon:lang': lang, 'balanza-lab:start-pieces': '5' }),
@@ -239,6 +239,8 @@ const enc = (dir, mp4) => execFileSync('ffmpeg', ['-loglevel', 'error', '-y', '-
 const frameCount = dir => readdirSync(dir).filter(f => f.endsWith('.jpg')).length;
 const run = async (G, lang, dir) => take({ ...G, url: G.url(lang), storage: G.storage(lang), dir });
 
+// Run only when called, not when the cover's recorder (tools/generators/wobbles-cover.mjs) borrows the takes
+if (import.meta.url === pathToFileURL(process.argv[1]).href) {
 mkdirSync(TMP, { recursive: true });
 for (const lang of LANGS) {
   if (GAMES.includes('croc')) {
@@ -262,3 +264,4 @@ for (const lang of LANGS) {
   }
 }
 process.exit(0);
+}
