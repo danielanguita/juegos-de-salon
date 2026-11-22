@@ -70,7 +70,7 @@ import { isLocalMode, MAX_PLAYERS, MODES } from '../games.js';
 import { param, tiene, nombres, normalizarUrl, AVISO_CLAVE } from '../parametros.js';
 import { backGuard } from '../back-guard.js';
 import { screenBand } from '../screen-bands.js';
-import { noteHour } from '../play-hours.js';
+import { noteHour, noteRun } from '../play-hours.js';
 
 // 'lab' salió con el laboratorio (D-67); queda en el panel para leer lo que quedó guardado
 export const ENVS = ['prod', 'dev', 'owner', 'labs'];
@@ -787,6 +787,8 @@ export function trackFinish(info) {
     try { noteSplashStep('finish'); } catch (_) { /* best effort */ }
     // The hour it ended, early or at night, for the profile's 🌅 and 🦉 (lab flag profile; on the phone only)
     noteHour();
+    // The same game in a row, for the profile's 🎵 Es una obsesión (lab flag profile; on the phone only)
+    noteRun(prev?.game);
     // Which games this phone finished, by id (D-546): a splash announcing only those is not news to it
     try { if (prev?.game) { const l = globalThis.localStorage, k = 'juegos-de-salon:jugados'; let v = []; try { v = JSON.parse(l?.getItem(k) || '[]'); } catch (_) { v = []; } if (Array.isArray(v) && !v.includes(prev.game)) l?.setItem(k, JSON.stringify([...v, prev.game].slice(-200))); } } catch (_) { /* no storage */ }
     // A moment after the game, the invitation to install, once a week at most (flag install-invite, lab: #seccion-install-invite)

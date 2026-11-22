@@ -20,7 +20,7 @@ import { TODOTERRENO, UAD_PUNTOS, SIEMPRE, semana, medallero, limpiarNombre, esP
 import { nombreOfensivo } from '../assets/js/name-guard.js';
 import { flag } from '../assets/js/flags.js';
 import { leer as leerDia, recorrer, fechaLocal } from '../assets/js/uno-al-dia.js';
-import { readHours } from '../assets/js/play-hours.js';
+import { readHours, readRun } from '../assets/js/play-hours.js';
 import { PARTIDAS_KEY } from '../assets/js/transport/stats.js';
 import { firebaseConfig } from '../assets/js/firebase-config.js';
 import { BADGES, GROUPS, earned } from './badges.js';
@@ -68,6 +68,7 @@ function localFacts() {
     streak: r.racha, bestStreak: r.mejor,
     dailyDays: Object.fromEntries(Object.keys(d.dias || {}).map(f => [f, true])),
     hours: readHours(),
+    bestRun: Number(readRun().best) || 0,
     plays: Number(localStorage.getItem(PARTIDAS_KEY)) || 0,
     gamesPlayed: Array.isArray(played) ? played.filter(id => ids.has(id)).length : 0,
     gamesTotal: CATALOGUE.length,
@@ -421,7 +422,7 @@ function drawGuest(root) {
   const r = earned(localFacts(), readSeen(null));
   writeSeen(null, r.seen);
   // The badges this phone could earn without a name: Uno al día's streaks and hours, and the games played
-  const local = new Set(['streak-10', 'streak-30', 'month-full', 'early-bird', 'explorer', 'plays-100', 'night-owl']);
+  const local = new Set(['streak-10', 'streak-30', 'month-full', 'early-bird', 'explorer', 'plays-100', 'obsession', 'night-owl']);
   const list = r.list.filter(b => local.has(b.id) && (b.got || !b.secret));
   root.replaceChildren(
     bloqueJugador({ abierto: true, destacado: true, alTocar: tap }),
