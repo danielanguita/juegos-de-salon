@@ -25,6 +25,7 @@ that has not paid, and until then stays unseen. This folder is its memory: every
    with `capture.mjs`, or a teaser with `teaser.mjs` (an item with only `img`, `still` and `ratio`, plus `smooth: true` when it is drawn at full size rather than pixel art).
    If it is not for a first visit (an ask, like support), give it `audience: 'regulars'` (D-458) and
    say so in its README's Audience row.
+   For a list of clips that should fill a phone's height, give it `bigClips: true`: each clip grows to what the screen allows and the window gets taller.
 2. Its folder `campaigns/<id>/` with the README and the screenshots (`look.mjs splash <id>` at
    390 px in es, en, pt and de, as JPEG), and one look at a computer's width too (`--width 1280
    --height 900`): a window laid out wrong there passes every phone screenshot. A test fails if a campaign has no folder.
