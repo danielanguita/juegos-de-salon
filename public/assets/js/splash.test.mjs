@@ -90,7 +90,9 @@ for (const [id, c] of Object.entries(CAMPAIGNS)) {
   if (c.icon) assert.ok(existsSync(new URL(`../../${c.icon}`, import.meta.url)), `${id}: icon ${c.icon} does not exist`);
   for (const it of c.items || []) {
     // A clip from GIPHY is served from GIPHY (not copied into the site, for its rights); anything else is ours
-    for (const f of [it.img, it.video, it.still, it.icon]) if (f) {
+    // A clip can be one per language: each of them exists, and there is one for every language
+    for (const k of ['img', 'video', 'still']) if (it[k] && typeof it[k] === 'object') for (const l of langs) assert.ok(it[k][l], `${id}: ${k} without ${l}`);
+    for (const f of [it.img, it.video, it.still, it.icon].flatMap(x => (x && typeof x === 'object' ? Object.values(x) : [x]))) if (f) {
       if (/^https?:/.test(f)) assert.ok(f.startsWith('https://media.giphy.com/'), `${id}: ${f} is from outside the site and not GIPHY`);
       else assert.ok(existsSync(new URL(`../../${f}`, import.meta.url)), `${id}: ${f} does not exist`);
     }

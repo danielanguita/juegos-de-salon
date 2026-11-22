@@ -43,3 +43,4 @@ node marketing/splash/teaser.mjs [bridges]
 - **v2 · 2026-10-26:** 🚂 Tren en Vilo (`bridges`) out of the lab, for `tren-en-vilo-ya`: a wood stage
   built beam by beam (the mouse drags each beam of its known solution), then the train crosses. It ends
   as the train leaves, before the stage's summary covers the board; the poster is that last frame.
+- **2026-11-21:** 🐸 Croc! and ⚖️ Tembleque, still in the lab, for `nos-volvimos-locos`: [`croc-wobbles-clip.mjs`](croc-wobbles-clip.mjs) drives the page's clock frame by frame while a bot plays the real game, and a camera pushes in on what happens (a dash, a fruit, a balanced drop). One clip per language (`croc-<lang>.mp4`, `wobbles-<lang>.mp4`), since both games write words on their canvas; a campaign's `video`, `img` and `still` can now be `{ es, en, pt }`. Tembleque's goes from easy into hard through a zoom.
