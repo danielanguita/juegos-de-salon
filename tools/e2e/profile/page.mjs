@@ -135,6 +135,21 @@ for (const W of [320, 390]) {
   const s1 = await small(b);
   ok(!s1, `${W}: rankings, every tappable thing is 44 px or more${s1 ? ` (${s1})` : ''}`);
   await full(b, `rankings-${W}`, W);
+  // A tap on a rival's name opens their profile at a glance (the owner, 2026-11-22)
+  ok(await ev(`(() => { const r = [...document.querySelectorAll('.pf-tab .rk-fila[data-peek]')].find(x => x.textContent.includes('Cata')); if (!r) return false; r.scrollIntoView({ block: 'center' }); r.click(); return r.getAttribute('role') === 'button'; })()`), `${W}: 👀 a rival's name in a ranking is a button`);
+  await sleep(1500);
+  ok(await ev(`(() => { const p = document.getElementById('pf-peek'); return !!p && p.querySelector('.pf-peek-name')?.textContent.includes('Cata') && !p.querySelector('.pf-peek-kicker') && p.querySelectorAll('.pf-peek-stats .pf-stat').length === 3 && [...p.querySelectorAll('.pf-peek-games li')].map(x => x.dataset.game).sort().join() === 'reinas,tango' && /1 partida(?!s)/.test(p.textContent); })()`), `${W}: 👀 their sheet shows their name, three figures and their most played games`);
+  ok(await ev(`(() => { const p = document.getElementById('pf-peek').getBoundingClientRect(); return p.left >= 0 && p.right <= ${W} && p.top >= 0 && document.documentElement.scrollWidth <= ${W}; })()`), `${W}: 👀 the sheet fits the screen`);
+  const sp = await small(b);
+  ok(!sp, `${W}: 👀 the sheet, every tappable thing is 44 px or more${sp ? ` (${sp})` : ''}`);
+  await b.shot(`peek-${W}`);
+  await ev(`document.querySelector('#pf-peek .hoja-cabeza .icon-btn').click()`); await sleep(300);
+  ok(await ev(`!document.getElementById('pf-peek') && !document.body.style.position`), `${W}: 👀 ✕ closes it and frees the page`);
+  await ev(`(() => { const r = document.querySelector('.pf-tab .rk-fila.yo[data-peek]'); r.scrollIntoView({ block: 'center' }); r.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true })); })()`); await sleep(1500);
+  ok(await ev(`(() => { const p = document.getElementById('pf-peek'); return !!p && /Así te ven los demás/.test(p.querySelector('.pf-peek-kicker')?.textContent || '') && p.querySelector('.pf-peek-name').textContent.includes('Javi') && p.querySelectorAll('.pf-peek-badges li').length > 0; })()`), `${W}: 👀 your own name (Enter works too) shows how others see you, with your achievements`);
+  await b.shot(`peek-you-${W}`);
+  await ev(`document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }))`); await sleep(300);
+  ok(await ev(`!document.getElementById('pf-peek')`), `${W}: 👀 Escape closes it`);
   await ev(`document.querySelector('[data-tab=settings]').click()`); await sleep(800);
   ok(await ev(`!!document.querySelector('.pf-settings .lang-toggle') && !!document.querySelector('.pf-settings .sound-toggle') && !!document.querySelector('#pf-account') && !document.querySelector('.pf-tab .rk-yo')`), `${W}: ⚙️ has your account, the language and the sound`);
   ok(await ev(`!document.querySelector('#pf-page .offline-ready')`), `${W}: ⚙️ has no offline ☁️: it stays on the home page`);

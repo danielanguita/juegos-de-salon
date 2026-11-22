@@ -109,6 +109,29 @@
 .pf-logout-ask { display: grid; gap: var(--s-8); text-align: center; }
 .pf-logout-ask p { margin: 0; }
 .pf-more { justify-self: center; margin-top: var(--s-10); }
+
+/* Another player's profile at a glance (peek.js): a tap on a name in a ranking (the owner, 2026-11-22) */
+.pf-tab .rk-fila[data-peek] { cursor: pointer; }
+.pf-tab .rk-fila[data-peek]:active { background: rgb(var(--ink-rgb) / 0.14); }
+.pf-tab .rk-fila[data-peek] .rk-n { text-decoration: underline; text-decoration-color: rgb(var(--ink-rgb) / 0.35); text-underline-offset: 3px; }
+.pf-peek-who { min-width: 0; }
+.pf-peek-kicker { margin: 0; color: var(--cyan); font-weight: 900; font-size: var(--fs-75); text-transform: uppercase; letter-spacing: 0.08em; }
+.hoja .pf-peek-name { font-size: var(--fs-160); overflow-wrap: anywhere; }
+.pf-peek-body { display: grid; gap: var(--s-12); }
+.hoja .pf-peek-line { font-size: var(--fs-85); }
+.pf-peek-stats { margin-top: 0; }
+.pf-peek-part { display: grid; gap: var(--s-8); }
+.pf-peek-part h3 { margin: 0; font-size: var(--fs-100); font-weight: 900; }
+.pf-peek-games { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--s-6); }
+.pf-peek-games li { display: flex; justify-content: space-between; align-items: center; gap: var(--s-10); background: var(--well); border-radius: var(--r-12); padding: var(--s-8) var(--s-12); }
+.pf-peek-game { font-weight: 900; min-width: 0; }
+.pf-peek-games small { color: var(--muted); font-weight: 800; white-space: nowrap; }
+.pf-peek-badges { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--s-8); }
+.pf-peek-badges li { display: grid; justify-items: center; gap: var(--s-4); text-align: center; }
+.pf-peek-badges .pf-medal { width: 44px; height: 44px; font-size: var(--fs-140); margin: 0; }
+.pf-peek-badges small { font-size: var(--fs-75); font-weight: 800; line-height: 1.15; overflow-wrap: anywhere; }
+.pf-peek-more .pf-medal { background: rgb(var(--ink-rgb) / 0.1); font: 900 var(--fs-100) var(--font-num); }
+@media (max-width: 359px) { .pf-peek-badges { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
 /* 🏆 Your cups: the place (a medal on the podium) on the left, the name, dates and who won, a › to the cup */
 .pf-cup-list { display: grid; gap: var(--s-6); }
 .pf-cup { display: grid; grid-template-columns: 3.2rem 1fr auto; align-items: center; column-gap: var(--s-10); min-height: 44px;

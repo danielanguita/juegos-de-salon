@@ -498,6 +498,8 @@ export async function drawProfile(root, { sub }) {
     if (f.general) rk.general(f.general);
     repaint(paint());
   };
+  // A tap on a name in any of the page's rankings opens that player's profile at a glance (the owner, 2026-11-22)
+  import('./peek.js').then(m => m.peekOnTap(root, { onTap: tap })).catch(() => {});
   J.escuchar(() => draw());
   await draw();
   window.__profile = { redraw: draw };
