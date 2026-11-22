@@ -734,37 +734,6 @@
       ]
     },
     {
-      "id": "croc",
-      "emoji": "🐸",
-      "name": {
-        "es": "Croc!",
-        "en": "Croc!",
-        "pt": "Croc!"
-      },
-      "players": "1",
-      "duration": "1–2",
-      "available": false,
-      "labs": true,
-      "status": null,
-      "modes": [],
-      "variants": [
-        {
-          "key": "modeSolo",
-          "es": "Cruzar la autopista",
-          "en": "Cross the highway"
-        }
-      ],
-      "screens": [
-        "intro",
-        "play",
-        "result"
-      ],
-      "chat": false,
-      "files": [
-        "public/croc/index.html"
-      ]
-    },
-    {
       "id": "wobbles",
       "emoji": "⚖️",
       "name": {
@@ -1132,6 +1101,22 @@
       "labs": false,
       "bodega": false,
       "path": "dominorama/"
+    },
+    {
+      "id": "croc",
+      "emoji": "🐸",
+      "name": {
+        "es": "Croc!",
+        "en": "Croc!",
+        "pt": "Croc!"
+      },
+      "kinds": [
+        "skill"
+      ],
+      "duration": "1–2",
+      "labs": false,
+      "bodega": false,
+      "path": "croc/"
     }
   ],
   "themes": [
@@ -1292,7 +1277,6 @@
     "public/assets/js/manifests/generala.js",
     "public/assets/js/manifests/hangman.js",
     "public/assets/js/manifests/labs/blackjack.js",
-    "public/assets/js/manifests/labs/croc.js",
     "public/assets/js/manifests/labs/cryptic.js",
     "public/assets/js/manifests/labs/fourth-king.js",
     "public/assets/js/manifests/labs/julep.js",
@@ -1512,10 +1496,6 @@
     "public/labs/code/engine-palabra.js",
     "public/labs/code/engine.js",
     "public/labs/code/game.js",
-    "public/labs/croc/engine.js",
-    "public/labs/croc/game.js",
-    "public/labs/croc/rules.js",
-    "public/labs/croc/scene.js",
     "public/labs/cryptic/clues.js",
     "public/labs/cryptic/engine.js",
     "public/labs/cryptic/flapboard.js",
@@ -1724,7 +1704,6 @@
     "public/labs/chameleon/engine.test.mjs",
     "public/labs/code/engine-palabra.test.mjs",
     "public/labs/code/engine.test.mjs",
-    "public/labs/croc/engine.test.mjs",
     "public/labs/cryptic/engine.test.mjs",
     "public/labs/exploding-numbers/engine.test.mjs",
     "public/labs/flap/engine.test.mjs",
@@ -1891,8 +1870,7 @@
     "conformance.mjs",
     "contact-sheet.mjs",
     "cover-gaps.mjs",
-    "croc/game.mjs",
-    "croc/languages.mjs",
+    "croc/page.mjs",
     "cryptic/game.mjs",
     "cryptic/languages.mjs",
     "cryptic/propose.mjs",
@@ -2200,7 +2178,7 @@
     },
     {
       "path": "docs/games/croc.md",
-      "title": "🐸 Croc! (lab, in Juegos en prueba)"
+      "title": "🐸 Croc! (La Copa game, ready to launch by flag; not launched)"
     },
     {
       "path": "docs/games/cryptic.md",
@@ -2369,7 +2347,6 @@
     "batalla-naval": 7,
     "julepe": 10,
     "cuarto-rey": 12,
-    "croc": 0,
     "wobbles": 0
   }
 }

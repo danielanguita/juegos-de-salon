@@ -215,7 +215,7 @@ export const CAMPAIGNS = {
       pt: 'Não paramos de lançar jogos. Hoje chegam 2 de destreza.',
     },
     items: [
-      { game: 'croc', href: 'labs/croc/',
+      { game: 'croc', href: 'croc/',
         text: { es: 'Cruza la autopista esquivando autos hasta llegar a la laguna.', en: 'Cross the highway, dodging cars, all the way to the pond.', pt: 'Atravesse a rodovia desviando dos carros até chegar à lagoa.' },
         video: { es: 'assets/splash/croc-es.mp4', en: 'assets/splash/croc-en.mp4', pt: 'assets/splash/croc-pt.mp4' }, img: 'assets/splash/croc-start.jpg', still: 'assets/splash/croc.jpg' },
       { game: 'wobbles', href: 'wobbles/',

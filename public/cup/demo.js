@@ -61,7 +61,7 @@ const PUNTAJE = {
   dominorama: k => { const s = Math.min(100, 20 * Math.round(3 * k) + (k > 0.9 ? Math.round(40 * k) : 0)); return { s, r: `${s}/100` }; },
   stack: k => { const s = Math.min(100, 2 * Math.round(50 * k * k)); return { s, r: `🧱 ${s}` }; },
   puentes: k => { const s = Math.min(100, 10 * Math.round(5 * k) + Math.round(30 * k * k)); return { s, r: `${s}/100` }; },
-  'croc': k => { const s = Math.round(180 + 720 * k * k); return { s, r: `🐸 ${s}` }; },
+  croc: k => { const s = Math.round(180 + 720 * k * k); return { s, r: `🐸 ${s}` }; },
   // La final trae su tarjeta de rondas (⏳75 🔢85 …), que la tabla del día muestra (#259)
   final: k => {
     const rondas = [0.1, -0.2, 0.3, -0.1, -0.1].map(o => Math.max(0, Math.min(100, 5 * Math.round(20 * (k + o)))));

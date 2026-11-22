@@ -48,8 +48,6 @@ const START = {
   'labs/sudoku': [`document.getElementById('btn-play').click()`],
   // Its one mode starts the first trip, already saved
   'labs/transfer': [`document.querySelector('.mode').click()`],
-  // Its one mode starts the crossing directly, already saved
-  'labs/croc': [`document.querySelector('#btn-play').click()`],
   // The yellow button opens today's clue, already saved
   'labs/cryptic': [`document.getElementById('btn-play').click()`],
 };
