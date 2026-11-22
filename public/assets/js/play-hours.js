@@ -3,7 +3,7 @@
  * `profile`: 🌅 early bird, 🦉 night owl). On the phone only, never sent: `{ 'YYYY-MM-DD': { e, n } }`,
  * how many games ended between 04:00 and 06:59 (`e`) and between 00:00 and 03:59 (`n`) of each local
  * day, the last 60 days with any. `stats.js`' `trackFinish` notes every finished game (C-21).
- * It also keeps the run of one same game finished in a row (🎵 Es una obsesión): `{ g, n, best }`, the
+ * It also keeps the run of one same game finished in a row (😬 Se llama obsesión): `{ g, n, best }`, the
  * game of the current run, its length and the longest run this phone ever made. On the phone only too.
  */
 export const HOURS_KEY = 'juegos-de-salon:play-hours';
