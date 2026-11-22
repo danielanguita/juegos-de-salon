@@ -532,7 +532,7 @@ export function card(e) {
   const fruits = Math.max(0, e?.fruitsTaken | 0);
   const close = Math.max(0, e?.closeCalls | 0);
   const end = e?.won ? '🏁' : '💥';
-  return `🐸 ${rows}/${total} · 🍓${fruits} ⚡${close} ${end}`;
+  return `🐸 ${rows}/${total} · 🍓 ${fruits} · 😬 ${close} · ${end}`;
 }
 
 export const DAY_K = 35;
