@@ -435,6 +435,7 @@ export async function drawProfile(root, { sub }) {
   J.escuchar(() => draw());
   await draw();
   window.__profile = { redraw: draw };
+  if (/[?&]achievement=demo\b/.test(location.search)) achievementDemo();
 }
 
 function drawGuest(root) {
@@ -455,3 +456,22 @@ function drawGuest(root) {
     el('a', { class: 'btn btn--ghost', href: '../records/', onClick: tap }, T.allRankings));
 }
 
+
+/**
+ * `?achievement=demo` (lab flag profile): the secret achievement's window in its three looks, for the owner to
+ * pick (2026-11-22), with a picker under it: the look (A, B, C) and the achievement. Nothing is recorded.
+ */
+async function achievementDemo() {
+  const { showAchievement } = await import('../assets/js/achievement-window.js');
+  const secrets = BADGES.filter(b => b.secret);
+  let style = 'a', i = secrets.findIndex(b => b.id === 'xmas');
+  const open = () => {
+    document.querySelectorAll('.splash-capa').forEach(x => x.remove());
+    const b = secrets[i];
+    const bar = el('div', { class: 'aw-demo' },
+      ...['a', 'b', 'c'].map(s => el('button', { type: 'button', class: s === style ? 'on' : '', onClick: () => { style = s; open(); } }, s.toUpperCase())),
+      ...secrets.map((x, k) => el('button', { type: 'button', class: k === i ? 'on' : '', 'aria-label': T.badges[x.id]?.[0] || x.id, onClick: () => { i = k; open(); } }, x.icon)));
+    showAchievement({ ...b, name: T.badges[b.id]?.[0] || b.id }, { lang, style, secret: { n: 3, total: secrets.length }, profileHref: '#badges', extra: bar });
+  };
+  open();
+}
