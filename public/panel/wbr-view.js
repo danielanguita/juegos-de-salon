@@ -22,7 +22,8 @@ function weeksChart(t) {
         const v = fin.valores[i], parcial = t.columnas[i].endsWith('*');
         return el('div', { class: ['wbr-barra', parcial ? 'wbr-barra--parcial' : '', i === k ? 'wbr-barra--cerrada' : ''].filter(Boolean).join(' ') },
           el('span', { class: 'wbr-barra-cifra' }, v === null ? 'n/a' : n(v)),
-          el('span', { class: 'wbr-barra-col', style: `--h:${v ? Math.max(2, (v / max) * 100) : 0}%` }),
+          el('span', { class: 'wbr-barra-col', style: `--h:${v ? Math.max(0.02, v / max) : 0}` }),
+          // --h: its share of the tallest; the room above the bars is kept for the figures, so heights stay proportional
           // On a phone a week is named by its Sunday ("Nov 15*"): its range wraps into three lines
           el('span', { class: 'wbr-barra-rotulo' }, el('span', { class: 'wbr-rotulo-largo' }, t.columnas[i]), el('span', { class: 'wbr-rotulo-corto' }, t.columnas[i].replace(/–.*?(\*?)$/, '$1'))));
       })));
@@ -42,16 +43,22 @@ function paceChart(t) {
   const alto = Math.max(1, ...r.esta, ...r.pasada, ...r.promedio);
   const crudo = alto / 4, mag = 10 ** Math.floor(Math.log10(crudo)), paso = Math.max(1, [1, 2, 5, 10].map(m => m * mag).find(x => x >= crudo));
   const max = Math.ceil(alto / paso) * paso, marcas = Array.from({ length: max / paso + 1 }, (_, i) => i * paso);
-  const linea = (xs, clase) => svgEl('polyline', { class: clase, 'vector-effect': 'non-scaling-stroke', points: xs.map((v, i) => `${i},${100 - (v / max) * 100}`).join(' ') });
   const svg = svgEl('svg', { class: 'wbr-ritmo-svg', viewBox: '0 0 6 100', preserveAspectRatio: 'none', 'aria-hidden': 'true' });
   for (const m of marcas.slice(1)) svg.append(svgEl('line', { class: 'wbr-ritmo-guia', x1: 0, x2: 6, y1: 100 - (m / max) * 100, y2: 100 - (m / max) * 100, 'vector-effect': 'non-scaling-stroke' }));
-  svg.append(linea(r.promedio, 'wbr-ritmo-prom'), linea(r.pasada, 'wbr-ritmo-pasada'), linea(r.esta, 'wbr-ritmo-esta'));
-  const mismoDia = r.pasada[hoy], cambio = mismoDia ? Math.round((r.esta[hoy] / mismoDia - 1) * 100) : null;
-  const dia = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][hoy];
+  // The week in progress: today is not over, so its stretch is dashed and the % compares the full days only
+  // (a Saturday at 7 am read flat, and against a whole Saturday)
+  const parcial = r.parcial, c = parcial ? hoy - 1 : hoy;
+  const linea = (xs, clase, desde = 0) => svgEl('polyline', { class: clase, 'vector-effect': 'non-scaling-stroke', points: xs.map((v, i) => `${i + desde},${100 - (v / max) * 100}`).join(' ') });
+  svg.append(linea(r.promedio, 'wbr-ritmo-prom'), linea(r.pasada, 'wbr-ritmo-pasada'));
+  if (c >= 1) svg.append(linea(r.esta.slice(0, c + 1), 'wbr-ritmo-esta'));
+  if (parcial && hoy >= 1) svg.append(linea(r.esta.slice(c), 'wbr-ritmo-esta wbr-ritmo-hoy', c));
+  const mismoDia = c >= 0 ? r.pasada[c] : 0, cambio = mismoDia ? Math.round((r.esta[c] / mismoDia - 1) * 100) : null;
+  const dia = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][c];
+  const vs = cambio === null ? '' : `${cambio > 0 ? '+' : cambio < 0 ? '−' : '±'}${Math.abs(cambio)}% vs. ${n(mismoDia)} by ${dia} of ${r.anterior.replace('–', '–\u2060')}`;
   return el('div', { class: 'wbr-grafico' },
     el('h3', {}, 'Pace: games finished from Sunday'),
     el('ul', { class: 'wbr-leyenda' },
-      el('li', { class: 'wbr-leyenda--esta' }, el('b', {}, `${r.semana}: ${n(r.esta[hoy])}`), cambio === null ? '' : `, ${cambio > 0 ? '+' : cambio < 0 ? '−' : '±'}${Math.abs(cambio)}% vs. ${n(mismoDia)} by ${dia} of ${r.anterior.replace('–', '–\u2060')}`),
+      el('li', { class: 'wbr-leyenda--esta' }, el('b', {}, `${r.semana}: ${n(r.esta[hoy])}`), parcial ? ` so far${vs ? `; by ${dia}, ${n(r.esta[c])}, ${vs}` : ''}` : vs ? `, ${vs}` : ''),
       el('li', { class: 'wbr-leyenda--pasada' }, `${r.anterior}: ${n(r.pasada[6])}`),
       el('li', { class: 'wbr-leyenda--prom' }, `Average of the four weeks before: ${n(Math.round(r.promedio[6]))}`)),
     el('div', { class: 'wbr-ritmo' },
@@ -59,7 +66,7 @@ function paceChart(t) {
       el('div', { class: 'wbr-ritmo-area' }, svg, el('span', { class: 'wbr-ritmo-punto', style: `--x:${(hoy / 6) * 100}%;--y:${100 - (r.esta[hoy] / max) * 100}%` })),
       el('span', {}),
       el('div', { class: 'wbr-ritmo-dias' }, ...['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(d => el('span', {}, d)))),
-    el('p', { class: 'muted small' }, 'Games finished, added up day by day (Pacific dates): the newest week against the same days of the week before.'));
+    el('p', { class: 'muted small' }, `Games finished, added up day by day (Pacific dates): the newest week against the same days of the week before.${parcial ? ' Today is dashed: it is not over, so the % compares the full days.' : ''}`));
 }
 
 /** WBR chart D: a game's weeks, oldest to newest, in a line the width of a cell; the partial week dashed. */

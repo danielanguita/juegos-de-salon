@@ -16,7 +16,7 @@ look. Spanish clues only for now, by the owner's call: the mechanics first, the 
 ## Reglas
 
 - A cryptic clue reads two ways: a **definition** of the answer at one end, and a **wordplay** that builds
-  it (anagram, reversal, hidden, charade, container, deletion, homophone, two definitions, initials).
+  it (anagram, reversal, hidden, charade, container, deletion, homophone, two definitions, letters picked from several words (first, second or last), a letter changed).
   The clue ends with the answer's length, «(4)».
 - The player types the answer as many times as needed. Accents do not matter, Ñ is its own letter.
   A guess of another length is a yellow warning and does not count; a wrong one is red, shakes the clue
@@ -75,7 +75,7 @@ Every clue in `clues.js` follows these rules:
 1. **One natural sentence that tells another story.** No colon or semicolon splitting wordplay from
    definition: the seam is the player's to find («Di que se va, pero exige flores en el camarín»).
 2. **Every piece is clued too, never written out**: a synonym (cara for costosa), a note (SOL, RE, LA), a Roman
-   number (V), a chemical symbol (NA), a translation (tour for GIRA), as «beso catalán» is PETÓ. The step must be one the player takes: a word in the sense people use it (DADO as «seis caras», never «regalado», the owner). Only anagrams
+   number (V), a chemical symbol (NA), a translation (tour for GIRA), as «beso catalán» is PETÓ. The step must be one the player takes: a word in the sense people use it (a die as «seis caras», never the participle «regalado», the owner). Only anagrams
    and hidden words show their letters, and then the definition carries the difficulty.
 3. **A fair but sideways definition** at one end: «donde duermen los barcos» for a port, «tiene cuatro
    esquinas» for a city block, never the dictionary line.

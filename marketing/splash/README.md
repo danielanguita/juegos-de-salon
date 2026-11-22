@@ -25,6 +25,7 @@ that has not paid, and until then stays unseen. This folder is its memory: every
    with `capture.mjs`, or a teaser with `teaser.mjs` (an item with only `img`, `still` and `ratio`, plus `smooth: true` when it is drawn at full size rather than pixel art).
    If it is not for a first visit (an ask, like support), give it `audience: 'regulars'` (D-458) and
    say so in its README's Audience row.
+   For a list of clips that should fill a phone's height, give it `bigClips: true`: each clip grows to what the screen allows, the window gets taller, and the names and texts on the cards grow too on phones.
 2. Its folder `campaigns/<id>/` with the README and the screenshots (`look.mjs splash <id>` at
    390 px in es, en, pt and de, as JPEG), and one look at a computer's width too (`--width 1280
    --height 900`): a window laid out wrong there passes every phone screenshot. A test fails if a campaign has no folder.
@@ -48,3 +49,4 @@ that has not paid, and until then stays unseen. This folder is its memory: every
 | [⚡ `microgames-launch`](campaigns/microgames-launch/) · No es rápido… ¡Es al toque! (launch of ¡Al toque!) | off, made 2026-11-14 | pending (D-355) |
 | [🥂 `brindis-apoyo`](campaigns/brindis-apoyo/) · ¡Un brindis por ti! (support) | off, until support leaves the lab | pending (D-355) |
 | [🎉 `dominorama-memorice`](campaigns/dominorama-memorice/) · ¡Dos juegos nuevos! (launch of Dominorama and Memorice) | off, made 2026-11-19 | pending (D-355) |
+| [🤪 `nos-volvimos-locos`](campaigns/nos-volvimos-locos/) · ¡Nos volvimos locos! (launch of Croc! and Tembleque) | off, made 2026-11-21 | pending (D-355) |

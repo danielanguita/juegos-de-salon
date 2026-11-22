@@ -10,6 +10,8 @@
 //     (signature design-lint-gate: red `tests` on #1244 and #1245)
 //   - a game's cover changed without landing-fold.mjs passing on it here (#1624, #1629: five pushes
 //     each) → node tools/e2e/landing-fold.mjs --only <game> (tools/e2e/landing-stamp.mjs)
+//   - a /labs/ card over its word limit            → node public/labs/short-cards.test.mjs
+//     (signature 97c0b5ca90: red `tests` on #1696, #1699, #1667, each after bringing main in, D-594)
 //   - a branch that brings changes but no changelog/<branch>.md entry (D-300)
 //     → node tools/release/changelog.mjs new [patch|minor]
 // Exit 2 blocks the push and tells the session what to run; anything unexpected lets it through.
@@ -58,6 +60,11 @@ export function problems(cwd, run = (cmd, args) => spawnSync(cmd, args, { cwd, e
   if (existsSync(join(cwd, 'tools/e2e/landing-stamp.mjs'))) {
     const r = run('node', ['tools/e2e/landing-stamp.mjs', '--check']);
     if (r.status === 1) out.push((r.stdout || '').trim() || 'a cover changed without its landing-fold run: node tools/e2e/landing-fold.mjs --only <game>');
+  }
+  if (existsSync(join(cwd, 'public/labs/short-cards.test.mjs'))) {
+    const r = run('node', ['public/labs/short-cards.test.mjs']);
+    const long = `${r.stdout || ''}${r.stderr || ''}`.split('\n').filter(l => /^\s+#seccion-/.test(l)).map(l => l.trim());
+    if (r.status === 1 && long.length) out.push(`a /labs/ card is over its word limit (D-594): shorten it in public/labs/index.html, then commit it\n  ${long.join('\n  ')}`);
   }
   out.push(...missingChangelog(run));
   return out;

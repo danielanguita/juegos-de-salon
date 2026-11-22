@@ -155,12 +155,13 @@ written if it doesn't exist, if it expired (`hasta < now`) or if it points to th
 admin of that cup and with `meta/alias` equal to the alias; it is deleted only by that admin. `hasta` is the end
 of the cup plus 7 days.
 
-## Players and rankings (`jugadores`, `jugadorKeys`, `jugadorSeats`, `jugadorIntentos`, `jugadorNombres`, `jugadorCopas`, `records`, `torneoPodios`, D-212)
+## Players and rankings (`jugadores`, `jugadorKeys`, `jugadorSeats`, `jugadorIntentos`, `jugadorNombres`, `jugadorRenombres`, `jugadorCopas`, `records`, `torneoPodios`, D-212)
 
 The same mechanism as La Copa, for the whole app:
 
 - `jugadores/<jid>` = `{ n, at, juegos: { <juego>: { n, at } } }`. Read without an account by jid (not
-  listed). Created once, with the seat in the same write; `juegos/<juego>/n` only goes up by one.
+  listed). Created once, with the seat in the same write; `juegos/<juego>/n` only goes up by one. `n`
+  changes from a seated phone whose fresh attempt holds the key (the player renames themselves, D-600).
 - `jugadorKeys/<jid>`: sha256 of the PIN. Nobody reads it. Created with the player; changed by a seated
   phone whose fresh attempt holds the current key (D-464).
 - `jugadorSeats/<jid>/<uid>`: the `uid` phone writes as `jid` if it brings the hash from `jugadorKeys`
@@ -168,7 +169,10 @@ The same mechanism as La Copa, for the whole app:
   Whoever is seated can replace all the seats (changing the PIN kicks out the others).
 - `jugadorIntentos/<jid>` = `{ h, u, at }` (D-464): the last PIN attempt on that player, with the
   writer's uid and the server time, on a player with a key, one every 5 s. Nobody reads or deletes it.
-- `jugadorNombres/<clave>/<jid>` = `true`: who uses that name. Read by key, to sign in.
+- `jugadorNombres/<clave>/<jid>` = `true`: who uses that name. Read by key, to sign in. Created by a seated
+  phone; deleted only by a seated phone whose fresh attempt holds the key (a rename drops the old name, D-600).
+- `jugadorRenombres/<jid>` = time (D-600): this player renamed themselves; written by a seated phone, read
+  and cleared by the hourly job (`rename-player.mjs --pending`), which carries the new name to their rows.
 - `records/<tabla>/<período>/<jid>` = `{ s, ms, k, at, n }`, with `.indexOn: k`. Read without an account.
   Only the seated player writes, with `k` recomputed, `n` equal to their name and `k` lower than the
   stored one. The table and period are validated by shape, without naming games (C-16). A table that

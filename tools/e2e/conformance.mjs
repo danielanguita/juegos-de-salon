@@ -15,6 +15,7 @@ import { launch, sleep } from './cdp.mjs';
 import { manifestFolders, readManifest } from '../generators/manifests.mjs';
 import { excuses } from '../generators/conformance.mjs';
 import { coverGapsOff, COVER_GAP } from './cover-gaps.mjs';
+import { footerGapUnder, HIDDEN } from './footer-bottom.mjs';
 import { gameById } from '../../public/assets/js/games.js';
 
 const SITE = process.env.SITE || 'http://localhost:8765';
@@ -47,8 +48,6 @@ const START = {
   'labs/sudoku': [`document.getElementById('btn-play').click()`],
   // Its one mode starts the first trip, already saved
   'labs/transfer': [`document.querySelector('.mode').click()`],
-  // Its one mode starts the crossing directly, already saved
-  'labs/croc': [`document.querySelector('#btn-play').click()`],
   // The yellow button opens today's clue, already saved
   'labs/cryptic': [`document.getElementById('btn-play').click()`],
 };
@@ -77,6 +76,8 @@ for (const folder of chosen) {
   await b.shot(`${folder.replace('/', '-')}-intro`);
   const off = JSON.parse(await b.evaluate(coverGapsOff));
   ok(!off.length, `${folder} · spacing: the cover's blocks are ${COVER_GAP} px apart${off.length ? ` (${off.join(', ')})` : ''}`);
+  const under = await footerGapUnder(b, OUT, `${folder.replace('/', '-')}-footer-bottom`);
+  ok(!under, `${folder} · footer: the sunset reaches the bottom edge, also with the browser's bar hidden (${HIDDEN} px)${under ? ` (${under})` : ''}`);
 
   // share and result: the page goes through the shared modules
   const loaded = await b.evaluate(`JSON.stringify(performance.getEntriesByType('resource').map(r => new URL(r.name).pathname))`).then(JSON.parse);

@@ -51,7 +51,7 @@ const BASE = {
   memory: { emoji: '👀' },
   dominorama: { emoji: '🎲' },
   microgames: { emoji: '⚡' },
-  'croc': { emoji: '🐸', labs: true },
+  croc: { emoji: '🐸' },
   final: { emoji: '🏁' },
   // A weekend cup's day of three (D-439)
   trio: { emoji: '🎯' },
@@ -2861,7 +2861,7 @@ for (const [lang, L] of Object.entries(LOCALES)) {
   }
 }
 // Each game's own texts (D-331): its entry in `juegos` and the keys its screen reads
-for (const [id, textos] of Object.entries({ rutas: RUTAS, loteo: LOTEO, pintaminas: PINTAMINAS, agentes: AGENTES, puentes: PUENTES, stick: STICK, stack: STACK, aletazo: ALETAZO, sudoku: SUDOKU, memory: MEMORY, dominorama: DOMINORAMA, microgames: AL_TOQUE, 'croc': CROC })) {
+for (const [id, textos] of Object.entries({ rutas: RUTAS, loteo: LOTEO, pintaminas: PINTAMINAS, agentes: AGENTES, puentes: PUENTES, stick: STICK, stack: STACK, aletazo: ALETAZO, sudoku: SUDOKU, memory: MEMORY, dominorama: DOMINORAMA, microgames: AL_TOQUE, croc: CROC })) {
   for (const [lang, L] of Object.entries(LOCALES)) {
     const t = textos[lang] || textos.es;
     L.juegos[id] = t.juego;

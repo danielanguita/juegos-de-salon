@@ -79,7 +79,7 @@ const CODE = {
   memory: () => Promise.all([import('./memory/engine.js'), import('./memory/ui.js')]),
   dominorama: () => Promise.all([import('./dominorama/engine.js'), import('./dominorama/ui.js')]),
   microgames: () => Promise.all([import('./microgames/engine.js'), import('./microgames/ui.js')]),
-  'croc': () => Promise.all([import('./croc/engine.js'), import('./croc/ui.js')]),
+  croc: () => Promise.all([import('./croc/engine.js'), import('./croc/ui.js')]),
   final: () => Promise.all([import('./final/engine.js'), import('./final/ui.js')]),
 };
 CODE.trio = CODE.final;
@@ -141,10 +141,11 @@ const BUILD = {
   microgames: ([m, ui]) => delLab('microgames', { generarDia: m.generateDay, puntajeDia: m.dayScore }, {
     portada: ui.cover, titulo: ui.title, montar: ui.mount, resultado: ui.result, desglose: ui.breakdown,
   }),
-  // 🐸 Croc!, arcade highway crossing (in the lab, not in POZO yet)
-  'croc': ([m, ui]) => delLab('croc', {
+  // 🐸 Croc!, out of the lab like Sudoku (D-517's way), hidden behind flags/croc. Its traffic levels are its
+  // variants (normal by default; hard, heavy traffic); its points have no cap, Uno al día takes `dayScore`
+  croc: ([m, ui]) => delLab('croc', {
     generarDia: m.generateDay, puntajeDia: m.dayScore,
-  }, { portada: ui.cover, titulo: ui.title, montar: ui.mount, resultado: ui.result, desglose: ui.breakdown }),
+  }, { portada: ui.cover, titulo: ui.title, montar: ui.mount, resultado: ui.result, desglose: ui.breakdown, selector: ui.selector }),
   final: ([final, uiFinal]) => ({
     ...juego(final, uiFinal),
     // A round with no short version is the game whole, built with its own generator for the final

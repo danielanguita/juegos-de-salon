@@ -18,7 +18,8 @@
   <!-- The owner's presentation of the project for an executive audience, projected from a laptop.
        English only and unlisted (noindex, no link from the site): it is not a player page. -->
   <nav class="mo-nav" aria-label="Sections">
-    <a href="#top" class="mo-brand">🎲 Parlor Games</a>
+    <a href="#top" class="mo-brand" aria-label="Parlor Games, back to the top">🎲 <span class="mo-brand-name">Parlor Games</span></a>
+    <div class="mo-links">
     <a href="#product">The product</a>
     <a href="#play">See it played</a>
     <a href="#traction">Traction</a>
@@ -28,6 +29,7 @@
     <a href="#team">The agents</a>
     <a href="#weeks">How it grew</a>
     <a href="#learnings">Learnings</a>
+    </div>
   </nav>
 
   <main>
@@ -430,9 +432,46 @@
       sections[i].scrollIntoView({ behavior: 'smooth' });
     });
 
+    // On a phone the agents and the learnings slide sideways: dots under each row say which card is on screen
+    document.querySelectorAll('.mo-team, .mo-learnings').forEach(row => {
+      const dots = document.createElement('div');
+      dots.className = 'mo-dots';
+      dots.setAttribute('aria-hidden', 'true');
+      dots.append(...[...row.children].map(() => document.createElement('i')));
+      row.after(dots);
+      const mark = () => {
+        const x = row.scrollLeft + row.children[0].offsetLeft;
+        let n = 0, best = Infinity;
+        [...row.children].forEach((c, i) => { const d = Math.abs(c.offsetLeft - x); if (d < best) { best = d; n = i; } });
+        // At the end of the row the last card is the one on screen, even if it cannot reach the left edge
+        if (row.scrollLeft + row.clientWidth >= row.scrollWidth - 2) n = row.children.length - 1;
+        [...dots.children].forEach((d, i) => d.classList.toggle('on', i === n));
+      };
+      row.addEventListener('scroll', mark, { passive: true });
+      mark();
+    });
+
     // Where the presenter is: "3 / 10" in the corner
     const count = document.querySelector('.mo-count');
-    const showCount = () => { count.textContent = `${current() + 1} / ${sections.length}`; };
+    // The section bar follows: the section on screen is marked, and on a phone, where the bar slides
+    // sideways, its chip slides into view (only the bar moves, never the page)
+    const links = document.querySelector('.mo-links');
+    const linkOf = id => links.querySelector(`a[href="#${id}"]`);
+    let marked = null;
+    const markSection = () => {
+      // A section with no chip of its own (the second Learnings, the end) keeps the one before it marked;
+      // the hero (#top) has none, so nothing is marked there
+      let i = current(), a = null;
+      while (i > 0 && !(a = linkOf(sections[i].id))) i--;
+      if (a === marked) return;
+      marked?.removeAttribute('aria-current');
+      a?.setAttribute('aria-current', 'location');
+      marked = a;
+      if (a && links.scrollWidth > links.clientWidth) {
+        links.scrollTo({ left: a.offsetLeft - links.offsetLeft - (links.clientWidth - a.offsetWidth) / 2, behavior: 'smooth' });
+      }
+    };
+    const showCount = () => { count.textContent = `${current() + 1} / ${sections.length}`; markSection(); };
     addEventListener('scroll', showCount, { passive: true });
     showCount();
   </script>

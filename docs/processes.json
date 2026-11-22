@@ -1,5 +1,5 @@
 {
-  "checkedUpTo": "267ded6d9f2b69f42061c52c04103ea3d7702f2a",
+  "checkedUpTo": "4a74c73511dceacf204be0a807032aa033a8c1c1",
   "patterns": [
     {
       "key": "version-hacia-atras",
@@ -986,6 +986,130 @@
         }
       ],
       "mechanism": null
+    },
+    {
+      "key": "changelog-spanish-name",
+      "what": "CI tests: tools/agents/english.test.mjs · ",
+      "seen": [
+        {
+          "date": "2026-11-19T00:58:44.061Z",
+          "what": "#1628 tests: tools/agents/english.test.mjs",
+          "commit": "7a67c90dfe4d150fc64883b367ef06cb2914e8fc"
+        },
+        {
+          "date": "2026-11-19T16:14:36.002Z",
+          "what": "#1648 tests: tools/agents/english.test.mjs",
+          "commit": "6f216bfc427e7568e58a93b8ca21c84689609d99"
+        },
+        {
+          "date": "2026-11-19T16:15:05.841Z",
+          "what": "#1648 tests: tools/agents/english.test.mjs",
+          "commit": "5778971e3132fab9c9bdb6998123d42e088626b0"
+        },
+        {
+          "date": "2026-11-20T16:51:41.894Z",
+          "what": "#1704 tests: tools/agents/english.test.mjs",
+          "commit": "d484ad84dbda48b1004d766231a29d14d6583e18"
+        }
+      ],
+      "mechanism": {
+        "date": "2026-11-21",
+        "what": "changelog.mjs new names the entry file in English (entryFile, changelog.test.mjs), so a branch with a Spanish word no longer fails english.test.mjs",
+        "pr": "https://github.com/ellokojavi/juegos-de-salon/pull/1731"
+      },
+      "signatures": [
+        "e2c4295683"
+      ]
+    },
+    {
+      "key": "failure-log-wrong-attempt",
+      "what": "CI end-to-end: (end-to-end) · no failing test found in the log",
+      "seen": [
+        {
+          "date": "2026-11-04T05:43:53.353Z",
+          "what": "#1163 end-to-end: (end-to-end)",
+          "commit": "9e58b88832f6f1f5dac451783719ea9a4b860354"
+        },
+        {
+          "date": "2026-11-11T17:40:16.505Z",
+          "what": "#1395 end-to-end: (end-to-end)",
+          "commit": "c8351b7467a09af264abb7f6a1fbcbfe149b82d7"
+        },
+        {
+          "date": "2026-11-11T21:01:45.613Z",
+          "what": "#1402 end-to-end: (end-to-end)",
+          "commit": "16538fce923ce2e8441398b96af3732dcff6e0dc"
+        },
+        {
+          "date": "2026-11-17T16:52:57.254Z",
+          "what": "#1518 end-to-end: (end-to-end)",
+          "commit": "6ecf65db3c33d2468ad540b131e9d969e8a21b23"
+        },
+        {
+          "date": "2026-11-18T14:18:14.202Z",
+          "what": "#1609 end-to-end: (end-to-end)",
+          "commit": "0496ea4de81c0cb74e9c926634f41db1f18fec35"
+        },
+        {
+          "date": "2026-11-22T00:57:01.893Z",
+          "what": "#1747 end-to-end: (end-to-end)",
+          "commit": "aa9aed39350a30580718a70b9a2cf0c469259cad"
+        }
+      ],
+      "mechanism": {
+        "date": "2026-11-22",
+        "what": "failure-log.yml reads the attempt that ended (gh run view --attempt), pinned by failures.test.mjs; a re-run started before it read the log gave an empty log and a bogus 'no failing test found' record",
+        "pr": "https://github.com/ellokojavi/juegos-de-salon/pull/1761"
+      },
+      "signatures": [
+        "f2f83772a2"
+      ]
+    },
+    {
+      "key": "lab-card-too-long",
+      "what": "CI tests: public/labs/short-cards.test.mjs · ",
+      "seen": [
+        {
+          "date": "2026-11-20T05:32:05.017Z",
+          "what": "#1696 tests: public/labs/short-cards.test.mjs",
+          "commit": "027e3755bce49e0e65e7b7f5a54a312cdaa95989"
+        },
+        {
+          "date": "2026-11-20T06:02:59.560Z",
+          "what": "#1699 tests: public/labs/short-cards.test.mjs",
+          "commit": "089d3846c195ff29d7721c851653b474f75af19b"
+        },
+        {
+          "date": "2026-11-20T14:44:56.182Z",
+          "what": "#1667 tests: public/labs/short-cards.test.mjs",
+          "commit": "eeeecca40ea347149affc4b2e36f89c8b7993eed"
+        }
+      ],
+      "mechanism": {
+        "date": "2026-11-22",
+        "what": "push-guard.mjs runs public/labs/short-cards.test.mjs and stops the push naming the long card (push-guard.test.mjs)",
+        "pr": "https://github.com/ellokojavi/juegos-de-salon/pull/1760"
+      },
+      "signatures": [
+        "97c0b5ca90"
+      ]
+    },
+    {
+      "key": "stray-root-file",
+      "what": "Scratch files committed at the repo root by sessions (p.mjs in 98f2f5b, wobbles-cover-new.png in 2831f20); found by the documentation round through readme.py's Layout warnings and removed in #1759",
+      "seen": [
+        {
+          "date": "2026-11-22",
+          "what": "Scratch files committed at the repo root by sessions (p.mjs in 98f2f5b, wobbles-cover-new.png in 2831f20); found by the documentation round through readme.py's Layout warnings and removed in #1759",
+          "commit": "98f2f5b7"
+        },
+        {
+          "date": "2026-11-22",
+          "what": "wobbles-cover-new.png left at the root by the Tembleque commit",
+          "commit": "2831f200"
+        }
+      ],
+      "mechanism": null
     }
   ],
   "mechanisms": [
@@ -1162,6 +1286,24 @@
       "key": "push-guard-swallowed",
       "what": "The push-guard hook passes its exit 2 through; push-guard.test.mjs runs every blocking hook's command against a stub",
       "pr": "https://github.com/ellokojavi/juegos-de-salon/pull/1701"
+    },
+    {
+      "date": "2026-11-21",
+      "key": "changelog-spanish-name",
+      "what": "changelog.mjs new names the entry file in English (entryFile, changelog.test.mjs), so a branch with a Spanish word no longer fails english.test.mjs",
+      "pr": "https://github.com/ellokojavi/juegos-de-salon/pull/1731"
+    },
+    {
+      "date": "2026-11-22",
+      "key": "failure-log-wrong-attempt",
+      "what": "failure-log.yml reads the attempt that ended (gh run view --attempt), pinned by failures.test.mjs; a re-run started before it read the log gave an empty log and a bogus 'no failing test found' record",
+      "pr": "https://github.com/ellokojavi/juegos-de-salon/pull/1761"
+    },
+    {
+      "date": "2026-11-22",
+      "key": "lab-card-too-long",
+      "what": "push-guard.mjs runs public/labs/short-cards.test.mjs and stops the push naming the long card (push-guard.test.mjs)",
+      "pr": "https://github.com/ellokojavi/juegos-de-salon/pull/1760"
     }
   ],
   "queueDone": [
@@ -1178,12 +1320,12 @@
   ],
   "dispatches": {
     "documentation": {
-      "date": "2026-11-20",
-      "to": "267ded6d9f2b69f42061c52c04103ea3d7702f2a"
+      "date": "2026-11-22",
+      "to": "4a74c73511dceacf204be0a807032aa033a8c1c1"
     },
     "usability": {
-      "date": "2026-11-20",
-      "to": "267ded6d9f2b69f42061c52c04103ea3d7702f2a"
+      "date": "2026-11-22",
+      "to": "4a74c73511dceacf204be0a807032aa033a8c1c1"
     },
     "ideas": {
       "date": "2026-11-18",
@@ -1450,6 +1592,22 @@
       "issue": null,
       "pr": "https://github.com/ellokojavi/juegos-de-salon/pull/1701",
       "note": "push-guard hook fixed; usability dispatched, still running at handback"
+    },
+    {
+      "date": "2026-11-21",
+      "from": "267ded6d9f2b69f42061c52c04103ea3d7702f2a",
+      "to": "a1befe7ec08699c412eca8b25021ecb1a39f69a8",
+      "issue": null,
+      "pr": "https://github.com/ellokojavi/juegos-de-salon/pull/1731",
+      "note": "dispatched docs (#1730) + usability; collected 27 changelog entries; flags snapshot refreshed (wins-hide-empty); durations measured; mechanism changelog-spanish-name"
+    },
+    {
+      "date": "2026-11-22",
+      "from": "a1befe7ec08699c412eca8b25021ecb1a39f69a8",
+      "to": "4a74c73511dceacf204be0a807032aa033a8c1c1",
+      "issue": null,
+      "pr": "https://github.com/ellokojavi/juegos-de-salon/pull/1760",
+      "note": "dispatched docs (#1759, sent back once: shallow first pass) + usability + ci-health (targeted: e2e heaviest group 461 s with today's durations); collected 24 changelog entries; flags snapshot refreshed (home-carousels); mechanisms lab-card-too-long (here) and failure-log-wrong-attempt (#1761, red lane: workflow); pattern stray-root-file seen 2"
     }
   ],
   "ownerDecisions": [

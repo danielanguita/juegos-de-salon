@@ -343,7 +343,8 @@ p { line-height: 1.5; margin: 0 0 12px; }
 .snackbar { position: fixed; left: var(--s-16); right: var(--s-16); margin: 0 auto; width: fit-content; bottom: calc(var(--s-24) + var(--safe-bottom)); background: var(--snackbar-bg); border: 1px solid var(--glass-border); color: var(--ink); font-weight: 800; padding: var(--s-12) var(--s-18); border-radius: var(--r-14); z-index: 50; animation: slideUp 0.25s both; }
 /* The result's hero: the trophy popping above the title */
 .result-hero { text-align: center; padding: var(--s-2) 0 var(--s-6); }
-.result-hero .trophy { font-size: 4.2rem; display: block; animation: pop 0.8s cubic-bezier(0.2, 0.9, 0.3, 1.4) both; }
+/* As wide as the emoji, centred: a full-width block grown by the pop's overshoot spilled past the screen for a moment (C-8) */
+.result-hero .trophy { font-size: 4.2rem; display: block; width: fit-content; margin-inline: auto; animation: pop 0.8s cubic-bezier(0.2, 0.9, 0.3, 1.4) both; }
 
 /* --- Tarjetas de vidrio --- */
 .panel {
@@ -455,6 +456,32 @@ details.panel summary::-webkit-details-marker { display: none; }
 /* With the cover's share button (cover-share.js) a 320 px bar has no room for the game's chip: the
    cover's title right below names the game, so the chip steps aside there */
 @media (max-width: 359px) { .topbar:has(#btn-share-cover:not([hidden])) .tools .chip { display: none; } }
+/* Lab flag profile (lab: #seccion-profile, profile-button.js): every top bar ends in the player's pill (flag,
+   name, ›) that opens /profile/, and its language is one flag with a ▾; a signed-in player's cover drops its
+   «🏅 <name>» button (the PIN is in the profile's ⚙️), and Instrucciones takes the whole row */
+html.pf-on .topbar .tools, html.pf-on .topbar .tools:has(> #lang-slot) { flex-wrap: nowrap; }
+html.pf-on .topbar .tools .chip { flex-shrink: 100; }
+html.pf-on .topbar .tools .pf-home { width: auto; max-width: 9rem; min-width: 44px; flex: 0 1 auto; justify-content: center; display: inline-flex; align-items: center; gap: var(--s-6); padding: 0 var(--s-12); font: 900 var(--fs-100) var(--font-body); }
+html.pf-on .topbar .pf-home-flag { flex: none; }
+html.pf-on .topbar .pf-home-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+html.pf-on .topbar .pf-home-go { flex: none; color: var(--muted); font-size: var(--fs-120); line-height: 1; }
+html.pf-on .topbar .pf-lang .icon-btn { width: auto; display: inline-flex; align-items: center; gap: var(--s-4); padding: 0 var(--s-10); }
+html.pf-on .topbar .pf-lang-caret { font-size: var(--fs-85); color: var(--muted); }
+/* The bar's language now sits mid-bar: its three flags open centred under it, never past the screen's left edge */
+html.pf-on .topbar:not(.portada-barra) .pf-lang .lang-pop { left: 50%; right: auto; transform: translateX(-50%); }
+.pf-home-icon { display: none; }
+html.pf-on .topbar #lang-slot:not(:has(.lang-btn, .lang-toggle)) { display: none; }
+/* A narrow phone keeps every button: the pill shows the flag only, the language loses its ▾ */
+@media (max-width: 374px) {
+  html.pf-on .topbar { gap: var(--s-8); }
+  html.pf-on .topbar .tools { gap: var(--s-6); }
+  html.pf-on .topbar .tools .pf-home { padding: 0; }
+  html.pf-on .topbar .pf-home-flag, html.pf-on .topbar .pf-home-name, html.pf-on .topbar .pf-home-go, html.pf-on .topbar .pf-lang-caret { display: none; }
+  html.pf-on .topbar .pf-home-icon { display: inline; font-size: var(--fs-120); }
+  html.pf-on .topbar .pf-lang .icon-btn { padding: 0; width: 44px; justify-content: center; }
+}
+html.pf-signed #btn-cuenta { display: none; }
+html.pf-signed .opciones.dos.portada-acciones { grid-template-columns: minmax(0, 1fr); }
 
 /* --- Transición entre turnos (overlay compartido: salud / pásale el celular) --- */
 .handoff {
@@ -930,6 +957,14 @@ body.azar-abierto { overflow: hidden; }
 footer.atardecer { margin: 0 -18px calc(-1 * var(--s-32) - var(--safe-bottom)); padding: 28px 18px calc(var(--s-32) + var(--safe-bottom)); background: linear-gradient(180deg, transparent, rgb(var(--purple-rgb) / 0.28) 45%, rgb(var(--pink-rgb) / 0.32)); }
 /* On a screen shorter than the phone the sunset rests on the bottom edge: pushed down, its gradient ends where the page does, no dark band below */
 .screen > footer.atardecer:last-child { margin-top: auto; }
+/* Nothing under the sunset, ever (the owner, 2026-11-21): its last color carries on down to the bottom edge of the screen. The
+   space it covers is the browser's hidden bar: .app is built for the small height (svh, D-77), so when Android hides its
+   address bar the page is taller than the column, and on covers whose footer sits in a wrapper (Reinas) or is not pushed
+   down, that space showed as a dark band of the page's background. A shadow and not a box: it paints without making the
+   page any longer, and the clip keeps it to the footer's width and below it. Same tint over the same fixed background,
+   so it reads as the footer going on */
+footer.atardecer { position: relative; }
+footer.atardecer::after { content: ''; position: absolute; left: 0; right: 0; top: 100%; height: 0; pointer-events: none; box-shadow: 0 100vh 0 100vh rgb(var(--pink-rgb) / 0.32); clip-path: inset(0 0 -200vh 0); }
 footer.atardecer .footer-msg { color: var(--ink); opacity: 1; font-weight: 800; font-size: 1.04rem; }
 footer.atardecer .footer-links.tiles::before, .footer-links.tiles.chips::before { content: none; }
 footer.atardecer .footer-links.tiles, .footer-links.tiles.chips { display: flex; flex-wrap: wrap; justify-content: center; max-width: none; gap: 8px; margin-top: 18px; }

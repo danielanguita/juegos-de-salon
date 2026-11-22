@@ -498,6 +498,17 @@
     .portada-barra .tools { min-height: 44px; }
     .portada-barra .tools > span:empty { width: 44px; height: 44px; }
     .azar-slot:empty { min-height: 48px; }
+    /* Lab flag profile (lab: #seccion-profile): 🏅 becomes a pill with the player's flag and name, as a ranking row, opening /profile/ */
+    html .portada-barra .tools .icon-btn.pf-home { width: auto; max-width: 11rem; display: inline-flex; align-items: center; gap: var(--s-6); padding: 0 var(--s-14); font: 900 var(--fs-100) var(--font-body); }
+    .pf-home-flag { flex: none; }
+    .pf-home-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .pf-home-go { flex: none; color: var(--muted); font-size: var(--fs-120); line-height: 1; }
+    /* …and the language toggle as one flag with a ▾ that opens the three; on the left, so its menu opens to the right */
+    .pf-lang .icon-btn { width: auto; display: inline-flex; align-items: center; gap: var(--s-4); padding: 0 var(--s-12); }
+    @media (max-width: 440px) { html.pill-bar .pf-lang .icon-btn { min-height: 54px; } }
+    .pf-lang-caret { font-size: var(--fs-85); color: var(--muted); }
+    .pf-lang .lang-pop { left: 0; right: auto; }
+    #lang-slot:has(.pf-lang) { min-width: 0; }
     /* Lab flag home-pill-bar (#1027): the round buttons become pills as tall as the language toggle, so the bar reads as one row */
     .pill-bar .portada-barra, .pill-bar .portada-barra .tools { align-items: stretch; }
     .pill-bar .portada-barra .tools > span { display: flex; }
@@ -663,9 +674,12 @@
     // Mientras estén en el laboratorio, solo en los celulares que los activaron
     import('./assets/js/jugador.js').then(({ rankingsVisibles }) => {
       const b = document.getElementById('btn-rankings');
+      if (b.classList.contains('pf-home')) return; // already the profile's (flag profile)
       for (const k of ['title', 'aria-label']) b.setAttribute(k, T.rk.rankings);
       b.hidden = !rankingsVisibles();
     }).catch(() => {});
+    // The player's profile in the top bar: their initial and streak instead of 🏅, the sound out of the bar (flag profile). lab: #seccion-profile
+    import('./assets/js/flags.js').then(({ flag }) => flag('profile')).then(on => on && import('./assets/js/profile-button.js').then(m => m.profileButton({ lang }))).catch(() => {});
     // Compartir la app: el botón abre una hoja con el video promocional y dos maneras de
     // compartir (compartir-portada.js): invitar a jugar, con la tarjeta social del idioma en que se
     // está mirando (D-74, D-226), o mandar el video
@@ -798,11 +812,11 @@
       // on a phone without the carousels the same link goes to the game's own cover, so it never leads nowhere
       const slug = param('game');
       const shared = slug && JUEGOS_PORTADA.find(g => g.available && !g.torneo && g.path.split('/')[0] === slug);
-      // Sub-flag home-carousels-covers: an icon opens the game's cover instead of its sheet. Asked only with the
-      // carousels on, so its switch in the T tab shows only under the main one. lab: #seccion-home-carousels-covers
-      const direct = () => import('./assets/js/flags.js').then(({ flag }) => flag('home-carousels-covers')).catch(() => false);
+      // An icon opens the game's cover; sub-flag home-carousels-sheet opens its sheet (Detalles / Ranking) instead. Asked
+      // only with the carousels on, so its switch in the T tab shows only under the main one. lab: #seccion-home-carousels-sheet
+      const direct = () => import('./assets/js/flags.js').then(({ flag }) => flag('home-carousels-sheet')).then(sheet => !sheet).catch(() => true);
       // The sub-flag goes in as a promise: the rows do not wait for its read from Firebase
-      const draw = () => import('./assets/js/home-carousels.js').then(m => m.drawCarousels({ lang, T, games: JUEGOS_PORTADA, tap: () => SFX.tap(), openSlug: shared ? slug : null, direct: shared ? false : direct() }));
+      const draw = () => import('./assets/js/home-carousels.js').then(m => m.drawCarousels({ lang, T, games: JUEGOS_PORTADA, tap: () => SFX.tap(), openSlug: shared ? slug : null, direct: direct() }));
       const drawn = document.documentElement.classList.contains('carousels') ? draw() : null;
       drawn?.catch(() => document.documentElement.classList.remove('carousels'));
       import('./assets/js/flags.js').then(({ flag }) => flag('home-carousels')).then(async on => {

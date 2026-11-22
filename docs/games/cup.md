@@ -347,6 +347,10 @@ por ciudad menos 4 cada 100 km, D-155, D-156, D-200).
 - **🎲 Dominorama** (prepared 2026-11-19, D-517's way, not launched) comes from the lab into the pool
   (`copa: { pozo: 20 }`) when the owner switches `flags/dominorama` on; its page is [dominorama.md](dominorama.md).
   A day plays its three boards (the trial, the easy one); its score is 0 to 100 already, speed read from the cup's clock.
+- **🐸 Croc!** (prepared 2026-11-21, D-517's way, not launched) comes from the lab into the pool
+  (`copa: { pozo: 21 }`) when the owner switches `flags/croc` on; its page is [croc.md](croc.md). Its traffic levels
+  are variants (`VARIANTES.croc`): a day plays 🟢 normal unless the admin picks 🔥 heavy (`hard`); the trial is a
+  15-row track. Its points have no cap; Uno al día takes its own 0–100 (`dayScore`).
 - **#️⃣ Sudoku** (2026-11-11, D-517's way) came from the lab into the pool (`copa: { pozo: 17 }`), launched by
   `flags/sudoku`; its page is [sudoku.md](sudoku.md). Its levels are variants (`VARIANTES.sudoku`): a day plays 🟢 easy,
   the 6×6 mini, unless the admin picks 🔴 hard (9×9). Its score is 0 to 100 already, its trial a board with 6 cells
@@ -501,7 +505,7 @@ Todo bajo `public/cup/`:
 | `cuenta.js` | Con quién está sentado este celular, el intento a medio jugar, los avisos de cada copa (D-223) y "Tus copas" (las del celular más las del jugador, `juntarCopas`, D-220) |
 | `avisos.js` | Los avisos al celular en pantalla: la campana, la tarjeta y sus hojas (D-223; la lógica del navegador está en `assets/js/push.js`). El estilo de la hoja de abajo (`.hoja`) es de todo el sitio y vive en `assets/css/base.css` (D-232); `style.css` guarda solo lo propio de los avisos |
 | `desglose.js` | Cómo se calculó el puntaje, línea por línea (D-106) |
-| `cover/` | A page that draws one game's cover animation alone (`?game=<id>&lang=`): its `portada`, or without one its `ejemplo`, and, told the frame's height, scales the drawing to fill it (0.5× to 3×) and hides a paragraph with a link (a credit line). The home page's game sheet frames it (lab flag `home-carousels`, C-17); `tools/e2e/cup/cover.mjs` |
+| `cover/` | A page that draws one game's cover animation alone (`?game=<id>&lang=`): its `portada`, or without one its `ejemplo`, and, told the frame's height, scales the drawing to fill it (0.5× to 3×) and hides a paragraph with a link (a credit line). The home page's game sheet frames it (lab sub-flag `home-carousels-sheet` of the icon view, C-17); `tools/e2e/cup/cover.mjs` |
 | `demo.js` | Las escenas de ejemplo de `?test&demo=`, para las pruebas y las capturas; `escena()` builds one without storing it, for the home page's recap demo (D-423) |
 | `recap.js` · `recap/index.html` | The recap of an ended cup for the home page (D-423): `/cup/recap/` is a page with no screen that the home page opens in a hidden frame; it reads the due cup over REST and posts back its table (`cupRecap`) and the final table's image (`cupImage`, D-427), so the home page never loads the engine; it links `base.css` (with the Nunito and Bangers preloads, #851) only for the fonts the image is drawn with (Bangers, Nunito), and waits for them. The window itself is `assets/js/recap.js` and `assets/css/recap.css` |
 | `reportes.js` | El botón 🐞 y los reportes que esperan reenvío |

@@ -47,7 +47,7 @@ Precedents: Sudoku `3f60e2d8`, ¡Al toque! `54324382`, Dominorama `ba085a29`, Me
 
 - [ ] **Campaign.** Add the campaign to `CAMPAIGNS` in `public/assets/js/splash.js`, with `requires: [<flags>]` so nobody sees it before the game.
 - [ ] **Items.** Each item names its `game`; its emoji and drawing come from `games.js`, never its own (rule 9).
-- [ ] **Clips.** Clips go in `public/assets/splash/`, recorded by `marketing/splash/*-clip.mjs`.
+- [ ] **Clips.** Clips go in `public/assets/splash/`, recorded by `marketing/splash/*-clip.mjs`. A game that writes words on its canvas gets one clip per language: `video`/`img`/`still` as `{ es, en, pt }` in `splash.js`.
 - [ ] **Campaign folder.** `marketing/splash/campaigns/<id>/` holds its README and `es/en/pt-390.jpg` (`campaigns.test.mjs`).
 - [ ] **Measured.** `tools/e2e/splash/margins.mjs` must be green at 390×844, 360×640 and 1440×900 (D-570).
 - [ ] **Owner sees it** with `?splash=<id>` before launch.

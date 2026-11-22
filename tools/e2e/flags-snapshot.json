@@ -62,6 +62,9 @@
   "flap-tiebreak": {
     "state": "all"
   },
+  "home-carousels": {
+    "state": "all"
+  },
   "home-pill-bar": {
     "state": "all"
   },
@@ -132,6 +135,9 @@
     "state": "all"
   },
   "uad-skip-end": {
+    "state": "all"
+  },
+  "wins-hide-empty": {
     "state": "all"
   },
   "word-in-words": {

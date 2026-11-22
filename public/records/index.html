@@ -94,7 +94,7 @@
     import '../assets/js/season.js'; // the seasonal touches (D-457)
     import { getLang, langToggle, applyStatic, pickLang, COMMON } from '../assets/js/i18n.js';
     import { SFX, soundToggle, initSound } from '../assets/js/sound.js';
-    import { SUELTOS, GAMES, gameById, SOLO_TABLES, FIRST_VARIANT_TABLES } from '../assets/js/games.js';
+    import { SUELTOS, GAMES, gameById, SOLO_TABLES, SOLO_LEVELS, FIRST_VARIANT_TABLES } from '../assets/js/games.js';
     import { DECKS } from '../timeline/decks/index.js';
     import { LOCALES as LINEA } from '../timeline/rules.js';
     import { trackVisit } from '../assets/js/transport/stats.js';
@@ -169,7 +169,10 @@
         return [{ id: FIRST_VARIANT_TABLES[g.id] || g.id, emoji: g.emoji, icon: g.icon, nombre: vs.length ? conV(vs[0]) : pickLang(g.name, lang) },
           ...vs.slice(1).map(v => ({ id: `${g.id}_${v}`, emoji: g.emoji, icon: g.icon, nombre: conV(v) }))];
       }),
-      ...conSolo.map(({ g, tabla }) => ({ id: tabla, emoji: g.emoji, icon: g.icon, nombre: pickLang(g.name, lang) })),
+      // A game that ranks each level apart (SOLO_LEVELS, Tembleque) has one tab per level, `<id>_<level>`
+      ...conSolo.flatMap(({ g, tabla }) => (SOLO_LEVELS[g.id]
+        ? Object.entries(SOLO_LEVELS[g.id]).map(([v, n]) => ({ id: `${g.id}_${v}`, emoji: g.emoji, icon: g.icon, nombre: `${pickLang(g.name, lang)} · ${pickLang(n, lang)}` }))
+        : [{ id: tabla, emoji: g.emoji, icon: g.icon, nombre: pickLang(g.name, lang) }])),
       // Línea Relámpago es una ficha; sus temáticas se eligen adentro (una tabla por temática)
       ...(DECKS.length ? [{ id: 'linea-de-tiempo_rel', emoji: '⏳', nombre: relampago, temas: true }] : []),
     ];
