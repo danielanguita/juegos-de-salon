@@ -40,6 +40,8 @@
 .pf-badge--locked .pf-medal { background: rgb(var(--ink-rgb) / 0.08); box-shadow: none; outline: 2px dashed rgb(var(--ink-rgb) / 0.3); filter: grayscale(1); opacity: 0.55; color: var(--muted); font: 900 var(--fs-160) var(--font-body); }
 .pf-badge--locked .pf-name { color: var(--muted); }
 .pf-name { font-weight: 900; font-size: var(--fs-85); line-height: 1.15; }
+/* At 320 px a long one-word name (Coleccionista, Todoterreno) fits its medal's column: a step smaller, a tighter card */
+@media (max-width: 359px) { .pf-grid { gap: var(--s-6); } .pf-badge { padding-left: var(--s-2); padding-right: var(--s-2); } .pf-name { font-size: var(--fs-75); } }
 .pf-desc { font-size: var(--fs-75); color: var(--muted); line-height: 1.2; }
 .pf-times { position: absolute; top: var(--s-6); right: var(--s-6); font: 900 var(--fs-75) var(--font-num); background: var(--pink); color: var(--ink); border-radius: var(--r-pill); padding: 0 var(--s-6); }
 .pf-bar { width: 80%; height: 6px; border-radius: var(--r-pill); background: rgb(var(--ink-rgb) / 0.12); overflow: hidden; margin-top: var(--s-2); }
