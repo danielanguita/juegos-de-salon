@@ -31,6 +31,10 @@ jobs:
     env:
       GH_TOKEN: ${{ github.token }}
       RUN: ${{ github.event.workflow_run.id }}
+      # The attempt that ended: a "Re-run failed jobs" started before this job reads the log made
+      # `--log-failed` read the new, still running attempt, empty, and record "no failing test found"
+      # (signature f2f83772a2 on #1163, #1402, #1518, #1747: four unrelated breaks as one pattern)
+      ATTEMPT: ${{ github.event.workflow_run.run_attempt }}
       WORKFLOW: ${{ github.event.workflow_run.name }}
       CONCLUSION: ${{ github.event.workflow_run.conclusion }}
       SHA: ${{ github.event.workflow_run.head_sha }}
@@ -61,7 +65,7 @@ jobs:
           ARGS=(--store store/failures.json --check "$CHECK" --commit "$SHA" --branch "$BRANCH")
           [ -n "$PR" ] && ARGS+=(--pr "$PR")
           if [ "$CONCLUSION" = failure ]; then
-            gh run view "$RUN" -R "$GITHUB_REPOSITORY" --log-failed > "$RUNNER_TEMP/run.log" || true
+            gh run view "$RUN" -R "$GITHUB_REPOSITORY" --attempt "$ATTEMPT" --log-failed > "$RUNNER_TEMP/run.log" || true
             node tools/agents/failures.mjs capture --log "$RUNNER_TEMP/run.log" --run "$RUN" "${ARGS[@]}"
           else
             node tools/agents/failures.mjs link "${ARGS[@]}"
