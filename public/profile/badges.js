@@ -29,16 +29,17 @@
  *   now            ms
  */
 
+import { LOCAL_SECRETS, NIGHT_GAMES, TUESDAY_13 } from '../assets/js/secret-achievements.js';
+
+export { NIGHT_GAMES, TUESDAY_13 };
 export const GROUPS = ['daily', 'cup', 'games'];
 export const EARLY_GAMES = 3;   // games before 7 in one morning…
 export const EARLY_DAYS = 7;    // …on this many mornings
-export const NIGHT_GAMES = 3;   // games between midnight and 4 in one night
 export const RUN_GAMES = 10;    // one same game in a row
 export const WEEKENDS = 4;      // weekends with Saturday and Sunday played
 export const MONDAYS = 4;       // Mondays with a game before 8
 export const PARTY_CUPS = 3;    // cups within 7 days
 export const SPECIALIST = 50;   // games of one same game
-export const TUESDAY_13 = 13;   // games on one Tuesday the 13th
 export const HOUSE_DAYS = 100;  // days with a game, not in a row
 const DAY = 86400000;
 const isoDay = ms => new Date(ms).toISOString().slice(0, 10);
@@ -136,14 +137,14 @@ export const BADGES = [
   { id: 'number-one', group: 'games', tier: 'gold', icon: '🥇', check: f => ({ got: n(f.firsts) > 0, count: n(f.firsts) }) },
   { id: 'all-rounder', group: 'games', tier: 'silver', icon: '🎯', check: f => ({ got: Number.isInteger(f.allRounder) && f.allRounder >= 1 && f.allRounder <= 10 }) },
   // Secret: shown as «?» until earned
-  { id: 'night-owl', group: 'games', tier: 'silver', icon: '🦉', secret: true, check: f => ({ got: Object.values(f.hours || {}).some(h => n(h?.n) >= NIGHT_GAMES) }) },
+  { id: 'night-owl', group: 'games', tier: 'silver', icon: '🦉', secret: true, check: f => ({ got: LOCAL_SECRETS['night-owl'](f) }) },
   { id: 'triple-crown', group: 'games', tier: 'gold', icon: '💎', secret: true, check: f => ({ got: n(f.medals?.gold) > 0 && (f.months || []).some(m => m.place === 1) && n(f.firsts) > 0 }) },
   { id: 'one-year', group: 'games', tier: 'gold', icon: '🎂', secret: true, check: f => ({ got: n(f.since) > 0 && n(f.now) - f.since >= 365 * 86400000 }) },
-  { id: 'tuesday-13', group: 'games', tier: 'silver', icon: '🐈‍⬛', secret: true, check: f => ({ got: n(f.marks?.t13?.best) >= TUESDAY_13 }) },
-  { id: 'fiestas', group: 'games', tier: 'bronze', icon: '🪁', secret: true, check: f => ({ got: !!f.marks?.days?.fiestas }) },
-  { id: 'halloween', group: 'games', tier: 'bronze', icon: '🎃', secret: true, check: f => ({ got: !!f.marks?.days?.halloween }) },
-  { id: 'xmas', group: 'games', tier: 'bronze', icon: '🎅', secret: true, check: f => ({ got: !!f.marks?.days?.xmas }) },
-  { id: 'new-year', group: 'games', tier: 'bronze', icon: '🎆', secret: true, check: f => ({ got: !!f.marks?.days?.newyear }) },
+  { id: 'tuesday-13', group: 'games', tier: 'silver', icon: '🐈‍⬛', secret: true, check: f => ({ got: LOCAL_SECRETS['tuesday-13'](f) }) },
+  { id: 'fiestas', group: 'games', tier: 'bronze', icon: '🪁', secret: true, check: f => ({ got: LOCAL_SECRETS['fiestas'](f) }) },
+  { id: 'halloween', group: 'games', tier: 'bronze', icon: '🎃', secret: true, check: f => ({ got: LOCAL_SECRETS['halloween'](f) }) },
+  { id: 'xmas', group: 'games', tier: 'bronze', icon: '🎅', secret: true, check: f => ({ got: LOCAL_SECRETS['xmas'](f) }) },
+  { id: 'new-year', group: 'games', tier: 'bronze', icon: '🎆', secret: true, check: f => ({ got: LOCAL_SECRETS['new-year'](f) }) },
 ];
 
 /**

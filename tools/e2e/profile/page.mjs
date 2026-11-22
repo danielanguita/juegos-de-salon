@@ -62,9 +62,17 @@ for (const W of [320, 390]) {
     const h = {}; for (let i = 1; i <= 4; i++) h['2026-11-0' + i] = { e: 3 };
     localStorage.setItem('juegos-de-salon:play-hours', JSON.stringify(h));
     localStorage.setItem('juegos-de-salon:play-run', JSON.stringify({ g: 'queens', n: 3, best: 10 }));
+    localStorage.setItem('juegos-de-salon:logros-anunciados', JSON.stringify({ xmas: 1 }));
     localStorage.setItem('juegos-de-salon:play-marks', JSON.stringify({ days: { xmas: true, halloween: true }, wk: ['2025-01-04', '2025-01-11', '2025-01-18'], mon: ['2025-01-06'], played: ['2025-01-01', '2025-01-02'] }));
   })()`);
   await b.go(`${SITE}/profile/?test`, 4000);
+  // 🎃 earned and not yet told: its window opens once, like One a Day's month-end one, with «Ver mis logros» (the owner, 2026-11-22)
+  ok(await ev(`(() => { const w = document.querySelector('.aw-capa'); return !!w && w.querySelector('.aw-titulo')?.textContent === 'Noche de brujas' && !w.querySelector('path') && /logros secretos/.test(w.textContent) && !/chapita/i.test(w.textContent) && !!w.querySelector('a.btn'); })()`), `${W}: 🎃 a secret achievement just earned opens its window: a round medal, no ribbon, «Ver mis logros»`);
+  ok(await ev(`(() => { const c = document.querySelector('.aw-capa .me-tarjeta')?.getBoundingClientRect(), m = document.querySelector('.aw-medalla')?.getBoundingClientRect(); return !!c && c.left >= 0 && c.right <= ${W} && m.top >= 0 && document.documentElement.scrollWidth <= ${W}; })()`), `${W}: 🎃 its window fits the screen`);
+  await sleep(1200);
+  await b.shot(`achievement-${W}`);
+  await ev(`document.querySelector('.aw-capa .me-x').click()`); await sleep(400);
+  ok(await ev(`!document.querySelector('.aw-capa') && !!JSON.parse(localStorage.getItem('juegos-de-salon:logros-anunciados') || '{}').halloween`), `${W}: 🎃 told once: the phone remembers it`);
   ok(await ev(`document.querySelector('.pf-player')?.textContent.includes('Javi')`), `${W}: the card names the player`);
   ok(await ev(`!document.querySelector('.pf-avatar') && !!document.querySelector('.pf-card .pf-player .rk-flag, .pf-card .pf-player')`), `${W}: the card is the player's flag and name, no initial in a circle`);
   ok(/14/.test(await ev(`document.querySelector('.pf-stat b')?.textContent`)), `${W}: the card shows the 14-day streak`);

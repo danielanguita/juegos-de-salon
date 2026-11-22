@@ -405,6 +405,7 @@ export async function drawProfile(root, { sub }) {
     const paint = () => {
       const r = earned(f, readSeen(yo.jid));
       writeSeen(yo.jid, r.seen);
+      celebrateHere(r.list).catch(() => {});
       return r.list;
     };
     const badgesBox = el('div', { class: 'pf-tab' });
@@ -441,6 +442,7 @@ export async function drawProfile(root, { sub }) {
 function drawGuest(root) {
   const r = earned(localFacts(), readSeen(null));
   writeSeen(null, r.seen);
+  celebrateHere(r.list).catch(() => {});
   // The badges this phone could earn without a name: Uno al día's streaks and hours, and the games played
   const local = new Set(['streak-10', 'streak-30', 'month-full', 'early-bird', 'explorer', 'plays-100', 'obsession', 'premiere', 'regular', 'weekends', 'mondays',
     'night-owl', 'tuesday-13', 'fiestas', 'halloween', 'xmas', 'new-year']);
@@ -458,20 +460,36 @@ function drawGuest(root) {
 
 
 /**
- * `?achievement=demo` (lab flag profile): the secret achievement's window in its three looks, for the owner to
- * pick (2026-11-22), with a picker under it: the look (A, B, C) and the achievement. Nothing is recorded.
+ * `?achievement=demo` (lab flag profile): the secret achievement's window for each one, with a picker under it.
+ * Nothing is recorded.
  */
 async function achievementDemo() {
   const { showAchievement } = await import('../assets/js/achievement-window.js');
   const secrets = BADGES.filter(b => b.secret);
-  let style = 'a', i = secrets.findIndex(b => b.id === 'xmas');
+  let i = secrets.findIndex(b => b.id === 'xmas');
   const open = () => {
     document.querySelectorAll('.splash-capa').forEach(x => x.remove());
     const b = secrets[i];
     const bar = el('div', { class: 'aw-demo' },
-      ...['a', 'b', 'c'].map(s => el('button', { type: 'button', class: s === style ? 'on' : '', onClick: () => { style = s; open(); } }, s.toUpperCase())),
       ...secrets.map((x, k) => el('button', { type: 'button', class: k === i ? 'on' : '', 'aria-label': T.badges[x.id]?.[0] || x.id, onClick: () => { i = k; open(); } }, x.icon)));
-    showAchievement({ ...b, name: T.badges[b.id]?.[0] || b.id }, { lang, style, secret: { n: 3, total: secrets.length }, profileHref: '#badges', extra: bar });
+    showAchievement({ ...b, name: T.badges[b.id]?.[0] || b.id }, { lang, secret: { n: 3, total: secrets.length }, profileHref: '#badges', extra: bar });
   };
   open();
+}
+
+/**
+ * A secret achievement the profile finds earned (the server's ones, 💎 and 🎂, or a local one no game told yet)
+ * opens its window once per phone (achievement-window.js), here, where «Ver mis logros» just closes it.
+ */
+async function celebrateHere(list) {
+  if (/[?&]achievement=demo/.test(location.search)) return;
+  const { announced, markAnnounced } = await import('../assets/js/secret-achievements.js');
+  const done = announced();
+  const b = list.find(x => x.secret && x.got && !done[x.id]);
+  if (!b || document.querySelector('.splash-capa')) return;
+  const { showAchievement } = await import('../assets/js/achievement-window.js');
+  markAnnounced(b.id);
+  const now = announced();
+  const secrets = list.filter(x => x.secret);
+  showAchievement({ ...b, name: T.badges[b.id]?.[0] || b.id }, { lang, secret: { n: secrets.filter(x => x.got || now[x.id]).length, total: secrets.length }, profileHref: '#badges' });
 }

@@ -1,6 +1,11 @@
 /* The secret achievement's window (achievement-window.js, lab flag profile): month-end.css's comic card, rays
-   and fireworks, with three looks for the owner to pick. The card's room for the medal is month-end.css's own (`.me-p1…3`). */
+   and fireworks; the card's room above it for the medal is month-end.css's own (`.me-p1…3`). The medal is only
+   the round metal, no ribbon (the owner, 2026-11-22): it drops in, then floats and shines. */
 .aw-titulo { font-size: clamp(1.9rem, 9vw, 2.5rem); }
+.aw-medalla { width: 120px; height: 120px; margin-top: calc(var(--s-32) * -2.6); filter: drop-shadow(0 10px 14px var(--me-sombra));
+  animation: aw-cae 0.7s cubic-bezier(0.2, 1.5, 0.4, 1) both, aw-flota 3s ease-in-out 0.7s infinite; }
+@keyframes aw-cae { from { transform: translateY(-160px) rotate(-25deg) scale(0.6); opacity: 0; } }
+@keyframes aw-flota { 50% { transform: translateY(-8px) rotate(3deg); } }
 .aw-emoji { font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif; }
 .aw-cuenta { display: grid; gap: var(--s-6); justify-items: center; font-weight: 900; font-size: var(--fs-85); color: var(--me-tinta-suave); }
 .aw-puntos { display: flex; gap: var(--s-6); }
@@ -8,49 +13,14 @@
 .aw-puntos i.on { background: var(--yellow); }
 .aw-puntos i.nuevo { background: var(--pink); animation: aw-late 1s ease-in-out 3 0.9s; }
 @keyframes aw-late { 50% { transform: scale(1.6); } }
-
-/* A · the medal hangs and swings (as the month's champion's) */
-.aw-a .aw-medalla { animation: me-vaiven 3s ease-in-out infinite, aw-cae 0.7s cubic-bezier(0.2, 1.5, 0.4, 1) both; }
-@keyframes aw-cae { from { transform: translateY(-140px) rotate(-12deg); } }
-
-/* B · a «?» medal shakes, then flips to show the achievement; diagonal stripes run behind */
-.aw-franjas { position: fixed; inset: -50%; pointer-events: none;
-  background: repeating-linear-gradient(-35deg, color-mix(in srgb, var(--m2) 40%, transparent) 0 28px, transparent 28px 70px);
-  mask: radial-gradient(circle, var(--ink) 20%, transparent 65%); -webkit-mask: radial-gradient(circle, var(--ink) 20%, transparent 65%);
-  animation: aw-corre 2.4s linear infinite; }
-@keyframes aw-corre { to { transform: translate(70px, 0); } }
-.aw-b .me-tarjeta { transform: rotate(2deg); animation-name: aw-pop-b; }
-@keyframes aw-pop-b { from { transform: rotate(2deg) scale(0.6); opacity: 0; } }
-.aw-b .aw-medalla { transform-origin: 50% 64%; animation: aw-tiembla 0.45s ease-in-out 0.25s 2; }
-.aw-b .aw-cara { transform-box: view-box; transform-origin: 75px 122px; animation: aw-gira 0.6s ease-in 1.25s both; }
-.aw-b .aw-dorso { animation: aw-oculta 0.01s linear 1.55s both; }
-@keyframes aw-tiembla { 25% { transform: rotate(-9deg); } 75% { transform: rotate(9deg); } }
-@keyframes aw-gira { 0% { transform: scaleX(1); } 50% { transform: scaleX(0); } 100% { transform: scaleX(1); } }
-@keyframes aw-oculta { to { opacity: 0; } }
-.aw-b .aw-tarjeta::after { content: ''; position: absolute; left: 50%; top: 10px; width: 10px; height: 10px; border-radius: 50%; pointer-events: none;
-  box-shadow: 0 0 0 0 var(--m2); animation: aw-destello 0.7s ease-out 1.55s both; }
-@keyframes aw-destello { from { box-shadow: 0 0 0 0 color-mix(in srgb, var(--m2) 90%, transparent); } to { box-shadow: 0 0 0 220px transparent; } }
-
-/* C · slapped on like a sticker, the card shakes, a comic burst behind and the achievement's emoji raining */
-.aw-c .me-tarjeta { animation: me-pop 0.5s cubic-bezier(0.2, 1.6, 0.4, 1) both, aw-sacude 0.35s ease-in-out 0.45s; }
-@keyframes aw-sacude { 25% { transform: rotate(-1.5deg) translate(-6px, 3px); } 75% { transform: rotate(-1.5deg) translate(6px, -3px); } }
-.aw-c .aw-medalla { animation: aw-pega 0.5s cubic-bezier(0.3, 1.4, 0.5, 1) both; }
-@keyframes aw-pega { from { transform: scale(2.6) rotate(-30deg); opacity: 0; } 70% { opacity: 1; } to { transform: rotate(6deg); } }
-.aw-estallido { position: absolute; top: -70px; right: -14px; width: 150px; height: 96px; display: grid; place-items: center;
-  font: 400 var(--fs-120)/1 var(--font-display); letter-spacing: 0.04em; color: var(--card-ink); background: var(--yellow);
-  clip-path: polygon(50% 0, 60% 22%, 84% 6%, 78% 32%, 100% 36%, 80% 54%, 98% 76%, 72% 72%, 66% 100%, 50% 80%, 34% 100%, 28% 72%, 2% 76%, 20% 54%, 0 36%, 22% 32%, 16% 6%, 40% 22%);
-  transform: rotate(12deg); animation: aw-estalla 0.4s cubic-bezier(0.2, 1.8, 0.4, 1) 0.35s both; z-index: 1; }
-@keyframes aw-estalla { from { transform: rotate(12deg) scale(0); } }
-.aw-lluvia { position: fixed; inset: 0; pointer-events: none; overflow: hidden; }
-.aw-lluvia span { position: absolute; top: -10%; animation: aw-llueve linear infinite both; }
-@keyframes aw-llueve { from { transform: translate(0, 0) rotate(0); } to { transform: translate(-30vw, 120vh) rotate(360deg); } }
-
 /* The demo's picker (?achievement=demo), under the window */
 .aw-demo { position: fixed; left: 0; right: 0; bottom: 0; z-index: 1001; display: flex; flex-wrap: wrap; gap: var(--s-6); justify-content: center;
   padding: var(--s-8) var(--s-8) calc(var(--s-8) + var(--safe-bottom, 0px)); background: rgb(var(--bg2-rgb) / 0.95); }
 .aw-demo button { min-height: 44px; min-width: 44px; border-radius: var(--r-pill); border: 2px solid var(--glass-border); background: var(--well); color: var(--ink); font: 900 var(--fs-90) var(--font-body); padding: 0 var(--s-12); }
 .aw-demo button.on { background: var(--yellow); color: var(--ink-on-yellow); border-color: var(--yellow); }
+@media (max-height: 700px) {
+  .aw-medalla { width: 96px; height: 96px; margin-top: calc(var(--s-32) * -2.1); }
+}
 @media (prefers-reduced-motion: reduce) {
-  .aw-medalla, .aw-cara, .aw-dorso, .aw-franjas, .aw-estallido, .aw-puntos i, .aw-tarjeta::after { animation: none; }
-  .aw-b .aw-dorso { opacity: 0; }
+  .aw-medalla, .aw-puntos i { animation: none; }
 }
