@@ -86,6 +86,7 @@ for (const W of [320, 390]) {
   await ev(`document.querySelector('[data-tab=rankings]').click()`); await sleep(2500);
   ok(await ev(`document.querySelectorAll('.pf-game').length`) === 8, `${W}: 🏅 lists the eight games the player played`);
   ok(await ev(`document.querySelector('.pf-game[data-game="reinas"] .pf-game-place')?.textContent.startsWith('1')`), `${W}: 🏅 Reinas shows the player's first place`);
+  ok(await ev(`[...document.querySelectorAll('.pf-places .pf-place')].slice(0, 2).every(x => /pf-place--/.test(x.className) && x.querySelector('i').textContent && /^(1|2|3)/.test(x.querySelector('b').textContent) === /gold|silver|bronze/.test(x.className))`), `${W}: 🏅 the overall places wear their medal and metal`);
   ok(await ev(`document.querySelectorAll('.pf-game:not([hidden])').length`) === 6, `${W}: 🏅 six games show, the rest behind «Ver más»`);
   await ev(`document.querySelector('.pf-game[data-game="tango"]').click()`); await sleep(1500);
   ok(await ev(`!!document.querySelector('.pf-game[data-game="tango"] + .pf-game-table .rk-fila.yo')`), `${W}: a tap on Tango opens its table with the player's row`);
