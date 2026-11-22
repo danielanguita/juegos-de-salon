@@ -53,7 +53,7 @@ console.log('only: the pieces, green');
   const lf = list => list.filter(j => j.startsWith('landing-fold.mjs'));
   const whole = PARTS['landing-fold.mjs'].map(p => `landing-fold.mjs:${p}`);
   assert.deepEqual(lf(chosenJobs(['public/generala/style.css'])), whole.map(j => `${j}@generala`), "Generala's own style: landing-fold for Generala only");
-  assert.deepEqual(lf(chosenJobs(['public/labs/croc/style.css'])), whole.map(j => `${j}@croc`), "a lab game's own style (#1624): that game only");
+  assert.deepEqual(lf(chosenJobs(['public/labs/cryptic/style.css'])), whole.map(j => `${j}@cryptic`), "a lab game's own style (#1624): that game only");
   assert.deepEqual(lf(chosenJobs(['public/labs/index.html'])), [], 'the lab index is no landing (#1624 ran the whole script for it)');
   for (const f of ['public/assets/css/base.css', 'public/cup/style.css', 'public/cup/game.js', 'public/assets/js/uno-al-dia-ui.js', 'tools/e2e/paths.mjs', 'tools/e2e/landing-fold.mjs'])
     assert.deepEqual(lf(chosenJobs([f])), whole, `${f} is shared: landing-fold whole`);

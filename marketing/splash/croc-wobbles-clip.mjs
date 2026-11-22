@@ -82,12 +82,13 @@ async function take({ url, width, height, storage = {}, start, setup, frame, fra
 
 // 🐸 Croc!: across the whole highway, the canal and to the pond (seed 4821: three fruits, a dash, close calls)
 const CROC = {
-  url: lang => `${SITE}/labs/croc/?test&seed=4821&lang=${lang}`,
+  // Its page /croc/ (La Copa's screen since it left the lab, D-517's way), its flag pinned on for the take
+  url: lang => `${SITE}/croc/?test&seed=4821&lang=${lang}`,
   width: 390, height: 844,
-  storage: lang => ({ 'juegos-de-salon:lang': lang }),
-  start: `document.getElementById('btn-play').click(); 1`,
+  storage: lang => ({ 'juegos-de-salon:lang': lang, 'juegos-de-salon:flags': JSON.stringify({ croc: { state: 'all' } }) }),
+  start: `document.getElementById('btn-empezar').click(); 1`,
   setup: {
-    ready: `!document.getElementById('cuenta') && !!window.__croc.state() && document.getElementById('screen-play').classList.contains('active')`,
+    ready: `!document.getElementById('cuenta') && !!window.__croc?.state() && !!document.querySelector('canvas.sp-lienzo')`,
     // Hops when the lane ahead is clear, steps aside for a fruit, dashes over a lane that is not
     bot: `(() => {
       const COLS = 7;
@@ -115,7 +116,7 @@ const CROC = {
         for (const d of [1, -1]) { const c = f.col + d; if (c >= 0 && c < COLS && clear(L(f.row), c, 0.3) && clear(L(f.row + 1), c, 0.5)) return act(d > 0 ? 'right' : 'left'); }
       };
       // The camera: the whole road, pushing in on the frog at each dash, fruit, close call or hit, and at the pond
-      const cv = document.getElementById('canvas');
+      const cv = document.querySelector('canvas.sp-lienzo');
       let kick = 0, kz = 1, last = null, end = 0;
       window.__shot = () => {
         const g = window.__croc.state(), f = g.frog, W = cv.width, H = cv.height;
