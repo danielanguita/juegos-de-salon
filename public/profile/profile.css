@@ -113,7 +113,8 @@
 /* Another player's profile at a glance (peek.js): a tap on a name in a ranking (the owner, 2026-11-22) */
 .pf-tab .rk-fila[data-peek] { cursor: pointer; }
 .pf-tab .rk-fila[data-peek]:active { background: rgb(var(--ink-rgb) / 0.14); }
-.pf-tab .rk-fila[data-peek] .rk-n { text-decoration: underline; text-decoration-color: rgb(var(--ink-rgb) / 0.35); text-underline-offset: 3px; }
+/* A fine, faint line under the name says it opens something without weighing on the table (the owner, 2026-11-22) */
+.pf-tab .rk-fila[data-peek] .rk-n { text-decoration: underline; text-decoration-thickness: 1px; text-decoration-color: rgb(var(--ink-rgb) / 0.18); text-underline-offset: 4px; }
 .pf-peek-who { min-width: 0; }
 .pf-peek-kicker { margin: 0; color: var(--cyan); font-weight: 900; font-size: var(--fs-75); text-transform: uppercase; letter-spacing: 0.08em; }
 .hoja .pf-peek-name { font-size: var(--fs-160); overflow-wrap: anywhere; }
