@@ -1,8 +1,12 @@
 /**
  * Another player's profile, at a glance (lab flag `profile`; the owner, 2026-11-22): a tap on a name in a
- * ranking opens a sheet with what matters most about that player: their flag and name, since when they
- * play, their place in the overall ranking when in its top 10, their streak, games and cups won, their
- * three most played games and the achievements anyone can see. Tapping your own name shows how others see you.
+ * ranking opens a sheet with what matters most about that player: their flag and name, their place in the
+ * overall ranking when in its top 10 and the achievements anyone can see. Tapping your own name, or
+ * «Ver cómo me ven los demás» in ⚙️, shows how others see you.
+ *
+ * Their activity (their streak, games and cups won, since when they play, their three most played games and
+ * the achievements that count how much they play) shows only if the player turned it on in ⚙️
+ * (`jugadores/<jid>/abierto`): someone who plays a lot may not want others to know (the owner, 2026-11-22).
  *
  * Only what is already public is read (`jugadores/<jid>`, `unoAlDia/<jid>`, the Cups' podiums and the
  * tables): what this phone alone knows about its player (the hours, the marks, the cups joined) is not
@@ -25,6 +29,9 @@ import { TEXTS } from './texts.js';
 export const PUBLIC_BADGES = new Set(['streak-10', 'streak-30', 'streak-100', 'month-full', 'month-podium', 'month-champion',
   'cup-podium', 'cup-champion', 'explorer', 'collector', 'plays-100', 'plays-1000', 'specialist', 'regular', 'weekends',
   'all-rounder', 'one-year']);
+/** The achievements that say how much someone plays: shown only with the player's activity. */
+export const ACTIVITY_BADGES = new Set(['streak-10', 'streak-30', 'streak-100', 'month-full', 'plays-100', 'plays-1000',
+  'specialist', 'regular', 'weekends', 'one-year']);
 const TIER = { gold: 0, silver: 1, bronze: 2 };
 /** How many medals the sheet shows before «+N». */
 export const SHOWN_BADGES = 8;
@@ -49,6 +56,7 @@ export function peekFacts({ jid, perfil = null, hist = {}, podios = {}, general 
   return {
     today, now,
     n: perfil?.n || '', co: perfil?.co || '',
+    open: perfil?.abierto === true,
     since: Number(perfil?.at) || 0,
     streak: r.racha, bestStreak: r.mejor,
     dailyDays: Object.fromEntries(Object.keys(dias).map(d => [d, true])),
@@ -62,9 +70,10 @@ export function peekFacts({ jid, perfil = null, hist = {}, podios = {}, general 
   };
 }
 
-/** The achievements to show: earned, public, the best metal first. */
+/** The achievements to show: earned, public, without those that count how much they play unless `f.open`; the best metal first. */
 export function peekBadges(f) {
-  return earned(f, {}).list.filter(b => b.got && PUBLIC_BADGES.has(b.id)).sort((a, b) => TIER[a.tier] - TIER[b.tier]);
+  return earned(f, {}).list.filter(b => b.got && PUBLIC_BADGES.has(b.id) && (f.open || !ACTIVITY_BADGES.has(b.id)))
+    .sort((a, b) => TIER[a.tier] - TIER[b.tier]);
 }
 
 /** Reads a player's public record; each read on its own, one failing leaves the rest. */
@@ -123,17 +132,19 @@ export async function peekPlayer(jid, { hint = {}, lang = getLang(), doc = docum
   if (!layer) return null;
   if (!f) { body.replaceChildren(el('p', { class: 'muted pf-peek-wait' }, T.peekError)); return panel; }
   who.textContent = conBandera(f.co, f.n);
-  const line = [f.since ? fmt(T.since, { month: new Intl.DateTimeFormat(lang, { month: 'long', year: 'numeric' }).format(new Date(f.since)) }) : null,
+  const open = f.open;
+  const line = [open && f.since ? fmt(T.since, { month: new Intl.DateTimeFormat(lang, { month: 'long', year: 'numeric' }).format(new Date(f.since)) }) : null,
     f.allRounder ? fmt(T.peekPlace, { place: lang === 'en' ? `#${f.allRounder}` : `${f.allRounder}.º` }) : null].filter(Boolean);
   const stat = (b, s) => el('div', { class: 'pf-stat' }, el('b', {}, b), el('span', {}, s));
   const badges = peekBadges(f);
   const name = b => (T.badges[b.id] || [b.id])[0];
   const fav = f.byGame.slice(0, 3);
-  body.replaceChildren(
+  body.replaceChildren(...[
     line.length ? el('p', { class: 'muted pf-peek-line' }, line.join(' · ')) : null,
-    el('div', { class: 'pf-stats pf-peek-stats' },
-      stat(`🔥 ${num(f.streak || 0)}`, T.statStreak), stat(num(f.plays || 0), T.statPlays), stat(`🏆 ${num(f.medals.gold)}`, T.statCups)),
-    el('section', { class: 'pf-peek-part' },
+    open ? el('div', { class: 'pf-stats pf-peek-stats' },
+      stat(`🔥 ${num(f.streak || 0)}`, T.statStreak), stat(num(f.plays || 0), T.statPlays), stat(`🏆 ${num(f.medals.gold)}`, T.statCups)) : null,
+    open ? null : el('p', { class: 'pf-peek-hidden' }, me ? T.peekHiddenYou : T.peekHidden),
+    !open ? null : el('section', { class: 'pf-peek-part' },
       el('h3', {}, T.peekGames),
       fav.length
         ? el('ol', { class: 'pf-peek-games' }, fav.map(g => el('li', { 'data-game': g.id },
@@ -147,7 +158,8 @@ export async function peekPlayer(jid, { hint = {}, lang = getLang(), doc = docum
           badges.slice(0, SHOWN_BADGES).map(b => el('li', { class: `pf-badge--${b.tier}`, 'data-badge': b.id },
             el('span', { class: 'pf-medal', 'aria-hidden': 'true' }, b.icon), el('small', {}, name(b)))),
           badges.length > SHOWN_BADGES ? el('li', { class: 'pf-peek-more' }, el('span', { class: 'pf-medal' }, `+${badges.length - SHOWN_BADGES}`)) : null)
-        : el('p', { class: 'muted' }, T.peekNoBadges)));
+        : el('p', { class: 'muted' }, T.peekNoBadges)),
+  ].filter(Boolean));
   return panel;
 }
 
