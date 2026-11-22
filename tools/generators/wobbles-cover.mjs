@@ -1,5 +1,5 @@
 // ⚖️ Tembleque's cover picture (the owner's request, 2026-11-21): each level as it really plays, recorded from
-// the real game, with a camera that breathes, follows each falling piece and punches in when it lands, and an
+// the real game, with a camera that breathes and leans in a little as each piece lands, and an
 // endless loop: the camera ends where it began, pushed in on the plank, and the last 0.8 s melt into the first.
 //
 // It borrows the splash's takes (marketing/splash/croc-wobbles-clip.mjs: the virtual clock, the bots that play
@@ -35,11 +35,11 @@ const CAMERA = `(() => {
   const out = document.createElement('canvas'); out.width = ${OW}; out.height = ${OH};
   const o = out.getContext('2d'); o.imageSmoothingQuality = 'high';
   let cur = null, f = 0;
-  window.__loop = () => { const e = x => x * x * (3 - 2 * x); const a = Math.max(0, 1 - f / ${BLEND}), b = Math.max(0, 1 - (${FRAMES} - 1 - f) / ${BLEND}); return 0.26 * e(Math.max(a, b)); };
+  window.__loop = () => { const e = x => x * x * (3 - 2 * x); const a = Math.max(0, 1 - f / ${BLEND}), b = Math.max(0, 1 - (${FRAMES} - 1 - f) / ${BLEND}); return 0.1 * e(Math.max(a, b)); };
   window.__breath = (amp, per) => amp * Math.sin(2 * Math.PI * f / per);
   window.__cam2 = (src, goal, base, bg) => {
     if (!cur) cur = { ...goal };
-    for (const k of ['z', 'x', 'y']) cur[k] += (goal[k] - cur[k]) * (k === 'z' ? 0.14 : 0.12);
+    for (const k of ['z', 'x', 'y']) cur[k] += (goal[k] - cur[k]) * (k === 'z' ? 0.05 : 0.05);
     const sw = Math.min(src.width, base / cur.z), sh = sw * ${OH / OW};
     // \`floor\`: the lowest canvas row that must stay in the window (the plank and its stand)
     const yy = goal.floor != null ? Math.max(cur.y, goal.floor - sh / 2) : cur.y;
@@ -60,16 +60,16 @@ const EASY_CAM = `(() => {
     const S = B.S, base = 800 * sc * dpr; // wide: the claw's rail, whole, down to the plank's stand
     const fall = S.bodies.filter(b => !b.touch && b.vy > 40 && b.y > 60).at(-1);
     const now = { landed: S.landed, perfects: S.perfects };
-    if (last && now.perfects > last.perfects) punch = 0.3;
-    else if (last && now.landed > last.landed) punch = Math.max(punch, 0.18);
+    if (last && now.perfects > last.perfects) punch = 0.1;
+    else if (last && now.landed > last.landed) punch = Math.max(punch, 0.06);
     if (last && now.landed > last.landed) { const b = S.bodies.at(-1); if (b) at = [b.x, b.y]; }
-    last = now; punch *= 0.92;
+    last = now; punch *= 0.96;
     const top = Math.min(S.top ?? 440, 430), wide = [200, 230];
-    let goal = fall ? { z: 1.15, w: [200 + (fall.x - 200) * 0.5, Math.max(250, (fall.y + top) / 2)] } : { z: 1, w: wide };
-    if (punch > 0.03) goal = { z: 1.4 + punch, w: [200 + (at[0] - 200) * 0.6, at[1] - 10] };
+    let goal = fall ? { z: 1.03, w: [200 + (fall.x - 200) * 0.15, wide[1] + 15] } : { z: 1, w: wide };
+    if (punch > 0.01) goal = { z: 1.04 + punch, w: [200 + (at[0] - 200) * 0.2, wide[1] + 30] };
     const l = __loop(); if (l > 0.01) goal = { z: goal.z + l, w: [200 + (goal.w[0] - 200) * (1 - l * 2.5), goal.w[1] + (top - 40 - goal.w[1]) * Math.min(1, l * 3)] };
-    const [x, y] = px(goal.w[0] + __breath(6, 160), goal.w[1]);
-    return __cam2(cv, { z: goal.z + __breath(0.04, 110), x, y, floor: px(200, 478)[1] }, base, '#05040c');
+    const [x, y] = px(goal.w[0] + __breath(2, 160), goal.w[1]);
+    return __cam2(cv, { z: goal.z + __breath(0.012, 150), x, y, floor: px(200, 478)[1] }, base, '#05040c');
   };
   return 1;
 })()`;
@@ -80,10 +80,10 @@ const HARD_CAM = `(() => {
   let punch = 0, last = null;
   window.__coverShot = () => {
     const S = B.S, W = cv.width, H = cv.height;
-    if (last != null && S.score > last) punch = 0.3;
-    last = S.score; punch *= 0.92;
+    if (last != null && S.score > last) punch = 0.07;
+    last = S.score; punch *= 0.96;
     const l = __loop();
-    return __cam2(cv, { z: 1.02 + punch + l + __breath(0.04, 120), x: W / 2 + W * __breath(0.03, 165), y: H * (0.6 + punch * 0.06 + l * 0.06) }, W, '#07060f');
+    return __cam2(cv, { z: 1.02 + punch + l + __breath(0.012, 150), x: W / 2 + W * __breath(0.008, 165), y: H * (0.6 + punch * 0.05 + l * 0.05) }, W, '#07060f');
   };
   return 1;
 })()`;
