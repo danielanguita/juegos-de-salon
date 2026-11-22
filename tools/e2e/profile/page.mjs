@@ -2,7 +2,8 @@
 // invites to sign in, shows this phone's badges and the rankings; with one, its card, then 🎖️ badges (earned, locked
 // with progress, secret), 🏅 its places in each game it played (a tap opens the game's table) and ⚙️ its settings;
 // on the home page 🏅 becomes a pill with the player's flag and name, and the language one flag with a ▾; every other page's
-// top bar (a game's cover, Uno al día, Rankings) ends in the same pill and its cover drops «🏅 <name>». At 320 and 390 px nothing scrolls sideways and
+// top bar (a game's cover, Uno al día, Rankings) ends in the same pill and its cover drops «🏅 <name>»; ⚙️ changes the name and
+// the PIN (each with the PIN) and signs out. At 320 and 390 px nothing scrolls sideways and
 // every tappable thing is 44 px or more (U-10). Prints ✗ if anything fails.
 import { output } from '../output.mjs';
 import { launch, sleep } from '../cdp.mjs';
@@ -87,7 +88,7 @@ for (const W of [320, 390]) {
   ok(!s1, `${W}: rankings, every tappable thing is 44 px or more${s1 ? ` (${s1})` : ''}`);
   await full(b, `rankings-${W}`, W);
   await ev(`document.querySelector('[data-tab=settings]').click()`); await sleep(800);
-  ok(await ev(`!!document.querySelector('.pf-settings .lang-toggle') && !!document.querySelector('.pf-settings .sound-toggle') && !!document.querySelector('#rk-cambiar-pin')`), `${W}: ⚙️ has the language, the sound and the PIN change`);
+  ok(await ev(`!!document.querySelector('.pf-settings .lang-toggle') && !!document.querySelector('.pf-settings .sound-toggle') && !!document.querySelector('#pf-account') && !document.querySelector('.pf-tab .rk-yo')`), `${W}: ⚙️ has your account, the language and the sound`);
   ok(await ev(`!document.querySelector('#pf-page .offline-ready')`), `${W}: ⚙️ has no offline ☁️: it stays on the home page`);
   ok(await ev(`document.documentElement.scrollWidth <= ${W}`), `${W}: settings, no sideways scroll`);
   const s2 = await small(b);
@@ -119,6 +120,36 @@ for (const W of [320, 390]) {
   }
   await b.go(`${SITE}/queens/?test`, 3000);
   ok(await ev(`!document.getElementById('btn-cuenta')?.offsetParent && !document.querySelector('main .rk-yo')?.offsetParent`), `${W}: a signed-in player's cover has no «🏅 <name>» button: the PIN is in the profile`);
+  // 👤 Your account (D-600): change the name and the PIN with the PIN, then sign out
+  await b.go(`${SITE}/profile/?test#settings`, 3000);
+  const fill = (id, v) => ev(`(() => { const i = document.getElementById('${id}'); i.value = '${v}'; i.dispatchEvent(new Event('input')); })()`);
+  const rows = () => ev(`[...document.querySelectorAll('#pf-account .pf-change')].length`);
+  ok(await rows() === 2, `${W}: 👤 the name and the PIN each have «Cambiar»`);
+  await ev(`document.querySelectorAll('#pf-account .pf-change')[0].click()`); await sleep(200);
+  ok(await ev(`!document.querySelector('#pf-account .pf-form').hidden && document.activeElement?.id === 'pf-new-name'`), `${W}: «Cambiar» opens the name's form`);
+  await full(b, `account-name-${W}`, W);
+  const s3 = await small(b);
+  ok(!s3, `${W}: account, every tappable thing is 44 px or more${s3 ? ` (${s3})` : ''}`);
+  await fill('pf-new-name', 'Javiera'); await fill('pf-name-pin', '9999');
+  await ev(`document.getElementById('pf-save-name').click()`); await sleep(1500);
+  ok(await ev(`document.querySelector('#pf-account .rk-error')?.textContent.length > 0 && document.querySelector('.pf-player').textContent.includes('Javi') && !document.querySelector('.pf-player').textContent.includes('Javiera')`), `${W}: a wrong PIN renames nothing and says so`);
+  await sleep(5600);
+  await fill('pf-name-pin', '1234');
+  await ev(`document.getElementById('pf-save-name').click()`); await sleep(2500);
+  ok(await ev(`document.querySelector('.pf-player')?.textContent.includes('Javiera') && /Javiera/.test(document.getElementById('pf-renamed')?.textContent || '')`), `${W}: the PIN renames: the card shows the new name and says so`);
+  await sleep(5600);
+  await ev(`document.querySelectorAll('#pf-account .pf-change')[1].click()`); await sleep(200);
+  await fill('pf-pin-current', '1234'); await fill('pf-pin-new', '4321');
+  await ev(`document.getElementById('pf-save-pin').click()`); await sleep(2500);
+  ok(await ev(`document.querySelectorAll('#pf-account .pf-form')[1].querySelector('.rk-ok')?.textContent.length > 0`), `${W}: the current PIN changes the PIN`);
+  await ev(`document.getElementById('pf-logout').click()`); await sleep(200);
+  ok(await ev(`!document.querySelector('.pf-logout-ask').hidden`), `${W}: «Salir de tu cuenta» asks once`);
+  await b.shot(`account-logout-${W}`);
+  await ev(`document.getElementById('pf-logout-yes').click()`); await sleep(1500);
+  ok(await ev(`!localStorage.getItem('juegos-de-salon:jugador') && !document.getElementById('pf-account') && !!document.querySelector('#rk-entrar')`), `${W}: signing out leaves the page as a guest's, which invites to sign in`);
+  await sleep(5600);
+  await ev(`(async () => { const { jugador } = await import('/assets/js/jugador.js'); window.__r = (await (await jugador()).entrar('Javiera', '4321')).estado; })()`); await sleep(1500);
+  ok(await ev(`window.__r === 'dentro'`), `${W}: the new name and the new PIN sign in again`);
   b.close();
 }
 console.log(failures ? `✗ profile page: ${failures} failure(s)` : '✓ profile page');
