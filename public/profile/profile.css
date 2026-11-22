@@ -21,7 +21,11 @@
 .pf-stat span { font-size: var(--fs-75); color: var(--muted); font-weight: 800; }
 
 /* The three tabs: always in view while scrolling */
-.pf-tabs { position: sticky; top: var(--s-8); z-index: 3; box-shadow: var(--shadow-panel); }
+/* Sticky over the badges: nearly opaque in the page's own colour, blurred behind and edged, so it reads as a bar
+   above what scrolls under it, not as part of it (the owner, 2026-11-22) */
+.pf-tabs { position: sticky; top: var(--s-8); z-index: 3; box-shadow: var(--shadow-panel);
+  background: rgb(var(--bg2-rgb) / 0.92); border: 1px solid var(--glass-border);
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
 .pf-tabs button { white-space: nowrap; }
 
 /* A group of badges */
@@ -52,9 +56,23 @@
 
 /* The 🏅 tab: the player's places, their games */
 .pf-places { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--s-6); margin: var(--s-4) 0 var(--s-10); }
-.pf-place { border-radius: var(--r-12); padding: var(--s-8) var(--s-4); text-align: center; background: var(--well); }
-.pf-place b { display: block; font: 900 var(--fs-120) var(--font-num); font-variant-numeric: tabular-nums; }
+.pf-place { border-radius: var(--r-12); padding: var(--s-8) var(--s-4); text-align: center; background: var(--well); border: 2px solid transparent; }
+.pf-place i { display: block; font-style: normal; font-size: var(--fs-140); line-height: 1.2; min-height: 1.2em; }
+.pf-place i:empty { display: none; }
+.pf-place b { display: block; font: 900 var(--fs-140) var(--font-num); font-variant-numeric: tabular-nums; }
 .pf-place span { font-size: var(--fs-75); color: var(--muted); font-weight: 800; }
+/* The place's metal (the owner, 2026-11-22): the badges' gold, silver and bronze, 🔥 for the top 10; it pops in when it arrives */
+.pf-place[class*='pf-place--'] i, .pf-place[class*='pf-place--'] b { animation: pop 0.5s cubic-bezier(0.2, 0.9, 0.3, 1.4) both; }
+.pf-place--gold { background: linear-gradient(180deg, rgb(var(--yellow-rgb) / 0.28), rgb(var(--yellow-rgb) / 0.08)); border-color: var(--pf-oro); box-shadow: 0 6px 18px rgb(var(--yellow-rgb) / 0.3); }
+.pf-place--gold b { color: var(--pf-oro); }
+.pf-place--silver { background: linear-gradient(180deg, rgb(var(--ink-rgb) / 0.16), rgb(var(--ink-rgb) / 0.04)); border-color: var(--pf-plata); }
+.pf-place--silver b { color: var(--pf-plata); }
+.pf-place--bronze { background: linear-gradient(180deg, rgb(var(--orange-rgb) / 0.24), rgb(var(--orange-rgb) / 0.06)); border-color: var(--pf-bronce); }
+.pf-place--bronze b { color: var(--pf-bronce-aro); }
+.pf-place--top { border-color: rgb(var(--orange-rgb) / 0.6); }
+.pf-place--top b { color: var(--orange); }
+.pf-place--rest b { color: var(--yellow); }
+@media (prefers-reduced-motion: reduce) { .pf-place i, .pf-place b { animation: none; } }
 .pf-game-list { display: grid; gap: var(--s-6); }
 .pf-game {
   display: grid; grid-template-columns: 1fr auto; grid-template-areas: 'name place' 'sub place'; align-items: center; column-gap: var(--s-10);
@@ -91,3 +109,20 @@
 .pf-logout-ask { display: grid; gap: var(--s-8); text-align: center; }
 .pf-logout-ask p { margin: 0; }
 .pf-more { justify-self: center; margin-top: var(--s-10); }
+/* 🏆 Your cups: the place (a medal on the podium) on the left, the name, dates and who won, a › to the cup */
+.pf-cup-list { display: grid; gap: var(--s-6); }
+.pf-cup { display: grid; grid-template-columns: 3.2rem 1fr auto; align-items: center; column-gap: var(--s-10); min-height: 44px;
+  padding: var(--s-10) var(--s-12); border-radius: var(--r-12); background: var(--well); border: 2px solid transparent; color: var(--ink); text-decoration: none; }
+.pf-cup-place { text-align: center; line-height: 1.1; }
+.pf-cup-place b { display: block; font: 900 var(--fs-140) var(--font-num); font-variant-numeric: tabular-nums; color: var(--yellow); }
+.pf-cup-place small { display: block; font-size: var(--fs-75); color: var(--muted); font-weight: 800; }
+.pf-cup-txt { min-width: 0; display: grid; gap: var(--s-2); }
+.pf-cup-name { font-weight: 900; overflow-wrap: anywhere; }
+.pf-cup-txt small { font-size: var(--fs-75); color: var(--muted); font-weight: 700; }
+.pf-cup-txt .pf-cup-champ { color: var(--ink); font-weight: 800; }
+.pf-cup .go { color: var(--muted); font-size: var(--fs-120); }
+.pf-cup--gold { border-color: var(--pf-oro); background: linear-gradient(180deg, rgb(var(--yellow-rgb) / 0.2), rgb(var(--yellow-rgb) / 0.05)); }
+.pf-cup--silver { border-color: var(--pf-plata); }
+.pf-cup--bronze { border-color: var(--pf-bronce); }
+.pf-cup--live { border-color: rgb(var(--cyan-rgb) / 0.6); }
+.pf-cup-list .pf-more { margin-top: var(--s-4); }

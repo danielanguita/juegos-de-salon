@@ -17,6 +17,7 @@ export const NO_FOOTER = {
   case: 'a lab game of La Copa played full screen, no cover yet',
   'cup/cover': "a game's cover animation alone, framed by the home page's game sheet",
   'cup/recap': "La Copa's recap card, a single image-like screen",
+  'cup/history': 'a hidden frame with no screen: the profile reads its cups through it (D-377)',
   'labs/bridges/trains': "a lab demo of one piece of Tren en Vilo, no page around it",
   'labs/bridges/visitors': "a lab demo of one piece of Tren en Vilo, no page around it",
   'labs/case': 'a lab game played full screen, no cover yet',
