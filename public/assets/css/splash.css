@@ -115,6 +115,13 @@ a.splash-item:hover, a.splash-item:focus-visible { transform: translateY(-3px); 
   .splash-item p { font-size: var(--fs-75); }
   .splash-jugar { padding: 4px 14px; font-size: var(--fs-90); }
 }
+/* Bigger clips (a campaign's `bigClips`, the owner, 2026-11-21: on a Pixel 9 they felt small). On a phone each clip
+   takes what the screen's height leaves for it once the head and "Ahora no" are drawn, shared among the cards,
+   never under the usual size nor over about half its card; the window grows taller with it and the texts get more lines */
+@media (max-width: 600px) {
+  .splash.splash--big:not(.splash--hero) .splash-item:not(.splash-teaser) .splash-media { width: clamp(104px, calc((92dvh - 300px) / var(--n, 2) - var(--s-16)), 54%); }
+  .splash--big .splash-item:not(.splash-teaser) p { -webkit-line-clamp: 6; }
+}
 /* A teaser: only its picture (a drawn scene, pixel art), wide, as big as the window allows, on a
    phone too. Scaled with no smoothing so the pixels stay crisp */
 .splash-teaser, .splash-items:has(.splash-teaser) { align-self: center; width: 100%; max-width: 560px; }
