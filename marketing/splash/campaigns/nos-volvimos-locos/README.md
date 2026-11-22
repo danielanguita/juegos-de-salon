@@ -25,3 +25,4 @@ game's cover so a newcomer sees what it is first; made now and kept off).
 
 - **2026-11-21:** made, kept off until both games launch.
 - **2026-11-21 (bigger clips):** on the owner's Pixel 9 the clips felt small (104 px). `bigClips` makes them as big as the phone's height allows, about 193 px there, the window taller; only this campaign has it.
+- **2026-11-21 (bigger texts):** with the room beside the bigger clips, each card's name goes from 16 to 17.6 px and its text from 12 to 16 px (the owner); a step smaller on a short or 320 px phone, so the window still fits without scrolling. The clip's cap went from 54 to 52 % of its card so the names fit on one line (only "The Wobbles" wraps, at 390 px and narrower).
