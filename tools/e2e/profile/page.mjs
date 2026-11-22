@@ -60,6 +60,7 @@ for (const W of [320, 390]) {
     localStorage.setItem('juegos-de-salon:uno-al-dia', JSON.stringify({ dias }));
     const h = {}; for (let i = 1; i <= 4; i++) h['2026-11-0' + i] = { e: 3 };
     localStorage.setItem('juegos-de-salon:play-hours', JSON.stringify(h));
+    localStorage.setItem('juegos-de-salon:play-run', JSON.stringify({ g: 'queens', n: 3, best: 10 }));
   })()`);
   await b.go(`${SITE}/profile/?test`, 4000);
   ok(await ev(`document.querySelector('.pf-player')?.textContent.includes('Javi')`), `${W}: the card names the player`);
@@ -68,6 +69,7 @@ for (const W of [320, 390]) {
   ok(await ev(`!!document.querySelector('[data-badge="streak-10"]:not(.pf-badge--locked)')`), `${W}: 🔥 10 in a row is earned`);
   ok(/14 \/ 30/.test(await ev(`document.querySelector('[data-badge="streak-30"]')?.textContent`)), `${W}: 🔥 30 in a row shows its progress, 14 / 30`);
   ok(/4 \/ 7/.test(await ev(`document.querySelector('[data-badge="early-bird"]')?.textContent`)), `${W}: 🌅 the early bird counts the mornings, 4 / 7`);
+  ok(await ev(`document.querySelector('[data-badge="obsession"]')?.classList.contains('pf-badge--silver')`), `${W}: 🎵 Es una obsesión is earned with one game 10 times in a row`);
   ok(await ev(`!!document.querySelector('[data-badge="number-one"]:not(.pf-badge--locked) .pf-new')`), `${W}: 🥇 number 1 is earned and new`);
   ok(await ev(`[...document.querySelectorAll('[data-badge="night-owl"] .pf-name')].map(x => x.textContent).join()`) !== 'Noctámbulo', `${W}: a secret badge keeps its name until earned`);
   ok(await ev(`document.documentElement.scrollWidth <= ${W}`), `${W}: badges, no sideways scroll`);
