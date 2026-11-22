@@ -1018,22 +1018,22 @@ function grafico(now) {
     const pts = f.lugares.map((l, i) => [x(ev.dias[i]), y(l)]);
     // The first 10 lanes: the days inside them in runs; a run that starts after a day outside comes in from below
     const dentro = i => f.lugares[i] <= carriles;
-    if (grande && !f.lugares.some((_, i) => dentro(i))) continue;
+    if (grande && !dentro(f.lugares.length - 1)) continue; // only whoever ends the graph among the first 10 is drawn
     if (grande) {
       let tramo = [];
       const cerrar = () => { if (tramo.length > 1) g.append(svgEl('polyline', { points: tramo.map(p => p.join(',')).join(' '), class: 'g-linea' })); tramo = []; };
-      // A dashed stretch that fades: in from under the last lane (entra) or out to under it (sale)
-      const difuso = (x1, y1, x2, y2, id, entra) => {
-        defs.append(svgEl('linearGradient', { id, gradientUnits: 'userSpaceOnUse', x1, y1, x2, y2 },
-          svgEl('stop', { offset: '0', 'stop-color': color(f.pid), 'stop-opacity': entra ? '0' : '0.9' }), svgEl('stop', { offset: '1', 'stop-color': color(f.pid), 'stop-opacity': entra ? '0.9' : '0' })));
-        g.append(svgEl('line', { x1, y1, x2, y2, class: 'g-entra', stroke: `url(#${id})` }));
-      };
+      // Who climbed in from below: a dashed stretch that fades in from under the last lane
       const fondo = y(carriles) + bajoCarriles - 2;
       f.lugares.forEach((l, i) => {
         if (!dentro(i)) { cerrar(); return; }
-        if (i > 0 && !dentro(i - 1)) difuso(x(ev.dias[i - 1]), fondo, pts[i][0], pts[i][1], `gv-${f.pid}-${i}`, true);
+        if (i > 0 && !dentro(i - 1)) {
+          const [x1, y1, x2, y2] = [x(ev.dias[i - 1]), fondo, pts[i][0], pts[i][1]];
+          const id = `gv-${f.pid}-${i}`;
+          defs.append(svgEl('linearGradient', { id, gradientUnits: 'userSpaceOnUse', x1, y1, x2, y2 },
+            svgEl('stop', { offset: '0', 'stop-color': color(f.pid), 'stop-opacity': '0' }), svgEl('stop', { offset: '1', 'stop-color': color(f.pid), 'stop-opacity': '0.9' })));
+          g.append(svgEl('line', { x1, y1, x2, y2, class: 'g-entra', stroke: `url(#${id})` }));
+        }
         tramo.push(pts[i]);
-        if (i < f.lugares.length - 1 && !dentro(i + 1)) { difuso(pts[i][0], pts[i][1], x(ev.dias[i + 1]), fondo, `gs-${f.pid}-${i}`, false); cerrar(); }
       });
       cerrar();
     } else if (pts.length > 1) g.append(svgEl('polyline', { points: pts.map(p => p.join(',')).join(' '), class: 'g-linea' }));
