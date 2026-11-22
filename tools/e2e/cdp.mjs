@@ -200,7 +200,12 @@ export async function launch({ port: requested, dir, out, width = 390, height = 
     })()`),
     shot: async name => {
       await api.still();
+      // The README shows what a player sees: localhost counts as the lab, so the tester tab (T)
+      // would sit on every screenshot, covering the top bar's last button. Hidden only for the photo.
+      const readme = !!process.env.README_SHOTS;
+      if (readme) await api.evaluate(`(()=>{const t=document.getElementById('tester-ribbon');if(t)t.style.visibility='hidden';return 1})()`).catch(() => {});
       const r = await send('Page.captureScreenshot', { format: 'png' });
+      if (readme) await api.evaluate(`(()=>{const t=document.getElementById('tester-ribbon');if(t)t.style.visibility='';return 1})()`).catch(() => {});
       writeFileSync(`${out}/${name}.png`, Buffer.from(r.result.data, 'base64'));
       // Every screenshot checks the space between the board and its buttons (D-309, U-11): that
       // way every script watches it, on every screen it photographs, without separate paths
