@@ -1,7 +1,7 @@
 // The home page's carousels (lab flag home-carousels): which rows there are and what each holds.
 import assert from 'node:assert/strict';
 import { shelves, maxMinutes, rankingOf, demoUrl, slugOf, sheetUrl, TEXTS, QUICK_MINUTES, IN_DEXTERITY } from './home-carousels.js';
-import { PORTADA, TIPOS, SOLO_TABLES } from './games.js';
+import { PORTADA, TIPOS } from './games.js';
 
 const games = PORTADA.filter(g => g.id !== 'letras');
 const open = games.filter(g => g.available && !g.torneo);
@@ -46,7 +46,7 @@ assert.deepEqual(rankingOf({ id: 'generala', jugadas: true }), { table: 'general
 assert.deepEqual(rankingOf({ id: 'toque-y-fama', jugadas: true }), { table: 'toque-y-fama_solo', wins: false });
 assert.deepEqual(rankingOf({ id: 'reinas' }), { table: 'reinas', wins: false });
 assert.deepEqual(rankingOf({ id: 'sudoku' }), { table: 'sudoku_easy', wins: false }, "Sudoku's first level has its own table");
-assert.deepEqual(rankingOf({ id: 'croc' }), { table: SOLO_TABLES['croc'], wins: false });
+assert.deepEqual(rankingOf({ id: 'croc' }), { table: 'croc', wins: false }, 'Croc!, a La Copa game now, ranks in the table named after it');
 // The cover animation's page: only for La Copa's games (the others have none), with the game and the language
 assert.equal(demoUrl({ id: 'reinas' }, 'pt', 'https://x.cl/assets/js/home-carousels.js'), 'https://x.cl/cup/cover/?game=reinas&lang=pt');
 assert.equal(demoUrl({ id: 'dudo' }, 'es', 'https://x.cl/assets/js/home-carousels.js'), null);

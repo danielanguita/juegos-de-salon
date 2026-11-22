@@ -2,7 +2,7 @@
 
 The page's shell (markup, shared CSS) and the sound code come from template.html; the game is
 sim.js (physics and rules), texts.js (es/en/pt) and view.js (drawing, sound, input, cards).
-Writes public/labs/wobbles/hard/index.html, with the lab's head (door, noindex, manifest, panel
+Writes public/wobbles/hard/index.html, with the site's head (manifest, panel
 signal) and the site's fonts; from the repo root: python3 tools/generators/wobbles-hard/build.py
 """
 import os, re
@@ -59,12 +59,11 @@ sound=neon[neon.index("/* ---------- sound: synthesized"):neon.index("/** What t
 sim=open(N+'sim.js').read()+open(N+'texts.js').read(); view=open(N+'view.js').read()
 assert view.count('/*__SOUND__*/')==1
 out=head+sim+view.replace('/*__SOUND__*/',sound)
-out=out.replace('href="fonts/','href="../../../assets/fonts/').replace("url('fonts/","url('../../../assets/fonts/")
-LAB=r'''  <!-- A lab game (D-395): behind the lab's door (D-281) and not indexed. The game below is the owner's
-       prototype as delivered, kept whole: the hard level of docs/games/wobbles.md -->
-  <script src="../../../assets/js/labs-puerta.js"></script>
-  <meta name="robots" content="noindex, nofollow">
-  <link rel="manifest" href="../../../manifest.webmanifest">
+out=out.replace('href="fonts/','href="../../assets/fonts/').replace("url('fonts/","url('../../assets/fonts/")
+LAB=r'''  <!-- Out of the lab (D-517's way): no lab door and no noindex; until flags/wobbles is on for this visitor,
+       ../game.js sends them to the home page. The game below is the owner's prototype as delivered, kept
+       whole: the hard level of docs/games/wobbles.md -->
+  <link rel="manifest" href="../../manifest.webmanifest">
   <script>
     // The chosen language's manifest, before the browser reads it (D-222)
     (function () {
@@ -75,24 +74,24 @@ LAB=r'''  <!-- A lab game (D-395): behind the lab's door (D-281) and not indexed
       } catch (_) { /* the Spanish one stays */ }
     })();
   </script>
-  <link rel="icon" href="../../../assets/icon.svg" type="image/svg+xml">
-  <script src="../../../assets/js/vigia.js"></script>
+  <link rel="icon" href="../../assets/icon.svg" type="image/svg+xml">
+  <script src="../../assets/js/vigia.js"></script>
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Juegos de Salón">
-  <link rel="apple-touch-icon" href="../../../assets/icons/apple-touch-icon.png">
+  <link rel="apple-touch-icon" href="../../assets/icons/apple-touch-icon.png">
 '''
 out=out.replace('<link rel="preload"',LAB+'<link rel="preload"',1)
 # The site's sheets for the result's shared blocks (C-19), after the fonts' preload
 assert out.count("<style>\n  /* The site's fonts")==1
-out=out.replace("<style>\n  /* The site's fonts",'<link rel="stylesheet" href="../../../assets/css/base.css">\n<link rel="stylesheet" href="../../../assets/css/ranking.css">\n'+"<style>\n  /* The site's fonts",1)
-MODS='''  <script type="module">import '../../../assets/js/instalable.js';</script>
+out=out.replace("<style>\n  /* The site's fonts",'<link rel="stylesheet" href="../../assets/css/base.css">\n<link rel="stylesheet" href="../../assets/css/ranking.css">\n'+"<style>\n  /* The site's fonts",1)
+MODS='''  <script type="module">import '../../assets/js/instalable.js';</script>
 '''
 out=out.replace('</head>\n','</head>\n'+MODS,1)
 assert out.count('</body>')==1
 out=out.replace('</body>','''<!-- The result's shared blocks: rankings, exits, feedback (C-19) -->
 <script type="module">import '../game.js';</script>
 </body>''')
-open(N+'../../../public/labs/wobbles/hard/index.html','w').write(out)
+open(N+'../../../public/wobbles/hard/index.html','w').write(out)
 simpart=out[out.index('/* Physics: bodies made of'):out.index('/* The texts, in the site')]
 print(len(out),'bytes; Math calls in the simulation:',sorted(set(re.findall(r'Math\.\w+',simpart))))

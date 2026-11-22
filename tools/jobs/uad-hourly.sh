@@ -10,5 +10,7 @@ node tools/firebase/uad-points-backfill.mjs --rebuild $APPLY --month "$month"
 if [ "$(TZ=America/Santiago date +%d)" -le 3 ]; then
   node tools/firebase/uad-points-backfill.mjs --rebuild $APPLY --month "$(TZ=America/Santiago date -d "$month-01 -1 day" +%Y-%m)"
 fi
+# The players who renamed themselves in their profile (D-600): their table rows take the new name
+node tools/firebase/rename-player.mjs --pending $APPLY || echo "::warning::the self-renames did not finish; the next hour tries again"
 if [ "$(date -u +%H)" = 08 ] || [ -n "$ALWAYS_RETENTION" ]; then node tools/firebase/stats-retention.mjs $APPLY; fi
 if [ "$APPLY" = --apply ]; then node tools/push/heartbeat-watch.mjs uad; fi

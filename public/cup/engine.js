@@ -61,7 +61,8 @@ export const POZO_FIJO = POZO.filter(id => !LANZADOS.some(g => g.id === id));
  * is written `id` (the default) or `id:variant` in `meta.cal`, so the cups from before read the same.
  */
 // Sudoku's levels (D-517's way): easy, the 6×6 mini, is the default a cup day and Uno al día play
-export const VARIANTES = { pintaminas: ['easy', 'hard'], loteo: ['numbers', 'utilities'], sudoku: ['easy', 'hard'] };
+// Croc!'s traffic (D-517's way): normal is the default a cup day and Uno al día play, hard the heavy traffic
+export const VARIANTES = { pintaminas: ['easy', 'hard'], loteo: ['numbers', 'utilities'], sudoku: ['easy', 'hard'], croc: ['normal', 'hard'] };
 /** A calendar entry split into its game and its variant: `'loteo:utilities'` → `{ id: 'loteo', variante: 'utilities' }`. */
 export function diaDeCal(x) {
   if (String(x || '').includes(TRIO_SEP)) return { id: TRIO, variante: null };

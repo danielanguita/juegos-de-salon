@@ -17,7 +17,7 @@
 // Tembleque's clip is both levels: easy (2D) and, through a zoom, hard (3D) with its opening turn.
 import { mkdirSync, rmSync, writeFileSync, readdirSync, copyFileSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { dirname, join } from 'node:path';
 import { launch } from '../../tools/e2e/cdp.mjs';
 
@@ -58,11 +58,11 @@ const CAMERA = `(() => {
 })();`;
 
 /** Plays one take: `setup` once the page is ready, then `frame` (bot + camera, returns a JPEG) every 1/30 s. */
-async function take({ url, width, height, storage = {}, start, setup, frame, frames, sub = 1, dir }) {
+export async function take({ url, width, height, storage = {}, start, setup, frame, frames, sub = 1, dir, inject = '' }) {
   rmSync(dir, { recursive: true, force: true }); mkdirSync(dir, { recursive: true });
   const b = await launch({ dir: `${TMP}/profile-${width}`, out: TMP, width, height });
   const ev = e => b.evaluate(e);
-  await b.send('Page.addScriptToEvaluateOnNewDocument', { source: CLOCK + CAMERA });
+  await b.send('Page.addScriptToEvaluateOnNewDocument', { source: CLOCK + CAMERA + inject });
   await b.go(url, 1200);
   await ev(`localStorage.clear(); ${Object.entries(storage).map(([k, v]) => `localStorage.setItem(${JSON.stringify(k)}, ${JSON.stringify(v)});`).join(' ')} 1`);
   await b.go(url, 1500);
@@ -82,12 +82,13 @@ async function take({ url, width, height, storage = {}, start, setup, frame, fra
 
 // 🐸 Croc!: across the whole highway, the canal and to the pond (seed 4821: three fruits, a dash, close calls)
 const CROC = {
-  url: lang => `${SITE}/labs/croc/?test&seed=4821&lang=${lang}`,
+  // Its page /croc/ (La Copa's screen since it left the lab, D-517's way), its flag pinned on for the take
+  url: lang => `${SITE}/croc/?test&seed=4821&lang=${lang}`,
   width: 390, height: 844,
-  storage: lang => ({ 'juegos-de-salon:lang': lang }),
-  start: `document.getElementById('btn-play').click(); 1`,
+  storage: lang => ({ 'juegos-de-salon:lang': lang, 'juegos-de-salon:flags': JSON.stringify({ croc: { state: 'all' } }) }),
+  start: `document.getElementById('btn-empezar').click(); 1`,
   setup: {
-    ready: `!document.getElementById('cuenta') && !!window.__croc.state() && document.getElementById('screen-play').classList.contains('active')`,
+    ready: `!document.getElementById('cuenta') && !!window.__croc?.state() && !!document.querySelector('canvas.sp-lienzo')`,
     // Hops when the lane ahead is clear, steps aside for a fruit, dashes over a lane that is not
     bot: `(() => {
       const COLS = 7;
@@ -115,7 +116,7 @@ const CROC = {
         for (const d of [1, -1]) { const c = f.col + d; if (c >= 0 && c < COLS && clear(L(f.row), c, 0.3) && clear(L(f.row + 1), c, 0.5)) return act(d > 0 ? 'right' : 'left'); }
       };
       // The camera: the whole road, pushing in on the frog at each dash, fruit, close call or hit, and at the pond
-      const cv = document.getElementById('canvas');
+      const cv = document.querySelector('canvas.sp-lienzo');
       let kick = 0, kz = 1, last = null, end = 0;
       window.__shot = () => {
         const g = window.__croc.state(), f = g.frog, W = cv.width, H = cv.height;
@@ -142,8 +143,8 @@ const CROC = {
 };
 
 // ⚖️ Tembleque, easy: the claw over the plank, the bot dropping each piece to bring the plank back level
-const EASY = {
-  url: lang => `${SITE}/labs/wobbles/easy/?test&quality=1&seed=7&from=10&lang=${lang}`,
+export const EASY = {
+  url: lang => `${SITE}/wobbles/easy/?test&quality=1&seed=7&from=10&lang=${lang}`,
   width: 480, height: 560,
   storage: lang => ({ 'juegos-de-salon:lang': lang, 'balanza-lab:start-pieces': '3' }),
   start: `document.getElementById('cBtn').click(); 1`,
@@ -181,8 +182,8 @@ const EASY = {
 };
 
 // ⚖️ Tembleque, hard: the disc in 3D, its opening turn, then the bot moves each piece with the arrow keys and drops it
-const HARD = {
-  url: lang => `${SITE}/labs/wobbles/hard/?test&res=2&seed=7&lang=${lang}`,
+export const HARD = {
+  url: lang => `${SITE}/wobbles/hard/?test&res=2&seed=7&lang=${lang}`,
   width: 400, height: 560,
   storage: lang => ({ 'juegos-de-salon:lang': lang, 'balanza-lab:start-pieces': '5' }),
   start: `document.getElementById('cBtn').click(); 1`,
@@ -238,6 +239,8 @@ const enc = (dir, mp4) => execFileSync('ffmpeg', ['-loglevel', 'error', '-y', '-
 const frameCount = dir => readdirSync(dir).filter(f => f.endsWith('.jpg')).length;
 const run = async (G, lang, dir) => take({ ...G, url: G.url(lang), storage: G.storage(lang), dir });
 
+// Run only when called, not when the cover's recorder (tools/generators/wobbles-cover.mjs) borrows the takes
+if (import.meta.url === pathToFileURL(process.argv[1]).href) {
 mkdirSync(TMP, { recursive: true });
 for (const lang of LANGS) {
   if (GAMES.includes('croc')) {
@@ -261,3 +264,4 @@ for (const lang of LANGS) {
   }
 }
 process.exit(0);
+}

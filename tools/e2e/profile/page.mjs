@@ -2,7 +2,8 @@
 // invites to sign in, shows this phone's badges and the rankings; with one, its card, then 🎖️ badges (earned, locked
 // with progress, secret), 🏅 its places in each game it played (a tap opens the game's table) and ⚙️ its settings;
 // on the home page 🏅 becomes a pill with the player's flag and name, and the language one flag with a ▾; every other page's
-// top bar (a game's cover, Uno al día, Rankings) ends in the same pill and its cover drops «🏅 <name>». At 320 and 390 px nothing scrolls sideways and
+// top bar (a game's cover, Uno al día, Rankings) ends in the same pill and its cover drops «🏅 <name>»; ⚙️ changes the name and
+// the PIN (each with the PIN) and signs out. At 320 and 390 px nothing scrolls sideways and
 // every tappable thing is 44 px or more (U-10). Prints ✗ if anything fails.
 import { output } from '../output.mjs';
 import { launch, sleep } from '../cdp.mjs';
@@ -60,14 +61,18 @@ for (const W of [320, 390]) {
     localStorage.setItem('juegos-de-salon:uno-al-dia', JSON.stringify({ dias }));
     const h = {}; for (let i = 1; i <= 4; i++) h['2026-11-0' + i] = { e: 3 };
     localStorage.setItem('juegos-de-salon:play-hours', JSON.stringify(h));
+    localStorage.setItem('juegos-de-salon:play-run', JSON.stringify({ g: 'queens', n: 3, best: 10 }));
   })()`);
   await b.go(`${SITE}/profile/?test`, 4000);
   ok(await ev(`document.querySelector('.pf-player')?.textContent.includes('Javi')`), `${W}: the card names the player`);
-  ok(await ev(`document.querySelector('.pf-avatar')?.textContent`) === 'J', `${W}: the card shows the player's initial`);
+  ok(await ev(`!document.querySelector('.pf-avatar') && !!document.querySelector('.pf-card .pf-player .rk-flag, .pf-card .pf-player')`), `${W}: the card is the player's flag and name, no initial in a circle`);
   ok(/14/.test(await ev(`document.querySelector('.pf-stat b')?.textContent`)), `${W}: the card shows the 14-day streak`);
   ok(await ev(`!!document.querySelector('[data-badge="streak-10"]:not(.pf-badge--locked)')`), `${W}: 🔥 10 in a row is earned`);
   ok(/14 \/ 30/.test(await ev(`document.querySelector('[data-badge="streak-30"]')?.textContent`)), `${W}: 🔥 30 in a row shows its progress, 14 / 30`);
   ok(/4 \/ 7/.test(await ev(`document.querySelector('[data-badge="early-bird"]')?.textContent`)), `${W}: 🌅 the early bird counts the mornings, 4 / 7`);
+  ok(await ev(`document.querySelector('[data-badge="obsession"]')?.classList.contains('pf-badge--silver')`), `${W}: 😬 Se llama obsesión is earned with one game 10 times in a row`);
+  const spill = await ev(`[...document.querySelectorAll('.pf-badge')].filter(x => { const n = x.querySelector('.pf-name'), r = n.getBoundingClientRect(), c = x.getBoundingClientRect(); return n.scrollWidth > n.clientWidth + 1 || r.left < c.left - 0.5 || r.right > c.right + 0.5; }).map(x => x.dataset.badge).join(', ')`);
+  ok(!spill, `${W}: every badge's name fits inside its card${spill ? ` (${spill})` : ''}`);
   ok(await ev(`!!document.querySelector('[data-badge="number-one"]:not(.pf-badge--locked) .pf-new')`), `${W}: 🥇 number 1 is earned and new`);
   ok(await ev(`[...document.querySelectorAll('[data-badge="night-owl"] .pf-name')].map(x => x.textContent).join()`) !== 'Noctámbulo', `${W}: a secret badge keeps its name until earned`);
   ok(await ev(`document.documentElement.scrollWidth <= ${W}`), `${W}: badges, no sideways scroll`);
@@ -83,7 +88,7 @@ for (const W of [320, 390]) {
   ok(!s1, `${W}: rankings, every tappable thing is 44 px or more${s1 ? ` (${s1})` : ''}`);
   await full(b, `rankings-${W}`, W);
   await ev(`document.querySelector('[data-tab=settings]').click()`); await sleep(800);
-  ok(await ev(`!!document.querySelector('.pf-settings .lang-toggle') && !!document.querySelector('.pf-settings .sound-toggle') && !!document.querySelector('#rk-cambiar-pin')`), `${W}: ⚙️ has the language, the sound and the PIN change`);
+  ok(await ev(`!!document.querySelector('.pf-settings .lang-toggle') && !!document.querySelector('.pf-settings .sound-toggle') && !!document.querySelector('#pf-account') && !document.querySelector('.pf-tab .rk-yo')`), `${W}: ⚙️ has your account, the language and the sound`);
   ok(await ev(`!document.querySelector('#pf-page .offline-ready')`), `${W}: ⚙️ has no offline ☁️: it stays on the home page`);
   ok(await ev(`document.documentElement.scrollWidth <= ${W}`), `${W}: settings, no sideways scroll`);
   const s2 = await small(b);
@@ -105,7 +110,7 @@ for (const W of [320, 390]) {
   for (const page of ['queens', 'today', 'records']) {
     await b.go(`${SITE}/${page}/?test`, 3000);
     ok(await ev(`(() => { const t = document.querySelector('.topbar .tools'), a = t?.querySelector('.pf-home'); if (!a || t.lastElementChild !== a || !/\\/profile\\/$/.test(a.getAttribute('href'))) return false; const r = a.getBoundingClientRect(), tr = document.querySelector('.topbar').getBoundingClientRect(); return r.right <= tr.right + 1 && r.height >= 43.5 && r.width >= 43.5 && Math.abs(r.top - t.getBoundingClientRect().top) < 2; })()`), `${W}: /${page}/ ends its top bar with the profile's pill, on the same row, 44 px or more`);
-    ok(await ev(`${W} >= 375 ? document.querySelector('.topbar .pf-home-name')?.textContent === 'Javi' : getComputedStyle(document.querySelector('.topbar .pf-home-initial')).display !== 'none' && document.querySelector('.topbar .pf-home-initial').textContent === 'J'`), `${W}: /${page}/'s pill shows ${W >= 375 ? 'the name' : 'the initial'}`);
+    ok(await ev(`${W} >= 375 ? document.querySelector('.topbar .pf-home-name')?.textContent === 'Javi' : getComputedStyle(document.querySelector('.topbar .pf-home-icon')).display !== 'none' && getComputedStyle(document.querySelector('.topbar .pf-home-name')).display === 'none'`), `${W}: /${page}/'s pill shows ${W >= 375 ? 'the name' : '👤, no initial'}`);
     ok(await ev(`(() => { const l = document.querySelectorAll('.topbar .lang-btn'); return l.length === 1 && l[0].classList.contains('pf-lang') && !document.querySelector('.topbar .lang-toggle:not(.lang-pop .lang-toggle)'); })()`), `${W}: /${page}/'s language is one flag button`);
     await ev(`document.querySelector('.topbar .pf-lang .icon-btn').click()`); await sleep(300);
     ok(await ev(`(() => { const p = document.querySelector('.topbar .lang-pop'); if (!p || p.hidden) return false; const r = p.getBoundingClientRect(); return r.left >= 0 && r.right <= ${W}; })()`), `${W}: /${page}/'s language opens inside the screen`);
@@ -115,6 +120,36 @@ for (const W of [320, 390]) {
   }
   await b.go(`${SITE}/queens/?test`, 3000);
   ok(await ev(`!document.getElementById('btn-cuenta')?.offsetParent && !document.querySelector('main .rk-yo')?.offsetParent`), `${W}: a signed-in player's cover has no «🏅 <name>» button: the PIN is in the profile`);
+  // 👤 Your account (D-600): change the name and the PIN with the PIN, then sign out
+  await b.go(`${SITE}/profile/?test#settings`, 3000);
+  const fill = (id, v) => ev(`(() => { const i = document.getElementById('${id}'); i.value = '${v}'; i.dispatchEvent(new Event('input')); })()`);
+  const rows = () => ev(`[...document.querySelectorAll('#pf-account .pf-change')].length`);
+  ok(await rows() === 2, `${W}: 👤 the name and the PIN each have «Cambiar»`);
+  await ev(`document.querySelectorAll('#pf-account .pf-change')[0].click()`); await sleep(200);
+  ok(await ev(`!document.querySelector('#pf-account .pf-form').hidden && document.activeElement?.id === 'pf-new-name'`), `${W}: «Cambiar» opens the name's form`);
+  await full(b, `account-name-${W}`, W);
+  const s3 = await small(b);
+  ok(!s3, `${W}: account, every tappable thing is 44 px or more${s3 ? ` (${s3})` : ''}`);
+  await fill('pf-new-name', 'Javiera'); await fill('pf-name-pin', '9999');
+  await ev(`document.getElementById('pf-save-name').click()`); await sleep(1500);
+  ok(await ev(`document.querySelector('#pf-account .rk-error')?.textContent.length > 0 && document.querySelector('.pf-player').textContent.includes('Javi') && !document.querySelector('.pf-player').textContent.includes('Javiera')`), `${W}: a wrong PIN renames nothing and says so`);
+  await sleep(5600);
+  await fill('pf-name-pin', '1234');
+  await ev(`document.getElementById('pf-save-name').click()`); await sleep(2500);
+  ok(await ev(`document.querySelector('.pf-player')?.textContent.includes('Javiera') && /Javiera/.test(document.getElementById('pf-renamed')?.textContent || '')`), `${W}: the PIN renames: the card shows the new name and says so`);
+  await sleep(5600);
+  await ev(`document.querySelectorAll('#pf-account .pf-change')[1].click()`); await sleep(200);
+  await fill('pf-pin-current', '1234'); await fill('pf-pin-new', '4321');
+  await ev(`document.getElementById('pf-save-pin').click()`); await sleep(2500);
+  ok(await ev(`document.querySelectorAll('#pf-account .pf-form')[1].querySelector('.rk-ok')?.textContent.length > 0`), `${W}: the current PIN changes the PIN`);
+  await ev(`document.getElementById('pf-logout').click()`); await sleep(200);
+  ok(await ev(`!document.querySelector('.pf-logout-ask').hidden`), `${W}: «Salir de tu cuenta» asks once`);
+  await b.shot(`account-logout-${W}`);
+  await ev(`document.getElementById('pf-logout-yes').click()`); await sleep(1500);
+  ok(await ev(`!localStorage.getItem('juegos-de-salon:jugador') && !document.getElementById('pf-account') && !!document.querySelector('#rk-entrar')`), `${W}: signing out leaves the page as a guest's, which invites to sign in`);
+  await sleep(5600);
+  await ev(`(async () => { const { jugador } = await import('/assets/js/jugador.js'); window.__r = (await (await jugador()).entrar('Javiera', '4321')).estado; })()`); await sleep(1500);
+  ok(await ev(`window.__r === 'dentro'`), `${W}: the new name and the new PIN sign in again`);
   b.close();
 }
 console.log(failures ? `✗ profile page: ${failures} failure(s)` : '✓ profile page');

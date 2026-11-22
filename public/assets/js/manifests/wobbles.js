@@ -1,7 +1,7 @@
 // Generated from game.json by node tools/generators/manifests.mjs: do not edit by hand.
 export default {
   "id": "wobbles",
-  "path": "labs/wobbles/",
+  "path": "wobbles/",
   "emoji": "⚖️",
   "name": {
     "es": "Tembleque",
@@ -15,19 +15,41 @@ export default {
   },
   "keywords": {
     "es": [
+      "tembleque",
       "equilibrio",
       "balanza",
-      "apilar"
+      "apilar",
+      "torre",
+      "piezas",
+      "garra",
+      "habilidad",
+      "pulso",
+      "física",
+      "fisica"
     ],
     "en": [
+      "the wobbles",
+      "wobbles",
       "balance",
       "scale",
-      "stack"
+      "stack",
+      "tower",
+      "pieces",
+      "claw",
+      "skill",
+      "physics"
     ],
     "pt": [
+      "tremelique",
       "equilíbrio",
       "balança",
-      "empilhar"
+      "empilhar",
+      "torre",
+      "peças",
+      "garra",
+      "habilidade",
+      "precisão",
+      "física"
     ]
   },
   "players": {
@@ -38,8 +60,8 @@ export default {
   "tipos": [
     "skill"
   ],
-  "labs": true,
-  "available": false,
+  "nuevoDesde": "2026-11-30",
+  "available": true,
   "modes": [
     "solo"
   ],

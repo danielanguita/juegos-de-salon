@@ -1118,6 +1118,7 @@
         ".write": "auth != null && $jid.matches(/^[a-z0-9]{8}$/) && !data.exists() && newData.exists() && newData.parent().parent().child('jugadorSeats/' + $jid + '/' + auth.uid).exists()",
         ".validate": "newData.hasChildren(['n', 'at'])",
         "n": {
+          ".write": "auth != null && $jid.matches(/^[a-z0-9]{8}$/) && data.exists() && newData.exists() && root.child('jugadorSeats/' + $jid + '/' + auth.uid).exists() && root.child('jugadorIntentos/' + $jid + '/u').val() === auth.uid && root.child('jugadorIntentos/' + $jid + '/at').val() > now - 60000 && root.child('jugadorIntentos/' + $jid + '/h').val() === root.child('jugadorKeys/' + $jid).val()",
           ".validate": "newData.isString() && newData.val().length >= 1 && newData.val().length <= 20"
         },
         "at": {
@@ -1156,9 +1157,16 @@
       "$clave": {
         ".read": "$clave.matches(/^[a-z0-9-]{1,24}$/)",
         "$jid": {
-          ".write": "auth != null && $clave.matches(/^[a-z0-9-]{1,24}$/) && $jid.matches(/^[a-z0-9]{8}$/) && !data.exists() && newData.parent().parent().parent().child('jugadorSeats/' + $jid + '/' + auth.uid).exists()",
+          ".write": "auth != null && $clave.matches(/^[a-z0-9-]{1,24}$/) && $jid.matches(/^[a-z0-9]{8}$/) && ((!data.exists() && newData.parent().parent().parent().child('jugadorSeats/' + $jid + '/' + auth.uid).exists()) || (data.exists() && !newData.exists() && root.child('jugadorSeats/' + $jid + '/' + auth.uid).exists() && root.child('jugadorIntentos/' + $jid + '/u').val() === auth.uid && root.child('jugadorIntentos/' + $jid + '/at').val() > now - 60000 && root.child('jugadorIntentos/' + $jid + '/h').val() === root.child('jugadorKeys/' + $jid).val()))",
           ".validate": "newData.val() === true"
         }
+      }
+    },
+    "jugadorRenombres": {
+      ".write": "auth != null && auth.uid === 'TrNylkeOFXNhnTPWAApebKvbI3F2'",
+      "$jid": {
+        ".write": "auth != null && $jid.matches(/^[a-z0-9]{8}$/) && newData.exists() && root.child('jugadorSeats/' + $jid + '/' + auth.uid).exists()",
+        ".validate": "newData.isNumber() && newData.val() <= now"
       }
     },
     "jugadorKeys": {

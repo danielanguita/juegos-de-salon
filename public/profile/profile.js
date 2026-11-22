@@ -16,9 +16,11 @@ import { SFX, soundToggle } from '../assets/js/sound.js';
 import { ALL_GAMES, GAMES, SOLO_TABLES, FIRST_VARIANT_TABLES } from '../assets/js/games.js';
 import { bloqueJugador, bloqueRanking, mmss, conBandera } from '../assets/js/ranking.js';
 import { jugador, leerYo } from '../assets/js/jugador.js';
-import { TODOTERRENO, UAD_PUNTOS, SIEMPRE, semana, medallero } from '../assets/js/records.js';
+import { TODOTERRENO, UAD_PUNTOS, SIEMPRE, semana, medallero, limpiarNombre, esPin } from '../assets/js/records.js';
+import { nombreOfensivo } from '../assets/js/name-guard.js';
+import { flag } from '../assets/js/flags.js';
 import { leer as leerDia, recorrer, fechaLocal } from '../assets/js/uno-al-dia.js';
-import { readHours } from '../assets/js/play-hours.js';
+import { readHours, readRun } from '../assets/js/play-hours.js';
 import { PARTIDAS_KEY } from '../assets/js/transport/stats.js';
 import { firebaseConfig } from '../assets/js/firebase-config.js';
 import { BADGES, GROUPS, earned } from './badges.js';
@@ -66,6 +68,7 @@ function localFacts() {
     streak: r.racha, bestStreak: r.mejor,
     dailyDays: Object.fromEntries(Object.keys(d.dias || {}).map(f => [f, true])),
     hours: readHours(),
+    bestRun: Number(readRun().best) || 0,
     plays: Number(localStorage.getItem(PARTIDAS_KEY)) || 0,
     gamesPlayed: Array.isArray(played) ? played.filter(id => ids.has(id)).length : 0,
     gamesTotal: CATALOGUE.length,
@@ -167,11 +170,10 @@ function badgePanels(list, { only = null } = {}) {
 }
 
 function card(yo, f, list) {
-  const initial = (yo.n || '?').trim().charAt(0).toUpperCase();
   const got = list.filter(b => b.got).length;
+  // The flag and the name are the player, as on every table (the owner, 2026-11-21: no initial in a circle)
   return el('section', { class: 'panel pf-card' },
     el('div', { class: 'pf-who' },
-      el('span', { class: 'pf-avatar', 'aria-hidden': 'true' }, initial),
       el('div', {},
         el('p', { class: 'pf-player' }, conBandera(yo.co, yo.n)),
         el('p', { class: 'muted pf-since' }, [f.since ? fmt(T.since, { month: monthName(f.since) }) : null, fmt(T.badgesOf, { n: got, total: BADGES.length })].filter(Boolean).join(' · ')))),
@@ -254,10 +256,104 @@ function rankingsTab(J, f) {
 }
 
 /** The ⚙️ tab: the account and the preferences (offline mode's ☁️ stays on the home page; writing to us and privacy are in the footer). */
+/** An account error in the player's words: the rankings' own texts. */
+const accountError = e => ({ 'pin-actual': RK.errCurrentPin, espera: RK.errWait, nombre: RK.errName, 'pin-forma': RK.errPin })[e?.code] || RK.errNet;
+const pinInput = (id, label) => el('input', { id, class: 'rk-pin', type: 'password', inputmode: 'numeric', pattern: '[0-9]*', maxlength: '4', autocomplete: 'off', 'aria-label': label });
+
+/**
+ * 👤 Your account (D-600): the name and the PIN, each with «Cambiar», which opens its small form under
+ * the row, and «Salir de tu cuenta», which asks once. Both changes ask for the PIN. Signing in is the
+ * guest's page (drawGuest); signing out redraws the page as a guest.
+ */
+// A rename redraws the page (the card and the bars show the new name): its «Listo» waits here for the new panel
+let renamed = '';
+function accountPanel(yo) {
+  const forms = [];
+  const row = (label, hint, value, form) => {
+    const btn = el('button', { type: 'button', class: 'btn btn--ghost btn--sm pf-change', 'aria-expanded': 'false' }, T.change);
+    const box = el('div', { class: 'pf-form', hidden: true }, form);
+    forms.push({ btn, box });
+    btn.addEventListener('click', () => {
+      tap();
+      const open = box.hidden;
+      for (const f of forms) { f.box.hidden = true; f.btn.setAttribute('aria-expanded', 'false'); f.btn.textContent = T.change; }
+      box.hidden = !open; btn.setAttribute('aria-expanded', String(open));
+      // While its form is open, the row's button closes it
+      btn.textContent = open ? T.cancel : T.change;
+      if (open) box.querySelector('input')?.focus();
+    });
+    return el('div', { class: 'pf-account-item' },
+      el('div', { class: 'pf-account-row' }, el('span', { class: 'txt' }, el('small', { class: 'pf-account-label' }, label), value, el('small', {}, hint)), btn), box);
+  };
+  const say = (p, cls, text) => { p.className = cls; p.textContent = text; };
+
+  // The name: the new one and the PIN
+  const name = el('input', { id: 'pf-new-name', maxlength: '20', autocomplete: 'nickname', 'aria-label': T.newName, value: yo.n });
+  const namePin = pinInput('pf-name-pin', RK.currentPin);
+  const nameMsg = el('p', { class: 'rk-error', role: 'alert' });
+  const saveName = el('button', { type: 'button', class: 'btn btn--cyan btn--sm', id: 'pf-save-name' }, T.saveName);
+  saveName.addEventListener('click', async () => {
+    tap(); say(nameMsg, 'rk-error', '');
+    const n = limpiarNombre(name.value);
+    if (!n) return say(nameMsg, 'rk-error', RK.errName);
+    if (n === leerYo()?.n) return say(nameMsg, 'rk-error', T.sameName);
+    if (!esPin(namePin.value)) return say(nameMsg, 'rk-error', RK.errPin);
+    saveName.disabled = true;
+    try {
+      // A new name on the public tables: the obvious insults are refused, as on sign-up (D-513); lab: #seccion-name-guard
+      if (nombreOfensivo(n) && await flag('name-guard').catch(() => false)) { say(nameMsg, 'rk-error', RK.errNameBad); return; }
+      renamed = fmt(T.nameSaved, { name: n });
+      await (await jugador()).renombrar(namePin.value, n);
+      namePin.value = '';
+      say(nameMsg, 'rk-ok', renamed);
+    } catch (e) { renamed = ''; say(nameMsg, 'rk-error', accountError(e)); }
+    finally { saveName.disabled = false; }
+  });
+  namePin.addEventListener('keydown', e => { if (e.key === 'Enter') saveName.click(); });
+
+  // The PIN: the current one and the new one
+  const current = pinInput('pf-pin-current', RK.currentPin);
+  const fresh = pinInput('pf-pin-new', RK.newPin);
+  const pinMsg = el('p', { class: 'rk-error', role: 'alert' });
+  const savePin = el('button', { type: 'button', class: 'btn btn--cyan btn--sm', id: 'pf-save-pin' }, T.savePin);
+  savePin.addEventListener('click', async () => {
+    tap(); say(pinMsg, 'rk-error', '');
+    if (!esPin(current.value) || !esPin(fresh.value)) return say(pinMsg, 'rk-error', RK.errPin);
+    savePin.disabled = true;
+    try { await (await jugador()).cambiarPin(current.value, fresh.value); current.value = ''; fresh.value = ''; say(pinMsg, 'rk-ok', RK.pinChanged); }
+    catch (e) { say(pinMsg, 'rk-error', accountError(e)); }
+    finally { savePin.disabled = false; }
+  });
+  fresh.addEventListener('keydown', e => { if (e.key === 'Enter') savePin.click(); });
+
+  // Signing out: asked once, as it leaves this phone without the player
+  const ask = el('div', { class: 'pf-logout-ask', hidden: true },
+    el('p', { class: 'muted' }, T.logoutAsk),
+    el('div', { class: 'rk-botones' },
+      el('button', { type: 'button', class: 'btn btn--yellow btn--sm', id: 'pf-logout-yes', onClick: async () => { tap(); (await jugador()).salir(); } }, RK.logout),
+      el('button', { type: 'button', class: 'btn btn--ghost btn--sm', id: 'pf-logout-no', onClick: () => { tap(); ask.hidden = true; out.hidden = false; out.focus(); } }, T.cancel)));
+  const out = el('button', { type: 'button', class: 'btn btn--ghost btn--sm pf-logout', id: 'pf-logout', onClick: () => { tap(); out.hidden = true; ask.hidden = false; } }, T.logout);
+
+  const nameNow = el('b', { class: 'pf-name-now' }, conBandera(yo.co, yo.n));
+  const done = renamed ? el('p', { class: 'rk-ok', role: 'status', id: 'pf-renamed' }, renamed) : null;
+  renamed = '';
+  return el('section', { class: 'panel pf-settings', id: 'pf-account' }, el('p', { class: 'lead rk-titulo' }, T.account),
+    row(T.nameRow, T.nameHint, nameNow, [
+      el('label', { class: 'rk-campo' }, el('span', {}, T.newName), name),
+      el('label', { class: 'rk-campo' }, el('span', {}, RK.currentPin), namePin),
+      saveName, nameMsg,
+    ]),
+    done,
+    row(T.pinRow, T.pinRowHint, el('b', { class: 'pf-pin-dots', 'aria-hidden': 'true' }, '••••'), [
+      el('label', { class: 'rk-campo' }, el('span', {}, RK.currentPin), current),
+      el('label', { class: 'rk-campo' }, el('span', {}, RK.newPin), fresh),
+      savePin, pinMsg,
+    ]),
+    out, ask);
+}
+
 function settingsTab(yo) {
   const row = (label, hint, control) => el('div', { class: 'toggle-row' }, el('span', { class: 'txt' }, el('b', {}, label), hint ? el('small', {}, hint) : null), control);
-  const account = el('section', { class: 'panel pf-settings' }, el('p', { class: 'lead rk-titulo' }, T.account),
-    row(T.nameRow, T.nameHint, el('b', { class: 'pf-name-now' }, conBandera(yo.co, yo.n))));
   const prefs = el('section', { class: 'panel pf-settings' }, el('p', { class: 'lead rk-titulo' }, T.prefs),
     row(T.language, null, langToggle()), row(T.sound, null, soundToggle()));
   const notices = el('div', {});
@@ -265,7 +361,7 @@ function settingsTab(yo) {
     const draw = () => { const b = m.bloque({ lang, alTocar: tap, redibujar: draw }); notices.replaceChildren(...(b ? [b] : [])); };
     draw();
   }).catch(() => {});
-  return el('div', { class: 'pf-tab' }, account, bloqueJugador({ alTocar: tap }), prefs, notices);
+  return el('div', { class: 'pf-tab' }, accountPanel(yo), prefs, notices);
 }
 
 /* ------------------------------------------------------------------ */
@@ -325,7 +421,7 @@ function drawGuest(root) {
   const r = earned(localFacts(), readSeen(null));
   writeSeen(null, r.seen);
   // The badges this phone could earn without a name: Uno al día's streaks and hours, and the games played
-  const local = new Set(['streak-10', 'streak-30', 'month-full', 'early-bird', 'explorer', 'plays-100', 'night-owl']);
+  const local = new Set(['streak-10', 'streak-30', 'month-full', 'early-bird', 'explorer', 'plays-100', 'obsession', 'night-owl']);
   const list = r.list.filter(b => local.has(b.id) && (b.got || !b.secret));
   root.replaceChildren(
     bloqueJugador({ abierto: true, destacado: true, alTocar: tap }),

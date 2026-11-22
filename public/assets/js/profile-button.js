@@ -49,14 +49,13 @@ function pillFace(b, { lang = 'es', doc = document } = {}) {
   go.className = 'pf-home-go';
   go.setAttribute('aria-hidden', 'true');
   go.textContent = '›';
-  // On a narrow phone's game bar the pill is round: the initial, as the profile's avatar (a lone country
-  // flag beside the language's flag would read as a second language)
-  const initial = doc.createElement('span');
-  initial.className = 'pf-home-initial';
-  initial.setAttribute('aria-hidden', 'true');
-  initial.textContent = yo?.n ? Array.from(yo.n.trim())[0]?.toUpperCase() || '👤' : '👤';
-  b.classList.toggle('pf-guest', !yo?.n);
-  b.replaceChildren(flag, name, go, initial);
+  // On a narrow phone's game bar the pill is round, with 👤: the name does not fit, and a lone country
+  // flag beside the language's flag would read as a second language (no initial: the owner, 2026-11-21)
+  const icon = doc.createElement('span');
+  icon.className = 'pf-home-icon';
+  icon.setAttribute('aria-hidden', 'true');
+  icon.textContent = '👤';
+  b.replaceChildren(flag, name, go, icon);
 }
 
 /** A ▾ after a language button's flag: it says the button opens the three languages. */

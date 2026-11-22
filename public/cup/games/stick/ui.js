@@ -19,7 +19,7 @@ import { getLang } from '../../../assets/js/i18n.js';
 import TEXTOS from './texts.js';
 import { onScreen } from '../../../assets/js/on-screen.js';
 import {
-  newGame, pillarAt, current, next, press, release, suspend, stickAt, advance, pause, walkEnd,
+  newGame, pillarAt, current, next, press, release, suspend, advance, pause, walkEnd,
   holdFor, revive, puntaje, tarjeta, PERFECT, MAX_BONUS, LIVES,
 } from './engine.js';
 import { CAIDA_MS, RESCATE_MS, escena, momento } from './scene.js';
@@ -148,7 +148,7 @@ export function montar(raiz, ctx) {
   raiz.replaceChildren(escenario);
   const sc = escena(lienzo);
   sc.empezar(g);
-  let cayo = false, ultimoTic = 0;
+  let cayo = false;
   const vivo = () => raiz.isConnected && escenario.isConnected;
 
   const decir = (nodo, clase) => {
@@ -194,7 +194,6 @@ export function montar(raiz, ctx) {
   const presionar = t => {
     if (S.fin || S.pausa) return;
     if (!press(g, t)) return;
-    ultimoTic = 0;
     aviso.classList.add('sn-fuera');
   };
   const soltar = t => {
@@ -261,6 +260,10 @@ export function montar(raiz, ctx) {
   addEventListener('pointerup', arriba, sig);
   addEventListener('pointercancel', arriba, sig);
   escenario.addEventListener('contextmenu', ev => ev.preventDefault());
+  // A long hold on a phone makes the system buzz (Android's long-press feedback, a text selection or a drag
+  // starting); the stretch is a long hold, so none of those may start. Pointer events still arrive.
+  for (const tipo of ['touchstart', 'touchmove']) escenario.addEventListener(tipo, ev => ev.preventDefault(), { passive: false });
+  for (const tipo of ['selectstart', 'dragstart']) escenario.addEventListener(tipo, ev => ev.preventDefault());
   escenario.addEventListener('keydown', ev => {
     if (ev.key !== ' ' && ev.key !== 'Enter') return;
     ev.preventDefault();
@@ -320,11 +323,6 @@ export function montar(raiz, ctx) {
   const paso = now => {
     if (!vivo()) { fuera.abort(); return sc.cerrar(); }
     const reloj = S.pausa || now;
-    // Stretching: a soft tick every so often, rising, so the length is heard too
-    if (g.phase === 'growing') {
-      const k = Math.floor(stickAt(g, reloj) / 36);
-      if (k > ultimoTic) { ultimoTic = k; SFX.letterHit?.(Math.min(k, 11)); }
-    }
     if (g.phase === 'walking' && !S.pausa) {
       const w = g.walk;
       // The stick lands: on the flag, the pulse; on the pillar, a thud

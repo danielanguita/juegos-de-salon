@@ -173,11 +173,11 @@ export const PATHS = {
     step: [`document.getElementById('btn-play').click()`, `document.getElementById('btn-give-up').click(); document.getElementById('btn-give-up').click()`],
     result: [`document.getElementById('btn-play').click()`, `document.getElementById('btn-give-up').click(); document.getElementById('btn-give-up').click()`, `document.getElementById('btn-next').click()`, `document.getElementById('btn-give-up').click(); document.getElementById('btn-give-up').click()`, `document.getElementById('btn-next').click()`, `document.getElementById('btn-give-up').click(); document.getElementById('btn-give-up').click()`, `document.getElementById('btn-next').click()`],
   },
-  // Tembleque (lab): its cover, measured by landing-fold.mjs (D-579)
-  'labs/wobbles': { intro: [] },
+  // Tembleque: its cover, measured by landing-fold.mjs (D-579); out of the lab, launched by flags/wobbles (D-601)
+  wobbles: { intro: [] },
   // Each level's result (C-19): a round started and ended at once
-  'labs/wobbles/easy': { result: [`document.getElementById('cBtn').click()`, `1`, `window.__balanza.finish()`, `1`] },
-  'labs/wobbles/hard': { play: [`document.getElementById('cBtn').click()`, `1`, `1`, `1`], result: [`document.getElementById('cBtn').click()`, `1`, `window.__balanza.finish()`, `1`] },
+  'wobbles/easy': { result: [`document.getElementById('cBtn').click()`, `1`, `window.__balanza.finish()`, `1`] },
+  'wobbles/hard': { play: [`document.getElementById('cBtn').click()`, `1`, `1`, `1`], result: [`document.getElementById('cBtn').click()`, `1`, `window.__balanza.finish()`, `1`] },
   // Blackjack (lab): its cover, measured by landing-fold.mjs (D-579)
   blackjack: {
     intro: [],
@@ -461,9 +461,6 @@ export const PATHS = {
       `document.querySelector('#result .actions .btn').click()`,
     ],
   },
-  'croc': {
-    intro: [],
-  },
   julepe: {
     intro: [],
     setup: [`document.querySelectorAll('.mode')[0].click()`],
@@ -607,6 +604,10 @@ export const PATHS = {
   aletazo: { intro: [], game: [START] },
   // Dominorama: the cover, then Empezar and the countdown to the first board
   dominorama: { intro: [], game: [START, `1`, `1`, `1`, `1`] },
+  // Croc!: the cover over its demo (the lever on normal traffic), then Empezar and the countdown to the road;
+  // `hard` flips the lever to heavy traffic first (the red-violet page)
+  croc: { intro: [], game: [START, `1`, `1`, `1`, `1`], hard: [
+    `new Promise(r => { const t = setInterval(() => { const b = document.getElementById('btn-level'); if (b) { clearInterval(t); b.click(); r(1); } }, 100); setTimeout(() => { clearInterval(t); r(0); }, 8000); })`, `1`, START, `1`, `1`, `1`, `1`] },
   // Sudoku: the cover (the lever on easy), then Empezar and the countdown to the 6×6 board; `hard` the 9×9 one
   // hard: waits for the level lever before tapping it, and for the 9×9's 81 cells after starting, so every
   // language photographs the same board (on the runner the lever was once tapped before it existed)
@@ -827,6 +828,8 @@ export const VISUAL_SKIP = {
   sudoku: 'its cover is a demo board solving itself in real time, and the page reads the live flags/sudoku value (launch by flag, like Babel), so two runs drew it 0.63 % apart while the Visual references workflow saw no change; tools/e2e/sudoku/page.mjs and cup-games/languages.mjs check the cover instead',
   memorice: 'its cover is a small board playing itself in real time, and the page reads the live flags/memory value (launch by flag, like Sudoku); tools/e2e/memory/page.mjs checks the cover instead',
   dominorama: 'its cover is a demo board laying its dominoes in real time, and the page reads the live flags/dominorama value (launch by flag, like Sudoku); tools/e2e/dominorama/page.mjs checks the cover instead',
+  croc: 'its cover is the real game playing itself on a random track in real time, and the page reads the live flags/croc value (launch by flag, like Sudoku); tools/e2e/croc/page.mjs checks the cover instead',
+  wobbles: 'its cover\'s picture is a video loop of the real game, and the page reads the live flags/wobbles value (launch by flag, like Sudoku); tools/e2e/wobbles/game.mjs checks the cover instead',
   where: 'its intro differed 1.26 % between two runs on the same runner: something on it is not fixed yet (#1249 step 15)',
 };
 

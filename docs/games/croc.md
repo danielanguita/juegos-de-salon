@@ -1,11 +1,19 @@
-# 🐸 Croc! (lab, in Juegos en prueba)
+# 🐸 Croc! (La Copa game, ready to launch by flag; not launched)
 
 A solo arcade highway crossing built for mobile touch controls and deterministic Cup play.
 
 ## Summary
 
-- **Where:** `/labs/croc/`, behind the lab's door (D-281, D-395), `noindex`, listed in `/labs/` under 🎲 Juegos en prueba. Not in `games.js` while in the lab. Id `croc` in stats and `localStorage` (`juegos-de-salon:croc:session`, `juegos-de-salon:croc:best`, `juegos-de-salon:croc:diff`, migrated once from `juegos-de-salon:sapiondo:*`). Facts live in `game.json`.
-- **For whom:** 1 player, seeded tracks (`?seed=<n>`) for repeatable competition. Languages: es, en, pt (C-3).
+- **Where:** `/croc/`, La Copa's screen (`public/cup/games/croc/`), hidden until the owner switches `flags/croc`
+  to *all* (D-517's way); a lab key opens it before. `/labs/croc/`, the lab page it grew in, is a bridge to `/croc/`
+  (C-18), as are `/minigames/croc/` and `/minijuegos/croc/`. Id `croc` in stats, its ranking table (`croc`,
+  heavy traffic `croc_hard`) and `games.js`. The phone's old lab keys (`juegos-de-salon:croc:best`, `:diff`,
+  `:session`) are no longer read.
+- **For whom:** 1 player. Languages: es, en, pt (C-3).
+- **Launch dates: placeholders.** `unoAlDia.desde` (`2027-01-02`) and `nuevoDesde` (`2027-01-01`) in its
+  `games.js` entry are placeholders until the owner picks the launch date: **the launch PR must move them**
+  (`desde` to the day after the launch, `nuevoDesde` to the launch day; docs/LAUNCH.md step 3). Uno al día
+  deals by date, never by flag, so they stay far out until then.
 
 ## Rules
 
@@ -17,28 +25,62 @@ Cross 33 rows across three escalating sectors (Suburb Ave, City Highway, Night E
 - **Close-Call:** Passing within a narrow bumper margin (when not in ghost mode) triggers celebratory UX (particles, sound, popup) and restores `+1 ⚡` Dash charge (0 points).
 - **Lives & Ghost Mode:** `3` lives (`❤️❤️❤️`); getting hit deducts 1 life (`-1` point) and grants `1.5 s` of pulsing transparent ghost invulnerability.
 - **Fruits:** Strawberries, Mangoes, and Golden Starfruit spawn on road lanes, award `+1` point each, and restore `+1 ⚡` Dash charge.
-- **Scoring:** `+1` per lane progressed, `+10` on reaching the finish, `+1` per fruit taken, `-1` per life lost (clamped `>= 0`). In La Copa, ties among finishers break by faster completion time; crashed runs tie-break by distance reached.
+- **Scoring:** `+1` per lane progressed, `+10` on reaching the finish, `+1` per fruit taken, `-1` per life lost (clamped `>= 0`). In La Copa, ties among finishers break by faster completion time; crashed runs tie-break by distance reached. Uno al día takes `dayScore`, a smooth 0–100 curve of the points (`DAY_K = 35`).
 - **Seasonal Shirts:** The frog's shirt adapts by calendar date (`halloween`, `thanksgiving`, `christmas`, `newyear`, `winter`, `summer`, or default arcade jersey; overridable via `?season=<id>` and disabled under `?test`).
 
 ## Modes
 
-Solo (`solo`), with deterministic seeded tracks (`?seed=<n>`) ready for Cup integration.
+Solo. Its traffic levels are La Copa's variants (D-331): 🟢 normal, the default a cup day and Uno al día play,
+and 🔥 heavy (`hard`: more cars, faster and closer), which a cup admin can pick for a day. Each ranks apart:
+normal in `croc`, heavy in `croc_hard`. A cup day's track is seeded from `hash32(code:day)`, the same for every
+player; the trial (D-103) is a 15-row track with its own seed.
 
 ## Flow
 
 Scenery: the start row and the rest rows (11, 21) are a grass verge between curbs (lamp, bin, bench, butterfly); the finish is a wetland up to the top of the screen (reeds, heron, duck, dragonfly, lily pads).
 
-Intro (cover: the real game playing itself as its demo, with a caption; the standard traffic lever, Pintaminas' and Sudoku's, always starting on normal; solo mode; «Instrucciones» and «Entrar» dialogs; the ranking; site footer) → Play (2.5D canvas stage, top HUD, board-wide swipe controls + live Dash gauge) → Result (itemized breakdown: lanes, fruits, elapsed time tie-break, total; replay same seed or new seed; share through `compartir.js`; exits from `fin.js`, C-19).
+Waiting room (La Copa's, `cup/game.js`): the cover is the real game playing itself on a random track, slower
+(55 %) and with a finger showing each swipe and each Dash, in the lever's traffic; a still frame of a fixed track
+with reduced motion. Then the 🐸 and the name with its line, the traffic lever (the standard one: Pintaminas',
+Sudoku's; down and green is normal, up and red is heavy, which turns the page red-violet, `body.sp-hard`), Empezar,
+«Instrucciones» and «Entrar», the ranking and the footer → the shared 3, 2, 1 → Play (2.5D canvas stage, top HUD
+with lane, sector, lives, Dash charges and points; board-wide swipes) → the verdict and «Continuar» → La Copa's
+result (score, share card `🐸 33/33 · 🍓2 ⚡3 🏁`, the breakdown: lanes, fruit, lives lost; C-19's exits).
 
 ## Message protocol
 
-None: single-player. Active runs are serialized (`serialize` / `hydrate`) into `createSessionStore` (C-6) for resume across reloads.
+None: single-player. La Copa's shared screen saves the run after every move and every hit (`ctx.guardar`) and
+sends the result (`cup/game.js`); a finished run reopens finished.
 
 ## Files
 
-- `public/labs/croc/`: `game.json`, `index.html`, `style.css`, `rules.js`, `engine.js`, `engine.test.mjs`, `scene.js`, `game.js`.
-- `tools/e2e/croc/game.mjs`: end-to-end play script (`window.__croc`).
+- `public/cup/games/croc/`: `engine.js` (pure, seeded; `generateDay`, `score`, `card`, `dayScore`, `LEVELS`),
+  `engine.test.mjs`, `scene.js` (the canvas drawing), `ui.js` (`cover`, `title`, `selector`, `mount`, `result`,
+  `breakdown`), `texts.js` (es, en, pt, keys prefixed `sp`, merged into `cup/rules.js`), `style.css` (prefixed `sp-`).
+- `public/croc/index.html` (generated by `node tools/release/og.mjs cards`), its bridges, and the card
+  `assets/og/croc.jpg`.
+- The hook for the end-to-end tests (C-14): `window.__croc` (`g`, `state()`, `act(action)`, `estado()`).
+- `tools/e2e/croc/page.mjs`: the page end to end. `tools/e2e/cup-games/languages.mjs` checks it in every language.
+- Splash clips: `marketing/splash/croc-wobbles-clip.mjs`, for the `nos-volvimos-locos` campaign (off).
 
 ## Exceptions to the canons
 
 None.
+
+## Out of the lab, ready to launch (D-517's way, 2026-11-21)
+
+Prepared the way Sudoku (`3f60e2d8`) and Dominorama (`ba085a29`) were, **not launched**: the owner said "prepare
+the launch, launch nothing". It stays hidden until the owner switches `flags/croc` to *all* on its `/labs/` card.
+
+- **La Copa's screen**: the lab's engine and scene moved into `public/cup/games/croc/` (they were older copies
+  there): the engine keeps the cup's track length (`finishRow`) and its demo keeps its traffic when it starts
+  over; `generateDay` takes the day's variant. `ui.js` gained the lab's cover (the demo with the finger) and
+  its lever (`selector`). The cup page provides the countdown, the clock, the ranking, sharing and the dialogs.
+- **The lab page** became a bridge (`deLabs: 'croc'`): unlike Sudoku's and Dominorama's prototypes, which stayed
+  until their cleanup PR, the lab's own Croc! (`game.js`, `rules.js`, its manifest) is gone now, because a lab
+  game without a game.json fails the lab's gate (D-579) and its code is this game's. What the cup page does not
+  keep from it: the best-score line on the cover, resuming a run halfway, and the "same track / new track" buttons.
+- **`games.js`**: a SUELTOS entry with `lanza: 'croc'`, `copa: { pozo: 21 }`, `unoAlDia: { orden: 26 }`,
+  placeholder dates (above) and `diasNuevo: 10`; its row in `flag-list.js` and the 🚀 switch on its `/labs/` card
+  (D-498). It is in La Copa's open pool only once the flag is *all* (`refreshPool`, `enPortada`).
+- **Rankings**: a SUELTOS id gets its tab on its own (D-559); it left `SOLO_TABLES`.

@@ -54,8 +54,8 @@ Under them: "📅 Today's course is the same for everyone. Pass the phone and co
   two seconds: dawn (the moon sets, the stars fade, a sun rises behind the mountains and the ranges warm),
   the morning, and from 45 points the full day, which stays. A painted sky covers the app's night from
   dawn on; with reduced motion the change is instant.
-- **Hold anywhere** (or Space or Enter) and the stick grows up from the edge of the pillar, with a soft
-  rising note every so often, so the length is heard too. **Let go** and it falls across the gap. The
+- **Hold anywhere** (or Space or Enter) and the stick grows up from the edge of the pillar, in silence
+  (the rising tick was removed in PR #1738). **Let go** and it falls across the gap. The
   first time it says "Hold to stretch the stick".
 - **Its tip on the next pillar:** the ninja runs over, headband tails flying, and scores **1**. Too short,
   the stick has nothing under its tip and swings on down into the gap; the ninja runs to its pillar's edge

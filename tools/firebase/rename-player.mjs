@@ -10,6 +10,11 @@
  *   node tools/firebase/rename-player.mjs <jid | current name>                 # lists the matches, touching nothing
  *   node tools/firebase/rename-player.mjs <jid> "New name"                     # shows what it would write
  *   node tools/firebase/rename-player.mjs <jid> "New name" --write             # writes it (as administrator)
+ *   node tools/firebase/rename-player.mjs --pending [--apply]                    # the players who renamed themselves (D-600)
+ *
+ * `--pending` is the hourly job's (tools/jobs/uad-hourly.sh): a player who changes their name in the
+ * profile writes the name and its key, and a mark in `jugadorRenombres/<jid>`; this carries the new
+ * name to every row of theirs that still has another one, then clears the mark.
  *
  * With no new name given it suggests "Jugador <4 letters of the jid>". Needs the key at
  * ~/.config/juegos-de-salon/firebase-admin.json. Firebase paths keep their Spanish names (D-316).
@@ -29,6 +34,41 @@ export function cambiosRenombre(jid, viejo, nuevo, filas) {
   return c;
 }
 
+/**
+ * The writes that finish the self-renames (D-600): each row read (`{ path, jid, n }`) whose name is not
+ * its player's current one gets it, and each mark whose player kept the name read at the start (`antes`
+ * against `despues`) is cleared; a player renamed again meanwhile keeps the mark for the next hour. Pure.
+ */
+export function cambiosPendientes(filas, antes, despues) {
+  const c = {};
+  for (const { path, jid, n } of filas) if (n != null && typeof antes[jid] === 'string' && n !== antes[jid]) c[`${path}/n`] = antes[jid];
+  for (const jid of Object.keys(antes)) if (antes[jid] === despues[jid] || despues[jid] == null) c[`jugadorRenombres/${jid}`] = null;
+  return c;
+}
+
+/** Runs `fn` over `xs`, `n` at a time. */
+async function enParalelo(xs, n, fn) {
+  let i = 0;
+  await Promise.all(Array.from({ length: Math.min(n, xs.length) }, async () => { while (i < xs.length) await fn(xs[i++]); }));
+}
+
+async function pendientes(t, aplicar) {
+  const jids = Object.keys((await read('jugadorRenombres', t)) || {}).filter(esJid);
+  if (!jids.length) { console.log('No self-renames waiting.'); return; }
+  const leerNombres = async () => Object.fromEntries(await Promise.all(jids.map(async j => [j, await read(`jugadores/${j}/n`, t)])));
+  const antes = await leerNombres();
+  const rutas = [];
+  for (const tb of await hijos('records', t)) for (const p of await hijos(`records/${tb}`, t)) for (const jid of jids) rutas.push({ path: `records/${tb}/${p}/${jid}`, jid });
+  const filas = [];
+  await enParalelo(rutas, 16, async r => { filas.push({ ...r, n: await read(`${r.path}/n`, t) }); });
+  const c = cambiosPendientes(filas, antes, await leerNombres());
+  const n = Object.keys(c).filter(k => k.startsWith('records/')).length;
+  console.log(`${jids.length} self-rename(s): ${n} table row(s) to carry the new name.`);
+  if (!aplicar) { console.log('Dry run: add --apply to write it.'); return; }
+  await write('', 'PATCH', c, t);
+  console.log('✓ self-renames carried');
+}
+
 /** Keys of a node without its contents (REST `shallow`). */
 async function hijos(path, t) {
   const res = await fetch(`${firebaseConfig.databaseURL}/${path}.json?shallow=true&access_token=${encodeURIComponent(t)}`);
@@ -40,6 +80,7 @@ async function main() {
   const [quien, nombre, ...resto] = process.argv.slice(2);
   if (!quien) fail('Usage: node tools/firebase/rename-player.mjs <jid | current name> ["New name"] [--write]');
   const t = await token();
+  if (quien === '--pending') return pendientes(t, nombre === '--apply');
 
   if (!esJid(quien)) {
     const jids = Object.keys((await read(`jugadorNombres/${claveNombre(quien)}`, t)) || {});
