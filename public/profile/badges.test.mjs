@@ -102,8 +102,8 @@ assert.equal(daysPlayed({ '2026-11-01': true, '2026-11-02': true }, ['2026-11-02
 const hundred = [...Array(100)].map((_, i) => new Date(Date.UTC(2026, 0, 1 + 2 * i)).toISOString().slice(0, 10));
 assert.ok(got('regular', { marks: { played: hundred } }).got);
 assert.deepEqual(got('regular', { dailyDays: { '2026-11-01': true }, marks: { played: hundred.slice(0, 36) } }).progress, [37, 100]);
-// The secret dates and Martes 13
-assert.ok(got('tuesday-13', { marks: { t13: { best: 13 } } }).got && !got('tuesday-13', { marks: { t13: { best: 12 } } }).got);
+// The secret dates (Martes 13 left: too hard to earn, the owner 2026-11-22)
+assert.ok(!earned({ now: NOW }).list.some(b => b.id === 'tuesday-13'));
 for (const [id, k] of [['fiestas', 'fiestas'], ['halloween', 'halloween'], ['xmas', 'xmas'], ['new-year', 'newyear']]) {
   assert.ok(got(id, { marks: { days: { [k]: true } } }).got, id);
   assert.ok(got(id, {}).secret && !got(id, {}).got, `${id}: secret until earned`);

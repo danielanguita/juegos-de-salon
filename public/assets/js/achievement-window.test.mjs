@@ -21,5 +21,4 @@ assert.equal(dueSecret({}, {}), null, 'nothing earned, nothing told');
 assert.equal(dueSecret({ marks: { days: { xmas: true } } }, {}), 'xmas');
 assert.equal(dueSecret({ marks: { days: { xmas: true } } }, { xmas: 1 }), null, 'told once');
 assert.equal(dueSecret({ hours: { '2026-11-02': { n: 3 } }, marks: { days: { halloween: true } } }, { 'night-owl': 1 }), 'halloween');
-assert.equal(dueSecret({ marks: { t13: { best: 12 } } }, {}), null);
 console.log('✓ achievement window');

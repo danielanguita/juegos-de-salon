@@ -445,7 +445,7 @@ function drawGuest(root) {
   celebrateHere(r.list).catch(() => {});
   // The badges this phone could earn without a name: Uno al día's streaks and hours, and the games played
   const local = new Set(['streak-10', 'streak-30', 'month-full', 'early-bird', 'explorer', 'plays-100', 'obsession', 'premiere', 'regular', 'weekends', 'mondays',
-    'night-owl', 'tuesday-13', 'fiestas', 'halloween', 'xmas', 'new-year']);
+    'night-owl', 'fiestas', 'halloween', 'xmas', 'new-year']);
   const list = r.list.filter(b => local.has(b.id) && (b.got || !b.secret));
   root.replaceChildren(
     bloqueJugador({ abierto: true, destacado: true, alTocar: tap }),

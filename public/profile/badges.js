@@ -20,7 +20,7 @@
  *   allRounder     the player's place in the overall ranking, ever (null if not in it)
  *   hours          { 'YYYY-MM-DD': { e, n } } games finished early (04:00–06:59) and at night (00:00–03:59), by local day
  *   bestRun        the most times this phone finished one same game in a row
- *   marks          the phone's marks kept for good (play-hours.js `addMark`): { first, days, wk, mon, t13 }
+ *   marks          the phone's marks kept for good (play-hours.js `addMark`): { first, days, wk, mon, played }
  *   launches       { <game>: 'YYYY-MM-DD' } the day each game came out (games.js `nuevoDesde`)
  *   byGame         [{ id, n }] games finished with the player, by game
  *   cupList        [{ code, at }] the cups the player sat in, with when
@@ -29,9 +29,9 @@
  *   now            ms
  */
 
-import { LOCAL_SECRETS, NIGHT_GAMES, TUESDAY_13 } from '../assets/js/secret-achievements.js';
+import { LOCAL_SECRETS, NIGHT_GAMES } from '../assets/js/secret-achievements.js';
 
-export { NIGHT_GAMES, TUESDAY_13 };
+export { NIGHT_GAMES };
 export const GROUPS = ['daily', 'cup', 'games'];
 export const EARLY_GAMES = 3;   // games before 7 in one morning…
 export const EARLY_DAYS = 7;    // …on this many mornings
@@ -140,7 +140,6 @@ export const BADGES = [
   { id: 'night-owl', group: 'games', tier: 'silver', icon: '🦉', secret: true, check: f => ({ got: LOCAL_SECRETS['night-owl'](f) }) },
   { id: 'triple-crown', group: 'games', tier: 'gold', icon: '💎', secret: true, check: f => ({ got: n(f.medals?.gold) > 0 && (f.months || []).some(m => m.place === 1) && n(f.firsts) > 0 }) },
   { id: 'one-year', group: 'games', tier: 'gold', icon: '🎂', secret: true, check: f => ({ got: n(f.since) > 0 && n(f.now) - f.since >= 365 * 86400000 }) },
-  { id: 'tuesday-13', group: 'games', tier: 'silver', icon: '🐈‍⬛', secret: true, check: f => ({ got: LOCAL_SECRETS['tuesday-13'](f) }) },
   { id: 'fiestas', group: 'games', tier: 'bronze', icon: '🪁', secret: true, check: f => ({ got: LOCAL_SECRETS['fiestas'](f) }) },
   { id: 'halloween', group: 'games', tier: 'bronze', icon: '🎃', secret: true, check: f => ({ got: LOCAL_SECRETS['halloween'](f) }) },
   { id: 'xmas', group: 'games', tier: 'bronze', icon: '🎅', secret: true, check: f => ({ got: LOCAL_SECRETS['xmas'](f) }) },

@@ -1,6 +1,6 @@
 /**
  * The secret achievements this phone can tell on its own, from what it keeps (play-hours.js), with no
- * network (lab flag `profile`): 🦉 night owl, 🐈‍⬛ Martes 13 and the four dates. The profile's catalogue
+ * network (lab flag `profile`): 🦉 night owl and the four dates. The profile's catalogue
  * (profile/badges.js) takes their checks from here, and `stats.js`' `trackFinish` asks `dueSecret` after
  * each game, so the window that celebrates one (achievement-window.js) opens right after the game
  * that earned it, once per achievement and phone. Pure but for `readFacts`, `announced` and `markAnnounced`.
@@ -8,13 +8,11 @@
 import { readHours, readMarks } from './play-hours.js';
 
 export const NIGHT_GAMES = 3;   // games between midnight and 4 in one night
-export const TUESDAY_13 = 13;   // games on one Tuesday the 13th
 const n = x => (Number.isFinite(Number(x)) ? Number(x) : 0);
 
 /** `{ id: check(facts) → bool }`, from the phone's facts `{ hours, marks }`. */
 export const LOCAL_SECRETS = {
   'night-owl': f => Object.values(f.hours || {}).some(h => n(h?.n) >= NIGHT_GAMES),
-  'tuesday-13': f => n(f.marks?.t13?.best) >= TUESDAY_13,
   fiestas: f => !!f.marks?.days?.fiestas,
   halloween: f => !!f.marks?.days?.halloween,
   xmas: f => !!f.marks?.days?.xmas,

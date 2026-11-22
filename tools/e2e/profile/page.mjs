@@ -69,7 +69,9 @@ for (const W of [320, 390]) {
   // 🎃 earned and not yet told: its window opens once, like One a Day's month-end one, with «Ver mis logros» (the owner, 2026-11-22)
   ok(await ev(`(() => { const w = document.querySelector('.aw-capa'); return !!w && w.querySelector('.aw-titulo')?.textContent === 'Noche de brujas' && !w.querySelector('path') && /logros secretos/.test(w.textContent) && !/chapita/i.test(w.textContent) && !!w.querySelector('a.btn'); })()`), `${W}: 🎃 a secret achievement just earned opens its window: a round medal, no ribbon, «Ver mis logros»`);
   ok(await ev(`(() => { const c = document.querySelector('.aw-capa .me-tarjeta')?.getBoundingClientRect(), m = document.querySelector('.aw-medalla')?.getBoundingClientRect(); return !!c && c.left >= 0 && c.right <= ${W} && m.top >= 0 && document.documentElement.scrollWidth <= ${W}; })()`), `${W}: 🎃 its window fits the screen`);
-  await sleep(1200);
+  ok(await ev(`!!document.querySelector('.aw-capa .aw-franjas') && !!document.querySelector('.aw-medalla .aw-dorso')`), `${W}: 🎃 its medal first shows «?» over diagonal stripes, then turns over (look B)`);
+  await sleep(2200);
+  ok(await ev(`getComputedStyle(document.querySelector('.aw-dorso')).opacity === '0'`), `${W}: 🎃 the medal turned over: the achievement shows`);
   await b.shot(`achievement-${W}`);
   await ev(`document.querySelector('.aw-capa .me-x').click()`); await sleep(400);
   ok(await ev(`!document.querySelector('.aw-capa') && !!JSON.parse(localStorage.getItem('juegos-de-salon:logros-anunciados') || '{}').halloween`), `${W}: 🎃 told once: the phone remembers it`);
