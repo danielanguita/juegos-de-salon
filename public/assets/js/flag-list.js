@@ -19,6 +19,7 @@ export const FLAGS = {
   'uad-share-grids': '🟩 Uno al día: share grids for Agentes, Dudo, Generala and Battleship',
   'cover-facts': '📖 Game pages: who plays and how long, in the rules',
   'uad-night-totals': '📅 Uno al día: totals written by the hourly rebuild',
+  'rivals': '⚔️ Duels: challenge a player to 3 or 5 rounds of one game, the same levels for both, 3 days to play; from the profile (cards, See all, the nemesis), a third home card and ⚔️ on a game cover\'s ranking rows',
   'profile': '🎖️ Your profile: the player\'s page with badges (some locked, three secret), their places in each game\'s ranking and their settings; every top bar ends in a pill with their flag and name that opens it, the language as one flag with a ▾, and a cover drops its «🏅 <name>» button (/records/ stays meanwhile)',
   'home-carousels': '🎠 Icon view: the games in rows of three (popular, new, solo or with friends, dexterity and one per type), each game once, in place of the dice, the filters and the list; a tap opens the game\'s cover',
   'home-carousels-sheet': '🎠 Icon view: a tap on an icon opens a sheet with tabs (the game\'s animation and details, its ranking, a share button and ▶ Jugar) instead of the game\'s cover',

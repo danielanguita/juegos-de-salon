@@ -759,7 +759,13 @@ export function crearJugador({ almacen, storage = globalThis.localStorage, now =
       if (!yo || esPais(yo.co)) return;
       await quedar(yo.jid, yo.n);
     },
+    /** The duels (lab flag rivals, duels.js), on this same store: loaded only by the pages that ask. */
+    async duelos() {
+      const { crearDuelos } = await import('./duels.js');
+      return (duelosApi ||= crearDuelos({ almacen, yo: api.yo, now }));
+    },
   };
+  let duelosApi = null;
   return api;
 }
 

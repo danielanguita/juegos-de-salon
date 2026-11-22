@@ -113,6 +113,13 @@ const PRACTICA = SUELTO
 const RAIZ = new URL('../', import.meta.url).href;
 const SEMILLA = (param('seed') || '').toUpperCase();
 /**
+ * A duel's round (lab flag rivals, assets/js/duels.js; lab: #seccion-rivals): a game's own page opened
+ * from a duel, `?seed=<the round's>&duel=<id>&round=<i>`, plays that seed and saves the result in the
+ * duel. The round counts from its start, once: `ok` is whether this phone began it now.
+ */
+const DUELO = SUELTO && /^[A-HJ-NP-Z]{5}$/.test(SEMILLA) && /^[a-z0-9]{10}$/.test(param('duel') || '') && /^[0-4]$/.test(param('round') || '')
+  ? { did: param('duel'), i: Number(param('round')), ok: null } : null;
+/**
  * Uno al día (D-230): `?today` juega el desafío de hoy, el mismo para todos. La fecha y el juego los
  * calcula la página (no vienen en el link), así un link viejo abre el de hoy.
  */
@@ -2202,6 +2209,8 @@ function practica(id, varianteElegida = null) {
   if (Jr.puntajeTiempo) flag('tango-time').then(on => { const x = on && document.getElementById('como-puntaje'); if (x) x.textContent = Jr.puntajeTiempo; }, () => {});
   // A game's own page: Instrucciones and Entrar as dialogs, no game chip on top (lab: #seccion-cover-dialogs)
   if (SUELTO) coverWithDialogs(body, { lang: LANG, alTocar: () => SFX.tap() });
+  // ⚔️ on the ranking's rows: challenge that player to a duel in this game (lab: #seccion-rivals)
+  if (SUELTO && rankea(id)) flag('rivals').then(on => on && import('../assets/js/duels-ui.js').then(m => m.retosEnRankings(document.body, { alTocar: () => SFX.tap() }))).catch(() => {});
   // The first attempt counts from its start (D-433): the line says so, an attempt left halfway goes
   // on where it was, and one started on another phone counts 0
   // Empezar waits for that answer (at once without a player; with one, at most Firebase's 2.5 s)
@@ -2248,6 +2257,7 @@ function jugarPractica(id, semilla, variante = null) {
   // El caso cuenta también desde el laboratorio: es lo que se quiere medir (D-267)
   // A lab key's simulated game (Babel's «Simular final») is not a game: no signal, no daily attempt
   const simulado = !!JUEGOS[id].simulando?.();
+  if (DUELO && !DUELO.ok) DUELO.ok = jugador().then(Jg => Jg.duelos()).then(D => D.empezar(DUELO.did, DUELO.i)).catch(() => 'tarde');
   if ((!LABS || gameById(id)?.diario) && !PRUEBA && !simulado) trackStart({ game: id, mode: HOY ? MODO_UNO_AL_DIA : 'solo', players: 1 });
   // Un juego `diario` sigue donde iba al recargar (D-267): las jugadas y el tiempo, por caso
   let guardado = gameById(id)?.diario && !HOY ? partidaGuardada(id, semilla) : null;
@@ -2409,6 +2419,28 @@ function resultadoEnsayo(id, r, volver, variante = null) {
     el('button', { class: 'btn btn--yellow', id: 'btn-volver-ensayo', onClick: () => { SFX.tap(); volver(); } }, T.trialBack));
 }
 
+/** A duel's round ended (DUELO): its result goes to the duel, and the result screen says so. */
+async function avisoDuelo(caja, r) {
+  try {
+    const [{ TEXTS }, duelos, Jg] = await Promise.all([import('../assets/js/duels-texts.js'), import('../assets/js/duels.js'), jugador()]);
+    const TD = TEXTS[LANG] || TEXTS.es, D = await Jg.duelos();
+    const empezo = await DUELO.ok;
+    let msg = empezo === 'tarde' ? TD.roundLate : TD.roundUsed, sigue = null;
+    if (empezo === true) {
+      try {
+        await D.anotar(DUELO.did, DUELO.i, { s: r.s, ms: r.ms });
+        const d = await D.leer(DUELO.did), yo = Jg.yo().jid;
+        msg = fmt(TD.roundSaved, { i: DUELO.i + 1, n: duelos.rondas(d), r: duelos.nombreDe(d, duelos.otro(d, yo)) });
+        // The next round, the screen's main action: the same page with that round's seed
+        const t = duelos.estado(d, yo).turno;
+        if (t >= 0) sigue = el('a', { class: 'btn btn--yellow', id: 'btn-ronda', href: `${location.pathname}?seed=${d.sd[t]}&duel=${d.id}&round=${t}` }, fmt(TD.playRound, { i: t + 1 }));
+      } catch (_) { msg = TD.roundLate; }
+    }
+    caja.append(...[el('p', { class: 'notice', id: 'duelo-aviso' }, msg), sigue, el('a', { class: `btn ${sigue ? 'btn--ghost' : 'btn--cyan'}`, id: 'btn-duelos', href: `${RAIZ}duels/` }, TD.backDuels)].filter(Boolean));
+    caja.classList.add('stack');
+  } catch (_) { /* no player or no signal: the round stays begun, and the duel shows it */ }
+}
+
 function resultadoPractica(id, semilla, r, variante = null) {
   const J = conVariante(JUEGOS_COPA[id], variante), rk = varianteRk(id, variante);
   // Uno al día: el primer intento queda como el resultado de hoy; los demás son práctica
@@ -2422,6 +2454,7 @@ function resultadoPractica(id, semilla, r, variante = null) {
   // En Uno al día, el ranking que se ve es el de Uno al día (su tarjeta): el del juego no se muestra
   const ranking = cuentaRk && !hoy ? bloqueRanking({ juego: tablaRk(id, variante), titulo: tituloRk(J), pestanas: ['semana', 'siempre', 'amigos'], alTocar: () => SFX.tap() }) : null;
   const aviso = el('div', {});
+  if (DUELO) avisoDuelo(aviso, r);
   let anotada = false;
   const anotar = () => {
     if (!cuentaRk || anotada || !leerYo()) return;
@@ -2460,7 +2493,7 @@ function resultadoPractica(id, semilla, r, variante = null) {
     // Suelto se comparte como cualquier juego jugado solo, con su página (D-162, D-165)
     // El de un juego `diario` lleva su semilla: quien lo recibe juega el mismo caso, también mañana
     (!LABS || diario) && !hoy && gameById(id)?.suelto ? botonResultadoSolo({ C: COMMON[LANG] || COMMON.es, emoji: J.emoji, juego: J.varianteNombre ? `${J.nombre} · ${J.varianteNombre}` : J.nombre, puntaje: r.resumen || String(r.s), tiempo: mmss(r.ms), tarjeta: r.t, url: withLang(`${SITIO}${gameById(id).path}${[diario && `seed=${semilla}`, rk && `mode=${rk}`].filter(Boolean).join('&').replace(/^./, c => `?${c}`)}`, LANG), alTocar: () => SFX.tap() }) : null,
-    hoy ? null : el('a', { class: 'btn btn--yellow', id: 'btn-otra', href: otra }, diario ? T.casoOtro : T.practiceAgain),
+    hoy || DUELO ? null : el('a', { class: 'btn btn--yellow', id: 'btn-otra', href: otra }, diario ? T.casoOtro : T.practiceAgain),
     deHoy ? el('a', { class: 'btn btn--ghost btn--sm', id: 'btn-de-hoy', href: paginaSuelta(id) }, `📅 ${T.casoDeHoy}`) : null,
     LABS && !hoy && !diario ? el('a', { class: 'btn btn--cyan btn--sm', id: 'btn-repetir', href: `${otra}${otra.includes('?') ? '&' : '?'}seed=${semilla}` }, T.practiceSame) : null,
     // One a Day's exits are in its card (C-19); the rest go back to the menu (or the lab), before 🐞

@@ -8,7 +8,7 @@ import { launch } from './cdp.mjs';
 import { footerGapUnder, HIDDEN } from './footer-bottom.mjs';
 
 /** The pages measured here: the home page in its languages, and every other page with a footer. */
-export const PAGES = ['', 'en', 'pt', 'de', 'cup/suelto', 'records', 'profile', 'today', 'labs', 'labs/home',
+export const PAGES = ['', 'en', 'pt', 'de', 'cup/suelto', 'records', 'profile', 'duels', 'today', 'labs', 'labs/home',
   'labs/artifacts', 'labs/chameleon', 'labs/code', 'labs/contraption', 'labs/dominorama', 'labs/exploding-numbers',
   'labs/flap', 'labs/memory', 'labs/pips', 'labs/stack', 'labs/sudoku'];
 
