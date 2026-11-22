@@ -45,6 +45,7 @@ for (const W of [320, 390]) {
   ok(await ev(`!!document.querySelector('#pf-page .rk-invita[open] #rk-entrar')`), `${W}: a guest is invited to sign in, the form open`);
   // 👋 The welcome: open by itself on the first visit, closed after; «¿Cómo funciona?» opens it again (the owner, 2026-11-22)
   ok(await ev(`(() => { const i = document.getElementById('pf-intro'); return !!i && !i.hidden && i.querySelectorAll('.pf-intro-list li').length === 3 && document.querySelector('.pf-help').getAttribute('aria-expanded') === 'true' && i.getBoundingClientRect().right <= ${W} && !!localStorage.getItem('juegos-de-salon:profile-intro') && !!localStorage.getItem('juegos-de-salon:profile-bubble'); })()`), `${W}: 👋 the first visit opens the welcome: three points, and the pill's bubble is retired`);
+  ok(await ev(`(() => { const i = document.getElementById('pf-intro').getBoundingClientRect(), n = document.getElementById('pf-page').firstElementChild.getBoundingClientRect(); return Math.round(n.top - i.bottom) === 12; })()`), `${W}: 👋 the welcome keeps 12 px of air above the next block`);
   await b.shot(`intro-${W}`);
   const si = await small(b);
   ok(!si, `${W}: 👋 the welcome, every tappable thing is 44 px or more${si ? ` (${si})` : ''}`);
@@ -52,10 +53,10 @@ for (const W of [320, 390]) {
   ok(await ev(`document.getElementById('pf-intro').hidden && !document.querySelector('.pf-help').hidden`), `${W}: 👋 «Entendido» closes it`);
   await b.go(`${SITE}/profile/?test`, 3000);
   ok(await ev(`document.getElementById('pf-intro').hidden && !document.querySelector('.pf-help').hidden`), `${W}: 👋 the next visit starts with it closed`);
-  ok(await ev(`(() => { const h = document.querySelector('.pf-title-row h1').getBoundingClientRect(), i = document.querySelector('.pf-help').getBoundingClientRect(), s = document.getElementById('pf-sub').getBoundingClientRect(); return i.left >= h.right && Math.abs((i.top + i.bottom) / 2 - (h.top + h.bottom) / 2) < 12 && i.right <= ${W} && s.top >= h.bottom - 2 && Math.abs((h.left + h.right) / 2 - ${W} / 2) < 4; })()`), `${W}: 👋 ℹ️ sits at the title's right, the title still centred, no line of its own`);
+  ok(await ev(`(() => { const h = document.querySelector('.pf-title-row h1').getBoundingClientRect(), i = document.querySelector('.pf-help').getBoundingClientRect(), s = document.getElementById('pf-sub').getBoundingClientRect(); return i.left >= h.right - 1 && i.top < h.top + h.height / 2 && i.right <= ${W} && s.top >= h.bottom - 2 && Math.abs((h.left + h.right) / 2 - ${W} / 2) < 4; })()`), `${W}: 👋 ⓘ sits at the title's right, the title still centred, no line of its own`);
   await b.shot(`intro-closed-${W}`);
   await ev(`document.querySelector('.pf-help').click()`); await sleep(500);
-  ok(await ev(`!document.getElementById('pf-intro').hidden`), `${W}: 👋 ℹ️ opens it again`);
+  ok(await ev(`!document.getElementById('pf-intro').hidden`), `${W}: 👋 ⓘ opens it again`);
   await ev(`document.querySelector('.pf-intro-x').click()`); await sleep(300);
   ok(await ev(`document.getElementById('pf-intro').hidden`), `${W}: 👋 ✕ closes it too`);
   ok(await ev(`document.querySelectorAll('#pf-page .pf-group .pf-badge').length`) >= 5, `${W}: a guest sees the badges this phone can earn`);

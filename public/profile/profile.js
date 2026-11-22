@@ -481,7 +481,7 @@ const TABS = ['badges', 'rankings', 'settings'];
 /** Draws the page in `root` for whoever is on this phone. Returns when the first draw is on screen. */
 /**
  * The profile's welcome (the owner, 2026-11-22): a card over the page that says what each tab holds, open by
- * itself only on the first visit; «Entendido» or ✕ closes it and ℹ️ at the title's right opens it again.
+ * itself only on the first visit; «Entendido» or ✕ closes it and a subtle ⓘ at the title's right opens it again.
  * Opening the profile also retires the bubble the top bar's pill shows until then (profile-hint.js).
  */
 async function welcome(root, sub) {
@@ -489,8 +489,8 @@ async function welcome(root, sub) {
   hint.demoReset();
   hint.mark(hint.BUBBLE_KEY);
   const first = (() => { try { return !localStorage.getItem(hint.INTRO_KEY); } catch (_) { return false; } })();
-  // ℹ️ at the title's right, in a row of its own width: no line of its own (the owner, 2026-11-22)
-  const help = el('button', { type: 'button', class: 'icon-btn pf-help', 'aria-controls': 'pf-intro', 'aria-expanded': 'false', 'aria-label': T.introHelp, title: T.introHelp }, 'ℹ️');
+  // A subtle ⓘ, raised like a superscript at the title's right: no line of its own (the owner, 2026-11-22)
+  const help = el('button', { type: 'button', class: 'pf-help', 'aria-controls': 'pf-intro', 'aria-expanded': 'false', 'aria-label': T.introHelp, title: T.introHelp }, 'ⓘ');
   const point = ([b, txt]) => el('li', {}, el('b', {}, b), el('span', {}, txt));
   const intro = el('section', { class: 'panel pf-intro', id: 'pf-intro', 'aria-labelledby': 'pf-intro-title', hidden: true },
     el('div', { class: 'pf-intro-head' },
