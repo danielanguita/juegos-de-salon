@@ -88,7 +88,7 @@ function fichasPuestas(g, p, { conBotones = false } = {}) {
     }));
   });
   const est = E.estadoZonas(p);
-  // A full zone that breaks its rule is marked over the dominoes (they hide its cells): red stripes and its edge
+  // A full zone that breaks its rule is marked over the dominoes (they hide its cells): stripes and its edge, in its color
   g.querySelectorAll('.dm-mala').forEach(x => x.remove());
   const zonaDe = []; p.t.zonas.forEach((z, k) => z.celdas.forEach(i => { zonaDe[i] = k; }));
   const en = (r, c) => p.t.celdas.findIndex(x => x.r === r && x.c === c);
@@ -97,7 +97,8 @@ function fichasPuestas(g, p, { conBotones = false } = {}) {
     z.celdas.forEach(i => {
       const c = p.t.celdas[i];
       const borde = [[-1, 0, 'bt'], [0, 1, 'br'], [1, 0, 'bb'], [0, -1, 'bl']].filter(([dr, dc]) => { const j = en(c.r + dr, c.c + dc); return j < 0 || zonaDe[j] !== k; }).map(x => x[2]);
-      g.append(h('span', { class: `dm-mala ${borde.join(' ')}`, 'aria-hidden': 'true', style: `grid-row:${c.r + 1};grid-column:${c.c + 1}` }));
+      const z = g.querySelector(`.dm-celda[data-i="${i}"]`)?.style.getPropertyValue('--z');
+      g.append(h('span', { class: `dm-mala ${borde.join(' ')}`, 'aria-hidden': 'true', style: `grid-row:${c.r + 1};grid-column:${c.c + 1};${z ? `--z:${z}` : ''}` }));
     });
   });
   g.querySelectorAll('.dm-regla').forEach(r => { const e = est[+r.dataset.zona]; r.classList.toggle('ok', e === true); r.classList.toggle('mal', e === false); });

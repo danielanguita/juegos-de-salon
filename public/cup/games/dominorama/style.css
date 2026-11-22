@@ -72,8 +72,8 @@ button.dm-ficha:active { transform: scale(0.94); }
 .dm-bandeja .dm-ficha, .dm-board .dm-puesta { touch-action: none; -webkit-touch-callout: none; }
 .dm-ficha.arrastrada { opacity: 0.3; }
 .dm-ficha.fantasma { position: fixed; z-index: 50; pointer-events: none; transform: scale(1.06); box-shadow: 0 10px 24px rgb(var(--well-rgb) / 0.55); }
-/* A placed domino covers its two cells */
-.dm-puesta { --t: calc(var(--s) - 4px); z-index: 1; align-self: center; justify-self: center; }
+/* A placed domino sits on its two cells, small enough that the zone's color and edge show around it */
+.dm-puesta { --t: calc(var(--s) - 12px); z-index: 1; align-self: center; justify-self: center; }
 .dm-board .dm-puesta.cae { animation: dm-cae 0.28s ease-out; }
 .dm-board .dm-puesta.pista { box-shadow: 0 0 0 3px var(--yellow), 0 0 18px var(--yellow); }
 @keyframes dm-cae {
@@ -85,14 +85,16 @@ button.dm-ficha:active { transform: scale(0.94); }
 /* A ring spreads from the two cells a domino just took */
 .dm-onda { z-index: 1; pointer-events: none; margin: 1px; border-radius: var(--r-8); animation: dm-onda 0.45s ease-out forwards; }
 @keyframes dm-onda { from { box-shadow: 0 0 0 0 rgb(var(--ink-rgb) / 0.55); } to { box-shadow: 0 0 0 10px rgb(var(--ink-rgb) / 0); } }
-/* A full zone that breaks its rule: red stripes over its cells, through the dominoes, and its edge in red */
+/* A full zone that breaks its rule: stripes in its own color over its cells, through the dominoes, and its edge
+   in its color (its diamond is the red part) */
 .dm-mala {
+  --z: var(--red);
   z-index: 2; pointer-events: none; margin: 1px; border-radius: var(--r-8);
-  background: repeating-linear-gradient(135deg, rgb(var(--red-rgb) / 0.34) 0 6px, rgb(var(--red-rgb) / 0.08) 6px 12px);
+  background: repeating-linear-gradient(135deg, color-mix(in srgb, var(--z) 45%, transparent) 0 6px, color-mix(in srgb, var(--z) 12%, transparent) 6px 12px);
   animation: dm-mala 1.6s ease-in-out infinite;
 }
-.dm-mala.bt { border-top: 2px dashed var(--red); } .dm-mala.br { border-right: 2px dashed var(--red); }
-.dm-mala.bb { border-bottom: 2px dashed var(--red); } .dm-mala.bl { border-left: 2px dashed var(--red); }
+.dm-mala.bt { border-top: 3px solid var(--z); } .dm-mala.br { border-right: 3px solid var(--z); }
+.dm-mala.bb { border-bottom: 3px solid var(--z); } .dm-mala.bl { border-left: 3px solid var(--z); }
 @keyframes dm-mala { 50% { opacity: 0.6; } }
 .dm-board.resuelto { filter: drop-shadow(0 0 14px rgb(var(--lime-rgb) / 0.6)); }
 
