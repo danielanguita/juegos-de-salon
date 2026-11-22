@@ -33,6 +33,7 @@ The games with their own section below come first; after them, the one-player ga
 | ⚓ [Battleship / Batalla Naval / Batalha Naval](#-battleship-batalla-naval) | 1 to 2 | One phone · Two phones · Versus the phone | v0.6 |
 | 🍹 [Julep / Julepe / Paga o Bolo](#-julep-julepe) | 1 to 6 | One phone · Several phones · Versus the phone | 🧪 lab |
 | 👑 [Fourth King / Cuarto Rey / Quarto Rei](#-fourth-king-cuarto-rey) | 4 to 6 | One phone | 🧪 lab |
+| ⚖️ [The Wobbles / Tembleque / Tremelique](#-the-wobbles-tembleque) | 1 | One phone | - |
 | 🔗 [Connections / Conexiones / Conexões](https://juegosdesalon.cl/connections/) | 1 | Play alone | 📦 La Bodega |
 | 🔤 [Bulls and Cows: Word / Toque y Fama: Palabra / Toque e Fama: Palavra](https://juegosdesalon.cl/word/) | 1 | Play alone | Also in The Cup |
 | 📅 [What Year? / ¿En qué año? / Em que ano?](https://juegosdesalon.cl/year/) | 1 | Play alone | Also in The Cup |
@@ -412,6 +413,16 @@ Hide 5 ships on a 10×10 board and fire in turns; a hit lets you fire again. Pla
 
 Spec and design: [docs/games/battleship.md](docs/games/battleship.md)
 
+## ⚖️ The Wobbles (Tembleque)
+
+> **Ready to launch, not launched**: it opens for everyone once the owner switches the flag `wobbles` on (D-517's way); the date is the owner's to pick.
+
+A balance game for one player with two levels behind one cover, picked with a lever: **easy**, where a claw carries each piece across and you tap to drop it on a plank, and **hard**, where you drag and turn each piece onto a disc that tips. Keep it level: past its limit it capsizes, and every piece that falls costs one of three lives. Each level has its own ranking (`wobbles_easy`, `wobbles_hard`). In three languages.
+
+The levels are the owner's own prototypes, brought whole from another tool (D-601): they moved from `/labs/wobbles/` to `/wobbles/` (the old paths are bridges) and reach the home page, the search and Rankings, but not La Copa or Uno al día, which wait for a version on the house's engine (the owner's choice, 2026-11-21).
+
+Spec and design: [docs/games/wobbles.md](docs/games/wobbles.md)
+
 ## 🍹 Julep (Julepe)
 
 > **In the lab's Storeroom since D-434**: off the home page and the search (it had been paused there as "Coming soon" since D-88). It still plays at `/labs/julep/` for lab key holders, rooms included.
@@ -573,6 +584,7 @@ The whole app is translated, Portuguese as spoken in Brazil (German left in D-51
 | Batalla Naval | Battleship | Batalha Naval |
 | Julepe | Julep | Paga o Bolo |
 | Cuarto Rey | Fourth King | Quarto Rei |
+| Tembleque | The Wobbles | Tremelique |
 | Conexiones | Connections | Conexões |
 | Toque y Fama: Palabra | Bulls and Cows: Word | Toque e Fama: Palavra |
 | ¿En qué año? | What Year? | Em que ano? |
@@ -635,6 +647,7 @@ public/                     The site (juegosdesalon.cl/): the only folder that g
   timeline/ · bulls-and-cows/ · hangman/ · liars-dice/ · generala/ · battleship/
                               The group games (engine.js + tests, game.js, rules.js, decks/ where needed)
   agents/ · queens/ …         The Cup's games played on their own (generated from cup/suelto/)
+  wobbles/                    ⚖️ Tembleque: its cover and its two levels, easy/ and hard/, the owner's prototypes kept whole (D-601)
   labs/                       The lab, behind a per-person key (D-281, D-284): Active projects and the Storeroom (D-280, D-422); launched.js moves a card whose flag is live for everyone into the Storeroom when the page opens (D-534); index-nav.js draws the index of the cards still being tried at the top; marquee/marquee.js, a news strip above the home page drawn into the real home page, six treatments that open the real splash
   records/                    Leaderboards (D-212)
   profile/                    The player's profile, in the lab (flag `profile`): profile.js (card, badges, places, settings), badges.js (the badges and what earns each), texts.js (three languages)
@@ -722,7 +735,7 @@ These documents are being moved to English (D-316); the ones with a Spanish titl
 - [🚉 Transbordo (Transfer, lab, in La Bodega)](docs/games/transfer.md)
 - [🧶 Untangle (Desenredo)](docs/games/untangle.md)
 - [📍 Where Is It? (¿Dónde queda?)](docs/games/where.md)
-- [⚖️ The Wobbles (Tembleque; lab, in Juegos en prueba)](docs/games/wobbles.md)
+- [⚖️ The Wobbles (Tembleque; /wobbles/, ready to launch by flag, home page only)](docs/games/wobbles.md)
 - [🔤 Bulls and Cows: Word (Toque y Fama: Palabra)](docs/games/word.md)
 - [📅 What Year? (¿En qué año?)](docs/games/year.md)
 - [〰️ Zip](docs/games/zip.md)

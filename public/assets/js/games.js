@@ -24,6 +24,7 @@ import battleshipManifest from './manifests/battleship.js';
 import generalaManifest from './manifests/generala.js';
 import julepManifest from './manifests/labs/julep.js';
 import fourthKingManifest from './manifests/labs/fourth-king.js';
+import wobblesManifest from './manifests/wobbles.js';
 import cupManifest from './manifests/cup.js';
 
 /**
@@ -88,6 +89,12 @@ export const GAMES = [
   // /labs/fourth-king/; /fourth-king/ and /cuarto-rey/ are bridges there
   // Its name in URLs and its docs/games/ and docs/screenshots/ folders, without the lab (C-18)
   catalogEntry(fourthKingManifest),
+  // wobbles: from public/wobbles/game.json. ⚖️ Tembleque out of the lab (D-517's way), launched by flags/wobbles:
+  // until then hidden (`oculto`). Home page, search and Rankings only (the owner, 2026-11-21): no La Copa and no
+  // Uno al día, which wait for a house-engine version. `nuevoDesde` in game.json is a placeholder: the launch PR
+  // moves it to the launch day. The id is the lab's (usage signal, the `wobbles_easy` and `wobbles_hard` tables);
+  // /labs/wobbles/ is a bridge (`deLabs`)
+  { ...catalogEntry(wobblesManifest), deLabs: 'wobbles', lanza: 'wobbles', diasNuevo: 10, oculto: !lanzado('wobbles') },
 ];
 
 /**
@@ -589,6 +596,17 @@ export const SOLO_TABLES = {
   'toque-y-fama': 'toque-y-fama_solo',
   ahorcado: 'ahorcado_solo',
   generala: 'generala_solo',
+  // Its first level's table: the profile and the home page's sheet show it; Rankings shows every level (SOLO_LEVELS)
+  wobbles: 'wobbles_easy',
+};
+
+/**
+ * The games of SOLO_TABLES that rank each level apart (game id → level → its name in Rankings' tab): one tab per
+ * level, `<id>_<level>`, the first one being the game's SOLO_TABLES table. ⚖️ Tembleque records `wobbles_easy` and
+ * `wobbles_hard` (its two pages, D-517's way, 2026-11-21); `rankings-coverage.test.mjs` checks them.
+ */
+export const SOLO_LEVELS = {
+  wobbles: { easy: { es: '🟢 Fácil', en: '🟢 Easy', pt: '🟢 Fácil' }, hard: { es: '🔴 Difícil', en: '🔴 Hard', pt: '🔴 Difícil' } },
 };
 
 /**
@@ -742,7 +760,6 @@ export const LAB_NAMES = {
   clave: { emoji: '🔐', name: { es: 'La clave', en: 'The Code', pt: 'A senha' } },
   camaleon: { emoji: '🦎', name: { es: 'El Camaleón', en: 'Chameleon', pt: 'Camaleão' } },
   transfer: { emoji: '🚉', name: { es: 'Transbordo', en: 'Transfer', pt: 'Baldeação' } },
-  wobbles: { emoji: '⚖️', name: { es: 'Tembleque', en: 'The Wobbles', pt: 'Tremelique' } },
   'numeros-explosivos': { emoji: '💥', name: { es: 'Números explosivos', en: 'Exploding Numbers', pt: 'Números explosivos' } },
 };
 

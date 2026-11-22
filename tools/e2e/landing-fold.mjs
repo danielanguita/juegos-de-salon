@@ -65,7 +65,7 @@ const LANDINGS = [
 ];
 
 /**
- * The main action of a landing: its Empezar button if it has one (a variant picker above it is not the action),
+ * The main action of a landing: its Empezar or Play button if it has one (a variant picker or a lever above it is not the action),
  * else the first mode of a picker if there is one, else the first
  * visible button of the screen that is not in the header (back, language, share).
  */
@@ -75,7 +75,7 @@ const MEASURE = `(()=>{
   const visible = x => x.getClientRects().length > 0 && x.getBoundingClientRect().height > 0 && getComputedStyle(x).visibility !== 'hidden';
   const outside = x => !x.closest('header, .topbar, nav, footer, details, dialog, .confirm, .lang-toggle, .lang-btn, .sound-toggle, .back');
   const mode = [...root.querySelectorAll('.mode, .opcion-modo')].filter(visible).filter(outside)[0];
-  const start = [...root.querySelectorAll('#btn-empezar')].filter(visible)[0];
+  const start = [...root.querySelectorAll('#btn-empezar, #btn-play')].filter(visible)[0];
   const main = start || mode || [...root.querySelectorAll('#btn-crear, #btn-go-setup, .btn--yellow, .btn, button')].filter(visible).filter(outside)[0];
   if (!main) return JSON.stringify({ none: true });
   const r = main.getBoundingClientRect();

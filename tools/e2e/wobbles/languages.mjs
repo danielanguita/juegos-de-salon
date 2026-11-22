@@ -2,6 +2,6 @@
 // Each level's texts live in its own page (the prototypes kept whole); game.mjs plays both to their result in es/en/pt.
 // Usage: node tools/e2e/wobbles/languages.mjs <output-folder>
 import { checkLanguages } from '../languages-common.mjs';
-import { LOCALES } from '../../../public/labs/wobbles/rules.js';
+import { LOCALES } from '../../../public/wobbles/rules.js';
 
-await checkLanguages('labs/wobbles', { dicts: [LOCALES], port: 9493 });
+await checkLanguages('wobbles', { dicts: [LOCALES], port: 9493 });

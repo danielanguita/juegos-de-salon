@@ -6,7 +6,7 @@ import assert from 'node:assert/strict';
 import { readFile, readdir } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
-import { SUELTOS, SOLO_TABLES, ALL_GAMES, FIRST_VARIANT_TABLES } from './games.js';
+import { SUELTOS, SOLO_TABLES, SOLO_LEVELS, ALL_GAMES, FIRST_VARIANT_TABLES } from './games.js';
 import { VARIANTES } from '../../cup/engine.js';
 
 // A game whose first variant has its own table (Sudoku) names it as the game's page writes it: `<id>_<first variant>`.
@@ -29,7 +29,12 @@ const gameIdOf = async dir => {
   return null;
 };
 
-const listed = new Set([...SUELTOS.map(g => g.id), ...Object.values(SOLO_TABLES)]);
+// A game that ranks each level apart (SOLO_LEVELS, Tembleque) lists `<id>_<level>`, its first level being its SOLO_TABLES table
+const levelTables = id => Object.keys(SOLO_LEVELS[id] || {}).map(v => `${id}_${v}`);
+for (const id of Object.keys(SOLO_LEVELS)) assert.equal(SOLO_TABLES[id], levelTables(id)[0], `SOLO_TABLES.${id} is not its first level's table (SOLO_LEVELS)`);
+const recordsLevels = /SOLO_LEVELS\[g\.id\]/.test(recordsPage);
+assert.ok(recordsLevels, 'Rankings gives each level of a SOLO_LEVELS game its tab');
+const listed = new Set([...SUELTOS.map(g => g.id), ...Object.values(SOLO_TABLES), ...Object.keys(SOLO_LEVELS).flatMap(levelTables)]);
 const found = [];
 for (const dir of await readdir(PUBLIC, { withFileTypes: true })) {
   if (!dir.isDirectory() || SKIP.has(dir.name)) continue;
@@ -44,6 +49,12 @@ for (const dir of await readdir(PUBLIC, { withFileTypes: true })) {
     assert.ok(id, `${dir.name}: GAME_ID not found`);
     const v = call.match(/variante:\s*(?:'([^']*)'|`([^`]*)`)/);
     if (v?.[2]?.startsWith('rel-')) continue; // Línea Relámpago: one table per theme, its own tab (DECKS)
+    // A level read at run time (Tembleque's `variante: resultLevel`): every level of the game must have its tab
+    if (!v && /variante:\s*[A-Za-z_]/.test(call)) {
+      assert.ok(SOLO_LEVELS[id], `${dir.name}/game.js records to "${id}_<level>" with a level read at run time: list its levels in SOLO_LEVELS in games.js (D-559)`);
+      found.push(...levelTables(id));
+      continue;
+    }
     const tabla = v ? `${id}_${v[1] ?? v[2]}` : id;
     found.push(tabla);
     assert.ok(listed.has(tabla), `${dir.name}/game.js records to "${tabla}", which Rankings does not list: add it to SOLO_TABLES in games.js (D-559)`);

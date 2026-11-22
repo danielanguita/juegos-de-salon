@@ -144,7 +144,7 @@ const CROC = {
 
 // ⚖️ Tembleque, easy: the claw over the plank, the bot dropping each piece to bring the plank back level
 const EASY = {
-  url: lang => `${SITE}/labs/wobbles/easy/?test&quality=1&seed=7&from=10&lang=${lang}`,
+  url: lang => `${SITE}/wobbles/easy/?test&quality=1&seed=7&from=10&lang=${lang}`,
   width: 480, height: 560,
   storage: lang => ({ 'juegos-de-salon:lang': lang, 'balanza-lab:start-pieces': '3' }),
   start: `document.getElementById('cBtn').click(); 1`,
@@ -183,7 +183,7 @@ const EASY = {
 
 // ⚖️ Tembleque, hard: the disc in 3D, its opening turn, then the bot moves each piece with the arrow keys and drops it
 const HARD = {
-  url: lang => `${SITE}/labs/wobbles/hard/?test&res=2&seed=7&lang=${lang}`,
+  url: lang => `${SITE}/wobbles/hard/?test&res=2&seed=7&lang=${lang}`,
   width: 400, height: 560,
   storage: lang => ({ 'juegos-de-salon:lang': lang, 'balanza-lab:start-pieces': '5' }),
   start: `document.getElementById('cBtn').click(); 1`,

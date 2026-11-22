@@ -732,6 +732,35 @@
       "files": [
         "public/fourth-king/index.html"
       ]
+    },
+    {
+      "id": "wobbles",
+      "emoji": "⚖️",
+      "name": {
+        "es": "Tembleque",
+        "en": "The Wobbles",
+        "pt": "Tremelique"
+      },
+      "players": "1",
+      "duration": "1–5",
+      "available": true,
+      "labs": false,
+      "status": null,
+      "modes": [],
+      "variants": [],
+      "screens": [
+        "intro"
+      ],
+      "chat": false,
+      "files": [
+        "public/wobbles/easy/index.html",
+        "public/wobbles/game.js",
+        "public/wobbles/game.json",
+        "public/wobbles/hard/index.html",
+        "public/wobbles/index.html",
+        "public/wobbles/rules.js",
+        "public/wobbles/style.css"
+      ]
     }
   ],
   "standalone": [
@@ -1252,9 +1281,9 @@
     "public/assets/js/manifests/labs/fourth-king.js",
     "public/assets/js/manifests/labs/julep.js",
     "public/assets/js/manifests/labs/transfer.js",
-    "public/assets/js/manifests/labs/wobbles.js",
     "public/assets/js/manifests/liars-dice.js",
     "public/assets/js/manifests/timeline.js",
+    "public/assets/js/manifests/wobbles.js",
     "public/assets/js/month-end.js",
     "public/assets/js/music.js",
     "public/assets/js/name-guard.js",
@@ -1505,8 +1534,6 @@
     "public/labs/transfer/engine.js",
     "public/labs/transfer/game.js",
     "public/labs/transfer/rules.js",
-    "public/labs/wobbles/game.js",
-    "public/labs/wobbles/rules.js",
     "public/liars-dice/engine.js",
     "public/liars-dice/game.js",
     "public/liars-dice/rules.js",
@@ -1540,7 +1567,9 @@
     "public/timeline/engine.js",
     "public/timeline/game.js",
     "public/timeline/rules.js",
-    "public/wbr/page.js"
+    "public/wbr/page.js",
+    "public/wobbles/game.js",
+    "public/wobbles/rules.js"
   ],
   "tests": [
     "firebase/controls.test.mjs",
@@ -2253,7 +2282,7 @@
     },
     {
       "path": "docs/games/wobbles.md",
-      "title": "⚖️ The Wobbles (Tembleque; lab, in Juegos en prueba)"
+      "title": "⚖️ The Wobbles (Tembleque; /wobbles/, ready to launch by flag, home page only)"
     },
     {
       "path": "docs/games/word.md",
@@ -2317,6 +2346,7 @@
     "generala": 8,
     "batalla-naval": 7,
     "julepe": 10,
-    "cuarto-rey": 12
+    "cuarto-rey": 12,
+    "wobbles": 0
   }
 }
