@@ -23,6 +23,9 @@
   touch-action: none; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none;
   -webkit-user-drag: none; -webkit-tap-highlight-color: transparent; cursor: pointer; outline: none; border-radius: var(--r-16);
 }
+/* The stage is a role="button", and base.css gives those touch-action: manipulation with a stronger selector:
+   that leaves Android's long-press on, and the phone buzzed half a second into every stretch. None wins here. */
+html.no-dtz .sn-escenario, html .sn-escenario { touch-action: none; }
 .sn-lienzo { display: block; width: 100%; height: 100%; }
 /* The pillars fade into the night at the bottom instead of ending at a hard edge */
 /* The night melts into the page on every side (no straight edge where the canvas ends, nor a halo cut flat) */
