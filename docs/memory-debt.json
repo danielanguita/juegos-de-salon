@@ -84,6 +84,10 @@
     {
       "id": "dominorama",
       "reason": "Built in cup/games/ like Sudoku: its boards, saved after every move with ctx.guardar, are kept by the Cup's shared screen (public/cup/cuenta.js), not by its own code"
+    },
+    {
+      "id": "wobbles",
+      "reason": "A round of Tembleque lasts a minute or two and is not resumed: its two levels are the owner's prototypes kept whole, their state inside each page (docs/games/wobbles.md, C-6 exception, D-601)"
     }
   ]
 }

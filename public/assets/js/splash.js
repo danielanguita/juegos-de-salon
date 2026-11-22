@@ -201,8 +201,8 @@ export const CAMPAIGNS = {
   // happens, recorded by marketing/splash/croc-wobbles-clip.mjs, one per language because the games write words
   // on their canvas. Play opens each game's cover, not the game (the owner: a newcomer first sees what it is).
   // `requires` keeps it unseen until both launch flags are on for the visitor (D-517); until then only lab key
-  // holders pass. Tembleque is not in games.js yet, so its item carries its own name; the launch PR names it
-  // by its games.js id (wobbles) and points both links at the games' new homes
+  // holders pass. Tembleque is in games.js now (its launch is prepared, 2026-11-21): its item names it by its id,
+  // its icon and name come from there (rule 9), and Play opens its cover at /wobbles/
   'nos-volvimos-locos': {
     emoji: '🤪',
     requires: ['croc', 'wobbles'],
@@ -218,7 +218,7 @@ export const CAMPAIGNS = {
       { game: 'croc', href: 'labs/croc/',
         text: { es: 'Cruza la autopista esquivando autos hasta llegar a la laguna.', en: 'Cross the highway, dodging cars, all the way to the pond.', pt: 'Atravesse a rodovia desviando dos carros até chegar à lagoa.' },
         video: { es: 'assets/splash/croc-es.mp4', en: 'assets/splash/croc-en.mp4', pt: 'assets/splash/croc-pt.mp4' }, img: 'assets/splash/croc-start.jpg', still: 'assets/splash/croc.jpg' },
-      { emoji: '⚖️', title: { es: 'Tembleque', en: 'The Wobbles', pt: 'Tremelique' }, href: 'labs/wobbles/',
+      { game: 'wobbles', href: 'wobbles/',
         text: { es: 'Apila piezas sin que la balanza se vuelque. Elige fácil o difícil.', en: 'Stack pieces without tipping the scale. Pick easy or hard.', pt: 'Empilhe peças sem deixar a balança virar. Escolha fácil ou difícil.' },
         video: { es: 'assets/splash/wobbles-es.mp4', en: 'assets/splash/wobbles-en.mp4', pt: 'assets/splash/wobbles-pt.mp4' }, img: 'assets/splash/wobbles-start.jpg', still: 'assets/splash/wobbles.jpg' },
     ],

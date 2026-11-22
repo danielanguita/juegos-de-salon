@@ -173,11 +173,11 @@ export const PATHS = {
     step: [`document.getElementById('btn-play').click()`, `document.getElementById('btn-give-up').click(); document.getElementById('btn-give-up').click()`],
     result: [`document.getElementById('btn-play').click()`, `document.getElementById('btn-give-up').click(); document.getElementById('btn-give-up').click()`, `document.getElementById('btn-next').click()`, `document.getElementById('btn-give-up').click(); document.getElementById('btn-give-up').click()`, `document.getElementById('btn-next').click()`, `document.getElementById('btn-give-up').click(); document.getElementById('btn-give-up').click()`, `document.getElementById('btn-next').click()`],
   },
-  // Tembleque (lab): its cover, measured by landing-fold.mjs (D-579)
-  'labs/wobbles': { intro: [] },
+  // Tembleque: its cover, measured by landing-fold.mjs (D-579); out of the lab, launched by flags/wobbles (D-601)
+  wobbles: { intro: [] },
   // Each level's result (C-19): a round started and ended at once
-  'labs/wobbles/easy': { result: [`document.getElementById('cBtn').click()`, `1`, `window.__balanza.finish()`, `1`] },
-  'labs/wobbles/hard': { play: [`document.getElementById('cBtn').click()`, `1`, `1`, `1`], result: [`document.getElementById('cBtn').click()`, `1`, `window.__balanza.finish()`, `1`] },
+  'wobbles/easy': { result: [`document.getElementById('cBtn').click()`, `1`, `window.__balanza.finish()`, `1`] },
+  'wobbles/hard': { play: [`document.getElementById('cBtn').click()`, `1`, `1`, `1`], result: [`document.getElementById('cBtn').click()`, `1`, `window.__balanza.finish()`, `1`] },
   // Blackjack (lab): its cover, measured by landing-fold.mjs (D-579)
   blackjack: {
     intro: [],
@@ -827,6 +827,7 @@ export const VISUAL_SKIP = {
   sudoku: 'its cover is a demo board solving itself in real time, and the page reads the live flags/sudoku value (launch by flag, like Babel), so two runs drew it 0.63 % apart while the Visual references workflow saw no change; tools/e2e/sudoku/page.mjs and cup-games/languages.mjs check the cover instead',
   memorice: 'its cover is a small board playing itself in real time, and the page reads the live flags/memory value (launch by flag, like Sudoku); tools/e2e/memory/page.mjs checks the cover instead',
   dominorama: 'its cover is a demo board laying its dominoes in real time, and the page reads the live flags/dominorama value (launch by flag, like Sudoku); tools/e2e/dominorama/page.mjs checks the cover instead',
+  wobbles: 'its cover\'s picture moves in a loop (the claw drops a piece on the rocking plank, the disc tips under a hovering piece), and the page reads the live flags/wobbles value (launch by flag, like Sudoku); tools/e2e/wobbles/game.mjs checks the cover instead',
   where: 'its intro differed 1.26 % between two runs on the same runner: something on it is not fixed yet (#1249 step 15)',
 };
 

@@ -206,7 +206,7 @@ node tools/e2e/contact-sheet.mjs cuarto-rey --out /tmp/contact-sheet
 | `blackjack/languages.mjs` | Blackjack's screens in every offered language, against Spanish (D-199) |
 | `croc/game.mjs` | Croc! (lab): starts a seeded run, advances with the overlay controls and checks the result screen |
 | `croc/languages.mjs` | Croc!'s screens in every offered language, against Spanish (D-199) |
-| `wobbles/game.mjs` | Tembleque at `/labs/wobbles/`: the cover's lever picks the level and its picture follows; each level starts a round from its card and ends on its game-over card, in es/en/pt, and its ‹ comes back to the cover |
+| `wobbles/game.mjs` | Tembleque at `/wobbles/` (out of the lab, flags/wobbles pinned to all, D-601): the cover's lever picks the level and its picture follows; each level starts a round from its card and ends on its game-over card with the exit to the menu, in es/en/pt, and its ‹ comes back to the cover; the old `/labs/wobbles/` paths, levels included, are bridges, and Rankings has a tab per level (D-559) |
 | `wobbles/languages.mjs` | Tembleque's cover in every offered language, against Spanish (D-199) |
 | `cryptic/game.mjs` | Críptico at `/labs/cryptic/`: today's clue (a guess of another length is only a warning, a wrong one says so, two helps underline the definition), a reload resumes it with its hints, the answer reaches the result (stars minus helps, the streak starts, the exit back to the lab, C-19), the cover then shows today's stars, and a practice clue given up shows its answer |
 | `cryptic/languages.mjs` | Críptico's screens in every offered language, against Spanish (D-199) |
