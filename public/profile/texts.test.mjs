@@ -16,7 +16,8 @@ for (const [lang, t] of Object.entries(TEXTS)) {
     assert.equal(holes(v), holes(TEXTS.es[k]), `${lang}.${k}: the same {holes} as Spanish`);
   }
   // A badge's name fits under its medal at 320 px: three to a row, about 90 px each
-  for (const [id, [name]] of Object.entries(t.badges)) assert.ok(name.length <= 16, `${lang}: «${name}» (${id}) is too long for its medal`);
+  // Two short lines under the medal at 320 px: 18 characters, no word over 13 (measured with «Se llama obsesión»)
+  for (const [id, [name]] of Object.entries(t.badges)) assert.ok(name.length <= 18 && name.split(' ').every(w => w.length <= 13), `${lang}: «${name}» (${id}) is too long for its medal`);
 }
 // The home page's button carries the page's title, in its own small module (the home page loads no file of /profile/)
 for (const [lang, t] of Object.entries(TEXTS)) assert.equal(LABEL[lang], t.pageTitle, `${lang}: the home button's name is the page's title`);

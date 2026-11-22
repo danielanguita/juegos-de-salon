@@ -68,7 +68,7 @@ export const BADGES = [
   { id: 'collector', group: 'games', tier: 'gold', icon: '🧩', check: f => progress(f.gamesPlayed, Math.max(1, n(f.gamesTotal))) },
   { id: 'plays-100', group: 'games', tier: 'bronze', icon: '🎲', check: f => progress(f.plays, 100) },
   { id: 'plays-1000', group: 'games', tier: 'gold', icon: '🎲', check: f => progress(f.plays, 1000) },
-  { id: 'obsession', group: 'games', tier: 'silver', icon: '🎵', check: f => progress(f.bestRun, RUN_GAMES) },
+  { id: 'obsession', group: 'games', tier: 'silver', icon: '😬', check: f => progress(f.bestRun, RUN_GAMES) },
   { id: 'number-one', group: 'games', tier: 'gold', icon: '🥇', check: f => ({ got: n(f.firsts) > 0, count: n(f.firsts) }) },
   { id: 'all-rounder', group: 'games', tier: 'silver', icon: '🎯', check: f => ({ got: Number.isInteger(f.allRounder) && f.allRounder >= 1 && f.allRounder <= 10 }) },
   // Secret: shown as «?» until earned
