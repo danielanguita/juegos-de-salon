@@ -206,11 +206,11 @@ ol.como li { line-height: 1.45; }
 .tabla.con-cambio .fila { grid-template-columns: 1.6em 1fr auto; row-gap: var(--s-4); }
 /* The big-cup board: place, name (with the (you) and the places moved right after it) and points on one line; the day blocks under them, the whole width */
 .tabla.con-cambio .fila .quien { display: contents; }
-.tabla.con-cambio .fila .lugar { grid-column: 1; grid-row: 1; }
+.tabla.con-cambio .fila .lugar { grid-column: 1; grid-row: 1 / span 2; align-self: center; }
 .tabla.con-cambio .fila .quien b { grid-column: 2; grid-row: 1; min-width: 0; }
 .tabla.con-cambio .fila .quien b small { display: inline; }
 .tabla.con-cambio .fila .total, .tabla.con-cambio .fila .fila-der { grid-column: 3; grid-row: 1; }
-.tabla.con-cambio .fila .puntitos { grid-column: 1 / -1; grid-row: 2; }
+.tabla.con-cambio .fila .puntitos { grid-column: 2 / -1; grid-row: 2; }
 .tabla.con-cambio .fila .fila-comentarios { grid-column: 1 / -1; grid-row: 3; }
 .tabla.con-cambio .puntitos.dos { display: grid; grid-template-columns: repeat(var(--cols), max-content); }
 /* From 375 px up there is room: the points go back to the right, centred on the row, and the blocks take the space left beside them */
@@ -219,6 +219,7 @@ ol.como li { line-height: 1.45; }
   .tabla.con-cambio .fila .quien b { grid-column: auto; grid-row: auto; }
   .tabla.con-cambio .fila .total, .tabla.con-cambio .fila .fila-der { grid-column: 3; grid-row: 1; align-self: center; }
   .tabla.con-cambio .fila .puntitos { grid-column: auto; grid-row: auto; }
+  .tabla.con-cambio .fila .lugar { grid-row: 1; }
   .tabla.con-cambio .fila .fila-comentarios { grid-column: auto; grid-row: auto; }
 }
 .fila .quien .mov { margin-left: var(--s-6); font-size: var(--fs-75); font-weight: 800; white-space: nowrap; }
