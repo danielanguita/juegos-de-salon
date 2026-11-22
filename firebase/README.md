@@ -199,6 +199,12 @@ same write, seated with that PIN. They are loaded by `node tools/firebase/rankin
 
 The owner (their UID) can write and delete in all these branches, to moderate: an offensive name is changed with `node tools/firebase/rename-player.mjs` (dry run by default), which rewrites `jugadores/<jid>/n`, its `jugadorNombres` key and every `records` row in one write (D-513).
 
+## Duels (`duelos`, `jugadorDuelos`, D-603, lab flag `rivals`)
+
+- `duelos/<did>` (`did` = 10 lowercase letters or digits) = `{ a, b, an, bn, f, g, sd, at, e?, r? }`: `a` challenges `b` (both existing `jugadores`) to game `g` in format `f` (`bo3`, `bo5`, `pts`), with one seed per round in `sd` (3, or 5 for `bo5`). Read by whoever has the id. Created once, by a phone seated as `a`; the duel itself is never edited.
+- `duelos/<did>/e/<jid>/<i>` = server time the round began, and `r/<jid>/<i>` = `{ s, ms, at }` its result. Each is written once, by a phone seated as that player, only for a duel's player, and the result only after the round began. Both are refused 3 days (259200000 ms) after `at`.
+- `jugadorDuelos/<jid>/<did>` = server time: each player's list of duels, written once with the duel by a phone seated as `a`. Read by jid. The owner can write both branches.
+
 ## Uno al día (`unoAlDia`, `unoAlDiaInicio`, `unoAlDiaDias`, `invitados`, D-230)
 
 - `unoAlDia/<jid>/<n>` = `{ j, s, ms, at, w?, p? }`: the first Uno al día attempt of day `n` (days
