@@ -35,7 +35,8 @@ const small = b => b.evaluate(`[...document.querySelectorAll('main button, main 
 
 for (const W of [320, 390]) {
   const b = await launch({ dir: `${OUT}/p${W}`, out: OUT, width: W, height: W === 320 ? 640 : 844, clock: true });
-  b.flags({ profile: 'all' });
+  // The home page as the owner sees it in Labs: its icon view (flag home-carousels), with the profile's pill
+  b.flags({ profile: 'all', 'home-carousels': 'all' });
   const ev = e => b.evaluate(e);
   // A guest (a clean phone, so the script can run again)
   await b.go(`${SITE}/profile/?test`, 1500);
@@ -189,6 +190,7 @@ for (const W of [320, 390]) {
   await b.go(`${SITE}/?test`, 3000);
   ok(await ev(`!document.getElementById('pf-bubble')`), `${W}: 🎖️ no bubble once the profile was opened`);
   await b.go(`${SITE}/?test&profile-intro=demo`, 3500);
+  ok(await ev(`document.querySelectorAll('.shelf').length > 0`), `${W}: 🎖️ the home page is the icon view (home-carousels)`);
   ok(await ev(`(() => { const x = document.getElementById('pf-bubble')?.getBoundingClientRect(), p = document.querySelector('.topbar .pf-home').getBoundingClientRect(); return !!x && x.left >= 0 && x.right <= ${W} && x.top > p.bottom && x.top - p.bottom < 24 && document.documentElement.scrollWidth <= ${W}; })()`), `${W}: 🎖️ the bubble rises right under the pill and fits the screen`);
   await sleep(700); await b.shot(`bubble-${W}`);
   ok(await ev(`(() => { const x = document.querySelector('.pf-bubble-x'); return x.offsetWidth >= 44 && x.offsetHeight >= 44; })()`), `${W}: 🎖️ its ✕ is 44 px`);
