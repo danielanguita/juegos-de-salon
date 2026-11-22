@@ -150,3 +150,8 @@
 .pf-cup--bronze { border-color: var(--pf-bronce); }
 .pf-cup--live { border-color: rgb(var(--cyan-rgb) / 0.6); }
 .pf-cup-list .pf-more { margin-top: var(--s-4); }
+/* 👁️ Your public profile in ⚙️: the switch is 44 px tall to the finger; how others see you under it */
+.pf-public .switch::before { content: ''; position: absolute; inset: -7px -2px; }
+.pf-public .switch:disabled { opacity: 0.6; }
+.pf-public .pf-see-public { justify-self: center; }
+.pf-peek-hidden { margin: 0; background: var(--well); border-radius: var(--r-12); padding: var(--s-10) var(--s-12); color: var(--muted); font-weight: 700; font-size: var(--fs-85); }

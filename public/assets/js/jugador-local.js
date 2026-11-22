@@ -88,6 +88,8 @@ export function crearAlmacenLocal({ storage = globalThis.localStorage, uid = nul
       if (p.length === 2) return leerEn(viejo, ruta) == null && sentado(nuevo, a);
       if (b === 'n') { const n = leerEn(nuevo, ruta); return p.length === 3 && leerEn(viejo, ruta) != null && typeof n === 'string' && n.length >= 1 && n.length <= 20 && conPin(a); }
       if (b === 'legado') return leerEn(nuevo, ruta) == null && sentado(nuevo, a);
+      // Whether others see the player's activity on their public profile (lab flag profile): their own seat, true or gone
+      if (b === 'abierto') { const v = leerEn(nuevo, ruta); return p.length === 3 && sentado(viejo, a) && (v == null || v === true); }
       if (b === 'co') return leerEn(viejo, ruta) == null && sentado(nuevo, a) && /^[A-Z]{2}$/.test(leerEn(nuevo, ruta));
       if (b === 'juegos') {
         if (!sentado(viejo, a)) return false;

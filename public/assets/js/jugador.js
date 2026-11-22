@@ -635,6 +635,17 @@ export function crearJugador({ almacen, storage = globalThis.localStorage, now =
       return jid ? ((await almacen.get(`unoAlDia/${jid}`)) || {}) : {};
     },
 
+    /**
+     * Whether others see this player's activity on their public profile (lab flag profile): their streak, games,
+     * since when and their most played games. Off unless the player turns it on in ⚙️ (the owner, 2026-11-22).
+     */
+    async mostrarActividad(on) {
+      const yo = api.yo();
+      if (!yo) return false;
+      await almacen.update({ [`jugadores/${yo.jid}/abierto`]: on ? true : null });
+      return !!on;
+    },
+
     /** Lo público de un jugador, para la tarjeta de quien invita: `{ n, co }`, o null. */
     async publico(jid) {
       if (!esJid(jid)) return null;

@@ -437,6 +437,29 @@ function accountPanel(yo) {
     out, ask);
 }
 
+/**
+ * 👁️ Your public profile (the owner, 2026-11-22): whether others see your activity when they tap your name
+ * (off until you turn it on: someone who plays a lot may not want it known), and how they see you.
+ */
+function publicPanel(yo) {
+  const sw = el('button', { type: 'button', class: 'switch', role: 'switch', 'aria-checked': 'false', 'aria-label': T.showActivity, disabled: true });
+  const err = el('p', { class: 'form-error', hidden: true }, T.publicError);
+  const set = on => { sw.classList.toggle('on', on); sw.setAttribute('aria-checked', String(on)); };
+  jugador().then(J => J.perfil()).then(p => { set(p?.abierto === true); sw.disabled = false; }).catch(() => { sw.disabled = false; });
+  sw.addEventListener('click', async () => {
+    tap();
+    const on = sw.getAttribute('aria-checked') !== 'true';
+    set(on); sw.disabled = true; err.hidden = true;
+    try { await (await jugador()).mostrarActividad(on); } catch (_) { set(!on); err.hidden = false; }
+    sw.disabled = false;
+  });
+  const see = el('button', { type: 'button', class: 'btn btn--ghost pf-see-public', onClick: () => { tap(); import('./peek.js').then(m => m.peekPlayer(yo.jid, { hint: yo, onTap: tap })); } }, T.seePublic);
+  return el('section', { class: 'panel pf-settings pf-public' }, el('p', { class: 'lead rk-titulo' }, T.publicTitle),
+    el('p', { class: 'muted rk-hint' }, T.publicHint),
+    el('div', { class: 'toggle-row' }, el('span', { class: 'txt' }, el('b', {}, T.showActivity), el('small', {}, T.showActivityHint)), sw),
+    err, see);
+}
+
 function settingsTab(yo) {
   const row = (label, hint, control) => el('div', { class: 'toggle-row' }, el('span', { class: 'txt' }, el('b', {}, label), hint ? el('small', {}, hint) : null), control);
   const prefs = el('section', { class: 'panel pf-settings' }, el('p', { class: 'lead rk-titulo' }, T.prefs),
@@ -446,7 +469,7 @@ function settingsTab(yo) {
     const draw = () => { const b = m.bloque({ lang, alTocar: tap, redibujar: draw }); notices.replaceChildren(...(b ? [b] : [])); };
     draw();
   }).catch(() => {});
-  return el('div', { class: 'pf-tab' }, accountPanel(yo), prefs, notices);
+  return el('div', { class: 'pf-tab' }, accountPanel(yo), publicPanel(yo), prefs, notices);
 }
 
 /* ------------------------------------------------------------------ */
