@@ -119,8 +119,15 @@ a.splash-item:hover, a.splash-item:focus-visible { transform: translateY(-3px); 
    takes what the screen's height leaves for it once the head and "Ahora no" are drawn, shared among the cards,
    never under the usual size nor over about half its card; the window grows taller with it and the texts get more lines */
 @media (max-width: 600px) {
-  .splash.splash--big:not(.splash--hero) .splash-item:not(.splash-teaser) .splash-media { width: clamp(104px, calc((92dvh - 300px) / var(--n, 2) - var(--s-16)), 54%); }
-  .splash--big .splash-item:not(.splash-teaser) p { -webkit-line-clamp: 6; }
+  .splash.splash--big:not(.splash--hero) .splash-item:not(.splash-teaser) .splash-media { width: clamp(104px, calc((92dvh - 300px) / var(--n, 2) - var(--s-16)), 52%); }
+  /* With the room the clips leave beside them, the name and the text read bigger too (the owner, 2026-11-21) */
+  .splash.splash--big .splash-item:not(.splash-teaser) h3 { font-size: var(--fs-110); }
+  .splash.splash--big .splash-item:not(.splash-teaser) p { -webkit-line-clamp: 6; font-size: var(--fs-100); line-height: 1.35; }
+}
+/* A small or short phone: a step smaller, so the window still fits without scrolling */
+@media (max-width: 600px) and (max-height: 720px), (max-width: 340px) {
+  .splash.splash--big .splash-item:not(.splash-teaser) h3 { font-size: var(--fs-100); }
+  .splash.splash--big .splash-item:not(.splash-teaser) p { font-size: var(--fs-85); }
 }
 /* A teaser: only its picture (a drawn scene, pixel art), wide, as big as the window allows, on a
    phone too. Scaled with no smoothing so the pixels stay crisp */
