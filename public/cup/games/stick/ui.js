@@ -260,6 +260,10 @@ export function montar(raiz, ctx) {
   addEventListener('pointerup', arriba, sig);
   addEventListener('pointercancel', arriba, sig);
   escenario.addEventListener('contextmenu', ev => ev.preventDefault());
+  // A long hold on a phone makes the system buzz (Android's long-press feedback, a text selection or a drag
+  // starting); the stretch is a long hold, so none of those may start. Pointer events still arrive.
+  for (const tipo of ['touchstart', 'touchmove']) escenario.addEventListener(tipo, ev => ev.preventDefault(), { passive: false });
+  for (const tipo of ['selectstart', 'dragstart']) escenario.addEventListener(tipo, ev => ev.preventDefault());
   escenario.addEventListener('keydown', ev => {
     if (ev.key !== ' ' && ev.key !== 'Enter') return;
     ev.preventDefault();
