@@ -65,6 +65,23 @@ for (const W of [320, 390]) {
     localStorage.setItem('juegos-de-salon:logros-anunciados', JSON.stringify({ xmas: 1 }));
     localStorage.setItem('juegos-de-salon:play-marks', JSON.stringify({ days: { xmas: true, halloween: true }, wk: ['2025-01-04', '2025-01-11', '2025-01-18'], mon: ['2025-01-06'], played: ['2025-01-01', '2025-01-02'] }));
   })()`);
+  // Seven cups of La Copa's test store (its podium demo), five of them ended, two in progress
+  await ev(`(async () => {
+    const { escena } = await import('/cup/demo.js');
+    const now = Date.now(), jid = JSON.parse(localStorage.getItem('juegos-de-salon:jugador')).jid;
+    const cups = JSON.parse(localStorage.getItem('juegos-de-salon:copa:prueba') || '{}');
+    const db = JSON.parse(localStorage.getItem('juegos-de-salon:prueba:records-db') || '{}');
+    db.jugadorCopas = { ...(db.jugadorCopas || {}), [jid]: {} };
+    for (let i = 0; i < 7; i++) {
+      const { L, e } = escena('podium', { now: now - (i < 2 ? -5 : i * 9) * 86400000 });
+      const code = 'PFC' + 'ABCDEFG'[i] + 'Z';
+      L.meta.name = 'Copa ' + (i + 1);
+      cups[code] = L;
+      db.jugadorCopas[jid][code] = { p: e.yo, at: now - i * 1000 };
+    }
+    localStorage.setItem('juegos-de-salon:copa:prueba', JSON.stringify(cups));
+    localStorage.setItem('juegos-de-salon:prueba:records-db', JSON.stringify(db));
+  })()`);
   await b.go(`${SITE}/profile/?test`, 4000);
   // 🎃 earned and not yet told: its window opens once, like One a Day's month-end one, with «Ver mis logros» (the owner, 2026-11-22)
   ok(await ev(`(() => { const w = document.querySelector('.aw-capa'); return !!w && w.querySelector('.aw-titulo')?.textContent === 'Noche de brujas' && !w.querySelector('path') && /logros secretos/.test(w.textContent) && !/chapita/i.test(w.textContent) && !!w.querySelector('a.btn'); })()`), `${W}: 🎃 a secret achievement just earned opens its window: a round medal, no ribbon, «Ver mis logros»`);
@@ -106,6 +123,14 @@ for (const W of [320, 390]) {
   ok(await ev(`document.querySelectorAll('.pf-game:not([hidden])').length`) === 6, `${W}: 🏅 six games show, the rest behind «Ver más»`);
   await ev(`document.querySelector('.pf-game[data-game="tango"]').click()`); await sleep(1500);
   ok(await ev(`!!document.querySelector('.pf-game[data-game="tango"] + .pf-game-table .rk-fila.yo')`), `${W}: a tap on Tango opens its table with the player's row`);
+  // 🏆 Your cups: name, dates, the final place and who won, five at a time
+  await sleep(2500);
+  ok(await ev(`document.querySelectorAll('.pf-cup').length`) === 5, `${W}: 🏆 five cups show`);
+  ok(await ev(`(() => { const c = [...document.querySelectorAll('.pf-cup')]; const over = c.filter(x => !x.classList.contains('pf-cup--live')); return c.slice(0, 2).every(x => x.classList.contains('pf-cup--live')) && over.length && over.every(x => /^Copa \\d/.test(x.querySelector('.pf-cup-name').textContent) && x.querySelector('.pf-cup-txt small').textContent.includes('–') && /\\d/.test(x.querySelector('.pf-cup-place').textContent) && x.querySelector('.pf-cup-champ')?.textContent.length > 2); })()`), `${W}: 🏆 the ones in progress first; each ended one with its name, dates, the player's place and who won`);
+  await ev(`document.querySelector('.pf-cups .pf-more').click()`); await sleep(300);
+  ok(await ev(`document.querySelectorAll('.pf-cup').length === 7 && !document.querySelector('.pf-cups .pf-more')`), `${W}: 🏆 «Ver 2 copas más» shows the rest`);
+  await ev(`document.querySelector('.pf-cups').scrollIntoView()`); await sleep(200);
+  await b.shot(`cups-${W}`);
   ok(await ev(`document.documentElement.scrollWidth <= ${W}`), `${W}: rankings, no sideways scroll`);
   const s1 = await small(b);
   ok(!s1, `${W}: rankings, every tappable thing is 44 px or more${s1 ? ` (${s1})` : ''}`);
