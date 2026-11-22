@@ -641,7 +641,7 @@ The repo root is not the web root (D-192). `public/` is the site, exactly as ser
 public/                     The site (juegosdesalon.cl/): the only folder that gets published
   index.html                  Main menu (generated from assets/js/games.js)
   en/ · pt/ · de/             Language doors
-  cup/                        The Cup: engine, stores (store-offline.js plays a pending day from the phone's copy, D-544), score breakdown, CSV export, reports, comments in the table (talk.js, D-562), demos, table image, recap (D-423, D-427)
+  cup/                        The Cup: engine, stores (store-offline.js plays a pending day from the phone's copy, D-544), score breakdown, CSV export, reports, comments in the table (talk.js, D-562), demos, table image, recap (D-423, D-427), the player's cups for the profile (history.js, a hidden frame like the recap)
     games/                    The Cup's games, one folder each (engine.js + ui.js + word content per language)
     cover/                    One game's cover animation alone in a page (cover.js), for the frame in the home page's game sheet (lab: sub-flag `home-carousels-sheet`)
   timeline/ · bulls-and-cows/ · hangman/ · liars-dice/ · generala/ · battleship/
