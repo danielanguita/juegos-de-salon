@@ -17,7 +17,7 @@
  * on on this phone only (`juegos-de-salon:flags-off`). A launched flag ('all') is not listed: what
  * left the lab needs no switch.
  */
-import { labAccess } from './lab-access.js';
+import { labAccess, SAVED_KEY } from './lab-access.js';
 
 export const STATES = ['lab', 'all', 'off'];
 
@@ -97,4 +97,17 @@ export async function flag(id, { load = loadFlags, lab = labAccess, store = glob
   // what the lab uses is counted, to tell the owner when it is ready (D-528); not for the tests' own loaders
   if (on && id !== 'lab-ready' && load === loadFlags) import('./lab-usage.js').then(m => m.exposed(id)).catch(() => {});
   return on;
+}
+
+/**
+ * `flag(id)`'s answer before the network's: what this phone saw last time (the saved `flags/` and whether
+ * it holds a lab key), read with no wait. A page that changes its look for a flag draws it from the first
+ * frame with this, so it does not show the old look and then jump; `flag()` stays the answer that decides.
+ */
+export function flagGuess(id, { store = globalThis.localStorage } = {}) {
+  try {
+    const state = stateOf(cachedFlags(store), id);
+    if (state === 'lab' && !labOffList(store)[id]) return flagOn(state, !!store?.getItem(SAVED_KEY));
+    return state === 'all';
+  } catch (_) { return false; }
 }
