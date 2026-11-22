@@ -83,6 +83,11 @@ for (const W of [320, 390]) {
   ok(await ev(`[...document.querySelectorAll('[data-badge="night-owl"] .pf-name')].map(x => x.textContent).join()`) !== 'Noctámbulo', `${W}: a secret badge keeps its name until earned`);
   ok(await ev(`document.documentElement.scrollWidth <= ${W}`), `${W}: badges, no sideways scroll`);
   await full(b, `badges-${W}`, W);
+  // Scrolled, the section bar stays on top and stands apart from the badges under it (the owner, 2026-11-22)
+  await ev(`scrollTo(0, 900)`); await sleep(400);
+  ok(await ev(`(() => { const t = document.querySelector('.pf-tabs'), r = t.getBoundingClientRect(), c = getComputedStyle(t), a = Number((c.backgroundColor.match(/[\\d.]+(?=\\)$)/) || [1])[0]); return r.top >= 0 && r.top < 20 && (c.backgroundColor.startsWith('rgb(') || a >= 0.9) && parseFloat(c.borderTopWidth) >= 1; })()`), `${W}: scrolled, the section bar stays on top, nearly opaque and edged`);
+  await b.shot(`badges-scrolled-${W}`);
+  await ev(`scrollTo(0, 0)`);
   await ev(`document.querySelector('[data-tab=rankings]').click()`); await sleep(2500);
   ok(await ev(`document.querySelectorAll('.pf-game').length`) === 8, `${W}: 🏅 lists the eight games the player played`);
   ok(await ev(`document.querySelector('.pf-game[data-game="reinas"] .pf-game-place')?.textContent.startsWith('1')`), `${W}: 🏅 Reinas shows the player's first place`);
