@@ -19,7 +19,7 @@ import { getLang } from '../../../assets/js/i18n.js';
 import TEXTOS from './texts.js';
 import { onScreen } from '../../../assets/js/on-screen.js';
 import {
-  newGame, pillarAt, current, next, press, release, suspend, stickAt, advance, pause, walkEnd,
+  newGame, pillarAt, current, next, press, release, suspend, advance, pause, walkEnd,
   holdFor, revive, puntaje, tarjeta, PERFECT, MAX_BONUS, LIVES,
 } from './engine.js';
 import { CAIDA_MS, RESCATE_MS, escena, momento } from './scene.js';
