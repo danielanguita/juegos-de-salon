@@ -766,8 +766,8 @@ export function tabla(L, yo, now, { conFuera = true } = {}) {
   if (visibles.length >= 2) {
     const antes = armar(visibles[visibles.length - 2]);
     const lugarAntes = Object.fromEntries(antes.map(f => [f.pid, f.lugar]));
-    for (const f of ahora) f.flecha = Math.sign(lugarAntes[f.pid] - f.lugar);
-  } else for (const f of ahora) f.flecha = 0;
+    for (const f of ahora) { f.cambio = lugarAntes[f.pid] - f.lugar; f.flecha = Math.sign(f.cambio); }
+  } else for (const f of ahora) { f.cambio = 0; f.flecha = 0; }
   return ahora;
 }
 

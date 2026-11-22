@@ -335,6 +335,11 @@ flag('cup-podium-early').then(v => { podioAnticipado = v; if (v && L()?.meta && 
 // under a button) and the graph its first 10 lines, with the other names listed under it. lab: #seccion-cup-big
 let copaGrande = false;
 flag('cup-big').then(v => { copaGrande = v; setPlayerCap(v ? BIG_CUP_MAX : 10); if (v && L()?.meta && document.getElementById('tablero-body')?.childElementCount && !document.getElementById('tablero-body').closest('[hidden]')) tablero(); });
+// More than 10 players, a different board (lab flag `cup-big-moves`): no graph; the table says how many places
+// each player moved since the last round, except on the last one. lab: #seccion-cup-big-moves
+let bigMoves = false;
+flag('cup-big-moves').then(v => { bigMoves = v; if (v && L()?.meta && document.getElementById('tablero-body')?.childElementCount && !document.getElementById('tablero-body').closest('[hidden]')) tablero(); });
+const movesBoard = n => copaGrande && bigMoves && n > TABLA_VISIBLE;
 const zonaPropia = (() => { try { return Intl.DateTimeFormat().resolvedOptions().timeZone || null; } catch (_) { return null; } })();
 const horaEn = (ms, tz) => new Intl.DateTimeFormat(LOCALE[LANG] || LOCALE.es, { timeZone: tz, hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).format(new Date(ms));
 const otraHora = meta => horaPropia && !!zonaPropia && !!meta?.tz && horaEn(Date.now(), meta.tz) !== horaEn(Date.now(), zonaPropia);
@@ -865,6 +870,9 @@ function vistaTabla(filas, { dias, meta, now }) {
     return [...dias.slice(0, ultimo + 1).map(d => bloque(f, d)),
       resto ? el('span', { class: 'pd eliminado', style: `min-width:calc(${resto} * 1.368rem + ${resto - 1} * 4px)` }, T.outBadge) : null];
   };
+  // The moves board: places moved shown beside the arrow, and no arrows once the last round is open
+  const conCambio = movesBoard(filas.length);
+  const sinFlechas = conCambio && now >= meta.win[meta.days].a;
   // Reactions and comments (D-562, lab): a 💬 at the end of each row, its drawer under it
   const conCharla = charla && !!talkDay(L(), now) && !!L().results?.[talkDay(L(), now)]?.[S.yo] && !!seguirCharla();
   // Once, the first time a 💬 shows: a balloon that says comments exist (D-566, lab)
@@ -872,12 +880,15 @@ function vistaTabla(filas, { dias, meta, now }) {
     ? el('div', { class: 'charla-pista', role: 'note' }, el('span', {}, T.talkHint),
       el('button', { type: 'button', class: 'charla-pista-x', 'aria-label': T.talkHintClose, onClick: () => { SFX.tap(); cerrarPista(); tableroEnSuSitio(); } }, '✕'))
     : null;
-  const tablaNodo = el('div', { class: 'tabla' + (conCharla ? ' con-charla' : '') }, pista, ...filas.flatMap(f => [el('div', { class: 'fila' + (f.pid === S.yo ? ' yo' : '') + (f.fuera ? ' fuera' : ''), 'data-pid': f.pid },
+  const tablaNodo = el('div', { class: 'tabla' + (conCharla ? ' con-charla' : '') + (conCambio ? ' con-cambio' : '') }, pista, ...filas.flatMap(f => [el('div', { class: 'fila' + (f.pid === S.yo ? ' yo' : '') + (f.fuera ? ' fuera' : ''), 'data-pid': f.pid },
     // Out of the cup (D-347): a door instead of a place, and faded (D-376)
     el('span', { class: 'lugar', title: f.fuera ? fmt(T.outAdmin, { a: f.fuera.desde, b: f.fuera.hasta }) : null }, f.fuera ? '🚪' : String(f.lugar)),
-    el('span', { class: 'flecha ' + (f.flecha > 0 ? 'sube' : f.flecha < 0 ? 'baja' : '') }, f.flecha > 0 ? '▲' : f.flecha < 0 ? '▼' : ''),
+    el('span', { class: 'flecha ' + (!conCambio && f.flecha > 0 ? 'sube' : !conCambio && f.flecha < 0 ? 'baja' : '') }, conCambio ? '' : f.flecha > 0 ? '▲' : f.flecha < 0 ? '▼' : ''),
     el('div', { class: 'quien' },
-      el('b', {}, f.name, f.pid === S.yo ? el('small', { class: 'muted' }, ` (${T.you})`) : null),
+      el('b', {}, f.name,
+        // The moves board: places gained or lost since the last round, beside the name, none on the last round
+        conCambio && !sinFlechas && f.flecha ? el('span', { class: 'mov ' + (f.flecha > 0 ? 'sube' : 'baja'), title: `${f.flecha > 0 ? '+' : '−'}${Math.abs(f.cambio)}` }, `${f.flecha > 0 ? '▲' : '▼'}${Math.abs(f.cambio)}`) : null,
+        f.pid === S.yo ? el('small', { class: 'muted' }, ` (${T.you})`) : null),
       el('div', { class: 'puntitos' }, bloques(f)),
       // Today's first comment, for everyone, even before playing (the owner, 2026-11-16)
       ),
@@ -951,6 +962,15 @@ function misDias(d, now) {
       : el('div', { class: `md-fila ${clase}`, 'aria-disabled': accion ? null : 'true' }, ...contenido));
   }
   return el('div', { class: 'panel mis-dias' }, el('p', { class: 'lead', style: 'margin-bottom:8px' }, T.myDays), filas);
+}
+
+/** The moves board has no graph; the share button it carried stays, in a panel of its own (C-19). */
+function panelCompartir(now) {
+  if (terminada(L().meta, now)) return null;
+  return el('div', { class: 'panel' }, el('button', { class: 'btn btn--cyan btn--sm', id: 'btn-imagen', onClick: async ev2 => {
+    SFX.tap(); const b = ev2.currentTarget; b.disabled = true;
+    try { await compartirTabla(); } catch (e) { toast(errorDe(e)); } finally { b.disabled = false; }
+  } }, `📤 ${T.shareImage}`));
 }
 
 /**
@@ -1292,7 +1312,7 @@ function dibujarTablero() {
       vistaTabla(filas, { dias, meta, now }),
       leyenda,
       hayOcultos ? el('small', { class: 'muted' }, T.tableHidden) : null));
-    poner(body, grafico(now));
+    poner(body, movesBoard(filas.length) ? panelCompartir(now) : grafico(now));
   } else {
     const jug = activos(Lc);
     poner(body, el('div', { class: 'panel' },

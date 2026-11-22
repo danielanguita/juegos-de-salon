@@ -96,6 +96,8 @@ export const ESCENAS = {
   full: { inicio: 7, jugadores: 10, jugaron: 7, yo: 'javi02', pantalla: 'tablero', faltas: true },
   // The most players a cup takes (20), three days played
   crowd: { inicio: 3, jugadores: 20, jugaron: 3, yo: 'javi02', pantalla: 'tablero', fuerza: Object.fromEntries(['x11abc','x12abc','x13abc','x14abc','x15abc','x16abc','x17abc','x18abc','x19abc','x20abc'].map((p, i) => [p, 0.2 + 0.07 * ((i * 7) % 10)])) },
+  // The same crowd on the last day: no arrows on the moves board
+  'crowd-final': { inicio: 6, jugadores: 20, jugaron: 6, yo: 'javi02', pantalla: 'tablero' },
   // Out of the cup (D-347): whoever looks missed days 1 and 2; Tere missed day 3, one away from it
   out: { inicio: 3, jugadores: 5, jugaron: 3, yo: 'javi02', pantalla: 'tablero', faltas: { javi02: [1, 2] } },
   // The warning (D-347): whoever looks missed day 2, and day 3 is in its grace day
