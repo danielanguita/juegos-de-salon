@@ -283,6 +283,10 @@ export const PATHS = {
     board: [`location.href='/cup/?test&demo=player'`, `1`, `1`, `document.querySelector('button[data-dia]')?.scrollIntoView({ block: 'center' })`],
     // The unused wildcard on the final's day (D-444): day 6 in "Tus días" with ×2 auto, and its result screen saying why
     // Day 6 not played, wildcard unused: the notice on the day card and on its cover (D-444)
+    // The big-cup board (lab flag `cup-big`): 10 rows with the moves, then the graph's first 10 lanes
+    crowd: [`location.href='/cup/?test&demo=crowd'`, `1`, `1`, `document.querySelector('.tabla.con-cambio')?.scrollIntoView({ block: 'start' })`],
+    'crowd-14': [`location.href='/cup/?test&demo=crowd-14'`, `1`, `1`, `document.querySelector('.tabla.con-cambio')?.scrollIntoView({ block: 'start' })`],
+    'crowd-graph': [`location.href='/cup/?test&demo=crowd'`, `1`, `1`, `document.querySelector('.grafico')?.scrollIntoView({ block: 'start' })`],
     'wild-today': [`location.href='/cup/?test&demo=last-day'`, `1`, `1`, `document.getElementById('comodin-hoy')?.scrollIntoView({ block: 'center' })`],
     'wild-today-cover': [`location.href='/cup/?test&demo=last-day'`, `1`, `1`, `document.querySelector('button[data-dia]').click()`, `1`, `document.getElementById('btn-empezar')?.scrollIntoView({ block: 'end' })`],
     'wild-today-three': [`location.href='/cup/?test&demo=last-day-three'`, `1`, `1`, `document.getElementById('comodin-hoy')?.scrollIntoView({ block: 'center' })`],
