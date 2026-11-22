@@ -57,15 +57,15 @@ const EASY_CAM = `(() => {
   const px = (x, y) => [dpr * (ox + x * sc), dpr * (oy + y * sc)];
   let punch = 0, at = [200, 400], last = null;
   window.__coverShot = () => {
-    const S = B.S, base = 690 * sc * dpr; // wide: the claw's rail down to the plank's stand
+    const S = B.S, base = 800 * sc * dpr; // wide: the claw's rail, whole, down to the plank's stand
     const fall = S.bodies.filter(b => !b.touch && b.vy > 40 && b.y > 60).at(-1);
     const now = { landed: S.landed, perfects: S.perfects };
     if (last && now.perfects > last.perfects) punch = 0.3;
     else if (last && now.landed > last.landed) punch = Math.max(punch, 0.18);
     if (last && now.landed > last.landed) { const b = S.bodies.at(-1); if (b) at = [b.x, b.y]; }
     last = now; punch *= 0.92;
-    const top = Math.min(S.top ?? 440, 430), wide = [200, 248];
-    let goal = fall ? { z: 1.3, w: [200 + (fall.x - 200) * 0.5, Math.max(250, (fall.y + top) / 2)] } : { z: 1, w: wide };
+    const top = Math.min(S.top ?? 440, 430), wide = [200, 230];
+    let goal = fall ? { z: 1.15, w: [200 + (fall.x - 200) * 0.5, Math.max(250, (fall.y + top) / 2)] } : { z: 1, w: wide };
     if (punch > 0.03) goal = { z: 1.4 + punch, w: [200 + (at[0] - 200) * 0.6, at[1] - 10] };
     const l = __loop(); if (l > 0.01) goal = { z: goal.z + l, w: [200 + (goal.w[0] - 200) * (1 - l * 2.5), goal.w[1] + (top - 40 - goal.w[1]) * Math.min(1, l * 3)] };
     const [x, y] = px(goal.w[0] + __breath(6, 160), goal.w[1]);
