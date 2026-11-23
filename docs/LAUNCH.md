@@ -110,7 +110,7 @@ a check of the page: the Bodega move passed `launched()` while `/labs/` kept the
 - [ ] Its cover has its ranking under Entrar and «<icon> Empezar»; its page plays to the result, whose table names its level; `/records/` has its tab.
 - [ ] The icon view (the lab's home page): it is in ✨ Nuevos, and its sheet's 🏅 tab shows its table.
 - [ ] **La Copa, as a new visitor with no saved flags:** on the create screen the game is in the list of games, and a few 🎲 rolls of a 14-day cup bring it in. Then a cup day with it opens and plays to the end.
-- [ ] The `/labs/` card moved to La Bodega (`public/labs/launched.js`, D-534).
+- [ ] The `/labs/` card moved to La Bodega (`public/labs/launched.js`, D-534): open `/labs/` itself with a lab key and see it there, never only the function.
 - [ ] The next day: Uno al día deals it from `desde`.
 
 Tell the owner only once all of this was seen working (D-591's alarm covers the hour itself).
@@ -137,6 +137,7 @@ Tell the owner only once all of this was seen working (D-591's alarm covers the 
 | The Dominorama and Memorice launch task waited on a permission prompt on the Mac; out 46 minutes late by hand | Cloud task plus alarm only (D-591) |
 | Stack, Aletazo, Sudoku, Memory and Dominorama, all 🚀, were missing from La Copa's 🎲 on phones that had not seen their launch (the pool was read from the phone's saved flags); lab key holders could draw games still in the lab | The create screen fetches flags before drawing (`refreshPool`); the pool is only what every player sees on the home page; `cup/engine.test.mjs` checks each launched cup game, and the live check opens the create screen as a new visitor |
 | Launched cards stayed under "en prueba" | `public/labs/launched.js` moves them (D-534), `public/labs/bodega.test.mjs` |
+| Croc!, Tembleque, Memorice and Dominorama stayed under 🎲 Juegos en prueba after launch: `launched.js` read only ✨ Mejoras en prueba, and the live check ran its pure function, not the page | `move()` reads both groups and drops a game's «Listo para lanzar…» line (`tools/e2e/labs/launched.mjs` moves a game card); the live check opens `/labs/` with a lab key |
 | Live flags and demos made visual references flaky | `VISUAL_SKIP` for those covers; e2e pins its flags |
 | Launched flags kept their tester switch | They leave the tester tab (D-567) |
 | Tembleque launched with no ranking on its cover and «¡A jugar!» for its button, unlike every game played alone; its result's table did not name the level | `launch-check.mjs` (static: the cover calls `bloqueRanking`; `--screens`: the table on the cover and the button), `tools/e2e/wobbles/game.mjs` |

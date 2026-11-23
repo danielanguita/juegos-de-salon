@@ -1,9 +1,11 @@
 /**
  * A flag published for everyone moves its card to La Bodega on its own (D-534): when /labs/ opens it
  * reads `flags/` (public to read, kept on the device, `assets/js/flags.js`) and, before La Bodega
- * folds its cards, every card under ✨ Mejoras en prueba whose flag is *all* goes to ✨ Mejoras
- * lanzadas: folded like the cards written there, dated by the day the flag went live, «🚀 Lanzado.»
- * first and without the lab-only «Para verlo» sentence (D-510). No PR: the cleanup PR that removes
+ * folds its cards, every card under 🎲 Juegos en prueba or ✨ Mejoras en prueba whose flag is *all*
+ * goes to ✨ Mejoras lanzadas (where Sudoku and Aletazo are): folded like the cards written there,
+ * dated by the day the flag went live, «🚀 Lanzado.» first, without the lab-only «Para verlo»
+ * sentence (D-510) and without a game's «Listo para lanzar…» line. Games were left out until
+ * Croc! and Tembleque (2026-11-22): only ✨ Mejoras en prueba was read. No PR: the cleanup PR that removes
  * the gate moves its HTML for good, since without the flag there is nothing to read.
  */
 import { loadFlags, stateOf } from '../assets/js/flags.js';
@@ -22,6 +24,9 @@ export function launched(ids, flags, { known = FLAGS, today = Date.now() } = {})
 /** The first paragraph without its lab-only «Para verlo: <code>…</code>.» sentence (D-510). */
 export const sinParaVerlo = html => html.replace(/\s*Para verlo:\s*<code>[\s\S]*?<\/code>\.?\s*$/, '');
 
+/** A launched game's card drops its «Listo para lanzar…» paragraph: it would contradict «🚀 Lanzado.» */
+export const isReadyLine = text => /^\s*Listo para lanzar\b/.test(text);
+
 /** Folds a card the way La Bodega's are written: its h2 in the summary, the rest in .detalle, dated. */
 export function fold(card, day) {
   card.dataset.launched = day;
@@ -36,6 +41,7 @@ export function fold(card, day) {
   const body = doc.createElement('div');
   body.className = 'detalle';
   body.append(...rest);
+  for (const q of body.querySelectorAll(':scope > p')) if (isReadyLine(q.textContent)) q.remove();
   const p = body.querySelector('p');
   if (p) { p.innerHTML = sinParaVerlo(p.innerHTML); p.prepend('🚀 Lanzado. '); }
   // its demo link no longer needs the lab key
@@ -47,13 +53,13 @@ export function fold(card, day) {
   return card;
 }
 
-/** Moves the launched cards of ✨ Mejoras en prueba into ✨ Mejoras lanzadas; returns their ids. `flags` for the tests. */
+/** Moves the launched cards of 🎲 Juegos en prueba and ✨ Mejoras en prueba into ✨ Mejoras lanzadas; returns their ids. `flags` for the tests. */
 export async function move(root = document, flags = null, { known = FLAGS } = {}) {
   const box = root.getElementById('bodega-mejoras');
-  const group = root.getElementById('mejoras');
-  if (!box || !group) return [];
+  const groups = ['activos', 'mejoras'].map(id => root.getElementById(id)).filter(Boolean);
+  if (!box || !groups.length) return [];
   const fl = flags || await loadFlags();
-  const ids = [...group.querySelectorAll(':scope > .seccion')].map(c => c.id);
+  const ids = groups.flatMap(g => [...g.querySelectorAll(':scope > .seccion')].map(c => c.id));
   const out = [];
   for (const { id, launched: day } of launched(ids, fl, { known })) {
     const card = root.getElementById(id);
