@@ -2431,9 +2431,9 @@ async function avisoDuelo(caja, r) {
         await D.anotar(DUELO.did, DUELO.i, { s: r.s, ms: r.ms });
         const d = await D.leer(DUELO.did), yo = Jg.yo().jid;
         msg = fmt(TD.roundSaved, { i: DUELO.i + 1, n: duelos.rondas(d), r: duelos.nombreDe(d, duelos.otro(d, yo)) });
-        // The next round, the screen's main action: the same page with that round's seed
+        // The next round, the screen's main action: that round's game page (a custom duel changes game) with its seed
         const t = duelos.estado(d, yo).turno;
-        if (t >= 0) sigue = el('a', { class: 'btn btn--yellow', id: 'btn-ronda', href: `${location.pathname}?seed=${d.sd[t]}&duel=${d.id}&round=${t}` }, fmt(TD.playRound, { i: t + 1 }));
+        if (t >= 0) sigue = el('a', { class: 'btn btn--yellow', id: 'btn-ronda', href: `${gameById(duelos.roundGame(d, t))?.path ? RAIZ + gameById(duelos.roundGame(d, t)).path : location.pathname}?seed=${d.sd[t]}&duel=${d.id}&round=${t}` }, fmt(TD.playRound, { i: t + 1 }));
       } catch (_) { msg = TD.roundLate; }
     }
     caja.append(...[el('p', { class: 'notice', id: 'duelo-aviso' }, msg), sigue, el('a', { class: `btn ${sigue ? 'btn--ghost' : 'btn--cyan'}`, id: 'btn-duelos', href: `${RAIZ}duels/` }, TD.backDuels)].filter(Boolean));

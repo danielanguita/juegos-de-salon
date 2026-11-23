@@ -5,7 +5,7 @@ import assert from 'node:assert/strict';
 import { createDb } from '../tools/firebase/rules-sim.mjs';
 import { crearAlmacenLocal } from '../public/assets/js/jugador-local.js';
 import { crearJugador } from '../public/assets/js/jugador.js';
-import { estado, record, nemesis, sugeridos, ganaRonda, DURACION } from '../public/assets/js/duels.js';
+import { estado, record, nemesis, sugeridos, ganaRonda, roundGame, DURACION } from '../public/assets/js/duels.js';
 
 const T0 = 1_800_000_000_000;
 const A = 'aaaa1111', B = 'bbbb2222', C = 'cccc3333', DID = 'duel000001';
@@ -28,6 +28,8 @@ const crear = (d = duelo()) => ({ [`duelos/${DID}`]: d, [`jugadorDuelos/${A}/${D
   no(w('ua', crear({ ...duelo('bo5'), sd: ['ABCDE', 'FGHJK', 'LMNPQ'] })), 'best of five carries five seeds');
   no(w('ua', crear({ ...duelo(), r: { [A]: { 0: { s: 100, ms: 1, at: T0 } } } })), 'a duel is born with no results');
   no(w('uc', { [`jugadorDuelos/${C}/${DID}`]: { '.sv': 'timestamp' } }), 'no stray entry in a list');
+  no(w('ua', crear({ ...duelo(), gr: ['reinas', 'tango', 'zip', 'anio'] })), 'a custom duel names a game only for the rounds it has');
+  no(w('ua', crear({ ...duelo(), gr: ['Reinas!', 'tango', 'zip'] })), "a round's game is a game id");
   ok(w('ua', crear()), 'the challenger creates the duel and both lists', db);
   no(w('ua', crear()), 'a duel is written once');
   no(w('uc', { [`jugadorDuelos/${C}/${DID}`]: { '.sv': 'timestamp' } }), 'nobody else joins it later');
@@ -65,6 +67,12 @@ const crear = (d = duelo()) => ({ [`duelos/${DID}`]: d, [`jugadorDuelos/${A}/${D
   const e = estado(await D.leer(d.id), ana.jid, t);
   assert.deepEqual([e.mias[0].s, e.turno, e.termino], [80, 1, false], 'round 2 is next');
   assert.equal((await D.buscar('beto'))[0]?.jid, beto.jid, 'a rival is found by name');
+  // A custom duel: each round its own game
+  const c = await D.retar({ b: beto.jid, bn: 'Beto', g: 'reinas', f: 'pts', gr: ['reinas', 'tango', 'desenredo'] });
+  const c2 = await D.leer(c.id);
+  assert.deepEqual([0, 1, 2].map(i => roundGame(c2, i)), ['reinas', 'tango', 'desenredo'], "a custom duel's rounds play their own games");
+  const q = await D.retar({ b: beto.jid, bn: 'Beto', g: 'zip', f: 'bo3', gr: ['zip', 'zip', 'zip'] });
+  assert.equal((await D.leer(q.id)).gr, undefined, 'the same game every round is a quick duel: no gr');
 }
 
 {
