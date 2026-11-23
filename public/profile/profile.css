@@ -36,7 +36,7 @@
 .pf-group .pf-duel-pills { margin: 0 0 0 auto; flex-wrap: nowrap; }
 .pf-group-head:has(.pf-duel-pills) { align-items: center; }
 @media (max-width: 359px) { .pf-group .pf-duel-pills { display: none; } }
-.pf-group .pf-duels-go { margin-top: var(--s-12); width: 100%; }
+.pf-group .pf-duels-go, .pf-group .pf-group-go { margin-top: var(--s-12); width: 100%; }
 .pf-badge {
   position: relative; display: grid; justify-items: center; align-content: start; gap: var(--s-4);
   text-align: center; padding: var(--s-12) var(--s-4) var(--s-10); border-radius: var(--r-14); background: var(--well);
