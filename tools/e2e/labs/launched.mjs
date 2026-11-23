@@ -1,5 +1,5 @@
 // A flag on *all* moves its card to La Bodega when /labs/ opens (D-534): the page moves a card under
-// ✨ Mejoras en prueba into ✨ Mejoras lanzadas, folded like the ones written there, dated by the day
+// 🎲 Juegos en prueba or ✨ Mejoras en prueba into ✨ Mejoras lanzadas, folded like the ones written there, dated by the day
 // the flag went live, «🚀 Lanzado.» first and without the «Para verlo» sentence, and leaves a card
 // whose flag is still in the lab where it is. Flags are given to move() here, not read from Firebase.
 // Prints ✗ if anything fails.
@@ -22,9 +22,18 @@ await ev(`(() => {
     g.append(s);
   }
 })()`);
+// And a game of our own under 🎲 Juegos en prueba, launched: Croc! and Tembleque stayed there (2026-11-22)
+await ev(`(() => {
+  const s = document.createElement('section'); s.className = 'panel seccion'; s.id = 'seccion-juego-si';
+  s.innerHTML = '<h2>🧪 Juego lanzado</h2><p class="muted" style="margin:0">Un juego nuevo.</p><p class="muted" style="margin:0">Listo para lanzar en <a href="../x/">/x/</a>.</p><a class="btn btn--yellow" href="../x/">Jugar</a>';
+  document.getElementById('activos').append(s);
+})()`);
 const at = new Date(2026, 10, 4, 12).getTime();
-const moved = await ev(`import('/labs/launched.js').then(m => m.move(document, { 'prueba-si': { state: 'all', at: ${at} }, 'prueba-no': { state: 'lab', at: ${at} } }, { known: { 'prueba-si': 1, 'prueba-no': 1 } })).then(JSON.stringify)`);
-ok(moved === '["seccion-prueba-si"]', `move() moves the launched card and only it (${moved})`);
+const moved = await ev(`import('/labs/launched.js').then(m => m.move(document, { 'prueba-si': { state: 'all', at: ${at} }, 'prueba-no': { state: 'lab', at: ${at} }, 'juego-si': { state: 'all', at: ${at} } }, { known: { 'prueba-si': 1, 'prueba-no': 1, 'juego-si': 1 } })).then(JSON.stringify)`);
+ok(moved === '["seccion-juego-si","seccion-prueba-si"]', `move() moves the launched cards and only them (${moved})`);
+ok(await ev(`!!document.querySelector('#bodega-mejoras #seccion-juego-si') && !document.querySelector('#activos #seccion-juego-si')`), 'a launched game leaves 🎲 Juegos en prueba for La Bodega');
+const game = await ev(`document.querySelector('#seccion-juego-si .detalle').textContent.replace(/\\s+/g, ' ').trim()`);
+ok(game.startsWith('🚀 Lanzado. Un juego nuevo.') && !/Listo para lanzar/.test(game), `its «Listo para lanzar» line goes (${JSON.stringify(game)})`);
 ok(await ev(`!!document.querySelector('#bodega-mejoras #seccion-prueba-si')`), 'the launched card is in ✨ Mejoras lanzadas');
 ok(await ev(`!!document.querySelector('#mejoras > #seccion-prueba-no')`), 'the card still in the lab stays under ✨ Mejoras en prueba');
 ok(await ev(`document.getElementById('seccion-prueba-si').dataset.launched === '2026-11-04'`), 'dated by the day its flag went live');
@@ -34,7 +43,7 @@ ok(text === '🚀 Lanzado. Hace algo nuevo.', `«🚀 Lanzado.» first and no «
 ok(await ev(`document.querySelector('#seccion-prueba-si .detalle a').getAttribute('href') === '../cup/?test&demo=decided'`), 'its demo link no longer asks for the lab key');
 ok(await ev(`document.querySelector('#seccion-prueba-si').closest('#bodega') && !document.querySelector('#seccion-prueba-si').closest('#mejoras')`), 'and nothing of it is left under ✨ Mejoras en prueba');
 // Moved again, nothing changes
-const again = await ev(`import('/labs/launched.js').then(m => m.move(document, { 'prueba-si': { state: 'all', at: ${at} } }, { known: { 'prueba-si': 1 } })).then(JSON.stringify)`);
+const again = await ev(`import('/labs/launched.js').then(m => m.move(document, { 'prueba-si': { state: 'all', at: ${at} }, 'juego-si': { state: 'all', at: ${at} } }, { known: { 'prueba-si': 1, 'juego-si': 1 } })).then(JSON.stringify)`);
 ok(again === '[]', 'a second pass finds nothing left to move');
 await ev(`document.getElementById('seccion-prueba-si').scrollIntoView({ block: 'center' }); document.querySelector('#seccion-prueba-si details').open = true`); await sleep(300);
 await b.shot('launched-card');
