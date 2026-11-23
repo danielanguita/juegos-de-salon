@@ -264,7 +264,9 @@ export function retosEnRankings(root, { alTocar = () => {} } = {}) {
       const id = String(caja.dataset.tabla).split('_')[0];
       if (!duelGame(id)) return;
       caja.querySelectorAll('.rk-fila[data-jid]:not(.dl-con)').forEach(f => {
-        if (!f.dataset.jid || f.dataset.jid === yo || f.classList.contains('yo')) return;
+        if (!f.dataset.jid) return;
+        // Your own row: an empty cell where the ⚔️ would be, so the columns stay aligned
+        if (f.dataset.jid === yo || f.classList.contains('yo')) { f.classList.add('dl-con'); f.append(el('span', { class: 'dl-retar-vacio', 'aria-hidden': 'true' })); return; }
         const n = f.querySelector('.rk-n')?.textContent?.replace(/^\p{RI}{2}\s*/u, '').trim() || '?';
         f.classList.add('dl-con');
         f.append(el('button', {
@@ -276,4 +278,23 @@ export function retosEnRankings(root, { alTocar = () => {} } = {}) {
   };
   poner();
   new MutationObserver(poner).observe(root, { childList: true, subtree: true });
+}
+
+/**
+ * The /duels/ page's list of other people's recent duels (the owner, 2026-11-23: the page feels
+ * populated even before you have a duel of your own): «Ana 2–1 Beto», the game and how it stands.
+ */
+export function panelRecientes(lista) {
+  if (!lista.length) return null;
+  return el('section', { class: 'panel', id: 'dl-recientes' },
+    el('p', { class: 'lead' }, T.recentTitle),
+    lista.map(d => {
+      const e = estado(d, d.a);
+      const fin = e.termino ? (e.gano === 1 ? fmt(T.recentWon, { n: d.an }) : e.gano === -1 ? fmt(T.recentWon, { n: d.bn }) : T.recentDraw) : T.recentLive;
+      return el('div', { class: 'dl-row', 'data-duel': d.id },
+        el('div', { class: 'dl-row-txt' },
+          el('b', {}, `${d.an} ${e.puntos[0]}–${e.puntos[1]} ${d.bn}`),
+          el('small', {}, titulo(d))),
+        el('span', { class: `dl-fin${e.termino ? '' : ' t'}` }, fin));
+    }));
 }

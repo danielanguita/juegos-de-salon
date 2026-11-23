@@ -198,6 +198,12 @@ export function crearAlmacenLocal({ storage = globalThis.localStorage, uid = nul
       return leerEn(viejo, `duelos/${a}/e/${jid}/${i}`) != null && x.at === t && typeof x.s === 'number' && x.s >= 0 && x.s <= S_MAX
         && typeof x.ms === 'number' && x.ms >= 0 && x.ms <= MS_MAX && Object.keys(x).every(c => ['s', 'ms', 'at'].includes(c));
     }
+    // The public list of recent duels (/duels/): written once, with its duel, by the challenger
+    if (rama === 'duelosRecientes') {
+      const d = leerEn(nuevo, `duelos/${a}`);
+      return p.length === 2 && /^[a-z0-9]{10}$/.test(a || '') && leerEn(viejo, ruta) == null && leerEn(viejo, `duelos/${a}`) == null && !!d
+        && sentado(viejo, d.a) && leerEn(nuevo, ruta) === t;
+    }
     if (rama === 'jugadorDuelos') {
       const d = leerEn(nuevo, `duelos/${b}`);
       return p.length === 3 && /^[a-z0-9]{10}$/.test(b || '') && leerEn(viejo, ruta) == null && leerEn(viejo, `duelos/${b}`) == null && !!d
@@ -224,6 +230,9 @@ export function crearAlmacenLocal({ storage = globalThis.localStorage, uid = nul
     async vecinos(t, periodo, k, n) {
       const todas = await this.top(t, periodo, Infinity);
       return { arriba: todas.filter(f => f.k < k).slice(-n), abajo: todas.filter(f => f.k > k).slice(0, n) };
+    },
+    async recientes(ruta, n) {
+      return Object.fromEntries(Object.entries(leerEn(db(), ruta) || {}).sort((a, b) => a[1] - b[1]).slice(-n));
     },
     async podios(n) {
       return Object.fromEntries(Object.entries(leerEn(db(), 'torneoPodios') || {})

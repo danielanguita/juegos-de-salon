@@ -83,6 +83,10 @@ export function crearAlmacenFirebase({ fetchFn = (...a) => globalThis.fetch(...a
         abajo: filasRest(abajo).filter(f => f.k > kv).slice(0, n),
       };
     },
+    /** The newest `n` children of a list keyed by id whose value is a time (duelosRecientes): { id: at }. */
+    async recientes(ruta, n) {
+      return (await rest(ruta, { orderBy: '"$value"', limitToLast: n })) || {};
+    },
     async podios(n) {
       const obj = (await rest('torneoPodios', { orderBy: '"end"', limitToLast: n })) || {};
       // Oldest first, as the SDK's forEach gave them

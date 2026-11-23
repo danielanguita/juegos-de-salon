@@ -9,6 +9,7 @@
  *   duelos/<did>/e/<jid>/<i>    when jid began round i, once: a round begun and left counts as 0
  *   duelos/<did>/r/<jid>/<i>    { s, ms, at }: jid's result in round i, once, after it began
  *   jugadorDuelos/<jid>/<did>   when the duel was created: each player's list of duels
+ *   duelosRecientes/<did>       when the duel was created: the public list of recent duels (/duels/)
  *
  * Everything that decides a duel is pure (`estado`), so a phone and the tests agree on it: no job
  * closes a duel, its clock does. The rules (firebase/database.rules.json) take a write only from a
@@ -125,6 +126,12 @@ export function crearDuelos({ almacen, yo, now = () => Date.now(), rand = Math.r
       const ids = Object.entries(idx).sort((a, b) => b[1] - a[1]).slice(0, 60).map(([k]) => k).filter(esDid);
       return (await Promise.all(ids.map(leer))).filter(Boolean);
     },
+    /** The newest duels of everyone (the /duels/ page's list), newest first. */
+    async recientes(n = 12) {
+      const idx = (await almacen.recientes?.('duelosRecientes', n)) || {};
+      const ids = Object.entries(idx).sort((a, b) => b[1] - a[1]).map(([k]) => k).filter(esDid);
+      return (await Promise.all(ids.map(leer))).filter(Boolean);
+    },
     /** Challenge `b` (a jid) to `g` in format `f`. Returns the duel. */
     async retar({ b, bn, g, f, gr = null }) {
       const me = yo();
@@ -134,7 +141,7 @@ export function crearDuelos({ almacen, yo, now = () => Date.now(), rand = Math.r
       const d = { a: me.jid, b, an: me.n, bn: String(bn || '').slice(0, 20) || '?', f, g, sd, at: HORA };
       // A custom duel: each round's game, only when they are not all the same
       if (Array.isArray(gr) && gr.length === sd.length && gr.some(x => x !== g)) d.gr = gr;
-      await almacen.update({ [`duelos/${id}`]: d, [`jugadorDuelos/${me.jid}/${id}`]: HORA, [`jugadorDuelos/${b}/${id}`]: HORA });
+      await almacen.update({ [`duelos/${id}`]: d, [`jugadorDuelos/${me.jid}/${id}`]: HORA, [`jugadorDuelos/${b}/${id}`]: HORA, [`duelosRecientes/${id}`]: HORA });
       return { id, ...d, at: now() };
     },
     /** I began round i: from now on, leaving it counts as a 0. */

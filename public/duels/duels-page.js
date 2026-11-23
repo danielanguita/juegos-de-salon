@@ -10,7 +10,7 @@ import { SFX } from '../assets/js/sound.js';
 import { jugador, leerYo } from '../assets/js/jugador.js';
 import { bloqueJugador } from '../assets/js/ranking.js';
 import { estado, record, esDid, rondas } from '../assets/js/duels.js';
-import { T, fmt, fila, ordenar, abrirNuevo, titulo, hrefRonda, hrefDuelos, shareInvite } from '../assets/js/duels-ui.js';
+import { T, fmt, fila, ordenar, abrirNuevo, titulo, hrefRonda, hrefDuelos, shareInvite, panelRecientes } from '../assets/js/duels-ui.js';
 
 export { T };
 const tap = () => SFX.tap();
@@ -63,16 +63,26 @@ export async function drawDuels(root, { sub }) {
   const draw = async () => {
     const mine = ++turn;
     const yo = leerYo();
-    if (!yo) { sub.textContent = T.signIn; root.replaceChildren(bloqueJugador({ abierto: true, destacado: true, alTocar: tap })); return; }
+    // Everyone's recent duels, so the page is never empty: under your own duels when you have them
+    const recientesP = J.duelos().then(D => D.recientes(12)).catch(() => []);
+    const recientes = async () => panelRecientes((await recientesP).filter(d => !yo || (d.a !== yo.jid && d.b !== yo.jid)).slice(0, 8));
+    if (!yo) {
+      sub.textContent = T.signIn;
+      root.replaceChildren(bloqueJugador({ abierto: true, destacado: true, alTocar: tap }));
+      const r = await recientes();
+      if (mine === turn && r) root.append(r);
+      return;
+    }
     const nuevo = el('button', { type: 'button', class: 'btn btn--yellow', id: 'dl-nuevo', onClick: () => { tap(); abrirNuevo({ lista, alTocar: tap }); } }, `⚔️ ${T.newDuel}`);
     let lista = [], leida = false;
     root.replaceChildren(nuevo);
     try { lista = await (await J.duelos()).mios(); leida = true; } catch (_) { /* offline: nothing to show */ }
+    const otros = await recientes();
     if (mine !== turn) return;
     const r = record(lista, yo.jid);
     sub.textContent = r.g + r.p ? `${fmt(T.pageSub, { g: r.g, p: r.p })} · ${r.pct}%` : '';
     if (!lista.length) {
-      root.replaceChildren(nuevo, el('p', { class: 'muted center' }, T.empty));
+      root.replaceChildren(...[nuevo, el('p', { class: 'muted center' }, T.empty), otros].filter(Boolean));
       // A first-timer (no duel, no record) came to start one: open the sheet once, not on every redraw
       if (leida && !abierta && !document.getElementById('dl-hoja')) { abierta = true; abrirNuevo({ lista, alTocar: tap }); }
       return;
@@ -92,8 +102,9 @@ export async function drawDuels(root, { sub }) {
     if (!grupos.turn.length && grupos.waiting.length) tab = 'waiting';
     marcar();
     root.replaceChildren(...[nuevo,
-      el('section', { class: 'panel' }, seg, listaAbierta),
-      hechos.length ? el('section', { class: 'panel', id: 'dl-terminados' }, el('p', { class: 'lead' }, T.tabDone), hechos.map(d => fila(d, yo.jid, { alTocar: tap }))) : null].filter(Boolean));
+      el('section', { class: 'panel', id: 'dl-mios' }, el('p', { class: 'lead' }, T.mineTitle), seg, listaAbierta),
+      hechos.length ? el('section', { class: 'panel', id: 'dl-terminados' }, el('p', { class: 'lead' }, T.tabDone), hechos.map(d => fila(d, yo.jid, { alTocar: tap }))) : null,
+      otros].filter(Boolean));
   };
   J.escuchar(() => draw());
   await draw();

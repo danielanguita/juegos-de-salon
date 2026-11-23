@@ -1296,6 +1296,15 @@
         }
       }
     },
+    "duelosRecientes": {
+      ".read": true,
+      ".write": "auth != null && auth.uid === 'TrNylkeOFXNhnTPWAApebKvbI3F2'",
+      ".indexOn": ".value",
+      "$did": {
+        ".write": "auth != null && $did.matches(/^[a-z0-9]{10}$/) && !data.exists() && newData.exists() && !root.child('duelos/' + $did).exists() && newData.parent().parent().child('duelos/' + $did).exists() && root.child('jugadorSeats/' + newData.parent().parent().child('duelos/' + $did + '/a').val() + '/' + auth.uid).exists()",
+        ".validate": "newData.val() === now"
+      }
+    },
     "jugadorDuelos": {
       ".write": "auth != null && auth.uid === 'TrNylkeOFXNhnTPWAApebKvbI3F2'",
       "$jid": {
