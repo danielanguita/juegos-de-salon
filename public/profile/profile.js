@@ -412,37 +412,14 @@ function accountPanel(yo) {
     out, ask);
 }
 
-/** The bubble under the switch that says your games show (D-604): until its ✕, or until you hide them. */
-const PUBLIC_BUBBLE = 'juegos-de-salon:profile-public-bubble';
-const bubbleSeen = () => { try { return !!localStorage.getItem(PUBLIC_BUBBLE); } catch (_) { return true; } };
-const bubbleDone = () => { try { localStorage.setItem(PUBLIC_BUBBLE, String(Date.now())); } catch (_) { /* not kept */ } };
-
 /**
- * 👁️ Your public profile: whether others see your activity when they tap your name (shown unless you hide
- * it, D-604: off by default nobody would show it), and how they see you. While it shows, a bubble under the
- * switch says so, once: it goes with its ✕ or when you hide your activity.
+ * 👁️ Your public profile: what others see when they tap your name, and a button to see it. There is nothing to
+ * hide (D-605): the sheet shows where someone stands, not how much they play.
  */
 function publicPanel(yo) {
-  const sw = el('button', { type: 'button', class: 'switch on', role: 'switch', 'aria-checked': 'true', 'aria-label': T.showActivity, disabled: true });
-  const err = el('p', { class: 'form-error', hidden: true }, T.publicError);
-  const bubble = el('div', { class: 'pf-public-bubble', role: 'status', hidden: true },
-    el('span', { class: 'pf-public-bubble-txt' }, el('b', {}, T.publicBubbleTitle), el('span', {}, T.publicBubbleText)),
-    el('button', { type: 'button', class: 'pf-public-bubble-x', 'aria-label': T.introClose, title: T.introClose, onClick: () => { tap(); bubbleDone(); bubble.hidden = true; } }, '✕'));
-  const set = on => { sw.classList.toggle('on', on); sw.setAttribute('aria-checked', String(on)); bubble.hidden = !on || bubbleSeen(); };
-  jugador().then(J => J.perfil()).then(p => { set(p?.oculto !== true); sw.disabled = false; }).catch(() => { set(true); sw.disabled = false; });
-  sw.addEventListener('click', async () => {
-    tap();
-    const on = sw.getAttribute('aria-checked') !== 'true';
-    if (!on) bubbleDone();
-    set(on); sw.disabled = true; err.hidden = true;
-    try { await (await jugador()).mostrarActividad(on); } catch (_) { set(!on); err.hidden = false; }
-    sw.disabled = false;
-  });
   const see = el('button', { type: 'button', class: 'btn btn--ghost pf-see-public', onClick: () => { tap(); import('./peek.js').then(m => m.peekPlayer(yo.jid, { hint: yo, onTap: tap })); } }, T.seePublic);
   return el('section', { class: 'panel pf-settings pf-public' }, el('p', { class: 'lead rk-titulo' }, T.publicTitle),
-    el('p', { class: 'muted rk-hint' }, T.publicHint),
-    el('div', { class: 'toggle-row' }, el('span', { class: 'txt' }, el('b', {}, T.showActivity), el('small', {}, T.showActivityHint)), sw),
-    bubble, err, see);
+    el('p', { class: 'muted rk-hint' }, T.publicHint), see);
 }
 
 function settingsTab(yo) {

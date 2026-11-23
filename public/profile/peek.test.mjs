@@ -1,6 +1,6 @@
 // Another player's profile at a glance (peek.js): only public facts, only the achievements they can tell
 import assert from 'node:assert/strict';
-import { peekFacts, peekBadges, tableOf, PUBLIC_BADGES, ACTIVITY_BADGES } from './peek.js';
+import { peekFacts, peekBadges, tableOf, PUBLIC_BADGES } from './peek.js';
 import { SOLO_TABLES } from '../assets/js/games.js';
 import { BADGES } from './badges.js';
 import { TEXTS } from './texts.js';
@@ -29,20 +29,15 @@ assert.ok(ids.every(id => PUBLIC_BADGES.has(id)), 'only what public data can tel
 assert.equal(peekBadges(f)[0].tier, 'gold', 'the best metal first');
 for (const id of PUBLIC_BADGES) assert.ok(BADGES.some(b => b.id === id), `${id} is a badge`);
 assert.equal(peekFacts({ jid: 'x', perfil: { n: 'B', at: 1 } }).allRounder, null);
-// Hidden activity (the default): the achievements that count how much they play stay out
-assert.equal(f.open, true);
-const shy = { ...f, open: false };
-const shyIds = peekBadges(shy).map(b => b.id);
-assert.ok(!shyIds.some(id => ACTIVITY_BADGES.has(id)), 'no streak, plays or days achievements when the activity is hidden');
-for (const id of ['cup-champion', 'month-podium', 'all-rounder']) assert.ok(shyIds.includes(id), `${id} still shows`);
-assert.equal(peekFacts({ jid: 'x', perfil: { n: 'B', at: 1 } }).open, true, 'shown unless the player hid it (D-604)');
-assert.equal(peekFacts({ jid: 'x', perfil: { n: 'B', at: 1, oculto: true } }).open, false, 'hidden once the player hides it');
-for (const id of ACTIVITY_BADGES) assert.ok(PUBLIC_BADGES.has(id), id);
+// Nothing to hide (D-605): a profile with the old `oculto` still shows everything
+assert.deepEqual(peekBadges(peekFacts({ jid: 'abcd1234', perfil: { n: 'Ana', at: 1, oculto: true, juegos: { ahorcado: { n: 120 } } }, hist, today: '2026-11-21', now: Date.parse('2026-11-21') })).map(b => b.id).filter(id => ['streak-10', 'plays-100'].includes(id)).sort(), ['plays-100', 'streak-10']);
 // Each most played game shows a place in its all-time table, never a count (the owner, 2026-11-22)
 assert.deepEqual(tableOf('reinas'), { t: 'reinas', wins: false });
 for (const [id, t] of Object.entries(SOLO_TABLES)) assert.equal(tableOf(id).t, t, `${id} reads ${t}`);
 for (const l of ['es', 'en', 'pt']) assert.ok(TEXTS[l].peekGamePlace.includes('{place}') && !/\d/.test(TEXTS[l].peekGamePlace), `${l}: the place, no count`);
-for (const l of ['es', 'en', 'pt']) for (const k of ['peekOpen', 'peekLoading', 'peekError', 'peekClose', 'peekPlace', 'peekGames', 'peekGamePlace', 'peekNoGames', 'peekBadges', 'peekBadgesOne', 'peekBadgesNone', 'peekNoBadges', 'peekHidden', 'publicBubbleTitle', 'publicBubbleText', 'publicTitle', 'publicHint', 'showActivity', 'showActivityHint', 'seePublic', 'publicError'])
+for (const l of ['es', 'en', 'pt']) for (const k of ['peekOpen', 'peekLoading', 'peekError', 'peekClose', 'peekPlace', 'peekGames', 'peekGamePlace', 'peekNoGames', 'peekBadges', 'peekBadgesOne', 'peekBadgesNone', 'peekNoBadges', 'publicTitle', 'publicHint', 'seePublic'])
   assert.ok(TEXTS[l][k], `${l}.${k}`);
 assert.ok(!/chapita/i.test(JSON.stringify(TEXTS.es)), 'logros, never chapitas');
 console.log('✓ profile peek');
+for (const l of ['es', 'en', 'pt']) for (const k of ['peekHidden', 'showActivity', 'showActivityHint', 'publicBubbleTitle', 'publicBubbleText', 'publicError'])
+  assert.equal(TEXTS[l][k], undefined, `${l}.${k}: no switch, no hidden sheet (D-605)`);

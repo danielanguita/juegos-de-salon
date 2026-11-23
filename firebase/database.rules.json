@@ -1139,10 +1139,6 @@
             }
           }
         },
-        "oculto": {
-          ".write": "auth != null && $jid.matches(/^[a-z0-9]{8}$/) && root.child('jugadorSeats/' + $jid + '/' + auth.uid).exists()",
-          ".validate": "newData.isBoolean() && newData.val() == true"
-        },
         "legado": {
           ".write": "auth != null && $jid.matches(/^[a-z0-9]{8}$/) && !newData.exists() && newData.parent().parent().parent().child('jugadorSeats/' + $jid + '/' + auth.uid).exists()",
           ".validate": "newData.isBoolean() && newData.val() == true"
