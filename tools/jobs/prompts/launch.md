@@ -2,7 +2,7 @@
 
 The prompt of the one-time **cloud** scheduled tasks that launch a game or a campaign. Never a desktop-app
 task or anything on the Mac mini (D-591). Each launch gets two tasks from this prompt, created from a cloud
-session or `/schedule` inside the repo, with the repository attached with write access:
+session the owner opened or `/schedule` inside the repo (a session another session started is denied, docs/LAUNCH.md §3), with the repository attached with write access:
 
 - **launch**, at the launch time: MODE=launch.
 - **alarm**, about 10 minutes later: MODE=check.
@@ -22,7 +22,8 @@ questions. Do only this:
 2. Check (both modes), reading `https://juegos-de-salon-default-rtdb.firebaseio.com/<path>.json`:
    each `flags/<id>` of FLAGS has `state: "all"`; `splash/SPLASH` has `on: true` and `until: UNTIL`;
    each `splash/<id>` of TURN_OFF has `on: false`. Each launched game's page on https://juegosdesalon.cl/
-   answers 200.
+   answers 200. If it can, also run `node tools/agents/launch-check.mjs <ids> --live` and
+   include a ✗ in the notification.
 3. Send the owner one push notification in Spanish: «✅ Lanzado: …» when everything checks, or
    «🚨 Lanzamiento NO aplicado: …» with what failed. In MODE=check, send it only when something failed
    (a silent alarm means all is well).

@@ -23,7 +23,7 @@ and what is missing. A merged PR is not a done step: the check is.
 ## 1. Preparation PR (LAUNCH.md §1)
 
 Read `docs/LAUNCH.md` §1, `docs/ADD-GAME.md` and the `game-change` skill. Copy a precedent of the same kind:
-a La Copa game like Croc! (`3f60e2d8` Sudoku), a manifest game like Tembleque (`public/wobbles/`). Its cover is
+a La Copa game like Sudoku (`3f60e2d8`) or Croc!, a manifest game like Tembleque (`public/wobbles/`). Its cover is
 the house's: «<icon> Empezar», Instrucciones and Entrar, **its ranking under them** (naming the level if it has
 levels), the result's table naming the same level. Then:
 
