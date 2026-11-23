@@ -55,7 +55,7 @@ Where today's rule is and which decisions explain it: those in force that still 
 | Marketing | `marketing/README.md` | D-178, D-380, D-410, D-454, D-456, D-494, D-505, D-529, D-591 |
 | Installable app and phone notifications | C-2, [PWA-NOTIFICACIONES.md](PWA-NOTIFICACIONES.md) | D-221, D-222, D-223, D-224, D-225, D-227, D-228, D-229, D-230, D-232, D-233, D-504, D-538, D-544, D-545, D-546, D-564, D-565, D-571, D-574, D-609 |
 
-## In force (591)
+## In force (592)
 
 | D | Title | Status |
 |---|---|---|
@@ -648,10 +648,9 @@ Where today's rule is and which decisions explain it: those in force that still 
 | [D-605](decisions/D-605.md) | A public profile has nothing to hide: places, not play counts | current |
 | [D-606](decisions/D-606.md) | A PR that launches a game cannot merge until launch-check passes on its screens | current |
 | [D-608](decisions/D-608.md) | La Copa: a new cup's audience starts on the phone's zone, not its language | current |
+| [D-609](decisions/D-609.md) | Offline, the whole game takes Candlelight, and the switch is immediate | current |
 | [D-610](decisions/D-610.md) | A merge of main reruns the PR's own scope, not main's | amended by D-612 |
 | [D-612](decisions/D-612.md) | A merge of main reruns only what both the PR and main reach | current |
-| [D-609](decisions/D-609.md) | Offline, the whole game takes Candlelight, and the switch is immediate | current |
-| [D-610](decisions/D-610.md) | A merge of main reruns the PR's own scope, not main's | current |
 
 ## No longer in force (14)
 
