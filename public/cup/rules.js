@@ -149,7 +149,7 @@ const ES = {
       ],
       puntaje: 'Partes con 100. Cada error, que es dejar una casilla rompiendo una regla, resta 10, y cada pista 15, aunque deshagas. El mínimo es 10; rendirse da 0.',
       errores: '❌ Cada error resta 10, aunque lo deshagas.',
-      // Lab flag tango-time, outside La Copa only (lab: #seccion-tango-time)
+      // Lab flag tango-time, on its own page and in the cups created while it is on (D-607, lab: #seccion-tango-time)
       puntajeTiempo: 'Puntúa el tiempo: hasta 45 segundos son 100 puntos y después baja parejo hasta 10 a los 5 minutos. Equivocarse no resta; cada pista suma 15 segundos a tu tiempo. Si te rindes, son 0 puntos.',
       erroresTiempo: '✅ Equivocarse no resta: solo cuenta el tiempo, y cada pista suma 15 segundos.',
       desempate: 'Si empatas, gana quien tardó menos.',
@@ -2877,6 +2877,9 @@ for (const [id, textos] of Object.entries({ rutas: RUTAS, loteo: LOTEO, pintamin
  * variant's own when it brings them. Without a variant, or for a game that has none, the game itself.
  */
 export const conVariante = (J, v) => {
+  // A cup created with a game's new rule (D-607, `tango:time`) reads that rule's own texts: its
+  // scoring and what a mistake costs, the ones its own page shows with the flag on
+  if (v === 'time' && J?.puntajeTiempo) return { ...J, puntaje: J.puntajeTiempo, errores: J.erroresTiempo || J.errores, variante: v };
   const x = v && J?.variantes?.[v];
   return x ? { ...J, como: x.como || J.como, puntaje: x.puntaje || J.puntaje, desempate: x.desempate || J.desempate, variante: v, varianteNombre: x.nombre } : J;
 };

@@ -1,6 +1,6 @@
 // ❌ What a mistake costs, under the play head (lab flag `mistakes-rule`; localhost holds the lab key):
 // Reinas says they cost nothing, and so does Tango on its own page with the lab flag tango-time
-// (lab: #seccion-tango-time; La Copa keeps 10 a mistake), with its hint at +15 s, in Spanish and English. Prints ✗ if anything fails.
+// (lab: #seccion-tango-time; a cup created before it keeps 10 a mistake, D-607), with its hint at +15 s, in Spanish and English. Prints ✗ if anything fails.
 import { output } from '../output.mjs';
 import { launch } from '../cdp.mjs';
 

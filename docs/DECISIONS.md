@@ -50,10 +50,12 @@ Where today's rule is and which decisions explain it: those in force that still 
 | README and screenshots | C-13 | D-51, D-76, D-78, D-213, D-316, D-506 |
 | Tests | C-12 | D-143, D-193, D-199, D-204, D-216, D-299, D-307, D-315, D-377, D-378, D-388, D-391, D-392, D-401, D-428, D-460, D-484, D-494, D-496, D-506, D-515, D-516, D-518, D-541, D-551, D-558, D-559, D-579, D-585, D-588, D-589, D-606, D-610, D-611 |
 | La Copa (tournament, days, score) | `docs/games/cup.md` | D-94, D-95, D-96, D-97, D-99, D-106, D-113, D-118, D-150, D-161, D-163, D-170, D-175, D-187, D-212, D-220, D-234, D-250, D-257, D-258, D-259, D-260, D-261, D-262, D-263, D-264, D-267, D-268, D-282, D-285, D-325, D-326, D-331, D-332, D-336, D-347, D-359, D-376, D-379, D-384, D-416, D-417, D-418, D-421, D-423, D-425, D-426, D-427, D-433, D-437, D-438, D-439, D-444, D-450, D-453, D-456, D-460, D-464, D-468, D-476, D-478, D-481, D-492, D-499, D-517, D-521, D-525, D-544, D-562, D-564, D-566, D-572, D-587, D-608 |
+| Tests | C-12 | D-143, D-193, D-199, D-204, D-216, D-299, D-307, D-315, D-377, D-378, D-388, D-391, D-392, D-401, D-428, D-460, D-484, D-494, D-496, D-506, D-515, D-516, D-518, D-541, D-551, D-558, D-559, D-579, D-585, D-588, D-589, D-606, D-610 |
+| La Copa (tournament, days, score) | `docs/games/cup.md` | D-94, D-95, D-96, D-97, D-99, D-106, D-113, D-118, D-150, D-161, D-163, D-170, D-175, D-187, D-212, D-220, D-234, D-250, D-257, D-258, D-259, D-260, D-261, D-262, D-263, D-264, D-267, D-268, D-282, D-285, D-325, D-326, D-331, D-332, D-336, D-347, D-359, D-376, D-379, D-384, D-416, D-417, D-418, D-421, D-423, D-425, D-426, D-427, D-433, D-437, D-438, D-439, D-444, D-450, D-453, D-456, D-460, D-464, D-468, D-476, D-478, D-481, D-492, D-499, D-517, D-521, D-525, D-544, D-562, D-564, D-566, D-572, D-587, D-607, D-608 |
 | Agents (usability, documentation, processes, support, ideas) | [USABILIDAD.md](USABILIDAD.md) | D-132, D-135, D-172, D-204, D-206, D-213, D-218, D-252, D-273, D-275, D-276, D-279, D-301, D-303, D-304, D-306, D-313, D-315, D-317, D-318, D-341, D-360, D-361, D-365, D-382, D-383, D-394, D-400, D-401, D-409, D-411, D-413, D-429, D-440, D-441, D-443, D-451, D-452, D-459, D-463, D-472, D-480, D-486, D-497, D-518, D-519, D-520, D-522, D-527, D-531, D-532, D-533, D-540, D-541, D-547, D-553, D-554, D-555, D-558, D-568, D-569, D-570, D-573, D-575, D-576, D-577, D-578, D-580, D-582, D-586, D-596, D-597 |
 | Rankings and player (name and PIN) | C-7 | D-96, D-212, D-215, D-217, D-219, D-220, D-230, D-236, D-249, D-336, D-357, D-358, D-359, D-412, D-414, D-415, D-416, D-424, D-436, D-450, D-455, D-464, D-465, D-470, D-476, D-478, D-492, D-499, D-500, D-513, D-559, D-563, D-600, D-602, D-603, D-604, D-605 |
 | Marketing | `marketing/README.md` | D-178, D-380, D-410, D-454, D-456, D-494, D-505, D-529, D-591 |
-| Installable app and phone notifications | C-2, [PWA-NOTIFICACIONES.md](PWA-NOTIFICACIONES.md) | D-221, D-222, D-223, D-224, D-225, D-227, D-228, D-229, D-230, D-232, D-233, D-504, D-538, D-544, D-545, D-546, D-564, D-565, D-571, D-574 |
+| Installable app and phone notifications | C-2, [PWA-NOTIFICACIONES.md](PWA-NOTIFICACIONES.md) | D-221, D-222, D-223, D-224, D-225, D-227, D-228, D-229, D-230, D-232, D-233, D-504, D-538, D-544, D-545, D-546, D-564, D-565, D-571, D-574, D-609 |
 
 ## In force (591)
 
@@ -580,7 +582,7 @@ Where today's rule is and which decisions explain it: those in force that still 
 | [D-535](decisions/D-535.md) | One name inside and out: everything internal is the English version of the game's name | current |
 | [D-536](decisions/D-536.md) | The first visit opens in the browser's language | current |
 | [D-537](decisions/D-537.md) | On a game's cover, the language is a button in the top bar | current |
-| [D-538](decisions/D-538.md) | Offline mode: switches on by itself, plays the local games, uploads scores later | amended by D-544 |
+| [D-538](decisions/D-538.md) | Offline mode: switches on by itself, plays the local games, uploads scores later | amended by D-544, D-609 |
 | [D-539](decisions/D-539.md) | An online game's room goes through room-state.js | current |
 | [D-540](decisions/D-540.md) | A red PR the owner asked for in a session is approved by that session | amended by D-575 |
 | [D-541](decisions/D-541.md) | No rule without its enforcement: the rules for making rules | current |
@@ -614,7 +616,7 @@ Where today's rule is and which decisions explain it: those in force that still 
 | [D-569](decisions/D-569.md) | The Mac mini's chores without Claude ride the heartbeat: feedback upload and lab readiness | current |
 | [D-570](decisions/D-570.md) | Every visual change is measured before it ships, and nothing may cover the next block | current |
 | [D-571](decisions/D-571.md) | «Instala Juegos de Salón»: the invitation snoozes instead of leaving for good, and is always in the footer | current |
-| [D-572](decisions/D-572.md) | Tango scores time, not mistakes, as Reinas does (outside La Copa first) | current |
+| [D-572](decisions/D-572.md) | Tango scores time, not mistakes, as Reinas does (outside La Copa first) | amended by D-607 |
 | [D-573](decisions/D-573.md) | A red PR its session left is nudged within the hour, and taken over by a cloud task two hours later | current |
 | [D-574](decisions/D-574.md) | Each heartbeat relay starts the next one itself | current |
 | [D-575](decisions/D-575.md) | The owner approves a 🔴 PR once: "Update branch" keeps the tick, the repo's workflows are insiders, and a session ticks with one command | amended by D-596 |
@@ -647,7 +649,9 @@ Where today's rule is and which decisions explain it: those in force that still 
 | [D-603](decisions/D-603.md) | Duels: one player challenges another, same seeds, three days at most | current |
 | [D-605](decisions/D-605.md) | A public profile has nothing to hide: places, not play counts | current |
 | [D-606](decisions/D-606.md) | A PR that launches a game cannot merge until launch-check passes on its screens | current |
+| [D-607](decisions/D-607.md) | Tango scores time in La Copa too, from the cups created with the new rule | current |
 | [D-608](decisions/D-608.md) | La Copa: a new cup's audience starts on the phone's zone, not its language | current |
+| [D-609](decisions/D-609.md) | Offline, the whole game takes Candlelight, and the switch is immediate | current |
 | [D-610](decisions/D-610.md) | A merge of main reruns the PR's own scope, not main's | current |
 | [D-611](decisions/D-611.md) | The end-to-end group target is 420 s | current |
 
