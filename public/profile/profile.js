@@ -21,7 +21,7 @@ import { nombreOfensivo } from '../assets/js/name-guard.js';
 import { flag } from '../assets/js/flags.js';
 import { leer as leerDia, recorrer } from '../assets/js/uno-al-dia.js';
 import { firebaseConfig } from '../assets/js/firebase-config.js';
-import { BADGES, GROUPS, earned, lastOnDay, withAnnounced } from './badges.js';
+import { BADGES, GROUPS, DUELS_FLAG, earned, lastOnDay, withAnnounced } from './badges.js';
 import { TEXTS } from './texts.js';
 import { tableOf } from './peek.js';
 import { phoneFacts, LOCAL_BADGES } from '../assets/js/phone-facts.js';
@@ -226,15 +226,16 @@ function badgeEl(b, { reveal = false } = {}) {
     b.progress ? el('span', { class: 'pf-bar', 'aria-hidden': 'true' }, el('i', { style: `width:${Math.round(100 * b.progress[0] / b.progress[1])}%` })) : null);
 }
 
-function badgePanels(list, { only = null, reveal = false } = {}) {
-  const title = { daily: T.groupDaily, cup: T.groupCup, games: T.groupGames };
+function badgePanels(list, { only = null, reveal = false, duels = null } = {}) {
+  const title = { daily: T.groupDaily, cup: T.groupCup, duels: T.groupDuels, games: T.groupGames };
   return GROUPS.map(g => {
     const all = list.filter(b => b.group === g && (!only || only(b)));
     if (!all.length) return null;
     const got = all.filter(b => b.got).length;
     return el('section', { class: 'panel pf-group', 'data-group': g },
       el('p', { class: 'lead pf-group-head' }, el('span', {}, title[g]), el('small', {}, fmt(T.groupOf, { n: got, total: all.length }))),
-      el('div', { class: 'pf-grid' }, all.map(b => badgeEl(b, { reveal }))));
+      el('div', { class: 'pf-grid' }, all.map(b => badgeEl(b, { reveal }))),
+      ...(g === 'duels' && duels ? duels() : []));
   });
 }
 
@@ -272,7 +273,7 @@ function card(yo, f, list, ready) {
     el('div', { class: 'pf-who' },
       el('div', {},
         el('p', { class: 'pf-player' }, conBandera(yo.co, yo.n)),
-        el('p', { class: 'muted pf-since' }, [f.since ? fmt(T.since, { month: monthName(f.since) }) : null, fmt(T.badgesOf, { n: got, total: BADGES.length })].filter(Boolean).join(' · ')))),
+        el('p', { class: 'muted pf-since' }, [f.since ? fmt(T.since, { month: monthName(f.since) }) : null, fmt(T.badgesOf, { n: got, total: list.length })].filter(Boolean).join(' · ')))),
     el('div', { class: 'pf-stats' },
       el('div', { class: 'pf-stat' }, fig('streak', '🔥 ', f.known?.streak, f.streak || 0), el('span', {}, T.statStreak)),
       el('div', { class: 'pf-stat' }, fig('plays', '', f.known?.plays, f.plays || 0), el('span', {}, T.statPlays)),
@@ -598,8 +599,18 @@ export async function drawProfile(root, { sub }) {
     const tab = TABS.includes(location.hash.slice(1)) ? location.hash.slice(1) : 'badges';
     let f = { ...localFacts(), byGame: [] };
     // A window only once every fact is in: the first look must note what the server knows too (💎, 🎂)
+    // The duels' badges, with the record and the way to /duels/, only while the duels are on (lab flag rivals)
+    const duelsOn = await flag(DUELS_FLAG).catch(() => false);
+    if (mine !== turn) return;
+    let duelList = null, DU = null, duelF = null;
+    const duelsExtra = () => {
+      if (!DU) return [];
+      const pills = duelList ? DU.pildoras(duelList, yo.jid) : [];
+      return [pills.length ? el('div', { class: 'dl-pills pf-duel-pills' }, pills) : null,
+        el('a', { class: 'btn btn--ghost btn--sm pf-duels-go', id: 'pf-duels-go', href: DU.hrefDuelos(), onClick: tap }, T.duelsGo)].filter(Boolean);
+    };
     const paint = (final = false) => {
-      const list = badgeState(f, yo.jid);
+      const list = badgeState(duelF ? { ...f, duels: duelF } : f, yo.jid).filter(b => duelsOn || b.group !== 'duels');
       if (final) celebrateHere(list).catch(() => {});
       return list;
     };
@@ -618,15 +629,19 @@ export async function drawProfile(root, { sub }) {
     let ready = false;
     const repaint = list => {
       cardSlot.replaceChildren(card(yo, f, list, ready));
-      badgesBox.replaceChildren(...badgePanels(list, { reveal }).filter(Boolean));
+      badgesBox.replaceChildren(...badgePanels(list, { reveal, duels: duelsExtra }).filter(Boolean));
       if (badgesBox.isConnected) revealIntoView(badgesBox);
     };
     repaint(paint());
-    // Duels (lab flag rivals, duels-ui.js): under the player's card, before the tabs; lab: #seccion-rivals
-    const duelsSlot = el('div', { class: 'dl-slot' });
-    root.replaceChildren(cardSlot, duelsSlot, seg, panes.badges, panes.rankings, panes.settings);
-    flag('rivals').then(on => on && import('../assets/js/duels-ui.js'))
-      .then(m => m && mine === turn && m.seccionPerfil({ alTocar: tap })).then(box => box && duelsSlot.replaceChildren(box)).catch(() => {});
+    root.replaceChildren(cardSlot, seg, panes.badges, panes.rankings, panes.settings);
+    // Duels (lab flag rivals): their own group of badges, with the record and the way to /duels/; lab: #seccion-rivals
+    const duelsIn = !duelsOn ? null : Promise.all([import('../assets/js/duels-ui.js'), import('../assets/js/duels.js'), J.duelos()])
+      .then(async ([ui, du, D]) => {
+        ui.cargarCss();
+        DU = ui;
+        duelList = await D.mios();
+        duelF = du.duelFacts(duelList, yo.jid);
+      }).catch(() => {});
     show(tab);
     revealIntoView(badgesBox);
     try { f = { ...f, ...(await playerFacts(J, yo)) }; } catch (_) { /* offline: the phone's facts stay, the card's figures unknown */ }
@@ -638,6 +653,8 @@ export async function drawProfile(root, { sub }) {
     await ranksOf(J, f, (id, r) => rk.game(id, r)).catch(() => {});
     if (mine !== turn) return;
     if (f.general) rk.general(f.general);
+    await duelsIn;
+    if (mine !== turn) return;
     repaint(paint(true));
   };
   // A tap on a name in any of the page's rankings opens that player's profile at a glance (the owner, 2026-11-22)

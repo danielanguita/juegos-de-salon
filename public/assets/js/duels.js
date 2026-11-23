@@ -93,6 +93,14 @@ export function record(lista, me, t = Date.now()) {
   return { g, p, e, pct: g + p ? Math.round((100 * g) / (g + p)) : null, racha };
 }
 
+/** The facts of the duels' badges (badges.js): finished duels, won, the longest run of wins, different rivals. Pure. */
+export function duelFacts(lista, me, t = Date.now()) {
+  const fin = lista.map(d => ({ d, e: estado(d, me, t) })).filter(x => x.e.termino).sort((x, y) => x.d.at - y.d.at);
+  let run = 0, bestRun = 0;
+  for (const x of fin) { run = x.e.gano === 1 ? run + 1 : 0; bestRun = Math.max(bestRun, run); }
+  return { played: fin.length, won: fin.filter(x => x.e.gano === 1).length, bestRun, rivals: new Set(fin.map(x => x.e.rival)).size };
+}
+
 /** The rival I lose to most (at least two duels and more lost than won), or null. */
 export function nemesis(lista, me, t = Date.now()) {
   const por = {};
