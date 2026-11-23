@@ -59,7 +59,7 @@ it starts on easy, as in Sudoku. The player never reads "2D" or "3D" (the owner)
 and the hard level's name is plain Tembleque too.
 
 
-Cover (‹ Menú, a moving picture of the level, the level lever, ¡A jugar!, how to play folded, the sign-in, the site footer
+Cover (‹ Menú, a moving picture of the level, the level lever, ¡A jugar!, how to play folded, the sign-in, the table of the level on the lever (`wobbles_easy` or `wobbles_hard`, it follows the lever as Sudoku's), the site footer
 with 💬; behind the lab flag `cover-dialogs`, how to play and the sign-in are the «📖 Instrucciones» and «👤 Entrar»
 dialogs) → a level: its card (how to play, ▶ Play) → the round (its HUD: ‹ back to the cover, lives, score, mute) →
 its result card, in C-19's order: the score, ↻ Again, the rankings notice (one line), the exit from `fin.js`

@@ -18,6 +18,7 @@ import { salidasFin } from '../assets/js/fin.js';
 import { ponerBuzon } from '../assets/js/buzon.js';
 import { rankingsVisibles } from '../assets/js/jugador.js';
 import { GAME_ID, LOCALES } from './rules.js';
+import { SOLO_LEVELS } from '../assets/js/games.js';
 // Its game.json as a module (node tools/generators/manifests.mjs): the facts are read from there
 import manifest from '../assets/js/manifests/wobbles.js';
 
@@ -105,7 +106,7 @@ function renderModes() {
       title.textContent = T.switch[+on].title; sub.textContent = T.switch[+on].sub;
       if (!QUIET()) wave(lever, on);
       if (on) startFlicker(lever); else flicker++;
-      setTheme(); drawPicture();
+      setTheme(); drawPicture(); drawRanking();
     },
   },
   el('span', { class: 'wb-plate', 'aria-hidden': 'true' },
@@ -119,6 +120,15 @@ function renderModes() {
     el('button', { class: 'btn btn--yellow', id: 'btn-play', 'data-mode': 'solo', onClick: play }, T.play));
   if (hard) startFlicker(lever);
   setTheme(); drawPicture();
+}
+
+/* ---------------- The level's table on the cover, as Sudoku's: it follows the lever ---------------- */
+// No sign-in offer under it (the owner, 2026-11-23): the cover already has its «👤 Entrar»
+function drawRanking() {
+  const slot = document.getElementById('ranking');
+  if (!slot) return;
+  const name = `${manifest.name[lang] || manifest.name.es} · ${SOLO_LEVELS.wobbles[chosen][lang] || SOLO_LEVELS.wobbles[chosen].es}`;
+  slot.replaceChildren(bloqueTabla({ tabla: `${GAME_ID}_${chosen}`, titulo: fmt(C.rk.titleOf, { game: name }), alTocar: () => SFX.tap(), entrar: false }));
 }
 
 // The cover ends with the site's footer, the game's own comment as its option (C-17, U-38)
@@ -139,7 +149,8 @@ function init() {
   $('#sound-slot').append(soundToggle());
   initSound();
   renderModes();
-  $('#rk-slot').append(bloqueJugador({ alTocar: () => SFX.tap() }));
+  $('#rk-slot').append(bloqueJugador({ alTocar: () => SFX.tap() }), el('div', { id: 'ranking' }));
+  drawRanking();
   footer();
   // Behind the lab flag cover-dialogs, the steps and the sign-in open as dialogs (C-8)
   coverWithDialogs($('#screen-intro'), { lang, alTocar: () => SFX.tap() });
