@@ -55,7 +55,7 @@ Where today's rule is and which decisions explain it: those in force that still 
 | Marketing | `marketing/README.md` | D-178, D-380, D-410, D-454, D-456, D-494, D-505, D-529, D-591 |
 | Installable app and phone notifications | C-2, [PWA-NOTIFICACIONES.md](PWA-NOTIFICACIONES.md) | D-221, D-222, D-223, D-224, D-225, D-227, D-228, D-229, D-230, D-232, D-233, D-504, D-538, D-544, D-545, D-546, D-564, D-565, D-571, D-574, D-609 |
 
-## In force (588)
+## In force (589)
 
 | D | Title | Status |
 |---|---|---|
@@ -646,8 +646,8 @@ Where today's rule is and which decisions explain it: those in force that still 
 | [D-601](decisions/D-601.md) | Tembleque launches as the owner's two prototypes, on the home page only | current |
 | [D-603](decisions/D-603.md) | Duels: one player challenges another, same seeds, three days at most | current |
 | [D-605](decisions/D-605.md) | A public profile has nothing to hide: places, not play counts | current |
-| [D-609](decisions/D-609.md) | Offline, the whole game takes Candlelight, and the switch is immediate | current |
 | [D-606](decisions/D-606.md) | A PR that launches a game cannot merge until launch-check passes on its screens | current |
+| [D-609](decisions/D-609.md) | Offline, the whole game takes Candlelight, and the switch is immediate | current |
 
 ## No longer in force (14)
 
