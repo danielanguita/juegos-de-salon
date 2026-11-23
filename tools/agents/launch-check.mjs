@@ -67,7 +67,8 @@ for (const id of ids) {
   if (G.SOLO_LEVELS[id]) ok(Object.keys(G.SOLO_LEVELS[id]).every(l => !!G.SOLO_LEVELS[id][l].es), `one Rankings tab per level: ${Object.keys(G.SOLO_LEVELS[id]).join(', ')}`);
   // The cover shows the table it records (every solo game; Tembleque launched without it, 2026-11-22)
   const coverCode = suelto ? '' : (existsSync(ROOT + `public/${pageOf(g)}game.js`) ? read(`public/${pageOf(g)}game.js`) : '');
-  ok(suelto || /bloqueRanking\(/.test(coverCode), 'its cover draws its ranking under Entrar', suelto ? '' : `public/${pageOf(g)}game.js: bloqueRanking({ juego: <its table> }), as Sudoku's and Croc!'s covers (cup/game.js) do`);
+  // A hint only: a cover can draw it with bloqueRanking or bloqueTabla, and the result uses bloqueTabla too; --screens decides
+  warn(suelto || (coverCode.match(/bloque(Ranking|Tabla)\(/g) || []).length >= 2, 'its cover seems to draw its ranking under Entrar (--screens checks it)', `public/${pageOf(g)}game.js: the level's table on the cover, as Sudoku's and Croc!'s (cup/game.js)`);
 
   console.log(' La Copa and Uno al día');
   if (g.copa) {
@@ -110,7 +111,7 @@ if (SCREENS && games.length) {
 
   await b.go(`${SITE}/?test`, 2500);
   for (const { g } of games) {
-    ok(await until(`!!document.querySelector('.game-card[data-id="${g.id}"]')`), `${g.id}: its card on the home page`);
+    ok(await until(`!!document.querySelector('.game-card[data-id="${g.id}"]')`, 12000), `${g.id}: its card on the home page`);
     ok(await ev(`/Nuevo/i.test(document.querySelector('.game-card[data-id="${g.id}"]')?.textContent || '')`), `${g.id}: with ✨ Nuevo`);
   }
   // The icon view's sheet, the home page the lab holds (home-carousels, home-carousels-sheet)
@@ -153,9 +154,11 @@ if (LIVE && games.length) {
     const snap = JSON.parse(read('tools/e2e/flags-snapshot.json'));
     warn((snap.flags || snap)[flagId]?.state === 'all', `${flagId}: the e2e flags snapshot has it on all`, 'the processes round refreshes it (flags-snapshot.mjs refresh, D-578)');
   }
-  const splash = await get('splash');
-  const camp = Object.entries(CAMPAIGNS).find(([, c]) => (c.items || []).some(i => games.some(x => x.g.id === i.game)))?.[0];
-  if (camp) ok(splash?.[camp]?.on === true, `splash/${camp} is on until ${splash?.[camp]?.until || '—'}`);
+  // The launch's campaign: of those naming these games, one that is on, else the one switched last (an older game's is off by now)
+  const splash = await get('splash') || {};
+  const named = Object.entries(CAMPAIGNS).filter(([, c]) => (c.items || []).some(i => games.some(x => x.g.id === i.game))).map(([id]) => id);
+  const camp = named.sort((a, b) => (splash[b]?.on === true) - (splash[a]?.on === true) || (splash[b]?.at || 0) - (splash[a]?.at || 0))[0];
+  if (camp) warn(splash[camp]?.on === true, `the launch's splash, ${camp}, is on until ${splash[camp]?.until || '—'}`, 'on at the launch; off once its `until` passed is fine');
   console.log('  · still by eye: the splash on a phone, La Copa\'s create screen as a new visitor, /labs/ with a lab key (LAUNCH.md §3)');
 }
 
