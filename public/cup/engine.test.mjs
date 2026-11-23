@@ -1,6 +1,6 @@
 // Tests del motor de La Copa: node public/cup/engine.test.mjs
 import assert from 'node:assert/strict';
-import { zonaDeIdioma, ZONA, DIAS_MIN, DIAS_MAX, FINAL_DESDE, FINAL_RONDAS, FINAL_FIVE_FROM, finalRounds, largoValido, admiteFinal } from './engine.js';
+import { zonaDeIdioma, publicoDelHuso, ZONA, DIAS_MIN, DIAS_MAX, FINAL_DESDE, FINAL_RONDAS, FINAL_FIVE_FROM, finalRounds, largoValido, admiteFinal } from './engine.js';
 import { writeRounds } from './games/final/engine.js';
 import {
   CALENDARIOS, POZO, POZO_ABIERTO, POZO_FIJO, calendarioValido, calendarioAlAzar, PUNTOS, esCodigo, codigoAlAzar, pidAlAzar, PID, limpiarNombre, claveNombre, esPin, hashPin,
@@ -820,3 +820,13 @@ test('a launched game is in the open pool once its flag is all, and never only f
   for (const g of ALL_GAMES.filter(x => x.copa)) assert.ok(!g.labs && !g.bodega, `${g.id}: a lab or Bodega game is never in the cup`);
   refreshPool({});
 });
+
+// D-608: a new cup's audience from the phone's zone, not its language
+assert.equal(publicoDelHuso('America/Santiago'), 'cl');
+assert.equal(publicoDelHuso('Pacific/Easter'), 'cl');
+assert.equal(publicoDelHuso('America/Coyhaique'), 'cl');
+assert.equal(publicoDelHuso('America/Sao_Paulo'), 'br');
+assert.equal(publicoDelHuso('America/Manaus'), 'br');
+assert.equal(publicoDelHuso('America/Los_Angeles'), 'global');
+assert.equal(publicoDelHuso('America/New_York'), 'global');
+assert.equal(publicoDelHuso(undefined), 'global');
