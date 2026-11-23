@@ -178,6 +178,13 @@ async function stageOf(base) {
 }
 
 /**
+ * Whether a PR keeps the `needs-owner` label after its lane job: only a 🔴 PR still waiting for the
+ * owner. One whose tick carried to this commit (D-575, D-596) waits for nobody, so the label goes,
+ * as it does when the tick itself is carried out (approve.mjs dropsLabel). Pure, for the test.
+ */
+export const keepsLabel = ({ lane, carried = null }) => lane === 'red' && !carried;
+
+/**
  * Whether an approval carries from the commit before (D-575): `head` merges main into an approved
  * commit and changes nothing else. `parents` are head's, `approved(sha)` whether the owner approved
  * that commit, `onMain(sha)` whether it is in main's history, `cleanTree(a, b)` the tree a clean merge
@@ -219,9 +226,10 @@ async function ci() {
     return;
   }
   const status = (state, description) => gh('api', '-X', 'POST', `repos/${repo}/statuses/${sha}`, '-f', `state=${state}`, '-f', `context=${STATUS}`, '-f', `description=${description}`);
-  if (result.lane !== 'red') {
+  const dropLabel = () => { try { gh('pr', 'edit', String(n), '-R', repo, '--remove-label', LABEL); } catch { /* it did not have it */ } };
+  if (!keepsLabel({ lane: result.lane })) {
     status('success', `${result.lane} lane: no owner approval needed`);
-    try { gh('pr', 'edit', String(n), '-R', repo, '--remove-label', LABEL); } catch { /* it did not have it */ }
+    dropLabel();
     return;
   }
   const statuses = JSON.parse(gh('api', `repos/${repo}/commits/${sha}/statuses`));
@@ -268,6 +276,7 @@ async function ci() {
   if (carried || carriedOwn) {
     status('success', carried ? `Approved by the owner (carried from ${carried.slice(0, 7)}: only main merged in, D-575)` : `Approved by the owner (carried from ${carriedOwn.slice(0, 7)}: no red file changed since, D-596)`);
     try { gh('pr', 'merge', String(n), '-R', repo, '--auto', '--merge'); } catch (e) { console.log(`Auto-merge not turned on: ${e.message}`); }
+    if (!keepsLabel({ lane: result.lane, carried: carried || carriedOwn })) dropLabel();
     console.log(carried ? `The owner's approval of ${carried.slice(0, 7)} carries: this push only merged main.` : `The owner's approval of ${carriedOwn.slice(0, 7)} carries: the owner's PR, and no red file changed since (D-596).`);
     return;
   }
