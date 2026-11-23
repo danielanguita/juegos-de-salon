@@ -69,7 +69,7 @@ for (const W of [320, 390]) {
   await ev(`(async () => {
     const { jugador } = await import('/assets/js/jugador.js');
     const J = await jugador();
-    for (const [n, s] of [['Cata', 95], ['Fran', 70]]) { await J.crear(n, '1111'); for (const g of ['reinas', 'tango']) await J.anotar({ juego: g, s, ms: 50000 }); if (n === 'Cata') await J.mostrarActividad(true); J.salir(); }
+    for (const [n, s] of [['Cata', 95], ['Fran', 70]]) { await J.crear(n, '1111'); for (const g of ['reinas', 'tango']) await J.anotar({ juego: g, s, ms: 50000 }); if (n === 'Fran') await J.mostrarActividad(false); J.salir(); }
     await J.crear('Javi', '1234');
     for (const [g, k] of Object.entries({ reinas: 6, conexiones: 4, tango: 3, zip: 2, donde: 1, desenredo: 1, pintaminas: 2, agentes: 1 }))
       for (let i = 0; i < k; i++) await J.anotar({ juego: g, s: 60 + i * 5 + (g === 'reinas' ? 40 : 0), ms: 42000 + i * 1000 });
@@ -163,11 +163,11 @@ for (const W of [320, 390]) {
   await ev(`document.querySelector('#pf-peek .hoja-cabeza .icon-btn').click()`); await sleep(300);
   ok(await ev(`!document.getElementById('pf-peek') && !document.body.style.position`), `${W}: 👀 ✕ closes it and frees the page`);
   await ev(`[...document.querySelectorAll('.pf-tab .rk-fila[data-peek]')].find(x => x.textContent.includes('Fran')).click()`); await sleep(1500);
-  ok(await ev(`(() => { const p = document.getElementById('pf-peek'); return !!p && p.querySelector('.pf-peek-name')?.textContent.includes('Fran') && !!p.querySelector('.pf-peek-hidden') && !p.querySelector('.pf-peek-stats, .pf-peek-games') && !/partida|null|undefined/.test(p.textContent) && ![...p.querySelectorAll('.pf-peek-badges li')].some(x => /^(streak|plays|regular|weekends|specialist|month-full|one-year)/.test(x.dataset.badge || '')); })()`), `${W}: 👀 a rival who keeps their activity hidden (the default): no figures, games or play counts, only their achievements`);
+  ok(await ev(`(() => { const p = document.getElementById('pf-peek'); return !!p && p.querySelector('.pf-peek-name')?.textContent.includes('Fran') && !!p.querySelector('.pf-peek-hidden') && !p.querySelector('.pf-peek-stats, .pf-peek-games') && !/partida|null|undefined/.test(p.textContent) && ![...p.querySelectorAll('.pf-peek-badges li')].some(x => /^(streak|plays|regular|weekends|specialist|month-full|one-year)/.test(x.dataset.badge || '')); })()`), `${W}: 👀 a rival who hid their activity: no figures, games or play counts, only their achievements`);
   await b.shot(`peek-hidden-${W}`);
   await ev(`document.querySelector('#pf-peek .pf-peek-ok').click()`); await sleep(300);
   await ev(`(() => { const r = document.querySelector('.pf-tab .rk-fila.yo[data-peek]'); r.scrollIntoView({ block: 'center' }); r.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true })); })()`); await sleep(1500);
-  ok(await ev(`(() => { const p = document.getElementById('pf-peek'); return !!p && /Así te ven los demás/.test(p.querySelector('.pf-peek-kicker')?.textContent || '') && p.querySelector('.pf-peek-name').textContent.includes('Javi') && p.querySelectorAll('.pf-peek-badges li').length > 0 && /Ajustes/.test(p.querySelector('.pf-peek-hidden')?.textContent || ''); })()`), `${W}: 👀 your own name (Enter works too) shows how others see you: your achievements, your activity hidden until you show it in Ajustes`);
+  ok(await ev(`(() => { const p = document.getElementById('pf-peek'); return !!p && !p.querySelector('.pf-peek-kicker') && !/Así te ven/.test(p.textContent) && p.querySelector('.pf-peek-name').textContent.includes('Javi') && p.querySelectorAll('.pf-peek-stats .pf-stat').length === 3 && p.querySelectorAll('.pf-peek-badges li').length > 0 && !p.querySelector('.pf-peek-hidden'); })()`), `${W}: 👀 your own name (Enter works too) opens exactly the sheet others see, your activity shown by default`);
   await b.shot(`peek-you-${W}`);
   await ev(`document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }))`); await sleep(300);
   ok(await ev(`!document.getElementById('pf-peek')`), `${W}: 👀 Escape closes it`);
@@ -178,16 +178,27 @@ for (const W of [320, 390]) {
   const s2 = await small(b);
   ok(!s2, `${W}: settings, every tappable thing is 44 px or more${s2 ? ` (${s2})` : ''}`);
   await full(b, `settings-${W}`, W);
-  // 👁️ Your public profile: the switch shows your activity, and «Ver cómo me ven los demás» shows it
-  ok(await ev(`(() => { const s = document.querySelector('.pf-public .switch'); return !!s && s.getAttribute('aria-checked') === 'false' && !s.disabled; })()`), `${W}: 👁️ your activity starts hidden`);
-  await ev(`document.querySelector('.pf-public .switch').click()`); await sleep(800);
-  ok(await ev(`(async () => { const { jugador, leerYo } = await import('/assets/js/jugador.js'); const J = await jugador(); return document.querySelector('.pf-public .switch').getAttribute('aria-checked') === 'true' && (await J.perfil(leerYo().jid))?.abierto === true; })()`), `${W}: 👁️ the switch shows it, and the server keeps it`);
+  // 👁️ Your public profile (D-604): your activity shows by default, a bubble under the switch says so, and
+  // «Ver cómo me ven los demás» opens exactly the sheet others see
+  ok(await ev(`(() => { const s = document.querySelector('.pf-public .switch'), bb = document.querySelector('.pf-public-bubble'); if (!s || !bb) return false; const r = s.closest('.toggle-row').getBoundingClientRect(), q = bb.getBoundingClientRect(); return s.getAttribute('aria-checked') === 'true' && !s.disabled && !bb.hidden && /Tus juegos son visibles para otros jugadores/.test(bb.textContent) && q.top - r.bottom >= 4 && q.top - r.bottom <= 14 && q.right <= ${W} && bb.querySelector('.pf-public-bubble-x').offsetWidth >= 44; })()`), `${W}: 👁️ your activity shows by default, and a bubble right under the switch says your games are visible`);
+  await ev(`document.querySelector('.pf-public').scrollIntoView({ block: 'center' })`); await sleep(300);
+  await b.shot(`public-bubble-${W}`);
   await ev(`document.querySelector('.pf-public .pf-see-public').click()`); await sleep(1500);
-  ok(await ev(`(() => { const p = document.getElementById('pf-peek'); return !!p && !!p.querySelector('.pf-peek-kicker') && p.querySelectorAll('.pf-peek-stats .pf-stat').length === 3 && p.querySelectorAll('.pf-peek-games li').length === 3 && !p.querySelector('.pf-peek-hidden'); })()`), `${W}: 👁️ «Ver cómo me ven los demás» shows your sheet, now with your activity`);
+  ok(await ev(`(() => { const p = document.getElementById('pf-peek'); return !!p && !p.querySelector('.pf-peek-kicker') && !/Así te ven/.test(p.textContent) && p.querySelectorAll('.pf-peek-stats .pf-stat').length === 3 && p.querySelectorAll('.pf-peek-games li').length === 3 && !p.querySelector('.pf-peek-hidden'); })()`), `${W}: 👁️ «Ver cómo me ven los demás» shows exactly the sheet others see, with your activity`);
   await b.shot(`peek-open-${W}`);
   await ev(`document.querySelector('#pf-peek .pf-peek-ok').click()`); await sleep(300);
   await ev(`document.querySelector('.pf-public .switch').click()`); await sleep(800);
-  ok(await ev(`(async () => { const { jugador, leerYo } = await import('/assets/js/jugador.js'); return (await (await jugador()).perfil(leerYo().jid))?.abierto == null; })()`), `${W}: 👁️ turned off, it is gone from the server`);
+  ok(await ev(`(async () => { const { jugador, leerYo } = await import('/assets/js/jugador.js'); return document.querySelector('.pf-public .switch').getAttribute('aria-checked') === 'false' && document.querySelector('.pf-public-bubble').hidden && (await (await jugador()).perfil(leerYo().jid))?.oculto === true; })()`), `${W}: 👁️ turned off: hidden on the server, and the bubble goes`);
+  await ev(`document.querySelector('.pf-public .pf-see-public').click()`); await sleep(1500);
+  ok(await ev(`(() => { const p = document.getElementById('pf-peek'); return !!p && !p.querySelector('.pf-peek-stats, .pf-peek-games') && /Prefiere no mostrar cuánto juega/.test(p.querySelector('.pf-peek-hidden')?.textContent || ''); })()`), `${W}: 👁️ hidden, your sheet reads as a rival's who hid theirs: the same words`);
+  await ev(`document.querySelector('#pf-peek .pf-peek-ok').click()`); await sleep(300);
+  await ev(`document.querySelector('.pf-public .switch').click()`); await sleep(800);
+  ok(await ev(`(async () => { const { jugador, leerYo } = await import('/assets/js/jugador.js'); return (await (await jugador()).perfil(leerYo().jid))?.oculto == null && document.querySelector('.pf-public-bubble').hidden; })()`), `${W}: 👁️ shown again: gone from the server, the bubble already told`);
+  await ev(`localStorage.removeItem('juegos-de-salon:profile-public-bubble')`);
+  await b.go(`${SITE}/profile/?test#settings`, 3000);
+  await ev(`document.querySelector('.pf-public-bubble-x').click()`); await sleep(300);
+  await b.go(`${SITE}/profile/?test#settings`, 3000);
+  ok(await ev(`document.querySelector('.pf-public-bubble').hidden`), `${W}: 👁️ its ✕ closes the bubble for good`);
   // 🎖️ The pill's bubble: shown until the profile is opened or ✕ (?profile-intro=demo shows it again)
   await b.go(`${SITE}/?test`, 3000);
   ok(await ev(`!document.getElementById('pf-bubble')`), `${W}: 🎖️ no bubble once the profile was opened`);
