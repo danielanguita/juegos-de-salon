@@ -39,7 +39,7 @@ text by outsiders (player feedback) and persisted keys (game ids like `'ahorcado
 | Texts, buttons, sharing (U-n) | [docs/USABILIDAD.md](docs/USABILIDAD.md), routed by the `player-text` skill: U-1, U-8 and **U-18** before writing instructions; **U-41** visual proposals as images | Before writing anything the player reads, or proposing a design |
 | Why it is this way (D-n) | [docs/DECISIONS.md](docs/DECISIONS.md), the index (by topic, then one row each), and `docs/decisions/D-<n>.md` for each one (D-394): read the index, open only the ones you need | Before changing something that looks odd |
 | A new game, step by step | [docs/ADD-GAME.md](docs/ADD-GAME.md) | When starting one |
-| Launching a game to everyone (prepare, splash, schedule, check live, clean up) | [docs/LAUNCH.md](docs/LAUNCH.md), the playbook with every past miss | Before preparing or scheduling any launch |
+| Launching a game to everyone (prepare, splash, schedule, check live, clean up) | [docs/LAUNCH.md](docs/LAUNCH.md), the playbook with every past miss; the `launch-game` skill walks it, `tools/agents/launch-check.mjs <id> [--screens] [--live]` checks every place a launched game shows | Before preparing or scheduling any launch, and after the hour |
 | Each game | `docs/games/<folder>.md`, with its exceptions to the canons | Before touching it |
 | What was requested (RP-n…) | [docs/REQUERIMIENTOS.md](docs/REQUERIMIENTOS.md) | When closing one |
 | Owner panel | [docs/PANEL.md](docs/PANEL.md) | When touching signals or the panel |
