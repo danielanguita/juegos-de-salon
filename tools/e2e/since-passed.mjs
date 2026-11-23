@@ -8,14 +8,17 @@
 //   1. the PR's commits, newest first: the first one before the head with a valid mark is the last
 //      that passed;
 //   2. the files changed from that commit to the head (GitHub's compare) are what this push tests;
-//   3. no commit passed, history was rewritten (a force push), the compare fails or is too long, or the
-//      push brings files only main changed (a merge of main, D-610): the PR's files, as before.
+//   3. no commit passed, history was rewritten (a force push), or the compare fails or is too long:
+//      the PR's files, as before;
+//   4. the push brings files only main changed (a merge of main, D-610, D-612): the PR's files, and with
+//      `--brought <file>` the files since the last pass written there, so `ci.mjs --meet` runs only the
+//      scripts both reach (meetJobs).
 // What main changed is not retested here, merged or not: main passed it, and publish.yml
 // runs smoke plus what the merge reaches (D-496), or the whole suite, unless that exact tree passed (D-302, D-308).
 //
-//   node tools/e2e/since-passed.mjs --pr <n> --head <sha> > changes   # also writes `since` to $GITHUB_OUTPUT
+//   node tools/e2e/since-passed.mjs --pr <n> --head <sha> [--brought <file>] > changes   # also writes `since` to $GITHUB_OUTPUT
 import { execFileSync } from 'node:child_process';
-import { appendFileSync } from 'node:fs';
+import { appendFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { validMark } from './already-tested.mjs';
 import { noticeable } from './inert.mjs';
@@ -55,14 +58,40 @@ export function narrowAll(files, patches, at) {
 /**
  * The files to test: those since `since`, or the PR's when there is no `since` or the compare can't be trusted.
  * A push that brings files only `main` changed (a merge of main, D-610) tests the PR's own files again, against
- * the new main, as its first push did: not main's, which main already tested. #1802 ran 18 batches of the home
- * page's scripts for a merge of main after its own profile script had passed.
+ * the new main: not main's, which main already tested. #1802 ran 18 batches of the home page's scripts for a
+ * merge of main after its own profile script had passed. `brought` (D-612) is everything since the last pass, so
+ * the run can keep, of the PR's scripts, only those what came in also reaches (meetJobs).
  */
 export function filesToTest({ since, compared, prFiles }) {
   if (!since || !compared || compared.length >= COMPARE_LIMIT) return { files: prFiles, since: null };
   const own = new Set(prFiles);
-  if (compared.some(f => !own.has(f))) return { files: prFiles, since: null };
+  if (compared.some(f => !own.has(f))) return { files: prFiles, since, brought: compared };
   return { files: compared, since };
+}
+
+const fileOf = c => c.split('#')[0];
+
+/**
+ * The jobs a merge of main must run (D-612): those the PR's own files reach AND what the push brought
+ * reaches, plus all those the push's changes to the PR's own files reach. A script only the PR reaches loads
+ * nothing main changed since the PR last passed, so it gives the same result it gave then; a script only
+ * main reaches passed on main. What both reach is what a merge can break. In the merge-queue round of
+ * 2026-11-23, 89 main merges ran the PR's whole scope: 1092 groups; meeting them, 742.
+ * Each side's job keeps the PR's narrowing (`script:part@ids`, D-588) when both name the same job.
+ * @param {string[]} own      the PR's files (as since-passed gives them, maybe narrowed)
+ * @param {string[]} brought  the files changed since the PR last passed
+ * @param {(files: string[]) => string[]} choose  the jobs a list of files needs (ci.mjs's chosenJobs)
+ */
+export function meetJobs(own, brought, choose) {
+  const mine = new Set(own.map(fileOf));
+  const both = brought.filter(f => mine.has(fileOf(f)));
+  const mainOnly = brought.filter(f => !mine.has(fileOf(f)));
+  const base = j => j.split('@')[0];
+  const reachedByMain = new Set((mainOnly.length ? choose(mainOnly) : []).map(base));
+  const out = new Set(both.length ? choose(both) : []);
+  const done = new Set([...out].map(base));
+  for (const j of choose(own)) if (reachedByMain.has(base(j)) && !done.has(base(j))) { out.add(j); done.add(base(j)); }
+  return [...out];
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
@@ -85,12 +114,14 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     const comparedAll = since ? withPatch(`repos/${repo}/compare/${since}...${head}`) : null;
     const compared = comparedAll && (comparedAll.length >= COMPARE_LIMIT ? comparedAll.map(f => f.filename) : noticeable(comparedAll));
     result = filesToTest({ since, compared, prFiles });
-    if (since && compared && compared.length < COMPARE_LIMIT && !result.since) console.error(`since-passed: since ${since.slice(0, 7)}, which passed, the push brings files only main changed (a merge of main): the PR's own files, not main's (D-610)`);
-    if (result.since) patches = new Map(comparedAll.map(f => [f.filename, f]));
+    if (result.brought) {
+      console.error(`since-passed: since ${since.slice(0, 7)}, which passed, the push brings files only main changed (a merge of main): the PR's own files, met with the ${result.brought.length} it brought (D-610, D-612)`);
+      if (arg('--brought')) writeFileSync(arg('--brought'), result.brought.join('\n') + '\n');
+    } else if (result.since) patches = new Map(comparedAll.map(f => [f.filename, f]));
   } catch (e) {
     console.error(`since-passed: ${e.message.split('\n')[0]}; testing the whole PR`);
   }
-  console.error(result.since
+  if (!result.brought) console.error(result.since
     ? `since-passed: ${result.files.length} file(s) changed since ${result.since.slice(0, 7)}, the last commit of this PR that passed`
     : `since-passed: no earlier commit of this PR passed: the whole PR (${result.files.length} file(s))`);
   if (quiet) console.error(`since-passed: ${quiet} file(s) of the PR change only comments: no script runs for them (inert.mjs)`);
