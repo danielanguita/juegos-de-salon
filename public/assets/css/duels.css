@@ -1,0 +1,96 @@
+/* Duels (lab flag rivals, duels-ui.js): the profile's row of duel cards, the all-duels page, the
+   new-duel sheet and the ⚔️ on a ranking's rows. Only the design system's tokens (D-533). */
+
+/* The ⚔️ at the end of a ranking row: the row gets a fifth column */
+.rk-fila.dl-con { grid-template-columns: 2.2em 1fr auto auto 44px; }
+.dl-retar {
+  width: 44px; height: 44px; display: grid; place-items: center; padding: 0;
+  border: 2px solid var(--glass-border); border-radius: 50%; background: var(--well);
+  font-size: var(--fs-110); cursor: pointer; color: var(--ink);
+}
+
+/* The profile's section: min-width 0, or the row of cards widens the page's grid column */
+.dl-slot, .dl-seccion { min-width: 0; }
+.dl-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: var(--s-4) var(--s-8); margin: 0 0 var(--s-8); }
+.dl-head .lead { min-width: 0; }
+.dl-head .lead { margin: 0; }
+.dl-head small { color: var(--muted); font-weight: 800; }
+.dl-head a { color: var(--cyan); font-weight: 800; white-space: nowrap; }
+.dl-pills { display: flex; flex-wrap: wrap; gap: var(--s-8); justify-content: center; margin: 0 0 var(--s-12); }
+.dl-pill {
+  display: inline-flex; align-items: center; min-height: 32px; padding: var(--s-4) var(--s-12);
+  border: 2px solid var(--glass-border); border-radius: var(--r-pill); background: var(--well);
+  font: 800 var(--fs-85) var(--font-body);
+}
+.dl-fila {
+  display: flex; gap: var(--s-10); overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none;
+  padding: var(--s-4) 0 var(--s-8);
+}
+.dl-fila::-webkit-scrollbar { display: none; }
+.dl-card {
+  flex: 0 0 200px; scroll-snap-align: start; margin: 0; text-align: center;
+  display: flex; flex-direction: column; gap: var(--s-8);
+}
+.dl-card.turno { border-color: var(--yellow); }
+.dl-card-g { margin: 0; color: var(--muted); font: 800 var(--fs-75) var(--font-body); text-transform: uppercase; }
+.dl-vs { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: var(--s-4); }
+.dl-vs span { font-weight: 800; font-size: var(--fs-85); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dl-marcador { font: 900 var(--fs-160) var(--font-num); color: var(--yellow); white-space: nowrap; }
+.dl-puntos { display: flex; gap: var(--s-4); justify-content: center; }
+.dl-punto { width: 14px; height: 14px; border-radius: 50%; border: 2px dashed var(--line-faint); box-sizing: border-box; }
+.dl-punto.w { background: var(--lime); border: 0; }
+.dl-punto.l { background: var(--pink); border: 0; }
+.dl-punto.t { background: var(--muted); border: 0; }
+.dl-espera { margin: 0; color: var(--muted); font-size: var(--fs-85); }
+.dl-nuevo {
+  flex: 0 0 120px; scroll-snap-align: start; margin: 0; display: grid; place-items: center; gap: var(--s-8);
+  border: 2px dashed var(--pink); cursor: pointer; color: var(--ink); font: 800 var(--fs-100) var(--font-body);
+}
+.dl-nuevo .dl-mas {
+  width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center;
+  background: var(--pink); font: 900 var(--fs-160) var(--font-body);
+}
+.dl-nemesis { display: flex; align-items: center; gap: var(--s-10); }
+.dl-nemesis b { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* A duel as a row: the all-duels page */
+.dl-row { display: flex; align-items: center; gap: var(--s-10); padding: var(--s-10) 0; border-bottom: 1px solid var(--glass-border); }
+.dl-row:last-child { border-bottom: 0; }
+.dl-row-txt { flex: 1; min-width: 0; display: grid; gap: var(--s-4); }
+.dl-row-txt b { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dl-row-txt small { color: var(--muted); }
+.dl-row-sc { display: flex; align-items: center; gap: var(--s-6); font: 900 var(--fs-100) var(--font-num); color: var(--yellow); }
+.dl-fin { font: 900 var(--fs-85) var(--font-body); white-space: nowrap; }
+.dl-fin.w { color: var(--lime); }
+.dl-fin.l { color: var(--pink); }
+.dl-fin.t { color: var(--muted); }
+
+/* The new-duel sheet */
+.dl-sheet .dl-label { margin: 0; color: var(--muted); font: 800 var(--fs-85) var(--font-body); text-transform: uppercase; }
+.dl-chips { display: flex; flex-wrap: wrap; gap: var(--s-8); }
+.dl-rivales { display: flex; gap: var(--s-12); overflow-x: auto; scrollbar-width: none; padding: var(--s-4) 0; }
+.dl-rival {
+  flex: 0 0 auto; display: grid; justify-items: center; gap: var(--s-4); max-width: 72px;
+  background: none; border: 0; color: var(--ink); cursor: pointer; padding: 0; font: 800 var(--fs-85) var(--font-body);
+}
+.dl-rival span:last-child { max-width: 72px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dl-cara {
+  width: 52px; height: 52px; border-radius: 50%; display: grid; place-items: center; box-sizing: border-box;
+  background: var(--well); border: 3px solid var(--glass-border); font: 900 var(--fs-140) var(--font-body);
+}
+.dl-rival.on .dl-cara { border-color: var(--yellow); }
+.dl-buscar { display: flex; gap: var(--s-8); }
+.dl-buscar input { flex: 1; min-width: 0; }
+.dl-juegos { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--s-8); }
+.dl-juego {
+  display: grid; justify-items: center; gap: var(--s-2); padding: var(--s-8) var(--s-2); min-height: 44px;
+  border-radius: var(--r-12); border: 2px solid transparent; background: var(--well); color: var(--ink);
+  font: 800 var(--fs-75) var(--font-body); cursor: pointer;
+}
+.dl-juego .dl-ic { font-size: var(--fs-160); line-height: 1; }
+.dl-juego.on { border-color: var(--yellow); }
+.dl-juego span:last-child { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dl-versus { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; text-align: center; gap: var(--s-8); }
+.dl-versus .dl-cara { margin: 0 auto; }
+.dl-versus .display { color: var(--pink); }
+.dl-nota { margin: 0; color: var(--muted); font-size: var(--fs-85); }

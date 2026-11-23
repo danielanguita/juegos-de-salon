@@ -509,7 +509,11 @@ export async function drawProfile(root, { sub }) {
     }
     const repaint = list => { cardSlot.replaceChildren(card(yo, f, list)); badgesBox.replaceChildren(...badgePanels(list).filter(Boolean)); };
     repaint(paint());
-    root.replaceChildren(cardSlot, seg, panes.badges, panes.rankings, panes.settings);
+    // Duels (lab flag rivals, duels-ui.js): under the player's card, before the tabs; lab: #seccion-rivals
+    const duelsSlot = el('div', { class: 'dl-slot' });
+    root.replaceChildren(cardSlot, duelsSlot, seg, panes.badges, panes.rankings, panes.settings);
+    flag('rivals').then(on => on && import('../assets/js/duels-ui.js'))
+      .then(m => m && mine === turn && m.seccionPerfil({ alTocar: tap })).then(box => box && duelsSlot.replaceChildren(box)).catch(() => {});
     show(tab);
     try { f = { ...f, ...(await playerFacts(J, yo)) }; } catch (_) { /* offline: the phone's facts stay */ }
     if (mine !== turn) return;
