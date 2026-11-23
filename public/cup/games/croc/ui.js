@@ -12,7 +12,7 @@
  * the usage signal.
  */
 import { newGame, step, act, score, card, sectorOf, randomSeed, COLS, FINISH_ROW, STEP, LIVES, LEVELS } from './engine.js';
-import { createScene } from './scene.js';
+import { createScene, DANCE_S } from './scene.js';
 import { onScreen } from '../../../assets/js/on-screen.js';
 import { loadCss } from '../../../assets/js/load-css.js';
 import { getLang } from '../../../assets/js/i18n.js';
@@ -533,7 +533,7 @@ export function mount(raiz, ctx) {
     if (swipe.fade > 0) swipe.fade = Math.max(0, swipe.fade - dtFrame);
     S.last = now;
     sc.draw(g, swipe);
-    if (S.fin && (S.sleepAt ||= now + 900) < now) return;
+    if (S.fin && (S.sleepAt ||= now + (g.mode === 'win' ? DANCE_S * 1000 + 300 : 900)) < now) return;
     requestAnimationFrame(frame);
   };
 

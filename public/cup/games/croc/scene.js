@@ -62,6 +62,9 @@ function drawStar(ctx, cx, cy, rOuter, rInner) {
   ctx.closePath();
 }
 
+/** How long the frog dances on reaching the pond (ui.js keeps drawing that long). */
+export const DANCE_S = 1.8;
+
 export function createScene(canvas) {
   const ctx = canvas.getContext('2d');
   let w = 360;
@@ -71,6 +74,8 @@ export function createScene(canvas) {
   let clock = 0;
   let shake = 0;
   let hitShake = 0;
+  let danceT = 0; // seconds since the frog reached the pond: its little victory dance
+  const QUIET = () => typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
   const particles = [];
   const popups = [];
   const ghosts = [];
@@ -148,6 +153,7 @@ export function createScene(canvas) {
     if (hitShake > 0) hitShake = Math.max(0, hitShake - dt);
 
     if (g) {
+      danceT = g.mode === 'win' ? danceT + dt : 0;
       const targetCam = Math.max(0, Math.min(g.finishRow - 3, g.frog.y));
       camY += (targetCam - camY) * Math.min(1, dt * 11);
       if (g.frog.isDash && Math.random() < 0.75) {
@@ -492,7 +498,7 @@ export function createScene(canvas) {
     }
   }
 
-  function drawFrogSprite(cx, cy, tile, z, dir, { alpha = 1, tint = null, eyeAlert = 0, crashed = false, win = false } = {}) {
+  function drawFrogSprite(cx, cy, tile, z, dir, { alpha = 1, tint = null, eyeAlert = 0, crashed = false, win = false, wiggle = 0 } = {}) {
     ctx.save();
     ctx.globalAlpha = alpha;
 
@@ -511,7 +517,7 @@ export function createScene(canvas) {
     ctx.scale(scale, scale);
 
     const rot = dir === 'left' ? -0.45 : dir === 'right' ? 0.45 : 0;
-    ctx.rotate(rot);
+    ctx.rotate(rot + wiggle);
 
     // Hind legs (kick back when airborne)
     const kick = z > 0.05 ? tile * 0.14 : 0;
@@ -764,7 +770,12 @@ export function createScene(canvas) {
       ctx.stroke();
       ctx.restore();
     }
-    drawFrogSprite(fx, fy, tile, f.z, f.dir, {
+    // The victory dance: three little hops with a side-to-side wiggle, then it settles (none with reduced motion).
+    const dancing = g.mode === 'win' && danceT < DANCE_S && !QUIET();
+    const danceZ = dancing ? Math.abs(Math.sin(danceT * Math.PI * 3 / DANCE_S)) * 0.4 : 0;
+    const wiggle = dancing ? Math.sin(danceT * 14) * 0.3 : 0;
+    drawFrogSprite(fx, fy, tile, Math.max(f.z, danceZ), dancing ? 'up' : f.dir, {
+      wiggle,
       alpha: frogAlpha,
       eyeAlert: f.eyeAlert,
       crashed: g.mode === 'crash',
