@@ -1,5 +1,5 @@
 // The quiet cloud (flag cloud-quiet, offline-ready.js): on the home page's bar the ☁️ shows only while it asks for
-// something (storing, files missing) and its slot closes up when it hides; the profile's ⚙️ always has a «Juegos sin
+// something (storing, files missing), on share's left so share and the pill never move, and its slot closes up when it hides; the profile's ⚙️ always has a «Juegos sin
 // señal» row with the state, which opens the same sheet. Every state is pretended from the «T» tab's cloud states, which
 // go with the flag's own row while it is in the lab (D-592). With the flag off, the bar keeps the cloud in every state
 // and ⚙️ has no row (checked at 390 only). The home page is the owner's: the icon view and the profile's pill.
@@ -14,6 +14,9 @@ const HOME = `${SITE}/?test&lang=es`, PROFILE = `${SITE}/profile/?test&lang=es`;
 const cloud = `(() => { const c = document.querySelector('#offline-ready-slot .offline-ready'); return !!c && !c.hidden && c.offsetWidth > 0; })()`;
 const cloudIs = state => `${cloud} && document.querySelector('#offline-ready-slot .offline-ready').dataset.state === '${state}'`;
 const slotGone = `getComputedStyle(document.getElementById('offline-ready-slot')).display === 'none'`;
+// Where share and the pill sit: the cloud comes and goes on share's left, so they never move (the owner, 2026-11-23)
+const fixed = `JSON.stringify(['share-slot', 'btn-rankings'].map(id => Math.round(document.getElementById(id).getBoundingClientRect().left)))`;
+const leftOfShare = `document.querySelector('#offline-ready-slot .offline-ready').getBoundingClientRect().right <= document.getElementById('share-slot').getBoundingClientRect().left`;
 const TITLES = { ready: 'Listo para jugar sin señal', missing: 'Faltan algunos juegos', unsupported: 'Este navegador no guarda juegos', loading: 'Preparando los juegos' };
 
 for (const width of [390, 320]) {
@@ -49,12 +52,14 @@ for (const width of [390, 320]) {
   ok(await waitFor(`document.documentElement.classList.contains('cloud-quiet')`), `${width}: flag on: the page knows the cloud is quiet`);
   ok(await waitFor(`!${cloud} && ${slotGone}`), `${width}: last state ready: no ☁️ on the bar from the start, its slot takes no room`);
   await b.shot(`${width}-1-home-ready`);
+  const still = await ev(fixed);
   await ev(`document.getElementById('tr-tab').click()`);
   ok(await waitFor(`!!document.getElementById('tr-offline-ready')?.offsetHeight && !!document.querySelector('#tr-flags [data-row="cloud-quiet"]')?.offsetHeight`), `${width}: the T tab shows the flag's row and the four cloud states with it`);
   await b.shot(`${width}-2-tester-tab`);
   await fold();
 
   ok(await pretend('missing') && await waitFor(cloudIs('missing')), `${width}: missing: the amber ☁️ shows on the bar`);
+  ok(await ev(leftOfShare) && await ev(fixed) === still, `${width}: it shows on share's left; share and the pill do not move`);
   await b.shot(`${width}-3-home-missing`);
   // The sheet is the one it always was: opened once
   if (width === 390) {
@@ -62,7 +67,7 @@ for (const width of [390, 320]) {
     ok(await waitFor(`!!document.querySelector('#hoja-offline-ready #btn-offline-retry')`), `${width}: missing: a tap opens the sheet with Reintentar`);
     await ev(`document.querySelector('#hoja-offline-ready .btn--ghost').click()`);
   }
-  ok(await pretend('unsupported') && await waitFor(`!${cloud} && ${slotGone}`), `${width}: unsupported: no ☁️ on the bar`);
+  ok(await pretend('unsupported') && await waitFor(`!${cloud} && ${slotGone}`) && await ev(fixed) === still, `${width}: unsupported: no ☁️ on the bar, share and the pill where they were`);
   ok(await pretend('loading') && await waitFor(cloudIs('loading')), `${width}: storing: the ☁️ shows with its ring`);
   await b.shot(`${width}-5-home-loading`);
   // The pretend storing takes six seconds: its end, once
