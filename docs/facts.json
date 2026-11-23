@@ -1305,6 +1305,7 @@
     "public/assets/js/offline-ui.js",
     "public/assets/js/on-screen.js",
     "public/assets/js/parametros.js",
+    "public/assets/js/party-colors.js",
     "public/assets/js/phone-facts.js",
     "public/assets/js/play-hours.js",
     "public/assets/js/preview-seed.js",
@@ -1649,6 +1650,7 @@
     "public/assets/js/month-end.test.mjs",
     "public/assets/js/name-guard.test.mjs",
     "public/assets/js/offline-cut.test.mjs",
+    "public/assets/js/offline-first-paint.test.mjs",
     "public/assets/js/offline-palette.test.mjs",
     "public/assets/js/offline-ready.test.mjs",
     "public/assets/js/offline-sheet.test.mjs",
@@ -1656,6 +1658,7 @@
     "public/assets/js/offline.test.mjs",
     "public/assets/js/on-screen.test.mjs",
     "public/assets/js/parametros.test.mjs",
+    "public/assets/js/party-colors.test.mjs",
     "public/assets/js/pending-scores.test.mjs",
     "public/assets/js/play-hours.test.mjs",
     "public/assets/js/preview-seed.test.mjs",
@@ -1785,6 +1788,7 @@
     "tools/agents/labs-key.test.mjs",
     "tools/agents/lanes.test.mjs",
     "tools/agents/launch-check.test.mjs",
+    "tools/agents/launching.test.mjs",
     "tools/agents/marketing.test.mjs",
     "tools/agents/memory.test.mjs",
     "tools/agents/merge-queue.test.mjs",
@@ -1795,6 +1799,7 @@
     "tools/agents/push-guard.test.mjs",
     "tools/agents/repo-weight.test.mjs",
     "tools/agents/retention.test.mjs",
+    "tools/agents/root-files.test.mjs",
     "tools/agents/round-watch.test.mjs",
     "tools/agents/rules.test.mjs",
     "tools/agents/scope-guard.test.mjs",
@@ -2103,6 +2108,10 @@
     {
       "path": "docs/OFFLINE.md",
       "title": "Offline mode (RP-13)"
+    },
+    {
+      "path": "docs/ORG-MIGRATION.md",
+      "title": "Moving the repo to an organization, for GitHub's merge queue (plan, not started)"
     },
     {
       "path": "docs/PANEL.md",
