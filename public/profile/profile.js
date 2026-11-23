@@ -233,8 +233,12 @@ function badgePanels(list, { only = null, reveal = false, duels = null } = {}) {
     if (!all.length) return null;
     const got = all.filter(b => b.got).length;
     return el('section', { class: 'panel pf-group', 'data-group': g },
-      el('p', { class: 'lead pf-group-head' }, el('span', {}, title[g]), el('small', {}, fmt(T.groupOf, { n: got, total: all.length }))),
-      ...(() => { const x = g === 'duels' && duels ? duels() : {}; return [x.top, el('div', { class: 'pf-grid' }, all.map(b => badgeEl(b, { reveal }))), x.foot].filter(Boolean); })());
+      ...(() => {
+        // Duels: the record sits in the title's row, between the title and the count (hidden on the narrowest screens)
+        const x = g === 'duels' && duels ? duels() : {};
+        return [el('p', { class: 'lead pf-group-head' }, ...[el('span', {}, title[g]), x.top, el('small', {}, fmt(T.groupOf, { n: got, total: all.length }))].filter(Boolean)),
+          el('div', { class: 'pf-grid' }, all.map(b => badgeEl(b, { reveal }))), x.foot].filter(Boolean);
+      })());
   });
 }
 
@@ -609,9 +613,9 @@ export async function drawProfile(root, { sub }) {
     let duelList = null, DU = null, duelF = null;
     const duelsExtra = () => {
       if (!DU) return {};
-      // The record on top, right under the group's title; the way to /duels/ at the foot
+      // The record in the title's row; the way to /duels/ at the foot
       const pills = duelList ? DU.pildoras(duelList, yo.jid) : [];
-      return { top: pills.length ? el('div', { class: 'dl-pills pf-duel-pills' }, pills) : null,
+      return { top: pills.length ? el('span', { class: 'dl-pills pf-duel-pills' }, pills) : null,
         foot: el('a', { class: 'btn btn--ghost btn--sm pf-duels-go', id: 'pf-duels-go', href: DU.hrefDuelos(), onClick: tap }, T.duelsGo) };
     };
     const paint = (final = false) => {
