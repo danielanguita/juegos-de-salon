@@ -28,9 +28,10 @@ try {
   // The 3-day cup, starting today
   await ev(`(()=>{const o=[...document.querySelectorAll('#crear-body .opcion')];o.find(x=>/^Copa de 3 días/.test(x.textContent)).click();o.find(x=>/^Hoy/.test(x.textContent.trim())).click();return 1})()`);
   await sleep(200);
-  // Shuffles until the two game days are Pintaminas and Loteo
+  // Shuffles until the two game days are Pintaminas and Loteo: ~200 shuffles on average, so 400
+  // missed about one run in eight; 3000 miss about one in three million (synchronous, a second at most)
   const both = await ev(`(()=>{const has=()=>{const d=[...document.querySelectorAll('#cal-elegir .event[data-dia]')].map(x=>x.dataset.juego);return d.includes('pintaminas')&&d.includes('loteo')};
-    for(let k=0;k<400&&!has();k++)document.getElementById('btn-azar').click();return has()})()`);
+    for(let k=0;k<3000&&!has();k++)document.getElementById('btn-azar').click();return has()})()`);
   ok(both, 'the random week can bring Pintaminas and Loteo');
   ok(await ev(`[...document.querySelectorAll('#cal-variantes [data-variantes]')].map(x=>x.dataset.variantes).sort().join()`) === 'loteo,pintaminas',
     'below the week, one variant row for each game that has them');

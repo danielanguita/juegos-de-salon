@@ -95,6 +95,7 @@
  "cup/resumed-clock.mjs": 8,
  "cup/seat.mjs": 7,
  "cup/talk.mjs": 20,
+ "cup/tango-time.mjs": 20,
  "cup/tournament.mjs:cup": 298,
  "cup/tournament.mjs:demos": 52,
  "cup/tournament.mjs:labs": 202,

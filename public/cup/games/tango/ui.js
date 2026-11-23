@@ -10,7 +10,7 @@
  * Either way the red, its sound and the counter wait ROJO_MS (1.5 s) after the tap that brings them.
  *
  * Además (D-103): **borrar todo**, que pide un segundo toque para confirmar; una **pista** que
- * revela una casilla y cuesta 15 puntos (outside La Copa with `tango-time`, 15 s added to the time,
+ * revela una casilla y cuesta 15 puntos (with `tango-time`, or in a cup created with it, 15 s added to the time,
  * D-572), también con segundo toque; y **consejos** para cuando
  * uno se queda atascado. Las jugadas son los índices tocados, 'C' (borrar todo) y { h } (pista).
  * ↩️ Undo (D-342) takes back the last tap or Clear all, one per tap; it is a play too ('U'), so an
@@ -67,10 +67,11 @@ export function montar(raiz, ctx) {
   let rojoTimer = null, sonar = false;
   const { n } = p;
 
-  // Played on its own (never in La Copa, so no running cup changes its rule): the time scores and a
-  // hint adds PISTA_MS instead of taking off points (lab: #seccion-tango-time)
-  let porTiempo = false;
-  if (ctx.suelto) flag('tango-time').then(on => { porTiempo = !!on; if (porTiempo && raiz.isConnected) dibujar(false, false); }, () => {});
+  // The time scores and a hint adds PISTA_MS instead of taking off points: on its own page with the
+  // flag, and in a cup created with Tango's new rule, whose board says so for every player (D-607).
+  // lab: #seccion-tango-time
+  let porTiempo = !!p.porTiempo;
+  if (ctx.suelto && !porTiempo) flag('tango-time').then(on => { porTiempo = !!on; if (porTiempo && raiz.isConnected) dibujar(false, false); }, () => {});
   const final = e => (porTiempo ? { ...e, porTiempo: true, ms: ctx.tiempo?.() } : e);
 
   const avisar = () => { SFX.error(); vibrate([40, 40, 40]); };
