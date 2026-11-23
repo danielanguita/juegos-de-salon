@@ -1,5 +1,136 @@
 # Changelog
 
+## 1.40.12 — 2026-11-22
+- `launch-check.mjs` no longer gives false ✗: the cover's ranking in the static pass is a hint (a cover may draw it with `bloqueTabla`; `--screens` decides), the home card gets 12 s to appear when several games are checked together, and `--live` judges the launch's own splash (one that is on, else the one switched last), not an older game's campaign that is rightly off.
+
+## 1.40.11 — 2026-11-22
+- **Offline mode switches to Candlelight in seconds in airplane mode**, also on phones that keep saying they are online (common on iPhone): a failed connection check is confirmed 3 s later instead of a minute later, checks run every 20 s while the page is in view and none while it is hidden, and the app looks again each time it comes back to the front. It took up to two minutes; now at most ~23 s, ~5 s on returning to the app.
+
+## 1.40.10 — 2026-11-22
+- 🧪 Labs: a launched game's card now moves to La Bodega on its own, like an improvement's did: 🐸 Croc!, ⚖️ Tembleque, 👀 Memorice and 🎲 Dominorama had stayed under «Juegos en prueba». Its «Listo para lanzar» line goes with the move.
+
+## 1.40.9 — 2026-11-22
+- ⚖️ Tembleque: its cover's button says «⚖️ Empezar» like the other covers, and the ranking after a game names its level («Ranking de Tembleque · 🔴 Difícil»), as the cover's does.
+
+## 1.40.8 — 2026-11-22
+- **Tembleque**: its cover now shows the leaderboard of the level on the lever (easy or hard), as Sudoku's does, not only after a game.
+
+## 1.40.7 — 2026-11-22
+- 🛠️ Launches: `tools/agents/launch-check.mjs` checks every place a launched game must show (its entry, Rankings, its cover's ranking, La Copa, Uno al día, La Bodega, the splash, the cards and docs, then the real screens and the live site), and the new `launch-game` skill walks docs/LAUNCH.md in order. The playbook gains what Croc! and Tembleque taught.
+
+## 1.40.6 — 2026-11-22
+- **Profile (Labs): a badge the game just celebrated is lit on your profile**, every time: what the window
+  announced counts as earned there too. The first visit after earning it shows it switching on, grey to its
+  metal with a flash, brings it into view and keeps its «¡Nueva!» for the whole visit (before, it vanished
+  as the page finished loading). Only once: the next visit shows it as one more.
+
+## 1.40.5 — 2026-11-22
+- **👉 Swipe between games removed.** The lab experiment (flag `game-swipe`) never launched and is gone: its code, styles, texts, test and `/labs/` card.
+
+## 1.40.4 — 2026-11-22
+- **Profile: the pill's bubble «Tu perfil vive aquí» shows only to a signed-in player** (the owner): a guest sees the pill alone.
+
+## 1.40.3 — 2026-11-22
+- 🐸 Croc! and ⚖️ Tembleque get their launch dates: both launch on 2026-11-22 at 21:00 Pacific with the splash ¡Nos volvimos locos!, and Croc! joins Uno al día from 2026-11-23. Tembleque's nine cheers launch with it.
+
+## 1.40.2 — 2026-11-22
+- **Profile: a player's sheet breathes** (the owner): more room between its sections (figures, most played games, achievements) and between each title and its list.
+
+## 1.40.1 — 2026-11-22
+- **Your first duel starts on arrival** (lab, flag `rivals`): a player with no duel yet who opens ⚔️ Tus duelos from the home card finds the new-duel sheet already open, instead of an empty page and a button to look for. Closing it leaves the page as it was; it does not open again on that visit.
+
+## 1.40.0 — 2026-11-22
+- **⚔️ Duels** (lab, flag `rivals`): challenge another player to a few rounds of one game: best of 3, best of 5 or most points over 3 rounds. Both get the same levels (each round has its seed), each plays whenever they like, and a duel lasts 3 days at most: a round not played by then is a 0, and a round begun and left counts as begun. Challenge from the ⚔️ on any other player's row of a game's ranking, or from the profile's ＋ New duel (the rivals you already played first, then your cups' friends, then a search by name). The profile shows your record (won–lost and %), your open duels as cards with ▶ Your turn, See all and your nemesis; /duels/ lists them all; the home page gets a third card after La Copa and One a Day, peeking from the edge («1 VS 1», or how many duels you have open). The privacy page says what a duel keeps.
+- **⚔️ Duels, quick or custom** (lab, flag `rivals`): ＋ New duel now asks ⚡ Quick duel (the rival, one game, best of 3 or 5) or 🛠️ Custom duel, step by step (who, how to win, and each round's game, with 🎲 Mix). Once sent, 📲 Send the challenge to that rival shares its link, and the rival opens «Javi challenges you» with ⚔️ Accept and play round 1. After a round, ▶ Play round N opens that round's own game.
+
+## 1.39.19 — 2026-11-22
+- **Profile (Labs): every achievement a game earns opens its window, not only the secret ones** (the owner). Right after the game that earns it, any badge the phone can tell alone (streaks, Madrugador, Se llama obsesión, 100 and 1.000 games, Explorer, Estreno, Lunes, Findes, De la casa, Mes completo) opens the same window, its medal shown at once with «🎖️ ¡Nuevo logro!» and what it asked. What a phone had already earned when this reaches it is never announced, secret ones included: the first look, after a game or on the profile, only notes them (the owner). `?achievement=demo` adds three of them.
+
+## 1.39.18 — 2026-11-23
+- **Profile (Labs): the public profile has no switch** (D-605, replaces D-602 and D-604). Every player's sheet shows the same to everyone: where they stand, their streak, games and cups, their most played games with their all-time place, and their achievements. «Ver cómo me ven los demás» stays in Ajustes; «Mostrar mi actividad», its yellow bubble and the hidden sheet go, and so does the `jugadores/<jid>/oculto` rule. The privacy page says so in the three languages.
+
+## 1.39.17 — 2026-11-22
+- **Profile (Labs): a player's sheet says their all-time place in each of their most played games, not how many times they played it** (the owner): «Reinas · 5.º histórico» instead of «Reinas · 12 partidas», so the sheet tells how well someone plays, not how much. A game where they are below the first 100 shows no place.
+
+## 1.39.16 — 2026-11-22
+- **Croc!**: the frog does a little victory dance (three hops with a wiggle) when it reaches the pond.
+
+## 1.39.15 — 2026-11-23
+- A game's sheet on the new home page no longer jumps when it opens: the space for its animation is the same size from the first frame, and the animation fades in instead of resizing the sheet.
+
+## 1.39.14 — 2026-11-23
+- **Owner approvals**: ticking Yes on a 🔴 PR that is still a draft now marks it ready for review before merging, instead of failing (#1750, #1773); and when a tick carries to a new commit (only main merged in, D-575, or the owner's own PR with no 🔴 file changed, D-596) the `needs-owner` label goes too, as it does on the tick itself.
+
+## 1.39.13 — 2026-11-22
+- **Profile (Labs): your activity shows on your public profile by default, and you can hide it** (D-604, amends D-602). In Ajustes, «Mostrar mi actividad» starts on, with a yellow bubble under it: «Tus juegos son visibles para otros jugadores», closed with ✕ or by turning the switch off. «Ver cómo me ven los demás» now opens exactly the sheet others see, with no texts of its own. The server keeps only the choice to hide (`jugadores/<jid>/oculto`, replacing `abierto`); the privacy page says so in the three languages.
+
+## 1.39.12 — 2026-11-22
+- **Your profile introduces itself (Labs)**: a bubble rises from the top bar's profile pill to say your badges, rankings and settings now live there; it goes away for good when you close it or open the profile. The first visit to the profile opens a card that explains its three tabs; «Entendido» or ✕ closes it, and a subtle ⓘ at the right of the profile's title, like a superscript, opens it again. `?profile-intro=demo` shows both again.
+
+## 1.39.11 — 2026-11-22
+- **Your public profile (Labs)**: in your profile's ⚙️, 👁️ Tu perfil público decides what others see when they tap your name in a ranking. Your streak, your games, since when you play and your favourite games show only if you turn on «Mostrar mi actividad»; otherwise others see your place and your achievements. «Ver cómo me ven los demás» shows your sheet as they see it (D-602). The privacy page says it in three languages.
+
+## 1.39.10 — 2026-11-22
+- **A finer line under the names (Labs, profile)**: the line that says a name in a ranking opens its player is thinner and fainter.
+
+## 1.39.9 — 2026-11-22
+- **Another player at a glance (Labs, profile)**: on your profile, a tap on any name in a ranking opens a short sheet with that player's flag and name, since when they play, their place in the overall ranking when in the top 10, their streak, games and cups won, their three most played games and their achievements; your own name shows how others see you. Only what is already public is shown: the achievements that only a player's own phone knows stay out.
+
+## 1.39.8 — 2026-11-22
+- **A secret achievement now celebrates itself (Labs)**: right after the game that earns it, or on the profile for 💎 and 🎂, a window like One a Day's month-end one (the comic card, diagonal stripes) shows a round «?» medal that shakes and turns over to reveal it with a burst of confetti, then fireworks behind; its own message, how many secret ones you have and «Ver mis logros». Once per achievement and phone; `/profile/?achievement=demo` shows each.
+
+- **Martes 13 left the secret achievements** (the owner: too hard to earn); the phone no longer counts games on a Tuesday the 13th.
+
+## 1.39.7 — 2026-11-22
+- Croc! now labels its difficulty switch "Easy mode" / "Hard mode" (Modo fácil / Modo difícil), like the other games.
+
+## 1.39.6 — 2026-11-22
+- **«Tus copas» in the profile (Labs) tells each cup**: its name, its dates, your final place (a medal on the podium) and who won, the ones in progress first, five at a time with «Ver más».
+
+## 1.39.5 — 2026-11-22
+- **The profile's overall ranking places (Labs) look like a podium**: 🥇 🥈 🥉 with the badges' gold, silver and bronze, 🔥 in the top 10, and a pop when each place arrives.
+
+## 1.39.4 — 2026-11-22
+- **CI failure log reads the right attempt**: `failure-log.yml` now reads the log of the attempt that ended (`--attempt`), so a quick "Re-run failed jobs" no longer leaves an empty log and a bogus "no failing test found" record (signature f2f83772a2, four unrelated breaks counted as one). `failures.test.mjs` pins it.
+
+## 1.39.3 — 2026-11-22
+- **The profile's section bar (Labs) stands out when scrolling**: nearly opaque in the page's colour, blurred behind and edged, so the badges no longer show through it.
+
+## 1.39.2 — 2026-11-22
+- **Twelve new badges in the profile (Labs)**: 🛋️ Finde a tope (Saturday and Sunday on 4 weekends), ☕ Odio los lunes (a game before 8 a.m. on 4 Mondays), 🧗 El Alpinista (won a cup after being last on day 1), 🥂 El canapé (3 cups within 7 days), 🎓 Especialista (50 games of one same game) 🎬 De estreno (a new game in its launch week) and 🏠 De la casa (100 different days with a game), plus five secret ones: Martes 13, Dieciochero, Noche de brujas, Viejito Pascuero and Año nuevo. What they need stays on the phone; the privacy page says so.
+- **The profile's pill (Labs) says «Entrar» after signing out**, also on a page brought back with ‹, which kept showing the old name; and the home page's top bar follows every cover's order: language, share, ☁️, and the pill last.
+
+## 1.39.1 — 2026-11-22
+- Profile (lab): the top bar no longer jumps on load. The language as one flag with a ▾ and the profile pill are drawn from the first frame, using what the phone saw last time, instead of showing the three flags until the network answered.
+- Profile (lab): on Android the share button shows Android's own icon (three dots joined by two lines) in white and turquoise, instead of the box with an arrow.
+- Profile (lab): on the home page the profile pill moves to the right end of the top bar, after share, as on every other page.
+
+## 1.39.0 — 2026-11-22
+- **La Copa, with more than 10 players** (part of the 20-player lab flag `cup-big`): the table says how many places each player moved by the last day that closed (▲1, ▼2 after the name, no arrow column; it goes by itself when the next day closes); place, name with its (you) and points share one line and the day blocks use the whole width below; the graph draws the first 10 lines, whoever climbs in from below comes as a dashed line that fades in and only players who end among the first 10 are drawn.
+
+## 1.38.8 — 2026-11-22
+- 🎲 Dominorama: a domino now settles into place with a little squash and a ring spreading from its cells, and a full zone that breaks its rule shows stripes and an edge in its own color over the dominoes, so you can see which cells are wrong even when they are covered; laid dominoes are a little smaller, so each zone's color and edge show around them. The zones' colors no longer include reds, pinks or orange, so a broken rule stands out.
+
+## 1.38.7 — 2026-11-22
+- **The README's screenshots are up to date again**: 97 shots across 12 sections retaken with today's covers and screens. The tester tab (T) no longer shows in them: localhost counts as the lab, so it sat on every shot covering the top bar's share button; `readme.py screenshots` now hides it for the photo only (`README_SHOTS`, `tools/e2e/cdp.mjs`).
+
+## 1.38.6 — 2026-11-22
+- **Croc!**: the Dash is now a double tap instead of a long swipe, and you can hop back a row with a swipe down (or ↓ / S). Going back never lowers your progress.
+
+## 1.38.5 — 2026-11-22
+- **Shinobi**: the rising tick sound while the stick grows is gone; landings and falls keep their sounds and vibration.
+- **Shinobi**: holding the stick no longer buzzes the phone: the stage really gets `touch-action: none` now (base.css gave every `role="button"` `manipulation`, which left Android's long-press on), and touch, selection and drag defaults are blocked.
+
+## 1.38.4 — 2026-11-22
+- **How the splash clips of action games are made**, step by step, with what the owner asked along the way (little zoom, show what the card names), in `marketing/splash/clips.md`, so the next splash starts there.
+
+## 1.38.3 — 2026-11-22
+- **Push guard checks the /labs/ card length**: a card over 25 words (D-594) now stops the push with its name, instead of a red `tests` run after bringing main in (signature 97c0b5ca90, three PRs on 2026-11-20).
+- **End-to-end flags snapshot refreshed**: `home-carousels` is on for everyone (D-578).
+
+## 1.38.2 — 2026-11-22
+- **What changed**, for players.
+
 ## 1.38.1 — 2026-11-21
 - **⚖️ Tembleque's cover shows the real game**: the drawing above the level lever is now a loop of each level as it really plays, the claw dropping pieces on the plank or pieces landing on the disc, with a calm camera that leans in a little as each piece lands and melts back into the start, so it never stops. Only the level on the lever plays; with reduced motion it stands still. Recorded by `tools/generators/wobbles-cover.mjs`, which borrows the splash's takes.
 

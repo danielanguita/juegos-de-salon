@@ -22,6 +22,8 @@ ok(await b.evaluate("!!document.querySelector('#screen-intro details.panel, #btn
 const clips = "[...document.querySelectorAll('#pic video')].map(v => v.getAttribute('src') + ':' + (v.paused ? 'paused' : 'playing') + ':' + v.loop + v.muted).join(' ')";
 await sleep(800);
 ok(await b.evaluate(clips) === 'cover/easy.mp4:playing:truetrue cover/hard.mp4:paused:truetrue', `the easy loop plays, muted, and hard waits (${await b.evaluate(clips)})`);
+ok(await b.evaluate("/Fácil/.test(document.getElementById('ranking')?.textContent || '')"), 'the cover shows the easy level\'s table');
+ok((t => t.startsWith('⚖️') && /Empezar$/.test(t))(await b.evaluate("document.getElementById('btn-play').textContent")), 'its button says ⚖️ Empezar, as every cover does');
 await b.shot('cover-easy');
 const howEasy = await b.evaluate("document.getElementById('how').textContent");
 ok(!/\b[23]D\b/.test(await b.evaluate('document.body.innerText')), 'the cover never says 2D or 3D');
@@ -29,10 +31,11 @@ await b.evaluate("document.getElementById('btn-level').click(); 1"); await sleep
 ok(await b.evaluate("window.__wobbles.level === 'hard' && document.getElementById('btn-level').getAttribute('aria-checked') === 'true' && document.getElementById('pic').classList.contains('hard') && document.body.classList.contains('wb-hard')"), 'flipping the lever shows hard, the 3D picture and the red cover');
 await sleep(800);
 ok(await b.evaluate(clips) === 'cover/easy.mp4:paused:truetrue cover/hard.mp4:playing:truetrue', `the lever swaps the loops: hard plays, easy pauses (${await b.evaluate(clips)})`);
+ok(await b.evaluate("/Difícil/.test(document.getElementById('ranking')?.textContent || '')"), 'the cover\'s table follows the lever to hard');
 await b.shot('cover-hard');
 ok(await b.evaluate("document.getElementById('how').textContent") !== howEasy, 'how to play changes with the lever');
 await b.evaluate("document.getElementById('btn-play').click(); 1"); await sleep(900);
-ok(await b.evaluate('location.pathname') === '/wobbles/hard/', '¡A jugar! opens the level the lever shows');
+ok(await b.evaluate('location.pathname') === '/wobbles/hard/', '⚖️ Empezar opens the level the lever shows');
 
 for (const level of ['easy', 'hard']) {
   for (const lang of ['es', 'en', 'pt']) {
@@ -43,6 +46,8 @@ for (const level of ['easy', 'hard']) {
     await b.evaluate('window.__balanza.finish(); 1'); await sleep(300);
     ok(await b.evaluate("window.__balanza.state === 'over' && !document.getElementById('card').hidden"), `${level} ${lang}: it ends on its game-over card`);
     ok(await b.evaluate("!!document.querySelector('#cExits #btn-fin-menu') && !document.querySelector('#btn-fin-lab') && document.querySelectorAll('#cDetail li').length >= 3"), `${level} ${lang}: the result has fin.js's exit to the menu and the breakdown after it (C-19)`);
+    const resTitle = await b.evaluate("document.querySelector('#cRank .rk-titulo')?.textContent || ''");
+    ok(!resTitle || (level === 'hard' ? /🔴/ : /🟢/).test(resTitle), `${level} ${lang}: the result's ranking names its level (${resTitle || 'no table without a player'})`);
     ok(await b.evaluate("(()=>{const r=document.getElementById('btn-fin-menu').getBoundingClientRect(),c=document.getElementById('cBtn').getBoundingClientRect();return c.bottom<=innerHeight&&r.bottom<=innerHeight+document.querySelector('#card .in').scrollHeight})()"), `${level} ${lang}: ↻ and the exit are on the card`);
     if (lang === 'es') await b.shot(level + '-over');
   }

@@ -1,7 +1,7 @@
 // A flag on *all* moves its card to La Bodega when /labs/ opens (D-534): which cards, dated by the day
 // the flag went live, and the lab-only sentence that goes. The DOM move itself: tools/e2e/labs/launched.mjs.
 import assert from 'node:assert/strict';
-import { launched, ymd, sinParaVerlo } from './launched.js';
+import { launched, ymd, sinParaVerlo, isReadyLine } from './launched.js';
 
 const known = { 'copa-x': 1, 'uad-y': 1 };
 const at = new Date(2026, 10, 4, 23, 30).getTime();   // local 2026-11-04, late
@@ -14,4 +14,6 @@ assert.deepEqual(launched(['seccion-copa-x'], { 'copa-x': { state: 'off', at } }
 assert.equal(ymd(new Date(2026, 0, 9, 8).getTime()), '2026-01-09');
 assert.equal(sinParaVerlo('Hace algo. Para verlo: <code>/cup/?test&amp;lab&amp;demo=decided</code>.'), 'Hace algo.');
 assert.equal(sinParaVerlo('Hace algo.'), 'Hace algo.');
+assert.ok(isReadyLine('Listo para lanzar en /croc/.') && isReadyLine('Listo para lanzar: /wobbles/, en la portada'), 'a game\'s «Listo para lanzar…» line goes when it launches');
+assert.ok(!isReadyLine('Apila piezas en la balanza.'), 'its description stays');
 console.log('✓ labs launched: a flag on all moves its card to La Bodega, dated by its day');

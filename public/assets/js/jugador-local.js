@@ -176,6 +176,33 @@ export function crearAlmacenLocal({ storage = globalThis.localStorage, uid = nul
       if (!sentado(viejo, a) || !/^[A-HJ-NP-Z]{5}$/.test(b || '') || p.length !== 3) return false;
       return x === null || (/^[a-z0-9]{6}$/.test(x.p) && typeof x.at === 'number' && Object.keys(x).every(k => k === 'p' || k === 'at'));
     }
+    // Duels (lab flag rivals, duels.js): created once by a phone seated as `a`, against another player;
+    // each player begins a round once (`e`) and then writes its result once (`r`), within three days
+    if (rama === 'duelos') {
+      if (!/^[a-z0-9]{10}$/.test(a || '')) return false;
+      const d = leerEn(viejo, `duelos/${a}`), x = leerEn(nuevo, ruta);
+      if (p.length === 2) {
+        if (d || !x) return false;
+        const n = s => typeof s === 'string' && s.length >= 1 && s.length <= 20;
+        const sd = x.sd || {}, k = Object.keys(sd);
+        return sentado(viejo, x.a) && /^[a-z0-9]{8}$/.test(x.b || '') && x.b !== x.a && leerEn(viejo, `jugadores/${x.a}`) != null && leerEn(viejo, `jugadores/${x.b}`) != null
+          && n(x.an) && n(x.bn) && /^(bo3|bo5|pts)$/.test(x.f) && /^[a-z][a-z0-9-]{1,24}$/.test(x.g || '') && x.at === t
+          && k.length === (x.f === 'bo5' ? 5 : 3) && k.every(i => /^[0-4]$/.test(i) && /^[A-HJ-NP-Z]{5}$/.test(sd[i]))
+          && (x.gr === undefined || (Object.keys(x.gr).every(i => sd[i] !== undefined && /^[a-z][a-z0-9-]{1,24}$/.test(x.gr[i]))))
+          && Object.keys(x).every(c => ['a', 'b', 'an', 'bn', 'f', 'g', 'sd', 'gr', 'at'].includes(c));
+      }
+      const [, , rama2, jid, i] = p;
+      if (p.length !== 5 || !d || !['e', 'r'].includes(rama2) || leerEn(viejo, ruta) != null || x == null) return false;
+      if (!sentado(viejo, jid) || (d.a !== jid && d.b !== jid) || !/^[0-4]$/.test(i) || d.sd?.[i] == null || t >= d.at + 259200000) return false;
+      if (rama2 === 'e') return x === t;
+      return leerEn(viejo, `duelos/${a}/e/${jid}/${i}`) != null && x.at === t && typeof x.s === 'number' && x.s >= 0 && x.s <= S_MAX
+        && typeof x.ms === 'number' && x.ms >= 0 && x.ms <= MS_MAX && Object.keys(x).every(c => ['s', 'ms', 'at'].includes(c));
+    }
+    if (rama === 'jugadorDuelos') {
+      const d = leerEn(nuevo, `duelos/${b}`);
+      return p.length === 3 && /^[a-z0-9]{10}$/.test(b || '') && leerEn(viejo, ruta) == null && leerEn(viejo, `duelos/${b}`) == null && !!d
+        && sentado(viejo, d.a) && (d.a === a || d.b === a) && leerEn(nuevo, ruta) === t;
+    }
     return false;
   }
 

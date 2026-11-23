@@ -464,6 +464,15 @@
     html.filtrado .uad-card { display: none !important; }
     html.filtrado .fila-alta:has(.uad-card-mes) { margin-top: 0; }
     .uad-card-link { position: absolute; inset: 0; border-radius: inherit; z-index: 1; }
+    /* Duels (flag rivals): the row slides with a third card peeking from the right edge; its badge is One a Day's month's */
+    .fila-alta.con-duelos { display: flex; gap: 10px; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; margin-top: 2px; margin-right: -16px; padding: 12px 16px 6px 0; }
+    .fila-alta.con-duelos::-webkit-scrollbar { display: none; }
+    .fila-alta.con-duelos > * { flex: 0 0 max(124px, calc((100% - 20px - 34px) / 2)); min-width: 0; scroll-snap-align: start; }
+    .duelos-card { position: relative; overflow: visible; }
+    .duelos-card h2 { white-space: nowrap; }
+    html.filtrado .duelos-card { display: none !important; }
+    .duelos-card .duelos-mes { position: absolute; top: -11px; left: 12px; z-index: 3; padding: 1px 12px; border-radius: 999px; border: 1px solid #ff8cc0; background: #ff2e88; color: #fff; font: 900 0.75rem/1.4 var(--font-body); letter-spacing: 0.04em; text-transform: uppercase; white-space: nowrap; pointer-events: none; }
+    .duelos-card .meta { justify-self: stretch; width: 100%; }
     .uad-card-link:focus-visible { outline: 3px solid var(--yellow); outline-offset: 2px; }
     .uad-card.dos .meta { position: relative; z-index: 2; flex-wrap: wrap; align-items: center; }
     .uad-card.dos .meta .uad-card-estado { white-space: nowrap; }
@@ -605,7 +614,6 @@
     import { gameIcon } from './assets/js/game-icon.js';
     import { botonCompartirPortada } from './assets/js/compartir-portada.js';
     import { markOrigin } from './assets/js/transport/stats.js';
-    import { rememberList } from './assets/js/game-swipe.js';
     import { compartirApp, comparteArchivos } from './assets/js/compartir.js';
     import { flagGuess } from './assets/js/flags.js';
     import { getLang, langToggle, applyStatic, pickLang, COMMON, homeUrl } from './assets/js/i18n.js';
@@ -770,9 +778,6 @@
       );
       // Where the game came from, for the panel's timeline: a card tapped on the home page
       if (g.available && !g.torneo) card.addEventListener('click', () => markOrigin('card', card.href));
-      // The cards on screen right now, in order, for swiping between games on a cover (game-swipe.js, flag game-swipe)
-      if (g.available && !g.torneo) card.addEventListener('click', () => rememberList(
-        [...document.querySelectorAll('.game-card[href]:not(.torneo)')].filter(c => c.offsetParent && !c.closest('[hidden]')).map(c => c.href)));
       // La ⭐ de favorito (D-238) va al lado de la tarjeta y no adentro: un botón dentro de un link
       // no se puede tocar sin abrir el juego. La Copa no lleva: es una semana con amigos, no una partida
       if (!g.available || g.torneo) { list.append(card); return { g, card, caja: card }; }
@@ -801,6 +806,9 @@
       copa.replaceWith(fila);
       copa.classList.add('alta');
       fila.append(copa, reserva);
+      // Duels (flag rivals): a third card that peeks from the right edge, so the row slides. lab: #seccion-rivals
+      import('./assets/js/flags.js').then(({ flag }) => flag('rivals'))
+        .then(on => on && import('./assets/js/duels-home.js')).then(m => m && m.cardDuelos(fila, { lang, tap: () => SFX.tap() })).catch(() => {});
     }
     // La Copa's card says what to do today (flag copa-hoy): ▶ Jugar hoy with a day to play. lab: #seccion-copa-hoy
     // With today's day played, Día N en Xh Ym (flag copa-espera). lab: #seccion-copa-espera

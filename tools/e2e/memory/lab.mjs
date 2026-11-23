@@ -1,4 +1,4 @@
-// Memorice in the lab, end to end, at /labs/memory/: the lab offers it under Active projects;
+// Memorice in the lab, end to end, at /labs/memory/: launched, its card is in La Bodega (launched.js, D-534);
 // the cover has Play and three steps, and its board plays by itself; each game without a seed is a
 // new one; Play shows two pictures on a 3×3 board and covers them; the Cover now button covers them at
 // once and goes; tapping every copy of the picture asked (one, then a pair)
@@ -17,7 +17,7 @@ const waitFor = async (expr, ms = 8000) => { for (let t = 0; t < ms; t += 100) {
 const tapTile = i => ev(`document.querySelector('#tablero .tile[data-i="${i}"]').click(); 1`);
 
 await b.go(`${SITE}/labs/`);
-ok(await ev(`document.querySelector('#activos #seccion-memory #btn-memorice-lab')?.getAttribute('href')`) === 'memory/' && await ev(`document.querySelector('#seccion-memory #btn-memorice')?.getAttribute('href')`) === '../memorice/', 'the lab offers Memorice under Active projects: its page, and the prototype');
+ok(await ev(`document.querySelector('#bodega-mejoras #seccion-memory #btn-memorice-lab')?.getAttribute('href')`) === 'memory/' && await ev(`document.querySelector('#seccion-memory #btn-memorice')?.getAttribute('href')`) === '../memorice/' && !await ev(`document.querySelector('#activos #seccion-memory')`), 'launched, Memorice is in La Bodega: its page, and the prototype');
 
 await b.go(`${SITE}/labs/memory/?test`, 1200);
 ok(await waitFor(`!!document.getElementById('btn-jugar')`), 'the cover has Jugar');

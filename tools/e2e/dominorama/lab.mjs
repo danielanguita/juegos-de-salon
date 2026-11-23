@@ -1,4 +1,4 @@
-// The lab's Dominorama (D-381) end to end, at /labs/dominorama/: the lab offers it under Juegos en prueba with the
+// The lab's Dominorama (D-381) end to end, at /labs/dominorama/: launched, La Bodega keeps its card (launched.js, D-534) with the
 // credit to NYT Pips, which the cover gives too; the cover board solves itself; Empezar goes through the
 // 3, 2, 1 countdown to board 1 of 3; a domino is chosen, turned with a second tap and laid with a tap on
 // a cell; one that does not fit shakes and says why; a placed one comes off with a tap; laying the
@@ -43,7 +43,7 @@ async function resolverTablero(t) {
 }
 
 await b.go(`${SITE}/labs/`);
-ok(await ev(`document.querySelector('#activos #seccion-dominorama #btn-dominorama-lab')?.getAttribute('href')`) === 'dominorama/' && await ev(`document.getElementById('btn-dominorama')?.getAttribute('href')`) === '../dominorama/', 'the lab offers Dominorama under Juegos en prueba');
+ok(await ev(`document.querySelector('#bodega-mejoras #seccion-dominorama #btn-dominorama-lab')?.getAttribute('href')`) === 'dominorama/' && await ev(`document.getElementById('btn-dominorama')?.getAttribute('href')`) === '../dominorama/' && !await ev(`document.querySelector('#activos #seccion-dominorama')`), 'launched, Dominorama is in La Bodega');
 ok(await ev(`/Pips/.test(document.querySelector('#seccion-dominorama a[href*="nytimes.com/games/pips"]')?.textContent || '')`), 'and says it is inspired by NYT Pips, with its link');
 
 await b.go(`${SITE}/labs/dominorama/?test&seed=${SEED}`, 1200);

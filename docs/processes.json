@@ -1,5 +1,5 @@
 {
-  "checkedUpTo": "4a74c73511dceacf204be0a807032aa033a8c1c1",
+  "checkedUpTo": "b6723811b91ad0e0f8d7d27a78b88edd6cf0ecc3",
   "patterns": [
     {
       "key": "version-hacia-atras",
@@ -1109,6 +1109,27 @@
           "commit": "2831f200"
         }
       ],
+      "mechanism": {
+        "date": "2026-11-23",
+        "what": "root-files.test.mjs fails on any tracked repo-root file not in its allowlist",
+        "pr": "https://github.com/ellokojavi/juegos-de-salon/pull/1801"
+      }
+    },
+    {
+      "key": "executor-documentation-shallow",
+      "what": "Documentation round relied on document.mjs check without reading the merged diffs; sent back (2026-11-22 and 2026-11-23)",
+      "seen": [
+        {
+          "date": "2026-11-23",
+          "what": "Documentation round relied on document.mjs check without reading the merged diffs; sent back (2026-11-22 and 2026-11-23)",
+          "commit": null
+        },
+        {
+          "date": "2026-11-23",
+          "what": "Resent pass still skipped the per-PR diffs (README profile modules left 'in the lab'); finished partly in #1800",
+          "commit": null
+        }
+      ],
       "mechanism": null
     }
   ],
@@ -1304,6 +1325,12 @@
       "key": "lab-card-too-long",
       "what": "push-guard.mjs runs public/labs/short-cards.test.mjs and stops the push naming the long card (push-guard.test.mjs)",
       "pr": "https://github.com/ellokojavi/juegos-de-salon/pull/1760"
+    },
+    {
+      "date": "2026-11-23",
+      "key": "stray-root-file",
+      "what": "root-files.test.mjs fails on any tracked repo-root file not in its allowlist",
+      "pr": "https://github.com/ellokojavi/juegos-de-salon/pull/1801"
     }
   ],
   "queueDone": [
@@ -1320,12 +1347,12 @@
   ],
   "dispatches": {
     "documentation": {
-      "date": "2026-11-22",
-      "to": "4a74c73511dceacf204be0a807032aa033a8c1c1"
+      "date": "2026-11-23",
+      "to": "b6723811b91ad0e0f8d7d27a78b88edd6cf0ecc3"
     },
     "usability": {
-      "date": "2026-11-22",
-      "to": "4a74c73511dceacf204be0a807032aa033a8c1c1"
+      "date": "2026-11-23",
+      "to": "b6723811b91ad0e0f8d7d27a78b88edd6cf0ecc3"
     },
     "ideas": {
       "date": "2026-11-18",
@@ -1608,6 +1635,14 @@
       "issue": null,
       "pr": "https://github.com/ellokojavi/juegos-de-salon/pull/1760",
       "note": "dispatched docs (#1759, sent back once: shallow first pass) + usability + ci-health (targeted: e2e heaviest group 461 s with today's durations); collected 24 changelog entries; flags snapshot refreshed (home-carousels); mechanisms lab-card-too-long (here) and failure-log-wrong-attempt (#1761, red lane: workflow); pattern stray-root-file seen 2"
+    },
+    {
+      "date": "2026-11-23",
+      "from": "4a74c73511dceacf204be0a807032aa033a8c1c1",
+      "to": "b6723811b91ad0e0f8d7d27a78b88edd6cf0ecc3",
+      "issue": null,
+      "pr": "https://github.com/ellokojavi/juegos-de-salon/pull/1801",
+      "note": "dispatched docs (#1800, sent back once: shallow; pattern executor-documentation-shallow now 2x) + usability (no fixes, tournament 477 ✓); collected 40 changelog entries; flags snapshot refreshed (profile, wobbles, wobbles-cheers); mechanism stray-root-file; durations not committed: heaviest group 471 s over target, for ci-health"
     }
   ],
   "ownerDecisions": [

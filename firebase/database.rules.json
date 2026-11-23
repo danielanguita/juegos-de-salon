@@ -1225,6 +1225,87 @@
         }
       }
     },
+    "duelos": {
+      ".write": "auth != null && auth.uid === 'TrNylkeOFXNhnTPWAApebKvbI3F2'",
+      "$did": {
+        ".read": "$did.matches(/^[a-z0-9]{10}$/)",
+        ".write": "auth != null && $did.matches(/^[a-z0-9]{10}$/) && !data.exists() && newData.exists() && root.child('jugadorSeats/' + newData.child('a').val() + '/' + auth.uid).exists()",
+        ".validate": "data.exists() || (newData.hasChildren(['a', 'b', 'an', 'bn', 'f', 'g', 'sd', 'at']) && !newData.hasChild('e') && !newData.hasChild('r'))",
+        "a": {
+          ".validate": "newData.isString() && newData.val().matches(/^[a-z0-9]{8}$/) && root.child('jugadores/' + newData.val()).exists()"
+        },
+        "b": {
+          ".validate": "newData.isString() && newData.val().matches(/^[a-z0-9]{8}$/) && newData.val() !== newData.parent().child('a').val() && root.child('jugadores/' + newData.val()).exists()"
+        },
+        "an": {
+          ".validate": "newData.isString() && newData.val().length >= 1 && newData.val().length <= 20"
+        },
+        "bn": {
+          ".validate": "newData.isString() && newData.val().length >= 1 && newData.val().length <= 20"
+        },
+        "f": {
+          ".validate": "newData.isString() && newData.val().matches(/^(bo3|bo5|pts)$/)"
+        },
+        "g": {
+          ".validate": "newData.isString() && newData.val().matches(/^[a-z][a-z0-9-]{1,24}$/)"
+        },
+        "sd": {
+          ".validate": "newData.hasChildren(['0', '1', '2']) && (newData.parent().child('f').val() === 'bo5') === newData.hasChildren(['3', '4'])",
+          "$i": {
+            ".validate": "$i.matches(/^[0-4]$/) && newData.isString() && newData.val().matches(/^[A-HJ-NP-Z]{5}$/)"
+          }
+        },
+        "at": {
+          ".validate": "newData.val() === now"
+        },
+        "gr": {
+          "$i": {
+            ".validate": "$i.matches(/^[0-4]$/) && newData.parent().parent().child('sd/' + $i).exists() && newData.isString() && newData.val().matches(/^[a-z][a-z0-9-]{1,24}$/)"
+          }
+        },
+        "e": {
+          "$jid": {
+            "$i": {
+              ".write": "auth != null && $jid.matches(/^[a-z0-9]{8}$/) && !data.exists() && newData.exists() && root.child('jugadorSeats/' + $jid + '/' + auth.uid).exists() && (root.child('duelos/' + $did).child('a').val() === $jid || root.child('duelos/' + $did).child('b').val() === $jid) && $i.matches(/^[0-4]$/) && root.child('duelos/' + $did).child('sd/' + $i).exists() && now < root.child('duelos/' + $did).child('at').val() + 259200000",
+              ".validate": "newData.val() === now"
+            }
+          }
+        },
+        "r": {
+          "$jid": {
+            "$i": {
+              ".write": "auth != null && $jid.matches(/^[a-z0-9]{8}$/) && !data.exists() && newData.exists() && root.child('jugadorSeats/' + $jid + '/' + auth.uid).exists() && (root.child('duelos/' + $did).child('a').val() === $jid || root.child('duelos/' + $did).child('b').val() === $jid) && $i.matches(/^[0-4]$/) && root.child('duelos/' + $did).child('sd/' + $i).exists() && root.child('duelos/' + $did).child('e/' + $jid + '/' + $i).exists() && now < root.child('duelos/' + $did).child('at').val() + 259200000",
+              ".validate": "newData.hasChildren(['s', 'ms', 'at'])",
+              "s": {
+                ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 100000"
+              },
+              "ms": {
+                ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 99999999"
+              },
+              "at": {
+                ".validate": "newData.val() === now"
+              },
+              "$other": {
+                ".validate": false
+              }
+            }
+          }
+        },
+        "$other": {
+          ".validate": false
+        }
+      }
+    },
+    "jugadorDuelos": {
+      ".write": "auth != null && auth.uid === 'TrNylkeOFXNhnTPWAApebKvbI3F2'",
+      "$jid": {
+        ".read": "$jid.matches(/^[a-z0-9]{8}$/)",
+        "$did": {
+          ".write": "auth != null && $jid.matches(/^[a-z0-9]{8}$/) && $did.matches(/^[a-z0-9]{10}$/) && !data.exists() && newData.exists() && !root.child('duelos/' + $did).exists() && root.child('jugadorSeats/' + newData.parent().parent().parent().child('duelos/' + $did).child('a').val() + '/' + auth.uid).exists() && (newData.parent().parent().parent().child('duelos/' + $did).child('a').val() === $jid || newData.parent().parent().parent().child('duelos/' + $did).child('b').val() === $jid)",
+          ".validate": "newData.val() === now"
+        }
+      }
+    },
     "unoAlDia": {
       ".read": "auth != null && auth.uid === 'TrNylkeOFXNhnTPWAApebKvbI3F2'",
       ".write": "auth != null && auth.uid === 'TrNylkeOFXNhnTPWAApebKvbI3F2'",

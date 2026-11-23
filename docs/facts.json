@@ -14,7 +14,7 @@
     "en": 150,
     "pt": 150
   },
-  "commonKeys": 54,
+  "commonKeys": 52,
   "games": [
     {
       "id": "copa",
@@ -1251,6 +1251,10 @@
     "public/assets/js/daily-points.js",
     "public/assets/js/daily-recap.js",
     "public/assets/js/dato.js",
+    "public/assets/js/duels-home.js",
+    "public/assets/js/duels-texts.js",
+    "public/assets/js/duels-ui.js",
+    "public/assets/js/duels.js",
     "public/assets/js/favoritos.js",
     "public/assets/js/fin.js",
     "public/assets/js/firebase-config.js",
@@ -1259,7 +1263,6 @@
     "public/assets/js/frases.js",
     "public/assets/js/game-icon.js",
     "public/assets/js/game-manifest.js",
-    "public/assets/js/game-swipe.js",
     "public/assets/js/games.js",
     "public/assets/js/handoff.js",
     "public/assets/js/hidden-match.js",
@@ -1480,6 +1483,7 @@
     "public/cup/store-offline.js",
     "public/cup/table-image.js",
     "public/cup/talk.js",
+    "public/duels/duels-page.js",
     "public/generala/engine.js",
     "public/generala/game.js",
     "public/generala/rules.js",
@@ -1589,6 +1593,7 @@
     "firebase/cup-rounds.test.mjs",
     "firebase/cup-talk.test.mjs",
     "firebase/cup-tiebreak.test.mjs",
+    "firebase/duels.test.mjs",
     "firebase/flags.test.mjs",
     "firebase/lab-ready.test.mjs",
     "firebase/labs-publish.test.mjs",
@@ -1627,7 +1632,6 @@
     "public/assets/js/game-labels.test.mjs",
     "public/assets/js/game-manifest.test.mjs",
     "public/assets/js/game-names.test.mjs",
-    "public/assets/js/game-swipe.test.mjs",
     "public/assets/js/games.test.mjs",
     "public/assets/js/hidden-match.test.mjs",
     "public/assets/js/home-carousels.test.mjs",
@@ -1778,6 +1782,7 @@
     "tools/agents/lab-ready.test.mjs",
     "tools/agents/labs-key.test.mjs",
     "tools/agents/lanes.test.mjs",
+    "tools/agents/launch-check.test.mjs",
     "tools/agents/marketing.test.mjs",
     "tools/agents/memory.test.mjs",
     "tools/agents/merge-queue.test.mjs",
@@ -2195,7 +2200,7 @@
     },
     {
       "path": "docs/games/croc.md",
-      "title": "🐸 Croc! (La Copa game, ready to launch by flag; not launched)"
+      "title": "🐸 Croc! (La Copa game, launched 2026-11-22)"
     },
     {
       "path": "docs/games/cryptic.md",
@@ -2299,7 +2304,7 @@
     },
     {
       "path": "docs/games/wobbles.md",
-      "title": "⚖️ The Wobbles (Tembleque; /wobbles/, ready to launch by flag, home page only)"
+      "title": "⚖️ The Wobbles (Tembleque; /wobbles/, launched 2026-11-22, home page only)"
     },
     {
       "path": "docs/games/word.md",

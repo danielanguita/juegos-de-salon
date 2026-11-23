@@ -1,0 +1,100 @@
+/**
+ * All of a player's duels (lab flag rivals, assets/js/duels.js): ⚔️ New duel, then the open ones in
+ * two tabs (my turn, waiting) and the finished ones under them. A player with no duel yet gets the
+ * new-duel sheet open on arrival. Without a player, the sign-in card.
+ * `?d=<duel>` is a challenge's invite (the owner, 2026-11-23: always to one rival, not an open seat):
+ * «Javi challenges you», the duel so far and ⚔️ Accept and play, for the rival it was sent to.
+ */
+import { el } from '../assets/js/ui.js';
+import { SFX } from '../assets/js/sound.js';
+import { jugador, leerYo } from '../assets/js/jugador.js';
+import { bloqueJugador } from '../assets/js/ranking.js';
+import { estado, record, esDid, rondas } from '../assets/js/duels.js';
+import { T, fmt, fila, ordenar, abrirNuevo, titulo, hrefRonda, hrefDuelos, shareInvite } from '../assets/js/duels-ui.js';
+
+export { T };
+const tap = () => SFX.tap();
+
+/** A challenge's invite: what the person who opens its link sees, by who they are. */
+async function drawInvite(root, { sub, h1, did, J }) {
+  const D = await J.duelos();
+  const d = await D.leer(did).catch(() => null);
+  const todos = el('a', { class: 'btn btn--ghost btn--sm', id: 'dl-todos', href: hrefDuelos(), onClick: tap }, T.backDuels);
+  if (!d) { root.replaceChildren(el('p', { class: 'notice' }, T.notFound), todos); return; }
+  const yo = leerYo();
+  h1.textContent = fmt(T.challengesYou, { n: d.an });
+  sub.textContent = titulo(d);
+  const deA = estado(d, d.a);
+  const versus = el('div', { class: 'panel dl-invita' }, el('div', { class: 'dl-versus' },
+    el('div', {}, el('b', {}, d.an), el('div', { class: 'dl-espera' }, fmt(T.playedOf, { n: d.an, k: deA.mias.filter(Boolean).length, t: rondas(d) }))),
+    el('span', { class: 'display display--md' }, 'VS'),
+    el('div', {}, el('b', {}, d.bn), el('div', { class: 'dl-espera' }, '?'))));
+  if (!yo) {
+    root.replaceChildren(versus, el('p', { class: 'dl-nota center' }, T.signInToPlay), bloqueJugador({ abierto: true, destacado: true, alTocar: tap }));
+    return;
+  }
+  if (yo.jid === d.a) {
+    h1.textContent = T.pageTitle;
+    const invitar = el('button', { type: 'button', class: 'btn btn--yellow', id: 'dl-invitar', onClick: () => { tap(); shareInvite(d, invitar); } }, fmt(T.shareInvite, { n: d.bn }));
+    root.replaceChildren(el('section', { class: 'panel' }, fila(d, yo.jid, { alTocar: tap })), estado(d, yo.jid).termino ? null : invitar, todos);
+    return;
+  }
+  if (yo.jid !== d.b) { root.replaceChildren(versus, el('p', { class: 'notice' }, fmt(T.forOther, { n: d.bn })), todos); return; }
+  const e = estado(d, yo.jid);
+  if (e.termino) { root.replaceChildren(el('p', { class: 'notice' }, T.duelOver), el('section', { class: 'panel' }, fila(d, yo.jid, { alTocar: tap })), todos); return; }
+  if (e.turno < 0) { root.replaceChildren(el('p', { class: 'notice' }, fmt(T.waitingFor, { n: d.an })), el('section', { class: 'panel' }, fila(d, yo.jid, { alTocar: tap })), todos); return; }
+  root.replaceChildren(versus,
+    el('a', { class: 'btn btn--yellow', id: 'dl-aceptar', href: hrefRonda(d, e.turno), onClick: tap }, fmt(T.acceptPlay, { i: e.turno + 1 })),
+    el('p', { class: 'dl-nota center' }, fmt(T.acceptNote, { n: d.an })), todos);
+}
+
+export async function drawDuels(root, { sub }) {
+  const J = await jugador();
+  // A challenge's link: its invite, drawn again when the visitor signs in
+  const did = new URLSearchParams(location.search).get('d');
+  if (esDid(did)) {
+    const h1 = document.getElementById('dl-h1');
+    const once = () => drawInvite(root, { sub, h1, did, J }).catch(() => {});
+    J.escuchar(() => once());
+    await once();
+    return;
+  }
+  let turn = 0, tab = 'turn', abierta = false; // the new-duel sheet opens on its own once, for a first-timer
+  const draw = async () => {
+    const mine = ++turn;
+    const yo = leerYo();
+    if (!yo) { sub.textContent = T.signIn; root.replaceChildren(bloqueJugador({ abierto: true, destacado: true, alTocar: tap })); return; }
+    const nuevo = el('button', { type: 'button', class: 'btn btn--yellow', id: 'dl-nuevo', onClick: () => { tap(); abrirNuevo({ lista, alTocar: tap }); } }, `⚔️ ${T.newDuel}`);
+    let lista = [], leida = false;
+    root.replaceChildren(nuevo);
+    try { lista = await (await J.duelos()).mios(); leida = true; } catch (_) { /* offline: nothing to show */ }
+    if (mine !== turn) return;
+    const r = record(lista, yo.jid);
+    sub.textContent = r.g + r.p ? `${fmt(T.pageSub, { g: r.g, p: r.p })} · ${r.pct}%` : '';
+    if (!lista.length) {
+      root.replaceChildren(nuevo, el('p', { class: 'muted center' }, T.empty));
+      // A first-timer (no duel, no record) came to start one: open the sheet once, not on every redraw
+      if (leida && !abierta && !document.getElementById('dl-hoja')) { abierta = true; abrirNuevo({ lista, alTocar: tap }); }
+      return;
+    }
+    const orden = ordenar(lista, yo.jid);
+    const es = d => estado(d, yo.jid);
+    const grupos = { turn: orden.filter(d => es(d).turno >= 0), waiting: orden.filter(d => !es(d).termino && es(d).turno < 0) };
+    const hechos = orden.filter(d => es(d).termino);
+    const listaAbierta = el('div', { id: 'dl-abiertos' });
+    const seg = el('div', { class: 'rk-seg', role: 'tablist' }, ['turn', 'waiting'].map(k => el('button', {
+      type: 'button', role: 'tab', 'data-t': k, onClick: () => { tap(); tab = k; marcar(); },
+    }, `${T[k === 'turn' ? 'tabTurn' : 'tabWaiting']} ${grupos[k].length}`)));
+    function marcar() {
+      seg.querySelectorAll('button').forEach(b => { const on = b.dataset.t === tab; b.classList.toggle('on', on); b.setAttribute('aria-selected', String(on)); });
+      listaAbierta.replaceChildren(...(grupos[tab].length ? grupos[tab].map(d => fila(d, yo.jid, { alTocar: tap })) : [el('p', { class: 'muted rk-centro' }, T.emptyTab)]));
+    }
+    if (!grupos.turn.length && grupos.waiting.length) tab = 'waiting';
+    marcar();
+    root.replaceChildren(...[nuevo,
+      el('section', { class: 'panel' }, seg, listaAbierta),
+      hechos.length ? el('section', { class: 'panel', id: 'dl-terminados' }, el('p', { class: 'lead' }, T.tabDone), hechos.map(d => fila(d, yo.jid, { alTocar: tap }))) : null].filter(Boolean));
+  };
+  J.escuchar(() => draw());
+  await draw();
+}
