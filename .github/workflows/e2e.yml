@@ -132,11 +132,43 @@ jobs:
           if-no-files-found: ignore
           retention-days: 7
 
+  # The launch gate (docs/LAUNCH.md §3): a PR that launches a game (its launch day, `nuevoDesde`, moves
+  # while it is behind its flag) walks every place a launched game shows, on the real screens:
+  # tools/agents/launching.mjs names the games, launch-check.mjs --screens checks them. Croc! and
+  # Tembleque launched with places missing because this was left to memory (2026-11-22)
+  launch:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # The test merge's first parent is main: the base the launch is measured against
+          fetch-depth: 2
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - id: ids
+        run: echo "ids=$(node tools/agents/launching.mjs --base HEAD^1)" >> "$GITHUB_OUTPUT"
+      - if: steps.ids.outputs.ids != ''
+        name: Serve the site and Chrome
+        run: |
+          python3 -m http.server 8765 -d public > /dev/null 2>&1 &
+          printf '#!/bin/sh\nexec google-chrome --no-sandbox "$@"\n' > "$RUNNER_TEMP/chrome"
+          chmod +x "$RUNNER_TEMP/chrome"
+          echo "CHROME=$RUNNER_TEMP/chrome" >> "$GITHUB_ENV"
+          timeout 60 "$RUNNER_TEMP/chrome" --headless=new --dump-dom about:blank > /dev/null 2>&1 || true
+          for i in $(seq 1 20); do curl -sf http://localhost:8765/ > /dev/null && exit 0; sleep 0.5; done
+          echo "::error::the server did not come up"; exit 1
+      - if: steps.ids.outputs.ids != ''
+        name: launch-check ${{ steps.ids.outputs.ids }} --screens
+        run: node tools/agents/launch-check.mjs ${{ steps.ids.outputs.ids }} --screens
+
   # A single check that sums up all the scripts (D-216): it is the one `main` requires alongside
   # `tests`, so a PR's auto-merge waits for all of them to pass. Without scripts (a PR that only
   # brings documentation), it is enough for `list` to come out green.
   end-to-end:
-    needs: [list, e2e]
+    needs: [list, e2e, launch]
     if: always()
     runs-on: ubuntu-latest
     permissions:
@@ -145,9 +177,11 @@ jobs:
       pull-requests: write
     steps:
       - run: |
-          echo "list: ${{ needs.list.result }} · scripts: ${{ needs.e2e.result }}"
+          echo "list: ${{ needs.list.result }} · scripts: ${{ needs.e2e.result }} · launch: ${{ needs.launch.result }}"
           [ "${{ needs.list.result }}" = success ] || exit 1
           case "${{ needs.e2e.result }}" in success|skipped) ;; *) exit 1 ;; esac
+          # The launch gate: skipped off a PR, green when the PR launches nothing
+          case "${{ needs.launch.result }}" in success|skipped) ;; *) echo "launch-check failed: a game launches with a place missing (docs/LAUNCH.md)"; exit 1 ;; esac
           echo "tested" > "$RUNNER_TEMP/mark"
       # The mark of the tree that passed, with real scripts: publish.yml looks for it so as not to
       # repeat the end-to-end run on the same thing (tools/e2e/already-tested.mjs, D-308). Not after
