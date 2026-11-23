@@ -50,6 +50,8 @@ Where today's rule is and which decisions explain it: those in force that still 
 | README and screenshots | C-13 | D-51, D-76, D-78, D-213, D-316, D-506 |
 | Tests | C-12 | D-143, D-193, D-199, D-204, D-216, D-299, D-307, D-315, D-377, D-378, D-388, D-391, D-392, D-401, D-428, D-460, D-484, D-494, D-496, D-506, D-515, D-516, D-518, D-541, D-551, D-558, D-559, D-579, D-585, D-588, D-589, D-606, D-611 |
 | La Copa (tournament, days, score) | `docs/games/cup.md` | D-94, D-95, D-96, D-97, D-99, D-106, D-113, D-118, D-150, D-161, D-163, D-170, D-175, D-187, D-212, D-220, D-234, D-250, D-257, D-258, D-259, D-260, D-261, D-262, D-263, D-264, D-267, D-268, D-282, D-285, D-325, D-326, D-331, D-332, D-336, D-347, D-359, D-376, D-379, D-384, D-416, D-417, D-418, D-421, D-423, D-425, D-426, D-427, D-433, D-437, D-438, D-439, D-444, D-450, D-453, D-456, D-460, D-464, D-468, D-476, D-478, D-481, D-492, D-499, D-517, D-521, D-525, D-544, D-562, D-564, D-566, D-572, D-587 |
+| Tests | C-12 | D-143, D-193, D-199, D-204, D-216, D-299, D-307, D-315, D-377, D-378, D-388, D-391, D-392, D-401, D-428, D-460, D-484, D-494, D-496, D-506, D-515, D-516, D-518, D-541, D-551, D-558, D-559, D-579, D-585, D-588, D-589, D-606 |
+| La Copa (tournament, days, score) | `docs/games/cup.md` | D-94, D-95, D-96, D-97, D-99, D-106, D-113, D-118, D-150, D-161, D-163, D-170, D-175, D-187, D-212, D-220, D-234, D-250, D-257, D-258, D-259, D-260, D-261, D-262, D-263, D-264, D-267, D-268, D-282, D-285, D-325, D-326, D-331, D-332, D-336, D-347, D-359, D-376, D-379, D-384, D-416, D-417, D-418, D-421, D-423, D-425, D-426, D-427, D-433, D-437, D-438, D-439, D-444, D-450, D-453, D-456, D-460, D-464, D-468, D-476, D-478, D-481, D-492, D-499, D-517, D-521, D-525, D-544, D-562, D-564, D-566, D-572, D-587, D-608 |
 | Agents (usability, documentation, processes, support, ideas) | [USABILIDAD.md](USABILIDAD.md) | D-132, D-135, D-172, D-204, D-206, D-213, D-218, D-252, D-273, D-275, D-276, D-279, D-301, D-303, D-304, D-306, D-313, D-315, D-317, D-318, D-341, D-360, D-361, D-365, D-382, D-383, D-394, D-400, D-401, D-409, D-411, D-413, D-429, D-440, D-441, D-443, D-451, D-452, D-459, D-463, D-472, D-480, D-486, D-497, D-518, D-519, D-520, D-522, D-527, D-531, D-532, D-533, D-540, D-541, D-547, D-553, D-554, D-555, D-558, D-568, D-569, D-570, D-573, D-575, D-576, D-577, D-578, D-580, D-582, D-586, D-596, D-597 |
 | Rankings and player (name and PIN) | C-7 | D-96, D-212, D-215, D-217, D-219, D-220, D-230, D-236, D-249, D-336, D-357, D-358, D-359, D-412, D-414, D-415, D-416, D-424, D-436, D-450, D-455, D-464, D-465, D-470, D-476, D-478, D-492, D-499, D-500, D-513, D-559, D-563, D-600, D-602, D-603, D-604, D-605 |
 | Marketing | `marketing/README.md` | D-178, D-380, D-410, D-454, D-456, D-494, D-505, D-529, D-591 |
@@ -237,7 +239,7 @@ Where today's rule is and which decisions explain it: those in force that still 
 | [D-183](decisions/D-183.md) | Desenredo: the rope gets a second wave and two ends | amended by D-185 |
 | [D-184](decisions/D-184.md) | Concise instructions: written rules and a cap that watches over it | current |
 | [D-185](decisions/D-185.md) | Desenredo: less waviness in the rope | current |
-| [D-187](decisions/D-187.md) | The cup's audience: 🌎 global, 🇨🇱 Chile or 🇧🇷 Brazil | current |
+| [D-187](decisions/D-187.md) | The cup's audience: 🌎 global, 🇨🇱 Chile or 🇧🇷 Brazil | amended by D-608 |
 | [D-188](decisions/D-188.md) | Random game: a die rolling over the menu | amended by D-374 |
 | [D-189](decisions/D-189.md) | Outside contributions: fork, PR and protected `main` | current |
 | [D-190](decisions/D-190.md) | Desenredo leaves the lab | current |
@@ -564,7 +566,7 @@ Where today's rule is and which decisions explain it: those in force that still 
 | [D-518](decisions/D-518.md) | CI failures are logged and promoted to mechanisms automatically | current |
 | [D-519](decisions/D-519.md) | Merge lanes by blast radius | amended by D-531, D-540, D-553, D-575 |
 | [D-520](decisions/D-520.md) | Measurable usability rules are tests; the usability agent judges the rest | current |
-| [D-521](decisions/D-521.md) | La Copa: the admin chooses its length (3 to 14 days) and its time zone | current |
+| [D-521](decisions/D-521.md) | La Copa: the admin chooses its length (3 to 14 days) and its time zone | amended by D-608 |
 | [D-522](decisions/D-522.md) | Sessions always open the PR and drive it to merge, without asking | current |
 | [D-524](decisions/D-524.md) | The language selector shows only the flags | current |
 | [D-525](decisions/D-525.md) | Babel and Shinobi score with no cap; Babel rewards streaks | amended by D-526 |
@@ -648,6 +650,7 @@ Where today's rule is and which decisions explain it: those in force that still 
 | [D-605](decisions/D-605.md) | A public profile has nothing to hide: places, not play counts | current |
 | [D-606](decisions/D-606.md) | A PR that launches a game cannot merge until launch-check passes on its screens | current |
 | [D-611](decisions/D-611.md) | The end-to-end group target is 420 s | current |
+| [D-608](decisions/D-608.md) | La Copa: a new cup's audience starts on the phone's zone, not its language | current |
 
 ## No longer in force (14)
 

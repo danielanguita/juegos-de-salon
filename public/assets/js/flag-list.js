@@ -6,6 +6,7 @@
 export const FLAGS = {
   'panel-nav-more': '📊 Panel on a phone: five tabs and ☰ More at the bottom, the other sections in a sheet by group',
   'cup-footer': '🏆 La Copa: the board ends with the site footer, its report and leave links as tiles (U-38)',
+  'cup-zone-phone': '🏆 La Copa: a new cup\'s audience, and so its zone, starts on the phone\'s zone, not its language (D-608)',
   'cup-offline': '🏆 La Copa offline: a pending day of a cup this phone opened with signal plays with no signal; the result uploads when the signal is back, if its day is still open (D-544)',
   'cup-talk-hint': '🏆 La Copa: a dismissable balloon on the table that says comments exist, once per phone (D-566)',
   'cup-talk-push': '🏆 La Copa: a notification "💬 they commented on your result" when someone comments on your row, grouped, never at night (D-564)',
