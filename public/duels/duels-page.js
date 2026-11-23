@@ -1,6 +1,7 @@
 /**
  * All of a player's duels (lab flag rivals, assets/js/duels.js): ⚔️ New duel, then the open ones in
- * two tabs (my turn, waiting) and the finished ones under them. Without a player, the sign-in card.
+ * two tabs (my turn, waiting) and the finished ones under them. A player with no duel yet gets the
+ * new-duel sheet open on arrival. Without a player, the sign-in card.
  * `?d=<duel>` is a challenge's invite (the owner, 2026-11-23: always to one rival, not an open seat):
  * «Javi challenges you», the duel so far and ⚔️ Accept and play, for the rival it was sent to.
  */
@@ -58,19 +59,24 @@ export async function drawDuels(root, { sub }) {
     await once();
     return;
   }
-  let turn = 0, tab = 'turn';
+  let turn = 0, tab = 'turn', abierta = false; // the new-duel sheet opens on its own once, for a first-timer
   const draw = async () => {
     const mine = ++turn;
     const yo = leerYo();
     if (!yo) { sub.textContent = T.signIn; root.replaceChildren(bloqueJugador({ abierto: true, destacado: true, alTocar: tap })); return; }
     const nuevo = el('button', { type: 'button', class: 'btn btn--yellow', id: 'dl-nuevo', onClick: () => { tap(); abrirNuevo({ lista, alTocar: tap }); } }, `⚔️ ${T.newDuel}`);
-    let lista = [];
+    let lista = [], leida = false;
     root.replaceChildren(nuevo);
-    try { lista = await (await J.duelos()).mios(); } catch (_) { /* offline: nothing to show */ }
+    try { lista = await (await J.duelos()).mios(); leida = true; } catch (_) { /* offline: nothing to show */ }
     if (mine !== turn) return;
     const r = record(lista, yo.jid);
     sub.textContent = r.g + r.p ? `${fmt(T.pageSub, { g: r.g, p: r.p })} · ${r.pct}%` : '';
-    if (!lista.length) { root.replaceChildren(nuevo, el('p', { class: 'muted center' }, T.empty)); return; }
+    if (!lista.length) {
+      root.replaceChildren(nuevo, el('p', { class: 'muted center' }, T.empty));
+      // A first-timer (no duel, no record) came to start one: open the sheet once, not on every redraw
+      if (leida && !abierta && !document.getElementById('dl-hoja')) { abierta = true; abrirNuevo({ lista, alTocar: tap }); }
+      return;
+    }
     const orden = ordenar(lista, yo.jid);
     const es = d => estado(d, yo.jid);
     const grupos = { turn: orden.filter(d => es(d).turno >= 0), waiting: orden.filter(d => !es(d).termino && es(d).turno < 0) };
