@@ -29,6 +29,11 @@
 .aw-puntos i.on { background: var(--yellow); }
 .aw-puntos i.nuevo { background: var(--pink); animation: aw-late 1s ease-in-out 3 0.9s; }
 @keyframes aw-late { 50% { transform: scale(1.6); } }
+/* Any other badge (the owner, 2026-11-23): nothing to turn over, the medal shows at once and its flash comes as the card lands */
+.aw-abierta .aw-dorso { display: none; }
+.aw-abierta .aw-cara { animation: none; }
+.aw-abierta .aw-tarjeta::after { animation-delay: 0.6s; }
+.aw-abierta .aw-medalla { animation: aw-tiembla 0.45s ease-in-out 0.25s 1, aw-flota 3s ease-in-out 1.2s infinite; }
 /* The demo's picker (?achievement=demo), under the window */
 .aw-demo { position: fixed; left: 0; right: 0; bottom: 0; z-index: 1001; display: flex; flex-wrap: wrap; gap: var(--s-6); justify-content: center;
   padding: var(--s-8) var(--s-8) calc(var(--s-8) + var(--safe-bottom, 0px)); background: rgb(var(--bg2-rgb) / 0.95); }
