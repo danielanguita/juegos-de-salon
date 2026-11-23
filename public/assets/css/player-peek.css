@@ -10,7 +10,7 @@
 .pf-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--s-8); margin-top: var(--s-14); }
 .pf-stat { background: var(--well); border-radius: var(--r-12); padding: var(--s-10) var(--s-6); text-align: center; }
 .pf-stat b { display: block; font: 900 var(--fs-140) var(--font-num); font-variant-numeric: tabular-nums; color: var(--yellow); }
-.pf-stat span { font-size: var(--fs-75); color: var(--muted); font-weight: 800; }
+.pf-stat > span { font-size: var(--fs-75); color: var(--muted); font-weight: 800; }
 
 .pf-medal { width: 58px; height: 58px; border-radius: 50%; display: grid; place-items: center; font-size: var(--fs-160); margin-bottom: var(--s-2); }
 .pf-badge--gold .pf-medal { background: radial-gradient(circle at 35% 30%, var(--pf-oro-luz), var(--pf-oro) 45%, var(--pf-oro-hondo)); box-shadow: 0 0 0 3px var(--pf-oro-aro), 0 6px 16px rgb(var(--yellow-rgb) / 0.45); }

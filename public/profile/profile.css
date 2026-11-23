@@ -12,6 +12,10 @@
 .pf-who { display: grid; text-align: center; }
 .pf-player { margin: 0; font-weight: 900; font-size: var(--fs-140); line-height: 1.2; overflow-wrap: anywhere; }
 .pf-since { margin: var(--s-2) 0 0; font-size: var(--fs-90); }
+/* Until the server's figure arrives, a spinner the size of the number: the card never jumps (the owner, 2026-11-23) */
+.pf-stat .pf-spin { display: inline-block; width: 0.7em; height: 0.7em; vertical-align: -0.05em; border-radius: var(--r-pill);
+  border: 0.12em solid rgb(var(--yellow-rgb) / 0.25); border-top-color: var(--yellow); animation: pf-spin 0.8s linear infinite; }
+@keyframes pf-spin { to { transform: rotate(1turn); } }
 
 /* The three tabs: always in view while scrolling */
 /* Sticky over the badges: nearly opaque in the page's own colour, blurred behind and edged, so it reads as a bar
