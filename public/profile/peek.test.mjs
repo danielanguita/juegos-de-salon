@@ -9,7 +9,7 @@ const hist = {};
 for (let i = 0; i < 12; i++) hist[day(`2026-11-${String(10 + i).padStart(2, '0')}`)] = { s: 1 };
 const f = peekFacts({
   jid: 'abcd1234',
-  perfil: { n: 'Ana', co: 'CL', abierto: true, at: Date.parse('2026-09-01'), juegos: { ahorcado: { n: 120 }, nope: { n: 5 }, sudoku: { n: 3 } } },
+  perfil: { n: 'Ana', co: 'CL', at: Date.parse('2026-09-01'), juegos: { ahorcado: { n: 120 }, nope: { n: 5 }, sudoku: { n: 3 } } },
   hist,
   podios: { C1: { name: 'Copa', end: 1, p: { a: { j: 'abcd1234', l: 1, n: 'Ana' } } } },
   general: [{ jid: 'zzzz9999', puesto: 1 }, { jid: 'abcd1234', puesto: 4 }],
@@ -34,9 +34,10 @@ const shy = { ...f, open: false };
 const shyIds = peekBadges(shy).map(b => b.id);
 assert.ok(!shyIds.some(id => ACTIVITY_BADGES.has(id)), 'no streak, plays or days achievements when the activity is hidden');
 for (const id of ['cup-champion', 'month-podium', 'all-rounder']) assert.ok(shyIds.includes(id), `${id} still shows`);
-assert.equal(peekFacts({ jid: 'x', perfil: { n: 'B', at: 1 } }).open, false, 'hidden unless the player turned it on');
+assert.equal(peekFacts({ jid: 'x', perfil: { n: 'B', at: 1 } }).open, true, 'shown unless the player hid it (D-604)');
+assert.equal(peekFacts({ jid: 'x', perfil: { n: 'B', at: 1, oculto: true } }).open, false, 'hidden once the player hides it');
 for (const id of ACTIVITY_BADGES) assert.ok(PUBLIC_BADGES.has(id), id);
-for (const l of ['es', 'en', 'pt']) for (const k of ['peekOpen', 'peekLoading', 'peekError', 'peekYou', 'peekClose', 'peekPlace', 'peekGames', 'peekNoGames', 'peekBadges', 'peekBadgesOne', 'peekBadgesNone', 'peekNoBadges', 'peekHidden', 'peekHiddenYou', 'publicTitle', 'publicHint', 'showActivity', 'showActivityHint', 'seePublic', 'publicError'])
+for (const l of ['es', 'en', 'pt']) for (const k of ['peekOpen', 'peekLoading', 'peekError', 'peekClose', 'peekPlace', 'peekGames', 'peekNoGames', 'peekBadges', 'peekBadgesOne', 'peekBadgesNone', 'peekNoBadges', 'peekHidden', 'publicBubbleTitle', 'publicBubbleText', 'publicTitle', 'publicHint', 'showActivity', 'showActivityHint', 'seePublic', 'publicError'])
   assert.ok(TEXTS[l][k], `${l}.${k}`);
 assert.ok(!/chapita/i.test(JSON.stringify(TEXTS.es)), 'logros, never chapitas');
 console.log('✓ profile peek');

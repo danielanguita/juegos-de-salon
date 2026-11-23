@@ -2,11 +2,11 @@
  * Another player's profile, at a glance (lab flag `profile`; the owner, 2026-11-22): a tap on a name in a
  * ranking opens a sheet with what matters most about that player: their flag and name, their place in the
  * overall ranking when in its top 10 and the achievements anyone can see. Tapping your own name, or
- * «Ver cómo me ven los demás» in ⚙️, shows how others see you.
+ * «Ver cómo me ven los demás» in ⚙️, shows exactly what others see: the same sheet, the same words (D-604).
  *
  * Their activity (their streak, games and cups won, since when they play, their three most played games and
- * the achievements that count how much they play) shows only if the player turned it on in ⚙️
- * (`jugadores/<jid>/abierto`): someone who plays a lot may not want others to know (the owner, 2026-11-22).
+ * the achievements that count how much they play) shows unless the player hid it in ⚙️
+ * (`jugadores/<jid>/oculto`): someone who plays a lot may not want others to know (D-602, D-604).
  *
  * Only what is already public is read (`jugadores/<jid>`, `unoAlDia/<jid>`, the Cups' podiums and the
  * tables): what this phone alone knows about its player (the hours, the marks, the cups joined) is not
@@ -19,7 +19,7 @@ import { withIcon } from '../assets/js/game-icon.js';
 import { getLang, pickLang } from '../assets/js/i18n.js';
 import { ALL_GAMES } from '../assets/js/games.js';
 import { conBandera } from '../assets/js/ranking.js';
-import { jugador, leerYo } from '../assets/js/jugador.js';
+import { jugador } from '../assets/js/jugador.js';
 import { TODOTERRENO, UAD_PUNTOS, SIEMPRE, medallero } from '../assets/js/records.js';
 import { recorrer, fechaLocal } from '../assets/js/uno-al-dia.js';
 import { BADGES, earned } from './badges.js';
@@ -56,7 +56,7 @@ export function peekFacts({ jid, perfil = null, hist = {}, podios = {}, general 
   return {
     today, now,
     n: perfil?.n || '', co: perfil?.co || '',
-    open: perfil?.abierto === true,
+    open: perfil?.oculto !== true,
     since: Number(perfil?.at) || 0,
     streak: r.racha, bestStreak: r.mejor,
     dailyDays: Object.fromEntries(Object.keys(dias).map(d => [d, true])),
@@ -99,7 +99,6 @@ export async function peekPlayer(jid, { hint = {}, lang = getLang(), doc = docum
   const T = TEXTS[lang] || TEXTS.es;
   const fmt = (s, v = {}) => String(s).replace(/\{(\w+)\}/g, (_, k) => (v[k] !== undefined ? v[k] : `{${k}}`));
   const num = x => new Intl.NumberFormat(lang).format(x);
-  const me = leerYo()?.jid === jid;
   const y = doc.defaultView?.scrollY || 0;
   const bodyStyle = doc.body.getAttribute('style');
   let layer = null;
@@ -117,7 +116,7 @@ export async function peekPlayer(jid, { hint = {}, lang = getLang(), doc = docum
   const panel = el('div', { class: 'hoja pf-peek', id: 'pf-peek', role: 'dialog', 'aria-modal': 'true', 'aria-labelledby': 'pf-peek-name' },
     el('div', { class: 'hoja-asa', 'aria-hidden': 'true' }),
     el('div', { class: 'hoja-cabeza' },
-      el('div', { class: 'pf-peek-who' }, me ? el('p', { class: 'pf-peek-kicker' }, T.peekYou) : null, who),
+      el('div', { class: 'pf-peek-who' }, who),
       el('button', { type: 'button', class: 'icon-btn', 'aria-label': T.peekClose, title: T.peekClose, onClick: close }, '✕')),
     body,
     el('div', { class: 'btn-row' }, el('button', { type: 'button', class: 'btn btn--yellow pf-peek-ok', onClick: close }, T.peekClose)));
@@ -143,7 +142,7 @@ export async function peekPlayer(jid, { hint = {}, lang = getLang(), doc = docum
     line.length ? el('p', { class: 'muted pf-peek-line' }, line.join(' · ')) : null,
     open ? el('div', { class: 'pf-stats pf-peek-stats' },
       stat(`🔥 ${num(f.streak || 0)}`, T.statStreak), stat(num(f.plays || 0), T.statPlays), stat(`🏆 ${num(f.medals.gold)}`, T.statCups)) : null,
-    open ? null : el('p', { class: 'pf-peek-hidden' }, me ? T.peekHiddenYou : T.peekHidden),
+    open ? null : el('p', { class: 'pf-peek-hidden' }, T.peekHidden),
     !open ? null : el('section', { class: 'pf-peek-part' },
       el('h3', {}, T.peekGames),
       fav.length
