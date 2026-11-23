@@ -123,11 +123,12 @@ function renderModes() {
 }
 
 /* ---------------- The level's table on the cover, as Sudoku's: it follows the lever ---------------- */
+// No sign-in offer under it (the owner, 2026-11-23): the cover already has its «👤 Entrar»
 function drawRanking() {
   const slot = document.getElementById('ranking');
   if (!slot) return;
   const name = `${manifest.name[lang] || manifest.name.es} · ${SOLO_LEVELS.wobbles[chosen][lang] || SOLO_LEVELS.wobbles[chosen].es}`;
-  slot.replaceChildren(bloqueTabla({ tabla: `${GAME_ID}_${chosen}`, titulo: fmt(C.rk.titleOf, { game: name }), alTocar: () => SFX.tap() }));
+  slot.replaceChildren(bloqueTabla({ tabla: `${GAME_ID}_${chosen}`, titulo: fmt(C.rk.titleOf, { game: name }), alTocar: () => SFX.tap(), entrar: false }));
 }
 
 // The cover ends with the site's footer, the game's own comment as its option (C-17, U-38)
