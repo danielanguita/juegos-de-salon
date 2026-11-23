@@ -120,6 +120,11 @@ export function profileEverywhere({ doc = document, profileHref = new URL('../..
     pillFace(pill, { lang, doc });
   };
   fix();
+  // The first time, a bubble from the pill says the player's things live there (profile-hint.js)
+  if (!isProfile(doc)) setTimeout(() => import('./profile-hint.js').then(m => {
+    m.demoReset(doc.location);
+    m.pillBubble(doc.querySelector('.topbar .pf-home'), { doc, lang });
+  }).catch(() => {}), 1200);
   // Pages draw their bar and sign players in and out after loading: one look per frame at most
   let queued = false;
   new MutationObserver(() => {
