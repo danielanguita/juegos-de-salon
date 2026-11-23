@@ -13,12 +13,12 @@ its home card with ✨ Nuevo for 10 days, the search and the 🎯 Pulso filter, 
 **Not La Copa and not Uno al día**: no `copa` and no `unoAlDia` until it has a version on the house's engine,
 which is later work.
 
-- **Nothing is launched:** flags/wobbles has no value (so it reads *lab*), no campaign is on, nothing is scheduled.
-- **The date is a placeholder:** `nuevoDesde: '2026-11-30'` in `game.json`. The launch PR must move it to the
-  launch day (the ✨ Nuevo label also starts at the flag's `at`, D-556).
+- **Launch:** scheduled for 2026-11-22 at 21:00 Pacific (2026-11-23 05:00 UTC) with 🐸 Croc!, the nine cheers
+  (flag `wobbles-cheers`) and the splash `nos-volvimos-locos`. `nuevoDesde` in `game.json` is the launch day
+  (`2026-11-22`; the ✨ Nuevo label also starts at the flag's `at`, D-556).
 - **The splash** `nos-volvimos-locos` (off) names it by its id (`game: 'wobbles'`) and opens its cover, `/wobbles/`.
-- **Still lab-only:** the nine cheers (flag `wobbles-cheers`) and the «T» tab's pieces at the start; the launch
-  leaves them as they are.
+- **Still lab-only:** the «T» tab's pieces at the start; the launch leaves them as they are (the nine cheers
+  launch with the game, the owner, 2026-11-22).
 
 ## Resumen
 
