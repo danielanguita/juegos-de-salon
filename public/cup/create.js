@@ -4,7 +4,7 @@
  */
 import { gameIcon, withIcon, textWithIcon } from '../assets/js/game-icon.js';
 import { $, el, vibrate } from '../assets/js/ui.js';
-import { ZONA, DIAS_MIN, DIAS_MAX, FINAL_DESDE, FINAL_RONDAS, COPA_MAX, ESTILOS_SEMANA, MAX_DIAS_INICIO, POZO_ABIERTO as POZO, refreshPool, TRIO_SEP, VARIANTES, aliasLimpio, calendario, calendarioAlAzar, codigoAlAzar, diaDeCal, entradaCal, esAlias, esPin, fechaEn, findeAbierto, findeAlAzar, fuera, hashPin, limpiarNombre, newRulesOn, nuevaMeta, pidAlAzar, semanaAlAzar, sumarDias, tieneFinal, zonaDeIdioma } from './engine.js';
+import { ZONA, DIAS_MIN, DIAS_MAX, FINAL_DESDE, FINAL_RONDAS, COPA_MAX, ESTILOS_SEMANA, MAX_DIAS_INICIO, POZO_ABIERTO as POZO, refreshPool, TRIO_SEP, VARIANTES, aliasLimpio, calendario, calendarioAlAzar, codigoAlAzar, diaDeCal, entradaCal, esAlias, esPin, fechaEn, findeAbierto, findeAlAzar, fuera, hashPin, limpiarNombre, newRulesOn, nuevaMeta, pidAlAzar, semanaAlAzar, sumarDias, tieneFinal, zonaDeIdioma, publicoDelHuso } from './engine.js';
 import { JUEGOS_COPA as JUEGOS_COPA_ES } from './rules.js';
 import { LANGS } from '../assets/js/i18n.js';
 import { SFX } from '../assets/js/sound.js';
@@ -456,7 +456,10 @@ async function pantallaCrearCopa({ nombreInicial = '', desde = null, quien = '' 
   // What the finished cup had, where the screen offers it: the screen of before only has the 7-day cup (and the 3-day one with ?three)
   const diasPrevios = desde && (desde.days === 7 || (desde.days === 3 && TRES)) ? desde.days : null;
   const langPrevia = desde && LANGS.includes(desde.lang || 'es') ? desde.lang || 'es' : LANG;
-  const audPrevia = desde && ['global', 'cl', 'br'].includes(desde.aud) ? desde.aud : { es: 'cl', pt: 'br' }[LANG] || 'global';
+  // The audience starts on the creator's language's (D-187), or, with `cup-zone-phone` (D-608, lab), on the phone's zone's:
+  // a Spanish speaker in the United States got Chile, and with it Chile's midnight. lab: #seccion-cup-zone-phone
+  const porHuso = nuevo && !desde && await flag('cup-zone-phone');
+  const audPrevia = desde && ['global', 'cl', 'br'].includes(desde.aud) ? desde.aud : porHuso ? publicoDelHuso(zonaDelTelefono()) : { es: 'cl', pt: 'br' }[LANG] || 'global';
   const notaDesde = desde ? el('div', { class: 'panel', id: 'crear-desde' }, el('p', { class: 'muted', style: 'margin:0' }, fmt(T.againNote, { copa: desde.name }))) : null;
   // On the screen of before, the 3-day cup is offered only with ?three or in the test store (D-100).
   // The new screen (D-425, a lab key) offers it always, next to the start (D-437), and starts at seven days.
