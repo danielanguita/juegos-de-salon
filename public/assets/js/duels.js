@@ -174,15 +174,12 @@ export function crearDuelos({ almacen, yo, now = () => Date.now(), rand = Math.r
       const ps = (await almacen.get(`torneos/${code}/players`)) || {};
       return Object.values(ps).filter(p => esJid(p?.j) && p.j !== yo()?.jid).map(p => ({ jid: p.j, n: p.name || '?' }));
     },
-    /** Someone who played this week (the week's all-round table), at random, not me, or null. */
-    async azar(rand = Math.random, excluir = null) {
-      const leer = p => almacen.top(TODOTERRENO, p, 60).then(x => (x || []).filter(f => esJid(f.jid) && f.jid !== yo()?.jid && f.jid !== excluir && f.n)).catch(() => []);
-      // This week's players; early in a week with few, anyone in the all-time table
+    /** Players active lately (this week's all-round table, the all-time one when the week is thin), not me: [{ jid, n }]. */
+    async activos(n = 10) {
+      const leer = p => almacen.top(TODOTERRENO, p, 40).then(x => (x || []).filter(f => esJid(f.jid) && f.jid !== yo()?.jid && f.n)).catch(() => []);
       let filas = await leer(semana(now()));
-      if (filas.length < 3) filas = [...filas, ...(await leer(SIEMPRE)).filter(f => !filas.some(x => x.jid === f.jid))];
-      if (!filas.length) return null;
-      const f = filas[Math.floor(rand() * filas.length)];
-      return { jid: f.jid, n: f.n };
+      if (filas.length < n) filas = [...filas, ...(await leer(SIEMPRE)).filter(f => !filas.some(x => x.jid === f.jid))];
+      return filas.slice(0, n).map(f => ({ jid: f.jid, n: f.n }));
     },
   };
 }

@@ -67,8 +67,9 @@ export async function drawDuels(root, { sub }) {
     const recientesP = J.duelos().then(D => D.recientes(12)).catch(() => []);
     const recientes = async () => panelRecientes((await recientesP).filter(d => !yo || (d.a !== yo.jid && d.b !== yo.jid)).slice(0, 8));
     if (!yo) {
-      sub.textContent = T.signIn;
-      root.replaceChildren(bloqueJugador({ abierto: true, destacado: true, alTocar: tap }));
+      // Signed out: say plainly that duels need a name and PIN, then the sign-in card (the owner, 2026-11-23)
+      sub.textContent = '';
+      root.replaceChildren(el('p', { class: 'notice', id: 'dl-sin-jugador' }, `🔒 ${T.signIn}`), bloqueJugador({ abierto: true, destacado: true, alTocar: tap }));
       const r = await recientes();
       if (mine === turn && r) root.append(r);
       return;

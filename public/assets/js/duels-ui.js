@@ -168,6 +168,9 @@ export async function abrirNuevo({ rival = null, juego = null, lista = null, alT
     for (const ps of await Promise.all(copas.map(c => D.deCopa(c.code).catch(() => [])))) for (const x of ps) amigos[x.jid] ||= x.n;
   } catch (_) { /* no signal: what this phone knows */ }
   let candidatos = sugeridos(misDuelos, yo.jid, amigos);
+  // Then the players active lately, so there is always someone to pick (the owner, 2026-11-23:
+  // signed in with no duels and no cups, nobody was suggested)
+  if (candidatos.length < 10) for (const x of await D.activos(10).catch(() => [])) if (!candidatos.some(c => c.jid === x.jid)) candidatos.push(x);
   if (rival && !candidatos.some(c => c.jid === rival.jid)) candidatos = [rival, ...candidatos];
   const elegir = c => { elegido = c; if (!candidatos.some(x => x.jid === c.jid)) candidatos = [c, ...candidatos]; };
   const error = el('p', { class: 'rk-error', 'aria-live': 'polite' });
@@ -196,18 +199,10 @@ export async function abrirNuevo({ rival = null, juego = null, lista = null, alT
         : [el('p', { class: 'dl-nota' }, T.noOne)]));
     }, 300);
   });
-  const azarBtn = () => el('button', { type: 'button', class: 'chip-btn', id: 'dl-azar', onClick: async () => {
-    alTocar();
-    // Someone who played this week; with nobody there, one of the people suggested
-    const otros = candidatos.filter(x => x.jid !== elegido?.jid);
-    const c = (await D.azar(Math.random, elegido?.jid).catch(() => null)) || otros[Math.floor(Math.random() * otros.length)] || null;
-    if (c) { elegir(c); pintar(); } else { res.replaceChildren(el('p', { class: 'dl-nota' }, T.noOne)); }
-  } }, T.randomRival);
   const rivales = () => el('div', { class: 'stack' },
     label(T.rival),
     el('div', { class: 'dl-chips', id: 'dl-rivales' },
-      candidatos.slice(0, 10).map(c => el('button', { type: 'button', class: `chip-btn${elegido?.jid === c.jid ? ' on' : ''}`, 'data-jid': c.jid, onClick: tap(() => { elegido = c; }) }, c.n)),
-      azarBtn()),
+      candidatos.slice(0, 10).map(c => el('button', { type: 'button', class: `chip-btn${elegido?.jid === c.jid ? ' on' : ''}`, 'data-jid': c.jid, onClick: tap(() => { elegido = c; }) }, c.n))),
     el('div', { class: 'field dl-campo' }, inp), res);
   const versus = () => el('div', { class: 'dl-versus' }, el('div', {}, el('b', {}, yo.n)), el('span', { class: 'display display--md' }, 'VS'), el('div', {}, el('b', {}, elegido.n)));
   const enviarBtn = () => el('button', { type: 'button', class: 'btn btn--yellow', id: 'dl-enviar', disabled: !elegido, onClick: enviar }, elegido ? fmt(T.send, { n: elegido.n }) : T.pickRival);
