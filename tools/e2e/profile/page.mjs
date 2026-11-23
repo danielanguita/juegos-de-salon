@@ -65,6 +65,8 @@ for (const W of [320, 390]) {
   const s0 = await small(b);
   ok(!s0, `${W}: guest, every tappable thing is 44 px or more${s0 ? ` (${s0})` : ''}`);
   await full(b, `guest-${W}`, W);
+  // Seeded away from the profile: an open profile page would redraw for the new player and note its badges as seen
+  await b.go(`${SITE}/privacy/?test`, 1500);
   // A player: two rivals, then the player with games, a 14-day streak and four early mornings
   await ev(`(async () => {
     const { jugador } = await import('/assets/js/jugador.js');
