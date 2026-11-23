@@ -157,6 +157,29 @@ function badgePanels(list, { only = null } = {}) {
   });
 }
 
+/**
+ * The card's figures count up from zero to their number, fast, every number in turn, like a machine looking for the
+ * right one (the owner, 2026-11-23). The card is drawn again as the server's facts arrive: each figure then counts
+ * on from where it stood, never from zero again. With reduced motion, the number at once.
+ */
+const counted = {};
+function countUp(key, prefix, to) {
+  const b = el('b', { 'data-count': key });
+  const from = counted[key] ?? 0;
+  counted[key] = to;
+  const put = v => { b.textContent = `${prefix}${num(v)}`; };
+  if (from === to || globalThis.matchMedia?.('(prefers-reduced-motion: reduce)').matches) { put(to); return b; }
+  put(from);
+  const ms = Math.min(1400, 500 + Math.abs(to - from) * 6), t0 = performance.now();
+  (function step(t) {
+    if (!b.isConnected && t - t0 > 100) return;
+    const k = Math.min(1, (t - t0) / ms);
+    put(Math.round(from + (to - from) * (1 - (1 - k) ** 3)));
+    if (k < 1) requestAnimationFrame(step);
+  })(t0);
+  return b;
+}
+
 function card(yo, f, list) {
   const got = list.filter(b => b.got).length;
   // The flag and the name are the player, as on every table (the owner, 2026-11-21: no initial in a circle)
@@ -166,9 +189,9 @@ function card(yo, f, list) {
         el('p', { class: 'pf-player' }, conBandera(yo.co, yo.n)),
         el('p', { class: 'muted pf-since' }, [f.since ? fmt(T.since, { month: monthName(f.since) }) : null, fmt(T.badgesOf, { n: got, total: BADGES.length })].filter(Boolean).join(' · ')))),
     el('div', { class: 'pf-stats' },
-      el('div', { class: 'pf-stat' }, el('b', {}, `🔥 ${num(f.streak || 0)}`), el('span', {}, T.statStreak)),
-      el('div', { class: 'pf-stat' }, el('b', {}, num(f.plays || 0)), el('span', {}, T.statPlays)),
-      el('div', { class: 'pf-stat' }, el('b', {}, `🏆 ${num(f.medals?.gold || 0)}`), el('span', {}, T.statCups))));
+      el('div', { class: 'pf-stat' }, countUp('streak', '🔥 ', f.streak || 0), el('span', {}, T.statStreak)),
+      el('div', { class: 'pf-stat' }, countUp('plays', '', f.plays || 0), el('span', {}, T.statPlays)),
+      el('div', { class: 'pf-stat' }, countUp('cups', '🏆 ', f.medals?.gold || 0), el('span', {}, T.statCups))));
 }
 
 /** The 🏅 tab: the overall ranking with the player's places, their games, Uno al día's month and their cups. */
