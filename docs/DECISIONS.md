@@ -49,6 +49,7 @@ Where today's rule is and which decisions explain it: those in force that still 
 | Publishing and version | C-11 | D-22, D-122, D-189, D-192, D-205, D-213, D-216, D-218, D-300, D-302, D-308, D-323, D-400, D-419, D-429, D-441, D-467, D-486, D-496, D-497, D-504, D-506, D-519, D-530, D-531, D-540, D-543, D-553, D-560, D-584 |
 | README and screenshots | C-13 | D-51, D-76, D-78, D-213, D-316, D-506 |
 | Tests | C-12 | D-143, D-193, D-199, D-204, D-216, D-299, D-307, D-315, D-377, D-378, D-388, D-391, D-392, D-401, D-428, D-460, D-484, D-494, D-496, D-506, D-515, D-516, D-518, D-541, D-551, D-558, D-559, D-579, D-585, D-588, D-589, D-606, D-610, D-612 |
+| Tests | C-12 | D-143, D-193, D-199, D-204, D-216, D-299, D-307, D-315, D-377, D-378, D-388, D-391, D-392, D-401, D-428, D-460, D-484, D-494, D-496, D-506, D-515, D-516, D-518, D-541, D-551, D-558, D-559, D-579, D-585, D-588, D-589, D-606, D-610, D-611 |
 | La Copa (tournament, days, score) | `docs/games/cup.md` | D-94, D-95, D-96, D-97, D-99, D-106, D-113, D-118, D-150, D-161, D-163, D-170, D-175, D-187, D-212, D-220, D-234, D-250, D-257, D-258, D-259, D-260, D-261, D-262, D-263, D-264, D-267, D-268, D-282, D-285, D-325, D-326, D-331, D-332, D-336, D-347, D-359, D-376, D-379, D-384, D-416, D-417, D-418, D-421, D-423, D-425, D-426, D-427, D-433, D-437, D-438, D-439, D-444, D-450, D-453, D-456, D-460, D-464, D-468, D-476, D-478, D-481, D-492, D-499, D-517, D-521, D-525, D-544, D-562, D-564, D-566, D-572, D-587, D-607, D-608 |
 | Agents (usability, documentation, processes, support, ideas) | [USABILIDAD.md](USABILIDAD.md) | D-132, D-135, D-172, D-204, D-206, D-213, D-218, D-252, D-273, D-275, D-276, D-279, D-301, D-303, D-304, D-306, D-313, D-315, D-317, D-318, D-341, D-360, D-361, D-365, D-382, D-383, D-394, D-400, D-401, D-409, D-411, D-413, D-429, D-440, D-441, D-443, D-451, D-452, D-459, D-463, D-472, D-480, D-486, D-497, D-518, D-519, D-520, D-522, D-527, D-531, D-532, D-533, D-540, D-541, D-547, D-553, D-554, D-555, D-558, D-568, D-569, D-570, D-573, D-575, D-576, D-577, D-578, D-580, D-582, D-586, D-596, D-597 |
 | Rankings and player (name and PIN) | C-7 | D-96, D-212, D-215, D-217, D-219, D-220, D-230, D-236, D-249, D-336, D-357, D-358, D-359, D-412, D-414, D-415, D-416, D-424, D-436, D-450, D-455, D-464, D-465, D-470, D-476, D-478, D-492, D-499, D-500, D-513, D-559, D-563, D-600, D-602, D-603, D-604, D-605 |
@@ -627,7 +628,7 @@ Where today's rule is and which decisions explain it: those in force that still 
 | [D-582](decisions/D-582.md) | Each agent runs on the model and effort its work needs | current |
 | [D-583](decisions/D-583.md) | Agentes' boards follow M3, and its decks lose their give-aways | current |
 | [D-584](decisions/D-584.md) | The live site's /labs/ pages write to their own stats environment, `labs` | current |
-| [D-585](decisions/D-585.md) | A new end-to-end job is timed from its siblings, and the group target is 400 s | current |
+| [D-585](decisions/D-585.md) | A new end-to-end job is timed from its siblings, and the group target is 400 s | amended by D-611 |
 | [D-586](decisions/D-586.md) | A homemade merge queue: one PR at a time is brought up to date before it merges (trial) | current |
 | [D-587](decisions/D-587.md) | The Grand Final ranks each round by place, like a day | current |
 | [D-588](decisions/D-588.md) | A script that opens every game's page runs only for the games a PR reaches | current |
@@ -652,6 +653,8 @@ Where today's rule is and which decisions explain it: those in force that still 
 | [D-609](decisions/D-609.md) | Offline, the whole game takes Candlelight, and the switch is immediate | current |
 | [D-610](decisions/D-610.md) | A merge of main reruns the PR's own scope, not main's | amended by D-612 |
 | [D-612](decisions/D-612.md) | A merge of main reruns only what both the PR and main reach | current |
+| [D-610](decisions/D-610.md) | A merge of main reruns the PR's own scope, not main's | current |
+| [D-611](decisions/D-611.md) | The end-to-end group target is 420 s | current |
 
 ## No longer in force (14)
 
