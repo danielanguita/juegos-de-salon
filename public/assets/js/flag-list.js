@@ -43,6 +43,7 @@ export const FLAGS = {
   'babel-tally': '🗼 Babel: the score adds itself up on the end screen, floors + bonuses = points, with its show',
   'word-in-words': '🔤 Home page: Toque y Fama: Palabra gets its own card under the 🔤 Palabras filter (only there: with no filter, Toque y Fama\'s page still picks the number or the word, #767)',
   'cover-share': '📤 Game covers: a share button in the top bar sends the game\'s link with one line about it',
+  'cloud-quiet': '☁️ Offline mode: the home page\'s cloud shows only while storing or when files are missing; the profile\'s ⚙️ always has a «Juegos sin señal» row with the state',
   'offline': '📴 Offline mode: the app stores the offline-capable games on the phone and opens them with no signal (D-538, PR 2 of 8)',
   'news-once': '📣 Each piece of news told once: no home window on a visit from a notification, no splash for games already played, an ended cup seen on its board is not recapped again (D-546)',
   'routes-hint': '🚇 Broken Routes: a 💡 Hint button on its own page (one player, never La Copa) marks one rectangle of a shortest solution, −3 points each (#1381)',

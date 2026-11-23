@@ -431,7 +431,7 @@ function cupsPanel(f) {
   return box;
 }
 
-/** The ⚙️ tab: the account and the preferences (offline mode's ☁️ stays on the home page; writing to us and privacy are in the footer). */
+/** The ⚙️ tab: the account and the preferences (offline mode's ☁️ joins them with the flag cloud-quiet; writing to us and privacy are in the footer). */
 /** An account error in the player's words: the rankings' own texts. */
 const accountError = e => ({ 'pin-actual': RK.errCurrentPin, espera: RK.errWait, nombre: RK.errName, 'pin-forma': RK.errPin })[e?.code] || RK.errNet;
 const pinInput = (id, label) => el('input', { id, class: 'rk-pin', type: 'password', inputmode: 'numeric', pattern: '[0-9]*', maxlength: '4', autocomplete: 'off', 'aria-label': label });
@@ -542,6 +542,11 @@ function settingsTab(yo) {
   const row = (label, hint, control) => el('div', { class: 'toggle-row' }, el('span', { class: 'txt' }, el('b', {}, label), hint ? el('small', {}, hint) : null), control);
   const prefs = el('section', { class: 'panel pf-settings' }, el('p', { class: 'lead rk-titulo' }, T.prefs),
     row(T.language, null, langToggle()), row(T.sound, null, soundToggle()));
+  // ☁️ Games with no signal: where the phone stands, always here; the home page's bar shows the cloud only when it asks for something
+  // (flag cloud-quiet, offline-ready.js). lab: #seccion-cloud-quiet
+  Promise.all([flag('offline'), flag('cloud-quiet')])
+    .then(([offline, quiet]) => offline && quiet && import('../assets/js/offline-ready.js').then(m => prefs.append(m.offlineReadyRow({ lang, tap }))))
+    .catch(() => {});
   const notices = el('div', {});
   import('../assets/js/uno-al-dia-avisos.js').then(m => {
     const draw = () => { const b = m.bloque({ lang, alTocar: tap, redibujar: draw }); notices.replaceChildren(...(b ? [b] : [])); };

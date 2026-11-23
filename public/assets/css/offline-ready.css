@@ -41,3 +41,9 @@
 /* The T tab's buttons, one per state (testers only) */
 .tr-or-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s-6); }
 .tr-or-grid .btn:last-child { grid-column: 1 / -1; }
+
+/* The profile's ⚙️ row (flag cloud-quiet, offlineReadyRow): a .toggle-row that opens the sheet, the cloud at its end */
+.or-fila { width: 100%; border: 0; color: inherit; font: inherit; text-align: start; cursor: pointer; }
+.or-fila-icono { display: inline-flex; flex: none; }
+/* Quiet cloud (flag cloud-quiet, offline-ready.js): while the bar's ☁️ is hidden its slot takes no room, so the bar closes up */
+html.cloud-quiet .portada-barra .tools > span:has(> .offline-ready[hidden]) { display: none; }

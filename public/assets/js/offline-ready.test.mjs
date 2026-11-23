@@ -53,4 +53,15 @@ assert.deepEqual((await import('./offline-ready.js')).TESTER_STATES.map(([s]) =>
   assert.equal(lastState(st), null, 'a loading is never replayed');
   assert.equal(lastState({ getItem() { throw new Error('x'); } }), null);
 }
+// The quiet cloud (flag cloud-quiet): the home page's bar shows it only while it asks for something
+{
+  const { shownWhenQuiet, QUIET_SHOWN } = await import('./offline-ready.js');
+  assert.deepEqual([...QUIET_SHOWN].sort(), ['loading', 'missing']);
+  for (const [state, shown] of [['loading', true], ['missing', true], ['ready', false], ['unsupported', false]]) {
+    assert.equal(shownWhenQuiet({ state }), shown, `quiet: ${state} ${shown ? 'shows' : 'hides'} the cloud`);
+  }
+  assert.equal(shownWhenQuiet(null), false, 'nothing known yet: no cloud in the bar');
+  // Each state's title is the profile row's line, in every language
+  for (const lang of ['es', 'en', 'pt']) for (const st of ['loading', 'ready', 'missing', 'unsupported']) assert.ok(TEXTS[lang][st].title, `${lang} ${st} title`);
+}
 console.log('✓ offline ready: four states from what the phone keeps, the sheet in three languages');
