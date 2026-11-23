@@ -30,7 +30,7 @@ async function drawInvite(root, { sub, h1, did, J }) {
     el('span', { class: 'display display--md' }, 'VS'),
     el('div', {}, el('b', {}, d.bn), el('div', { class: 'dl-espera' }, '?'))));
   if (!yo) {
-    root.replaceChildren(versus, el('p', { class: 'dl-nota center' }, T.signInToPlay), bloqueJugador({ abierto: true, destacado: true, alTocar: tap }));
+    root.replaceChildren(versus, bloqueJugador({ abierto: true, destacado: true, titulo: T.signInToPlay, alTocar: tap }));
     return;
   }
   if (yo.jid === d.a) {
@@ -69,7 +69,7 @@ export async function drawDuels(root, { sub }) {
     if (!yo) {
       // Signed out: say plainly that duels need a name and PIN, then the sign-in card (the owner, 2026-11-23)
       sub.textContent = '';
-      root.replaceChildren(el('p', { class: 'notice', id: 'dl-sin-jugador' }, `🔒 ${T.signIn}`), bloqueJugador({ abierto: true, destacado: true, alTocar: tap }));
+      root.replaceChildren(bloqueJugador({ abierto: true, destacado: true, titulo: T.signInCard, alTocar: tap }));
       const r = await recientes();
       if (mine === turn && r) root.append(r);
       return;

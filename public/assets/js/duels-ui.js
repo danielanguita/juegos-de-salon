@@ -155,7 +155,7 @@ export async function abrirNuevo({ rival = null, juego = null, lista = null, alT
   if (!yo) {
     titulo.textContent = `⚔️ ${T.newDuel}`;
     const { bloqueJugador } = await import('./ranking.js');
-    cuerpo.replaceChildren(el('p', { class: 'dl-nota' }, T.signIn), bloqueJugador({ abierto: true, destacado: true, alTocar }));
+    cuerpo.replaceChildren(bloqueJugador({ abierto: true, destacado: true, titulo: T.signInCard, alTocar }));
     J.escuchar(() => { if (leerYo() && capa.isConnected) { cerrar(); abrirNuevo({ rival, juego, lista, alTocar }); } });
     return capa;
   }
@@ -206,7 +206,6 @@ export async function abrirNuevo({ rival = null, juego = null, lista = null, alT
     el('div', { class: 'field dl-campo' }, inp), res);
   const versus = () => el('div', { class: 'dl-versus' }, el('div', {}, el('b', {}, yo.n)), el('span', { class: 'display display--md' }, 'VS'), el('div', {}, el('b', {}, elegido.n)));
   const enviarBtn = () => el('button', { type: 'button', class: 'btn btn--yellow', id: 'dl-enviar', disabled: !elegido, onClick: enviar }, elegido ? fmt(T.send, { n: elegido.n }) : T.pickRival);
-  const volver = (a, txt = T.back) => el('button', { type: 'button', class: 'btn btn--ghost btn--sm', id: 'dl-atras', onClick: tap(a) }, txt);
 
   const vistas = {
     menu: () => [
@@ -216,19 +215,16 @@ export async function abrirNuevo({ rival = null, juego = null, lista = null, alT
       centrado ? versus() : rivales(),
       centrado ? null : el('div', { class: 'stack' }, label(T.game), tiles(g, v => { g = v; })),
       el('div', { class: 'stack' }, label(T.format), chips([['bo3', T.bo3], ['bo5', T.bo5]], formato, v => { formato = v; })),
-      el('p', { class: 'dl-nota' }, T.how), error, enviarBtn(),
-      centrado ? null : volver(() => { modo = 'menu'; })],
+      el('p', { class: 'dl-nota' }, T.how), error, enviarBtn()],
     custom: () => {
       const cabeza = el('div', { class: 'dl-pasos' }, el('span', { class: 'dl-nota' }, fmt(T.stepOf, { n: paso })),
         el('span', { class: 'dl-puntos' }, [1, 2, 3].map(k => el('span', { class: `dl-punto${k <= paso ? ' w' : ''}`, 'aria-hidden': 'true' }))));
       if (paso === 1) return [cabeza, label(T.stepWho), rivales(),
-        el('button', { type: 'button', class: 'btn btn--yellow', id: 'dl-siguiente', disabled: !elegido, onClick: tap(() => { paso = 2; }) }, elegido ? T.next : T.pickRival),
-        volver(() => { modo = 'menu'; })];
+        el('button', { type: 'button', class: 'btn btn--yellow', id: 'dl-siguiente', disabled: !elegido, onClick: tap(() => { paso = 2; }) }, elegido ? T.next : T.pickRival)];
       if (paso === 2) return [cabeza, label(T.stepHow),
         ...['bo3', 'bo5', 'pts'].map(f => el('button', { type: 'button', class: `opcion dl-modo${f === formato ? ' on' : ''}`, 'data-f': f, onClick: tap(() => { formato = f; }) },
           el('b', {}, T[f]), el('span', { class: 'dl-nota' }, T[`${f}How`]))),
-        el('button', { type: 'button', class: 'btn btn--yellow', id: 'dl-siguiente', onClick: tap(() => { ponerRondas(); editando = -1; paso = 3; }) }, T.next),
-        volver(() => { paso = 1; })];
+        el('button', { type: 'button', class: 'btn btn--yellow', id: 'dl-siguiente', onClick: tap(() => { ponerRondas(); editando = -1; paso = 3; }) }, T.next)];
       ponerRondas();
       return [cabeza,
         el('div', { class: 'dl-head' }, label(T.stepGames), el('button', { type: 'button', class: 'chip-btn', id: 'dl-mezclar', onClick: tap(() => {
@@ -240,7 +236,7 @@ export async function abrirNuevo({ rival = null, juego = null, lista = null, alT
             el('span', { class: 'dl-nota' }, fmt(T.roundN, { i: k + 1 })), el('span', { class: 'dl-ic', 'aria-hidden': 'true' }, x ? gameIcon(x) : ''), el('b', {}, x ? nombreJuego(x) : id), el('span', { class: 'dl-nota' }, '›'));
           return editando === k ? el('div', { class: 'stack' }, fila, tiles(id, v => { gr[k] = v; editando = -1; })) : fila;
         }),
-        el('p', { class: 'dl-nota' }, T.how), error, enviarBtn(), volver(() => { paso = 2; })];
+        el('p', { class: 'dl-nota' }, T.how), error, enviarBtn()];
     },
   };
   function pintar() {
