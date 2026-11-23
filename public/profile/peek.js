@@ -12,12 +12,15 @@
  * tables): what this phone alone knows about its player (the hours, the marks, the cups joined) is not
  * there, so the achievements that come from it are left out, never shown as missing.
  *
+ * Each of their most played games says their place in its all-time table, never how many times they played it:
+ * a count tells how much someone plays, a place only how well (the owner, 2026-11-22).
+ *
  * First on the profile page (`peekOnTap`); the game and Cup covers come later.
  */
 import { el } from '../assets/js/ui.js';
 import { withIcon } from '../assets/js/game-icon.js';
 import { getLang, pickLang } from '../assets/js/i18n.js';
-import { ALL_GAMES } from '../assets/js/games.js';
+import { ALL_GAMES, GAMES, SOLO_TABLES, FIRST_VARIANT_TABLES } from '../assets/js/games.js';
 import { conBandera } from '../assets/js/ranking.js';
 import { jugador } from '../assets/js/jugador.js';
 import { TODOTERRENO, UAD_PUNTOS, SIEMPRE, medallero } from '../assets/js/records.js';
@@ -35,6 +38,15 @@ export const ACTIVITY_BADGES = new Set(['streak-10', 'streak-30', 'streak-100', 
 const TIER = { gold: 0, silver: 1, bronze: 2 };
 /** How many medals the sheet shows before «+N». */
 export const SHOWN_BADGES = 8;
+
+/** The table a game's best lives in: its solo table, its wins for a group game, or its own. */
+export function tableOf(id) {
+  if (SOLO_TABLES[id]) return { t: SOLO_TABLES[id], wins: false };
+  if (GAMES.some(g => g.id === id && g.jugadas)) return { t: `${id}_victorias`, wins: true };
+  return { t: FIRST_VARIANT_TABLES[id] || id, wins: false };
+}
+/** How many most played games the sheet lists. */
+export const SHOWN_GAMES = 3;
 
 const CATALOGUE = ALL_GAMES.filter(g => g.available !== false && !g.labs && !g.oculto);
 const gameOf = id => ALL_GAMES.find(g => g.id === id);
@@ -89,7 +101,12 @@ async function readFacts(J, jid) {
     Promise.all(monthsWanted.map(m => J.tabla(UAD_PUNTOS, `s${m}`, { top: 3, reciente: 60000 }).then(v => ({ period: `s${m}`, top: v.top })).catch(() => null))),
   ]);
   if (!perfil) return null;
-  return peekFacts({ jid, perfil, hist, podios, general, months: months.filter(Boolean), today });
+  const f = peekFacts({ jid, perfil, hist, podios, general, months: months.filter(Boolean), today });
+  // Their place in each listed game's all-time table, when among the first ones read (100)
+  if (f.open) await Promise.all(f.byGame.slice(0, SHOWN_GAMES).map(async g => {
+    try { g.place = (await J.tabla(tableOf(g.id).t, SIEMPRE, { top: 100, reciente: 60000 })).top.find(x => x.jid === jid)?.puesto ?? null; } catch (_) { g.place = null; }
+  }));
+  return f;
 }
 const nextMonth = m => { const [y, mo] = m.split('-').map(Number); return mo === 12 ? `${y + 1}-01` : `${y}-${String(mo + 1).padStart(2, '0')}`; };
 
@@ -137,7 +154,7 @@ export async function peekPlayer(jid, { hint = {}, lang = getLang(), doc = docum
   const stat = (b, s) => el('div', { class: 'pf-stat' }, el('b', {}, b), el('span', {}, s));
   const badges = peekBadges(f);
   const name = b => (T.badges[b.id] || [b.id])[0];
-  const fav = f.byGame.slice(0, 3);
+  const fav = f.byGame.slice(0, SHOWN_GAMES);
   body.replaceChildren(...[
     line.length ? el('p', { class: 'muted pf-peek-line' }, line.join(' · ')) : null,
     open ? el('div', { class: 'pf-stats pf-peek-stats' },
@@ -148,7 +165,7 @@ export async function peekPlayer(jid, { hint = {}, lang = getLang(), doc = docum
       fav.length
         ? el('ol', { class: 'pf-peek-games' }, fav.map(g => el('li', { 'data-game': g.id },
           el('span', { class: 'pf-peek-game' }, withIcon(gameOf(g.id), pickLang(gameOf(g.id).name, lang))),
-          el('small', {}, g.n === 1 ? T.playsOne : fmt(T.plays, { n: num(g.n) })))))
+          Number.isInteger(g.place) ? el('small', {}, fmt(T.peekGamePlace, { place: lang === 'en' ? `#${g.place}` : `${g.place}.º` })) : null)))
         : el('p', { class: 'muted' }, T.peekNoGames)),
     el('section', { class: 'pf-peek-part' },
       el('h3', {}, badges.length === 1 ? T.peekBadgesOne : badges.length ? fmt(T.peekBadges, { n: badges.length }) : T.peekBadgesNone),

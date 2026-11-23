@@ -13,7 +13,7 @@ import { el } from '../assets/js/ui.js';
 import { withIcon } from '../assets/js/game-icon.js';
 import { getLang, langToggle, pickLang, COMMON } from '../assets/js/i18n.js';
 import { SFX, soundToggle } from '../assets/js/sound.js';
-import { ALL_GAMES, GAMES, SOLO_TABLES, FIRST_VARIANT_TABLES } from '../assets/js/games.js';
+import { ALL_GAMES } from '../assets/js/games.js';
 import { bloqueJugador, bloqueRanking, mmss, conBandera } from '../assets/js/ranking.js';
 import { jugador, leerYo } from '../assets/js/jugador.js';
 import { TODOTERRENO, UAD_PUNTOS, SIEMPRE, semana, medallero, limpiarNombre, esPin } from '../assets/js/records.js';
@@ -25,6 +25,7 @@ import { PARTIDAS_KEY } from '../assets/js/transport/stats.js';
 import { firebaseConfig } from '../assets/js/firebase-config.js';
 import { BADGES, GROUPS, earned, lastOnDay } from './badges.js';
 import { TEXTS } from './texts.js';
+import { tableOf } from './peek.js';
 
 const lang = getLang();
 const T = TEXTS[lang] || TEXTS.es;
@@ -40,12 +41,6 @@ const FIRST_POINTS_MONTH = '2026-10';
 /** The games a player can earn badges in: launched, not hidden. */
 const CATALOGUE = ALL_GAMES.filter(g => g.available !== false && !g.labs && !g.oculto);
 const gameOf = id => ALL_GAMES.find(g => g.id === id);
-/** The table a game's best lives in: its solo table, its wins for a group game, or its own. */
-function tableOf(id) {
-  if (SOLO_TABLES[id]) return { t: SOLO_TABLES[id], wins: false };
-  if (GAMES.some(g => g.id === id && g.jugadas)) return { t: `${id}_victorias`, wins: true };
-  return { t: FIRST_VARIANT_TABLES[id] || id, wins: false };
-}
 
 /* ------------------------------------------------------------------ */
 /* What this phone knows, and what the server adds                     */
