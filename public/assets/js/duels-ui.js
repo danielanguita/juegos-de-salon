@@ -79,6 +79,15 @@ export function ordenar(lista, me) {
   return [...lista].sort((a, b) => peso(a) - peso(b) || b.at - a.at);
 }
 
+/** Your nemesis, the rival you lose to most, with ⚔️ Rematch (the profile and /duels/), or null. */
+export function panelNemesis(lista, me, { alTocar = () => {} } = {}) {
+  const nem = nemesis(lista, me);
+  if (!nem) return null;
+  return el('div', { class: 'panel dl-nemesis', id: 'dl-nemesis' },
+    el('b', {}, `${T.nemesis} · ${nem.n} ${nem.g}–${nem.p}`),
+    el('button', { type: 'button', class: 'btn btn--cyan btn--sm', onClick: () => { alTocar(); abrirNuevo({ lista, rival: { jid: nem.jid, n: nem.n }, alTocar }); } }, T.rematch));
+}
+
 /** The profile's section: the pills, ＋ New duel and the open duels as cards, See all, the nemesis. */
 export async function seccionPerfil({ alTocar = () => {} } = {}) {
   cargarCss();
@@ -90,7 +99,6 @@ export async function seccionPerfil({ alTocar = () => {} } = {}) {
   const pintar = lista => {
     const abiertos = ordenar(lista, yo.jid).filter(d => !estado(d, yo.jid).termino);
     const turnos = abiertos.filter(d => estado(d, yo.jid).turno >= 0).length;
-    const nem = nemesis(lista, yo.jid);
     caja.replaceChildren(...[
       pildoras(lista, yo.jid).length ? el('div', { class: 'dl-pills' }, pildoras(lista, yo.jid)) : null,
       el('div', { class: 'dl-head' },
@@ -100,9 +108,7 @@ export async function seccionPerfil({ alTocar = () => {} } = {}) {
         el('button', { type: 'button', class: 'panel dl-nuevo', id: 'dl-nuevo', onClick: () => { alTocar(); abrirNuevo({ lista, alTocar }); } },
           el('span', { 'aria-hidden': 'true' }, '⚔️'), el('span', {}, T.newDuel), el('span', { class: 'dl-mas', 'aria-hidden': 'true' }, '+')),
         abiertos.map(d => duelCard(d, yo.jid, { alTocar }))),
-      nem ? el('div', { class: 'panel dl-nemesis' },
-        el('b', {}, `${T.nemesis} · ${nem.n} ${nem.g}–${nem.p}`),
-        el('button', { type: 'button', class: 'btn btn--cyan btn--sm', onClick: () => { alTocar(); abrirNuevo({ lista, rival: { jid: nem.jid, n: nem.n }, alTocar }); } }, T.rematch)) : null].filter(Boolean));
+      panelNemesis(lista, yo.jid, { alTocar })].filter(Boolean));
   };
   pintar([]);
   D.mios().then(pintar).catch(() => {});
@@ -155,13 +161,24 @@ export async function abrirNuevo({ rival = null, juego = null, lista = null, alT
   if (!yo) {
     titulo.textContent = `⚔️ ${T.newDuel}`;
     const { bloqueJugador } = await import('./ranking.js');
-    cuerpo.replaceChildren(el('p', { class: 'dl-nota' }, T.signIn), bloqueJugador({ abierto: true, destacado: true, alTocar }));
+    cuerpo.replaceChildren(bloqueJugador({ abierto: true, destacado: true, titulo: T.signInCard, alTocar }));
     J.escuchar(() => { if (leerYo() && capa.isConnected) { cerrar(); abrirNuevo({ rival, juego, lista, alTocar }); } });
     return capa;
   }
   const misDuelos = lista || await D.mios().catch(() => []);
-  let candidatos = sugeridos(misDuelos, yo.jid, J.amigos());
+  // Who to suggest: the rivals already played, the cup friends this phone knows and the players of
+  // the player's own cups (the owner, 2026-11-23: pre-populated with the people you have played with)
+  const amigos = { ...J.amigos() };
+  try {
+    const copas = (await J.copas()).slice(0, 6);
+    for (const ps of await Promise.all(copas.map(c => D.deCopa(c.code).catch(() => [])))) for (const x of ps) amigos[x.jid] ||= x.n;
+  } catch (_) { /* no signal: what this phone knows */ }
+  let candidatos = sugeridos(misDuelos, yo.jid, amigos);
+  // Then the players active lately, so there is always someone to pick (the owner, 2026-11-23:
+  // signed in with no duels and no cups, nobody was suggested)
+  if (candidatos.length < 10) for (const x of await D.activos(10).catch(() => [])) if (!candidatos.some(c => c.jid === x.jid)) candidatos.push(x);
   if (rival && !candidatos.some(c => c.jid === rival.jid)) candidatos = [rival, ...candidatos];
+  const elegir = c => { elegido = c; if (!candidatos.some(x => x.jid === c.jid)) candidatos = [c, ...candidatos]; };
   const error = el('p', { class: 'rk-error', 'aria-live': 'polite' });
   const tap = f => () => { alTocar(); f(); pintar(); };
   const label = t => el('p', { class: 'dl-label' }, t);
@@ -171,16 +188,30 @@ export async function abrirNuevo({ rival = null, juego = null, lista = null, alT
   const tiles = (actual, poner) => el('div', { class: 'dl-juegos' }, DUEL_GAMES.map(x => el('button', {
     type: 'button', class: `dl-juego${x.id === actual ? ' on' : ''}`, 'data-g': x.id, onClick: tap(() => poner(x.id)),
   }, el('span', { class: 'dl-ic', 'aria-hidden': 'true' }, gameIcon(x)), el('span', {}, nombreJuego(x)))));
-  let buscando = false;
+  // The search field is made once and kept: typing never redraws the sheet, so the keyboard stays put
+  // and nothing takes the focus on its own (the owner, 2026-11-23: the keyboard kept popping up)
+  const inp = el('input', { type: 'search', id: 'dl-nombre', maxlength: '20', autocomplete: 'off', enterkeyhint: 'search', 'aria-label': T.searchLabel, placeholder: `🔍 ${T.searchLabel}` });
+  const res = el('div', { class: 'dl-chips', id: 'dl-resultados', 'aria-live': 'polite' });
+  let espera = null, consulta = 0;
+  inp.addEventListener('input', () => {
+    clearTimeout(espera);
+    const q = inp.value.trim();
+    if (q.length < 2) { res.replaceChildren(); return; }
+    espera = setTimeout(async () => {
+      const mia = ++consulta;
+      const r = await D.buscar(q).catch(() => []);
+      if (mia !== consulta) return;
+      res.replaceChildren(...(r.length ? r.map(c => el('button', { type: 'button', class: 'chip-btn', 'data-jid': c.jid, onClick: tap(() => { elegir(c); inp.value = ''; res.replaceChildren(); }) }, c.n))
+        : [el('p', { class: 'dl-nota' }, T.noOne)]));
+    }, 300);
+  });
   const rivales = () => el('div', { class: 'stack' },
     label(T.rival),
     el('div', { class: 'dl-chips', id: 'dl-rivales' },
-      candidatos.slice(0, 8).map(c => el('button', { type: 'button', class: `chip-btn${elegido?.jid === c.jid ? ' on' : ''}`, 'data-jid': c.jid, onClick: tap(() => { elegido = c; }) }, c.n)),
-      el('button', { type: 'button', class: `chip-btn${buscando ? ' on' : ''}`, id: 'dl-buscar', onClick: tap(() => { buscando = !buscando; }) }, `🔍 ${T.search}`)),
-    buscando ? buscador() : null);
+      candidatos.slice(0, 10).map(c => el('button', { type: 'button', class: `chip-btn${elegido?.jid === c.jid ? ' on' : ''}`, 'data-jid': c.jid, onClick: tap(() => { elegido = c; }) }, c.n))),
+    el('div', { class: 'field dl-campo' }, inp), res);
   const versus = () => el('div', { class: 'dl-versus' }, el('div', {}, el('b', {}, yo.n)), el('span', { class: 'display display--md' }, 'VS'), el('div', {}, el('b', {}, elegido.n)));
   const enviarBtn = () => el('button', { type: 'button', class: 'btn btn--yellow', id: 'dl-enviar', disabled: !elegido, onClick: enviar }, elegido ? fmt(T.send, { n: elegido.n }) : T.pickRival);
-  const volver = (a, txt = T.back) => el('button', { type: 'button', class: 'btn btn--ghost btn--sm', id: 'dl-atras', onClick: tap(a) }, txt);
 
   const vistas = {
     menu: () => [
@@ -190,19 +221,16 @@ export async function abrirNuevo({ rival = null, juego = null, lista = null, alT
       centrado ? versus() : rivales(),
       centrado ? null : el('div', { class: 'stack' }, label(T.game), tiles(g, v => { g = v; })),
       el('div', { class: 'stack' }, label(T.format), chips([['bo3', T.bo3], ['bo5', T.bo5]], formato, v => { formato = v; })),
-      el('p', { class: 'dl-nota' }, T.how), error, enviarBtn(),
-      centrado ? null : volver(() => { modo = 'menu'; })],
+      el('p', { class: 'dl-nota' }, T.how), error, enviarBtn()],
     custom: () => {
       const cabeza = el('div', { class: 'dl-pasos' }, el('span', { class: 'dl-nota' }, fmt(T.stepOf, { n: paso })),
         el('span', { class: 'dl-puntos' }, [1, 2, 3].map(k => el('span', { class: `dl-punto${k <= paso ? ' w' : ''}`, 'aria-hidden': 'true' }))));
       if (paso === 1) return [cabeza, label(T.stepWho), rivales(),
-        el('button', { type: 'button', class: 'btn btn--yellow', id: 'dl-siguiente', disabled: !elegido, onClick: tap(() => { paso = 2; }) }, elegido ? T.next : T.pickRival),
-        volver(() => { modo = 'menu'; })];
+        el('button', { type: 'button', class: 'btn btn--yellow', id: 'dl-siguiente', disabled: !elegido, onClick: tap(() => { paso = 2; }) }, elegido ? T.next : T.pickRival)];
       if (paso === 2) return [cabeza, label(T.stepHow),
         ...['bo3', 'bo5', 'pts'].map(f => el('button', { type: 'button', class: `opcion dl-modo${f === formato ? ' on' : ''}`, 'data-f': f, onClick: tap(() => { formato = f; }) },
           el('b', {}, T[f]), el('span', { class: 'dl-nota' }, T[`${f}How`]))),
-        el('button', { type: 'button', class: 'btn btn--yellow', id: 'dl-siguiente', onClick: tap(() => { ponerRondas(); editando = -1; paso = 3; }) }, T.next),
-        volver(() => { paso = 1; })];
+        el('button', { type: 'button', class: 'btn btn--yellow', id: 'dl-siguiente', onClick: tap(() => { ponerRondas(); editando = -1; paso = 3; }) }, T.next)];
       ponerRondas();
       return [cabeza,
         el('div', { class: 'dl-head' }, label(T.stepGames), el('button', { type: 'button', class: 'chip-btn', id: 'dl-mezclar', onClick: tap(() => {
@@ -214,27 +242,13 @@ export async function abrirNuevo({ rival = null, juego = null, lista = null, alT
             el('span', { class: 'dl-nota' }, fmt(T.roundN, { i: k + 1 })), el('span', { class: 'dl-ic', 'aria-hidden': 'true' }, x ? gameIcon(x) : ''), el('b', {}, x ? nombreJuego(x) : id), el('span', { class: 'dl-nota' }, '›'));
           return editando === k ? el('div', { class: 'stack' }, fila, tiles(id, v => { gr[k] = v; editando = -1; })) : fila;
         }),
-        el('p', { class: 'dl-nota' }, T.how), error, enviarBtn(), volver(() => { paso = 2; })];
+        el('p', { class: 'dl-nota' }, T.how), error, enviarBtn()];
     },
   };
   function pintar() {
     titulo.textContent = centrado ? `⚔️ ${T.challenge}` : modo === 'quick' ? T.quickTitle : modo === 'custom' ? T.customTitle : `⚔️ ${T.newDuel}`;
     cuerpo.replaceChildren(...vistas[modo]().filter(Boolean));
   }
-  const buscador = () => {
-    const inp = el('input', { type: 'text', id: 'dl-nombre', maxlength: '20', autocomplete: 'off', 'aria-label': T.searchLabel, placeholder: T.searchLabel });
-    const res = el('div', { class: 'dl-chips' });
-    const ir = async () => {
-      alTocar();
-      const r = await D.buscar(inp.value).catch(() => []);
-      res.replaceChildren(...(r.length ? r.map(c => el('button', { type: 'button', class: 'chip-btn', 'data-jid': c.jid, onClick: tap(() => {
-        elegido = c; buscando = false; if (!candidatos.some(x => x.jid === c.jid)) candidatos = [c, ...candidatos];
-      }) }, c.n)) : [el('p', { class: 'dl-nota' }, T.noOne)]));
-    };
-    inp.addEventListener('keydown', e => { if (e.key === 'Enter') ir(); });
-    setTimeout(() => inp.focus(), 0);
-    return el('div', { class: 'stack' }, el('div', { class: 'dl-buscar' }, inp, el('button', { type: 'button', class: 'btn btn--cyan btn--sm', onClick: ir }, T.searchGo)), res);
-  };
   async function enviar() {
     if (!elegido) return;
     alTocar();
@@ -264,7 +278,9 @@ export function retosEnRankings(root, { alTocar = () => {} } = {}) {
       const id = String(caja.dataset.tabla).split('_')[0];
       if (!duelGame(id)) return;
       caja.querySelectorAll('.rk-fila[data-jid]:not(.dl-con)').forEach(f => {
-        if (!f.dataset.jid || f.dataset.jid === yo || f.classList.contains('yo')) return;
+        if (!f.dataset.jid) return;
+        // Your own row: an empty cell where the ⚔️ would be, so the columns stay aligned
+        if (f.dataset.jid === yo || f.classList.contains('yo')) { f.classList.add('dl-con'); f.append(el('span', { class: 'dl-retar-vacio', 'aria-hidden': 'true' })); return; }
         const n = f.querySelector('.rk-n')?.textContent?.replace(/^\p{RI}{2}\s*/u, '').trim() || '?';
         f.classList.add('dl-con');
         f.append(el('button', {
@@ -276,4 +292,23 @@ export function retosEnRankings(root, { alTocar = () => {} } = {}) {
   };
   poner();
   new MutationObserver(poner).observe(root, { childList: true, subtree: true });
+}
+
+/**
+ * The /duels/ page's list of other people's recent duels (the owner, 2026-11-23: the page feels
+ * populated even before you have a duel of your own): «Ana 2–1 Beto», the game and how it stands.
+ */
+export function panelRecientes(lista) {
+  if (!lista.length) return null;
+  return el('section', { class: 'panel', id: 'dl-recientes' },
+    el('p', { class: 'lead' }, T.recentTitle),
+    lista.map(d => {
+      const e = estado(d, d.a);
+      const fin = e.termino ? (e.gano === 1 ? fmt(T.recentWon, { n: d.an }) : e.gano === -1 ? fmt(T.recentWon, { n: d.bn }) : T.recentDraw) : T.recentLive;
+      return el('div', { class: 'dl-row', 'data-duel': d.id },
+        el('div', { class: 'dl-row-txt' },
+          el('b', {}, `${d.an} ${e.puntos[0]}–${e.puntos[1]} ${d.bn}`),
+          el('small', {}, titulo(d))),
+        el('span', { class: `dl-fin${e.termino ? '' : ' t'}` }, fin));
+    }));
 }
