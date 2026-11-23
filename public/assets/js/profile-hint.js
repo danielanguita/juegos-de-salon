@@ -30,6 +30,28 @@ export function demoReset(loc = globalThis.location) {
 }
 
 /**
+ * The bubble as wide as its text (the owner, 2026-11-22): a box with wrapped text keeps its widest width, so its
+ * width is set to the longest line it ended up with, measured, plus its padding and the ✕.
+ */
+function fit(box, doc = document) {
+  const txt = box.querySelector('.pf-bubble-txt');
+  if (!txt) return;
+  box.style.width = '';   // measured at its widest, every time: a second fit must not shrink the first
+  // It may be mid-animation (scaled): lines are measured on screen, then brought back to its own size
+  const box0 = txt.getBoundingClientRect(), left = box0.left, scale = box0.width ? txt.offsetWidth / box0.width : 1;
+  let w = 0;
+  for (const c of txt.children) {
+    const r = doc.createRange();
+    r.selectNodeContents(c);
+    for (const q of r.getClientRects()) w = Math.max(w, q.right - left);
+  }
+  if (!w) return;
+  w *= scale;
+  const cs = getComputedStyle(box), x = box.querySelector('.pf-bubble-x');
+  box.style.width = `${Math.ceil(w + parseFloat(cs.paddingLeft) + parseFloat(cs.paddingRight) + parseFloat(cs.columnGap || 0) + (x?.offsetWidth || 44)) + 1}px`;
+}
+
+/**
  * Shows the bubble under `pill` (an `a.pf-home`), once nothing else covers the page (a splash, a sheet).
  * Returns a function that removes it.
  */
@@ -40,7 +62,13 @@ export function pillBubble(pill, { doc = document, lang = getLang(), tries = 6 }
     if (tries > 0) setTimeout(() => pillBubble(pill, { doc, lang, tries: tries - 1 }), 2500);
     return () => {};
   }
-  if (!doc.getElementById('pf-bubble-css')) doc.head.append(el('link', { rel: 'stylesheet', id: 'pf-bubble-css', href: new URL('assets/css/profile-hint.css', ROOT).href }));
+  // Its stylesheet first: the bubble is measured to fit its text, which needs its own sizes
+  if (!doc.getElementById('pf-bubble-css')) {
+    const link = el('link', { rel: 'stylesheet', id: 'pf-bubble-css', href: new URL('assets/css/profile-hint.css', ROOT).href });
+    link.addEventListener('load', () => pillBubble(pill, { doc, lang, tries }), { once: true });
+    doc.head.append(link);
+    return () => {};
+  }
   const T = TEXTS[lang] || TEXTS.es;
   let box = null;
   const place = () => {
@@ -64,7 +92,9 @@ export function pillBubble(pill, { doc = document, lang = getLang(), tries = 6 }
     el('a', { class: 'pf-bubble-txt', href: pill.href, onClick: () => mark(BUBBLE_KEY) }, el('b', {}, T.title), el('span', {}, T.text)),
     el('button', { type: 'button', class: 'pf-bubble-x', 'aria-label': T.close, title: T.close, onClick: close }, '✕'));
   doc.body.append(box);
+  fit(box, doc);
   place();
+  doc.fonts?.ready.then(() => { if (box) { fit(box, doc); place(); } });
   doc.defaultView?.addEventListener('resize', place);
   pill.addEventListener('click', () => mark(BUBBLE_KEY), { once: true });
   return close;

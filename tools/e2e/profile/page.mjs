@@ -53,7 +53,7 @@ for (const W of [320, 390]) {
   ok(await ev(`document.getElementById('pf-intro').hidden && !document.querySelector('.pf-help').hidden`), `${W}: 👋 «Entendido» closes it`);
   await b.go(`${SITE}/profile/?test`, 3000);
   ok(await ev(`document.getElementById('pf-intro').hidden && !document.querySelector('.pf-help').hidden`), `${W}: 👋 the next visit starts with it closed`);
-  ok(await ev(`(() => { const h = document.querySelector('.pf-title-row h1').getBoundingClientRect(), i = document.querySelector('.pf-help').getBoundingClientRect(), s = document.getElementById('pf-sub').getBoundingClientRect(); return i.left >= h.right - 1 && i.top < h.top + h.height / 2 && i.right <= ${W} && s.top >= h.bottom - 2 && Math.abs((h.left + h.right) / 2 - ${W} / 2) < 4; })()`), `${W}: 👋 ⓘ sits at the title's right, the title still centred, no line of its own`);
+  ok(await ev(`(() => { const h = document.querySelector('.pf-title-row h1').getBoundingClientRect(), i = document.querySelector('.pf-help').getBoundingClientRect(), s = document.getElementById('pf-sub').getBoundingClientRect(); return i.left >= h.right - 6 && i.left - h.right < 4 && i.top < h.top + h.height / 2 && i.right <= ${W} && s.top >= h.bottom - 2 && Math.abs((h.left + h.right) / 2 - ${W} / 2) < 4; })()`), `${W}: 👋 ⓘ sits at the title's right, the title still centred, no line of its own`);
   await b.shot(`intro-closed-${W}`);
   await ev(`document.querySelector('.pf-help').click()`); await sleep(500);
   ok(await ev(`!document.getElementById('pf-intro').hidden`), `${W}: 👋 ⓘ opens it again`);
@@ -196,6 +196,7 @@ for (const W of [320, 390]) {
   ok(await ev(`(() => { const x = document.getElementById('pf-bubble')?.getBoundingClientRect(), p = document.querySelector('.topbar .pf-home').getBoundingClientRect(); return !!x && x.left >= 0 && x.right <= ${W} && x.top > p.bottom && x.top - p.bottom < 24 && document.documentElement.scrollWidth <= ${W}; })()`), `${W}: 🎖️ the bubble rises right under the pill and fits the screen`);
   await sleep(700); await b.shot(`bubble-${W}`);
   ok(await ev(`(() => { const x = document.querySelector('.pf-bubble-x'); return x.offsetWidth >= 44 && x.offsetHeight >= 44; })()`), `${W}: 🎖️ its ✕ is 44 px`);
+  ok(await ev(`(() => { const b = document.getElementById('pf-bubble'), t = b.querySelector('.pf-bubble-txt'), x = b.querySelector('.pf-bubble-x'); let w = 0; for (const c of t.children) { const r = document.createRange(); r.selectNodeContents(c); for (const q of r.getClientRects()) w = Math.max(w, q.right); } const tb = b.querySelector('b'), lh = parseFloat(getComputedStyle(tb).lineHeight) || 20; return x.getBoundingClientRect().left - w < 16 && tb.getBoundingClientRect().height < lh * 1.5 && b.getBoundingClientRect().height < 110 && !b.querySelector('b').textContent.includes('\\n'); })()`), `${W}: 🎖️ the bubble is as wide as its text: no empty band before the ✕`);
   await ev(`document.querySelector('.pf-bubble-x').click()`); await sleep(400);
   ok(await ev(`!document.getElementById('pf-bubble') && !!localStorage.getItem('juegos-de-salon:profile-bubble')`), `${W}: 🎖️ ✕ closes it for good`);
   await b.go(`${SITE}/?test`, 3000);
