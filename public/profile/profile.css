@@ -118,10 +118,10 @@
 .pf-peek-who { min-width: 0; }
 .pf-peek-kicker { margin: 0; color: var(--cyan); font-weight: 900; font-size: var(--fs-75); text-transform: uppercase; letter-spacing: 0.08em; }
 .hoja .pf-peek-name { font-size: var(--fs-160); overflow-wrap: anywhere; }
-.pf-peek-body { display: grid; gap: var(--s-12); }
+.pf-peek-body { display: grid; gap: var(--s-20); }
 .hoja .pf-peek-line { font-size: var(--fs-85); }
 .pf-peek-stats { margin-top: 0; }
-.pf-peek-part { display: grid; gap: var(--s-8); }
+.pf-peek-part { display: grid; gap: var(--s-10); }
 .pf-peek-part h3 { margin: 0; font-size: var(--fs-100); font-weight: 900; }
 .pf-peek-games { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--s-6); }
 .pf-peek-games li { display: flex; justify-content: space-between; align-items: center; gap: var(--s-10); background: var(--well); border-radius: var(--r-12); padding: var(--s-8) var(--s-12); }
