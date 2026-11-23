@@ -58,11 +58,16 @@ first push (#572 ran them three times for commits that touched no page).
 
 Now each PR run that passes the `end-to-end` check leaves a mark, an artifact `e2e-head-<sha>` of the
 PR's head commit. The next push asks `tools/e2e/since-passed.mjs` for the files changed **since the
-PR's last commit that passed** (GitHub's compare, which includes what a merge of `main` brought in), and
-only those go into the scope below. The whole PR is tested when no earlier commit passed (the first push,
-a push after a red run, a force push) or when asking GitHub fails.
+PR's last commit that passed** (GitHub's compare), and only those go into the scope below. The whole PR
+is tested when no earlier commit passed (the first push, a push after a red run, a force push) or when
+asking GitHub fails.
 
-What is not retested on the PR: changes on `main` that the PR did not merge. GitHub tests a PR merged
+**A merge of `main` reruns the PR's own scope, not main's** (D-610): when the files since the last pass
+include any the PR itself does not change, they came from `main`, and the push tests the PR's own files
+again against the new `main`, as its first push did. #1802 had passed with its profile script, then a
+merge of `main` brought 19 files and ran 18 batches of the home page's scripts.
+
+What is not retested on the PR: changes on `main`, merged into it or not. GitHub tests a PR merged
 with the `main` of that moment, so a later push tests its own files against a newer `main` without
 rerunning what the newer `main` brought. The safety net is `publish.yml`, which tests what it publishes
 unless that exact tree already passed (D-302, D-308): when the merged PR's head passed its own run, only
@@ -150,7 +155,7 @@ the graph, a declared fact or a guard.
 | Phase | What | State |
 |---|---|---|
 | 1 | The graph reads on-demand loads (`import('…')`, `new URL`); `scope-guard.test.mjs`; the lab index counts as lab for N2 · home | **Built** (D-391) |
-| 2 | Increment: a push tests only what changed since the PR's last commit that passed (`since-passed.mjs`, the `e2e-head-<sha>` marks) | **Built** (D-392) |
+| 2 | Increment: a push tests only what changed since the PR's last commit that passed (`since-passed.mjs`, the `e2e-head-<sha>` marks); a merge of main, the PR's own scope | **Built** (D-392, D-610) |
 | 3 | Feedback: the over-budget line in the run summary, and the escape line in the merged PR's comment | Proposed |
 
 Left out after review (D-392): a ledger with a daily audit (it costs every day what the guards already
@@ -182,7 +187,7 @@ catch in the PR) and moving the declared facts to their own module (tidier, but 
 | What | File |
 |---|---|
 | This design | `docs/TEST-SCOPE.md` |
-| Why each step was taken | `docs/decisions/`: D-308, D-329, D-346, D-378, D-388, D-391, D-392, D-496, D-506, D-515, D-516, D-588 |
+| Why each step was taken | `docs/decisions/`: D-308, D-329, D-346, D-378, D-388, D-391, D-392, D-496, D-506, D-515, D-516, D-588, D-610 |
 | How to run and write scripts | `tools/e2e/README.md` |
 | The code | `tools/e2e/affected.mjs`, `changes.mjs`, `ci.mjs`, `since-passed.mjs` (D-392), `inert.mjs` (D-515), `narrow.mjs` (D-516) |
 | The guards | `tools/e2e/*.test.mjs` (`only.test.mjs`: the `--only` narrowing, D-588) |
