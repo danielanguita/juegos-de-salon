@@ -1,5 +1,5 @@
 // The quiet cloud (flag cloud-quiet, offline-ready.js): on the home page's bar the ☁️ shows only while it asks for
-// something (storing, files missing), on share's left so share and the pill never move, and its slot closes up when it hides; the profile's ⚙️ always has a «Juegos sin
+// something (storing, files missing), floats away when it is done, on share's left so share and the pill never move, and its slot closes up when it hides; the profile's ⚙️ always has a «Juegos sin
 // señal» row with the state, which opens the same sheet. Every state is pretended from the «T» tab's cloud states, which
 // go with the flag's own row while it is in the lab (D-592). With the flag off, the bar keeps the cloud in every state
 // and ⚙️ has no row (checked at 390 only). The home page is the owner's: the icon view and the profile's pill.
@@ -73,7 +73,18 @@ for (const width of [390, 320]) {
   // The pretend storing takes six seconds: its end, once
   if (width === 390) {
     ok(await waitFor(cloudIs('ready'), 9000), `${width}: storing ends ready: the ☁️ stays a moment with its flash`);
-    ok(await waitFor(`!${cloud} && ${slotGone}`, 4000), `${width}: then it leaves the bar`);
+    // The worker repeats its ready: the way out goes on, never cut short
+    const btnTop = await ev(`Math.round(document.querySelector('#offline-ready-slot .offline-ready').getBoundingClientRect().top)`);
+    await ev(`document.querySelector('#tr-offline-ready [data-state="ready"]').click()`);
+    ok(await ev(cloud), `${width}: a repeated ready does not cut its way out`);
+    // It floats away (the owner's variant 3): the cloud rises out of its button, which fades where it is (rising, the
+    // screen's top edge would cut it); then its slot narrows, with no jump
+    ok(await waitFor(`!!document.querySelector('#offline-ready-slot .offline-ready.or-se-va')`, 4000), `${width}: then it floats up and fades`);
+    await sleep(300);
+    ok(await ev(`(b => Math.round(b.getBoundingClientRect().top) === ${btnTop} && b.querySelector('.or-icono').getBoundingClientRect().top < b.getBoundingClientRect().top + 12 && b.querySelector('.or-icono').getBoundingClientRect().top > 0)(document.querySelector('#offline-ready-slot .offline-ready'))`), `${width}: only the cloud rises, inside the screen; its button stays`);
+    ok(await waitFor(`document.getElementById('offline-ready-slot').classList.contains('or-cierra')`, 1500), `${width}: and its slot narrows to nothing`);
+    ok(await waitFor(`!${cloud} && ${slotGone}`, 2000), `${width}: then it leaves the bar`);
+    ok(await ev(fixed) === still, `${width}: share and the pill end where they were`);
   }
 
   // The profile's ⚙️ row, for a player with an account

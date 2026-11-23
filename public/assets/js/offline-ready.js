@@ -279,10 +279,16 @@ export function cloudWatch({ doc = globalThis.document, lang = getLang(), nav = 
 /**
  * Quiet cloud (flag `cloud-quiet`, lab: #seccion-cloud-quiet): the home page's bar shows the cloud only
  * while it asks for something, storing or missing files; ready or unsupported, it lives in the profile's
- * ⚙️ row. After a storing ends ready, it stays QUIET_GOODBYE_MS with its flash, then leaves.
+ * ⚙️ row. After a storing ends ready, it stays QUIET_GOODBYE_MS with its flash, then floats away
+ * (the owner, 2026-11-23, variant 3 of five): the cloud rises out of its button and fades while the button
+ * fades in place (QUIET_FLOAT_MS; the button itself never rises, or the screen's top edge would cut it), and
+ * only once the cloud is gone its slot closes up in QUIET_CLOSE_MS, so nothing is seen sliding sideways.
+ * A ready drawn again meanwhile (the worker repeats it) does not cut the way out. Reduced motion: it only fades.
  */
 export const QUIET_SHOWN = new Set(['loading', 'missing']);
 export const QUIET_GOODBYE_MS = 2500;
+export const QUIET_FLOAT_MS = 600;
+export const QUIET_CLOSE_MS = 300;
 export const shownWhenQuiet = s => QUIET_SHOWN.has(s?.state);
 
 /** The row the T tab's cloud states go with (D-592): the quiet cloud's own while it is in the lab here, else offline mode's. */
@@ -303,11 +309,38 @@ export function offlineReadyButton({ doc = globalThis.document, lang = getLang()
   let on = false;
   let quiet = false;
   let goodbye = null;
+  let leaving = false;
+  // The way out, undone at once: the cloud back in place and its slot as wide as it was
+  const settle = () => {
+    clearTimeout(goodbye); goodbye = null; leaving = false;
+    btn.classList.remove('or-se-va', 'or-ido');
+    const slot = btn.parentElement;
+    if (slot?.classList.contains('or-cierra')) { slot.classList.remove('or-cierra', 'or-cerrado'); slot.style.width = ''; }
+  };
+  // Floats away: the cloud up and out of its button (CSS), then, with nothing left to see, its slot narrows to
+  // nothing, then it is hidden and the slot leaves the layout
+  const floatAway = () => {
+    btn.classList.add('or-se-va');
+    goodbye = setTimeout(() => {
+      btn.classList.add('or-ido');
+      const slot = btn.parentElement;
+      if (slot) {
+        slot.style.width = `${slot.offsetWidth}px`;
+        slot.classList.add('or-cierra');
+        void slot.offsetWidth;
+        slot.style.width = '0px';
+        slot.classList.add('or-cerrado');
+      }
+      goodbye = setTimeout(() => { settle(); btn.hidden = true; }, QUIET_CLOSE_MS);
+    }, QUIET_FLOAT_MS);
+  };
   const visible = (s, was) => {
-    clearTimeout(goodbye); goodbye = null;
+    // On its way out and still nothing to ask: let it finish (a repeated ready must not cut it)
+    if (leaving && !shownWhenQuiet(s) && quiet) return;
+    settle();
     if (!quiet || shownWhenQuiet(s)) { btn.hidden = false; return; }
-    // Just finished storing: the flash shows where it went, then the cloud leaves the bar
-    if (was === 'loading' && s.state === 'ready' && !btn.hidden) { goodbye = setTimeout(() => { btn.hidden = true; }, QUIET_GOODBYE_MS); return; }
+    // Just finished storing: the flash shows where it went, then the cloud floats away
+    if (was === 'loading' && s.state === 'ready' && !btn.hidden) { leaving = true; goodbye = setTimeout(floatAway, QUIET_GOODBYE_MS); return; }
     btn.hidden = true;
   };
   const watch = cloudWatch({ doc, lang, nav, onDraw: s => { if (!on) return; const was = btn.dataset.state; paint(btn, s, lang); visible(s, was); } });

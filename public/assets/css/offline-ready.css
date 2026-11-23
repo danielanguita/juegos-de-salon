@@ -47,6 +47,22 @@
 .or-fila-icono { display: inline-flex; flex: none; }
 /* Quiet cloud (flag cloud-quiet, offline-ready.js): while the bar's ☁️ is hidden its slot takes no room, so the bar closes up */
 html.cloud-quiet .portada-barra .tools > span:has(> .offline-ready[hidden]) { display: none; }
+/* Its way out (offlineReadyButton's floatAway, the owner's variant 3): the cloud rises out of its button and fades
+   while the button's glass fades in place (QUIET_FLOAT_MS); the button never rises, or the screen's top edge would cut
+   it. Then, with nothing left to see (.or-ido), its slot narrows to nothing (QUIET_CLOSE_MS) and swallows the bar's gap
+   (--s-6, index.html), so the bar does not jump */
+.offline-ready.or-se-va { animation: or-vidrio-se-va 0.6s ease-in-out forwards; pointer-events: none; }
+.offline-ready.or-se-va .or-icono { animation: or-se-va 0.6s ease-in forwards; }
+.offline-ready.or-ido { visibility: hidden; }
+@keyframes or-vidrio-se-va { to { background-color: transparent; border-color: transparent; } }
+@keyframes or-se-va { 60% { opacity: 0.5; } to { opacity: 0; transform: translateY(-14px) scale(0.92); } }
+.or-cierra { overflow: hidden; transition: width 0.3s ease-in-out, margin-inline-end 0.3s ease-in-out; }
+.or-cierra.or-cerrado { margin-inline-end: calc(-1 * var(--s-6)); }
+@media (prefers-reduced-motion: reduce) {
+  .offline-ready.or-se-va .or-icono { animation-name: or-se-apaga; }
+  .or-cierra { transition: none; }
+}
+@keyframes or-se-apaga { to { opacity: 0; } }
 /* …and it comes and goes on the left of share (the owner, 2026-11-23): share and the pill never move, the cloud takes
    the empty room toward the language */
 html.cloud-quiet .portada-barra .tools > #offline-ready-slot { order: -1; }
