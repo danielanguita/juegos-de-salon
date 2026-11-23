@@ -8,7 +8,8 @@
  *
  * Every other badge this phone can tell on its own (phone-facts.js `LOCAL_BADGES`) gets the same window right after
  * the game that earned it (the owner, 2026-11-23), its medal shown at once, without the «?» that turns over. The first
- * time, the badges the player already had are only noted, so nobody gets a window for each of them.
+ * look (`firstLook`, after a game or on the profile) only notes what the player already had, secret ones too: what was
+ * earned before this arrived is never announced.
  */
 import { fireworks } from './month-end.js';
 import { readFacts, dueSecret, announced, markAnnounced } from './secret-achievements.js';
@@ -204,6 +205,18 @@ function seenOnProfile(storage) {
 }
 
 /**
+ * The first look on this phone (the owner, 2026-11-23: what was already earned when this arrives is never
+ * announced): every badge `list` says is earned, secret or not, is noted as told without a window. True when it
+ * was the first look. `list` is badges.js `earned(facts).list`, with every fact this place knows.
+ */
+export function firstLook(list = [], storage = globalThis.localStorage) {
+  try { if (storage?.getItem(BASE_KEY)) return false; } catch (_) { return false; }
+  for (const b of list) if (b.got) markAnnounced(b.id, storage);
+  try { storage?.setItem(BASE_KEY, String(Date.now())); } catch (_) { /* not kept */ }
+  return true;
+}
+
+/**
  * The first badge this phone can tell alone (`local`), earned and neither celebrated (`done`) nor shown on the
  * profile (`seen`), or null. `list` is badges.js `earned(facts).list`. Pure.
  */
@@ -216,8 +229,11 @@ export function dueBadge(list = [], local = new Set(), done = {}, seen = {}) {
  * celebrated on this phone opens its window, once. `wait`: a moment for the result screen to draw first.
  */
 export async function celebrate({ lang = 'es', wait = 1200, storage = globalThis.localStorage } = {}) {
+  const [{ earned }, { phoneFacts }] = await Promise.all([import('./badges.js'), import('./phone-facts.js')]);
+  const list = earned(phoneFacts(storage), {}).list;
+  if (firstLook(list, storage)) return null;
   const id = dueSecret(readFacts(storage), announced(storage));
-  if (!id) return celebrateBadge({ lang, wait, storage });
+  if (!id) return celebrateBadge({ lang, wait, storage, list });
   await new Promise(r => setTimeout(r, wait));
   if (document.querySelector('.splash-capa')) return null;
   markAnnounced(id, storage);
@@ -228,15 +244,8 @@ export async function celebrate({ lang = 'es', wait = 1200, storage = globalThis
 }
 
 /** After a game, when no secret one is due: the first badge this phone just earned opens its window, once. */
-async function celebrateBadge({ lang, wait, storage }) {
-  const [{ earned }, { phoneFacts, LOCAL_BADGES }] = await Promise.all([import('./badges.js'), import('./phone-facts.js')]);
-  const list = earned(phoneFacts(storage), {}).list;
-  // The first look only notes what the player already had: a window for each of them would be a flood
-  if (!storage?.getItem(BASE_KEY)) {
-    for (const b of list) if (!b.secret && LOCAL_BADGES.has(b.id) && b.got) markAnnounced(b.id, storage);
-    try { storage.setItem(BASE_KEY, String(Date.now())); } catch (_) { /* not kept */ }
-    return null;
-  }
+async function celebrateBadge({ lang, wait, storage, list }) {
+  const { LOCAL_BADGES } = await import('./phone-facts.js');
   const b = dueBadge(list, LOCAL_BADGES, announced(storage), seenOnProfile(storage));
   if (!b) return null;
   await new Promise(r => setTimeout(r, wait));

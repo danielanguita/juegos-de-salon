@@ -80,6 +80,7 @@ for (const W of [320, 390]) {
     localStorage.setItem('juegos-de-salon:play-hours', JSON.stringify(h));
     localStorage.setItem('juegos-de-salon:play-run', JSON.stringify({ g: 'queens', n: 3, best: 10 }));
     localStorage.setItem('juegos-de-salon:logros-anunciados', JSON.stringify({ xmas: 1 }));
+    localStorage.setItem('juegos-de-salon:logros-base', '1');   // not this phone's first look: what it earns is told
     localStorage.setItem('juegos-de-salon:play-marks', JSON.stringify({ days: { xmas: true, halloween: true }, wk: ['2025-01-04', '2025-01-11', '2025-01-18'], mon: ['2025-01-06'], played: ['2025-01-01', '2025-01-02'] }));
   })()`);
   // Seven cups of La Copa's test store (its podium demo), five of them ended, two in progress
@@ -136,6 +137,10 @@ for (const W of [320, 390]) {
   const spill = await ev(`[...document.querySelectorAll('.pf-badge')].filter(x => { const n = x.querySelector('.pf-name'), r = n.getBoundingClientRect(), c = x.getBoundingClientRect(); return n.scrollWidth > n.clientWidth + 1 || r.left < c.left - 0.5 || r.right > c.right + 0.5; }).map(x => x.dataset.badge).join(', ')`);
   ok(!spill, `${W}: every badge's name fits inside its card${spill ? ` (${spill})` : ''}`);
   ok(await ev(`!!document.querySelector('[data-badge="number-one"]:not(.pf-badge--locked) .pf-new')`), `${W}: 🥇 number 1 is earned and new`);
+  // The day it reaches everyone (the owner, 2026-11-23): what a phone had already earned is never announced, secret ones too
+  await ev(`localStorage.removeItem('juegos-de-salon:logros-base'); localStorage.removeItem('juegos-de-salon:logros-anunciados')`);
+  await b.go(`${SITE}/profile/?test`, 5000);
+  ok(await ev(`(() => { const d = JSON.parse(localStorage.getItem('juegos-de-salon:logros-anunciados') || '{}'); return !document.querySelector('.aw-capa') && !!localStorage.getItem('juegos-de-salon:logros-base') && !!d.halloween && !!d['streak-10']; })()`), `${W}: 🎲 a phone's first look announces nothing it had already earned, secret or not: it only notes them`);
   ok(await ev(`[...document.querySelectorAll('[data-badge="night-owl"] .pf-name')].map(x => x.textContent).join()`) !== 'Noctámbulo', `${W}: a secret badge keeps its name until earned`);
   ok(await ev(`document.documentElement.scrollWidth <= ${W}`), `${W}: badges, no sideways scroll`);
   await full(b, `badges-${W}`, W);

@@ -512,10 +512,11 @@ export async function drawProfile(root, { sub }) {
     // First what the phone knows, at once; then the server's facts and places, as they arrive
     const tab = TABS.includes(location.hash.slice(1)) ? location.hash.slice(1) : 'badges';
     let f = { ...localFacts(), byGame: [] };
-    const paint = () => {
+    // A window only once every fact is in: the first look must note what the server knows too (💎, 🎂)
+    const paint = (final = false) => {
       const r = earned(f, readSeen(yo.jid));
       writeSeen(yo.jid, r.seen);
-      celebrateHere(r.list).catch(() => {});
+      if (final) celebrateHere(r.list).catch(() => {});
       return r.list;
     };
     const badgesBox = el('div', { class: 'pf-tab' });
@@ -541,7 +542,7 @@ export async function drawProfile(root, { sub }) {
     await ranksOf(J, f, (id, r) => rk.game(id, r)).catch(() => {});
     if (mine !== turn) return;
     if (f.general) rk.general(f.general);
-    repaint(paint());
+    repaint(paint(true));
   };
   // A tap on a name in any of the page's rankings opens that player's profile at a glance (the owner, 2026-11-22)
   import('./peek.js').then(m => m.peekOnTap(root, { onTap: tap })).catch(() => {});
@@ -593,11 +594,14 @@ async function achievementDemo() {
 
 /**
  * A secret achievement the profile finds earned (the server's ones, 💎 and 🎂, or a local one no game told yet)
- * opens its window once per phone (achievement-window.js), here, where «Ver mis logros» just closes it.
+ * opens its window once per phone (achievement-window.js), here, where «Ver mis logros» just closes it. The
+ * phone's first look only notes what was already earned (`firstLook`): nothing earned before is announced.
  */
 async function celebrateHere(list) {
   if (/[?&]achievement=demo/.test(location.search)) return;
   const { announced, markAnnounced } = await import('../assets/js/secret-achievements.js');
+  const { firstLook } = await import('../assets/js/achievement-window.js');
+  if (firstLook(list)) return;
   const done = announced();
   const b = list.find(x => x.secret && x.got && !done[x.id]);
   if (!b || document.querySelector('.splash-capa')) return;
