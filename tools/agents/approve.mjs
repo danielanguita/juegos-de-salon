@@ -222,6 +222,9 @@ export const closesWhenDone = (title = '') => /^Owner approval: PR #\d+$/.test(t
 
 /* ------------------------------------------------------------------ */
 
+/** Whether the merge marks the PR ready for review first: the owner's Yes on a draft (#1750). */
+export const readiesFirst = (pr = {}) => pr?.isDraft === true;
+
 /** The checks a merge needs (D-216); `end-to-end` appears only once its scripts end. */
 export const REQUIRED_CHECKS = ['tests', 'end-to-end'];
 /** Which required checks the PR does not have yet, from `gh pr checks --json name`. */
@@ -254,8 +257,11 @@ function perform(action, repo) {
       // No --delete-branch: GitHub deletes the branch (the repo has it enabled) and so retargets
       // the PRs stacked on it to main. Deleted by hand, GitHub closes them (it happened to #303).
       // A conflict with main is reported as such: it used to say "Command failed" without the cause (#331).
-      const { mergeable, mergeStateStatus } = JSON.parse(gh('pr', 'view', String(a.pr), ...R, '--json', 'mergeable,mergeStateStatus'));
+      const { mergeable, mergeStateStatus, isDraft } = JSON.parse(gh('pr', 'view', String(a.pr), ...R, '--json', 'mergeable,mergeStateStatus,isDraft'));
       if (mergeable === 'CONFLICTING') throw new Error(`#${a.pr} conflicts with main: it needs updating`);
+      // The owner's Yes means it is ready: GitHub neither merges a draft nor turns auto-merge on for
+      // one, and the tick used to fail on that (#1750, #1773)
+      if (readiesFirst({ isDraft })) gh('pr', 'ready', String(a.pr), ...R);
       // main requires branches up to date (D-586): a PR behind main joins the merge queue, which
       // updates it, and auto-merge merges it once its checks pass on main + PR; the queue's next
       // step starts the Publish run a merge by this token does not wake.
