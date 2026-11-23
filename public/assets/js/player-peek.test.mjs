@@ -1,9 +1,9 @@
-// Another player's profile at a glance (peek.js): only public facts, only the achievements they can tell
+// Another player's profile at a glance (player-peek.js): only public facts, only the achievements they can tell
 import assert from 'node:assert/strict';
-import { peekFacts, peekBadges, tableOf, PUBLIC_BADGES } from './peek.js';
-import { SOLO_TABLES } from '../assets/js/games.js';
+import { peekFacts, peekBadges, tableOf, PUBLIC_BADGES, rowContext } from './player-peek.js';
+import { SOLO_TABLES } from './games.js';
 import { BADGES } from './badges.js';
-import { TEXTS } from './texts.js';
+import { TEXTS } from './profile-texts.js';
 
 const day = iso => String(Math.round(Date.parse(`${iso}T00:00:00Z`) / 86400000));
 const hist = {};
@@ -41,3 +41,19 @@ assert.ok(!/chapita/i.test(JSON.stringify(TEXTS.es)), 'logros, never chapitas');
 console.log('✓ profile peek');
 for (const l of ['es', 'en', 'pt']) for (const k of ['peekHidden', 'showActivity', 'showActivityHint', 'publicBubbleTitle', 'publicBubbleText', 'publicError'])
   assert.equal(TEXTS[l][k], undefined, `${l}.${k}: no switch, no hidden sheet (D-605)`);
+
+// Where a name was tapped heads the sheet (the owner, 2026-11-23): the table, its tab and the row as drawn
+const node = (o = {}) => ({ textContent: o.text || '', dataset: o.data || {}, querySelector: s => o.q?.[s] || null, closest: s => o.closest?.[s] || null });
+const tabOn = node({ text: 'Esta semana', data: { p: 'semana' } });
+const box = node({ data: { tabla: 'sudoku_easy', pestana: 'semana' }, q: { '.rk-seg .on': tabOn, '.rk-titulo': node({ text: '🧩  Ranking de Sudoku' }) } });
+const row = node({ data: { jid: 'abcd1234' }, closest: { '.rk-ranking, .rk-campeones': box }, q: { '.rk-puesto': node({ text: '🥈' }), '.rk-puntos': node({ text: '120' }), '.rk-tiempo': node({ text: '1:02' }) } });
+assert.deepEqual(rowContext(row), { label: '🧩 Ranking de Sudoku · Esta semana', place: '🥈', value: '120 · 1:02', allTime: 'sudoku_easy' });
+// From the all-time tab there is no second all-time line; the Cups' medal table has no tabs and shows the medals
+const always = node({ data: { tabla: 'sudoku_easy', pestana: 'siempre' }, q: { '.rk-seg .on': node({ text: 'Siempre', data: { p: 'siempre' } }) } });
+assert.equal(rowContext(node({ closest: { '.rk-ranking, .rk-campeones': always }, q: {} })).allTime, null);
+const champs = node({ data: {}, q: { '.rk-titulo': node({ text: '🏅 Campeones' }) } });
+assert.deepEqual(rowContext(node({ closest: { '.rk-ranking, .rk-campeones': champs }, q: { '.rk-puesto': node({ text: '1' }), '.rk-medallas': node({ text: '🥇2 🥈0 🥉1' }) } })),
+  { label: '🏅 Campeones', place: '1', value: '🥇2 🥈0 🥉1', allTime: null });
+const general = node({ data: { tabla: 'todoterreno', pestana: 'semana' }, q: { '.rk-seg .on': tabOn } });
+assert.equal(rowContext(node({ closest: { '.rk-ranking, .rk-campeones': general }, q: {} })).allTime, null, 'the overall place is already the sheet\'s own line');
+console.log('✓ the sheet says where it was opened');

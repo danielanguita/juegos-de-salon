@@ -94,6 +94,7 @@
  "cup/rejoin.mjs": 6,
  "cup/resumed-clock.mjs": 8,
  "cup/seat.mjs": 7,
+ "cup/peek.mjs": 15,
  "cup/talk.mjs": 20,
  "cup/tango-time.mjs": 20,
  "cup/tournament.mjs:cup": 298,
