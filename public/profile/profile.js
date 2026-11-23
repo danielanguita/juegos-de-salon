@@ -73,7 +73,18 @@ function badgeState(f, jid) {
   const out = { ...readSeen(jid), ...r.seen };
   for (const b of list) if (b.got && !out[b.id]) out[b.id] = Date.now();
   writeSeen(jid, out);
-  return list;
+  // `?reveal` (to try it, the owner 2026-11-23): the last badge earned plays its reveal on every visit, nothing recorded;
+  // `?reveal=<id>` plays that one if earned
+  const demo = revealDemo(list, out);
+  return demo ? list.map(b => (b.id === demo ? { ...b, new: true } : b)) : list;
+}
+const REVEAL_PARAM = new URLSearchParams(location.search).get('reveal');
+function revealDemo(list, when) {
+  if (REVEAL_PARAM == null) return null;
+  const got = list.filter(b => b.got);
+  if (REVEAL_PARAM) return got.some(b => b.id === REVEAL_PARAM) ? REVEAL_PARAM : null;
+  const t = id => Math.max(Number(when[id]) || 0, Number(announced()[id]) || 0);
+  return got.sort((a, b) => t(b.id) - t(a.id))[0]?.id || null;
 }
 
 /**
@@ -611,7 +622,7 @@ export async function drawProfile(root, { sub }) {
       for (const k of TABS) panes[k].hidden = k !== id;
       history.replaceState(null, '', `#${id}`);
     }
-    const reveal = !seenAtLoad(yo.jid).first;
+    const reveal = !seenAtLoad(yo.jid).first || REVEAL_PARAM != null;
     let ready = false;
     const repaint = list => {
       cardSlot.replaceChildren(card(yo, f, list, ready));
@@ -647,7 +658,7 @@ export async function drawProfile(root, { sub }) {
 
 function drawGuest(root) {
   const all = badgeState(localFacts(), null);
-  const reveal = !seenAtLoad(null).first;
+  const reveal = !seenAtLoad(null).first || REVEAL_PARAM != null;
   celebrateHere(all).catch(() => {});
   // The badges this phone could earn without a name: Uno al día's streaks and hours, and the games played
   const local = new Set(['streak-10', 'streak-30', 'month-full', 'early-bird', 'explorer', 'plays-100', 'obsession', 'premiere', 'regular', 'weekends', 'mondays',

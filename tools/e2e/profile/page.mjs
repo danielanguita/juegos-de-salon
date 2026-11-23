@@ -171,6 +171,13 @@ for (const W of [320, 390]) {
   await b.shot(`badge-revealed-${W}`);
   await ev(`location.reload()`); await sleep(4000);
   ok(await ev(`(() => { const x = document.querySelector('[data-badge="premiere"]'); return !!x && !x.classList.contains('pf-badge--locked') && !x.classList.contains('pf-badge--reveal') && !x.querySelector('.pf-new'); })()`), `${W}: 🎬 the next visit: still earned, revealed only once`);
+  // `?reveal` replays the last badge earned, to try it as often as wanted, and records nothing (the owner, 2026-11-23)
+  await b.go(`${SITE}/profile/?test&reveal=premiere#badges`, 1500);
+  ok(await ev(`(() => { const x = document.querySelector('[data-badge="premiere"]'); return !!x && x.classList.contains('pf-badge--reveal') && !!x.querySelector('.pf-new') && document.querySelectorAll('.pf-badge--reveal').length === 1; })()`), `${W}: 🎬 ?reveal=premiere replays that badge's reveal`);
+  await b.go(`${SITE}/profile/?test&reveal#badges`, 1500);
+  ok(await ev(`(() => { const x = document.querySelectorAll('.pf-badge--reveal'); return x.length === 1 && !x[0].classList.contains('pf-badge--locked'); })()`), `${W}: 🎬 ?reveal replays the last badge earned, just one`);
+  await b.go(`${SITE}/profile/?test#badges`, 3000);
+  ok(await ev(`!document.querySelector('.pf-badge--reveal')`), `${W}: 🎬 ?reveal recorded nothing: without it, no reveal`);
   ok(await ev(`document.documentElement.scrollWidth <= ${W}`), `${W}: badges, no sideways scroll`);
   await full(b, `badges-${W}`, W);
   // Scrolled, the section bar stays on top and stands apart from the badges under it (the owner, 2026-11-22)

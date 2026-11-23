@@ -2,12 +2,16 @@
    new-duel sheet and the ⚔️ on a ranking's rows. Only the design system's tokens (D-533). */
 
 /* The ⚔️ at the end of a ranking row: the row gets a fifth column */
-.rk-fila.dl-con { grid-template-columns: 2.2em 1fr auto auto 44px; }
+.rk-fila.dl-con { grid-template-columns: 2.2em 1fr auto auto 32px; }
+/* Small, so the row keeps its look (the owner, 2026-11-23); an invisible band takes its tap area to 44 px (U-10) */
 .dl-retar {
-  width: 44px; height: 44px; display: grid; place-items: center; padding: 0;
-  border: 2px solid var(--glass-border); border-radius: 50%; background: var(--well);
-  font-size: var(--fs-110); cursor: pointer; color: var(--ink);
+  position: relative; width: 32px; height: 32px; display: grid; place-items: center; padding: 0;
+  border: 1px solid var(--glass-border); border-radius: 50%; background: var(--well);
+  font-size: var(--fs-85); cursor: pointer; color: var(--ink);
 }
+.dl-retar::before { content: ''; position: absolute; inset: -6px; }
+/* Your own row has no ⚔️: an empty cell of the same width keeps every row's columns aligned */
+.dl-retar-vacio { width: 32px; height: 32px; }
 
 /* The profile's section: min-width 0, or the row of cards widens the page's grid column */
 .dl-slot, .dl-seccion { min-width: 0; }
@@ -81,7 +85,14 @@
 .dl-rival.on .dl-cara { border-color: var(--yellow); }
 .dl-buscar { display: flex; gap: var(--s-8); }
 .dl-buscar input { flex: 1; min-width: 0; }
-.dl-juegos { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--s-8); }
+/* Every game, in two rows that slide sideways (the owner, 2026-11-23): 3½ columns in view, so the next one peeks */
+.dl-juegos {
+  display: grid; gap: var(--s-8); grid-auto-flow: column; grid-template-rows: repeat(2, auto);
+  grid-auto-columns: calc((100% - 3 * var(--s-8)) / 3.5);
+  overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; padding-bottom: var(--s-4);
+}
+.dl-juegos::-webkit-scrollbar { display: none; }
+.dl-juegos > * { scroll-snap-align: start; }
 .dl-juego {
   display: grid; justify-items: center; gap: var(--s-2); padding: var(--s-8) var(--s-2); min-height: 44px;
   border-radius: var(--r-12); border: 2px solid transparent; background: var(--well); color: var(--ink);
@@ -109,3 +120,6 @@
 
 /* The invite's page: someone challenged you */
 .dl-invita .dl-versus b { font-size: var(--fs-120); }
+
+/* The rival search: the form's field, a line under the chips */
+.dl-campo { margin: 0; }
