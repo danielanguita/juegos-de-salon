@@ -190,7 +190,7 @@ export async function drawCarousels({ lang, T, games, tap = () => {}, doc = docu
         // Its own height: the frame also takes whatever the sheet has left over (the two tabs share one height), and its page grows the drawing to fill it
         // On a short screen it gives way first, down to half, so the game's line stays in sight under it
         if (h <= 0) demo.replaceWith(hero());
-        else if (h > 0) { demo.style.flexBasis = `${Math.min(h, 320)}px`; demo.style.minHeight = `${Math.round(Math.min(h, 320) / 2)}px`; demo.classList.add('on'); }
+        else demo.classList.add('on'); // the slot's size is fixed from the first frame: it only fades in
       };
       win.addEventListener('message', onDemo);
     }
