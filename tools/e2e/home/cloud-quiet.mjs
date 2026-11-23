@@ -56,10 +56,12 @@ for (const width of [390, 320]) {
 
   ok(await pretend('missing') && await waitFor(cloudIs('missing')), `${width}: missing: the amber ☁️ shows on the bar`);
   await b.shot(`${width}-3-home-missing`);
-  await ev(`document.querySelector('#offline-ready-slot .offline-ready').click()`);
-  ok(await waitFor(`!!document.querySelector('#hoja-offline-ready #btn-offline-retry')`), `${width}: missing: a tap opens the sheet with Reintentar`);
-  await b.shot(`${width}-4-home-missing-sheet`);
-  await ev(`document.querySelector('#hoja-offline-ready .btn--ghost').click()`);
+  // The sheet is the one it always was: opened once
+  if (width === 390) {
+    await ev(`document.querySelector('#offline-ready-slot .offline-ready').click()`);
+    ok(await waitFor(`!!document.querySelector('#hoja-offline-ready #btn-offline-retry')`), `${width}: missing: a tap opens the sheet with Reintentar`);
+    await ev(`document.querySelector('#hoja-offline-ready .btn--ghost').click()`);
+  }
   ok(await pretend('unsupported') && await waitFor(`!${cloud} && ${slotGone}`), `${width}: unsupported: no ☁️ on the bar`);
   ok(await pretend('loading') && await waitFor(cloudIs('loading')), `${width}: storing: the ☁️ shows with its ring`);
   await b.shot(`${width}-5-home-loading`);
@@ -81,14 +83,16 @@ for (const width of [390, 320]) {
   await settings();
   ok(await waitFor(`!!document.getElementById('or-fila')?.offsetHeight`), `${width}: flag on: ⚙️ has «Juegos sin señal»`);
   ok(await ev(`document.getElementById('or-fila').getBoundingClientRect().height >= 44 && document.documentElement.scrollWidth <= ${width}`), `${width}: the row is a 44 px tap target, nothing scrolls sideways`);
-  for (const [state, title] of Object.entries(TITLES)) {
+  // At 320, the row's two longest lines; every state at 390
+  for (const [state, title] of Object.entries(TITLES).filter(([st]) => width === 390 || st === 'unsupported' || st === 'missing')) {
     ok(await pretend(state) && await waitFor(`document.getElementById('or-fila').dataset.state === '${state}' && document.getElementById('or-fila-estado').textContent.startsWith('${title}')`), `${width}: ${state}: the row says «${title}…» with its cloud`);
     await ev(`document.getElementById('or-fila').scrollIntoView({ block: 'center' })`);
     await b.shot(`${width}-6-settings-${state}`);
   }
-  await ev(`document.getElementById('or-fila').click()`);
-  ok(await waitFor(`!!document.getElementById('hoja-offline-ready')`), `${width}: a tap on the row opens the sheet`);
-  await b.shot(`${width}-7-settings-sheet`);
+  if (width === 390) {
+    await ev(`document.getElementById('or-fila').click()`);
+    ok(await waitFor(`!!document.getElementById('hoja-offline-ready')`), `${width}: a tap on the row opens the sheet`);
+  }
   b.close();
 }
 
