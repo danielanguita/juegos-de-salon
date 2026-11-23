@@ -2,7 +2,7 @@
 // Offline mode's detector (D-538, PR 3): on at once when the browser says offline or after two bad
 // probes, off only after two good probes STEADY apart, and testers can force it.
 import assert from 'node:assert/strict';
-import { createConnection, FORCE_KEY, PROBE_TIMEOUT, STEADY, EVERY_ONLINE, RETRIES, CONFIRM, RETURN_WAIT } from './connection.js';
+import { createConnection, FORCE_KEY, PROBE_TIMEOUT, STEADY, EVERY_ONLINE, RETRIES, CONFIRM, RETURN_WAIT, TOUCH_GAP } from './connection.js';
 
 function rig({ online = true } = {}) {
   const t = { now: 0, jobs: [] };
@@ -62,18 +62,38 @@ function rig({ online = true } = {}) {
   assert.equal(r.c.mode(), 'offline', 'two in a row do');
 }
 
-// Airplane mode on an iPhone: the browser keeps saying online and sends no event; the probes catch it
-// within one round and a quick confirmation, not two full rounds (the owner, 2026-11-22: two minutes)
+// Airplane mode on an iPhone: the browser keeps saying online and sends no event; a probe refused
+// outright switches at once, and probes run every few seconds (the owner, 2026-11-23: it must be immediate)
 {
   const r = rig();
   r.c.start();
   await r.advance(0);
   r.net.mode = 'down';   // navigator.onLine stays true
-  await r.advance(EVERY_ONLINE);
-  assert.equal(r.c.mode(), 'online', 'one failed probe does not switch');
-  await r.advance(CONFIRM);
-  assert.equal(r.c.mode(), 'offline', 'the quick confirmation does');
-  assert.ok(EVERY_ONLINE + CONFIRM <= 25000, 'offline within 25 s at most, without the browser\'s word');
+  await r.advance(EVERY_ONLINE - 1);
+  assert.equal(r.c.mode(), 'online', 'nothing before the next probe');
+  await r.advance(1);
+  assert.equal(r.c.mode(), 'offline', 'the first refused probe switches');
+  assert.ok(EVERY_ONLINE <= 5000, 'offline within 5 s at most, without the browser\'s word');
+}
+
+// A touch of the screen probes at once (at most every TOUCH_GAP): switch airplane mode on, tap, offline
+{
+  const r = rig();
+  r.c.start();
+  await r.advance(TOUCH_GAP);
+  r.net.mode = 'down';
+  r.handlers.pointerdown();
+  await r.advance(0);
+  assert.equal(r.c.mode(), 'offline', 'the tap that follows airplane mode shows it');
+}
+{
+  const r = rig();
+  r.c.start();
+  await r.advance(0);
+  r.net.mode = 'down';
+  r.handlers.pointerdown();   // a probe ran a moment ago
+  await r.advance(0);
+  assert.equal(r.c.mode(), 'online', 'taps do not probe more often than TOUCH_GAP');
 }
 
 // Airplane mode switched on with the app in the background: back in front, it looks at once
@@ -198,4 +218,4 @@ function rig({ online = true } = {}) {
   assert.equal(r.c.forced(), false);
 }
 
-console.log('✓ connection: offline at once, poor or silent after two probes seconds apart, online after two steady ones, testers can force it');
+console.log('✓ connection: offline at once (event, refused probe, touch), poor after two probes, online after two steady ones, testers can force it');

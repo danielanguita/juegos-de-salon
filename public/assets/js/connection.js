@@ -3,10 +3,14 @@
  * whole page; screens only listen (`onChange`) and read it (`mode()`), they never probe themselves.
  *
  * - On at once when the browser says it is offline (`offline` event, `navigator.onLine === false`).
- * - On when the connection is too poor to use: two probes in a row fail or take over PROBE_TIMEOUT.
- *   A probe is a HEAD of `precache.json`, which the service worker never answers from its cache.
- *   A failed probe is confirmed CONFIRM later, not at the next round: an iPhone in airplane mode often
- *   keeps saying it is online and sends no `offline` event, so the probes are all there is.
+ * - On at once when a probe is refused outright (the request fails, no answer at all): the phone has
+ *   no route, as in airplane mode. An iPhone there often keeps saying it is online and sends no
+ *   `offline` event, so the probes are all there is; they run every EVERY_ONLINE while the page is in
+ *   view, on each touch of the screen (at most every TOUCH_GAP), when the phone's network changes
+ *   (`navigator.connection`, Android) and on coming back to the front.
+ * - On when the connection is too poor to use: two probes in a row take over PROBE_TIMEOUT, the second
+ *   CONFIRM after the first. A probe is a HEAD of `precache.json`, which the service worker never
+ *   answers from its cache.
  * - Off at once when the browser says it is back online (`online` event) and a probe agrees; otherwise
  *   only after two good probes at least STEADY apart, so a flaky signal does not flip the screen.
  * - Testers can force it from the offline card in /labs/ or the T tab (FORCE_KEY '1' on this phone); players cannot.
@@ -18,14 +22,16 @@
 export const FORCE_KEY = 'juegos-de-salon:offline-forced';
 export const PROBE_TIMEOUT = 4000;
 export const STEADY = 10000;
-// Online, a probe every EVERY_ONLINE while the page is in view (none while hidden), and one more each
-// time it comes back to the front. 60 s, with a second one more round later, kept a phone in airplane
-// mode in the normal colours for up to two minutes (the owner, 2026-11-22)
-export const EVERY_ONLINE = 20000;
-export const CONFIRM = 3000;
+// Online, a probe every EVERY_ONLINE while the page is in view (none while hidden). Airplane mode must
+// show at once (the owner, 2026-11-23: 60 s and then 20 s rounds were "several seconds" too many)
+export const EVERY_ONLINE = 5000;
+export const CONFIRM = 1500;
+// A touch of the screen probes, at most this often: the player who just switched airplane mode on and
+// taps sees the offline palette right away
+export const TOUCH_GAP = 2000;
 // Back in front while online, the radio may still be waking up (see RETRIES): the probe waits a moment,
-// so an unlocked phone on a slow network does not flash offline mid-room
-export const RETURN_WAIT = 1500;
+// and a refusal right then is confirmed CONFIRM later, so an unlocked phone does not flash offline mid-room
+export const RETURN_WAIT = 1000;
 export const EVERY_OFFLINE = 15000;
 /**
  * When the browser says it is back (or the page comes back to the front), the first probe often fails:
@@ -70,20 +76,25 @@ export function createConnection({
 
   function set(m) { detected = m; publish(); }
 
-  async function probe({ trusted = false } = {}) {
+  let lastProbe = -Infinity;
+  async function probe({ trusted = false, careful = false } = {}) {
     let ok = false;
+    let refused = false;
     let slow = null;
+    lastProbe = now();
     try {
       const r = await Promise.race([
         fetcher(`${probeUrl}?probe=${now()}`, { method: 'HEAD', cache: 'no-store' }),
         new Promise((_, no) => { slow = timer.set(() => no(new Error('slow')), PROBE_TIMEOUT); }),
       ]);
       ok = !!r && r.status < 500;
-    } catch (_) { ok = false; }
+    } catch (e) { ok = false; refused = e?.message !== 'slow'; }
     if (slow !== null) timer.clear(slow);
     if (!ok) {
       lastGood = null;
-      if (++fails >= 2 || nav?.onLine === false) set('offline');
+      // Refused outright: no route, offline now. Slow or a server error: a poor connection, two in a row.
+      // Right after coming back to the front a refusal may be the radio waking up: confirmed first
+      if (++fails >= 2 || nav?.onLine === false || (refused && !careful)) set('offline');
     } else {
       fails = 0;
       // Back online only after two good probes STEADY apart, unless the browser itself said it is back
@@ -115,16 +126,18 @@ export function createConnection({
   const after = () => (detected === 'offline' ? EVERY_OFFLINE : fails > 0 ? CONFIRM : EVERY_ONLINE);
   const hidden = () => doc?.visibilityState === 'hidden';
 
-  function schedule(ms) {
+  function schedule(ms, careful = false) {
     if (next !== null) timer.clear(next);
     next = timer.set(async () => {
       next = null;
       // A page out of sight does not probe (battery, data); it looks again when it comes back
       if (hidden()) return;
-      await probe();
+      await probe({ careful });
       schedule(after());
     }, ms);
   }
+  // A probe soon, unless one ran a moment ago (touches, network changes)
+  const soon = () => { if (detected === 'online' && !hidden() && now() - lastProbe >= TOUCH_GAP) schedule(0); };
 
   const api = {
     mode,
@@ -169,12 +182,15 @@ export function createConnection({
         if (hidden() || now() - lastBack < 1000) return;
         lastBack = now();
         if (detected === 'offline') recheck();
-        else schedule(RETURN_WAIT);
+        else schedule(RETURN_WAIT, true);
       };
       doc?.addEventListener?.('visibilitychange', back);
       win?.addEventListener?.('pageshow', back);
       win?.addEventListener?.('focus', back);
       win?.addEventListener?.('storage', e => { if (e.key === FORCE_KEY) publish(); });
+      // The player touches the screen, or the phone's network changes (Android): look now
+      doc?.addEventListener?.('pointerdown', soon, { capture: true, passive: true });
+      try { nav?.connection?.addEventListener?.('change', () => (detected === 'offline' ? recheck() : schedule(0))); } catch (_) { /* no Network Information API */ }
       schedule(detected === 'offline' ? EVERY_OFFLINE : 0);
       return api;
     },
