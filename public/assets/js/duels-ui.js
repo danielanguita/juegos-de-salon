@@ -8,7 +8,7 @@ import { gameIcon } from './game-icon.js';
 import { getLang } from './i18n.js';
 import { SUELTOS } from './games.js';
 import { jugador, leerYo } from './jugador.js';
-import { estado, record, nemesis, sugeridos, linkRonda, FORMATOS } from './duels.js';
+import { estado, record, nemesis, sugeridos, linkRonda, roundGame, FORMATOS } from './duels.js';
 import { TEXTS } from './duels-texts.js';
 
 const lang = getLang();
@@ -28,14 +28,14 @@ export function cargarCss() {
 
 /** Where round i of duel d is played. */
 export function hrefRonda(d, i) {
-  const g = duelGame(d.g);
+  const g = duelGame(roundGame(d, i));
   return g ? linkRonda(d, i, RAIZ, g.path) : `${RAIZ}duels/`;
 }
 export const hrefDuelos = () => `${RAIZ}duels/`;
 
 const puntos = e => e.rondas.map(r => el('span', { class: `dl-punto${r ? ` ${r}` : ''}`, 'aria-hidden': 'true' }));
 const marcador = e => `${e.puntos[0]}–${e.puntos[1]}`;
-const titulo = d => { const g = duelGame(d.g); return `${g ? `${g.emoji} ${nombreJuego(g)}` : d.g} · ${T[d.f] || ''}`; };
+export const titulo = d => { const g = duelGame(d.g); return `${d.gr ? T.customTitle : g ? `${g.emoji} ${nombreJuego(g)}` : d.g} · ${T[d.f] || ''}`; };
 
 /** A duel as a card (the profile's row). */
 export function duelCard(d, me, { alTocar = () => {} } = {}) {
@@ -68,7 +68,8 @@ export function fila(d, me, { alTocar = () => {} } = {}) {
 /** The pills of a player's record. */
 export function pildoras(lista, me) {
   const r = record(lista, me);
-  if (r.g + r.p === 0) return [el('span', { class: 'dl-pill' }, T.pillNone)];
+  // With duels open but none decided yet there is no record to show; with none at all, say so
+  if (r.g + r.p === 0) return lista.length ? [] : [el('span', { class: 'dl-pill' }, T.pillNone)];
   return [el('span', { class: 'dl-pill' }, fmt(T.pillRecord, { g: r.g, p: r.p, pct: r.pct })), r.racha > 1 ? el('span', { class: 'dl-pill' }, fmt(T.pillStreak, { n: r.racha })) : null].filter(Boolean);
 }
 
@@ -91,7 +92,7 @@ export async function seccionPerfil({ alTocar = () => {} } = {}) {
     const turnos = abiertos.filter(d => estado(d, yo.jid).turno >= 0).length;
     const nem = nemesis(lista, yo.jid);
     caja.replaceChildren(...[
-      el('div', { class: 'dl-pills' }, pildoras(lista, yo.jid)),
+      pildoras(lista, yo.jid).length ? el('div', { class: 'dl-pills' }, pildoras(lista, yo.jid)) : null,
       el('div', { class: 'dl-head' },
         el('p', { class: 'lead' }, T.yourDuels, turnos ? el('small', {}, ` ${fmt(T.yourTurnN, { n: turnos })}`) : null),
         el('a', { href: hrefDuelos(), onClick: alTocar }, T.seeAll)),
@@ -108,10 +109,24 @@ export async function seccionPerfil({ alTocar = () => {} } = {}) {
   return caja;
 }
 
+/** The invite link a challenger sends: the duel's own page, where the rival accepts (duels-page.js). */
+export const inviteHref = d => `${RAIZ}duels/?d=${d.id}`;
+
+/** Sends the invite to that one rival (the system's share menu; the link copied where there is none). */
+export async function shareInvite(d, btn) {
+  const { compartir } = await import('./compartir.js');
+  const g = duelGame(d.g);
+  const texto = fmt(T.inviteText, { a: d.an, juego: d.gr ? T.customTitle.replace(/^\S+\s/, '') : (g ? nombreJuego(g) : d.g), formato: T[d.f] });
+  const r = await compartir({ titulo: T.inviteTitle, texto, url: inviteHref(d), que: 'duelo' });
+  if (r === 'copied' && btn) { const antes = btn.textContent; btn.textContent = T.copied; setTimeout(() => { btn.textContent = antes; }, 2000); }
+}
+
 /**
- * The new-duel sheet. With `rival` and `juego` (a ranking's ⚔️) it opens centred, those chosen;
- * from the profile it slides up with the rivals to choose from (those played, then cup friends,
- * then a search by name).
+ * The new-duel sheet (the owner, 2026-11-23: a quick duel and a custom one, step by step, always to
+ * one rival). From a ranking's ⚔️ (`rival` and `juego`) it opens centred as a quick duel with both
+ * chosen; from the profile it first asks ⚡ Quick or 🛠️ Custom. Quick: the rival, one game, best of
+ * 3 or 5. Custom: 1 who, 2 how to win, 3 each round's game. Once sent, the challenger sends the
+ * invite to that rival and can play round 1.
  */
 export async function abrirNuevo({ rival = null, juego = null, lista = null, alTocar = () => {} } = {}) {
   cargarCss();
@@ -119,13 +134,15 @@ export async function abrirNuevo({ rival = null, juego = null, lista = null, alT
   const J = await jugador();
   const D = await J.duelos();
   const centrado = !!rival && !!juego;
+  let modo = centrado ? 'quick' : 'menu', paso = 1, editando = -1;
   let elegido = rival, formato = 'bo3', g = juego && duelGame(juego) ? juego : DUEL_GAMES[0]?.id;
+  let gr = [];
+  const ponerRondas = () => { const n = FORMATOS[formato]; gr = Array.from({ length: n }, (_, k) => gr[k] || g); };
+  const titulo = el(centrado ? 'h2' : 'h3', { id: 'dl-titulo', class: centrado ? 'display display--md' : '' });
   const cerrarBtn = el('button', { type: 'button', class: 'icon-btn', 'aria-label': '✕' }, '✕');
   const cuerpo = el('div', { class: 'stack dl-sheet' });
   const panel = el('div', { class: 'hoja', role: 'dialog', 'aria-modal': 'true', 'aria-labelledby': 'dl-titulo' },
-    centrado ? null : el('div', { class: 'hoja-asa' }),
-    el('div', { class: 'hoja-cabeza' }, el(centrado ? 'h2' : 'h3', { id: 'dl-titulo', class: centrado ? 'display display--md' : '' }, `⚔️ ${centrado ? T.challenge : T.newDuel}`), cerrarBtn),
-    cuerpo);
+    centrado ? null : el('div', { class: 'hoja-asa' }), el('div', { class: 'hoja-cabeza' }, titulo, cerrarBtn), cuerpo);
   const capa = el('div', { class: `hoja-capa${centrado ? ' portada-ventana' : ''}`, id: 'dl-hoja' }, el('div', { class: 'hoja-fondo' }), panel);
   const cerrar = () => { capa.remove(); document.removeEventListener('keydown', onKey); };
   const onKey = e => { if (e.key === 'Escape') cerrar(); };
@@ -136,6 +153,7 @@ export async function abrirNuevo({ rival = null, juego = null, lista = null, alT
   document.body.append(capa);
 
   if (!yo) {
+    titulo.textContent = `⚔️ ${T.newDuel}`;
     const { bloqueJugador } = await import('./ranking.js');
     cuerpo.replaceChildren(el('p', { class: 'dl-nota' }, T.signIn), bloqueJugador({ abierto: true, destacado: true, alTocar }));
     J.escuchar(() => { if (leerYo() && capa.isConnected) { cerrar(); abrirNuevo({ rival, juego, lista, alTocar }); } });
@@ -145,42 +163,73 @@ export async function abrirNuevo({ rival = null, juego = null, lista = null, alT
   let candidatos = sugeridos(misDuelos, yo.jid, J.amigos());
   if (rival && !candidatos.some(c => c.jid === rival.jid)) candidatos = [rival, ...candidatos];
   const error = el('p', { class: 'rk-error', 'aria-live': 'polite' });
+  const tap = f => () => { alTocar(); f(); pintar(); };
+  const label = t => el('p', { class: 'dl-label' }, t);
   const chips = (opciones, actual, poner) => el('div', { class: 'dl-chips' }, opciones.map(([v, txt]) => el('button', {
-    type: 'button', class: `chip-btn${v === actual ? ' on' : ''}`, 'data-v': v, onClick: () => { alTocar(); poner(v); pintar(); },
+    type: 'button', class: `chip-btn${v === actual ? ' on' : ''}`, 'data-v': v, onClick: tap(() => poner(v)),
   }, txt)));
+  const tiles = (actual, poner) => el('div', { class: 'dl-juegos' }, DUEL_GAMES.map(x => el('button', {
+    type: 'button', class: `dl-juego${x.id === actual ? ' on' : ''}`, 'data-g': x.id, onClick: tap(() => poner(x.id)),
+  }, el('span', { class: 'dl-ic', 'aria-hidden': 'true' }, gameIcon(x)), el('span', {}, nombreJuego(x)))));
   let buscando = false;
-  const pintar = () => {
-    const quien = elegido?.n || '';
-    const rivales = centrado ? el('div', { class: 'dl-versus' },
-      el('div', {}, el('b', {}, yo.n)), el('span', { class: 'display display--md' }, 'VS'), el('div', {}, el('b', {}, rival.n)))
-      : el('div', { class: 'stack' },
-        el('p', { class: 'dl-label' }, T.rival),
-        el('div', { class: 'dl-chips', id: 'dl-rivales' },
-          candidatos.slice(0, 8).map(c => el('button', { type: 'button', class: `chip-btn${elegido?.jid === c.jid ? ' on' : ''}`, 'data-jid': c.jid, onClick: () => { alTocar(); elegido = c; pintar(); } }, c.n)),
-          el('button', { type: 'button', class: `chip-btn${buscando ? ' on' : ''}`, id: 'dl-buscar', onClick: () => { alTocar(); buscando = !buscando; pintar(); } }, `🔍 ${T.search}`)),
-        buscando ? buscador() : null);
-    const juegos = centrado ? null : el('div', { class: 'stack' },
-      el('p', { class: 'dl-label' }, T.game),
-      el('div', { class: 'dl-juegos' }, DUEL_GAMES.map(x => el('button', {
-        type: 'button', class: `dl-juego${x.id === g ? ' on' : ''}`, 'data-g': x.id, onClick: () => { alTocar(); g = x.id; pintar(); },
-      }, el('span', { class: 'dl-ic', 'aria-hidden': 'true' }, gameIcon(x)), el('span', {}, nombreJuego(x))))));
-    cuerpo.replaceChildren(...[
-      rivales,
-      el('div', { class: 'stack' }, el('p', { class: 'dl-label' }, T.format), chips(Object.keys(FORMATOS).map(f => [f, T[f]]), formato, v => { formato = v; })),
-      juegos,
-      el('p', { class: 'dl-nota' }, T.how),
-      error,
-      el('button', { type: 'button', class: 'btn btn--yellow', id: 'dl-enviar', disabled: !elegido, onClick: enviar }, elegido ? fmt(T.send, { n: quien }) : T.pickRival)].filter(Boolean));
+  const rivales = () => el('div', { class: 'stack' },
+    label(T.rival),
+    el('div', { class: 'dl-chips', id: 'dl-rivales' },
+      candidatos.slice(0, 8).map(c => el('button', { type: 'button', class: `chip-btn${elegido?.jid === c.jid ? ' on' : ''}`, 'data-jid': c.jid, onClick: tap(() => { elegido = c; }) }, c.n)),
+      el('button', { type: 'button', class: `chip-btn${buscando ? ' on' : ''}`, id: 'dl-buscar', onClick: tap(() => { buscando = !buscando; }) }, `🔍 ${T.search}`)),
+    buscando ? buscador() : null);
+  const versus = () => el('div', { class: 'dl-versus' }, el('div', {}, el('b', {}, yo.n)), el('span', { class: 'display display--md' }, 'VS'), el('div', {}, el('b', {}, elegido.n)));
+  const enviarBtn = () => el('button', { type: 'button', class: 'btn btn--yellow', id: 'dl-enviar', disabled: !elegido, onClick: enviar }, elegido ? fmt(T.send, { n: elegido.n }) : T.pickRival);
+  const volver = (a, txt = T.back) => el('button', { type: 'button', class: 'btn btn--ghost btn--sm', id: 'dl-atras', onClick: tap(a) }, txt);
+
+  const vistas = {
+    menu: () => [
+      el('button', { type: 'button', class: 'opcion dl-modo', id: 'dl-rapido', onClick: tap(() => { modo = 'quick'; }) }, el('b', {}, T.quickTitle), el('span', { class: 'dl-nota' }, T.quickSub)),
+      el('button', { type: 'button', class: 'opcion dl-modo', id: 'dl-medida', onClick: tap(() => { modo = 'custom'; paso = 1; }) }, el('b', {}, T.customTitle), el('span', { class: 'dl-nota' }, T.customSub))],
+    quick: () => [
+      centrado ? versus() : rivales(),
+      centrado ? null : el('div', { class: 'stack' }, label(T.game), tiles(g, v => { g = v; })),
+      el('div', { class: 'stack' }, label(T.format), chips([['bo3', T.bo3], ['bo5', T.bo5]], formato, v => { formato = v; })),
+      el('p', { class: 'dl-nota' }, T.how), error, enviarBtn(),
+      centrado ? null : volver(() => { modo = 'menu'; })],
+    custom: () => {
+      const cabeza = el('div', { class: 'dl-pasos' }, el('span', { class: 'dl-nota' }, fmt(T.stepOf, { n: paso })),
+        el('span', { class: 'dl-puntos' }, [1, 2, 3].map(k => el('span', { class: `dl-punto${k <= paso ? ' w' : ''}`, 'aria-hidden': 'true' }))));
+      if (paso === 1) return [cabeza, label(T.stepWho), rivales(),
+        el('button', { type: 'button', class: 'btn btn--yellow', id: 'dl-siguiente', disabled: !elegido, onClick: tap(() => { paso = 2; }) }, elegido ? T.next : T.pickRival),
+        volver(() => { modo = 'menu'; })];
+      if (paso === 2) return [cabeza, label(T.stepHow),
+        ...['bo3', 'bo5', 'pts'].map(f => el('button', { type: 'button', class: `opcion dl-modo${f === formato ? ' on' : ''}`, 'data-f': f, onClick: tap(() => { formato = f; }) },
+          el('b', {}, T[f]), el('span', { class: 'dl-nota' }, T[`${f}How`]))),
+        el('button', { type: 'button', class: 'btn btn--yellow', id: 'dl-siguiente', onClick: tap(() => { ponerRondas(); editando = -1; paso = 3; }) }, T.next),
+        volver(() => { paso = 1; })];
+      ponerRondas();
+      return [cabeza,
+        el('div', { class: 'dl-head' }, label(T.stepGames), el('button', { type: 'button', class: 'chip-btn', id: 'dl-mezclar', onClick: tap(() => {
+          const pool = [...DUEL_GAMES].sort(() => Math.random() - 0.5); gr = gr.map((_, k) => pool[k % pool.length].id); editando = -1;
+        }) }, T.mix)),
+        ...gr.map((id, k) => {
+          const x = duelGame(id);
+          const fila = el('button', { type: 'button', class: `dl-ronda${editando === k ? ' on' : ''}`, 'data-ronda': k, onClick: tap(() => { editando = editando === k ? -1 : k; }) },
+            el('span', { class: 'dl-nota' }, fmt(T.roundN, { i: k + 1 })), el('span', { class: 'dl-ic', 'aria-hidden': 'true' }, x ? gameIcon(x) : ''), el('b', {}, x ? nombreJuego(x) : id), el('span', { class: 'dl-nota' }, '›'));
+          return editando === k ? el('div', { class: 'stack' }, fila, tiles(id, v => { gr[k] = v; editando = -1; })) : fila;
+        }),
+        el('p', { class: 'dl-nota' }, T.how), error, enviarBtn(), volver(() => { paso = 2; })];
+    },
   };
+  function pintar() {
+    titulo.textContent = centrado ? `⚔️ ${T.challenge}` : modo === 'quick' ? T.quickTitle : modo === 'custom' ? T.customTitle : `⚔️ ${T.newDuel}`;
+    cuerpo.replaceChildren(...vistas[modo]().filter(Boolean));
+  }
   const buscador = () => {
     const inp = el('input', { type: 'text', id: 'dl-nombre', maxlength: '20', autocomplete: 'off', 'aria-label': T.searchLabel, placeholder: T.searchLabel });
     const res = el('div', { class: 'dl-chips' });
     const ir = async () => {
       alTocar();
       const r = await D.buscar(inp.value).catch(() => []);
-      res.replaceChildren(...(r.length ? r.map(c => el('button', { type: 'button', class: 'chip-btn', 'data-jid': c.jid, onClick: () => {
-        alTocar(); elegido = c; buscando = false; if (!candidatos.some(x => x.jid === c.jid)) candidatos = [c, ...candidatos]; pintar();
-      } }, c.n)) : [el('p', { class: 'dl-nota' }, T.noOne)]));
+      res.replaceChildren(...(r.length ? r.map(c => el('button', { type: 'button', class: 'chip-btn', 'data-jid': c.jid, onClick: tap(() => {
+        elegido = c; buscando = false; if (!candidatos.some(x => x.jid === c.jid)) candidatos = [c, ...candidatos];
+      }) }, c.n)) : [el('p', { class: 'dl-nota' }, T.noOne)]));
     };
     inp.addEventListener('keydown', e => { if (e.key === 'Enter') ir(); });
     setTimeout(() => inp.focus(), 0);
@@ -191,10 +240,12 @@ export async function abrirNuevo({ rival = null, juego = null, lista = null, alT
     alTocar();
     error.textContent = '';
     try {
-      const d = await D.retar({ b: elegido.jid, bn: elegido.n, g, f: formato });
+      const custom = modo === 'custom';
+      const d = await D.retar({ b: elegido.jid, bn: elegido.n, g: custom ? gr[0] : g, f: formato, gr: custom ? gr : null });
+      const invitar = el('button', { type: 'button', class: 'btn btn--yellow', id: 'dl-invitar', onClick: () => { alTocar(); shareInvite(d, invitar); } }, fmt(T.shareInvite, { n: elegido.n }));
       cuerpo.replaceChildren(
-        el('p', { class: 'notice' }, fmt(T.sent, { n: elegido.n })),
-        el('a', { class: 'btn btn--yellow', id: 'dl-jugar', href: hrefRonda(d, 0), onClick: alTocar }, fmt(T.playRound, { i: 1 })));
+        el('p', { class: 'notice' }, fmt(T.sent, { n: elegido.n })), invitar,
+        el('a', { class: 'btn btn--cyan', id: 'dl-jugar', href: hrefRonda(d, 0), onClick: alTocar }, fmt(T.playRound, { i: 1 })));
     } catch (_) { error.textContent = T.errSend; }
   }
   pintar();
