@@ -1258,6 +1258,11 @@
         "at": {
           ".validate": "newData.val() === now"
         },
+        "gr": {
+          "$i": {
+            ".validate": "$i.matches(/^[0-4]$/) && newData.parent().parent().child('sd/' + $i).exists() && newData.isString() && newData.val().matches(/^[a-z][a-z0-9-]{1,24}$/)"
+          }
+        },
         "e": {
           "$jid": {
             "$i": {
