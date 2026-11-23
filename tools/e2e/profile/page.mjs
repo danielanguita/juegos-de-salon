@@ -124,6 +124,8 @@ for (const W of [320, 390]) {
   await ev(`localStorage.setItem('juegos-de-salon:partidas', ${JSON.stringify(plays0 ?? '0')})`);
   ok(await ev(`document.querySelector('.pf-player')?.textContent.includes('Javi')`), `${W}: the card names the player`);
   ok(await ev(`!document.querySelector('.pf-avatar') && !!document.querySelector('.pf-card .pf-player .rk-flag, .pf-card .pf-player')`), `${W}: the card is the player's flag and name, no initial in a circle`);
+  // The figures count up from zero to their number (the owner, 2026-11-23), then stay
+  await sleep(1600);
   ok(/14/.test(await ev(`document.querySelector('.pf-stat b')?.textContent`)), `${W}: the card shows the 14-day streak`);
   ok(await ev(`!!document.querySelector('[data-badge="streak-10"]:not(.pf-badge--locked)')`), `${W}: 🔥 10 in a row is earned`);
   ok(/14 \/ 30/.test(await ev(`document.querySelector('[data-badge="streak-30"]')?.textContent`)), `${W}: 🔥 30 in a row shows its progress, 14 / 30`);
@@ -137,6 +139,7 @@ for (const W of [320, 390]) {
   const spill = await ev(`[...document.querySelectorAll('.pf-badge')].filter(x => { const n = x.querySelector('.pf-name'), r = n.getBoundingClientRect(), c = x.getBoundingClientRect(); return n.scrollWidth > n.clientWidth + 1 || r.left < c.left - 0.5 || r.right > c.right + 0.5; }).map(x => x.dataset.badge).join(', ')`);
   ok(!spill, `${W}: every badge's name fits inside its card${spill ? ` (${spill})` : ''}`);
   ok(await ev(`!!document.querySelector('[data-badge="number-one"]:not(.pf-badge--locked) .pf-new')`), `${W}: 🥇 number 1 is earned and new`);
+  ok(await ev(`(async () => { window.__profile.redraw(); await new Promise(r => setTimeout(r, 120)); const v = [...document.querySelectorAll('.pf-stat b')].map(b => b.textContent); return /14/.test(v[0]) && /^20$/.test(v[1]); })()`), `${W}: drawn again, the figures count on from where they stood, never from zero again`);
   // The day it reaches everyone (the owner, 2026-11-23): what a phone had already earned is never announced, secret ones too
   await ev(`localStorage.removeItem('juegos-de-salon:logros-base'); localStorage.removeItem('juegos-de-salon:logros-anunciados')`);
   await b.go(`${SITE}/profile/?test`, 5000);
