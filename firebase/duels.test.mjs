@@ -12,7 +12,7 @@ const A = 'aaaa1111', B = 'bbbb2222', C = 'cccc3333', DID = 'duel000001';
 const ok = (r, msg, db) => assert.equal(r, true, `${msg} (${db?.why?.join(', ')})`);
 const no = (r, msg) => assert.equal(r, false, msg);
 const duelo = (f = 'bo3') => ({ a: A, b: B, an: 'Ana', bn: 'Beto', f, g: 'desenredo', sd: f === 'bo5' ? ['ABCDE', 'FGHJK', 'LMNPQ', 'RSTUV', 'WXYZA'] : ['ABCDE', 'FGHJK', 'LMNPQ'], at: { '.sv': 'timestamp' } });
-const crear = (d = duelo()) => ({ [`duelos/${DID}`]: d, [`jugadorDuelos/${A}/${DID}`]: { '.sv': 'timestamp' }, [`jugadorDuelos/${B}/${DID}`]: { '.sv': 'timestamp' } });
+const crear = (d = duelo()) => ({ [`duelos/${DID}`]: d, [`jugadorDuelos/${A}/${DID}`]: { '.sv': 'timestamp' }, [`jugadorDuelos/${B}/${DID}`]: { '.sv': 'timestamp' }, [`duelosRecientes/${DID}`]: { '.sv': 'timestamp' } });
 
 {
   const base = {
@@ -32,6 +32,8 @@ const crear = (d = duelo()) => ({ [`duelos/${DID}`]: d, [`jugadorDuelos/${A}/${D
   no(w('ua', crear({ ...duelo(), gr: ['Reinas!', 'tango', 'zip'] })), "a round's game is a game id");
   ok(w('ua', crear()), 'the challenger creates the duel and both lists', db);
   no(w('ua', crear()), 'a duel is written once');
+  no(w('ua', { [`duelosRecientes/${DID}`]: { '.sv': 'timestamp' } }), 'the recent list takes a duel only with its creation');
+  no(w('uc', { 'duelosRecientes/zzzzzzzzzz': { '.sv': 'timestamp' } }), 'no stray entry in the recent list');
   no(w('uc', { [`jugadorDuelos/${C}/${DID}`]: { '.sv': 'timestamp' } }), 'nobody else joins it later');
   no(w('ub', { [`duelos/${DID}/r/${B}/0`]: { s: 90, ms: 5000, at: { '.sv': 'timestamp' } } }), 'a result needs its round begun');
   no(w('ua', { [`duelos/${DID}/e/${B}/0`]: { '.sv': 'timestamp' } }), 'only the player begins their round');
@@ -59,6 +61,7 @@ const crear = (d = duelo()) => ({ [`duelos/${DID}`]: d, [`jugadorDuelos/${A}/${D
   const D = await J.duelos();
   const d = await D.retar({ b: beto.jid, bn: 'Beto', g: 'desenredo', f: 'bo3' });
   assert.equal((await D.mios()).length, 1, "the duel is in the challenger's list");
+  assert.deepEqual((await D.recientes()).map(x => x.id), [d.id], 'and in the public list of recent duels');
   assert.ok(await almacen.get(`jugadorDuelos/${beto.jid}/${d.id}`), "and in the rival's");
   assert.equal(await D.empezar(d.id, 0), true);
   assert.equal(await D.empezar(d.id, 0), false, 'a round begins once');
@@ -67,6 +70,8 @@ const crear = (d = duelo()) => ({ [`duelos/${DID}`]: d, [`jugadorDuelos/${A}/${D
   const e = estado(await D.leer(d.id), ana.jid, t);
   assert.deepEqual([e.mias[0].s, e.turno, e.termino], [80, 1, false], 'round 2 is next');
   assert.equal((await D.buscar('beto'))[0]?.jid, beto.jid, 'a rival is found by name');
+  assert.equal((await D.buscar('be'))[0]?.jid, beto.jid, 'and by the start of the name, as it is typed');
+  assert.deepEqual(await D.buscar('zz'), [], 'nobody, no result');
   // A custom duel: each round its own game
   const c = await D.retar({ b: beto.jid, bn: 'Beto', g: 'reinas', f: 'pts', gr: ['reinas', 'tango', 'desenredo'] });
   const c2 = await D.leer(c.id);

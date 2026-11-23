@@ -777,6 +777,8 @@ export function jugador() {
 async function crear() {
   const q = new URLSearchParams(location.search);
   const local = q.get('records') !== 'firebase' && (tiene('test', q) || envOf(location) === 'dev');
+  // A PR's preview starts each browser with a few made-up players and duels to try things with (preview-seed.js)
+  if (local) await import('./preview-seed.js').then(m => m.seedPreview()).catch(() => {});
   const almacen = local
     ? (await import('./jugador-local.js')).crearAlmacenLocal()
     : (await import('./jugador-firebase.js')).crearAlmacenFirebase();

@@ -10,7 +10,7 @@ import { SFX } from '../assets/js/sound.js';
 import { jugador, leerYo } from '../assets/js/jugador.js';
 import { bloqueJugador } from '../assets/js/ranking.js';
 import { estado, record, esDid, rondas } from '../assets/js/duels.js';
-import { T, fmt, fila, ordenar, abrirNuevo, titulo, hrefRonda, hrefDuelos, shareInvite } from '../assets/js/duels-ui.js';
+import { T, fmt, fila, ordenar, abrirNuevo, titulo, hrefRonda, hrefDuelos, shareInvite, panelRecientes, panelNemesis } from '../assets/js/duels-ui.js';
 
 export { T };
 const tap = () => SFX.tap();
@@ -30,7 +30,7 @@ async function drawInvite(root, { sub, h1, did, J }) {
     el('span', { class: 'display display--md' }, 'VS'),
     el('div', {}, el('b', {}, d.bn), el('div', { class: 'dl-espera' }, '?'))));
   if (!yo) {
-    root.replaceChildren(versus, el('p', { class: 'dl-nota center' }, T.signInToPlay), bloqueJugador({ abierto: true, destacado: true, alTocar: tap }));
+    root.replaceChildren(versus, bloqueJugador({ abierto: true, destacado: true, titulo: T.signInToPlay, alTocar: tap }));
     return;
   }
   if (yo.jid === d.a) {
@@ -59,41 +59,45 @@ export async function drawDuels(root, { sub }) {
     await once();
     return;
   }
-  let turn = 0, tab = 'turn', abierta = false; // the new-duel sheet opens on its own once, for a first-timer
+  let turn = 0, abierta = false; // the new-duel sheet opens on its own once, for a first-timer
   const draw = async () => {
     const mine = ++turn;
     const yo = leerYo();
-    if (!yo) { sub.textContent = T.signIn; root.replaceChildren(bloqueJugador({ abierto: true, destacado: true, alTocar: tap })); return; }
+    // Everyone's recent duels, so the page is never empty: under your own duels when you have them
+    const recientesP = J.duelos().then(D => D.recientes(12)).catch(() => []);
+    const recientes = async () => panelRecientes((await recientesP).filter(d => !yo || (d.a !== yo.jid && d.b !== yo.jid)).slice(0, 8));
+    if (!yo) {
+      // Signed out: say plainly that duels need a name and PIN, then the sign-in card (the owner, 2026-11-23)
+      sub.textContent = '';
+      root.replaceChildren(bloqueJugador({ abierto: true, destacado: true, titulo: T.signInCard, alTocar: tap }));
+      const r = await recientes();
+      if (mine === turn && r) root.append(r);
+      return;
+    }
     const nuevo = el('button', { type: 'button', class: 'btn btn--yellow', id: 'dl-nuevo', onClick: () => { tap(); abrirNuevo({ lista, alTocar: tap }); } }, `⚔️ ${T.newDuel}`);
     let lista = [], leida = false;
     root.replaceChildren(nuevo);
     try { lista = await (await J.duelos()).mios(); leida = true; } catch (_) { /* offline: nothing to show */ }
+    const otros = await recientes();
     if (mine !== turn) return;
     const r = record(lista, yo.jid);
     sub.textContent = r.g + r.p ? `${fmt(T.pageSub, { g: r.g, p: r.p })} · ${r.pct}%` : '';
     if (!lista.length) {
-      root.replaceChildren(nuevo, el('p', { class: 'muted center' }, T.empty));
+      root.replaceChildren(...[nuevo, el('p', { class: 'muted center' }, T.empty), otros].filter(Boolean));
       // A first-timer (no duel, no record) came to start one: open the sheet once, not on every redraw
       if (leida && !abierta && !document.getElementById('dl-hoja')) { abierta = true; abrirNuevo({ lista, alTocar: tap }); }
       return;
     }
     const orden = ordenar(lista, yo.jid);
     const es = d => estado(d, yo.jid);
-    const grupos = { turn: orden.filter(d => es(d).turno >= 0), waiting: orden.filter(d => !es(d).termino && es(d).turno < 0) };
+    // One list, no tabs (the owner, 2026-11-23: few duels each): your turn first, with ▶ Play; then «Waiting for …»
+    const abiertos = orden.filter(d => !es(d).termino);
     const hechos = orden.filter(d => es(d).termino);
-    const listaAbierta = el('div', { id: 'dl-abiertos' });
-    const seg = el('div', { class: 'rk-seg', role: 'tablist' }, ['turn', 'waiting'].map(k => el('button', {
-      type: 'button', role: 'tab', 'data-t': k, onClick: () => { tap(); tab = k; marcar(); },
-    }, `${T[k === 'turn' ? 'tabTurn' : 'tabWaiting']} ${grupos[k].length}`)));
-    function marcar() {
-      seg.querySelectorAll('button').forEach(b => { const on = b.dataset.t === tab; b.classList.toggle('on', on); b.setAttribute('aria-selected', String(on)); });
-      listaAbierta.replaceChildren(...(grupos[tab].length ? grupos[tab].map(d => fila(d, yo.jid, { alTocar: tap })) : [el('p', { class: 'muted rk-centro' }, T.emptyTab)]));
-    }
-    if (!grupos.turn.length && grupos.waiting.length) tab = 'waiting';
-    marcar();
     root.replaceChildren(...[nuevo,
-      el('section', { class: 'panel' }, seg, listaAbierta),
-      hechos.length ? el('section', { class: 'panel', id: 'dl-terminados' }, el('p', { class: 'lead' }, T.tabDone), hechos.map(d => fila(d, yo.jid, { alTocar: tap }))) : null].filter(Boolean));
+      abiertos.length ? el('section', { class: 'panel', id: 'dl-mios' }, el('p', { class: 'lead' }, T.mineTitle), abiertos.map(d => fila(d, yo.jid, { alTocar: tap }))) : null,
+      panelNemesis(lista, yo.jid, { alTocar: tap }),
+      hechos.length ? el('section', { class: 'panel', id: 'dl-terminados' }, el('p', { class: 'lead' }, T.tabDone), hechos.map(d => fila(d, yo.jid, { alTocar: tap }))) : null,
+      otros].filter(Boolean));
   };
   J.escuchar(() => draw());
   await draw();
