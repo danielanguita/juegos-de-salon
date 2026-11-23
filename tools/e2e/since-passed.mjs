@@ -7,11 +7,10 @@
 // head commit it tested. Here, for the push being tested:
 //   1. the PR's commits, newest first: the first one before the head with a valid mark is the last
 //      that passed;
-//   2. the files changed from that commit to the head (GitHub's compare, which counts what a merge
-//      of main brought in) are what this push tests;
-//   3. no commit passed, history was rewritten (a force push), the compare fails or is too long:
-//      the PR's files, as before.
-// What main changed without the PR merging it is not retested here: main passed it, and publish.yml
+//   2. the files changed from that commit to the head (GitHub's compare) are what this push tests;
+//   3. no commit passed, history was rewritten (a force push), the compare fails or is too long, or the
+//      push brings files only main changed (a merge of main, D-610): the PR's files, as before.
+// What main changed is not retested here, merged or not: main passed it, and publish.yml
 // runs smoke plus what the merge reaches (D-496), or the whole suite, unless that exact tree passed (D-302, D-308).
 //
 //   node tools/e2e/since-passed.mjs --pr <n> --head <sha> > changes   # also writes `since` to $GITHUB_OUTPUT
@@ -53,9 +52,16 @@ export function narrowAll(files, patches, at) {
   });
 }
 
-/** The files to test: those since `since`, or the PR's when there is no `since` or the compare can't be trusted. */
+/**
+ * The files to test: those since `since`, or the PR's when there is no `since` or the compare can't be trusted.
+ * A push that brings files only `main` changed (a merge of main, D-610) tests the PR's own files again, against
+ * the new main, as its first push did: not main's, which main already tested. #1802 ran 18 batches of the home
+ * page's scripts for a merge of main after its own profile script had passed.
+ */
 export function filesToTest({ since, compared, prFiles }) {
   if (!since || !compared || compared.length >= COMPARE_LIMIT) return { files: prFiles, since: null };
+  const own = new Set(prFiles);
+  if (compared.some(f => !own.has(f))) return { files: prFiles, since: null };
   return { files: compared, since };
 }
 
@@ -79,6 +85,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     const comparedAll = since ? withPatch(`repos/${repo}/compare/${since}...${head}`) : null;
     const compared = comparedAll && (comparedAll.length >= COMPARE_LIMIT ? comparedAll.map(f => f.filename) : noticeable(comparedAll));
     result = filesToTest({ since, compared, prFiles });
+    if (since && compared && compared.length < COMPARE_LIMIT && !result.since) console.error(`since-passed: since ${since.slice(0, 7)}, which passed, the push brings files only main changed (a merge of main): the PR's own files, not main's (D-610)`);
     if (result.since) patches = new Map(comparedAll.map(f => [f.filename, f]));
   } catch (e) {
     console.error(`since-passed: ${e.message.split('\n')[0]}; testing the whole PR`);
