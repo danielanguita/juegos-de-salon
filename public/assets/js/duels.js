@@ -9,12 +9,13 @@
  *   duelos/<did>/e/<jid>/<i>    when jid began round i, once: a round begun and left counts as 0
  *   duelos/<did>/r/<jid>/<i>    { s, ms, at }: jid's result in round i, once, after it began
  *   jugadorDuelos/<jid>/<did>   when the duel was created: each player's list of duels
+ *   duelosRecientes/<did>       when the duel was created: the public list of recent duels (/duels/)
  *
  * Everything that decides a duel is pure (`estado`), so a phone and the tests agree on it: no job
  * closes a duel, its clock does. The rules (firebase/database.rules.json) take a write only from a
  * phone seated as that player (jugadorSeats, D-464) and only before the three days are up.
  */
-import { esJid, claveNombre, S_MAX, MS_MAX } from './records.js';
+import { esJid, claveNombre, S_MAX, MS_MAX, TODOTERRENO, SIEMPRE, semana } from './records.js';
 
 export const DURACION = 3 * 86400000;
 export const FORMATOS = { bo3: 3, bo5: 5, pts: 3 };
@@ -125,6 +126,12 @@ export function crearDuelos({ almacen, yo, now = () => Date.now(), rand = Math.r
       const ids = Object.entries(idx).sort((a, b) => b[1] - a[1]).slice(0, 60).map(([k]) => k).filter(esDid);
       return (await Promise.all(ids.map(leer))).filter(Boolean);
     },
+    /** The newest duels of everyone (the /duels/ page's list), newest first. */
+    async recientes(n = 12) {
+      const idx = (await almacen.recientes?.('duelosRecientes', n)) || {};
+      const ids = Object.entries(idx).sort((a, b) => b[1] - a[1]).map(([k]) => k).filter(esDid);
+      return (await Promise.all(ids.map(leer))).filter(Boolean);
+    },
     /** Challenge `b` (a jid) to `g` in format `f`. Returns the duel. */
     async retar({ b, bn, g, f, gr = null }) {
       const me = yo();
@@ -134,7 +141,7 @@ export function crearDuelos({ almacen, yo, now = () => Date.now(), rand = Math.r
       const d = { a: me.jid, b, an: me.n, bn: String(bn || '').slice(0, 20) || '?', f, g, sd, at: HORA };
       // A custom duel: each round's game, only when they are not all the same
       if (Array.isArray(gr) && gr.length === sd.length && gr.some(x => x !== g)) d.gr = gr;
-      await almacen.update({ [`duelos/${id}`]: d, [`jugadorDuelos/${me.jid}/${id}`]: HORA, [`jugadorDuelos/${b}/${id}`]: HORA });
+      await almacen.update({ [`duelos/${id}`]: d, [`jugadorDuelos/${me.jid}/${id}`]: HORA, [`jugadorDuelos/${b}/${id}`]: HORA, [`duelosRecientes/${id}`]: HORA });
       return { id, ...d, at: now() };
     },
     /** I began round i: from now on, leaving it counts as a 0. */
@@ -153,12 +160,26 @@ export function crearDuelos({ almacen, yo, now = () => Date.now(), rand = Math.r
       await almacen.update({ [`duelos/${did}/r/${me.jid}/${i}`]: r });
       return true;
     },
-    /** Players by name (the exact name, as signing in finds it): [{ jid, n }]. */
+    /** Players whose name starts with what was typed (as signing in keys names): [{ jid, n }], at most 8. */
     async buscar(nombre) {
       const clave = claveNombre(nombre);
       if (!clave) return [];
-      const ids = Object.keys((await almacen.get(`jugadorNombres/${clave}`)) || {}).filter(j => esJid(j) && j !== yo()?.jid);
+      const claves = almacen.porPrefijo ? await almacen.porPrefijo('jugadorNombres', clave, 10).catch(() => null) : null;
+      const mapa = claves || { [clave]: (await almacen.get(`jugadorNombres/${clave}`)) || {} };
+      const ids = [...new Set(Object.values(mapa).flatMap(x => Object.keys(x || {})))].filter(j => esJid(j) && j !== yo()?.jid);
       return (await Promise.all(ids.slice(0, 8).map(async jid => ({ jid, n: await almacen.get(`jugadores/${jid}/n`) })))).filter(x => x.n);
+    },
+    /** The players of a cup that have a name and PIN (its rows carry their jid): [{ jid, n }]. */
+    async deCopa(code) {
+      const ps = (await almacen.get(`torneos/${code}/players`)) || {};
+      return Object.values(ps).filter(p => esJid(p?.j) && p.j !== yo()?.jid).map(p => ({ jid: p.j, n: p.name || '?' }));
+    },
+    /** Players active lately (this week's all-round table, the all-time one when the week is thin), not me: [{ jid, n }]. */
+    async activos(n = 10) {
+      const leer = p => almacen.top(TODOTERRENO, p, 40).then(x => (x || []).filter(f => esJid(f.jid) && f.jid !== yo()?.jid && f.n)).catch(() => []);
+      let filas = await leer(semana(now()));
+      if (filas.length < n) filas = [...filas, ...(await leer(SIEMPRE)).filter(f => !filas.some(x => x.jid === f.jid))];
+      return filas.slice(0, n).map(f => ({ jid: f.jid, n: f.n }));
     },
   };
 }
