@@ -6,3 +6,5 @@ level: patch
 - **"📡 Solo con señal"** (pt "Só com sinal") instead of "Con señal" on what needs signal offline: it read as "has signal".
 - **Tembleque plays offline**: its easy and hard levels are now kept on the phone; offline they opened the home page.
 - **Every page paints Candlelight from its first frame**: Tembleque and four lab pages lacked the script; a test now requires it on every page and game.
+- **The sticker no longer covers a cover's icon** on short titles (Tembleque's scale): it moves right of it.
+- **PR previews store the real offline list**, so a game added since the last publish also opens offline there.

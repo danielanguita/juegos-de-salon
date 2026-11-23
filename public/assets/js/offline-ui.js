@@ -139,7 +139,21 @@ export function startOfflineUi({ connection, doc = globalThis.document, win = gl
     range.setEndBefore(chip);
     const end = [...range.getClientRects()].filter(r => r.width).pop();
     const box = title.getBoundingClientRect();
-    if (end) { chip.style.left = `${end.right - box.left}px`; chip.style.top = `${end.top - box.top}px`; }
+    if (!end) return;
+    let left = end.right - box.left;
+    chip.style.left = `${left}px`; chip.style.top = `${end.top - box.top}px`;
+    // A short title's sticker rises onto the game's icon above it (Tembleque's scale, 2026-11-23): it
+    // moves right, past the icon, as far as the screen allows
+    // The icon's drawing, not its box (a block as wide as the screen): its contents measured
+    const above = title.previousElementSibling;
+    let icon = null;
+    if (above) { const r = doc.createRange(); r.selectNodeContents(above); icon = r.getBoundingClientRect(); }
+    const c = chip.getBoundingClientRect();
+    const room = (win.innerWidth || doc.documentElement.clientWidth) - 8 - c.right;
+    if (icon && icon.width && c.left < icon.right && c.right > icon.left && c.top < icon.bottom && c.bottom > icon.top && room > 0) {
+      left += Math.min(icon.right + 4 - c.left, room);
+      chip.style.left = `${left}px`;
+    }
   };
   win.addEventListener('resize', () => stick());
 
