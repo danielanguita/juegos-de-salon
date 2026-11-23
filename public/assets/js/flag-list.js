@@ -47,7 +47,7 @@ export const FLAGS = {
   'offline': '📴 Offline mode: the app stores the offline-capable games on the phone and opens them with no signal (D-538, PR 2 of 8)',
   'news-once': '📣 Each piece of news told once: no home window on a visit from a notification, no splash for games already played, an ended cup seen on its board is not recapped again (D-546)',
   'routes-hint': '🚇 Broken Routes: a 💡 Hint button on its own page (one player, never La Copa) marks one rectangle of a shortest solution, −3 points each (#1381)',
-  'tango-time': '☀️ Tango on its own and in Uno al día (never La Copa): the time scores as in Queens, mistakes cost nothing, a hint adds 15 s',
+  'tango-time': '☀️ Tango on its own, in Uno al día and in the cups created while on (D-607): the time scores as in Queens, mistakes cost nothing, a hint adds 15 s',
   'uad-skip-end': '📅 Uno al día: Shinobi and Aletazo go straight to the result, without their own end screen',
   'mistakes-rule': '❌ Logic puzzles: what a mistake costs, in one line under the title while playing (Tango −10 in La Copa, Reinas nothing…)',
   'wobbles': '⚖️ Tembleque: the game, on the home page, the search and Rankings (D-517\'s way; not La Copa or Uno al día, the owner, 2026-11-21); prepared, not launched: the owner picks the date',
