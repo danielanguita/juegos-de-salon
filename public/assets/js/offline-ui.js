@@ -13,6 +13,12 @@
  *   many finished games wait to upload (jugador.js's pending queue). A tap on it opens the sheet that
  *   explains offline mode (offline-sheet.js), as often as the player wants.
  *
+ * - **Extended offline mode** (flag `extended-offline`, the owner 2026-11-23; lab: #seccion-extended-offline):
+ *   the sticker goes. On the home page a still plate, 📴 over «SIN CONEXIÓN», takes the place of the hero's
+ *   dancing emoji (same box: nothing moves), and a tap on it opens the same sheet; every other page
+ *   says it is offline with the Candlelight palette alone. What waits to upload is told apart from it:
+ *   on the home page a line at the bottom, «⏳ 2 partidas esperan señal para subir», for a few seconds.
+ *
  * The page's own code is not touched: one class on <html> and the CSS in offline.css do the dimming,
  * and one click listener in the capture phase stops the taps.
  */
@@ -20,6 +26,7 @@ import { COMMON, getLang } from './i18n.js';
 import { offlineOk, OFFLINE_PAGES, ALL_GAMES } from './games.js';
 import { loadCss } from './load-css.js';
 import { pendingCupDays, OUTBOX_KEY } from './cup-outbox.js';
+import { flag, flagGuess } from './flags.js';
 
 export const PENDING_KEY = 'juegos-de-salon:jugador:pendientes';
 // The offline sheet, told whether La Copa plays offline here (its own flag, D-544, lab: #seccion-cup-offline): then it says so
@@ -78,6 +85,12 @@ export function chipText(n, lang = getLang()) {
   return n > 0 ? `📴 ${T.chip} · ${T.pending.replace('{n}', n)}` : `📴 ${T.chip}`;
 }
 
+/** Extended offline mode: the line that says how many finished games wait for the signal, apart from «Sin conexión». */
+export function waitingText(n, lang = getLang()) {
+  const T = (COMMON[lang] || COMMON.es).offline;
+  return `⏳ ${n === 1 ? T.waiting1 : T.waiting.replace('{n}', n)}`;
+}
+
 /**
  * The toast when queued games upload (D-538, PR 5): how many went, and if any did not, how many and
  * why. Empty when there is nothing to say. `r` is jugador.js's `pendientes-subidas` detail.
@@ -112,11 +125,17 @@ export function mark(scope, { lang = getLang(), root = ROOT } = {}) {
 }
 
 let started = null;
-export function startOfflineUi({ connection, doc = globalThis.document, win = globalThis.window, storage = globalThis.localStorage, lang = getLang() } = {}) {
+export function startOfflineUi({
+  connection, doc = globalThis.document, win = globalThis.window, storage = globalThis.localStorage, lang = getLang(),
+  extendedGuess = () => flagGuess('extended-offline', { store: storage }), extendedFlag = () => flag('extended-offline'),
+} = {}) {
   if (started) return started;   // once per page, however many times it is asked
   loadCss(new URL('../css/offline.css', import.meta.url));
   const html = doc.documentElement;
   let chip = null;
+  let plate = null;
+  // Extended offline mode: what this phone saw last time first, so an offline home page draws the plate at once; the flag decides
+  let extended = !!extendedGuess();
   let observer = null;
   let toastTimer = null;
 
@@ -169,6 +188,7 @@ export function startOfflineUi({ connection, doc = globalThis.document, win = gl
   // Queued games uploaded (jugador.js): one toast, online or not, and the chip's count goes down
   win.addEventListener('pendientes-subidas', e => {
     drawChip();
+    if (extended) doc.querySelector('.offline-toast[data-kind="waiting"]')?.remove();
     const text = uploadText(e.detail, lang);
     if (text) toast(text, 5000, 'uploaded');
   });
@@ -204,26 +224,61 @@ export function startOfflineUi({ connection, doc = globalThis.document, win = gl
     if (still) f(); else doc.startViewTransition(f);
   };
   function apply(mode) { smooth(() => paint(mode)); }
+  // A tap on the sticker or the plate opens the sheet that explains offline mode, as often as wanted
+  const opens = el => {
+    Object.entries({ role: 'button', tabindex: '0', 'aria-haspopup': 'dialog' }).forEach(([k, v]) => el.setAttribute(k, v));
+    const open = e => {
+      e.preventDefault(); e.stopPropagation();
+      withCup(m => m.openOfflineSheet({ doc, lang, cup: m.cup }));
+    };
+    el.addEventListener('click', open);
+    el.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') open(e); });
+    return el;
+  };
+  // Extended offline mode, on the home page: the plate goes inside the hero's emoji box, over the
+  // hidden emoji, so the hero keeps its height and nothing below it moves
+  const placePlate = () => {
+    const box = doc.querySelector('.hero .emoji');
+    if (!box) return false;
+    if (!plate) {
+      plate = opens(doc.createElement('span'));
+      plate.className = 'offline-plate';
+      const T = (COMMON[lang] || COMMON.es).offline;
+      plate.setAttribute('aria-label', T.chip);
+      plate.innerHTML = '<span class="offline-plate-icon" aria-hidden="true">📴</span><span class="offline-plate-label"></span>';
+      plate.lastChild.textContent = T.chip;
+    }
+    if (plate.parentElement !== box) box.append(plate);
+    html.classList.add('offline-plate-on');
+    return true;
+  };
+  const dropPlate = () => { plate?.remove(); plate = null; html.classList.remove('offline-plate-on'); };
+  const dropChip = () => { chip?.remove(); chip = null; };
+  // How many games wait to upload, apart from the plate: one line at the bottom for a few seconds
+  const tellWaiting = () => {
+    const n = pendingCount(storage);
+    if (n > 0) toast(waitingText(n, lang), 5000, 'waiting');
+  };
   function paint(mode) {
     const off = mode === 'offline';
     html.classList.toggle('offline', off);
     shell();
     if (off) {
       mark(doc, { lang });
-      chip ||= doc.querySelector('.offline-chip');
-      if (!chip) {
-        chip = doc.createElement('span'); chip.className = 'offline-chip';
-        // A tap on the sticker opens the sheet that explains offline mode, as often as wanted
-        Object.entries({ role: 'button', tabindex: '0', 'aria-haspopup': 'dialog', 'aria-live': 'polite' }).forEach(([k, v]) => chip.setAttribute(k, v));
-        const open = e => {
-          e.preventDefault(); e.stopPropagation();
-          withCup(m => m.openOfflineSheet({ doc, lang, cup: m.cup }));
-        };
-        chip.addEventListener('click', open);
-        chip.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') open(e); });
+      if (extended) {
+        // No sticker: the plate on the home page, the palette alone everywhere else
+        dropChip();
+        if (placePlate()) tellWaiting();
+      } else {
+        dropPlate();
+        chip ||= doc.querySelector('.offline-chip');
+        if (!chip) {
+          chip = opens(doc.createElement('span')); chip.className = 'offline-chip';
+          chip.setAttribute('aria-live', 'polite');
+        }
+        stick();
+        drawChip();
       }
-      stick();
-      drawChip();
       // The first time on this phone, one sheet says what works and what happens to the scores (PR 6)
       withCup(m => m.showOfflineSheetOnce({ doc, storage, lang, cup: m.cup }));
       // Screens drawn later (a game's modes, the home page's cards) are marked as they appear
@@ -233,7 +288,9 @@ export function startOfflineUi({ connection, doc = globalThis.document, win = gl
       observer.observe(doc.body, { childList: true, subtree: true });
     } else {
       observer?.disconnect();
-      chip?.remove(); chip = null;
+      dropChip();
+      dropPlate();
+      doc.querySelector('.offline-toast[data-kind="waiting"]')?.remove();
       // Only the "needs signal" line goes with the mode: an upload toast may land before this paint,
       // which a crossfade runs a frame later (the end-to-end test caught it removing "Se subió 1 partida ✓")
       doc.querySelector('.offline-toast[data-kind="needs-signal"]')?.remove();
@@ -243,5 +300,11 @@ export function startOfflineUi({ connection, doc = globalThis.document, win = gl
   win.addEventListener('storage', e => { if (e.key === PENDING_KEY || e.key === OUTBOX_KEY) drawChip(); });
   connection.onChange(apply);
   apply(connection.mode());
+  // The flag's real answer: drawn again only if it differs from what this phone saw last time
+  Promise.resolve().then(extendedFlag).then(on => {
+    if (!!on === extended) return;
+    extended = !!on;
+    paint(connection.mode());
+  }).catch(() => {});
   return (started = { apply, drawChip });
 }

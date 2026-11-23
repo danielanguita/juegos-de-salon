@@ -47,3 +47,23 @@ html:not(.offline-shell) .offline-chip, html.offline-play .offline-chip { displa
 /* A switch between the palettes while a page is open crossfades (offline-ui.js, View Transitions) */
 ::view-transition-old(root), ::view-transition-new(root) { animation-duration: 600ms; }
 
+
+/* Extended offline mode (flag extended-offline, the owner 2026-11-23): on the home page only, the
+   hero's dancing emoji gives its place to a still plate, 📴 over «SIN CONEXIÓN». It sits inside the
+   emoji's own box, which stops bouncing, so the hero keeps its height and nothing below it moves.
+   Every other page has no sticker: the palette alone says it is offline (offline-ui.js) */
+html.offline-plate-on .hero .emoji { animation: none; position: relative; }
+html.offline-plate-on #hero-emoji { visibility: hidden; }
+.offline-plate {
+  position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: var(--s-4); cursor: pointer; -webkit-tap-highlight-color: transparent;
+}
+.offline-plate-icon { font-size: var(--fs-200); line-height: 1; }
+.offline-plate-label {
+  font: 800 var(--fs-75) / 1.2 var(--font-body); letter-spacing: 0.14em; text-transform: uppercase; white-space: nowrap;
+  padding: var(--s-4) var(--s-12); border-radius: var(--r-pill);
+  background: rgb(var(--bg1-rgb) / 0.85); color: var(--yellow); border: 1px solid rgb(var(--yellow-rgb) / 0.5);
+}
+.offline-plate:focus-visible { outline: 2px solid var(--yellow); outline-offset: 2px; border-radius: var(--r-12); }
+.offline-plate:active .offline-plate-label { filter: brightness(1.25); }
+html:not(.offline-shell) .offline-plate { display: none; }
