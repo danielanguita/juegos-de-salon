@@ -136,7 +136,6 @@ Tell the owner only once all of this was seen working (D-591's alarm covers the 
 | Live flags and demos made visual references flaky | `VISUAL_SKIP` for those covers; e2e pins its flags |
 | Launched flags kept their tester switch | They leave the tester tab (D-567) |
 | Tembleque launched with no ranking on its cover and «¡A jugar!» for its button, unlike every game played alone; its result's table did not name the level | `launch-check.mjs` (static: the cover calls `bloqueRanking`; `--screens`: the table on the cover and the button), `tools/e2e/wobbles/game.mjs` |
-| Croc!, Tembleque, Memorice and Dominorama stayed under 🎲 Juegos en prueba: `launched.js` read only ✨ Mejoras en prueba, and the live check ran the function, not `/labs/` | `move()` reads both groups (D-534 amended); `launch-check.mjs --screens` moves the card on the page |
 | The Croc! and Tembleque cloud tasks were denied: a session started by another session cannot create them | §3: the owner creates them a day before; else the session dispatches `launch.yml` at the hour and checks it itself |
 | The README still said «ready to launch, not launched» after the launch | The launch-day PR flips it; `launch-check.mjs --live` fails while it says so |
 | Each launch read this list and still missed a different surface | `tools/agents/launch-check.mjs`, run in the preparation PR, before scheduling and after the hour |
