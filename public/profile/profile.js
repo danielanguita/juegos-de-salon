@@ -16,12 +16,14 @@ import { SFX, soundToggle } from '../assets/js/sound.js';
 import { ALL_GAMES, GAMES, SOLO_TABLES, FIRST_VARIANT_TABLES } from '../assets/js/games.js';
 import { bloqueJugador, bloqueRanking, mmss, conBandera } from '../assets/js/ranking.js';
 import { jugador, leerYo } from '../assets/js/jugador.js';
-import { TODOTERRENO, UAD_PUNTOS, SIEMPRE, semana, medallero } from '../assets/js/records.js';
+import { TODOTERRENO, UAD_PUNTOS, SIEMPRE, semana, medallero, limpiarNombre, esPin } from '../assets/js/records.js';
+import { nombreOfensivo } from '../assets/js/name-guard.js';
+import { flag } from '../assets/js/flags.js';
 import { leer as leerDia, recorrer, fechaLocal } from '../assets/js/uno-al-dia.js';
-import { readHours } from '../assets/js/play-hours.js';
+import { readHours, readRun, readMarks } from '../assets/js/play-hours.js';
 import { PARTIDAS_KEY } from '../assets/js/transport/stats.js';
 import { firebaseConfig } from '../assets/js/firebase-config.js';
-import { BADGES, GROUPS, earned } from './badges.js';
+import { BADGES, GROUPS, earned, lastOnDay } from './badges.js';
 import { TEXTS } from './texts.js';
 
 const lang = getLang();
@@ -66,6 +68,9 @@ function localFacts() {
     streak: r.racha, bestStreak: r.mejor,
     dailyDays: Object.fromEntries(Object.keys(d.dias || {}).map(f => [f, true])),
     hours: readHours(),
+    bestRun: Number(readRun().best) || 0,
+    marks: readMarks(),
+    launches: Object.fromEntries(ALL_GAMES.filter(g => /^\d{4}-\d{2}-\d{2}$/.test(g.nuevoDesde || '')).map(g => [g.id, g.nuevoDesde])),
     plays: Number(localStorage.getItem(PARTIDAS_KEY)) || 0,
     gamesPlayed: Array.isArray(played) ? played.filter(id => ids.has(id)).length : 0,
     gamesTotal: CATALOGUE.length,
@@ -81,6 +86,16 @@ async function hostedOf(cups) {
   const base = firebaseConfig.databaseURL;
   const admins = await Promise.all(cups.slice(0, 40).map(c => fetch(`${base}/torneos/${c.code}/meta/admin.json`).then(r => (r.ok ? r.json() : null)).catch(() => null)));
   return cups.slice(0, 40).filter((c, i) => admins[i] === c.p).length;
+}
+
+/** How many cups the player won (`podios`, by pid) after being last on day 1: each won cup's day 1, read on the published site. */
+async function climbsOf(podios, jid) {
+  if (!realDb()) return 0;
+  const won = Object.entries(podios || {}).flatMap(([code, c]) => (Number(c?.dias) || 2) > 1
+    ? Object.entries(c?.p || {}).filter(([, x]) => x?.j === jid && x.l === 1).map(([pid]) => ({ code, pid })) : []).slice(-20);
+  const base = firebaseConfig.databaseURL;
+  const days = await Promise.all(won.map(w => fetch(`${base}/torneos/${w.code}/results/1.json`).then(r => (r.ok ? r.json() : null)).catch(() => null)));
+  return won.filter((w, i) => days[i] && lastOnDay(days[i], w.pid)).length;
 }
 
 /** The player's facts: the phone's, plus their server record. Each read on its own: one failing leaves the rest. */
@@ -105,6 +120,7 @@ async function playerFacts(J, yo) {
   f.cupList = cups;
   const mine = medallero(podios).find(x => x.jid === yo.jid);
   f.medals = { gold: mine?.oro || 0, silver: mine?.plata || 0, bronze: mine?.bronce || 0 };
+  f.podiumsByCode = podios || {};
   f.podiums = Object.entries(podios || {}).flatMap(([code, c]) => Object.values(c?.p || {}).filter(x => x.j === yo.jid).map(x => ({ code, name: c.name, end: c.end || 0, l: x.l }))).sort((a, b) => b.end - a.end);
   // Finished months of Uno al día points: the player's place when on the podium
   const months = [];
@@ -112,7 +128,7 @@ async function playerFacts(J, yo) {
   f.months = (await Promise.all(months.map(async m => {
     try { const v = await J.tabla(UAD_PUNTOS, `s${m}`, { top: 3 }); const i = v.top.findIndex(x => x.jid === yo.jid); return { period: `s${m}`, place: i >= 0 ? v.top[i].puesto : null }; } catch (_) { return null; }
   }))).filter(Boolean);
-  f.hosted = await hostedOf(cups).catch(() => 0);
+  [f.hosted, f.climbs] = await Promise.all([hostedOf(cups).catch(() => 0), climbsOf(podios, yo.jid).catch(() => 0)]);
   return f;
 }
 const nextMonth = m => { const [y, mo] = m.split('-').map(Number); return mo === 12 ? `${y + 1}-01` : `${y}-${String(mo + 1).padStart(2, '0')}`; };
@@ -167,11 +183,10 @@ function badgePanels(list, { only = null } = {}) {
 }
 
 function card(yo, f, list) {
-  const initial = (yo.n || '?').trim().charAt(0).toUpperCase();
   const got = list.filter(b => b.got).length;
+  // The flag and the name are the player, as on every table (the owner, 2026-11-21: no initial in a circle)
   return el('section', { class: 'panel pf-card' },
     el('div', { class: 'pf-who' },
-      el('span', { class: 'pf-avatar', 'aria-hidden': 'true' }, initial),
       el('div', {},
         el('p', { class: 'pf-player' }, conBandera(yo.co, yo.n)),
         el('p', { class: 'muted pf-since' }, [f.since ? fmt(T.since, { month: monthName(f.since) }) : null, fmt(T.badgesOf, { n: got, total: BADGES.length })].filter(Boolean).join(' · ')))),
@@ -185,14 +200,22 @@ function card(yo, f, list) {
 function rankingsTab(J, f) {
   const box = el('div', { class: 'pf-tab' });
   // The overall ranking, with the player's three places on top of its table
-  const pos = (v, label) => el('div', { class: 'pf-place' }, el('b', {}, v), el('span', {}, label));
+  const pos = (v, label) => el('div', { class: 'pf-place' }, el('i', { 'aria-hidden': 'true' }), el('b', {}, v), el('span', {}, label));
   const places = el('div', { class: 'pf-places' }, pos('…', T.week), pos('…', T.ever), pos('…', T.friends));
+  // Each place with some joy (the owner, 2026-11-22): a medal and its metal on the podium, 🔥 in the top 10, a pop when it arrives
+  const setPlace = (i, p) => {
+    const box = places.children[i], ok = Number.isInteger(p) && p >= 1;
+    const tier = !ok ? '' : p === 1 ? 'gold' : p === 2 ? 'silver' : p === 3 ? 'bronze' : p <= 10 ? 'top' : 'rest';
+    box.className = `pf-place${tier ? ` pf-place--${tier}` : ''}`;
+    box.children[0].textContent = { gold: '🥇', silver: '🥈', bronze: '🥉', top: '🔥', rest: '🎲' }[tier] || '';
+    box.children[1].textContent = ok ? place(p) : T.noPlace;
+  };
   const general = bloqueRanking({ juego: TODOTERRENO, titulo: T.general, hint: RK.allRounderHint, alTocar: tap });
   general.insertBefore(places, general.querySelector('.rk-seg'));
   J.tablaAmigos(TODOTERRENO, SIEMPRE).then(rows => {
     const i = rows.findIndex(x => x.jid === leerYo()?.jid);
-    places.children[2].firstChild.textContent = i >= 0 && rows.length > 1 ? place(rows[i].puesto) : T.noPlace;
-  }).catch(() => { places.children[2].firstChild.textContent = T.noPlace; });
+    setPlace(2, i >= 0 && rows.length > 1 ? rows[i].puesto : null);
+  }).catch(() => setPlace(2, null));
   // The player's games, most played first: their best, their place ever and this week
   const games = el('section', { class: 'panel pf-games' }, el('p', { class: 'lead rk-titulo' }, T.yourGames));
   const rows = new Map();
@@ -227,12 +250,7 @@ function rankingsTab(J, f) {
   }
   // Uno al día's month and the player's cups
   const month = bloqueRanking({ juego: UAD_PUNTOS, titulo: fmt(T.dailyMonth, { month: monthName(Date.now()) }), pestanas: ['mes', 'amigosMes'], alTocar: tap });
-  const medal = l => ['🥇', '🥈', '🥉'][l - 1] || '🏆';
-  const cups = el('section', { class: 'panel pf-cups' }, el('p', { class: 'lead rk-titulo' }, T.yourCups),
-    f.podiums?.length
-      ? el('div', { class: 'rk-lista' }, f.podiums.slice(0, 8).map(p => el('div', { class: 'rk-fila' },
-        el('span', { class: 'rk-puesto' }, medal(p.l)), el('span', { class: 'rk-nombre' }, el('span', { class: 'rk-n' }, p.name || p.code)), el('span', {}), el('span', { class: 'rk-puntos' }, place(p.l)))))
-      : el('p', { class: 'muted rk-centro' }, f.cups ? `${f.cups} 🏆` : T.noCups));
+  const cups = cupsPanel(f);
   const all = el('a', { class: 'btn btn--ghost', href: '../records/', onClick: tap }, T.allRankings);
   box.append(general, games, month, cups, all);
   return {
@@ -247,17 +265,213 @@ function rankingsTab(J, f) {
       if (r.week?.puesto) x.where.append(el('small', {}, fmt(T.placeWeek, { place: place(r.week.puesto) })));
     },
     general(g) {
-      places.children[0].firstChild.textContent = place(g.week);
-      places.children[1].firstChild.textContent = place(g.ever);
+      setPlace(0, g.week);
+      setPlace(1, g.ever);
     },
   };
 }
 
+/**
+ * 🏆 Your cups (the owner, 2026-11-22): each cup with its name, its dates, the player's final place and who won,
+ * the ones in progress first and then the newest, five at a time. First what the podiums already say; then each
+ * cup as La Copa's own table ranks it, from /cup/history/ in a hidden frame (the engine stays out of this page, D-377).
+ */
+const CUPS_PAGE = 5;
+const CUPS_FRAME_MS = 15000;
+const dayFmt = (ms, withYear) => new Date(ms).toLocaleDateString(lang, { day: 'numeric', month: 'short', ...(withYear ? { year: 'numeric' } : {}) });
+function cupDates(a, b) {
+  if (!a && !b) return '';
+  const y = new Date().getFullYear(), yb = new Date(b || a).getFullYear();
+  if (!a || !b) return dayFmt(a || b, yb !== y);
+  const da = new Date(a), db = new Date(b);
+  // The same month says it once: «16 – 23 nov»
+  if (da.getMonth() === db.getMonth() && da.getFullYear() === db.getFullYear()) return `${da.getDate()} – ${dayFmt(b, yb !== y)}`;
+  return `${dayFmt(a, false)} – ${dayFmt(b, yb !== y)}`;
+}
+function askCups(list) {
+  return new Promise(resolve => {
+    const frame = el('iframe', { hidden: true, 'aria-hidden': 'true', tabindex: '-1' });
+    const done = lines => { clearTimeout(timer); removeEventListener('message', onMessage); frame.remove(); resolve(lines || {}); };
+    const onMessage = e => { if (e.source === frame.contentWindow && e.origin === location.origin && e.data?.type === 'cup-history') done(e.data.lines); };
+    const timer = setTimeout(() => done({}), CUPS_FRAME_MS);
+    addEventListener('message', onMessage);
+    frame.src = `../cup/history/${realDb() ? '' : '?test'}#c=${list.slice(0, 60).map(c => `${c.code}.${c.p}`).join(',')}`;
+    document.body.append(frame);
+  });
+}
+function cupsPanel(f) {
+  const box = el('section', { class: 'panel pf-cups' }, el('p', { class: 'lead rk-titulo' }, T.yourCups));
+  const list = (f.cupList || []).filter(c => c?.code && c.p);
+  if (!list.length) { box.append(el('p', { class: 'muted rk-centro' }, T.noCups)); return box; }
+  // What the podiums say at once: the name, the end, the place when on the podium, the champion
+  const fromPodium = Object.fromEntries(list.map(c => {
+    const pod = f.podiumsByCode?.[c.code];
+    if (!pod) return [c.code, { name: c.code, start: 0, end: Number(c.at) || 0, over: false, place: null, of: 0, champions: [], pending: true }];
+    const ps = Object.entries(pod.p || {});
+    const mine = ps.find(([pid]) => pid === c.p)?.[1];
+    return [c.code, { name: pod.name || c.code, start: pod.end && pod.dias ? pod.end - pod.dias * 86400000 : 0, end: Number(pod.end) || 0, over: true,
+      place: mine?.l || null, of: Number(pod.de) || 0, champions: ps.filter(([, x]) => x.l === 1).map(([, x]) => x.n) }];
+  }));
+  const wrap = el('div', { class: 'pf-cup-list' });
+  let shown = CUPS_PAGE;
+  const draw = lines => {
+    const all = list.map(c => ({ code: c.code, ...(lines[c.code] || fromPodium[c.code]) }))
+      .sort((a, b) => (a.over === b.over ? 0 : a.over ? 1 : -1) || (b.end || 0) - (a.end || 0));
+    const medal = p => ['🥇', '🥈', '🥉'][p - 1] || '';
+    wrap.replaceChildren(...all.slice(0, shown).map(c => {
+      const won = c.over && c.place === 1;
+      const champ = !c.over ? T.cupRunning : won ? T.cupYouWon : c.champions?.length ? fmt(c.champions.length > 1 ? T.cupChampions : T.cupChampion, { names: c.champions.join(', ') }) : '';
+      const tier = c.place === 1 ? 'gold' : c.place === 2 ? 'silver' : c.place === 3 ? 'bronze' : '';
+      return el('a', { class: `pf-cup${tier ? ` pf-cup--${tier}` : ''}${c.over ? '' : ' pf-cup--live'}`, href: `../cup/?${c.alias || c.code}${realDb() ? '' : '&test'}`, 'data-cup': c.code, onClick: tap },
+        el('span', { class: 'pf-cup-place' }, c.place ? el('b', {}, medal(c.place) || place(c.place)) : el('b', {}, c.pending ? '…' : '–'),
+          c.place && c.of ? el('small', {}, fmt(T.cupOf, { n: num(c.of) })) : null),
+        el('span', { class: 'pf-cup-txt' },
+          el('b', { class: 'pf-cup-name' }, c.name || c.code),
+          el('small', {}, [cupDates(c.start, c.end), c.of ? fmt(T.cupPlayers, { n: num(c.of) }) : ''].filter(Boolean).join(' · ')),
+          champ ? el('small', { class: 'pf-cup-champ' }, `${won ? '🏆 ' : c.over ? '👑 ' : '⏳ '}${champ}`) : null),
+        el('span', { class: 'go', 'aria-hidden': 'true' }, '›'));
+    }));
+    const rest = all.length - shown;
+    if (rest > 0) wrap.append(el('button', { type: 'button', class: 'btn btn--ghost btn--sm pf-more', onClick: () => { tap(); shown += CUPS_PAGE; draw(lines); } }, rest === 1 ? T.moreCupsOne : fmt(T.moreCups, { n: num(Math.min(rest, CUPS_PAGE)) })));
+  };
+  draw({});
+  box.append(wrap);
+  askCups(list).then(lines => { if (Object.keys(lines).length && wrap.isConnected) draw(lines); }).catch(() => {});
+  return box;
+}
+
 /** The ⚙️ tab: the account and the preferences (offline mode's ☁️ stays on the home page; writing to us and privacy are in the footer). */
+/** An account error in the player's words: the rankings' own texts. */
+const accountError = e => ({ 'pin-actual': RK.errCurrentPin, espera: RK.errWait, nombre: RK.errName, 'pin-forma': RK.errPin })[e?.code] || RK.errNet;
+const pinInput = (id, label) => el('input', { id, class: 'rk-pin', type: 'password', inputmode: 'numeric', pattern: '[0-9]*', maxlength: '4', autocomplete: 'off', 'aria-label': label });
+
+/**
+ * 👤 Your account (D-600): the name and the PIN, each with «Cambiar», which opens its small form under
+ * the row, and «Salir de tu cuenta», which asks once. Both changes ask for the PIN. Signing in is the
+ * guest's page (drawGuest); signing out redraws the page as a guest.
+ */
+// A rename redraws the page (the card and the bars show the new name): its «Listo» waits here for the new panel
+let renamed = '';
+function accountPanel(yo) {
+  const forms = [];
+  const row = (label, hint, value, form) => {
+    const btn = el('button', { type: 'button', class: 'btn btn--ghost btn--sm pf-change', 'aria-expanded': 'false' }, T.change);
+    const box = el('div', { class: 'pf-form', hidden: true }, form);
+    forms.push({ btn, box });
+    btn.addEventListener('click', () => {
+      tap();
+      const open = box.hidden;
+      for (const f of forms) { f.box.hidden = true; f.btn.setAttribute('aria-expanded', 'false'); f.btn.textContent = T.change; }
+      box.hidden = !open; btn.setAttribute('aria-expanded', String(open));
+      // While its form is open, the row's button closes it
+      btn.textContent = open ? T.cancel : T.change;
+      if (open) box.querySelector('input')?.focus();
+    });
+    return el('div', { class: 'pf-account-item' },
+      el('div', { class: 'pf-account-row' }, el('span', { class: 'txt' }, el('small', { class: 'pf-account-label' }, label), value, el('small', {}, hint)), btn), box);
+  };
+  const say = (p, cls, text) => { p.className = cls; p.textContent = text; };
+
+  // The name: the new one and the PIN
+  const name = el('input', { id: 'pf-new-name', maxlength: '20', autocomplete: 'nickname', 'aria-label': T.newName, value: yo.n });
+  const namePin = pinInput('pf-name-pin', RK.currentPin);
+  const nameMsg = el('p', { class: 'rk-error', role: 'alert' });
+  const saveName = el('button', { type: 'button', class: 'btn btn--cyan btn--sm', id: 'pf-save-name' }, T.saveName);
+  saveName.addEventListener('click', async () => {
+    tap(); say(nameMsg, 'rk-error', '');
+    const n = limpiarNombre(name.value);
+    if (!n) return say(nameMsg, 'rk-error', RK.errName);
+    if (n === leerYo()?.n) return say(nameMsg, 'rk-error', T.sameName);
+    if (!esPin(namePin.value)) return say(nameMsg, 'rk-error', RK.errPin);
+    saveName.disabled = true;
+    try {
+      // A new name on the public tables: the obvious insults are refused, as on sign-up (D-513); lab: #seccion-name-guard
+      if (nombreOfensivo(n) && await flag('name-guard').catch(() => false)) { say(nameMsg, 'rk-error', RK.errNameBad); return; }
+      renamed = fmt(T.nameSaved, { name: n });
+      await (await jugador()).renombrar(namePin.value, n);
+      namePin.value = '';
+      say(nameMsg, 'rk-ok', renamed);
+    } catch (e) { renamed = ''; say(nameMsg, 'rk-error', accountError(e)); }
+    finally { saveName.disabled = false; }
+  });
+  namePin.addEventListener('keydown', e => { if (e.key === 'Enter') saveName.click(); });
+
+  // The PIN: the current one and the new one
+  const current = pinInput('pf-pin-current', RK.currentPin);
+  const fresh = pinInput('pf-pin-new', RK.newPin);
+  const pinMsg = el('p', { class: 'rk-error', role: 'alert' });
+  const savePin = el('button', { type: 'button', class: 'btn btn--cyan btn--sm', id: 'pf-save-pin' }, T.savePin);
+  savePin.addEventListener('click', async () => {
+    tap(); say(pinMsg, 'rk-error', '');
+    if (!esPin(current.value) || !esPin(fresh.value)) return say(pinMsg, 'rk-error', RK.errPin);
+    savePin.disabled = true;
+    try { await (await jugador()).cambiarPin(current.value, fresh.value); current.value = ''; fresh.value = ''; say(pinMsg, 'rk-ok', RK.pinChanged); }
+    catch (e) { say(pinMsg, 'rk-error', accountError(e)); }
+    finally { savePin.disabled = false; }
+  });
+  fresh.addEventListener('keydown', e => { if (e.key === 'Enter') savePin.click(); });
+
+  // Signing out: asked once, as it leaves this phone without the player
+  const ask = el('div', { class: 'pf-logout-ask', hidden: true },
+    el('p', { class: 'muted' }, T.logoutAsk),
+    el('div', { class: 'rk-botones' },
+      el('button', { type: 'button', class: 'btn btn--yellow btn--sm', id: 'pf-logout-yes', onClick: async () => { tap(); (await jugador()).salir(); } }, RK.logout),
+      el('button', { type: 'button', class: 'btn btn--ghost btn--sm', id: 'pf-logout-no', onClick: () => { tap(); ask.hidden = true; out.hidden = false; out.focus(); } }, T.cancel)));
+  const out = el('button', { type: 'button', class: 'btn btn--ghost btn--sm pf-logout', id: 'pf-logout', onClick: () => { tap(); out.hidden = true; ask.hidden = false; } }, T.logout);
+
+  const nameNow = el('b', { class: 'pf-name-now' }, conBandera(yo.co, yo.n));
+  const done = renamed ? el('p', { class: 'rk-ok', role: 'status', id: 'pf-renamed' }, renamed) : null;
+  renamed = '';
+  return el('section', { class: 'panel pf-settings', id: 'pf-account' }, el('p', { class: 'lead rk-titulo' }, T.account),
+    row(T.nameRow, T.nameHint, nameNow, [
+      el('label', { class: 'rk-campo' }, el('span', {}, T.newName), name),
+      el('label', { class: 'rk-campo' }, el('span', {}, RK.currentPin), namePin),
+      saveName, nameMsg,
+    ]),
+    done,
+    row(T.pinRow, T.pinRowHint, el('b', { class: 'pf-pin-dots', 'aria-hidden': 'true' }, '••••'), [
+      el('label', { class: 'rk-campo' }, el('span', {}, RK.currentPin), current),
+      el('label', { class: 'rk-campo' }, el('span', {}, RK.newPin), fresh),
+      savePin, pinMsg,
+    ]),
+    out, ask);
+}
+
+/** The bubble under the switch that says your games show (D-604): until its ✕, or until you hide them. */
+const PUBLIC_BUBBLE = 'juegos-de-salon:profile-public-bubble';
+const bubbleSeen = () => { try { return !!localStorage.getItem(PUBLIC_BUBBLE); } catch (_) { return true; } };
+const bubbleDone = () => { try { localStorage.setItem(PUBLIC_BUBBLE, String(Date.now())); } catch (_) { /* not kept */ } };
+
+/**
+ * 👁️ Your public profile: whether others see your activity when they tap your name (shown unless you hide
+ * it, D-604: off by default nobody would show it), and how they see you. While it shows, a bubble under the
+ * switch says so, once: it goes with its ✕ or when you hide your activity.
+ */
+function publicPanel(yo) {
+  const sw = el('button', { type: 'button', class: 'switch on', role: 'switch', 'aria-checked': 'true', 'aria-label': T.showActivity, disabled: true });
+  const err = el('p', { class: 'form-error', hidden: true }, T.publicError);
+  const bubble = el('div', { class: 'pf-public-bubble', role: 'status', hidden: true },
+    el('span', { class: 'pf-public-bubble-txt' }, el('b', {}, T.publicBubbleTitle), el('span', {}, T.publicBubbleText)),
+    el('button', { type: 'button', class: 'pf-public-bubble-x', 'aria-label': T.introClose, title: T.introClose, onClick: () => { tap(); bubbleDone(); bubble.hidden = true; } }, '✕'));
+  const set = on => { sw.classList.toggle('on', on); sw.setAttribute('aria-checked', String(on)); bubble.hidden = !on || bubbleSeen(); };
+  jugador().then(J => J.perfil()).then(p => { set(p?.oculto !== true); sw.disabled = false; }).catch(() => { set(true); sw.disabled = false; });
+  sw.addEventListener('click', async () => {
+    tap();
+    const on = sw.getAttribute('aria-checked') !== 'true';
+    if (!on) bubbleDone();
+    set(on); sw.disabled = true; err.hidden = true;
+    try { await (await jugador()).mostrarActividad(on); } catch (_) { set(!on); err.hidden = false; }
+    sw.disabled = false;
+  });
+  const see = el('button', { type: 'button', class: 'btn btn--ghost pf-see-public', onClick: () => { tap(); import('./peek.js').then(m => m.peekPlayer(yo.jid, { hint: yo, onTap: tap })); } }, T.seePublic);
+  return el('section', { class: 'panel pf-settings pf-public' }, el('p', { class: 'lead rk-titulo' }, T.publicTitle),
+    el('p', { class: 'muted rk-hint' }, T.publicHint),
+    el('div', { class: 'toggle-row' }, el('span', { class: 'txt' }, el('b', {}, T.showActivity), el('small', {}, T.showActivityHint)), sw),
+    bubble, err, see);
+}
+
 function settingsTab(yo) {
   const row = (label, hint, control) => el('div', { class: 'toggle-row' }, el('span', { class: 'txt' }, el('b', {}, label), hint ? el('small', {}, hint) : null), control);
-  const account = el('section', { class: 'panel pf-settings' }, el('p', { class: 'lead rk-titulo' }, T.account),
-    row(T.nameRow, T.nameHint, el('b', { class: 'pf-name-now' }, conBandera(yo.co, yo.n))));
   const prefs = el('section', { class: 'panel pf-settings' }, el('p', { class: 'lead rk-titulo' }, T.prefs),
     row(T.language, null, langToggle()), row(T.sound, null, soundToggle()));
   const notices = el('div', {});
@@ -265,7 +479,7 @@ function settingsTab(yo) {
     const draw = () => { const b = m.bloque({ lang, alTocar: tap, redibujar: draw }); notices.replaceChildren(...(b ? [b] : [])); };
     draw();
   }).catch(() => {});
-  return el('div', { class: 'pf-tab' }, account, bloqueJugador({ alTocar: tap }), prefs, notices);
+  return el('div', { class: 'pf-tab' }, accountPanel(yo), publicPanel(yo), prefs, notices);
 }
 
 /* ------------------------------------------------------------------ */
@@ -275,7 +489,44 @@ function settingsTab(yo) {
 const TABS = ['badges', 'rankings', 'settings'];
 
 /** Draws the page in `root` for whoever is on this phone. Returns when the first draw is on screen. */
+/**
+ * The profile's welcome (the owner, 2026-11-22): a card over the page that says what each tab holds, open by
+ * itself only on the first visit; «Entendido» or ✕ closes it and a subtle ⓘ at the title's right opens it again.
+ * Opening the profile also retires the bubble the top bar's pill shows until then (profile-hint.js).
+ */
+async function welcome(root, sub) {
+  const hint = await import('../assets/js/profile-hint.js');
+  hint.demoReset();
+  hint.mark(hint.BUBBLE_KEY);
+  const first = (() => { try { return !localStorage.getItem(hint.INTRO_KEY); } catch (_) { return false; } })();
+  // A subtle ⓘ, raised like a superscript at the title's right: no line of its own (the owner, 2026-11-22)
+  const help = el('button', { type: 'button', class: 'pf-help', 'aria-controls': 'pf-intro', 'aria-expanded': 'false', 'aria-label': T.introHelp, title: T.introHelp }, 'ⓘ');
+  const point = ([b, txt]) => el('li', {}, el('b', {}, b), el('span', {}, txt));
+  const intro = el('section', { class: 'panel pf-intro', id: 'pf-intro', 'aria-labelledby': 'pf-intro-title', hidden: true },
+    el('div', { class: 'pf-intro-head' },
+      el('h2', { id: 'pf-intro-title' }, T.introTitle),
+      el('button', { type: 'button', class: 'icon-btn pf-intro-x', 'aria-label': T.introClose, title: T.introClose }, '✕')),
+    el('ul', { class: 'pf-intro-list' }, [T.introBadges, T.introRankings, T.introSettings].map(point)),
+    el('p', { class: 'muted pf-intro-again' }, T.introAgain),
+    el('button', { type: 'button', class: 'btn btn--yellow pf-intro-ok' }, T.introOk));
+  const show = (open, { focus = false } = {}) => {
+    intro.hidden = !open;
+    help.setAttribute('aria-expanded', String(open));
+    if (open && focus) { intro.scrollIntoView({ behavior: 'smooth', block: 'center' }); intro.querySelector('.pf-intro-ok').focus({ preventScroll: true }); }
+    if (!open && focus) help.focus({ preventScroll: true });
+  };
+  help.addEventListener('click', () => { tap(); show(intro.hidden, { focus: true }); });
+  for (const b of intro.querySelectorAll('.pf-intro-x, .pf-intro-ok')) b.addEventListener('click', () => { tap(); show(false, { focus: true }); });
+  const h1 = sub.parentElement?.querySelector('h1');
+  if (h1) { const row = el('div', { class: 'pf-title-row' }); h1.before(row); row.append(el('span', { 'aria-hidden': 'true' }), h1, help); }
+  else sub.after(help);
+  root.before(intro);
+  show(first);
+  if (first) hint.mark(hint.INTRO_KEY);
+}
+
 export async function drawProfile(root, { sub }) {
+  welcome(root, sub).catch(() => {});
   const J = await jugador();
   let turn = 0;
   const draw = async () => {
@@ -289,6 +540,7 @@ export async function drawProfile(root, { sub }) {
     const paint = () => {
       const r = earned(f, readSeen(yo.jid));
       writeSeen(yo.jid, r.seen);
+      celebrateHere(r.list).catch(() => {});
       return r.list;
     };
     const badgesBox = el('div', { class: 'pf-tab' });
@@ -316,16 +568,21 @@ export async function drawProfile(root, { sub }) {
     if (f.general) rk.general(f.general);
     repaint(paint());
   };
+  // A tap on a name in any of the page's rankings opens that player's profile at a glance (the owner, 2026-11-22)
+  import('./peek.js').then(m => m.peekOnTap(root, { onTap: tap })).catch(() => {});
   J.escuchar(() => draw());
   await draw();
   window.__profile = { redraw: draw };
+  if (/[?&]achievement=demo\b/.test(location.search)) achievementDemo();
 }
 
 function drawGuest(root) {
   const r = earned(localFacts(), readSeen(null));
   writeSeen(null, r.seen);
+  celebrateHere(r.list).catch(() => {});
   // The badges this phone could earn without a name: Uno al día's streaks and hours, and the games played
-  const local = new Set(['streak-10', 'streak-30', 'month-full', 'early-bird', 'explorer', 'plays-100', 'night-owl']);
+  const local = new Set(['streak-10', 'streak-30', 'month-full', 'early-bird', 'explorer', 'plays-100', 'obsession', 'premiere', 'regular', 'weekends', 'mondays',
+    'night-owl', 'fiestas', 'halloween', 'xmas', 'new-year']);
   const list = r.list.filter(b => local.has(b.id) && (b.got || !b.secret));
   root.replaceChildren(
     bloqueJugador({ abierto: true, destacado: true, alTocar: tap }),
@@ -338,3 +595,38 @@ function drawGuest(root) {
     el('a', { class: 'btn btn--ghost', href: '../records/', onClick: tap }, T.allRankings));
 }
 
+
+/**
+ * `?achievement=demo` (lab flag profile): the secret achievement's window for each one, with a picker under it.
+ * Nothing is recorded.
+ */
+async function achievementDemo() {
+  const { showAchievement } = await import('../assets/js/achievement-window.js');
+  const secrets = BADGES.filter(b => b.secret);
+  let i = secrets.findIndex(b => b.id === 'xmas');
+  const open = () => {
+    document.querySelectorAll('.splash-capa').forEach(x => x.remove());
+    const b = secrets[i];
+    const bar = el('div', { class: 'aw-demo' },
+      ...secrets.map((x, k) => el('button', { type: 'button', class: k === i ? 'on' : '', 'aria-label': T.badges[x.id]?.[0] || x.id, onClick: () => { i = k; open(); } }, x.icon)));
+    showAchievement({ ...b, name: T.badges[b.id]?.[0] || b.id }, { lang, secret: { n: 3, total: secrets.length }, profileHref: '#badges', extra: bar });
+  };
+  open();
+}
+
+/**
+ * A secret achievement the profile finds earned (the server's ones, 💎 and 🎂, or a local one no game told yet)
+ * opens its window once per phone (achievement-window.js), here, where «Ver mis logros» just closes it.
+ */
+async function celebrateHere(list) {
+  if (/[?&]achievement=demo/.test(location.search)) return;
+  const { announced, markAnnounced } = await import('../assets/js/secret-achievements.js');
+  const done = announced();
+  const b = list.find(x => x.secret && x.got && !done[x.id]);
+  if (!b || document.querySelector('.splash-capa')) return;
+  const { showAchievement } = await import('../assets/js/achievement-window.js');
+  markAnnounced(b.id);
+  const now = announced();
+  const secrets = list.filter(x => x.secret);
+  showAchievement({ ...b, name: T.badges[b.id]?.[0] || b.id }, { lang, secret: { n: secrets.filter(x => x.got || now[x.id]).length, total: secrets.length }, profileHref: '#badges' });
+}

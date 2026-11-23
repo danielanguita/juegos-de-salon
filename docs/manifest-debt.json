@@ -21,6 +21,7 @@
     "sudoku": "Built in cup/games/ like Aletazo: its engine, screen and texts live in La Copa (cup/games/sudoku/, cup/rules.js); its lab game.json went with the lab entry, and it gets one again when the schema covers the Cup-built games",
     "memory": "Built in cup/games/ like Sudoku: its engine, screen and texts live in La Copa (cup/games/memory/, cup/rules.js); the lab prototype never had a game.json, and it gets one when the schema covers the Cup-built games",
     "microgames": "Built in cup/games/ like Sudoku: its page /in-a-flash/ became La Copa's screen (cup/games/microgames/, cup/rules.js); its game.json went with the page, and it gets one again when the schema covers the Cup-built games",
-    "dominorama": "Built in cup/games/ like Sudoku: its engine, screen and texts live in La Copa (cup/games/dominorama/, cup/rules.js); the lab prototype never had a game.json, and it gets one when the schema covers the Cup-built games"
+    "dominorama": "Built in cup/games/ like Sudoku: its engine, screen and texts live in La Copa (cup/games/dominorama/, cup/rules.js); the lab prototype never had a game.json, and it gets one when the schema covers the Cup-built games",
+    "croc": "Built in cup/games/ like Sudoku: its engine, screen and texts live in La Copa (cup/games/croc/, cup/rules.js); the lab game's game.json went with the lab page, now a bridge to /croc/, and it gets one again when the schema covers the Cup-built games"
   }
 }

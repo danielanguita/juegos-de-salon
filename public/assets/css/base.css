@@ -343,7 +343,8 @@ p { line-height: 1.5; margin: 0 0 12px; }
 .snackbar { position: fixed; left: var(--s-16); right: var(--s-16); margin: 0 auto; width: fit-content; bottom: calc(var(--s-24) + var(--safe-bottom)); background: var(--snackbar-bg); border: 1px solid var(--glass-border); color: var(--ink); font-weight: 800; padding: var(--s-12) var(--s-18); border-radius: var(--r-14); z-index: 50; animation: slideUp 0.25s both; }
 /* The result's hero: the trophy popping above the title */
 .result-hero { text-align: center; padding: var(--s-2) 0 var(--s-6); }
-.result-hero .trophy { font-size: 4.2rem; display: block; animation: pop 0.8s cubic-bezier(0.2, 0.9, 0.3, 1.4) both; }
+/* As wide as the emoji, centred: a full-width block grown by the pop's overshoot spilled past the screen for a moment (C-8) */
+.result-hero .trophy { font-size: 4.2rem; display: block; width: fit-content; margin-inline: auto; animation: pop 0.8s cubic-bezier(0.2, 0.9, 0.3, 1.4) both; }
 
 /* --- Tarjetas de vidrio --- */
 .panel {
@@ -468,16 +469,15 @@ html.pf-on .topbar .pf-lang .icon-btn { width: auto; display: inline-flex; align
 html.pf-on .topbar .pf-lang-caret { font-size: var(--fs-85); color: var(--muted); }
 /* The bar's language now sits mid-bar: its three flags open centred under it, never past the screen's left edge */
 html.pf-on .topbar:not(.portada-barra) .pf-lang .lang-pop { left: 50%; right: auto; transform: translateX(-50%); }
-.pf-home-initial { display: none; }
+.pf-home-icon { display: none; }
 html.pf-on .topbar #lang-slot:not(:has(.lang-btn, .lang-toggle)) { display: none; }
 /* A narrow phone keeps every button: the pill shows the flag only, the language loses its ▾ */
 @media (max-width: 374px) {
   html.pf-on .topbar { gap: var(--s-8); }
   html.pf-on .topbar .tools { gap: var(--s-6); }
   html.pf-on .topbar .tools .pf-home { padding: 0; }
-  html.pf-on .topbar .tools .pf-home:not(.pf-guest) { background: linear-gradient(135deg, var(--yellow), var(--orange)); color: var(--ink-on-yellow); font: var(--fs-120) var(--font-display); }
   html.pf-on .topbar .pf-home-flag, html.pf-on .topbar .pf-home-name, html.pf-on .topbar .pf-home-go, html.pf-on .topbar .pf-lang-caret { display: none; }
-  html.pf-on .topbar .pf-home-initial { display: inline; }
+  html.pf-on .topbar .pf-home-icon { display: inline; font-size: var(--fs-120); }
   html.pf-on .topbar .pf-lang .icon-btn { padding: 0; width: 44px; justify-content: center; }
 }
 html.pf-signed #btn-cuenta { display: none; }

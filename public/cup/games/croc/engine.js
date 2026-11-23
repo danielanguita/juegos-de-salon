@@ -1,6 +1,9 @@
 /**
- * Croc! in La Copa: pure, deterministic highway-crossing engine (no DOM).
- * Uses hash32(code:day) so every player in the same Cup gets the exact same traffic & fruits.
+ * 🐸 Croc!: the pure, deterministic highway-crossing engine (no DOM, fixed timestep, seeded RNG), for its
+ * page /croc/, La Copa and Uno al día; the lab prototype's engine moved here (D-517's way, like Sudoku) and
+ * /labs/croc/ is now a bridge to /croc/. Identical seed + identical inputs produce identical runs: a cup day's
+ * seed is hash32(code:day), so every player in the same cup gets the same traffic and fruit. Its traffic
+ * levels (normal, hard) are La Copa's variants (D-331).
  */
 import { hash32 } from '../semilla.js';
 
@@ -24,6 +27,15 @@ export const LIVES = 3;
 export const MAX_DASHES = 3;
 export const SHIELD_DUR = 1.5;
 
+/** The traffic levels, La Copa's variants (D-331): normal is the default a cup day and Uno al día play. */
+export const LEVELS = ['normal', 'hard'];
+
+/** A random seed for a new track (the cover's demo). */
+export function randomSeed() {
+  return Math.floor(1000 + Math.random() * 9000);
+}
+
+/** Deterministic Mulberry32 PRNG returning floats in [0, 1). */
 export function createRng(seed) {
   let a = (Number(seed) >>> 0) || 1;
   return () => {
@@ -247,6 +259,10 @@ function startHop(g, action) {
     if (f.row >= g.finishRow) return false;
     toRow = f.row + 1;
     dir = 'up';
+  } else if (action === 'down') {
+    if (f.row <= 0) return false;
+    toRow = f.row - 1;
+    dir = 'down';
   } else if (action === 'dash') {
     if (g.dashes <= 0 || f.row >= g.finishRow) return false;
     toRow = Math.min(g.finishRow, f.row + 2);
@@ -332,7 +348,7 @@ function finishHop(g) {
 
   if (f.row >= g.finishRow) {
     if (g.mode === 'demo') {
-      Object.assign(g, newGame({ seed: g.seed + 1, finishRow: g.finishRow, mode: 'demo' }));
+      Object.assign(g, newGame({ seed: g.seed + 1, finishRow: g.finishRow, difficulty: g.difficulty, mode: 'demo' }));
       return;
     }
     g.mode = 'win';
@@ -355,7 +371,7 @@ function boatUnderFrog(lane, fx) {
 function splashWater(g, laneIdx) {
   const f = g.frog;
   if (g.mode === 'demo') {
-    Object.assign(g, newGame({ seed: g.seed + 1, finishRow: g.finishRow, mode: 'demo' }));
+    Object.assign(g, newGame({ seed: g.seed + 1, finishRow: g.finishRow, difficulty: g.difficulty, mode: 'demo' }));
     return;
   }
   g.lives = Math.max(0, (g.lives | 0) - 1);
@@ -403,7 +419,7 @@ function checkTraffic(g) {
 
     if (fRight > vLeft && fLeft < vRight) {
       if (g.mode === 'demo') {
-        Object.assign(g, newGame({ seed: g.seed + 1, finishRow: g.finishRow, mode: 'demo' }));
+        Object.assign(g, newGame({ seed: g.seed + 1, finishRow: g.finishRow, difficulty: g.difficulty, mode: 'demo' }));
         return;
       }
       g.lives = Math.max(0, (g.lives | 0) - 1);
@@ -503,10 +519,12 @@ export function step(g, dt) {
 /* La Copa                                                             */
 /* ------------------------------------------------------------------ */
 
-export function generateDay(code, day, { sal = '', ensayo = false } = {}) {
+/** A day's track: its seed, its length (shorter for the trial, D-103) and its traffic (the day's variant). */
+export function generateDay(code, day, { variante = LEVELS[0], sal = '', ensayo = false } = {}) {
   return {
     semilla: hash32(`${code}:${day}${sal ? `:${sal}` : ''}`),
     finishRow: ensayo ? 15 : FINISH_ROW,
+    difficulty: LEVELS.includes(variante) ? variante : LEVELS[0],
   };
 }
 
@@ -518,7 +536,7 @@ export function card(e) {
   const fruits = Math.max(0, e?.fruitsTaken | 0);
   const close = Math.max(0, e?.closeCalls | 0);
   const end = e?.won ? '🏁' : '💥';
-  return `🐸 ${rows}/${total} · 🍓${fruits} ⚡${close} ${end}`;
+  return `🐸 ${rows}/${total} · 🍓 ${fruits} · 😬 ${close} · ${end}`;
 }
 
 export const DAY_K = 35;

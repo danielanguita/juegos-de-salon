@@ -61,7 +61,8 @@ export const POZO_FIJO = POZO.filter(id => !LANZADOS.some(g => g.id === id));
  * is written `id` (the default) or `id:variant` in `meta.cal`, so the cups from before read the same.
  */
 // Sudoku's levels (D-517's way): easy, the 6×6 mini, is the default a cup day and Uno al día play
-export const VARIANTES = { pintaminas: ['easy', 'hard'], loteo: ['numbers', 'utilities'], sudoku: ['easy', 'hard'] };
+// Croc!'s traffic (D-517's way): normal is the default a cup day and Uno al día play, hard the heavy traffic
+export const VARIANTES = { pintaminas: ['easy', 'hard'], loteo: ['numbers', 'utilities'], sudoku: ['easy', 'hard'], croc: ['normal', 'hard'] };
 /** A calendar entry split into its game and its variant: `'loteo:utilities'` → `{ id: 'loteo', variante: 'utilities' }`. */
 export function diaDeCal(x) {
   if (String(x || '').includes(TRIO_SEP)) return { id: TRIO, variante: null };
@@ -768,6 +769,17 @@ export function tabla(L, yo, now, { conFuera = true } = {}) {
     const lugarAntes = Object.fromEntries(antes.map(f => [f.pid, f.lugar]));
     for (const f of ahora) f.flecha = Math.sign(lugarAntes[f.pid] - f.lugar);
   } else for (const f of ahora) f.flecha = 0;
+  // Places moved by the last day that closed, relative to the day being looked at (the big-cup board): the table after
+  // it against the one before it. A day closes two days after it opens, so it is the day before yesterday's results
+  // that show; it lasts a day (tomorrow the next one closes), and it says nothing before two days have closed or once
+  // the cup is over.
+  let cerrados = 0;
+  for (let d = 1; d <= L.meta.days; d++) if (cerrado(L.meta, d, now) && !anulado(L.meta, d)) cerrados = d;
+  if (cerrados >= 2 && !terminada(L.meta, now)) {
+    const antes = Object.fromEntries(armar(cerrados - 1).map(f => [f.pid, f.lugar]));
+    const despues = Object.fromEntries(armar(cerrados).map(f => [f.pid, f.lugar]));
+    for (const f of ahora) f.cambioAyer = antes[f.pid] - despues[f.pid];
+  } else for (const f of ahora) f.cambioAyer = 0;
   return ahora;
 }
 

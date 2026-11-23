@@ -99,7 +99,7 @@ function medal(n) {
 }
 
 /** Fireworks on a canvas: rockets that rise and burst. Returns its stop; nothing under reduced motion. */
-function fireworks(cv) {
+export function fireworks(cv) {
   if (globalThis.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return () => {};
   const ctx = cv.getContext('2d'), dpr = globalThis.devicePixelRatio || 1;
   cv.width = innerWidth * dpr; cv.height = innerHeight * dpr;

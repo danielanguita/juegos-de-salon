@@ -136,9 +136,9 @@ if (SUELTO && !document.body.dataset.suelto && gameById(PRACTICA)?.suelto) locat
  * everyone, or 🧪 with a lab key): the answer this phone kept may be old, so a hidden one asks Firebase
  * before sending the visitor to the home page. Inside a cup and in Uno al día (`?today`, which deals it by
  * date) it always opens: they chose it for everyone alike, and a cup chose it when it
- * was out. lab: #seccion-stick, lab: #seccion-stack, lab: #seccion-aletazo, lab: #seccion-sudoku, lab: #seccion-memory, lab: #seccion-dominorama
+ * was out. lab: #seccion-stick, lab: #seccion-stack, lab: #seccion-aletazo, lab: #seccion-sudoku, lab: #seccion-memory, lab: #seccion-dominorama, lab: #seccion-croc
  */
-const LANZA = { stack: () => flag('stack'), aletazo: () => flag('aletazo'), sudoku: () => flag('sudoku'), memory: () => flag('memory'), dominorama: () => flag('dominorama') };
+const LANZA = { stack: () => flag('stack'), aletazo: () => flag('aletazo'), sudoku: () => flag('sudoku'), memory: () => flag('memory'), dominorama: () => flag('dominorama'), croc: () => flag('croc') };
 // Not awaited: the module must not pause halfway, its listeners need everything below defined
 if (SUELTO && !HOY && gameById(PRACTICA)?.oculto) (LANZA[PRACTICA]?.() ?? Promise.resolve(false)).then(si => { if (!si) location.replace(RAIZ); }).catch(() => location.replace(RAIZ));
 // En la genérica, el juego queda con su nombre en inglés: `?linea&hoy` → `?timeline-flash&today` (D-266)
@@ -335,6 +335,9 @@ flag('cup-podium-early').then(v => { podioAnticipado = v; if (v && L()?.meta && 
 // under a button) and the graph its first 10 lines, with the other names listed under it. lab: #seccion-cup-big
 let copaGrande = false;
 flag('cup-big').then(v => { copaGrande = v; setPlayerCap(v ? BIG_CUP_MAX : 10); if (v && L()?.meta && document.getElementById('tablero-body')?.childElementCount && !document.getElementById('tablero-body').closest('[hidden]')) tablero(); });
+// More than 10 players (lab flag `cup-big`): the table says how many places each player moved since the last
+// round (what yesterday did, relative to the day being looked at: it goes by itself), and the graph draws the first 10 lanes. lab: #seccion-cup-big
+const movesBoard = n => copaGrande && n > TABLA_VISIBLE;
 const zonaPropia = (() => { try { return Intl.DateTimeFormat().resolvedOptions().timeZone || null; } catch (_) { return null; } })();
 const horaEn = (ms, tz) => new Intl.DateTimeFormat(LOCALE[LANG] || LOCALE.es, { timeZone: tz, hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).format(new Date(ms));
 const otraHora = meta => horaPropia && !!zonaPropia && !!meta?.tz && horaEn(Date.now(), meta.tz) !== horaEn(Date.now(), zonaPropia);
@@ -865,6 +868,7 @@ function vistaTabla(filas, { dias, meta, now }) {
     return [...dias.slice(0, ultimo + 1).map(d => bloque(f, d)),
       resto ? el('span', { class: 'pd eliminado', style: `min-width:calc(${resto} * 1.368rem + ${resto - 1} * 4px)` }, T.outBadge) : null];
   };
+  const conCambio = movesBoard(filas.length);
   // Reactions and comments (D-562, lab): a 💬 at the end of each row, its drawer under it
   const conCharla = charla && !!talkDay(L(), now) && !!L().results?.[talkDay(L(), now)]?.[S.yo] && !!seguirCharla();
   // Once, the first time a 💬 shows: a balloon that says comments exist (D-566, lab)
@@ -872,13 +876,17 @@ function vistaTabla(filas, { dias, meta, now }) {
     ? el('div', { class: 'charla-pista', role: 'note' }, el('span', {}, T.talkHint),
       el('button', { type: 'button', class: 'charla-pista-x', 'aria-label': T.talkHintClose, onClick: () => { SFX.tap(); cerrarPista(); tableroEnSuSitio(); } }, '✕'))
     : null;
-  const tablaNodo = el('div', { class: 'tabla' + (conCharla ? ' con-charla' : '') }, pista, ...filas.flatMap(f => [el('div', { class: 'fila' + (f.pid === S.yo ? ' yo' : '') + (f.fuera ? ' fuera' : ''), 'data-pid': f.pid },
+  const tablaNodo = el('div', { class: 'tabla' + (conCharla ? ' con-charla' : '') + (conCambio ? ' con-cambio' : '') }, pista, ...filas.flatMap(f => [el('div', { class: 'fila' + (f.pid === S.yo ? ' yo' : '') + (f.fuera ? ' fuera' : ''), 'data-pid': f.pid },
     // Out of the cup (D-347): a door instead of a place, and faded (D-376)
     el('span', { class: 'lugar', title: f.fuera ? fmt(T.outAdmin, { a: f.fuera.desde, b: f.fuera.hasta }) : null }, f.fuera ? '🚪' : String(f.lugar)),
-    el('span', { class: 'flecha ' + (f.flecha > 0 ? 'sube' : f.flecha < 0 ? 'baja' : '') }, f.flecha > 0 ? '▲' : f.flecha < 0 ? '▼' : ''),
+    conCambio ? null : el('span', { class: 'flecha ' + (f.flecha > 0 ? 'sube' : f.flecha < 0 ? 'baja' : '') }, f.flecha > 0 ? '▲' : f.flecha < 0 ? '▼' : ''),
     el('div', { class: 'quien' },
-      el('b', {}, f.name, f.pid === S.yo ? el('small', { class: 'muted' }, ` (${T.you})`) : null),
-      el('div', { class: 'puntitos' }, bloques(f)),
+      el('b', {}, f.name,
+        f.pid === S.yo ? el('small', { class: 'muted' }, ` (${T.you})`) : null,
+        // The big-cup board: the places gained or lost by the last day that closed, after the (you)
+        conCambio && f.cambioAyer ? el('span', { class: 'mov ' + (f.cambioAyer > 0 ? 'sube' : 'baja'), title: `${f.cambioAyer > 0 ? '+' : '−'}${Math.abs(f.cambioAyer)}` }, `${f.cambioAyer > 0 ? '▲' : '▼'}${Math.abs(f.cambioAyer)}`) : null),
+      // A big cup of more than 8 days: the blocks in two equal runs (14 days: 7 and 7), not one long and one short
+      conCambio && dias.length > 8 ? el('div', { class: 'puntitos dos', style: `--cols:${Math.ceil(dias.length / 2)}` }, bloques(f)) : el('div', { class: 'puntitos' }, bloques(f)),
       // Today's first comment, for everyone, even before playing (the owner, 2026-11-16)
       ),
     // With talk on, the 💬 goes under the points, so the day blocks keep their width
@@ -969,16 +977,13 @@ function grafico(now) {
   // Out of the cup (D-347): their line, faded, and 🚪 after their name (D-376)
   const afuera = new Set(filasTabla.filter(f => f.fuera).map(f => f.pid));
   const n = ev.filas.length;
-  // More than 10 players: the graph draws the first 10 lanes, with no place numbers on the side and no
-  // chips below (the names are on the lines); the others are names inside it, under the last lane
+  // More than 10 players (lab flag `cup-big`): the first 10 lanes; whoever climbs in from below comes as a dashed
+  // line that fades in from under the last lane, whoever falls out just ends, and the names are on the lines
   const grande = copaGrande && n > TABLA_VISIBLE;
   const carriles = grande ? TABLA_VISIBLE : n;
   const W = 320, fila = 24, arriba = 14, abajo = 26, izq = grande ? 10 : 26, der = 92; // espacio a la derecha para "Nombre 3º (-1J)"
-  // The table's own order decides who is in the rest, so players tied on a place split the same way in both
-  const enTabla = filasTabla.map(f => f.pid);
-  const resto = grande ? enTabla.slice(carriles).map(pid => ev.filas.find(f => f.pid === pid)).filter(Boolean) : [];
-  const delResto = new Set(resto.map(f => f.pid));
-  let H = arriba + (carriles - 1) * fila + abajo;
+  const bajoCarriles = grande ? 20 : 0; // room under the last lane for the lines that come in from below
+  let H = arriba + (carriles - 1) * fila + abajo + bajoCarriles;
   const x = k => izq + (meta.days === 1 ? 0 : ((k - 1) * (W - izq - der)) / (meta.days - 1));
   const y = lugar => arriba + (lugar - 1) * fila;
   const NS = 'http://www.w3.org/2000/svg';
@@ -994,8 +999,11 @@ function grafico(now) {
     svg.append(svgEl('line', { x1: izq, x2: W - der, y1: y(l), y2: y(l), class: 'g-grid' }));
     if (!grande) svg.append(svgEl('text', { x: izq - 8, y: y(l) + 4, class: 'g-eje', 'text-anchor': 'end' }, ord(l)));
   }
+  const defs = svgEl('defs');
+  svg.append(defs);
   const diasEje = [];
   for (let k = 1; k <= meta.days; k++) svg.append(diasEje[diasEje.push(svgEl('text', { x: x(k), y: H - 6, class: 'g-eje', 'text-anchor': 'middle' }, fmt(T.dayShort, { d: k }))) - 1]);
+  let yRotulo = 0;
   // Cada jugador con su color (D-125), fijo por orden de inscripción; tu línea, más gruesa y encima
   const porLlegada = llegada(Lc);
   const color = pid => colorDe(Lc, pid);
@@ -1004,28 +1012,47 @@ function grafico(now) {
   // Empatados en el mismo lugar: sus nombres se apilan en vez de encimarse (el lugar siguiente
   // queda vacío en un empate, así que hay espacio)
   const enLugar = {};
-  let yRotulo = 0, xRotulo = x(ev.dias[ev.dias.length - 1]) + 9;
   for (const f of orden) {
-    if (delResto.has(f.pid)) continue;
     const mia = f.pid === S.yo;
     const g = svgEl('g', { class: 'g-jugador' + (mia ? ' mia' : '') + (afuera.has(f.pid) ? ' fuera' : ''), 'data-pid': f.pid, style: `--c:${color(f.pid)}` });
     grupos[f.pid] = g;
     const pts = f.lugares.map((l, i) => [x(ev.dias[i]), y(l)]);
-    if (pts.length > 1) g.append(svgEl('polyline', { points: pts.map(p => p.join(',')).join(' '), class: 'g-linea' }));
+    // The first 10 lanes: the days inside them in runs; a run that starts after a day outside comes in from below
+    const dentro = i => f.lugares[i] <= carriles;
+    if (grande && !dentro(f.lugares.length - 1)) continue; // only whoever ends the graph among the first 10 is drawn
+    if (grande) {
+      let tramo = [];
+      const cerrar = () => { if (tramo.length > 1) g.append(svgEl('polyline', { points: tramo.map(p => p.join(',')).join(' '), class: 'g-linea' })); tramo = []; };
+      // Who climbed in from below: a dashed stretch that fades in from under the last lane
+      const fondo = y(carriles) + bajoCarriles - 2;
+      f.lugares.forEach((l, i) => {
+        if (!dentro(i)) { cerrar(); return; }
+        if (i > 0 && !dentro(i - 1)) {
+          const [x1, y1, x2, y2] = [x(ev.dias[i - 1]), fondo, pts[i][0], pts[i][1]];
+          const id = `gv-${f.pid}-${i}`;
+          defs.append(svgEl('linearGradient', { id, gradientUnits: 'userSpaceOnUse', x1, y1, x2, y2 },
+            svgEl('stop', { offset: '0', 'stop-color': color(f.pid), 'stop-opacity': '0' }), svgEl('stop', { offset: '1', 'stop-color': color(f.pid), 'stop-opacity': '0.9' })));
+          g.append(svgEl('line', { x1, y1, x2, y2, class: 'g-entra', stroke: `url(#${id})` }));
+        }
+        tramo.push(pts[i]);
+      });
+      cerrar();
+    } else if (pts.length > 1) g.append(svgEl('polyline', { points: pts.map(p => p.join(',')).join(' '), class: 'g-linea' }));
     pts.forEach(([px, py], i) => {
+      if (grande && !dentro(i)) return;
       const texto = fmt(T.progressPoint, { d: ev.dias[i], name: f.name, pos: ord(f.lugares[i]) });
       g.append(svgEl('circle', { cx: px, cy: py, r: mia ? 5 : 4, class: 'g-punto' }));
       const blanco = svgEl('circle', { cx: px, cy: py, r: 11, class: 'g-toque' }, svgEl('title', {}, texto));
       blanco.addEventListener('click', () => { leyenda.textContent = texto; leyenda.hidden = false; destacar(f.pid); });
       g.append(blanco);
     });
-    if (pts.length) {
+    if (pts.length && (!grande || dentro(pts.length - 1))) { // whoever fell out of the first 10 has no name on the graph
       const [px, py] = pts[pts.length - 1];
       const corto = f.name.length > 10 ? `${f.name.slice(0, 9)}…` : f.name;
       const marca = afuera.has(f.pid) ? ' 🚪' : menos[f.pid] > 0 ? ` (-${menos[f.pid]}J)` : '';
       const ultimo = f.lugares[f.lugares.length - 1];
       const k = (enLugar[ultimo] = (enLugar[ultimo] ?? -1) + 1);
-      yRotulo = Math.max(yRotulo, py + 4 + k * 11); xRotulo = px + 9;
+      yRotulo = Math.max(yRotulo, py + 4 + k * 11);
       g.append(svgEl('text', { x: px + 9, y: py + 4 + k * 11, class: 'g-rotulo' }, `${corto} ${ord(ultimo)}${marca}`));
     }
     svg.append(g);
@@ -1042,14 +1069,8 @@ function grafico(now) {
     el('button', { type: 'button', class: 'g-chip' + (f.pid === S.yo ? ' mia' : '') + (afuera.has(f.pid) ? ' fuera' : ''), 'data-pid': f.pid, style: `--c:${color(f.pid)}`, onClick: () => { SFX.tap(); destacar(f.pid); } },
       el('span', { class: 'g-color', 'aria-hidden': 'true' }), nombreConJuegos(f.pid === S.yo ? fmt(T.progressYou, { name: f.name }) : f.name, menos[f.pid]), afuera.has(f.pid) ? ' 🚪' : null)));
   const notaJuegos = Object.values(menos).some(x => x > 0) ? el('p', { class: 'muted grafico-nota', id: 'nota-juegos' }, T.fewerGamesNote) : null;
-  // The rest: one label each, in the same column as the names above, ranked and numbered like them
-  if (resto.length) {
-    let yy = Math.max(yRotulo, y(carriles)) + 13;
-    for (const [i, f] of resto.entries()) { svg.append(svgEl('text', { x: xRotulo, y: yy, class: 'g-rotulo g-resto' }, `${f.name.length > 10 ? `${f.name.slice(0, 9)}…` : f.name} ${ord(carriles + i + 1)}${afuera.has(f.pid) ? ' 🚪' : ''}`)); yy += 11; }
-    H = Math.max(H, yy + abajo - 11 - 2);
-    svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
-    diasEje.forEach(t => t.setAttribute('y', H - 6));
-  }
+  // Names tied on the last lanes stack downward: the graph grows so they never sit on the day axis
+  if (yRotulo + 6 > H - 18) { H = yRotulo + 24; svg.setAttribute('viewBox', `0 0 ${W} ${H}`); diasEje.forEach(t => t.setAttribute('y', H - 6)); }
   if (grande) leyenda.hidden = true; // its text is filled by tapping a point
   return el('div', { class: 'panel' }, el('p', { class: 'lead', style: 'margin-bottom:8px' }, T.progressTitle), svg, chips, notaJuegos, leyenda,
     // Once over, the podium's Share the summary does the same: one share button per screen (C-19)

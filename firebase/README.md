@@ -155,12 +155,13 @@ written if it doesn't exist, if it expired (`hasta < now`) or if it points to th
 admin of that cup and with `meta/alias` equal to the alias; it is deleted only by that admin. `hasta` is the end
 of the cup plus 7 days.
 
-## Players and rankings (`jugadores`, `jugadorKeys`, `jugadorSeats`, `jugadorIntentos`, `jugadorNombres`, `jugadorCopas`, `records`, `torneoPodios`, D-212)
+## Players and rankings (`jugadores`, `jugadorKeys`, `jugadorSeats`, `jugadorIntentos`, `jugadorNombres`, `jugadorRenombres`, `jugadorCopas`, `records`, `torneoPodios`, D-212)
 
 The same mechanism as La Copa, for the whole app:
 
 - `jugadores/<jid>` = `{ n, at, juegos: { <juego>: { n, at } } }`. Read without an account by jid (not
-  listed). Created once, with the seat in the same write; `juegos/<juego>/n` only goes up by one.
+  listed). Created once, with the seat in the same write; `juegos/<juego>/n` only goes up by one. `n`
+  changes from a seated phone whose fresh attempt holds the key (the player renames themselves, D-600).
 - `jugadorKeys/<jid>`: sha256 of the PIN. Nobody reads it. Created with the player; changed by a seated
   phone whose fresh attempt holds the current key (D-464).
 - `jugadorSeats/<jid>/<uid>`: the `uid` phone writes as `jid` if it brings the hash from `jugadorKeys`
@@ -168,13 +169,17 @@ The same mechanism as La Copa, for the whole app:
   Whoever is seated can replace all the seats (changing the PIN kicks out the others).
 - `jugadorIntentos/<jid>` = `{ h, u, at }` (D-464): the last PIN attempt on that player, with the
   writer's uid and the server time, on a player with a key, one every 5 s. Nobody reads or deletes it.
-- `jugadorNombres/<clave>/<jid>` = `true`: who uses that name. Read by key, to sign in.
+- `jugadorNombres/<clave>/<jid>` = `true`: who uses that name. Read by key, to sign in. Created by a seated
+  phone; deleted only by a seated phone whose fresh attempt holds the key (a rename drops the old name, D-600).
+- `jugadorRenombres/<jid>` = time (D-600): this player renamed themselves; written by a seated phone, read
+  and cleared by the hourly job (`rename-player.mjs --pending`), which carries the new name to their rows.
 - `records/<tabla>/<período>/<jid>` = `{ s, ms, k, at, n }`, with `.indexOn: k`. Read without an account.
   Only the seated player writes, with `k` recomputed, `n` equal to their name and `k` lower than the
   stored one. The table and period are validated by shape, without naming games (C-16). A table that
   ends in `_victorias` (D-215), and the `partidas` one (D-219), also requires `ms` = 0 and that `s` go up
   by exactly one. Each row can carry `co`, the player's country (two letters, D-219).
 - `jugadores/<jid>/co`: the player's country, once, by whoever is seated (D-219).
+- `jugadores/<jid>/oculto`: `true` when the player hides their activity from their public profile (lab flag `profile`), absent while it shows (the default, D-604); written or removed only by one of the player's seated phones.
 - `torneoPodios/<código>`: the podium of a finished cup, with `.indexOn: end`. Read without an account.
 - `uadTemporada/s<yyyy-mm>`: Uno al día's season places by week (D-424), `{ c, t, j: { <jid>: { n, co?, s, l } } }`. Read without an account; written only by the administrator, by the nightly points rebuild (`uad-points-backfill.mjs --rebuild`). It also holds `top` (D-473): `{ c, t, p: players, j: the rows down to the 10th place }`; the home page's season recap reads only `top` and the player's own `j/<jid>`, never the whole table.
 - **Indexes for the panel (D-473):** `torneos` is indexed on `meta/end` and `meta/alias`, and `feedback` on `at`, so the panel downloads only the period it shows.

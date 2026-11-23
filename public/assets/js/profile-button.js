@@ -25,8 +25,14 @@ export function profileButton({ lang = 'es', doc = document } = {}) {
   if (!b) return;
   b.href = 'profile/';
   b.hidden = false;
+  b.parentElement?.append(b);   // the bar's last place, after share, as on every other page (the owner, 2026-11-22)
   pillFace(b, { lang, doc });
   doc.getElementById('sound-slot')?.remove();
+  // The same order as every cover's bar (the owner, 2026-11-22): language, share, the page's own button
+  // (☁️ here, 🔊 in a game), and the pill last, at the right edge
+  const tools = b.parentElement, share = doc.getElementById('share-slot');
+  if (share && tools?.contains(share)) tools.insertBefore(share, tools.firstChild);
+  if (tools && tools.lastElementChild !== b) tools.append(b);
   const slot = doc.getElementById('lang-slot');
   if (slot && !slot.querySelector('.lang-btn')) slot.replaceChildren(compactLang(doc));
 }
@@ -36,7 +42,7 @@ function pillFace(b, { lang = 'es', doc = document } = {}) {
   const yo = leerYo();
   b.classList.add('pf-home');
   for (const k of ['title', 'aria-label']) b.setAttribute(k, LABEL[lang] || LABEL.es);
-  b.dataset.pf = yo?.n ? `${yo.n}|${yo.co || ''}` : '';
+  b.dataset.pf = sigOf(yo);
   const flag = doc.createElement('span');
   flag.className = 'pf-home-flag';
   flag.setAttribute('aria-hidden', 'true');
@@ -49,14 +55,13 @@ function pillFace(b, { lang = 'es', doc = document } = {}) {
   go.className = 'pf-home-go';
   go.setAttribute('aria-hidden', 'true');
   go.textContent = '›';
-  // On a narrow phone's game bar the pill is round: the initial, as the profile's avatar (a lone country
-  // flag beside the language's flag would read as a second language)
-  const initial = doc.createElement('span');
-  initial.className = 'pf-home-initial';
-  initial.setAttribute('aria-hidden', 'true');
-  initial.textContent = yo?.n ? Array.from(yo.n.trim())[0]?.toUpperCase() || '👤' : '👤';
-  b.classList.toggle('pf-guest', !yo?.n);
-  b.replaceChildren(flag, name, go, initial);
+  // On a narrow phone's game bar the pill is round, with 👤: the name does not fit, and a lone country
+  // flag beside the language's flag would read as a second language (no initial: the owner, 2026-11-21)
+  const icon = doc.createElement('span');
+  icon.className = 'pf-home-icon';
+  icon.setAttribute('aria-hidden', 'true');
+  icon.textContent = '👤';
+  b.replaceChildren(flag, name, go, icon);
 }
 
 /** A ▾ after a language button's flag: it says the button opens the three languages. */
@@ -79,6 +84,9 @@ const compactLang = (doc = document) => withCaret(langButton(), doc);
 /** Whether this page is the profile itself: it needs no way to itself. */
 const isProfile = (doc = document) => /\/profile\/?$/.test(doc.location?.pathname || '');
 
+/** The pill's signature: what it shows, to redraw it only when that changes. */
+const sigOf = yo => (yo?.n ? `${yo.n}|${yo.co || ''}` : '');
+
 /**
  * Every page's top bar with the profile (lab flag profile). Idempotent: a page that draws its bar again
  * (a cover re-rendered, a game going back to its cover) gets its pill and ▾ again, and signing in or out
@@ -89,8 +97,11 @@ export function profileEverywhere({ doc = document, profileHref = new URL('../..
   root.classList.add('pf-on');
   const lang = getLang();
   const fix = () => {
-    root.classList.toggle('pf-signed', !!leerYo()?.n);
-    if (doc.getElementById('btn-rankings')) return;   // the home page: profileButton draws its bar
+    const yo = leerYo(), sig = sigOf(yo);
+    root.classList.toggle('pf-signed', !!yo?.n);
+    // The home page: profileButton draws its bar; here only a pill that no longer says who is on this phone
+    const home = doc.getElementById('btn-rankings');
+    if (home) { if (home.classList.contains('pf-home') && home.dataset.pf !== sig) pillFace(home, { lang, doc }); return; }
     const tools = doc.querySelector('.topbar .tools');
     if (!tools) return;
     // The language: a cover's round flag gets its ▾; a page with the three flags in the bar gets the button
@@ -99,8 +110,6 @@ export function profileEverywhere({ doc = document, profileHref = new URL('../..
     if (full) full.parentElement.replaceChildren(compactLang(doc));
     if (isProfile(doc)) return;
     let pill = tools.querySelector('.pf-home');
-    const yo = leerYo();
-    const sig = yo?.n ? `${yo.n}|${yo.co || ''}` : '';
     if (pill && pill.dataset.pf === sig) return;
     if (!pill) {
       pill = doc.createElement('a');
@@ -111,6 +120,11 @@ export function profileEverywhere({ doc = document, profileHref = new URL('../..
     pillFace(pill, { lang, doc });
   };
   fix();
+  // The first time, a bubble from the pill says the player's things live there (profile-hint.js)
+  if (!isProfile(doc)) setTimeout(() => import('./profile-hint.js').then(m => {
+    m.demoReset(doc.location);
+    m.pillBubble(doc.querySelector('.topbar .pf-home'), { doc, lang });
+  }).catch(() => {}), 1200);
   // Pages draw their bar and sign players in and out after loading: one look per frame at most
   let queued = false;
   new MutationObserver(() => {
@@ -118,4 +132,10 @@ export function profileEverywhere({ doc = document, profileHref = new URL('../..
     queued = true;
     requestAnimationFrame(() => { queued = false; fix(); });
   }).observe(doc.body, { childList: true, subtree: true });
+  // A page the browser brings back with ‹ (its back-forward cache) or that waited in another tab still shows
+  // who was on the phone then: after signing out in the profile, the pill must say «Entrar» (the owner, 2026-11-22)
+  const win = doc.defaultView;
+  win?.addEventListener('pageshow', fix);
+  win?.addEventListener('storage', fix);
+  doc.addEventListener('visibilitychange', () => { if (doc.visibilityState === 'visible') fix(); });
 }

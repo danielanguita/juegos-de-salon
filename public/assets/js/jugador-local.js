@@ -76,10 +76,20 @@ export function crearAlmacenLocal({ storage = globalThis.localStorage, uid = nul
       const libre = !leerEn(viejo, `jugadores/${a}`) || leerEn(viejo, `jugadores/${a}/legado`) === true;
       return antes == null ? libre && sentado(nuevo, a) : sentado(viejo, a) && probo(a, antes);
     }
-    if (rama === 'jugadorNombres') return leerEn(viejo, ruta) == null && leerEn(nuevo, ruta) === true && sentado(nuevo, b);
+    // The player's own PIN, tried by this phone in the last minute: renaming asks for it (D-600)
+    const conPin = jid => sentado(viejo, jid) && leerEn(viejo, `jugadorKeys/${jid}`) != null && probo(jid, leerEn(viejo, `jugadorKeys/${jid}`));
+    if (rama === 'jugadorNombres') {
+      if (leerEn(viejo, ruta) != null) return leerEn(nuevo, ruta) == null && conPin(b);
+      return leerEn(nuevo, ruta) === true && sentado(nuevo, b);
+    }
+    // A rename for the hourly job to carry to the player's table rows (D-600)
+    if (rama === 'jugadorRenombres') return p.length === 2 && sentado(viejo, a) && typeof leerEn(nuevo, ruta) === 'number' && leerEn(nuevo, ruta) <= t;
     if (rama === 'jugadores') {
       if (p.length === 2) return leerEn(viejo, ruta) == null && sentado(nuevo, a);
+      if (b === 'n') { const n = leerEn(nuevo, ruta); return p.length === 3 && leerEn(viejo, ruta) != null && typeof n === 'string' && n.length >= 1 && n.length <= 20 && conPin(a); }
       if (b === 'legado') return leerEn(nuevo, ruta) == null && sentado(nuevo, a);
+      // Whether the player hides their activity from their public profile (lab flag profile): their own seat, true or gone
+      if (b === 'oculto') { const v = leerEn(nuevo, ruta); return p.length === 3 && sentado(viejo, a) && (v == null || v === true); }
       if (b === 'co') return leerEn(viejo, ruta) == null && sentado(nuevo, a) && /^[A-Z]{2}$/.test(leerEn(nuevo, ruta));
       if (b === 'juegos') {
         if (!sentado(viejo, a)) return false;

@@ -103,7 +103,7 @@ export function loadActive({ fetchFn = globalThis.fetch, timeout = 2500 } = {}) 
  * of play: `video` (a looping MP4, muted) with its `img` as the poster, or just `img` (a still, with
  * `still` for reduced motion, each a path or one per language; a clip is never a GIF: an MP4 weighs a fifth, #846). An item with no name, text or link is a teaser: its picture
  * alone, wide (`ratio`), scaled as pixel art unless `smooth` (a teaser drawn at full size). `hero` draws a campaign's one game big: its clip as wide as the window at its
- * `ratio`, and under it its card, with the text and Play. `langs` limits a campaign to some languages: the others get it in English
+ * `ratio`, and under it its card, with the text and Play. `bigClips` makes a list's clips as big as a phone's height allows, the window taller. `langs` limits a campaign to some languages: the others get it in English
  * (the owner's request for a teaser in Spanish and English). Paths are from the site root; the clips
  * are made with marketing/splash/capture.mjs and the teasers with teaser.mjs, and each campaign is
  * kept in marketing/splash/campaigns/<id>/ (D-355).
@@ -201,11 +201,13 @@ export const CAMPAIGNS = {
   // happens, recorded by marketing/splash/croc-wobbles-clip.mjs, one per language because the games write words
   // on their canvas. Play opens each game's cover, not the game (the owner: a newcomer first sees what it is).
   // `requires` keeps it unseen until both launch flags are on for the visitor (D-517); until then only lab key
-  // holders pass. Tembleque is not in games.js yet, so its item carries its own name; the launch PR names it
-  // by its games.js id (wobbles) and points both links at the games' new homes
+  // holders pass. Tembleque is in games.js now (its launch is prepared, 2026-11-21): its item names it by its id,
+  // its icon and name come from there (rule 9), and Play opens its cover at /wobbles/
   'nos-volvimos-locos': {
     emoji: '🤪',
     requires: ['croc', 'wobbles'],
+    // Its clips as big as a phone's height allows, so the games' action is felt (the owner, 2026-11-21)
+    bigClips: true,
     title: { es: '¡Nos volvimos locos!', en: "We've gone crazy!", pt: 'Enlouquecemos!' },
     lead: {
       es: 'No paramos de lanzar juegos. Hoy entran 2 de destreza.',
@@ -213,10 +215,10 @@ export const CAMPAIGNS = {
       pt: 'Não paramos de lançar jogos. Hoje chegam 2 de destreza.',
     },
     items: [
-      { game: 'croc', href: 'labs/croc/',
+      { game: 'croc', href: 'croc/',
         text: { es: 'Cruza la autopista esquivando autos hasta llegar a la laguna.', en: 'Cross the highway, dodging cars, all the way to the pond.', pt: 'Atravesse a rodovia desviando dos carros até chegar à lagoa.' },
         video: { es: 'assets/splash/croc-es.mp4', en: 'assets/splash/croc-en.mp4', pt: 'assets/splash/croc-pt.mp4' }, img: 'assets/splash/croc-start.jpg', still: 'assets/splash/croc.jpg' },
-      { emoji: '⚖️', title: { es: 'Tembleque', en: 'The Wobbles', pt: 'Tremelique' }, href: 'labs/wobbles/',
+      { game: 'wobbles', href: 'wobbles/',
         text: { es: 'Apila piezas sin que la balanza se vuelque. Elige fácil o difícil.', en: 'Stack pieces without tipping the scale. Pick easy or hard.', pt: 'Empilhe peças sem deixar a balança virar. Escolha fácil ou difícil.' },
         video: { es: 'assets/splash/wobbles-es.mp4', en: 'assets/splash/wobbles-en.mp4', pt: 'assets/splash/wobbles-pt.mp4' }, img: 'assets/splash/wobbles-start.jpg', still: 'assets/splash/wobbles.jpg' },
     ],
@@ -639,6 +641,8 @@ export async function showSplash(id, { lang = 'es', record = true, onClose } = {
   const layer = node('div', 'splash-capa');
   const backdrop = node('div', 'splash-fondo');
   const card = node('section', c.hero ? 'splash splash--hero' : c.look === 'cartuchos' ? 'splash splash--cartuchos' : 'splash');
+  // Bigger clips on a phone (`bigClips`, the owner, 2026-11-21: on a Pixel 9 they felt small): the window grows taller for them
+  if (c.bigClips && !c.hero) card.classList.add('splash--big');
   card.setAttribute('role', 'dialog');
   card.setAttribute('aria-modal', 'true');
   card.setAttribute('aria-labelledby', 'splash-titulo');

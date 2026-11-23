@@ -1,5 +1,6 @@
 // The CI failure log (D-518): normalization, parsing a failed log, linking fixes, flaky runs and the ≥2 threshold.
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import { normalize, signature, parseLog, capture, link, summarize, prune, promote, report, READY } from './failures.mjs';
 
 // What changes from run to run does not change the signature
@@ -102,5 +103,12 @@ assert.equal(prune(store, archive, memory, Date.parse(day) + 89 * 24 * 3600 * 10
 assert.equal(prune(fl, { records: [] }, memory, later), 0, 'no mechanism, kept');
 assert.equal(prune(store, archive, memory, later), 3);
 assert.equal(store.records.length, 0);
+
+// failure-log.yml reads the attempt that ended, never the latest one: a "Re-run failed jobs" started
+// before it read the log left it an empty log and a bogus "no failing test found" record (f2f83772a2)
+const flow = readFileSync(new URL('../../.github/workflows/failure-log.yml', import.meta.url), 'utf8');
+assert.match(flow, /ATTEMPT: \$\{\{ github\.event\.workflow_run\.run_attempt \}\}/, 'failure-log.yml passes the run attempt');
+for (const line of flow.split('\n').filter(l => /gh run view/.test(l) && !/^\s*#/.test(l)))
+  assert.match(line, /--attempt "\$ATTEMPT"/, `failure-log.yml reads a log without --attempt: ${line.trim()}`);
 
 console.log('failures: all green');

@@ -319,6 +319,34 @@ export function crearJugador({ almacen, storage = globalThis.localStorage, now =
     },
 
     /**
+     * Change the player's name (D-600), with their PIN, as changing the PIN asks for the current one:
+     * the name, its search key (signing in uses the new name from now on) and a mark for the hourly
+     * job, which carries the new name to the player's table rows. Scores, badges and the PIN stay.
+     * 'pin-actual' if it is not the PIN, 'nombre' if the name is empty. Returns the player.
+     */
+    async renombrar(pin, nombre) {
+      const yo = api.yo();
+      if (!yo) throw falla('sin-jugador');
+      const n = limpiarNombre(nombre);
+      if (!n) throw falla('nombre');
+      if (!esPin(pin)) throw falla('pin-forma');
+      const viejo = (await almacen.get(`jugadores/${yo.jid}/n`)) || yo.n;
+      await intentar(yo.jid, await hashPinJugador(yo.jid, pin));
+      if (n !== viejo) {
+        const cambios = { [`jugadores/${yo.jid}/n`]: n, [`jugadorRenombres/${yo.jid}`]: HORA };
+        if (claveNombre(n) !== claveNombre(viejo)) {
+          cambios[`jugadorNombres/${claveNombre(n)}/${yo.jid}`] = true;
+          cambios[`jugadorNombres/${claveNombre(viejo)}/${yo.jid}`] = null;
+        }
+        try { await almacen.update(cambios); }
+        catch (e) { throw e?.code === 'permiso' ? falla('pin-actual') : e; }
+      }
+      escribir(KEY, { ...leerYo(storage), n });
+      avisar();
+      return api.yo();
+    },
+
+    /**
      * Prove this player's PIN without sitting (D-464): La Copa's admin, linked to their player, uses
      * it to give someone a new cup PIN. The rules decide whether it was the PIN.
      */
@@ -605,6 +633,18 @@ export function crearJugador({ almacen, storage = globalThis.localStorage, now =
     /** La historia de Uno al día de un jugador (el propio, si no se dice): `{ n: { j, s, ms } }`. */
     async historialDia(jid = api.yo()?.jid) {
       return jid ? ((await almacen.get(`unoAlDia/${jid}`)) || {}) : {};
+    },
+
+    /**
+     * Whether others see this player's activity on their public profile (lab flag profile): their streak, games,
+     * since when and their most played games. Shown unless the player hides it in ⚙️ (D-604): `oculto: true` when
+     * hidden, nothing when shown.
+     */
+    async mostrarActividad(on) {
+      const yo = api.yo();
+      if (!yo) return false;
+      await almacen.update({ [`jugadores/${yo.jid}/oculto`]: on ? null : true });
+      return true;
     },
 
     /** Lo público de un jugador, para la tarjeta de quien invita: `{ n, co }`, o null. */

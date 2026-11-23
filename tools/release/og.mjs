@@ -24,7 +24,7 @@
  * that fell behind games.js; the images are retaken by hand, because they need a browser (and they
  * only change if a name, an emoji or the card's design changes).
  */
-import { readFileSync, writeFileSync, mkdirSync, existsSync, rmSync } from 'node:fs';
+import { readFileSync, writeFileSync, mkdirSync, existsSync, rmSync, readdirSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
@@ -200,6 +200,11 @@ const bridges = () => [
   // A game of its own folder that left the lab (`deLabs` on its games.js entry: ¡Al toque! was /labs/microgames/)
   ...pages().filter(p => p.game && !p.standalone && typeof ALL_GAMES.find(m => m.id === p.game)?.deLabs === 'string')
     .map(p => ({ ...p, old: `public/labs/${ALL_GAMES.find(m => m.id === p.game).deLabs}/index.html`, to: `../..${p.route}` })),
+  // …and each page under it moved too (Tembleque's levels: /labs/wobbles/easy/ leads to /wobbles/easy/), with no card of its own
+  ...pages().filter(p => p.game && !p.standalone && typeof ALL_GAMES.find(m => m.id === p.game)?.deLabs === 'string')
+    .flatMap(p => readdirSync(join(ROOT, 'public', p.route), { withFileTypes: true })
+      .filter(d => d.isDirectory() && existsSync(join(ROOT, 'public', p.route, d.name, 'index.html')))
+      .map(d => ({ old: `public/labs/${ALL_GAMES.find(m => m.id === p.game).deLabs}/${d.name}/index.html`, to: `../../..${p.route}${d.name}/`, title: p.title }))),
   // The generic pages (/minijuegos/?reinas, /minigames/?reinas): the template sends each link to its place
   { old: 'public/minijuegos/index.html', to: '../cup/suelto/', title: 'Juegos de Salón 🎲' },
   { old: 'public/minigames/index.html', to: '../cup/suelto/', title: 'Juegos de Salón 🎲' },

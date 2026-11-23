@@ -320,6 +320,8 @@
         "public/cup/games/year/ui.js",
         "public/cup/games/zip/engine.js",
         "public/cup/games/zip/ui.js",
+        "public/cup/history.js",
+        "public/cup/history/index.html",
         "public/cup/index.html",
         "public/cup/join.js",
         "public/cup/planilla.js",
@@ -734,34 +736,36 @@
       ]
     },
     {
-      "id": "croc",
-      "emoji": "🐸",
+      "id": "wobbles",
+      "emoji": "⚖️",
       "name": {
-        "es": "Croc!",
-        "en": "Croc!",
-        "pt": "Croc!"
+        "es": "Tembleque",
+        "en": "The Wobbles",
+        "pt": "Tremelique"
       },
       "players": "1",
-      "duration": "1–2",
-      "available": false,
-      "labs": true,
+      "duration": "1–5",
+      "available": true,
+      "labs": false,
       "status": null,
       "modes": [],
-      "variants": [
-        {
-          "key": "modeSolo",
-          "es": "Cruzar la autopista",
-          "en": "Cross the highway"
-        }
-      ],
+      "variants": [],
       "screens": [
-        "intro",
-        "play",
-        "result"
+        "intro"
       ],
       "chat": false,
       "files": [
-        "public/croc/index.html"
+        "public/wobbles/cover/easy.jpg",
+        "public/wobbles/cover/easy.mp4",
+        "public/wobbles/cover/hard.jpg",
+        "public/wobbles/cover/hard.mp4",
+        "public/wobbles/easy/index.html",
+        "public/wobbles/game.js",
+        "public/wobbles/game.json",
+        "public/wobbles/hard/index.html",
+        "public/wobbles/index.html",
+        "public/wobbles/rules.js",
+        "public/wobbles/style.css"
       ]
     }
   ],
@@ -1103,6 +1107,22 @@
       "labs": false,
       "bodega": false,
       "path": "dominorama/"
+    },
+    {
+      "id": "croc",
+      "emoji": "🐸",
+      "name": {
+        "es": "Croc!",
+        "en": "Croc!",
+        "pt": "Croc!"
+      },
+      "kinds": [
+        "skill"
+      ],
+      "duration": "1–2",
+      "labs": false,
+      "bodega": false,
+      "path": "croc/"
     }
   ],
   "themes": [
@@ -1210,6 +1230,7 @@
     }
   ],
   "modules": [
+    "public/assets/js/achievement-window.js",
     "public/assets/js/arrastre.js",
     "public/assets/js/azar.js",
     "public/assets/js/back-guard.js",
@@ -1263,14 +1284,13 @@
     "public/assets/js/manifests/generala.js",
     "public/assets/js/manifests/hangman.js",
     "public/assets/js/manifests/labs/blackjack.js",
-    "public/assets/js/manifests/labs/croc.js",
     "public/assets/js/manifests/labs/cryptic.js",
     "public/assets/js/manifests/labs/fourth-king.js",
     "public/assets/js/manifests/labs/julep.js",
     "public/assets/js/manifests/labs/transfer.js",
-    "public/assets/js/manifests/labs/wobbles.js",
     "public/assets/js/manifests/liars-dice.js",
     "public/assets/js/manifests/timeline.js",
+    "public/assets/js/manifests/wobbles.js",
     "public/assets/js/month-end.js",
     "public/assets/js/music.js",
     "public/assets/js/name-guard.js",
@@ -1283,6 +1303,7 @@
     "public/assets/js/parametros.js",
     "public/assets/js/play-hours.js",
     "public/assets/js/profile-button.js",
+    "public/assets/js/profile-hint.js",
     "public/assets/js/push.js",
     "public/assets/js/qr.js",
     "public/assets/js/ranking.js",
@@ -1295,6 +1316,7 @@
     "public/assets/js/screen-bands.js",
     "public/assets/js/search.js",
     "public/assets/js/season.js",
+    "public/assets/js/secret-achievements.js",
     "public/assets/js/session.js",
     "public/assets/js/share-grid.js",
     "public/assets/js/site-footer.js",
@@ -1443,6 +1465,7 @@
     "public/cup/games/year/ui.js",
     "public/cup/games/zip/engine.js",
     "public/cup/games/zip/ui.js",
+    "public/cup/history.js",
     "public/cup/join.js",
     "public/cup/planilla.js",
     "public/cup/recap.js",
@@ -1483,10 +1506,6 @@
     "public/labs/code/engine-palabra.js",
     "public/labs/code/engine.js",
     "public/labs/code/game.js",
-    "public/labs/croc/engine.js",
-    "public/labs/croc/game.js",
-    "public/labs/croc/rules.js",
-    "public/labs/croc/scene.js",
     "public/labs/cryptic/clues.js",
     "public/labs/cryptic/engine.js",
     "public/labs/cryptic/flapboard.js",
@@ -1525,8 +1544,6 @@
     "public/labs/transfer/engine.js",
     "public/labs/transfer/game.js",
     "public/labs/transfer/rules.js",
-    "public/labs/wobbles/game.js",
-    "public/labs/wobbles/rules.js",
     "public/liars-dice/engine.js",
     "public/liars-dice/game.js",
     "public/liars-dice/rules.js",
@@ -1547,6 +1564,7 @@
     "public/panel/wbr.js",
     "public/privacy/texts.js",
     "public/profile/badges.js",
+    "public/profile/peek.js",
     "public/profile/profile.js",
     "public/profile/texts.js",
     "public/sw.js",
@@ -1560,7 +1578,9 @@
     "public/timeline/engine.js",
     "public/timeline/game.js",
     "public/timeline/rules.js",
-    "public/wbr/page.js"
+    "public/wbr/page.js",
+    "public/wobbles/game.js",
+    "public/wobbles/rules.js"
   ],
   "tests": [
     "firebase/controls.test.mjs",
@@ -1572,6 +1592,8 @@
     "firebase/labs-publish.test.mjs",
     "firebase/owner-push.test.mjs",
     "firebase/pin-attempts.test.mjs",
+    "firebase/player-rename.test.mjs",
+    "firebase/public-profile.test.mjs",
     "firebase/room-limits.test.mjs",
     "firebase/splash.test.mjs",
     "firebase/stats-pacific.test.mjs",
@@ -1581,6 +1603,7 @@
     "marketing/splash/teaser.test.mjs",
     "public/assets/css/font-synthesis.test.mjs",
     "public/assets/css/fonts-preload.test.mjs",
+    "public/assets/js/achievement-window.test.mjs",
     "public/assets/js/all-games.test.mjs",
     "public/assets/js/arrastre.test.mjs",
     "public/assets/js/azar.test.mjs",
@@ -1675,6 +1698,7 @@
     "public/cup/games/stick/engine.test.mjs",
     "public/cup/games/stick/issue-1103.test.mjs",
     "public/cup/games/sudoku/engine.test.mjs",
+    "public/cup/history.test.mjs",
     "public/cup/planilla.test.mjs",
     "public/cup/recap.test.mjs",
     "public/cup/reportes.test.mjs",
@@ -1694,7 +1718,6 @@
     "public/labs/chameleon/engine.test.mjs",
     "public/labs/code/engine-palabra.test.mjs",
     "public/labs/code/engine.test.mjs",
-    "public/labs/croc/engine.test.mjs",
     "public/labs/cryptic/engine.test.mjs",
     "public/labs/exploding-numbers/engine.test.mjs",
     "public/labs/flap/engine.test.mjs",
@@ -1725,6 +1748,7 @@
     "public/panel/wbr.test.mjs",
     "public/privacy/texts.test.mjs",
     "public/profile/badges.test.mjs",
+    "public/profile/peek.test.mjs",
     "public/profile/texts.test.mjs",
     "public/sw-sync.test.mjs",
     "public/sw.test.mjs",
@@ -1861,8 +1885,7 @@
     "conformance.mjs",
     "contact-sheet.mjs",
     "cover-gaps.mjs",
-    "croc/game.mjs",
-    "croc/languages.mjs",
+    "croc/page.mjs",
     "cryptic/game.mjs",
     "cryptic/languages.mjs",
     "cryptic/propose.mjs",
@@ -2170,7 +2193,7 @@
     },
     {
       "path": "docs/games/croc.md",
-      "title": "🐸 Croc! (lab, in Juegos en prueba)"
+      "title": "🐸 Croc! (La Copa game, ready to launch by flag; not launched)"
     },
     {
       "path": "docs/games/cryptic.md",
@@ -2274,7 +2297,7 @@
     },
     {
       "path": "docs/games/wobbles.md",
-      "title": "⚖️ The Wobbles (Tembleque; lab, in Juegos en prueba)"
+      "title": "⚖️ The Wobbles (Tembleque; /wobbles/, ready to launch by flag, home page only)"
     },
     {
       "path": "docs/games/word.md",
@@ -2339,6 +2362,6 @@
     "batalla-naval": 7,
     "julepe": 10,
     "cuarto-rey": 12,
-    "croc": 0
+    "wobbles": 0
   }
 }

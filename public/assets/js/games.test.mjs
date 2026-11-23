@@ -19,8 +19,14 @@ const leer = rel => readFileSync(ruta(rel), 'utf8');
 
 // Lo que un juego todavía no cumple, por id y por comprobación. Cada motivo cita la decisión que lo
 // deja pendiente. Cuando el juego se pone al día, la excepción sobra y el test lo dice: se borra.
-// Hoy no hay ninguna: Cuarto Rey, el último, se llevó al canon (D-213).
-const EXCEPCIONES = {};
+// Cuarto Rey, the last of the old ones, was brought to the canon (D-213). Tembleque reached the home page as the
+// owner's two prototypes, its physics in each level's page (D-601)
+const EXCEPCIONES = {
+  wobbles: {
+    motor: 'its two levels are the owner\'s prototypes kept whole: the physics lives in each page (D-601)',
+    'pruebas-del-motor': 'no engine.js to test: game.mjs plays both levels to their result (D-601)',
+  },
+};
 
 // La plantilla común de las especificaciones (C-13, D-213), en este orden; puede haber otras entre medio
 // Each heading in Spanish or in English (D-316: a new spec is written in English)

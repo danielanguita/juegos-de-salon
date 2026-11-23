@@ -55,6 +55,17 @@ test('problems names a cover changed without its landing-fold run (#1624, #1629)
   assert.deepEqual(found, [msg]);
 });
 
+test('problems names a /labs/ card over its word limit (#1696, #1699, #1667)', () => {
+  const err = 'AssertionError [ERR_ASSERTION]: card text over 25 words in public/labs/index.html: say what it tries\n  #seccion-cup-big: 27 words\n';
+  const run = (cmd, args) => cmd === 'node' && args[0].includes('short-cards') ? { status: 1, stdout: '', stderr: err } : { status: 0, stdout: '' };
+  const found = problems(process.cwd(), run);
+  assert.equal(found.length, 1);
+  assert.match(found[0], /word limit/);
+  assert.match(found[0], /#seccion-cup-big: 27 words/);
+  // a crash with no card named (a markup change) is not this guard's to stop
+  assert.deepEqual(problems(process.cwd(), (cmd, args) => cmd === 'node' && args[0].includes('short-cards') ? { status: 1, stdout: '', stderr: 'boom' } : { status: 0, stdout: '' }), []);
+});
+
 test('problems is empty when everything is up to date', () => {
   assert.deepEqual(problems(process.cwd(), () => ({ status: 0, stdout: '' })), []);
 });

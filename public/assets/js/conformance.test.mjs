@@ -39,7 +39,9 @@ const FROZEN = ['conexiones', 'letras', 'anio', 'reinas', 'tango', 'zip', 'desen
   // ⚡ ¡Al toque!: its page made La Copa's screen in cup/games/microgames/ (2026-11-15)
   'microgames',
   // 🎲 Dominorama: built in cup/games/ like Sudoku (D-517's way, 2026-11-19)
-  'dominorama'];
+  'dominorama',
+  // 🐸 Croc!: its lab game (with a game.json) became La Copa's screen in cup/games/croc/ (D-517's way, 2026-11-21)
+  'croc'];
 const debt = JSON.parse(readFileSync(new URL('../../../docs/manifest-debt.json', import.meta.url), 'utf8')).games;
 for (const g of ALL_GAMES) {
   if (byId[g.id]) continue;
