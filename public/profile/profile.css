@@ -18,7 +18,11 @@
 .pf-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--s-8); margin-top: var(--s-14); }
 .pf-stat { background: var(--well); border-radius: var(--r-12); padding: var(--s-10) var(--s-6); text-align: center; }
 .pf-stat b { display: block; font: 900 var(--fs-140) var(--font-num); font-variant-numeric: tabular-nums; color: var(--yellow); }
-.pf-stat span { font-size: var(--fs-75); color: var(--muted); font-weight: 800; }
+.pf-stat > span { font-size: var(--fs-75); color: var(--muted); font-weight: 800; }
+/* Until the server's figure arrives, a spinner the size of the number: the card never jumps (the owner, 2026-11-23) */
+.pf-stat .pf-spin { display: inline-block; width: 0.7em; height: 0.7em; vertical-align: -0.05em; border-radius: var(--r-pill);
+  border: 0.12em solid rgb(var(--yellow-rgb) / 0.25); border-top-color: var(--yellow); animation: pf-spin 0.8s linear infinite; }
+@keyframes pf-spin { to { transform: rotate(1turn); } }
 
 /* The three tabs: always in view while scrolling */
 /* Sticky over the badges: nearly opaque in the page's own colour, blurred behind and edged, so it reads as a bar
