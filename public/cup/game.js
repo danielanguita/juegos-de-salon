@@ -908,11 +908,11 @@ function vistaTabla(filas, { dias, meta, now }) {
 
 /**
  * A tap on a signed-in player's row opens their public profile, headed by this Cup and their place and points
- * in it (lab flag `profile`, player-peek.js; the owner, 2026-11-23). Seats with no name of their own do nothing.
- * lab: #seccion-profile
+ * in it (lab flag `ranking-peek`, player-peek.js; the owner, 2026-11-23). Seats with no name of their own do nothing.
+ * lab: #seccion-ranking-peek
  */
 function fichasEnTabla(nodo) {
-  flag('profile').then(on => on && import('../assets/js/player-peek.js')).then(m => m?.peekOnTap(nodo, {
+  flag('ranking-peek').then(on => on && import('../assets/js/player-peek.js')).then(m => m?.peekOnTap(nodo, {
     onTap: () => SFX.tap(), rows: '.fila',
     jidOf: r => L()?.players?.[r.dataset.pid]?.j,
     nameOf: r => r.querySelector('.quien b')?.firstChild?.textContent || '',

@@ -1,4 +1,4 @@
-// A name in a Cup's table opens that player's public profile (lab flag `profile`, player-peek.js; the owner,
+// A name in a Cup's table opens that player's public profile (lab flag `ranking-peek`, player-peek.js; the owner,
 // 2026-11-23: every ranking with names): only a seat with a name of its own (its `j`), headed by the Cup's name
 // and that player's place and points in it, the row's 💬 still its own. At 320 and 390 px, no sideways scroll.
 import { output } from '../output.mjs';
@@ -11,7 +11,7 @@ const KEY = 'juegos-de-salon:copa:prueba';
 
 for (const W of [320, 390]) {
   const b = await launch({ dir: `${OUT}/p${W}`, out: OUT, width: W, height: W === 320 ? 640 : 844 });
-  b.flags({ profile: 'all' });
+  b.flags({ 'ranking-peek': 'all' });
   const ev = x => b.evaluate(x);
   await b.go(`${SITE}/cup/?test&demo=player`, 2500);
   // Cata has a name and a score; the demo's first other seat becomes hers

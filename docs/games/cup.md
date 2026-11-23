@@ -552,7 +552,7 @@ Notification (D-564): the row's player gets «💬 Bea comentó tu resultado» (
 decided by `tools/push/talk.mjs` (`talk.test.mjs`) inside `notify.mjs`, if their ⚙️ Avisos switch «Comentarios» (`charla`) is on.
 Balloon (D-566, lab, flag `cup-talk-hint`): the first time a 💬 shows, a note at the top of the table (`.charla-pista`, `T.talkHint`) says you can comment on any player's result today; ✕ or using a 💬 closes it (`cerrarPista`) for good on that phone (`cuenta.pistaCharla`, key `pista-charla`).
 
-## A name opens the player's profile (lab, flag `profile`)
+## A name opens the player's profile (lab, flag `ranking-peek`)
 
 A tap (or Enter) on a named seat's row of the table opens `player-peek.js` (`assets/js/`, with `assets/css/player-peek.css`): the same sheet every ranking opens, headed by this cup, the player's place and points in it. A seat with no name of its own is not a button. Wired in `game.js`; end to end: `tools/e2e/cup/peek.mjs`.
 

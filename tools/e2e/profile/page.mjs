@@ -36,7 +36,7 @@ const small = b => b.evaluate(`[...document.querySelectorAll('main button, main 
 for (const W of [320, 390]) {
   const b = await launch({ dir: `${OUT}/p${W}`, out: OUT, width: W, height: W === 320 ? 640 : 844, clock: true });
   // The home page as the owner sees it in Labs: its icon view (flag home-carousels), with the profile's pill
-  b.flags({ profile: 'all', 'home-carousels': 'all' });
+  b.flags({ profile: 'all', 'home-carousels': 'all', 'ranking-peek': 'all' });
   const ev = e => b.evaluate(e);
   // A guest (a clean phone, so the script can run again)
   await b.go(`${SITE}/profile/?test`, 1500);

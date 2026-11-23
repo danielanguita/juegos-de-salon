@@ -44,12 +44,12 @@ const MEDALLA = ['🥇', '🥈', '🥉'];
 
 /**
  * A tap on a name in a ranking opens that player's public profile, with what that table says of them on top
- * (lab flag `profile`, player-peek.js; the owner, 2026-11-23: every ranking with names, everywhere).
- * lab: #seccion-profile
+ * (lab flag `ranking-peek`, player-peek.js; the owner, 2026-11-23: every ranking with names, everywhere).
+ * lab: #seccion-ranking-peek
  */
 function conFichas(caja, alTocar) {
   if (typeof document === 'undefined') return;
-  flag('profile').then(on => on && import('./player-peek.js')).then(m => m?.peekOnTap(caja, { onTap: alTocar })).catch(() => {});
+  flag('ranking-peek').then(on => on && import('./player-peek.js')).then(m => m?.peekOnTap(caja, { onTap: alTocar })).catch(() => {});
 }
 const errorDe = e => ({ pin: R().loggedOut, 'pin-actual': R().errCurrentPin, espera: R().errWait })[e?.code] || R().errNet;
 

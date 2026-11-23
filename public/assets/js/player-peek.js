@@ -1,6 +1,6 @@
 /**
- * Another player's profile, at a glance (lab flag `profile`; the owner, 2026-11-22): a tap on a name in any
- * ranking (every `bloqueRanking` and the Cups' medal table in ranking.js, a Cup's own table) opens a sheet with what matters most about that player: their flag and name, their place in the
+ * Another player's profile, at a glance (the owner, 2026-11-22): a tap on a name in a ranking of the profile
+ * page and, with the lab flag `ranking-peek`, in any ranking (every `bloqueRanking` and the Cups' medal table in ranking.js, a Cup's own table) opens a sheet with what matters most about that player: their flag and name, their place in the
  * overall ranking when in its top 10 and the achievements anyone can see. Tapping your own name, or
  * «Ver cómo me ven los demás» in ⚙️, shows exactly what others see: the same sheet, the same words (D-604).
  *
@@ -14,7 +14,7 @@
  * Each of their most played games says their place in its all-time table, never how many times they played it:
  * a count tells how much someone plays, a place only how well (the owner, 2026-11-22).
  *
- * The sheet opens where the name was tapped, and says so first (the owner, 2026-11-23: «that the card makes
+ * With `ranking-peek` the sheet opens where the name was tapped, and says so first (the owner, 2026-11-23: «that the card makes
  * sense with the view it comes from»): under the name, the table and tab it was tapped in with the row as it
  * showed (place, score, time), and, from a week's or friends' tab, their all-time place in that same table.
  * A Cup's table says the Cup and their place and points in it.
@@ -253,10 +253,11 @@ export function peekOnTap(root, {
     const own = e.target.closest?.('button, a, input, textarea');
     return own && own !== r && r.contains(own) ? null : r;
   };
-  root.addEventListener('click', e => { const r = rowOf(e); if (r) open(r); });
+  // A ranking inside a page that also listens (the profile's, under ranking-peek): the innermost one opens it, once
+  root.addEventListener('click', e => { const r = !e.peekDone && rowOf(e); if (r) { e.peekDone = true; open(r); } });
   root.addEventListener('keydown', e => {
-    const r = rowOf(e);
-    if (r && e.target === r && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); open(r); }
+    const r = !e.peekDone && rowOf(e);
+    if (r && e.target === r && (e.key === 'Enter' || e.key === ' ')) { e.peekDone = true; e.preventDefault(); open(r); }
   });
   ready();
   new MutationObserver(ready).observe(root, { childList: true, subtree: true });

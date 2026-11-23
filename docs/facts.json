@@ -1909,6 +1909,7 @@
     "cup/languages.mjs",
     "cup/notifications.mjs",
     "cup/out.mjs",
+    "cup/peek.mjs",
     "cup/player-cups.mjs",
     "cup/rejoin.mjs",
     "cup/resumed-clock.mjs",
