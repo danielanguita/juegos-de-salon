@@ -45,7 +45,8 @@ The campaign in `CAMPAIGNS` with `requires: [<flags>]`, items naming `game: '<id
    moment), which campaign it turns off, and whether any lab flag launches with it.
 2. The launch-day PR: `nuevoDesde` = the launch day, `unoAlDia.desde` ≥ it (Pacific days), and the README and
    `docs/games/<id>.md` say «launched <date>, <hour> Pacific». Record it in the D-529 uses line of `docs/AGENTS.md`.
-   `launch-check.mjs <ids> --screens` green again on that branch.
+   `launch-check.mjs <ids> --screens` green again on that branch; GitHub runs it too (the `launch` job of
+   `end-to-end`, D-606) and will not merge the PR on a ✗.
 3. The two cloud tasks from `tools/jobs/prompts/launch.md` (launch at the hour, alarm 10 minutes later). The
    **owner** creates them with `/schedule`, or a cloud session the owner opened: a session you start and
    instruct is denied `create_trigger`. Ask a day ahead. If they are not on claude.ai/code → Routines 30
