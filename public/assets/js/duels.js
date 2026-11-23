@@ -3,8 +3,9 @@
  * one game. Both play the same levels (each round has its seed, as La Copa's days do, D-97), each at
  * their own pace, and the duel lasts three days at most (the owner, 2026-11-22).
  *
- *   duelos/<did>                { a, b, an, bn, f, g, sd: { 0: CODE, … }, at }
- *                               a challenged b to game `g` in format `f` (bo3, bo5, pts), written once
+ *   duelos/<did>                { a, b, an, bn, f, g, sd: { 0: CODE, … }, gr?: { 0: game, … }, at }
+ *                               a challenged b to game `g` in format `f` (bo3, bo5, pts), written once;
+ *                               a custom duel's `gr` names each round's game (round i plays gr[i] or g)
  *   duelos/<did>/e/<jid>/<i>    when jid began round i, once: a round begun and left counts as 0
  *   duelos/<did>/r/<jid>/<i>    { s, ms, at }: jid's result in round i, once, after it began
  *   jugadorDuelos/<jid>/<did>   when the duel was created: each player's list of duels
@@ -33,6 +34,8 @@ export function nuevoDid(rand = Math.random) {
 }
 
 export const rondas = d => FORMATOS[d?.f] || 3;
+/** The game round i is played in: the custom duel's own for that round, or the duel's. */
+export const roundGame = (d, i) => d?.gr?.[i] || d?.g;
 export const otro = (d, jid) => (d.a === jid ? d.b : d.a);
 export const nombreDe = (d, jid) => (d.a === jid ? d.an : d.bn);
 
@@ -103,6 +106,7 @@ export function nemesis(lista, me, t = Date.now()) {
 
 /** The game page of a duel's round: the game's own page with the round's seed. */
 export function linkRonda(d, i, raiz, path) {
+  // `path` is the page of round i's game (roundGame)
   return `${raiz}${path}?seed=${d.sd[i]}&duel=${d.id}&round=${i}`;
 }
 
@@ -122,12 +126,14 @@ export function crearDuelos({ almacen, yo, now = () => Date.now(), rand = Math.r
       return (await Promise.all(ids.map(leer))).filter(Boolean);
     },
     /** Challenge `b` (a jid) to `g` in format `f`. Returns the duel. */
-    async retar({ b, bn, g, f }) {
+    async retar({ b, bn, g, f, gr = null }) {
       const me = yo();
       if (!me || !esJid(b) || b === me.jid || !FORMATOS[f]) throw Object.assign(new Error('duelo'), { code: 'duelo' });
       const id = nuevoDid(rand);
       const sd = Array.from({ length: FORMATOS[f] }, () => randomSeed(rand));
       const d = { a: me.jid, b, an: me.n, bn: String(bn || '').slice(0, 20) || '?', f, g, sd, at: HORA };
+      // A custom duel: each round's game, only when they are not all the same
+      if (Array.isArray(gr) && gr.length === sd.length && gr.some(x => x !== g)) d.gr = gr;
       await almacen.update({ [`duelos/${id}`]: d, [`jugadorDuelos/${me.jid}/${id}`]: HORA, [`jugadorDuelos/${b}/${id}`]: HORA });
       return { id, ...d, at: now() };
     },

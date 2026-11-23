@@ -188,7 +188,8 @@ export function crearAlmacenLocal({ storage = globalThis.localStorage, uid = nul
         return sentado(viejo, x.a) && /^[a-z0-9]{8}$/.test(x.b || '') && x.b !== x.a && leerEn(viejo, `jugadores/${x.a}`) != null && leerEn(viejo, `jugadores/${x.b}`) != null
           && n(x.an) && n(x.bn) && /^(bo3|bo5|pts)$/.test(x.f) && /^[a-z][a-z0-9-]{1,24}$/.test(x.g || '') && x.at === t
           && k.length === (x.f === 'bo5' ? 5 : 3) && k.every(i => /^[0-4]$/.test(i) && /^[A-HJ-NP-Z]{5}$/.test(sd[i]))
-          && Object.keys(x).every(c => ['a', 'b', 'an', 'bn', 'f', 'g', 'sd', 'at'].includes(c));
+          && (x.gr === undefined || (Object.keys(x.gr).every(i => sd[i] !== undefined && /^[a-z][a-z0-9-]{1,24}$/.test(x.gr[i]))))
+          && Object.keys(x).every(c => ['a', 'b', 'an', 'bn', 'f', 'g', 'sd', 'gr', 'at'].includes(c));
       }
       const [, , rama2, jid, i] = p;
       if (p.length !== 5 || !d || !['e', 'r'].includes(rama2) || leerEn(viejo, ruta) != null || x == null) return false;
