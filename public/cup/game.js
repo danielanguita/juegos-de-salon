@@ -2497,7 +2497,7 @@ function resultadoPractica(id, semilla, r, variante = null) {
     deHoy ? el('a', { class: 'btn btn--ghost btn--sm', id: 'btn-de-hoy', href: paginaSuelta(id) }, `📅 ${T.casoDeHoy}`) : null,
     LABS && !hoy && !diario ? el('a', { class: 'btn btn--cyan btn--sm', id: 'btn-repetir', href: `${otra}${otra.includes('?') ? '&' : '?'}seed=${semilla}` }, T.practiceSame) : null,
     // One a Day's exits are in its card (C-19); the rest go back to the menu (or the lab), before 🐞
-    hoy ? null : volverDePractica(),
+    hoy || DUELO ? null : volverDePractica(),   // a duel round: only the duel's ways on (the header has ‹ Menu)
     // The long detail, folded, after the actions and the exits (C-19)
     explicacion(J, { s: r.s, ms: r.ms, det: r.det, copa: false }),
     // El de un juego `diario` no: su semilla ya va en el link de compartir y en el comentario
