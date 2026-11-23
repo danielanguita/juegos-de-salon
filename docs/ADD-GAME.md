@@ -146,8 +146,9 @@ old debt in `docs/manifest-debt.json`, which only shrinks; an old entry moves wi
     `oculto` (off the home page, search, filters, /records/ and `POZO_ABIERTO`); its ✨ Nuevo label starts the
     moment the flag goes to *all*, whatever `nuevoDesde` says (D-556); `POZO`, `POZO_FIJO` and
     One a Day's `desde` do not read the flag. The cleanup PR removes `lanza` and the row, and moves
-    the card to 🎲 Juegos guardados (D-479): `/labs/` moves the card on its own when a flag is *all*
-    (`launched.js`, D-534), an improvement's and a game's alike.
+    the card's HTML for good to ✨ Mejoras lanzadas, dated, where Sudoku, Aletazo, Shinobi and Babel are
+    (🎲 Juegos guardados keeps the games that did not prosper). Until then `/labs/` moves it there on its
+    own when the flag is *all* (`launched.js`, D-534), an improvement's and a game's alike.
 
 Taking it out of the lab moves its folder to `public/<id>/` (the old path becomes a bridge, C-18), drops
 `labs`, adds it to GAMES and its screens to `tools/e2e/paths.mjs` (section 3).
