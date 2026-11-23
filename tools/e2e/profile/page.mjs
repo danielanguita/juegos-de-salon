@@ -110,6 +110,17 @@ for (const W of [320, 390]) {
   await b.shot(`achievement-${W}`);
   await ev(`document.querySelector('.aw-capa .me-x').click()`); await sleep(400);
   ok(await ev(`!document.querySelector('.aw-capa') && !!JSON.parse(localStorage.getItem('juegos-de-salon:logros-anunciados') || '{}').halloween`), `${W}: 🎃 told once: the phone remembers it`);
+  // 🎲 Any other badge the phone can tell alone opens the same window after the game that earned it, its medal at once
+  // (the owner, 2026-11-23); the first look only notes what the player already had
+  const plays0 = await ev(`localStorage.getItem('juegos-de-salon:partidas')`);
+  ok(await ev(`(async () => { const m = await import('/assets/js/achievement-window.js'); localStorage.removeItem('juegos-de-salon:logros-base'); localStorage.setItem('juegos-de-salon:partidas', '100'); const r = await m.celebrate({ wait: 0 }); return r === null && !document.querySelector('.aw-capa') && !!JSON.parse(localStorage.getItem('juegos-de-salon:logros-anunciados'))['plays-100'] && !!localStorage.getItem('juegos-de-salon:logros-base'); })()`), `${W}: 🎲 the first look only notes the badges the player already had: no window`);
+  ok(await ev(`(async () => { const m = await import('/assets/js/achievement-window.js'); localStorage.setItem('juegos-de-salon:partidas', '1000'); const r = await m.celebrate({ wait: 0 }); const w = document.querySelector('.aw-capa'); return r === 'plays-1000' && !!w && w.classList.contains('aw-abierta') && w.querySelector('.aw-titulo').textContent === '1.000 partidas' && /Nuevo logro/.test(w.textContent) && /Terminaste 1.000 partidas/.test(w.textContent) && !w.querySelector('.aw-cuenta') && getComputedStyle(w.querySelector('.aw-dorso')).display === 'none'; })()`), `${W}: 🎲 1000 games just finished: its window, the medal shown at once, «¡Nuevo logro!» and what it asked`);
+  await sleep(1500);
+  ok(await ev(`(() => { const c = document.querySelector('.aw-capa .me-tarjeta')?.getBoundingClientRect(), m = document.querySelector('.aw-medalla')?.getBoundingClientRect(); return !!c && c.left >= 0 && c.right <= ${W} && m.top >= 0 && document.documentElement.scrollWidth <= ${W}; })()`), `${W}: 🎲 its window fits the screen`);
+  await b.shot(`badge-window-${W}`);
+  await ev(`document.querySelector('.aw-capa .me-x').click()`); await sleep(400);
+  ok(await ev(`(async () => { const m = await import('/assets/js/achievement-window.js'); return (await m.celebrate({ wait: 0 })) === null && !document.querySelector('.aw-capa'); })()`), `${W}: 🎲 told once`);
+  await ev(`localStorage.setItem('juegos-de-salon:partidas', ${JSON.stringify(plays0 ?? '0')})`);
   ok(await ev(`document.querySelector('.pf-player')?.textContent.includes('Javi')`), `${W}: the card names the player`);
   ok(await ev(`!document.querySelector('.pf-avatar') && !!document.querySelector('.pf-card .pf-player .rk-flag, .pf-card .pf-player')`), `${W}: the card is the player's flag and name, no initial in a circle`);
   ok(/14/.test(await ev(`document.querySelector('.pf-stat b')?.textContent`)), `${W}: the card shows the 14-day streak`);
