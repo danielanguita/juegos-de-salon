@@ -24,6 +24,8 @@ const openSheet = async i => { await ev(`(document.querySelectorAll('#semana-dia
 const center = sel => ev(`(()=>{const r=document.querySelector('${sel}').getBoundingClientRect();return [Math.round(r.x+r.width/2),Math.round(r.y+r.height/2)]})()`);
 
 try {
+  // A phone in Chile: the audience starts on 🇨🇱 by its zone (D-608, flag cup-zone-phone), as it did by its language
+  await b.send('Emulation.setTimezoneOverride', { timezoneId: 'America/Santiago' });
   // The screen of before stays for the test store without &lab
   await b.open(`${SITE}/cup/?test&lang=es`, 1200);
   await ev('localStorage.clear(); sessionStorage.clear(); 1');
@@ -235,6 +237,22 @@ try {
   ok(pinta >= 0 && cal === expected, `the cup saves the week as shown, with its version (${cal})`);
   ok(/\?primos&test$/.test(await ev('location.search')), 'with its own link');
   ok(await ev('__copa.estado.copa.meta.tz') === 'America/Sao_Paulo', 'and in the zone chosen (D-521)');
+  // D-608: a phone in Los Angeles creating in Spanish starts on 🌎 global and its own zone, not Chile's
+  await b.send('Emulation.setTimezoneOverride', { timezoneId: 'America/Los_Angeles' });
+  const crearOtra = async () => {
+    await b.open(`${SITE}/cup/?test&lab&lang=es`, 1200);
+    await b.until(`!!document.getElementById('btn-crear')`, 5000);
+    await click('#btn-crear');
+    await b.until(`!!document.getElementById('crear-semana')`, 3000);
+    return [await ev(`document.getElementById('crear-resumen').textContent`), await ev(`document.getElementById('crear-zona').textContent`)];
+  };
+  const [resLA, zonaLA] = await crearOtra();
+  ok(/🌎 Global/.test(resLA) && /La de tu celular/.test(zonaLA), `in Spanish from Los Angeles, global and the phone's zone (${resLA} | ${zonaLA})`);
+  // Without the flag, the language decides as before (D-187)
+  b.flags({ 'cup-zone-phone': 'off' });
+  const [resOff] = await crearOtra();
+  ok(/🇨🇱 Chile/.test(resOff), `without cup-zone-phone, Spanish still starts on Chile (${resOff})`);
+  b.flags({ 'cup-zone-phone': 'lab' });
   // The other three languages at 320 px: the week and a day's sheet fit, with no sideways scroll
   await b.send('Emulation.setDeviceMetricsOverride', { width: 320, height: 760, deviceScaleFactor: 2, mobile: true });
   for (const lang of ['en', 'pt']) {
