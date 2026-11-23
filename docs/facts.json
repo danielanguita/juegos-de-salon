@@ -2110,6 +2110,10 @@
       "title": "Offline mode (RP-13)"
     },
     {
+      "path": "docs/ORG-MIGRATION.md",
+      "title": "Moving the repo to an organization, for GitHub's merge queue (plan, not started)"
+    },
+    {
       "path": "docs/PANEL.md",
       "title": "Panel del dueño"
     },
