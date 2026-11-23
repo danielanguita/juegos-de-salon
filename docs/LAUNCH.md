@@ -59,6 +59,10 @@ Precedents: Sudoku `3f60e2d8`, ¡Al toque! `54324382`, Dominorama `ba085a29`, Me
   - [ ] under Instrucciones and Entrar, **its ranking** (`bloqueRanking`), naming the level when it has levels («Ranking de Sudoku · 🟢 Fácil») and following its lever;
   - [ ] the result's table names the same level;
   - [ ] the icon view's sheet (the home page the lab holds) shows that table.
+  - [ ] a level picker, if it has levels, sits above the steps and Empezar and remembers the choice (D-331);
+  - [ ] Empezar shows without scrolling at 320×568 (U-39, `landing-fold.mjs`); «Cómo se juega» comes after it, folded (C-8, D-550);
+  - [ ] the result has one share button with the game's link and level (D-162, D-165), and the yellow «Otra vez» before ‹ Menú (C-19);
+  - [ ] in Uno al día, its last move goes straight to the result (C-19, D-581).
 - [ ] **`node tools/agents/launch-check.mjs <id> --screens` green.**
 - [ ] **Agents.** Usability does its full pass (D-304), the player agent plays it, and documentation reviews it. Merge with everything green.
 
