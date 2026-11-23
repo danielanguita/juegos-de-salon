@@ -1,7 +1,7 @@
 /**
  * The secret achievements this phone can tell on its own, from what it keeps (play-hours.js), with no
  * network (lab flag `profile`): 🦉 night owl and the four dates. The profile's catalogue
- * (profile/badges.js) takes their checks from here, and `stats.js`' `trackFinish` asks `dueSecret` after
+ * (badges.js) takes their checks from here, and `stats.js`' `trackFinish` asks `dueSecret` after
  * each game, so the window that celebrates one (achievement-window.js) opens right after the game
  * that earned it, once per achievement and phone. Pure but for `readFacts`, `announced` and `markAnnounced`.
  */

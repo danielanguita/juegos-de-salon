@@ -19,13 +19,12 @@ import { jugador, leerYo } from '../assets/js/jugador.js';
 import { TODOTERRENO, UAD_PUNTOS, SIEMPRE, semana, medallero, limpiarNombre, esPin } from '../assets/js/records.js';
 import { nombreOfensivo } from '../assets/js/name-guard.js';
 import { flag } from '../assets/js/flags.js';
-import { leer as leerDia, recorrer, fechaLocal } from '../assets/js/uno-al-dia.js';
-import { readHours, readRun, readMarks } from '../assets/js/play-hours.js';
-import { PARTIDAS_KEY } from '../assets/js/transport/stats.js';
+import { leer as leerDia, recorrer } from '../assets/js/uno-al-dia.js';
 import { firebaseConfig } from '../assets/js/firebase-config.js';
 import { BADGES, GROUPS, earned, lastOnDay } from './badges.js';
 import { TEXTS } from './texts.js';
 import { tableOf } from './peek.js';
+import { phoneFacts } from '../assets/js/phone-facts.js';
 
 const lang = getLang();
 const T = TEXTS[lang] || TEXTS.es;
@@ -50,27 +49,8 @@ const SEEN = jid => `juegos-de-salon:profile-badges:${jid || 'guest'}`;
 const readSeen = jid => { try { return JSON.parse(localStorage.getItem(SEEN(jid)) || '{}') || {}; } catch (_) { return {}; } };
 const writeSeen = (jid, v) => { try { localStorage.setItem(SEEN(jid), JSON.stringify(v)); } catch (_) { /* not kept */ } };
 
-/** The facts this phone holds without asking anyone (a guest's, and a player's first draw). */
-function localFacts() {
-  const d = leerDia();
-  const hoy = fechaLocal();
-  const r = recorrer(d.dias || {}, hoy, { regalos: d.regalos || [] });
-  let played = [];
-  try { played = JSON.parse(localStorage.getItem('juegos-de-salon:jugados') || '[]'); } catch (_) { played = []; }
-  const ids = new Set(CATALOGUE.map(g => g.id));
-  return {
-    today: hoy, now: Date.now(),
-    streak: r.racha, bestStreak: r.mejor,
-    dailyDays: Object.fromEntries(Object.keys(d.dias || {}).map(f => [f, true])),
-    hours: readHours(),
-    bestRun: Number(readRun().best) || 0,
-    marks: readMarks(),
-    launches: Object.fromEntries(ALL_GAMES.filter(g => /^\d{4}-\d{2}-\d{2}$/.test(g.nuevoDesde || '')).map(g => [g.id, g.nuevoDesde])),
-    plays: Number(localStorage.getItem(PARTIDAS_KEY)) || 0,
-    gamesPlayed: Array.isArray(played) ? played.filter(id => ids.has(id)).length : 0,
-    gamesTotal: CATALOGUE.length,
-  };
-}
+/** The facts this phone holds without asking anyone (a guest's, and a player's first draw): phone-facts.js. */
+const localFacts = () => phoneFacts();
 
 /** Whether this page talks to the real database (the published site) or to the test one (D-138). */
 const realDb = () => !/[?&](test|records=local)\b/.test(location.search) && !/^(localhost|127\.|192\.168\.|10\.|100\.)/.test(location.hostname);
@@ -509,10 +489,11 @@ export async function drawProfile(root, { sub }) {
     // First what the phone knows, at once; then the server's facts and places, as they arrive
     const tab = TABS.includes(location.hash.slice(1)) ? location.hash.slice(1) : 'badges';
     let f = { ...localFacts(), byGame: [] };
-    const paint = () => {
+    // A window only once every fact is in: the first look must note what the server knows too (💎, 🎂)
+    const paint = (final = false) => {
       const r = earned(f, readSeen(yo.jid));
       writeSeen(yo.jid, r.seen);
-      celebrateHere(r.list).catch(() => {});
+      if (final) celebrateHere(r.list).catch(() => {});
       return r.list;
     };
     const badgesBox = el('div', { class: 'pf-tab' });
@@ -538,7 +519,7 @@ export async function drawProfile(root, { sub }) {
     await ranksOf(J, f, (id, r) => rk.game(id, r)).catch(() => {});
     if (mine !== turn) return;
     if (f.general) rk.general(f.general);
-    repaint(paint());
+    repaint(paint(true));
   };
   // A tap on a name in any of the page's rankings opens that player's profile at a glance (the owner, 2026-11-22)
   import('./peek.js').then(m => m.peekOnTap(root, { onTap: tap })).catch(() => {});
@@ -569,30 +550,35 @@ function drawGuest(root) {
 
 
 /**
- * `?achievement=demo` (lab flag profile): the secret achievement's window for each one, with a picker under it.
+ * `?achievement=demo` (lab flag profile): the achievement's window for each secret one and three others, with a picker under it.
  * Nothing is recorded.
  */
 async function achievementDemo() {
   const { showAchievement } = await import('../assets/js/achievement-window.js');
+  // The secret ones, then one badge of each metal that a game can earn (the owner, 2026-11-23)
   const secrets = BADGES.filter(b => b.secret);
-  let i = secrets.findIndex(b => b.id === 'xmas');
+  const shown = [...secrets, ...['streak-10', 'obsession', 'collector'].map(id => BADGES.find(b => b.id === id))];
+  let i = shown.findIndex(b => b.id === 'xmas');
   const open = () => {
     document.querySelectorAll('.splash-capa').forEach(x => x.remove());
-    const b = secrets[i];
+    const b = shown[i];
     const bar = el('div', { class: 'aw-demo' },
-      ...secrets.map((x, k) => el('button', { type: 'button', class: k === i ? 'on' : '', 'aria-label': T.badges[x.id]?.[0] || x.id, onClick: () => { i = k; open(); } }, x.icon)));
-    showAchievement({ ...b, name: T.badges[b.id]?.[0] || b.id }, { lang, secret: { n: 3, total: secrets.length }, profileHref: '#badges', extra: bar });
+      ...shown.map((x, k) => el('button', { type: 'button', class: k === i ? 'on' : '', 'aria-label': T.badges[x.id]?.[0] || x.id, onClick: () => { i = k; open(); } }, x.icon)));
+    showAchievement({ ...b, name: T.badges[b.id]?.[0] || b.id, text: T.badges[b.id]?.[1] || '' }, { lang, secret: b.secret ? { n: 3, total: secrets.length } : null, profileHref: '#badges', extra: bar });
   };
   open();
 }
 
 /**
  * A secret achievement the profile finds earned (the server's ones, 💎 and 🎂, or a local one no game told yet)
- * opens its window once per phone (achievement-window.js), here, where «Ver mis logros» just closes it.
+ * opens its window once per phone (achievement-window.js), here, where «Ver mis logros» just closes it. The
+ * phone's first look only notes what was already earned (`firstLook`): nothing earned before is announced.
  */
 async function celebrateHere(list) {
   if (/[?&]achievement=demo/.test(location.search)) return;
   const { announced, markAnnounced } = await import('../assets/js/secret-achievements.js');
+  const { firstLook } = await import('../assets/js/achievement-window.js');
+  if (firstLook(list)) return;
   const done = announced();
   const b = list.find(x => x.secret && x.got && !done[x.id]);
   if (!b || document.querySelector('.splash-capa')) return;

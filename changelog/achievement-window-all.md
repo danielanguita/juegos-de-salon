@@ -1,0 +1,3 @@
+level: patch
+
+- **Profile (Labs): every achievement a game earns opens its window, not only the secret ones** (the owner). Right after the game that earns it, any badge the phone can tell alone (streaks, Madrugador, Se llama obsesión, 100 and 1.000 games, Explorer, Estreno, Lunes, Findes, De la casa, Mes completo) opens the same window, its medal shown at once with «🎖️ ¡Nuevo logro!» and what it asked. What a phone had already earned when this reaches it is never announced, secret ones included: the first look, after a game or on the profile, only notes them (the owner). `?achievement=demo` adds three of them.
