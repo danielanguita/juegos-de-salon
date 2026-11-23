@@ -39,7 +39,7 @@ for (let i = 0; i < 10; i++) noteRun('sudoku', store2);
 assert.equal(readRun(store2).best, 10);
 console.log('✓ play-hours run');
 
-// The marks kept for good: first day per game, special days, weekends, early Mondays, Tuesday the 13th
+// The marks kept for good: first day per game, special days, weekends, early Mondays
 const on = (y, mo, d, h = 12) => new Date(y, mo - 1, d, h).getTime();
 let marks = addMark({}, 'queens', on(2026, 12, 25, 20));
 assert.deepEqual(marks, { first: { queens: '2026-12-25' }, days: { xmas: true }, played: ['2026-12-25'] });
@@ -60,11 +60,6 @@ assert.equal(addMark({}, 'x', on(2026, 11, 23, 8)).mon, undefined, 'a Monday fro
 let mons = {};
 for (let i = 0; i < 40; i++) mons = addMark(mons, 'x', on(2026, 1, 5 + 7 * i, 6));
 assert.equal(mons.mon.length, 30, 'the last 30 Mondays kept');
-// Tuesday 13 October 2026 and Tuesday 13 July 2027
-for (let i = 0; i < 5; i++) marks = addMark(marks, 'sudoku', on(2026, 10, 13));
-assert.deepEqual(marks.t13, { day: '2026-10-13', n: 5, best: 5 });
-marks = addMark(marks, 'sudoku', on(2027, 7, 13));
-assert.deepEqual(marks.t13, { day: '2027-07-13', n: 1, best: 5 }, 'another Tuesday the 13th starts over, keeps the best');
 assert.deepEqual(addMark({}, undefined, on(2026, 11, 10)).first, {}, 'no game, no first day');
 const mem3 = new Map();
 const store3 = { getItem: k => mem3.get(k) ?? null, setItem: (k, v) => mem3.set(k, v) };

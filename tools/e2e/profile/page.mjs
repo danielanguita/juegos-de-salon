@@ -35,13 +35,30 @@ const small = b => b.evaluate(`[...document.querySelectorAll('main button, main 
 
 for (const W of [320, 390]) {
   const b = await launch({ dir: `${OUT}/p${W}`, out: OUT, width: W, height: W === 320 ? 640 : 844, clock: true });
-  b.flags({ profile: 'all' });
+  // The home page as the owner sees it in Labs: its icon view (flag home-carousels), with the profile's pill
+  b.flags({ profile: 'all', 'home-carousels': 'all' });
   const ev = e => b.evaluate(e);
   // A guest (a clean phone, so the script can run again)
   await b.go(`${SITE}/profile/?test`, 1500);
   await ev('localStorage.clear()');
   await b.go(`${SITE}/profile/?test`, 3000);
   ok(await ev(`!!document.querySelector('#pf-page .rk-invita[open] #rk-entrar')`), `${W}: a guest is invited to sign in, the form open`);
+  // 👋 The welcome: open by itself on the first visit, closed after; «¿Cómo funciona?» opens it again (the owner, 2026-11-22)
+  ok(await ev(`(() => { const i = document.getElementById('pf-intro'); return !!i && !i.hidden && i.querySelectorAll('.pf-intro-list li').length === 3 && document.querySelector('.pf-help').getAttribute('aria-expanded') === 'true' && i.getBoundingClientRect().right <= ${W} && !!localStorage.getItem('juegos-de-salon:profile-intro') && !!localStorage.getItem('juegos-de-salon:profile-bubble'); })()`), `${W}: 👋 the first visit opens the welcome: three points, and the pill's bubble is retired`);
+  ok(await ev(`(() => { const i = document.getElementById('pf-intro').getBoundingClientRect(), n = document.getElementById('pf-page').firstElementChild.getBoundingClientRect(); return Math.round(n.top - i.bottom) === 12; })()`), `${W}: 👋 the welcome keeps 12 px of air above the next block`);
+  await b.shot(`intro-${W}`);
+  const si = await small(b);
+  ok(!si, `${W}: 👋 the welcome, every tappable thing is 44 px or more${si ? ` (${si})` : ''}`);
+  await ev(`document.querySelector('.pf-intro-ok').click()`); await sleep(300);
+  ok(await ev(`document.getElementById('pf-intro').hidden && !document.querySelector('.pf-help').hidden`), `${W}: 👋 «Entendido» closes it`);
+  await b.go(`${SITE}/profile/?test`, 3000);
+  ok(await ev(`document.getElementById('pf-intro').hidden && !document.querySelector('.pf-help').hidden`), `${W}: 👋 the next visit starts with it closed`);
+  ok(await ev(`(() => { const h = document.querySelector('.pf-title-row h1').getBoundingClientRect(), i = document.querySelector('.pf-help').getBoundingClientRect(), s = document.getElementById('pf-sub').getBoundingClientRect(); return i.left >= h.right - 6 && i.left - h.right < 4 && i.top < h.top + h.height / 2 && i.right <= ${W} && s.top >= h.bottom - 2 && Math.abs((h.left + h.right) / 2 - ${W} / 2) < 4; })()`), `${W}: 👋 ⓘ sits at the title's right, the title still centred, no line of its own`);
+  await b.shot(`intro-closed-${W}`);
+  await ev(`document.querySelector('.pf-help').click()`); await sleep(500);
+  ok(await ev(`!document.getElementById('pf-intro').hidden`), `${W}: 👋 ⓘ opens it again`);
+  await ev(`document.querySelector('.pf-intro-x').click()`); await sleep(300);
+  ok(await ev(`document.getElementById('pf-intro').hidden`), `${W}: 👋 ✕ closes it too`);
   ok(await ev(`document.querySelectorAll('#pf-page .pf-group .pf-badge').length`) >= 5, `${W}: a guest sees the badges this phone can earn`);
   ok(await ev(`document.querySelectorAll('#pf-page .rk-ranking, #pf-page .rk-lista').length`) >= 2, `${W}: a guest sees the rankings, as on /records/`);
   ok(await ev(`document.documentElement.scrollWidth <= ${W}`), `${W}: guest, no sideways scroll`);
@@ -52,7 +69,7 @@ for (const W of [320, 390]) {
   await ev(`(async () => {
     const { jugador } = await import('/assets/js/jugador.js');
     const J = await jugador();
-    for (const [n, s] of [['Cata', 95], ['Fran', 70]]) { await J.crear(n, '1111'); for (const g of ['reinas', 'tango']) await J.anotar({ juego: g, s, ms: 50000 }); J.salir(); }
+    for (const [n, s] of [['Cata', 95], ['Fran', 70]]) { await J.crear(n, '1111'); for (const g of ['reinas', 'tango']) await J.anotar({ juego: g, s, ms: 50000 }); if (n === 'Cata') await J.mostrarActividad(true); J.salir(); }
     await J.crear('Javi', '1234');
     for (const [g, k] of Object.entries({ reinas: 6, conexiones: 4, tango: 3, zip: 2, donde: 1, desenredo: 1, pintaminas: 2, agentes: 1 }))
       for (let i = 0; i < k; i++) await J.anotar({ juego: g, s: 60 + i * 5 + (g === 'reinas' ? 40 : 0), ms: 42000 + i * 1000 });
@@ -62,6 +79,7 @@ for (const W of [320, 390]) {
     const h = {}; for (let i = 1; i <= 4; i++) h['2026-11-0' + i] = { e: 3 };
     localStorage.setItem('juegos-de-salon:play-hours', JSON.stringify(h));
     localStorage.setItem('juegos-de-salon:play-run', JSON.stringify({ g: 'queens', n: 3, best: 10 }));
+    localStorage.setItem('juegos-de-salon:logros-anunciados', JSON.stringify({ xmas: 1 }));
     localStorage.setItem('juegos-de-salon:play-marks', JSON.stringify({ days: { xmas: true, halloween: true }, wk: ['2025-01-04', '2025-01-11', '2025-01-18'], mon: ['2025-01-06'], played: ['2025-01-01', '2025-01-02'] }));
   })()`);
   // Seven cups of La Copa's test store (its podium demo), five of them ended, two in progress
@@ -82,6 +100,16 @@ for (const W of [320, 390]) {
     localStorage.setItem('juegos-de-salon:prueba:records-db', JSON.stringify(db));
   })()`);
   await b.go(`${SITE}/profile/?test`, 4000);
+  // 🎃 earned and not yet told: its window opens once, like One a Day's month-end one, with «Ver mis logros» (the owner, 2026-11-22)
+  ok(await ev(`(() => { const w = document.querySelector('.aw-capa'); return !!w && w.querySelector('.aw-titulo')?.textContent === 'Noche de brujas' && !w.querySelector('path') && /logros secretos/.test(w.textContent) && !/chapita/i.test(w.textContent) && !!w.querySelector('a.btn'); })()`), `${W}: 🎃 a secret achievement just earned opens its window: a round medal, no ribbon, «Ver mis logros»`);
+  ok(await ev(`(() => { const c = document.querySelector('.aw-capa .me-tarjeta')?.getBoundingClientRect(), m = document.querySelector('.aw-medalla')?.getBoundingClientRect(); return !!c && c.left >= 0 && c.right <= ${W} && m.top >= 0 && document.documentElement.scrollWidth <= ${W}; })()`), `${W}: 🎃 its window fits the screen`);
+  ok(await ev(`!!document.querySelector('.aw-capa .aw-franjas') && !!document.querySelector('.aw-medalla .aw-dorso')`), `${W}: 🎃 its medal first shows «?» over diagonal stripes, then turns over (look B)`);
+  await sleep(2200);
+  ok(await ev(`getComputedStyle(document.querySelector('.aw-dorso')).opacity === '0'`), `${W}: 🎃 the medal turned over: the achievement shows`);
+  ok(await ev(`(() => { const c = document.querySelector('.aw-capa .aw-confeti'); return !!c && c.width > 0 && getComputedStyle(c).pointerEvents === 'none'; })()`), `${W}: 🎃 confetti bursts out of the medal as it turns over, the fireworks behind`);
+  await b.shot(`achievement-${W}`);
+  await ev(`document.querySelector('.aw-capa .me-x').click()`); await sleep(400);
+  ok(await ev(`!document.querySelector('.aw-capa') && !!JSON.parse(localStorage.getItem('juegos-de-salon:logros-anunciados') || '{}').halloween`), `${W}: 🎃 told once: the phone remembers it`);
   ok(await ev(`document.querySelector('.pf-player')?.textContent.includes('Javi')`), `${W}: the card names the player`);
   ok(await ev(`!document.querySelector('.pf-avatar') && !!document.querySelector('.pf-card .pf-player .rk-flag, .pf-card .pf-player')`), `${W}: the card is the player's flag and name, no initial in a circle`);
   ok(/14/.test(await ev(`document.querySelector('.pf-stat b')?.textContent`)), `${W}: the card shows the 14-day streak`);
@@ -124,6 +152,25 @@ for (const W of [320, 390]) {
   const s1 = await small(b);
   ok(!s1, `${W}: rankings, every tappable thing is 44 px or more${s1 ? ` (${s1})` : ''}`);
   await full(b, `rankings-${W}`, W);
+  // A tap on a rival's name opens their profile at a glance (the owner, 2026-11-22)
+  ok(await ev(`(() => { const r = [...document.querySelectorAll('.pf-tab .rk-fila[data-peek]')].find(x => x.textContent.includes('Cata')); if (!r) return false; r.scrollIntoView({ block: 'center' }); r.click(); return r.getAttribute('role') === 'button'; })()`), `${W}: 👀 a rival's name in a ranking is a button`);
+  await sleep(1500);
+  ok(await ev(`(() => { const p = document.getElementById('pf-peek'); return !!p && p.querySelector('.pf-peek-name')?.textContent.includes('Cata') && !p.querySelector('.pf-peek-kicker') && p.querySelectorAll('.pf-peek-stats .pf-stat').length === 3 && [...p.querySelectorAll('.pf-peek-games li')].map(x => x.dataset.game).sort().join() === 'reinas,tango' && /1 partida(?!s)/.test(p.textContent); })()`), `${W}: 👀 a rival who shows their activity: their name, three figures and their most played games`);
+  ok(await ev(`(() => { const p = document.getElementById('pf-peek').getBoundingClientRect(); return p.left >= 0 && p.right <= ${W} && p.top >= 0 && document.documentElement.scrollWidth <= ${W}; })()`), `${W}: 👀 the sheet fits the screen`);
+  const sp = await small(b);
+  ok(!sp, `${W}: 👀 the sheet, every tappable thing is 44 px or more${sp ? ` (${sp})` : ''}`);
+  await b.shot(`peek-${W}`);
+  await ev(`document.querySelector('#pf-peek .hoja-cabeza .icon-btn').click()`); await sleep(300);
+  ok(await ev(`!document.getElementById('pf-peek') && !document.body.style.position`), `${W}: 👀 ✕ closes it and frees the page`);
+  await ev(`[...document.querySelectorAll('.pf-tab .rk-fila[data-peek]')].find(x => x.textContent.includes('Fran')).click()`); await sleep(1500);
+  ok(await ev(`(() => { const p = document.getElementById('pf-peek'); return !!p && p.querySelector('.pf-peek-name')?.textContent.includes('Fran') && !!p.querySelector('.pf-peek-hidden') && !p.querySelector('.pf-peek-stats, .pf-peek-games') && !/partida|null|undefined/.test(p.textContent) && ![...p.querySelectorAll('.pf-peek-badges li')].some(x => /^(streak|plays|regular|weekends|specialist|month-full|one-year)/.test(x.dataset.badge || '')); })()`), `${W}: 👀 a rival who keeps their activity hidden (the default): no figures, games or play counts, only their achievements`);
+  await b.shot(`peek-hidden-${W}`);
+  await ev(`document.querySelector('#pf-peek .pf-peek-ok').click()`); await sleep(300);
+  await ev(`(() => { const r = document.querySelector('.pf-tab .rk-fila.yo[data-peek]'); r.scrollIntoView({ block: 'center' }); r.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true })); })()`); await sleep(1500);
+  ok(await ev(`(() => { const p = document.getElementById('pf-peek'); return !!p && /Así te ven los demás/.test(p.querySelector('.pf-peek-kicker')?.textContent || '') && p.querySelector('.pf-peek-name').textContent.includes('Javi') && p.querySelectorAll('.pf-peek-badges li').length > 0 && /Ajustes/.test(p.querySelector('.pf-peek-hidden')?.textContent || ''); })()`), `${W}: 👀 your own name (Enter works too) shows how others see you: your achievements, your activity hidden until you show it in Ajustes`);
+  await b.shot(`peek-you-${W}`);
+  await ev(`document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }))`); await sleep(300);
+  ok(await ev(`!document.getElementById('pf-peek')`), `${W}: 👀 Escape closes it`);
   await ev(`document.querySelector('[data-tab=settings]').click()`); await sleep(800);
   ok(await ev(`!!document.querySelector('.pf-settings .lang-toggle') && !!document.querySelector('.pf-settings .sound-toggle') && !!document.querySelector('#pf-account') && !document.querySelector('.pf-tab .rk-yo')`), `${W}: ⚙️ has your account, the language and the sound`);
   ok(await ev(`!document.querySelector('#pf-page .offline-ready')`), `${W}: ⚙️ has no offline ☁️: it stays on the home page`);
@@ -131,8 +178,30 @@ for (const W of [320, 390]) {
   const s2 = await small(b);
   ok(!s2, `${W}: settings, every tappable thing is 44 px or more${s2 ? ` (${s2})` : ''}`);
   await full(b, `settings-${W}`, W);
-  // The home page's top bar
+  // 👁️ Your public profile: the switch shows your activity, and «Ver cómo me ven los demás» shows it
+  ok(await ev(`(() => { const s = document.querySelector('.pf-public .switch'); return !!s && s.getAttribute('aria-checked') === 'false' && !s.disabled; })()`), `${W}: 👁️ your activity starts hidden`);
+  await ev(`document.querySelector('.pf-public .switch').click()`); await sleep(800);
+  ok(await ev(`(async () => { const { jugador, leerYo } = await import('/assets/js/jugador.js'); const J = await jugador(); return document.querySelector('.pf-public .switch').getAttribute('aria-checked') === 'true' && (await J.perfil(leerYo().jid))?.abierto === true; })()`), `${W}: 👁️ the switch shows it, and the server keeps it`);
+  await ev(`document.querySelector('.pf-public .pf-see-public').click()`); await sleep(1500);
+  ok(await ev(`(() => { const p = document.getElementById('pf-peek'); return !!p && !!p.querySelector('.pf-peek-kicker') && p.querySelectorAll('.pf-peek-stats .pf-stat').length === 3 && p.querySelectorAll('.pf-peek-games li').length === 3 && !p.querySelector('.pf-peek-hidden'); })()`), `${W}: 👁️ «Ver cómo me ven los demás» shows your sheet, now with your activity`);
+  await b.shot(`peek-open-${W}`);
+  await ev(`document.querySelector('#pf-peek .pf-peek-ok').click()`); await sleep(300);
+  await ev(`document.querySelector('.pf-public .switch').click()`); await sleep(800);
+  ok(await ev(`(async () => { const { jugador, leerYo } = await import('/assets/js/jugador.js'); return (await (await jugador()).perfil(leerYo().jid))?.abierto == null; })()`), `${W}: 👁️ turned off, it is gone from the server`);
+  // 🎖️ The pill's bubble: shown until the profile is opened or ✕ (?profile-intro=demo shows it again)
   await b.go(`${SITE}/?test`, 3000);
+  ok(await ev(`!document.getElementById('pf-bubble')`), `${W}: 🎖️ no bubble once the profile was opened`);
+  await b.go(`${SITE}/?test&profile-intro=demo`, 3500);
+  ok(await ev(`document.querySelectorAll('.shelf').length > 0`), `${W}: 🎖️ the home page is the icon view (home-carousels)`);
+  ok(await ev(`(() => { const x = document.getElementById('pf-bubble')?.getBoundingClientRect(), p = document.querySelector('.topbar .pf-home').getBoundingClientRect(); return !!x && x.left >= 0 && x.right <= ${W} && x.top > p.bottom && x.top - p.bottom < 24 && document.documentElement.scrollWidth <= ${W}; })()`), `${W}: 🎖️ the bubble rises right under the pill and fits the screen`);
+  await sleep(700); await b.shot(`bubble-${W}`);
+  ok(await ev(`(() => { const x = document.querySelector('.pf-bubble-x'); return x.offsetWidth >= 44 && x.offsetHeight >= 44; })()`), `${W}: 🎖️ its ✕ is 44 px`);
+  ok(await ev(`(() => { const b = document.getElementById('pf-bubble'), t = b.querySelector('.pf-bubble-txt'), x = b.querySelector('.pf-bubble-x'); let w = 0; for (const c of t.children) { const r = document.createRange(); r.selectNodeContents(c); for (const q of r.getClientRects()) w = Math.max(w, q.right); } const tb = b.querySelector('b'), lh = parseFloat(getComputedStyle(tb).lineHeight) || 20; return x.getBoundingClientRect().left - w < 16 && tb.getBoundingClientRect().height < lh * 1.5 && b.getBoundingClientRect().height < 110 && !b.querySelector('b').textContent.includes('\\n'); })()`), `${W}: 🎖️ the bubble is as wide as its text: no empty band before the ✕`);
+  await ev(`document.querySelector('.pf-bubble-x').click()`); await sleep(400);
+  ok(await ev(`!document.getElementById('pf-bubble') && !!localStorage.getItem('juegos-de-salon:profile-bubble')`), `${W}: 🎖️ ✕ closes it for good`);
+  await b.go(`${SITE}/?test`, 3000);
+  ok(await ev(`!document.getElementById('pf-bubble')`), `${W}: 🎖️ and it does not come back`);
+  // The home page's top bar
   ok(await ev(`(() => { const a = document.getElementById('btn-rankings'); return a.classList.contains('pf-home') && a.getAttribute('href') === 'profile/' && a.querySelector('.pf-home-name')?.textContent === 'Javi' && !!a.querySelector('.pf-home-flag')?.textContent && a.querySelector('.pf-home-go')?.textContent === '›' && !a.textContent.includes('🔥'); })()`), `${W}: on the home page 🏅 is a pill with the player's flag, name and ›, no streak (Uno al día's card has it), to /profile/`);
   ok(await ev(`!!document.querySelector('#offline-ready-slot')`), `${W}: offline mode's ☁️ stays on the home page`);
   ok(await ev(`(() => { const a = document.getElementById('btn-rankings'), t = document.querySelector('.portada-barra .tools'); return a.getBoundingClientRect().right <= t.getBoundingClientRect().right + 1 && a.scrollWidth <= a.clientWidth + 1; })()`), `${W}: the name pill fits the bar`);

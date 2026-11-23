@@ -437,6 +437,29 @@ function accountPanel(yo) {
     out, ask);
 }
 
+/**
+ * 👁️ Your public profile (the owner, 2026-11-22): whether others see your activity when they tap your name
+ * (off until you turn it on: someone who plays a lot may not want it known), and how they see you.
+ */
+function publicPanel(yo) {
+  const sw = el('button', { type: 'button', class: 'switch', role: 'switch', 'aria-checked': 'false', 'aria-label': T.showActivity, disabled: true });
+  const err = el('p', { class: 'form-error', hidden: true }, T.publicError);
+  const set = on => { sw.classList.toggle('on', on); sw.setAttribute('aria-checked', String(on)); };
+  jugador().then(J => J.perfil()).then(p => { set(p?.abierto === true); sw.disabled = false; }).catch(() => { sw.disabled = false; });
+  sw.addEventListener('click', async () => {
+    tap();
+    const on = sw.getAttribute('aria-checked') !== 'true';
+    set(on); sw.disabled = true; err.hidden = true;
+    try { await (await jugador()).mostrarActividad(on); } catch (_) { set(!on); err.hidden = false; }
+    sw.disabled = false;
+  });
+  const see = el('button', { type: 'button', class: 'btn btn--ghost pf-see-public', onClick: () => { tap(); import('./peek.js').then(m => m.peekPlayer(yo.jid, { hint: yo, onTap: tap })); } }, T.seePublic);
+  return el('section', { class: 'panel pf-settings pf-public' }, el('p', { class: 'lead rk-titulo' }, T.publicTitle),
+    el('p', { class: 'muted rk-hint' }, T.publicHint),
+    el('div', { class: 'toggle-row' }, el('span', { class: 'txt' }, el('b', {}, T.showActivity), el('small', {}, T.showActivityHint)), sw),
+    err, see);
+}
+
 function settingsTab(yo) {
   const row = (label, hint, control) => el('div', { class: 'toggle-row' }, el('span', { class: 'txt' }, el('b', {}, label), hint ? el('small', {}, hint) : null), control);
   const prefs = el('section', { class: 'panel pf-settings' }, el('p', { class: 'lead rk-titulo' }, T.prefs),
@@ -446,7 +469,7 @@ function settingsTab(yo) {
     const draw = () => { const b = m.bloque({ lang, alTocar: tap, redibujar: draw }); notices.replaceChildren(...(b ? [b] : [])); };
     draw();
   }).catch(() => {});
-  return el('div', { class: 'pf-tab' }, accountPanel(yo), prefs, notices);
+  return el('div', { class: 'pf-tab' }, accountPanel(yo), publicPanel(yo), prefs, notices);
 }
 
 /* ------------------------------------------------------------------ */
@@ -456,7 +479,44 @@ function settingsTab(yo) {
 const TABS = ['badges', 'rankings', 'settings'];
 
 /** Draws the page in `root` for whoever is on this phone. Returns when the first draw is on screen. */
+/**
+ * The profile's welcome (the owner, 2026-11-22): a card over the page that says what each tab holds, open by
+ * itself only on the first visit; «Entendido» or ✕ closes it and a subtle ⓘ at the title's right opens it again.
+ * Opening the profile also retires the bubble the top bar's pill shows until then (profile-hint.js).
+ */
+async function welcome(root, sub) {
+  const hint = await import('../assets/js/profile-hint.js');
+  hint.demoReset();
+  hint.mark(hint.BUBBLE_KEY);
+  const first = (() => { try { return !localStorage.getItem(hint.INTRO_KEY); } catch (_) { return false; } })();
+  // A subtle ⓘ, raised like a superscript at the title's right: no line of its own (the owner, 2026-11-22)
+  const help = el('button', { type: 'button', class: 'pf-help', 'aria-controls': 'pf-intro', 'aria-expanded': 'false', 'aria-label': T.introHelp, title: T.introHelp }, 'ⓘ');
+  const point = ([b, txt]) => el('li', {}, el('b', {}, b), el('span', {}, txt));
+  const intro = el('section', { class: 'panel pf-intro', id: 'pf-intro', 'aria-labelledby': 'pf-intro-title', hidden: true },
+    el('div', { class: 'pf-intro-head' },
+      el('h2', { id: 'pf-intro-title' }, T.introTitle),
+      el('button', { type: 'button', class: 'icon-btn pf-intro-x', 'aria-label': T.introClose, title: T.introClose }, '✕')),
+    el('ul', { class: 'pf-intro-list' }, [T.introBadges, T.introRankings, T.introSettings].map(point)),
+    el('p', { class: 'muted pf-intro-again' }, T.introAgain),
+    el('button', { type: 'button', class: 'btn btn--yellow pf-intro-ok' }, T.introOk));
+  const show = (open, { focus = false } = {}) => {
+    intro.hidden = !open;
+    help.setAttribute('aria-expanded', String(open));
+    if (open && focus) { intro.scrollIntoView({ behavior: 'smooth', block: 'center' }); intro.querySelector('.pf-intro-ok').focus({ preventScroll: true }); }
+    if (!open && focus) help.focus({ preventScroll: true });
+  };
+  help.addEventListener('click', () => { tap(); show(intro.hidden, { focus: true }); });
+  for (const b of intro.querySelectorAll('.pf-intro-x, .pf-intro-ok')) b.addEventListener('click', () => { tap(); show(false, { focus: true }); });
+  const h1 = sub.parentElement?.querySelector('h1');
+  if (h1) { const row = el('div', { class: 'pf-title-row' }); h1.before(row); row.append(el('span', { 'aria-hidden': 'true' }), h1, help); }
+  else sub.after(help);
+  root.before(intro);
+  show(first);
+  if (first) hint.mark(hint.INTRO_KEY);
+}
+
 export async function drawProfile(root, { sub }) {
+  welcome(root, sub).catch(() => {});
   const J = await jugador();
   let turn = 0;
   const draw = async () => {
@@ -470,6 +530,7 @@ export async function drawProfile(root, { sub }) {
     const paint = () => {
       const r = earned(f, readSeen(yo.jid));
       writeSeen(yo.jid, r.seen);
+      celebrateHere(r.list).catch(() => {});
       return r.list;
     };
     const badgesBox = el('div', { class: 'pf-tab' });
@@ -497,17 +558,21 @@ export async function drawProfile(root, { sub }) {
     if (f.general) rk.general(f.general);
     repaint(paint());
   };
+  // A tap on a name in any of the page's rankings opens that player's profile at a glance (the owner, 2026-11-22)
+  import('./peek.js').then(m => m.peekOnTap(root, { onTap: tap })).catch(() => {});
   J.escuchar(() => draw());
   await draw();
   window.__profile = { redraw: draw };
+  if (/[?&]achievement=demo\b/.test(location.search)) achievementDemo();
 }
 
 function drawGuest(root) {
   const r = earned(localFacts(), readSeen(null));
   writeSeen(null, r.seen);
+  celebrateHere(r.list).catch(() => {});
   // The badges this phone could earn without a name: Uno al día's streaks and hours, and the games played
   const local = new Set(['streak-10', 'streak-30', 'month-full', 'early-bird', 'explorer', 'plays-100', 'obsession', 'premiere', 'regular', 'weekends', 'mondays',
-    'night-owl', 'tuesday-13', 'fiestas', 'halloween', 'xmas', 'new-year']);
+    'night-owl', 'fiestas', 'halloween', 'xmas', 'new-year']);
   const list = r.list.filter(b => local.has(b.id) && (b.got || !b.secret));
   root.replaceChildren(
     bloqueJugador({ abierto: true, destacado: true, alTocar: tap }),
@@ -520,3 +585,38 @@ function drawGuest(root) {
     el('a', { class: 'btn btn--ghost', href: '../records/', onClick: tap }, T.allRankings));
 }
 
+
+/**
+ * `?achievement=demo` (lab flag profile): the secret achievement's window for each one, with a picker under it.
+ * Nothing is recorded.
+ */
+async function achievementDemo() {
+  const { showAchievement } = await import('../assets/js/achievement-window.js');
+  const secrets = BADGES.filter(b => b.secret);
+  let i = secrets.findIndex(b => b.id === 'xmas');
+  const open = () => {
+    document.querySelectorAll('.splash-capa').forEach(x => x.remove());
+    const b = secrets[i];
+    const bar = el('div', { class: 'aw-demo' },
+      ...secrets.map((x, k) => el('button', { type: 'button', class: k === i ? 'on' : '', 'aria-label': T.badges[x.id]?.[0] || x.id, onClick: () => { i = k; open(); } }, x.icon)));
+    showAchievement({ ...b, name: T.badges[b.id]?.[0] || b.id }, { lang, secret: { n: 3, total: secrets.length }, profileHref: '#badges', extra: bar });
+  };
+  open();
+}
+
+/**
+ * A secret achievement the profile finds earned (the server's ones, 💎 and 🎂, or a local one no game told yet)
+ * opens its window once per phone (achievement-window.js), here, where «Ver mis logros» just closes it.
+ */
+async function celebrateHere(list) {
+  if (/[?&]achievement=demo/.test(location.search)) return;
+  const { announced, markAnnounced } = await import('../assets/js/secret-achievements.js');
+  const done = announced();
+  const b = list.find(x => x.secret && x.got && !done[x.id]);
+  if (!b || document.querySelector('.splash-capa')) return;
+  const { showAchievement } = await import('../assets/js/achievement-window.js');
+  markAnnounced(b.id);
+  const now = announced();
+  const secrets = list.filter(x => x.secret);
+  showAchievement({ ...b, name: T.badges[b.id]?.[0] || b.id }, { lang, secret: { n: secrets.filter(x => x.got || now[x.id]).length, total: secrets.length }, profileHref: '#badges' });
+}

@@ -22,7 +22,8 @@ export const TEXTS = {
         items: [
           'Salas para jugar con otros: el nombre o apodo que escribes y las jugadas. Se borran cuando todos salen o, si no, en los días siguientes a que la sala se cierra.',
           'La Copa: tu nombre o apodo, tus resultados y tu PIN de 4 cifras, guardado como una huella (hash) que nadie puede leer. Para que nadie adivine tu PIN, guardamos el último intento de cada jugador. Quien la creó puede borrarla; si no, dos años después de terminar pasa a un archivo cerrado que solo nosotros podemos leer. Las reacciones y comentarios que dejas en una copa los ven sus jugadores y se borran cuando la copa termina.',
-          'Rankings y Uno al día, si entras con nombre y PIN: tu nombre, tu país, tus puntajes y los días que jugaste. El nombre, el país y los puntajes se ven en los rankings. Se guardan mientras exista el juego o hasta que nos pidas borrarlos.',
+          'Rankings y Uno al día, si entras con nombre y PIN: tu nombre, tu país, tus puntajes, los días que jugaste y cuántas partidas terminaste de cada juego. El nombre, el país y los puntajes se ven en los rankings. Se guardan mientras exista el juego o hasta que nos pidas borrarlos.',
+          'Quien toca tu nombre en un ranking ve tus logros; tu racha, tus partidas, desde cuándo juegas y tus juegos favoritos solo si lo activas en Ajustes de tu perfil.',
           'Para no pedirte el PIN cada vez, guardamos un número anónimo de cada aparato donde entras, y el último intento de PIN para frenar a quien quiera adivinarlo. Si invitas a alguien a Uno al día, anotamos que llegó por tu invitación. Si un nombre es ofensivo, podemos cambiarlo; los puntajes y el PIN se mantienen.',
           'Estadísticas de uso, para saber qué se juega y qué falla: conteos por día (juego, idioma, hora, aparato y tamaño aproximado de pantalla, el sitio y enlace por donde llegaste y el país, según el huso horario), un número al azar del navegador para contar quién vuelve y a qué juegos, los nombres escritos en cada partida, qué anuncios del sitio viste con ese nombre y los errores con navegador y versión. Los nombres se borran a los 24 meses; los conteos quedan.',
           'Avisos al celular, si los activas: la dirección de avisos que da tu navegador, el idioma, el huso horario, los avisos que pediste y la última temporada de Uno al día cuyo resumen ya viste, para no avisarte lo que ya sabes. Se borran al desactivarlos o cuando el navegador los da por vencidos.',
@@ -48,7 +49,7 @@ export const TEXTS = {
       },
     ],
     who: 'Responsable: Juegos de Salón (juegosdesalon.cl), hola@juegosdesalon.cl.',
-    updated: 'Actualizada el 7 de noviembre de 2026.',
+    updated: 'Actualizada el 22 de noviembre de 2026.',
   },
   en: {
     title: 'Privacy',
@@ -61,7 +62,8 @@ export const TEXTS = {
         items: [
           'Rooms to play with others: the name or nickname you type and the moves. They are deleted when everyone leaves or, if not, in the days after the room closes.',
           'The Cup: your name or nickname, your results and your 4-digit PIN, stored as a fingerprint (hash) nobody can read. So nobody can guess your PIN, we keep each player\'s last attempt. Whoever created the Cup can delete it; otherwise, two years after it ends it moves to a closed archive only we can read. The reactions and comments you leave in a Cup are seen by its players and deleted when the Cup ends.',
-          'Leaderboards and One a Day, if you sign in with a name and PIN: your name, your country, your scores and the days you played. The name, the country and the scores show on the leaderboards. They are kept while the game exists or until you ask us to delete them.',
+          'Leaderboards and One a Day, if you sign in with a name and PIN: your name, your country, your scores, the days you played and how many games you finished of each one. The name, the country and the scores show on the leaderboards. They are kept while the game exists or until you ask us to delete them.',
+          'Whoever taps your name on a leaderboard sees your badges; your streak, your games, since when you play and your favourite games only if you turn it on in your profile’s Settings.',
           'So you don\'t type your PIN every time, we keep an anonymous number for each device you sign in on, and the last PIN attempt, to stop anyone trying to guess it. If you invite someone to One a Day, we note that they came through your invitation. If a name is offensive, we may change it; the scores and the PIN stay.',
           'Usage statistics, to know what gets played and what breaks: daily counts (game, language, hour, device and rough screen size, the site and the link you came from and the country, from the time zone), a random number from your browser to count who comes back and to which games, the names typed in each game, which of the site\'s announcements you saw with that name, and errors with browser and version. The names are deleted after 24 months; the counts stay.',
           'Phone notifications, if you turn them on: the notification address your browser gives, the language, the time zone, the notifications you asked for and the last One a Day season whose recap you already saw, so we do not tell you what you already know. They are deleted when you turn them off or when the browser expires them.',
@@ -87,7 +89,7 @@ export const TEXTS = {
       },
     ],
     who: 'Controller: Juegos de Salón (juegosdesalon.cl), hola@juegosdesalon.cl.',
-    updated: 'Updated on November 7, 2026.',
+    updated: 'Updated on November 22, 2026.',
   },
   pt: {
     title: 'Privacidade',
@@ -100,7 +102,8 @@ export const TEXTS = {
         items: [
           'Salas para jogar com outras pessoas: o nome ou apelido que você digita e as jogadas. São apagadas quando todos saem ou, se não, nos dias seguintes ao fechamento da sala.',
           'A Copa: seu nome ou apelido, seus resultados e seu PIN de 4 dígitos, guardado como uma impressão digital (hash) que ninguém consegue ler. Para que ninguém adivinhe seu PIN, guardamos a última tentativa de cada jogador. Quem a criou pode apagá-la; senão, dois anos depois de terminar ela passa para um arquivo fechado que só nós podemos ler. As reações e comentários que você deixa numa copa são vistos pelos jogadores dela e somem quando a copa termina.',
-          'Rankings e Um por dia, se você entra com nome e PIN: seu nome, seu país, suas pontuações e os dias que jogou. O nome, o país e as pontuações aparecem nos rankings. São guardados enquanto o jogo existir ou até você pedir para apagá-los.',
+          'Rankings e Um por dia, se você entra com nome e PIN: seu nome, seu país, suas pontuações, os dias que jogou e quantas partidas terminou de cada jogo. O nome, o país e as pontuações aparecem nos rankings. São guardados enquanto o jogo existir ou até você pedir para apagá-los.',
+          'Quem toca no seu nome em um ranking vê suas conquistas; sua sequência, suas partidas, desde quando você joga e seus jogos favoritos só se você ativar isso em Ajustes do seu perfil.',
           'Para não pedir seu PIN toda vez, guardamos um número anônimo de cada aparelho onde você entra, e a última tentativa de PIN, para frear quem tente adivinhá-lo. Se você convida alguém para o Um por dia, anotamos que a pessoa chegou pelo seu convite. Se um nome for ofensivo, podemos trocá-lo; as pontuações e o PIN continuam.',
           'Estatísticas de uso, para saber o que se joga e o que falha: contagens por dia (jogo, idioma, hora, aparelho e tamanho aproximado da tela, o site e o link de onde você veio e o país, pelo fuso horário), um número aleatório do seu navegador para contar quem volta e para quais jogos, os nomes digitados em cada partida, quais anúncios do site você viu com esse nome e os erros, com navegador e versão. Os nomes são apagados após 24 meses; as contagens ficam.',
           'Avisos no celular, se você ativar: o endereço de avisos que seu navegador dá, o idioma, o fuso horário, os avisos que você pediu e a última temporada do Um por dia cujo resumo você já viu, para não avisar o que você já sabe. São apagados quando você os desativa ou quando expiram no navegador.',
@@ -126,6 +129,6 @@ export const TEXTS = {
       },
     ],
     who: 'Responsável: Juegos de Salón (juegosdesalon.cl), hola@juegosdesalon.cl.',
-    updated: 'Atualizada em 7 de novembro de 2026.',
+    updated: 'Atualizada em 22 de novembro de 2026.',
   },
 };
