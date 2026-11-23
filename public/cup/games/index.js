@@ -102,7 +102,7 @@ const BUILD = {
   zip: ([, ui]) => ({ generar: (codigo, dia) => ({ codigo, dia }), montar: ui.montar, resultado: ui.resultado, ejemplo: ui.ejemplo, ensayo: (c, d) => ({ codigo: codigoEnsayo(c), dia: d, tiempo: 60 * 1000 }) }),
   // Como Zip: los niveles se arman dentro de la pantalla y lo generado es solo la semilla del día (D-179)
   desenredo: ([, ui]) => ({ generar: (codigo, dia) => ({ codigo, dia }), montar: ui.montar, resultado: ui.resultado, ejemplo: ui.ejemplo, ensayo: (c, d) => ({ codigo: codigoEnsayo(c), dia: d, tiempo: 60 * 1000 }) }),
-  tango: ([tango, ui]) => juego(tango, ui, (c, d) => tango.generar(codigoEnsayo(c), d, { sal: 'ensayo' })),
+  tango: ([tango, ui]) => juego(tango, ui, (c, d, o = {}) => tango.generar(codigoEnsayo(c), d, { sal: 'ensayo', variante: o.variante })),
   anio: ([anio, ui, mazos]) => juego(anio, ui, (c, d, o = {}) => anio.generar(codigoEnsayo(c), d, { n: 2, tema: temaLibre(mazos, c, o.aud), sal: 'ensayo', lang: o.lang, aud: o.aud })),
   // Dos ciudades que no son las del día: la prueba no puede adelantar ninguna
   donde: ([donde, ui]) => juego(donde, ui, (c, d, o = {}) => donde.generar(codigoEnsayo(c), d, { niveles: [1, 2], sal: 'ensayo', aud: o.aud, sin: donde.generar(c, d, { aud: o.aud }).ciudades })),
