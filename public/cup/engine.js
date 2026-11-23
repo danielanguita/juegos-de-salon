@@ -207,6 +207,15 @@ export const ZONA = 'America/Los_Angeles';
 export const ZONAS_POR_IDIOMA = {};
 export const zonaDeIdioma = lang => ZONAS_POR_IDIOMA[lang] || ZONA;
 
+/** Brazil's zones (the IANA ones under America/ plus Noronha). */
+const HUSOS_BR = new Set(['Sao_Paulo', 'Araguaina', 'Bahia', 'Belem', 'Boa_Vista', 'Campo_Grande', 'Cuiaba', 'Eirunepe', 'Fortaleza', 'Maceio', 'Manaus', 'Noronha', 'Porto_Velho', 'Recife', 'Rio_Branco', 'Santarem'].map(z => `America/${z}`));
+/**
+ * The audience a new cup starts on, from the phone's zone and not its language (D-608): a phone in
+ * Chile starts on 🇨🇱, one in Brazil on 🇧🇷, any other on 🌎 global (whose zone is then the phone's).
+ * A Spanish speaker in the United States no longer gets Chile's content and Chile's midnight.
+ */
+export const publicoDelHuso = tz => (['America/Santiago', 'America/Punta_Arenas', 'Pacific/Easter'].includes(tz) ? 'cl' : HUSOS_BR.has(tz) ? 'br' : 'global');
+
 /** Identificador de jugador dentro de la copa: 6 letras minúsculas o cifras. */
 export const PID = /^[a-z0-9]{6}$/;
 
