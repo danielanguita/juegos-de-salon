@@ -465,7 +465,7 @@ function portada() {
       el('summary', {}, T.howTitle),
       el('ol', { class: 'como' }, T.howItems.map(x => el('li', {}, x)))),
     // Los campeones de las copas terminadas (D-212): al final, para no empujar lo de crear o entrar
-    rankingsVisibles() ? bloqueCampeones() : null,
+    rankingsVisibles() ? bloqueCampeones({ alTocar: () => SFX.tap() }) : null,
   );
 }
 
@@ -902,7 +902,22 @@ function vistaTabla(filas, { dias, meta, now }) {
     // Today's comments as an extra line of the row, under the name: place, arrow and points stay where they were
     ...(() => { const cs = charla ? comentariosEnFila(f.pid, now) : []; return cs.length ? [el('div', { class: 'fila-comentarios' }, cs)] : []; })()),
   conCharla ? cajonCharla(f.pid, now) : null].filter(Boolean)));
+  fichasEnTabla(tablaNodo);
   return recortarTabla(tablaNodo, filas.length);
+}
+
+/**
+ * A tap on a signed-in player's row opens their public profile, headed by this Cup and their place and points
+ * in it (lab flag `ranking-peek`, player-peek.js; the owner, 2026-11-23). Seats with no name of their own do nothing.
+ * lab: #seccion-ranking-peek
+ */
+function fichasEnTabla(nodo) {
+  flag('ranking-peek').then(on => on && import('../assets/js/player-peek.js')).then(m => m?.peekOnTap(nodo, {
+    onTap: () => SFX.tap(), rows: '.fila',
+    jidOf: r => L()?.players?.[r.dataset.pid]?.j,
+    nameOf: r => r.querySelector('.quien b')?.firstChild?.textContent || '',
+    contextOf: r => ({ label: `🏆 ${L()?.meta?.name || ''}`.trim(), place: r.querySelector('.lugar')?.textContent || '', value: r.querySelector('.total')?.textContent || '' }),
+  })).catch(() => {});
 }
 
 // A cup of more than 10 players (up to 20): the table shows the first 10, the 11th peeks faded under
