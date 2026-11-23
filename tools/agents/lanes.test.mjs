@@ -1,8 +1,8 @@
 // Merge lanes by blast radius (docs/LANES.md, D-519): the glob table and the PR lane.
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { laneOf, laneOfPr, outsideReason, readOnlyToken, INSIDERS, globRe, decision, report, CONFIG, ORDER, approvalBlock, withApproval, APPROVAL_START, approvalOf, keptApproval } from './lanes.mjs';
-import { invalidAction, closesWhenDone, plan, OWNER, dropsLabel } from './approve.mjs';
+import { laneOf, laneOfPr, outsideReason, readOnlyToken, INSIDERS, globRe, decision, report, CONFIG, ORDER, approvalBlock, withApproval, APPROVAL_START, approvalOf, keptApproval, keepsLabel } from './lanes.mjs';
+import { invalidAction, closesWhenDone, plan, OWNER, dropsLabel, readiesFirst } from './approve.mjs';
 import { decisionsBody } from './processes.mjs';
 
 // Globs
@@ -94,6 +94,14 @@ const answered = [{ decision: '1', option: 'no', actions: [{ type: 'nothing' }] 
 assert.ok(dropsLabel({ pull_request: { number: 12 } }, answered));
 assert.ok(!dropsLabel({ pull_request: { number: 12 } }, answered, true), 'a failed Yes still waits for the owner');
 assert.ok(!dropsLabel({ pull_request: { number: 12 } }, []));
+
+// A tick carried to a new commit (D-575, D-596) leaves nothing waiting for the owner: the label goes (#1773)
+assert.ok(keepsLabel({ lane: 'red' }), 'a 🔴 PR waiting for the tick keeps the label');
+assert.ok(!keepsLabel({ lane: 'red', carried: 'abc1234' }), 'a carried tick drops the label');
+assert.ok(!keepsLabel({ lane: 'yellow' }) && !keepsLabel({ lane: 'green' }));
+// The owner's Yes on a draft marks it ready before merging: GitHub refuses both on a draft (#1750)
+assert.ok(readiesFirst({ isDraft: true }));
+assert.ok(!readiesFirst({ isDraft: false }) && !readiesFirst({}) && !readiesFirst(null));
 assert.ok(!dropsLabel({ issue: { number: 3 } }, answered));
 
 // The owner's tick in the PR description is carried out, only for that PR and only by the owner

@@ -28,8 +28,9 @@ through `pull_request_target`, so main's copy of `approve.mjs` obeys, never the 
 only approve and merge that same PR (`invalidInPr`). `approve-pr` turns `owner-approval` green **for
 that commit only**, then `merge` waits for `tests` and `end-to-end`, merges and publishes the site.
 If a check fails, the result is written next to the box; unticking and ticking again after the fix
-retries. Once the Yes or the No is carried out, `approve.mjs` takes the `needs-owner` label off
-the PR (a later push puts it back). A session that edits the PR description keeps that block as it is; if an edit by anyone
+retries. A Yes on a draft marks it ready for review first (`readiesFirst`): GitHub neither merges a draft
+nor turns auto-merge on for one. Once the Yes or the No is carried out, `approve.mjs` takes the `needs-owner` label off
+the PR (a later push puts it back, unless the tick carries, below). A session that edits the PR description keeps that block as it is; if an edit by anyone
 but the owner drops or changes it anyway, `lane-box.yml` (`lanes.mjs keep`, main's copy) puts it back as it was. For 🟢/🟡 the job sets
 `owner-approval` green at once.
 `owner-approval` is a required status on `main`, so a 🔴 PR cannot merge without the tick.
@@ -42,7 +43,8 @@ A push that only merges main into an approved commit (GitHub's "Update branch") 
 lane job checks the merge is clean and brings nothing else, sets `owner-approval` green and turns on
 auto-merge (D-575). On the owner's own PR (an insider's, below), a push after the tick that changes no 🔴 file
 (a fix for a red check, a text, a doc; what main brought in does not count) keeps it too: the job finds the
-latest approved commit, sets `owner-approval` green and turns on auto-merge (`carriesOwn`, D-596). Any other push
+latest approved commit, sets `owner-approval` green and turns on auto-merge (`carriesOwn`, D-596). When the tick carries, the
+`needs-owner` label goes too (`keepsLabel`): nothing waits for the owner. Any other push
 asks again: one that changes a 🔴 file, and every push to an outside PR. A 🔴 PR
 from an agent's round, a job or a session's own initiative still waits for the owner.
 Storing something new about players is 🔴 too even when no red file changes: the privacy page
