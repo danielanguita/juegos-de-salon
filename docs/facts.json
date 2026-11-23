@@ -1307,6 +1307,7 @@
     "public/assets/js/parametros.js",
     "public/assets/js/play-hours.js",
     "public/assets/js/profile-button.js",
+    "public/assets/js/profile-hint.js",
     "public/assets/js/push.js",
     "public/assets/js/qr.js",
     "public/assets/js/ranking.js",
