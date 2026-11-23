@@ -1,7 +1,7 @@
 // Run: node public/assets/js/offline-ui.test.mjs
 // What offline mode shows (D-538, PR 4): which links need signal, and the chip's words.
 import assert from 'node:assert/strict';
-import { needsSignal, KEPT, chipText, pendingCount, PENDING_KEY, uploadText } from './offline-ui.js';
+import { needsSignal, KEPT, chipText, waitingText, pendingCount, PENDING_KEY, uploadText } from './offline-ui.js';
 import { offlineOk, ALL_GAMES } from './games.js';
 
 const root = new URL('https://juegosdesalon.cl/');
@@ -24,6 +24,11 @@ assert.equal(chipText(0, 'es'), '📴 Sin conexión');
 assert.equal(chipText(2, 'es'), '📴 Sin conexión · 2 por subir');
 assert.equal(chipText(1, 'en'), '📴 Offline · 1 to upload');
 assert.equal(chipText(3, 'pt'), '📴 Sem conexão · 3 para enviar');
+// Extended offline mode (flag extended-offline): what waits to upload is its own line, apart from «Sin conexión»
+assert.equal(waitingText(1, 'es'), '⏳ 1 partida espera señal para subir');
+assert.equal(waitingText(2, 'es'), '⏳ 2 partidas esperan señal para subir');
+assert.equal(waitingText(2, 'en'), '⏳ 2 games are waiting for signal to upload');
+assert.equal(waitingText(3, 'pt'), '⏳ 3 partidas esperam sinal para enviar');
 const ls = new Map([[PENDING_KEY, JSON.stringify([{}, {}])]]);
 assert.equal(pendingCount({ getItem: k => ls.get(k) ?? null }), 2);
 assert.equal(pendingCount({ getItem: () => 'not json' }), 0);

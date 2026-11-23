@@ -182,6 +182,10 @@ PR that changes what is kept on the phone.
      sheet. ⚙️ is for players with an account, so a guest still gets the cloud whenever something needs them.
      The «T» tab's cloud states go with the flag's own row while it is in the lab, on both pages
      (`tools/e2e/home/cloud-quiet.mjs`).
+   - **Extended offline mode** (flag `extended-offline`, in Labs, the owner, 2026-11-23, D-614): on the home page
+     the dancing emoji gives its place to a still plate «📴 SIN CONEXIÓN» that moves nothing and opens the sheet;
+     every other view has no sticker, the palette alone says it; pending uploads show apart, as a line at the
+     bottom («⏳ 2 partidas esperan señal para subir») (`tools/e2e/home/extended-offline.mjs`).
 10. Publish: the owner flips `flags/offline` to *all*; RP-13 ✅.
 
 ## Risks

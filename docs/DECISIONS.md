@@ -53,9 +53,9 @@ Where today's rule is and which decisions explain it: those in force that still 
 | Agents (usability, documentation, processes, support, ideas) | [USABILIDAD.md](USABILIDAD.md) | D-132, D-135, D-172, D-204, D-206, D-213, D-218, D-252, D-273, D-275, D-276, D-279, D-301, D-303, D-304, D-306, D-313, D-315, D-317, D-318, D-341, D-360, D-361, D-365, D-382, D-383, D-394, D-400, D-401, D-409, D-411, D-413, D-429, D-440, D-441, D-443, D-451, D-452, D-459, D-463, D-472, D-480, D-486, D-497, D-518, D-519, D-520, D-522, D-527, D-531, D-532, D-533, D-540, D-541, D-547, D-553, D-554, D-555, D-558, D-568, D-569, D-570, D-573, D-575, D-576, D-577, D-578, D-580, D-582, D-586, D-596, D-597 |
 | Rankings and player (name and PIN) | C-7 | D-96, D-212, D-215, D-217, D-219, D-220, D-230, D-236, D-249, D-336, D-357, D-358, D-359, D-412, D-414, D-415, D-416, D-424, D-436, D-450, D-455, D-464, D-465, D-470, D-476, D-478, D-492, D-499, D-500, D-513, D-559, D-563, D-600, D-602, D-603, D-604, D-605 |
 | Marketing | `marketing/README.md` | D-178, D-380, D-410, D-454, D-456, D-494, D-505, D-529, D-591 |
-| Installable app and phone notifications | C-2, [PWA-NOTIFICACIONES.md](PWA-NOTIFICACIONES.md) | D-221, D-222, D-223, D-224, D-225, D-227, D-228, D-229, D-230, D-232, D-233, D-504, D-538, D-544, D-545, D-546, D-564, D-565, D-571, D-574, D-609 |
+| Installable app and phone notifications | C-2, [PWA-NOTIFICACIONES.md](PWA-NOTIFICACIONES.md) | D-221, D-222, D-223, D-224, D-225, D-227, D-228, D-229, D-230, D-232, D-233, D-504, D-538, D-544, D-545, D-546, D-564, D-565, D-571, D-574, D-609, D-614 |
 
-## In force (595)
+## In force (596)
 
 | D | Title | Status |
 |---|---|---|
@@ -649,11 +649,12 @@ Where today's rule is and which decisions explain it: those in force that still 
 | [D-606](decisions/D-606.md) | A PR that launches a game cannot merge until launch-check passes on its screens | current |
 | [D-607](decisions/D-607.md) | Tango scores time in La Copa too, from the cups created with the new rule | current |
 | [D-608](decisions/D-608.md) | La Copa: a new cup's audience starts on the phone's zone, not its language | current |
-| [D-609](decisions/D-609.md) | Offline, the whole game takes Candlelight, and the switch is immediate | current |
+| [D-609](decisions/D-609.md) | Offline, the whole game takes Candlelight, and the switch is immediate | amended by D-614 |
 | [D-610](decisions/D-610.md) | A merge of main reruns the PR's own scope, not main's | amended by D-612 |
 | [D-611](decisions/D-611.md) | The end-to-end group target is 420 s | current |
 | [D-612](decisions/D-612.md) | A merge of main reruns only what both the PR and main reach | current |
 | [D-613](decisions/D-613.md) | A game has the same rules in La Copa and outside it | current |
+| [D-614](decisions/D-614.md) | Offline: a still plate on the home page, the palette alone everywhere else (in Labs) | current |
 
 ## No longer in force (14)
 
