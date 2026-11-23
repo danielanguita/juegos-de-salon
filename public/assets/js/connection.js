@@ -23,6 +23,9 @@ export const STEADY = 10000;
 // mode in the normal colours for up to two minutes (the owner, 2026-11-22)
 export const EVERY_ONLINE = 20000;
 export const CONFIRM = 3000;
+// Back in front while online, the radio may still be waking up (see RETRIES): the probe waits a moment,
+// so an unlocked phone on a slow network does not flash offline mid-room
+export const RETURN_WAIT = 1500;
 export const EVERY_OFFLINE = 15000;
 /**
  * When the browser says it is back (or the page comes back to the front), the first probe often fails:
@@ -166,7 +169,7 @@ export function createConnection({
         if (hidden() || now() - lastBack < 1000) return;
         lastBack = now();
         if (detected === 'offline') recheck();
-        else schedule(0);
+        else schedule(RETURN_WAIT);
       };
       doc?.addEventListener?.('visibilitychange', back);
       win?.addEventListener?.('pageshow', back);

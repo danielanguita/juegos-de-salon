@@ -2,7 +2,7 @@
 // Offline mode's detector (D-538, PR 3): on at once when the browser says offline or after two bad
 // probes, off only after two good probes STEADY apart, and testers can force it.
 import assert from 'node:assert/strict';
-import { createConnection, FORCE_KEY, PROBE_TIMEOUT, STEADY, EVERY_ONLINE, RETRIES, CONFIRM } from './connection.js';
+import { createConnection, FORCE_KEY, PROBE_TIMEOUT, STEADY, EVERY_ONLINE, RETRIES, CONFIRM, RETURN_WAIT } from './connection.js';
 
 function rig({ online = true } = {}) {
   const t = { now: 0, jobs: [] };
@@ -87,7 +87,9 @@ function rig({ online = true } = {}) {
   assert.equal(r.c.mode(), 'online', 'a hidden page does not probe');
   r.doc.visibilityState = 'visible';
   r.handlers.visibilitychange();
-  await r.advance(CONFIRM);
+  await r.advance(RETURN_WAIT - 1);
+  assert.equal(r.c.mode(), 'online', 'the radio gets a moment to wake up first');
+  await r.advance(1 + CONFIRM);
   assert.equal(r.c.mode(), 'offline', 'back in front: a probe and its confirmation, seconds');
 }
 
