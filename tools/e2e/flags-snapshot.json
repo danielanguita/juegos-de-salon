@@ -35,6 +35,9 @@
   "cover-share": {
     "state": "all"
   },
+  "croc": {
+    "state": "all"
+  },
   "cup-again": {
     "state": "all"
   },
@@ -104,6 +107,9 @@
   "pm-pick-brush": {
     "state": "all"
   },
+  "profile": {
+    "state": "all"
+  },
   "routes-hint": {
     "state": "all"
   },
@@ -138,6 +144,12 @@
     "state": "all"
   },
   "wins-hide-empty": {
+    "state": "all"
+  },
+  "wobbles": {
+    "state": "all"
+  },
+  "wobbles-cheers": {
     "state": "all"
   },
   "word-in-words": {
