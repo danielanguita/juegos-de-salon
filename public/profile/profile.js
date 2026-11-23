@@ -73,7 +73,18 @@ function badgeState(f, jid) {
   const out = { ...readSeen(jid), ...r.seen };
   for (const b of list) if (b.got && !out[b.id]) out[b.id] = Date.now();
   writeSeen(jid, out);
-  return list;
+  // `?reveal` (to try it, the owner 2026-11-23): the last badge earned plays its reveal on every visit, nothing recorded;
+  // `?reveal=<id>` plays that one if earned
+  const demo = revealDemo(list, out);
+  return demo ? list.map(b => (b.id === demo ? { ...b, new: true } : b)) : list;
+}
+const REVEAL_PARAM = new URLSearchParams(location.search).get('reveal');
+function revealDemo(list, when) {
+  if (REVEAL_PARAM == null) return null;
+  const got = list.filter(b => b.got);
+  if (REVEAL_PARAM) return got.some(b => b.id === REVEAL_PARAM) ? REVEAL_PARAM : null;
+  const t = id => Math.max(Number(when[id]) || 0, Number(announced()[id]) || 0);
+  return got.sort((a, b) => t(b.id) - t(a.id))[0]?.id || null;
 }
 
 /**
@@ -140,9 +151,13 @@ async function climbsOf(podios, jid) {
 /** The player's facts: the phone's, plus their server record. Each read on its own: one failing leaves the rest. */
 async function playerFacts(J, yo) {
   const f = localFacts();
-  const [perfil, hist, cups, podios] = await Promise.all([
-    J.perfil().catch(() => null), J.historialDia().catch(() => ({})), J.copas().catch(() => []), J.podios().catch(() => ({})),
+  const FAILED = Symbol('failed');
+  const [perfil0, hist0, cups, podios0] = await Promise.all([
+    J.perfil().catch(() => FAILED), J.historialDia().catch(() => FAILED), J.copas().catch(() => []), J.podios().catch(() => FAILED),
   ]);
+  // The card's figures only from a read that answered: a failed one leaves its figure unknown, never partial
+  f.known = { streak: hist0 !== FAILED, plays: perfil0 !== FAILED, cups: podios0 !== FAILED };
+  const perfil = perfil0 === FAILED ? null : perfil0, hist = hist0 === FAILED ? {} : hist0, podios = podios0 === FAILED ? {} : podios0;
   // Uno al día from any phone: the server's days (by number) joined with this phone's (by date)
   const dias = { ...(leerDia().dias || {}) };
   for (const n of Object.keys(hist || {})) if (/^\d+$/.test(n)) dias[new Date(Number(n) * 86400000).toISOString().slice(0, 10)] ||= hist[n];
@@ -225,14 +240,24 @@ function badgePanels(list, { only = null, reveal = false } = {}) {
 
 /**
  * The card's figures count up from zero to their number, fast, every number in turn, like a machine looking for the
- * right one (the owner, 2026-11-23). The card is drawn again as the server's facts arrive: each figure then counts
- * on from where it stood, never from zero again. With reduced motion, the number at once.
+ * right one (the owner, 2026-11-23). A figure is only the server's: until it arrives, a spinner, never this phone's
+ * partial count (the owner, 2026-11-23: Partidos went 153 → 188). Drawn again later, each figure stays where it stood
+ * while the server answers, then counts on from there, never from zero again. With reduced motion, the number at once.
  */
-const counted = {};
-function countUp(key, prefix, to) {
+let counted = { jid: null, v: {} };
+const countedFor = jid => { if (counted.jid !== jid) counted = { jid, v: {} }; return counted.v; };
+function countUp(jid, key, prefix, to) {
+  const v = countedFor(jid);
+  if (to === undefined) {
+    // Not in yet: the last real figure, or a spinner
+    if (v[key] !== undefined) return el('b', { 'data-count': key }, `${prefix}${num(v[key])}`);
+    return el('b', { 'data-count': key, class: 'pf-loading', 'aria-busy': 'true' }, el('span', { class: 'pf-spin', 'aria-hidden': 'true' }));
+  }
+  // The server could not be read: unknown, not zero
+  if (to === null) return el('b', { 'data-count': key }, '—');
   const b = el('b', { 'data-count': key });
-  const from = counted[key] ?? 0;
-  counted[key] = to;
+  const from = v[key] ?? 0;
+  v[key] = to;
   const put = v => { b.textContent = `${prefix}${num(v)}`; };
   if (from === to || globalThis.matchMedia?.('(prefers-reduced-motion: reduce)').matches) { put(to); return b; }
   put(from);
@@ -246,7 +271,9 @@ function countUp(key, prefix, to) {
   return b;
 }
 
-function card(yo, f, list) {
+/** The card: `ready` once the server's facts are in; before that, its figures wait (countUp). */
+function card(yo, f, list, ready) {
+  const fig = (key, prefix, known, value) => countUp(yo.jid, key, prefix, !ready ? undefined : known ? value : null);
   const got = list.filter(b => b.got).length;
   // The flag and the name are the player, as on every table (the owner, 2026-11-21: no initial in a circle)
   return el('section', { class: 'panel pf-card' },
@@ -255,9 +282,9 @@ function card(yo, f, list) {
         el('p', { class: 'pf-player' }, conBandera(yo.co, yo.n)),
         el('p', { class: 'muted pf-since' }, [f.since ? fmt(T.since, { month: monthName(f.since) }) : null, fmt(T.badgesOf, { n: got, total: BADGES.length })].filter(Boolean).join(' · ')))),
     el('div', { class: 'pf-stats' },
-      el('div', { class: 'pf-stat' }, countUp('streak', '🔥 ', f.streak || 0), el('span', {}, T.statStreak)),
-      el('div', { class: 'pf-stat' }, countUp('plays', '', f.plays || 0), el('span', {}, T.statPlays)),
-      el('div', { class: 'pf-stat' }, countUp('cups', '🏆 ', f.medals?.gold || 0), el('span', {}, T.statCups))));
+      el('div', { class: 'pf-stat' }, fig('streak', '🔥 ', f.known?.streak, f.streak || 0), el('span', {}, T.statStreak)),
+      el('div', { class: 'pf-stat' }, fig('plays', '', f.known?.plays, f.plays || 0), el('span', {}, T.statPlays)),
+      el('div', { class: 'pf-stat' }, fig('cups', '🏆 ', f.known?.cups, f.medals?.gold || 0), el('span', {}, T.statCups))));
 }
 
 /** The 🏅 tab: the overall ranking with the player's places, their games, Uno al día's month and their cups. */
@@ -595,9 +622,10 @@ export async function drawProfile(root, { sub }) {
       for (const k of TABS) panes[k].hidden = k !== id;
       history.replaceState(null, '', `#${id}`);
     }
-    const reveal = !seenAtLoad(yo.jid).first;
+    const reveal = !seenAtLoad(yo.jid).first || REVEAL_PARAM != null;
+    let ready = false;
     const repaint = list => {
-      cardSlot.replaceChildren(card(yo, f, list));
+      cardSlot.replaceChildren(card(yo, f, list, ready));
       badgesBox.replaceChildren(...badgePanels(list, { reveal }).filter(Boolean));
       if (badgesBox.isConnected) revealIntoView(badgesBox);
     };
@@ -609,8 +637,9 @@ export async function drawProfile(root, { sub }) {
       .then(m => m && mine === turn && m.seccionPerfil({ alTocar: tap })).then(box => box && duelsSlot.replaceChildren(box)).catch(() => {});
     show(tab);
     revealIntoView(badgesBox);
-    try { f = { ...f, ...(await playerFacts(J, yo)) }; } catch (_) { /* offline: the phone's facts stay */ }
+    try { f = { ...f, ...(await playerFacts(J, yo)) }; } catch (_) { /* offline: the phone's facts stay, the card's figures unknown */ }
     if (mine !== turn) return;
+    ready = true;
     repaint(paint());
     const rk = rankingsTab(J, f);
     panes.rankings.replaceChildren(rk.box);
@@ -629,7 +658,7 @@ export async function drawProfile(root, { sub }) {
 
 function drawGuest(root) {
   const all = badgeState(localFacts(), null);
-  const reveal = !seenAtLoad(null).first;
+  const reveal = !seenAtLoad(null).first || REVEAL_PARAM != null;
   celebrateHere(all).catch(() => {});
   // The badges this phone could earn without a name: Uno al día's streaks and hours, and the games played
   const local = new Set(['streak-10', 'streak-30', 'month-full', 'early-bird', 'explorer', 'plays-100', 'obsession', 'premiere', 'regular', 'weekends', 'mondays',

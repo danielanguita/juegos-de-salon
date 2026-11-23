@@ -142,7 +142,22 @@ for (const W of [320, 390]) {
   ok(await ev(`(async () => { window.__profile.redraw(); await new Promise(r => setTimeout(r, 120)); const v = [...document.querySelectorAll('.pf-stat b')].map(b => b.textContent); return /14/.test(v[0]) && /^20$/.test(v[1]); })()`), `${W}: drawn again, the figures count on from where they stood, never from zero again`);
   // The day it reaches everyone (the owner, 2026-11-23): what a phone had already earned is never announced, secret ones too
   await ev(`localStorage.removeItem('juegos-de-salon:logros-base'); localStorage.removeItem('juegos-de-salon:logros-anunciados')`);
+  // Every figure the card puts up, as it was put up: the first is a spinner, never this phone's partial count (the owner, 2026-11-23)
+  await b.send('Page.addScriptToEvaluateOnNewDocument', { source: `window.__figs = []; new MutationObserver(rs => { for (const r of rs) for (const n of r.addedNodes) if (n.querySelectorAll) for (const x of n.querySelectorAll('.pf-stat b[data-count]')) window.__figs.push({ k: x.dataset.count, spin: !!x.querySelector('.pf-spin'), t: x.textContent }); }).observe(document, { childList: true, subtree: true });` });
   await b.go(`${SITE}/profile/?test`, 5000);
+  {
+    const figs = await ev(`window.__figs`);
+    const first = Object.fromEntries(['streak', 'plays', 'cups'].map(k => [k, figs.find(x => x.k === k)]));
+    ok(Object.values(first).every(x => x?.spin && !/\d/.test(x.t)), `${W}: before the server answers, each figure is a spinner, never a partial number (${JSON.stringify(first)})`);
+    ok(/^20$/.test(await ev(`document.querySelector('.pf-stat b[data-count="plays"]')?.textContent`)) && !(await ev(`!!document.querySelector('.pf-spin')`)), `${W}: then the server's figure, the spinner gone`);
+    // The spinner holds the number's place: the card does not jump when the figure arrives (D-570)
+    const jump = await ev(`(() => { const s = document.querySelector('.pf-card .pf-stats'), h0 = s.getBoundingClientRect().height, bs = [...s.querySelectorAll('b')], keep = bs.map(x => x.innerHTML);
+      bs.forEach(x => { x.innerHTML = '<span class="pf-spin"></span>'; }); const h1 = s.getBoundingClientRect().height, sp = bs[1].querySelector('.pf-spin').getBoundingClientRect(), bb = bs[1].getBoundingClientRect();
+      const r = { dh: Math.round(h1 - h0), dx: Math.round((sp.left + sp.right) / 2 - (bb.left + bb.right) / 2) }; window.__keepFigs = keep; return r; })()`);
+    ok(!jump.dh && Math.abs(jump.dx) <= 1, `${W}: the spinner sits centred where the number goes, the card the same height (${JSON.stringify(jump)})`);
+    await ev(`document.querySelector('.pf-card').scrollIntoView()`); await b.shot(`card-spinner-${W}`);
+    await ev(`[...document.querySelectorAll('.pf-card .pf-stats b')].forEach((x, i) => { x.innerHTML = window.__keepFigs[i]; })`);
+  }
   ok(await ev(`(() => { const d = JSON.parse(localStorage.getItem('juegos-de-salon:logros-anunciados') || '{}'); return !document.querySelector('.aw-capa') && !!localStorage.getItem('juegos-de-salon:logros-base') && !!d.halloween && !!d['streak-10']; })()`), `${W}: 🎲 a phone's first look announces nothing it had already earned, secret or not: it only notes them`);
   ok(await ev(`[...document.querySelectorAll('[data-badge="night-owl"] .pf-name')].map(x => x.textContent).join()`) !== 'Noctámbulo', `${W}: a secret badge keeps its name until earned`);
   // 🎬 A badge a game's window celebrated is earned on the profile even if the page's facts say otherwise, and the
@@ -156,6 +171,13 @@ for (const W of [320, 390]) {
   await b.shot(`badge-revealed-${W}`);
   await ev(`location.reload()`); await sleep(4000);
   ok(await ev(`(() => { const x = document.querySelector('[data-badge="premiere"]'); return !!x && !x.classList.contains('pf-badge--locked') && !x.classList.contains('pf-badge--reveal') && !x.querySelector('.pf-new'); })()`), `${W}: 🎬 the next visit: still earned, revealed only once`);
+  // `?reveal` replays the last badge earned, to try it as often as wanted, and records nothing (the owner, 2026-11-23)
+  await b.go(`${SITE}/profile/?test&reveal=premiere#badges`, 1500);
+  ok(await ev(`(() => { const x = document.querySelector('[data-badge="premiere"]'); return !!x && x.classList.contains('pf-badge--reveal') && !!x.querySelector('.pf-new') && document.querySelectorAll('.pf-badge--reveal').length === 1; })()`), `${W}: 🎬 ?reveal=premiere replays that badge's reveal`);
+  await b.go(`${SITE}/profile/?test&reveal#badges`, 1500);
+  ok(await ev(`(() => { const x = document.querySelectorAll('.pf-badge--reveal'); return x.length === 1 && !x[0].classList.contains('pf-badge--locked'); })()`), `${W}: 🎬 ?reveal replays the last badge earned, just one`);
+  await b.go(`${SITE}/profile/?test#badges`, 3000);
+  ok(await ev(`!document.querySelector('.pf-badge--reveal')`), `${W}: 🎬 ?reveal recorded nothing: without it, no reveal`);
   ok(await ev(`document.documentElement.scrollWidth <= ${W}`), `${W}: badges, no sideways scroll`);
   await full(b, `badges-${W}`, W);
   // Scrolled, the section bar stays on top and stands apart from the badges under it (the owner, 2026-11-22)
