@@ -2420,7 +2420,7 @@ function resultadoEnsayo(id, r, volver, variante = null) {
 }
 
 /** A duel's round ended (DUELO): its result goes to the duel, and the result screen says so. */
-async function avisoDuelo(caja, r) {
+async function avisoDuelo(caja, r, salida = caja) {
   try {
     const [{ TEXTS }, duelos, Jg] = await Promise.all([import('../assets/js/duels-texts.js'), import('../assets/js/duels.js'), jugador()]);
     const TD = TEXTS[LANG] || TEXTS.es, D = await Jg.duelos();
@@ -2436,8 +2436,10 @@ async function avisoDuelo(caja, r) {
         if (t >= 0) sigue = el('a', { class: 'btn btn--yellow', id: 'btn-ronda', href: `${gameById(duelos.roundGame(d, t))?.path ? RAIZ + gameById(duelos.roundGame(d, t)).path : location.pathname}?seed=${d.sd[t]}&duel=${d.id}&round=${t}` }, fmt(TD.playRound, { i: t + 1 }));
       } catch (_) { msg = TD.roundLate; }
     }
-    caja.append(...[el('p', { class: 'notice', id: 'duelo-aviso' }, msg), sigue, el('a', { class: `btn ${sigue ? 'btn--ghost' : 'btn--cyan'}`, id: 'btn-duelos', href: `${RAIZ}duels/` }, TD.backDuels)].filter(Boolean));
+    caja.append(...[el('p', { class: 'notice', id: 'duelo-aviso' }, msg), sigue].filter(Boolean));
     caja.classList.add('stack');
+    // Back to the duels goes under «Share my result», where the other results keep their exit
+    salida.append(el('a', { class: `btn ${sigue ? 'btn--ghost' : 'btn--cyan'}`, id: 'btn-duelos', href: `${RAIZ}duels/` }, TD.backDuels));
   } catch (_) { /* no player or no signal: the round stays begun, and the duel shows it */ }
 }
 
@@ -2453,8 +2455,8 @@ function resultadoPractica(id, semilla, r, variante = null) {
   const cuentaRk = rankea(id) && (!hoy || hoy.primera);
   // En Uno al día, el ranking que se ve es el de Uno al día (su tarjeta): el del juego no se muestra
   const ranking = cuentaRk && !hoy ? bloqueRanking({ juego: tablaRk(id, variante), titulo: tituloRk(J), pestanas: ['semana', 'siempre', 'amigos'], alTocar: () => SFX.tap() }) : null;
-  const aviso = el('div', {});
-  if (DUELO) avisoDuelo(aviso, r);
+  const aviso = el('div', {}), salidaDuelo = DUELO ? el('div', { class: 'stack' }) : null;
+  if (DUELO) avisoDuelo(aviso, r, salidaDuelo);
   let anotada = false;
   const anotar = () => {
     if (!cuentaRk || anotada || !leerYo()) return;
@@ -2497,7 +2499,7 @@ function resultadoPractica(id, semilla, r, variante = null) {
     deHoy ? el('a', { class: 'btn btn--ghost btn--sm', id: 'btn-de-hoy', href: paginaSuelta(id) }, `📅 ${T.casoDeHoy}`) : null,
     LABS && !hoy && !diario ? el('a', { class: 'btn btn--cyan btn--sm', id: 'btn-repetir', href: `${otra}${otra.includes('?') ? '&' : '?'}seed=${semilla}` }, T.practiceSame) : null,
     // One a Day's exits are in its card (C-19); the rest go back to the menu (or the lab), before 🐞
-    hoy || DUELO ? null : volverDePractica(),   // a duel round: only the duel's ways on (the header has ‹ Menu)
+    DUELO ? salidaDuelo : hoy ? null : volverDePractica(),   // a duel round: only back to the duels (the header has ‹ Menu)
     // The long detail, folded, after the actions and the exits (C-19)
     explicacion(J, { s: r.s, ms: r.ms, det: r.det, copa: false }),
     // El de un juego `diario` no: su semilla ya va en el link de compartir y en el comentario
