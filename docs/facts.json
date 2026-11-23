@@ -1786,6 +1786,7 @@
     "tools/agents/labs-key.test.mjs",
     "tools/agents/lanes.test.mjs",
     "tools/agents/launch-check.test.mjs",
+    "tools/agents/launching.test.mjs",
     "tools/agents/marketing.test.mjs",
     "tools/agents/memory.test.mjs",
     "tools/agents/merge-queue.test.mjs",
@@ -2106,6 +2107,10 @@
     {
       "path": "docs/OFFLINE.md",
       "title": "Offline mode (RP-13)"
+    },
+    {
+      "path": "docs/ORG-MIGRATION.md",
+      "title": "Moving the repo to an organization, for GitHub's merge queue (plan, not started)"
     },
     {
       "path": "docs/PANEL.md",
