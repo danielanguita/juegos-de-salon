@@ -558,7 +558,7 @@ export const SUELTOS = [
     deLabs: 'croc',
     lanza: 'croc',
     copa: { pozo: 21 },
-    // Uno al día: by date, never by flag. PLACEHOLDER: the launch PR sets it to the day after the launch
+    // Uno al día: by date, never by flag: the day after the launch (2026-11-22)
     unoAlDia: { orden: 26, desde: '2026-11-23' },
     slug: 'croc',
     emoji: '🐸',
@@ -571,7 +571,7 @@ export const SUELTOS = [
     },
     tipos: ['skill'],
     duration: '1–2',
-    // PLACEHOLDER: the launch PR sets it to the launch day (the ✨ Nuevo label starts with the flag anyway, D-556)
+    // The launch day (the ✨ Nuevo label starts with the flag anyway, D-556)
     nuevoDesde: '2026-11-22',
     diasNuevo: 10,
   },
