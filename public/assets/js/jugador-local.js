@@ -234,6 +234,9 @@ export function crearAlmacenLocal({ storage = globalThis.localStorage, uid = nul
     async recientes(ruta, n) {
       return Object.fromEntries(Object.entries(leerEn(db(), ruta) || {}).sort((a, b) => a[1] - b[1]).slice(-n));
     },
+    async porPrefijo(ruta, prefijo, n) {
+      return Object.fromEntries(Object.entries(leerEn(db(), ruta) || {}).filter(([k]) => k.startsWith(prefijo)).sort().slice(0, n));
+    },
     async podios(n) {
       return Object.fromEntries(Object.entries(leerEn(db(), 'torneoPodios') || {})
         .sort((a, b) => (b[1].end || 0) - (a[1].end || 0)).slice(0, n));

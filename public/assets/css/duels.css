@@ -120,3 +120,6 @@
 
 /* The invite's page: someone challenged you */
 .dl-invita .dl-versus b { font-size: var(--fs-120); }
+
+/* The rival search: the form's field, a line under the chips */
+.dl-campo { margin: 0; }

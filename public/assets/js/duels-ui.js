@@ -160,8 +160,16 @@ export async function abrirNuevo({ rival = null, juego = null, lista = null, alT
     return capa;
   }
   const misDuelos = lista || await D.mios().catch(() => []);
-  let candidatos = sugeridos(misDuelos, yo.jid, J.amigos());
+  // Who to suggest: the rivals already played, the cup friends this phone knows and the players of
+  // the player's own cups (the owner, 2026-11-23: pre-populated with the people you have played with)
+  const amigos = { ...J.amigos() };
+  try {
+    const copas = (await J.copas()).slice(0, 6);
+    for (const ps of await Promise.all(copas.map(c => D.deCopa(c.code).catch(() => [])))) for (const x of ps) amigos[x.jid] ||= x.n;
+  } catch (_) { /* no signal: what this phone knows */ }
+  let candidatos = sugeridos(misDuelos, yo.jid, amigos);
   if (rival && !candidatos.some(c => c.jid === rival.jid)) candidatos = [rival, ...candidatos];
+  const elegir = c => { elegido = c; if (!candidatos.some(x => x.jid === c.jid)) candidatos = [c, ...candidatos]; };
   const error = el('p', { class: 'rk-error', 'aria-live': 'polite' });
   const tap = f => () => { alTocar(); f(); pintar(); };
   const label = t => el('p', { class: 'dl-label' }, t);
@@ -171,13 +179,36 @@ export async function abrirNuevo({ rival = null, juego = null, lista = null, alT
   const tiles = (actual, poner) => el('div', { class: 'dl-juegos' }, DUEL_GAMES.map(x => el('button', {
     type: 'button', class: `dl-juego${x.id === actual ? ' on' : ''}`, 'data-g': x.id, onClick: tap(() => poner(x.id)),
   }, el('span', { class: 'dl-ic', 'aria-hidden': 'true' }, gameIcon(x)), el('span', {}, nombreJuego(x)))));
-  let buscando = false;
+  // The search field is made once and kept: typing never redraws the sheet, so the keyboard stays put
+  // and nothing takes the focus on its own (the owner, 2026-11-23: the keyboard kept popping up)
+  const inp = el('input', { type: 'search', id: 'dl-nombre', maxlength: '20', autocomplete: 'off', enterkeyhint: 'search', 'aria-label': T.searchLabel, placeholder: `🔍 ${T.searchLabel}` });
+  const res = el('div', { class: 'dl-chips', id: 'dl-resultados', 'aria-live': 'polite' });
+  let espera = null, consulta = 0;
+  inp.addEventListener('input', () => {
+    clearTimeout(espera);
+    const q = inp.value.trim();
+    if (q.length < 2) { res.replaceChildren(); return; }
+    espera = setTimeout(async () => {
+      const mia = ++consulta;
+      const r = await D.buscar(q).catch(() => []);
+      if (mia !== consulta) return;
+      res.replaceChildren(...(r.length ? r.map(c => el('button', { type: 'button', class: 'chip-btn', 'data-jid': c.jid, onClick: tap(() => { elegir(c); inp.value = ''; res.replaceChildren(); }) }, c.n))
+        : [el('p', { class: 'dl-nota' }, T.noOne)]));
+    }, 300);
+  });
+  const azarBtn = () => el('button', { type: 'button', class: 'chip-btn', id: 'dl-azar', onClick: async () => {
+    alTocar();
+    // Someone who played this week; with nobody there, one of the people suggested
+    const otros = candidatos.filter(x => x.jid !== elegido?.jid);
+    const c = (await D.azar(Math.random, elegido?.jid).catch(() => null)) || otros[Math.floor(Math.random() * otros.length)] || null;
+    if (c) { elegir(c); pintar(); } else { res.replaceChildren(el('p', { class: 'dl-nota' }, T.noOne)); }
+  } }, T.randomRival);
   const rivales = () => el('div', { class: 'stack' },
     label(T.rival),
     el('div', { class: 'dl-chips', id: 'dl-rivales' },
-      candidatos.slice(0, 8).map(c => el('button', { type: 'button', class: `chip-btn${elegido?.jid === c.jid ? ' on' : ''}`, 'data-jid': c.jid, onClick: tap(() => { elegido = c; }) }, c.n)),
-      el('button', { type: 'button', class: `chip-btn${buscando ? ' on' : ''}`, id: 'dl-buscar', onClick: tap(() => { buscando = !buscando; }) }, `🔍 ${T.search}`)),
-    buscando ? buscador() : null);
+      candidatos.slice(0, 10).map(c => el('button', { type: 'button', class: `chip-btn${elegido?.jid === c.jid ? ' on' : ''}`, 'data-jid': c.jid, onClick: tap(() => { elegido = c; }) }, c.n)),
+      azarBtn()),
+    el('div', { class: 'field dl-campo' }, inp), res);
   const versus = () => el('div', { class: 'dl-versus' }, el('div', {}, el('b', {}, yo.n)), el('span', { class: 'display display--md' }, 'VS'), el('div', {}, el('b', {}, elegido.n)));
   const enviarBtn = () => el('button', { type: 'button', class: 'btn btn--yellow', id: 'dl-enviar', disabled: !elegido, onClick: enviar }, elegido ? fmt(T.send, { n: elegido.n }) : T.pickRival);
   const volver = (a, txt = T.back) => el('button', { type: 'button', class: 'btn btn--ghost btn--sm', id: 'dl-atras', onClick: tap(a) }, txt);
@@ -221,20 +252,6 @@ export async function abrirNuevo({ rival = null, juego = null, lista = null, alT
     titulo.textContent = centrado ? `⚔️ ${T.challenge}` : modo === 'quick' ? T.quickTitle : modo === 'custom' ? T.customTitle : `⚔️ ${T.newDuel}`;
     cuerpo.replaceChildren(...vistas[modo]().filter(Boolean));
   }
-  const buscador = () => {
-    const inp = el('input', { type: 'text', id: 'dl-nombre', maxlength: '20', autocomplete: 'off', 'aria-label': T.searchLabel, placeholder: T.searchLabel });
-    const res = el('div', { class: 'dl-chips' });
-    const ir = async () => {
-      alTocar();
-      const r = await D.buscar(inp.value).catch(() => []);
-      res.replaceChildren(...(r.length ? r.map(c => el('button', { type: 'button', class: 'chip-btn', 'data-jid': c.jid, onClick: tap(() => {
-        elegido = c; buscando = false; if (!candidatos.some(x => x.jid === c.jid)) candidatos = [c, ...candidatos];
-      }) }, c.n)) : [el('p', { class: 'dl-nota' }, T.noOne)]));
-    };
-    inp.addEventListener('keydown', e => { if (e.key === 'Enter') ir(); });
-    setTimeout(() => inp.focus(), 0);
-    return el('div', { class: 'stack' }, el('div', { class: 'dl-buscar' }, inp, el('button', { type: 'button', class: 'btn btn--cyan btn--sm', onClick: ir }, T.searchGo)), res);
-  };
   async function enviar() {
     if (!elegido) return;
     alTocar();

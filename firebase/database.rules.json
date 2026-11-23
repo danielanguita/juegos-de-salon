@@ -1153,6 +1153,7 @@
       }
     },
     "jugadorNombres": {
+      ".read": "query.orderByKey && query.limitToFirst <= 10",
       ".write": "auth != null && auth.uid === 'TrNylkeOFXNhnTPWAApebKvbI3F2'",
       "$clave": {
         ".read": "$clave.matches(/^[a-z0-9-]{1,24}$/)",

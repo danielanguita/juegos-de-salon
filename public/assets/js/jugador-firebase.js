@@ -87,6 +87,10 @@ export function crearAlmacenFirebase({ fetchFn = (...a) => globalThis.fetch(...a
     async recientes(ruta, n) {
       return (await rest(ruta, { orderBy: '"$value"', limitToLast: n })) || {};
     },
+    /** The children of `ruta` whose key starts with `prefijo`, at most `n` (a search by name): { key: value }. */
+    async porPrefijo(ruta, prefijo, n) {
+      return (await rest(ruta, { orderBy: '"$key"', startAt: JSON.stringify(prefijo), endAt: JSON.stringify(`${prefijo}\uf8ff`), limitToFirst: n })) || {};
+    },
     async podios(n) {
       const obj = (await rest('torneoPodios', { orderBy: '"end"', limitToLast: n })) || {};
       // Oldest first, as the SDK's forEach gave them

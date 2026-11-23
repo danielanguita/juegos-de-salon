@@ -70,6 +70,8 @@ const crear = (d = duelo()) => ({ [`duelos/${DID}`]: d, [`jugadorDuelos/${A}/${D
   const e = estado(await D.leer(d.id), ana.jid, t);
   assert.deepEqual([e.mias[0].s, e.turno, e.termino], [80, 1, false], 'round 2 is next');
   assert.equal((await D.buscar('beto'))[0]?.jid, beto.jid, 'a rival is found by name');
+  assert.equal((await D.buscar('be'))[0]?.jid, beto.jid, 'and by the start of the name, as it is typed');
+  assert.deepEqual(await D.buscar('zz'), [], 'nobody, no result');
   // A custom duel: each round its own game
   const c = await D.retar({ b: beto.jid, bn: 'Beto', g: 'reinas', f: 'pts', gr: ['reinas', 'tango', 'desenredo'] });
   const c2 = await D.leer(c.id);

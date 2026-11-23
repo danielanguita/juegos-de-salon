@@ -15,7 +15,7 @@
  * closes a duel, its clock does. The rules (firebase/database.rules.json) take a write only from a
  * phone seated as that player (jugadorSeats, D-464) and only before the three days are up.
  */
-import { esJid, claveNombre, S_MAX, MS_MAX } from './records.js';
+import { esJid, claveNombre, S_MAX, MS_MAX, TODOTERRENO, SIEMPRE, semana } from './records.js';
 
 export const DURACION = 3 * 86400000;
 export const FORMATOS = { bo3: 3, bo5: 5, pts: 3 };
@@ -160,12 +160,29 @@ export function crearDuelos({ almacen, yo, now = () => Date.now(), rand = Math.r
       await almacen.update({ [`duelos/${did}/r/${me.jid}/${i}`]: r });
       return true;
     },
-    /** Players by name (the exact name, as signing in finds it): [{ jid, n }]. */
+    /** Players whose name starts with what was typed (as signing in keys names): [{ jid, n }], at most 8. */
     async buscar(nombre) {
       const clave = claveNombre(nombre);
       if (!clave) return [];
-      const ids = Object.keys((await almacen.get(`jugadorNombres/${clave}`)) || {}).filter(j => esJid(j) && j !== yo()?.jid);
+      const claves = almacen.porPrefijo ? await almacen.porPrefijo('jugadorNombres', clave, 10).catch(() => null) : null;
+      const mapa = claves || { [clave]: (await almacen.get(`jugadorNombres/${clave}`)) || {} };
+      const ids = [...new Set(Object.values(mapa).flatMap(x => Object.keys(x || {})))].filter(j => esJid(j) && j !== yo()?.jid);
       return (await Promise.all(ids.slice(0, 8).map(async jid => ({ jid, n: await almacen.get(`jugadores/${jid}/n`) })))).filter(x => x.n);
+    },
+    /** The players of a cup that have a name and PIN (its rows carry their jid): [{ jid, n }]. */
+    async deCopa(code) {
+      const ps = (await almacen.get(`torneos/${code}/players`)) || {};
+      return Object.values(ps).filter(p => esJid(p?.j) && p.j !== yo()?.jid).map(p => ({ jid: p.j, n: p.name || '?' }));
+    },
+    /** Someone who played this week (the week's all-round table), at random, not me, or null. */
+    async azar(rand = Math.random, excluir = null) {
+      const leer = p => almacen.top(TODOTERRENO, p, 60).then(x => (x || []).filter(f => esJid(f.jid) && f.jid !== yo()?.jid && f.jid !== excluir && f.n)).catch(() => []);
+      // This week's players; early in a week with few, anyone in the all-time table
+      let filas = await leer(semana(now()));
+      if (filas.length < 3) filas = [...filas, ...(await leer(SIEMPRE)).filter(f => !filas.some(x => x.jid === f.jid))];
+      if (!filas.length) return null;
+      const f = filas[Math.floor(rand() * filas.length)];
+      return { jid: f.jid, n: f.n };
     },
   };
 }
