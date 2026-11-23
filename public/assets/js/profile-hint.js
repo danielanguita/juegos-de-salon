@@ -1,6 +1,6 @@
 /**
  * The profile's welcome (lab flag `profile`; the owner, 2026-11-22): a small bubble rises from the top bar's
- * profile pill and says the player's things now live there. It stays, on every page with the pill, until the
+ * profile pill and says the player's things now live there, only while a player is signed in. It stays, on every page with the pill, until the
  * player closes it or opens the profile; then it never comes back. The profile page itself greets the first
  * visit with its own card (profile.js `introCard`).
  *
@@ -8,6 +8,7 @@
  */
 import { el } from './ui.js';
 import { getLang } from './i18n.js';
+import { leerYo } from './jugador.js';
 
 export const BUBBLE_KEY = 'juegos-de-salon:profile-bubble';
 export const INTRO_KEY = 'juegos-de-salon:profile-intro';
@@ -56,7 +57,8 @@ function fit(box, doc = document) {
  * Returns a function that removes it.
  */
 export function pillBubble(pill, { doc = document, lang = getLang(), tries = 6 } = {}) {
-  if (!pill || get(BUBBLE_KEY) || doc.getElementById('pf-bubble')) return () => {};
+  // Only for a signed-in player (the owner, 2026-11-23): a guest has no profile of their own to find yet
+  if (!pill || !leerYo() || get(BUBBLE_KEY) || doc.getElementById('pf-bubble')) return () => {};
   const busy = () => doc.querySelector('.splash-capa, .hoja-capa, .globo-instalar, #pf-bubble');
   if (busy()) {
     if (tries > 0) setTimeout(() => pillBubble(pill, { doc, lang, tries: tries - 1 }), 2500);

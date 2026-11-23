@@ -216,6 +216,11 @@ for (const W of [320, 390]) {
   // 🎖️ The pill's bubble: shown until the profile is opened or ✕ (?profile-intro=demo shows it again)
   await b.go(`${SITE}/?test`, 3000);
   ok(await ev(`!document.getElementById('pf-bubble')`), `${W}: 🎖️ no bubble once the profile was opened`);
+  // A guest never gets it (the owner, 2026-11-23)
+  await ev(`localStorage.setItem('e2e-yo', localStorage.getItem('juegos-de-salon:jugador') || ''); localStorage.removeItem('juegos-de-salon:jugador')`);
+  await b.go(`${SITE}/?test&profile-intro=demo`, 4500);
+  ok(await ev(`!document.getElementById('pf-bubble') && !!document.querySelector('.topbar .pf-home')`), `${W}: 🎖️ a guest gets no bubble, only the pill`);
+  await ev(`localStorage.getItem('e2e-yo') && localStorage.setItem('juegos-de-salon:jugador', localStorage.getItem('e2e-yo')); localStorage.removeItem('e2e-yo')`);
   await b.go(`${SITE}/?test&profile-intro=demo`, 3500);
   ok(await ev(`document.querySelectorAll('.shelf').length > 0`), `${W}: 🎖️ the home page is the icon view (home-carousels)`);
   ok(await ev(`(() => { const x = document.getElementById('pf-bubble')?.getBoundingClientRect(), p = document.querySelector('.topbar .pf-home').getBoundingClientRect(); return !!x && x.left >= 0 && x.right <= ${W} && x.top > p.bottom && x.top - p.bottom < 24 && document.documentElement.scrollWidth <= ${W}; })()`), `${W}: 🎖️ the bubble rises right under the pill and fits the screen`);
