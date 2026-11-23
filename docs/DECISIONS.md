@@ -56,7 +56,6 @@ Where today's rule is and which decisions explain it: those in force that still 
 | Installable app and phone notifications | C-2, [PWA-NOTIFICACIONES.md](PWA-NOTIFICACIONES.md) | D-221, D-222, D-223, D-224, D-225, D-227, D-228, D-229, D-230, D-232, D-233, D-504, D-538, D-544, D-545, D-546, D-564, D-565, D-571, D-574, D-609 |
 
 ## In force (593)
-## In force (592)
 
 | D | Title | Status |
 |---|---|---|
