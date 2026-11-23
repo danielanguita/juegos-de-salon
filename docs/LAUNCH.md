@@ -18,6 +18,10 @@ node tools/agents/launch-check.mjs <id>… --live              # + Firebase and 
 The first two go green in the preparation PR and again before scheduling; `--live` runs after the hour.
 A ✗ is a launch that would go out incomplete: fix it, never schedule around it.
 
+**And GitHub enforces it (D-606):** the PR that launches a game (its `nuevoDesde` moves while it is behind its
+`lanza`: the launch-day PR) runs `launch-check.mjs <ids> --screens` in the `launch` job of `end-to-end`
+(`tools/agents/launching.mjs` names the games). A ✗ there keeps the PR from merging.
+
 A launch has four PRs or moments, always in this order:
 
 1. **Preparation PR**: the game is ready but hidden behind its flag (D-517).
