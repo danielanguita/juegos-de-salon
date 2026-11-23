@@ -13,8 +13,8 @@ Fill the grid with suns and moons: three of each per row and column, never three
 
 - Tap a square for a sun, again for a moon, again to clear it.
 - Only leaving a square that breaks a rule is a mistake (D-102); the red, its sound and the counter wait 1.5 s (`ROJO_MS`, D-337).
-- Score (La Copa, and everywhere while `tango-time` is off): start at 100, −10 per mistake and −15 per hint, even if undone; minimum 10; giving up is 0. Undo (D-342) and Give up (D-110) as in Queens.
-- **Scored by time** (lab, flag `tango-time`, D-572), on its own page and in Uno al día only, never La Copa: 100 up to 45 s, down to 10 at 5 min; mistakes cost nothing; each hint adds 15 s (`PISTA_MS`). The page passes `ctx.suelto`; the final state carries `porTiempo` and `ms`.
+- Score (everywhere while `tango-time` is off, and in the cups created before it was on): start at 100, −10 per mistake and −15 per hint, even if undone; minimum 10; giving up is 0. Undo (D-342) and Give up (D-110) as in Queens.
+- **Scored by time** (lab, flag `tango-time`, D-572), on its own page, in Uno al día and in the cups created while the flag is on for their creator (D-607): 100 up to 45 s, down to 10 at 5 min; mistakes cost nothing; each hint adds 15 s (`PISTA_MS`). Such a cup writes `tango:time` in `meta.cal` (`NEW_RULES` in `public/cup/engine.js`), so every player of it plays by time whatever their own flags, and a cup created before keeps 10 a mistake to its end; the board carries `porTiempo`. On its own page, `ctx.suelto` and the flag. The final state carries `porTiempo` and `ms`.
 
 The texts the player reads (how to play, scoring, tiebreak) are its entry in `JUEGOS_COPA` of
 `public/cup/rules.js`, in the three languages (C-3).

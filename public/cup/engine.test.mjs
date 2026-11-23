@@ -7,7 +7,7 @@ import {
   fechaEn, sumarDias, medianoche, ventanas, nuevaMeta, diaActual, abierto, cerrado, terminada, inscripcionAbierta,
   aliasLimpio, esAlias, menosJuegos, provisoria, ultimoDiaVisto, marcaDelDia, aliasHasta, ALIAS_LIBRE_MS,
   estadoDia, puedeComodin, multiplicador, comodinAuto, comodinEfectivo, ultimoDiaComodin, AUTO_WILD_FROM, posicionesDelDia, tabla, desempate, faltan, medallas, reloj, pausaDeLectura, mmss, juegoDelDia, evolucion,
-  fuera, enRiesgo, AUSENCIAS, cerrarEn, conCierre, cerradaAntes, anulado, puedeCerrar, VARIANTES, diaDeCal, entradaCal, varianteDelDia, calendario,
+  fuera, enRiesgo, AUSENCIAS, cerrarEn, conCierre, cerradaAntes, anulado, puedeCerrar, VARIANTES, diaDeCal, entradaCal, varianteDelDia, calendario, NEW_RULES, newRulesOn, withNewRules,
   semanaAlAzar, ESTILOS_SEMANA, tieneFinal, SIN_FINAL, esFinal,
   TRIO, findeAlAzar, findeAbierto, FINDE_HASTA, rondasDelDia, estadoEnLista, recorteLista, podioDecidido,
   finalByPlaces, FINAL_PLACES_FROM, readRounds,
@@ -28,6 +28,19 @@ test('variants (D-331): a day is `id` or `id:variant`, and the default one is wr
     assert.deepEqual(diaDeCal(id), { id, variante: vs[0] });
   }
   assert.deepEqual(diaDeCal('reinas'), { id: 'reinas', variante: null }, 'a game without variants has none');
+  // A game's new rule (D-607): not an admin's choice, the cup takes it when created with its flag on
+  for (const [id, r] of Object.entries(NEW_RULES)) {
+    assert.ok(POZO.includes(id) && !VARIANTES[id], `${id} is in the pool and has no admin variants`);
+    assert.deepEqual(diaDeCal(id), { id, variante: null }, 'a cup from before plays the old rule');
+    assert.deepEqual(diaDeCal(`${id}:${r.variant}`), { id, variante: r.variant });
+    assert.equal(entradaCal(id, r.variant), `${id}:${r.variant}`, 'the final carries it from the week');
+    assert.equal(entradaCal(id, null), id);
+    assert.equal(calendario({ cal: `${id}:${r.variant},zip,final` })[0], id);
+  }
+  assert.ok(calendarioValido(['tango:time', 'zip', 'final'], 3));
+  assert.ok(!calendarioValido(['tango:x', 'zip', 'final'], 3));
+  assert.deepEqual(withNewRules(['tango+zip+reinas', 'loteo:utilities', 'tango'], ['tango']), ['tango:time+zip+reinas', 'loteo:utilities', 'tango:time'], 'on a day of three too');
+  assert.deepEqual(withNewRules(['tango'], []), ['tango']);
   assert.equal(entradaCal('reinas', 'hard'), 'reinas');
   assert.ok(calendarioValido(['pintaminas:hard', 'loteo:utilities', 'final'], 3));
   assert.ok(calendarioValido(['pintaminas', 'loteo', 'final'], 3));
@@ -83,6 +96,10 @@ test('calendario a elección (D-163): juegos del pozo sin repetir y la final al 
   // nuevaMeta guarda el calendario elegido y rechaza uno que no se puede jugar
   const base = { nombre: 'X', dias: 3, inicio: '2026-10-01', admin: 'abc123', creada: 0 };
   assert.equal(nuevaMeta({ ...base, cal: ['donde', 'zip', 'final'] }).cal, 'donde,zip,final');
+  // A cup created with Tango's new rule (D-607) writes it in its calendar; one without keeps the old
+  assert.equal(nuevaMeta({ ...base, cal: ['tango', 'zip', 'final'], newRules: ['tango'] }).cal, 'tango:time,zip,final');
+  assert.equal(nuevaMeta({ ...base, cal: ['tango', 'zip', 'final'] }).cal, 'tango,zip,final');
+  assert.equal(nuevaMeta({ ...base, cal: ['donde', 'zip', 'final'], newRules: ['tango'] }).cal, 'donde,zip,final', 'only where the game is');
   assert.equal(nuevaMeta(base).cal, 'linea,agentes,final');
   assert.throws(() => nuevaMeta({ ...base, cal: ['zip', 'zip', 'final'] }), /calendario/);
   // El público (D-187): se escribe si es uno de los tres; sin él, como las copas de antes
@@ -820,3 +837,11 @@ test('a launched game is in the open pool once its flag is all, and never only f
   for (const g of ALL_GAMES.filter(x => x.copa)) assert.ok(!g.labs && !g.bodega, `${g.id}: a lab or Bodega game is never in the cup`);
   refreshPool({});
 });
+
+// newRulesOn (D-607): the games whose flag is on for the cup's creator; a flag that fails is off
+{
+  const on = await newRulesOn(async id => id === 'tango-time');
+  assert.deepEqual(on, ['tango']);
+  assert.deepEqual(await newRulesOn(async () => false), []);
+  assert.deepEqual(await newRulesOn(() => Promise.reject(new Error('offline'))), []);
+}
