@@ -3,13 +3,26 @@
 How a lab game goes out to every player, with nothing left behind. It gathers what more than twenty
 launches taught (Shinobi, Babel, Aletazo, Sudoku, ¡Al toque!, Dominorama, Memorice…). Each step names
 where it lives and the check that holds it; the misses at the end say why each step exists.
-Read it **before** preparing a launch, and tick it off in the PR that prepares it.
+Read it **before** preparing a launch, and tick it off in the PR that prepares it. The `launch-game` skill
+(`.claude/skills/launch-game/`) walks it in order.
+
+**One command checks it, three times** (`tools/agents/launch-check.mjs`, after Croc! and Tembleque, 2026-11-22):
+every place a launched game shows, so nothing rests on reading this list.
+
+```
+node tools/agents/launch-check.mjs <id> [<id>…]              # the repo: entry, tables, pools, lab card, splash, cards, docs
+node tools/agents/launch-check.mjs <id>… --screens           # + the real screens, flags pinned to all (serve public/ on 8765)
+node tools/agents/launch-check.mjs <id>… --live              # + Firebase and the live site, after the hour
+```
+
+The first two go green in the preparation PR and again before scheduling; `--live` runs after the hour.
+A ✗ is a launch that would go out incomplete: fix it, never schedule around it.
 
 A launch has four PRs or moments, always in this order:
 
 1. **Preparation PR**: the game is ready but hidden behind its flag (D-517).
 2. **Splash PR**: the campaign is ready but off (D-454).
-3. **Launch**: at the owner's hour, by a Claude cloud task, with an alarm (D-529, D-591), then checked live.
+3. **Launch**: at the owner's hour, by a Claude cloud task, with an alarm (D-529, D-591), then checked live (`launch-check.mjs --live`, then by eye).
 4. **Cleanup PR**: a few days later, the gate and the prototype go (D-479, D-534).
 
 Nothing launches without the owner's word, and the owner names the hour (in Pacific, D-561).
@@ -41,6 +54,12 @@ Precedents: Sudoku `3f60e2d8`, ¡Al toque! `54324382`, Dominorama `ba085a29`, Me
   - [ ] `docs/games/<folder>.md` (C-13).
   - [ ] README section, screenshots and og cards (the `readme-and-cards` skill). The README says "ready to launch".
   - [ ] Changelog entry.
+- [ ] **What every game played alone has**, the same as the house's covers (Sudoku, Croc!, Memorice), each checked by `launch-check.mjs --screens`:
+  - [ ] the cover's start button is «<icon> Empezar» / «Start» / «Começar», never a word of its own;
+  - [ ] under Instrucciones and Entrar, **its ranking** (`bloqueRanking`), naming the level when it has levels («Ranking de Sudoku · 🟢 Fácil») and following its lever;
+  - [ ] the result's table names the same level;
+  - [ ] the icon view's sheet (the home page the lab holds) shows that table.
+- [ ] **`node tools/agents/launch-check.mjs <id> --screens` green.**
 - [ ] **Agents.** Usability does its full pass (D-304), the player agent plays it, and documentation reviews it. Merge with everything green.
 
 ## 2. Splash PR (made, but off)
@@ -59,20 +78,33 @@ Precedents: Sudoku `3f60e2d8`, ¡Al toque! `54324382`, Dominorama `ba085a29`, Me
   - [ ] which campaign it **turns off** (`turn_off`, the previous launch's);
   - [ ] whether it goes **first**.
 - [ ] **Re-check the dates.** `unoAlDia.desde` and `nuevoDesde` must fit the hour; if they don't, a PR fixes them before the launch.
+- [ ] **Re-run the check.** `launch-check.mjs <ids> --screens` green on today's `main`, a day or more before the hour.
+- [ ] **The launch-day PR** moves `nuevoDesde` and `unoAlDia.desde` to the hour (Uno al día's days are Pacific, like
+      the hour) **and** turns the README and `docs/games/<id>.md` from «ready to launch» to «launched <date>»: written
+      after the hour, it was left stale (Croc! and Tembleque).
 - [ ] **Two cloud tasks.** Create two one-time **Claude cloud** scheduled tasks from `tools/jobs/prompts/launch.md`:
       the launch at the hour, and the alarm 10 minutes later. Create them from a cloud session or from `/schedule`
       inside the repo, never from the Mac or a desktop-app task (D-591). Confirm both appear on claude.ai/code → Routines.
       Only then tell the owner "programado".
+  - **Who creates them:** the owner, with `/schedule`, or a cloud session the owner opened. A session another session
+    starts and instructs gets its `create_trigger` denied by its own permission check (the order is not the owner's):
+    that is how the Croc! and Tembleque tasks failed, 12 minutes before the hour. Ask for them early, a day before.
+  - **If they are not there 30 minutes before the hour:** the session that has the owner's word dispatches `launch.yml`
+    itself at the hour (a background wait until `NOT_BEFORE`, then the same `gh workflow run` the prompt has), runs
+    the alarm's check itself 10 minutes later, and tells the owner which way it went out.
 - [ ] **Record it.** Add the launch to the D-529 uses line in `docs/AGENTS.md`.
 
 ### Checked live after the launch (open it, don't assume)
 
-On https://juegosdesalon.cl/ at phone width, as a new visitor and as a lab key holder:
+First `node tools/agents/launch-check.mjs <ids> --live` (flags, splash, pages, cards, README). Then by eye, on
+https://juegosdesalon.cl/ at phone width, as a new visitor and as a lab key holder. A check of a function is not
+a check of the page: the Bodega move passed `launched()` while `/labs/` kept the cards (2026-11-22).
 
 - [ ] `flags/<id>` is `state: "all"`; `splash/<campaign>` is `on: true` with its `until`; the previous campaign is off.
 - [ ] The splash shows first, with each game's own icon.
 - [ ] The home card is there with ✨ **Nuevo**, newest first; search and the filters find it.
-- [ ] Its page opens and plays; `/records/` has its tab.
+- [ ] Its cover has its ranking under Entrar and «<icon> Empezar»; its page plays to the result, whose table names its level; `/records/` has its tab.
+- [ ] The icon view (the lab's home page): it is in ✨ Nuevos, and its sheet's 🏅 tab shows its table.
 - [ ] **La Copa, as a new visitor with no saved flags:** on the create screen the game is in the list of games, and a few 🎲 rolls of a 14-day cup bring it in. Then a cup day with it opens and plays to the end.
 - [ ] The `/labs/` card moved to La Bodega (`public/labs/launched.js`, D-534).
 - [ ] The next day: Uno al día deals it from `desde`.
@@ -84,7 +116,8 @@ Tell the owner only once all of this was seen working (D-591's alarm covers the 
 - [ ] **Remove the gate.** Drop `lanza` and the `FLAGS` row; the game joins the fixed pool (`POZO_FIJO` in `public/cup/engine.js`).
 - [ ] **La Bodega card.** Move its card's HTML for good to La Bodega (D-479, D-510, D-534; `public/labs/bodega.test.mjs`).
 - [ ] **Lab prototype.** Retire it; its old path becomes a bridge.
-- [ ] **Docs.** README and docs drop "launching" and the lab notes.
+- [ ] **Docs.** Docs drop the lab notes (the README already says launched, from the launch-day PR).
+- [ ] **Flags snapshot.** The e2e snapshot has the flag on *all* (`flags-snapshot.mjs check`; the processes round refreshes it, D-578).
 
 ## Past misses, and what stops them now
 
@@ -102,5 +135,10 @@ Tell the owner only once all of this was seen working (D-591's alarm covers the 
 | Launched cards stayed under "en prueba" | `public/labs/launched.js` moves them (D-534), `public/labs/bodega.test.mjs` |
 | Live flags and demos made visual references flaky | `VISUAL_SKIP` for those covers; e2e pins its flags |
 | Launched flags kept their tester switch | They leave the tester tab (D-567) |
+| Tembleque launched with no ranking on its cover and «¡A jugar!» for its button, unlike every game played alone; its result's table did not name the level | `launch-check.mjs` (static: the cover calls `bloqueRanking`; `--screens`: the table on the cover and the button), `tools/e2e/wobbles/game.mjs` |
+| Croc!, Tembleque, Memorice and Dominorama stayed under 🎲 Juegos en prueba: `launched.js` read only ✨ Mejoras en prueba, and the live check ran the function, not `/labs/` | `move()` reads both groups (D-534 amended); `launch-check.mjs --screens` moves the card on the page |
+| The Croc! and Tembleque cloud tasks were denied: a session started by another session cannot create them | §3: the owner creates them a day before; else the session dispatches `launch.yml` at the hour and checks it itself |
+| The README still said «ready to launch, not launched» after the launch | The launch-day PR flips it; `launch-check.mjs --live` fails while it says so |
+| Each launch read this list and still missed a different surface | `tools/agents/launch-check.mjs`, run in the preparation PR, before scheduling and after the hour |
 
 A new miss adds its row here and its check, in the PR that fixes it (RULES.md rule 5).
