@@ -1022,7 +1022,7 @@ else {
   assert.equal(numero.puntaje(e), 70);
 }
 
-// Lab flag tango-time (outside La Copa only): the time scores, mistakes cost nothing, a hint adds 15 s
+// Lab flag tango-time (its own page, and the cups created with it, D-607): the time scores, mistakes cost nothing, a hint adds 15 s
 {
   assert.equal(tango.pointsForTime(30000), 100);
   assert.equal(tango.pointsForTime(45000), 100);
@@ -1034,4 +1034,9 @@ else {
   assert.equal(tango.puntaje({ ...base, porTiempo: true, ms: 40000, pistas: 2 }), tango.pointsForTime(70000), 'a hint adds 15 s');
   assert.equal(tango.puntaje({ ...base, porTiempo: true, ms: 40000, rendido: true }), 0);
   assert.match(tango.tarjeta({ ...base, porTiempo: true, ms: 83000 }), /⏱ 1:23/);
+  // A cup created with the new rule (D-607): its board says so, the same board as before
+  const viejo = tango.generar('ABCDE', 2), nuevo = tango.generar('ABCDE', 2, { variante: 'time' });
+  assert.equal(viejo.porTiempo, undefined, 'a cup from before keeps 10 a mistake');
+  assert.equal(nuevo.porTiempo, true);
+  assert.deepEqual({ ...nuevo, porTiempo: undefined }, { ...viejo, porTiempo: undefined }, 'the rule changes, not the board');
 }

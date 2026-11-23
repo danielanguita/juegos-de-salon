@@ -23,7 +23,7 @@ import { leer as leerDia, recorrer } from '../assets/js/uno-al-dia.js';
 import { firebaseConfig } from '../assets/js/firebase-config.js';
 import { BADGES, GROUPS, DUELS_FLAG, earned, lastOnDay, withAnnounced } from './badges.js';
 import { TEXTS } from './texts.js';
-import { tableOf } from './peek.js';
+import { tableOf } from '../assets/js/player-peek.js';
 import { phoneFacts, LOCAL_BADGES } from '../assets/js/phone-facts.js';
 import { announced } from '../assets/js/secret-achievements.js';
 
@@ -234,8 +234,7 @@ function badgePanels(list, { only = null, reveal = false, duels = null } = {}) {
     const got = all.filter(b => b.got).length;
     return el('section', { class: 'panel pf-group', 'data-group': g },
       el('p', { class: 'lead pf-group-head' }, el('span', {}, title[g]), el('small', {}, fmt(T.groupOf, { n: got, total: all.length }))),
-      el('div', { class: 'pf-grid' }, all.map(b => badgeEl(b, { reveal }))),
-      ...(g === 'duels' && duels ? duels() : []));
+      ...(() => { const x = g === 'duels' && duels ? duels() : {}; return [x.top, el('div', { class: 'pf-grid' }, all.map(b => badgeEl(b, { reveal }))), x.foot].filter(Boolean); })());
   });
 }
 
@@ -424,7 +423,7 @@ function cupsPanel(f) {
   return box;
 }
 
-/** The ⚙️ tab: the account and the preferences (offline mode's ☁️ stays on the home page; writing to us and privacy are in the footer). */
+/** The ⚙️ tab: the account and the preferences (offline mode's ☁️ joins them with the flag cloud-quiet; writing to us and privacy are in the footer). */
 /** An account error in the player's words: the rankings' own texts. */
 const accountError = e => ({ 'pin-actual': RK.errCurrentPin, espera: RK.errWait, nombre: RK.errName, 'pin-forma': RK.errPin })[e?.code] || RK.errNet;
 const pinInput = (id, label) => el('input', { id, class: 'rk-pin', type: 'password', inputmode: 'numeric', pattern: '[0-9]*', maxlength: '4', autocomplete: 'off', 'aria-label': label });
@@ -526,7 +525,7 @@ function accountPanel(yo) {
  * hide (D-605): the sheet shows where someone stands, not how much they play.
  */
 function publicPanel(yo) {
-  const see = el('button', { type: 'button', class: 'btn btn--ghost pf-see-public', onClick: () => { tap(); import('./peek.js').then(m => m.peekPlayer(yo.jid, { hint: yo, onTap: tap })); } }, T.seePublic);
+  const see = el('button', { type: 'button', class: 'btn btn--ghost pf-see-public', onClick: () => { tap(); import('../assets/js/player-peek.js').then(m => m.peekPlayer(yo.jid, { hint: yo, onTap: tap })); } }, T.seePublic);
   return el('section', { class: 'panel pf-settings pf-public' }, el('p', { class: 'lead rk-titulo' }, T.publicTitle),
     el('p', { class: 'muted rk-hint' }, T.publicHint), see);
 }
@@ -535,6 +534,11 @@ function settingsTab(yo) {
   const row = (label, hint, control) => el('div', { class: 'toggle-row' }, el('span', { class: 'txt' }, el('b', {}, label), hint ? el('small', {}, hint) : null), control);
   const prefs = el('section', { class: 'panel pf-settings' }, el('p', { class: 'lead rk-titulo' }, T.prefs),
     row(T.language, null, langToggle()), row(T.sound, null, soundToggle()));
+  // ☁️ Games with no signal: where the phone stands, always here; the home page's bar shows the cloud only when it asks for something
+  // (flag cloud-quiet, offline-ready.js). lab: #seccion-cloud-quiet
+  Promise.all([flag('offline'), flag('cloud-quiet')])
+    .then(([offline, quiet]) => offline && quiet && import('../assets/js/offline-ready.js').then(m => prefs.append(m.offlineReadyRow({ lang, tap }))))
+    .catch(() => {});
   const notices = el('div', {});
   import('../assets/js/uno-al-dia-avisos.js').then(m => {
     const draw = () => { const b = m.bloque({ lang, alTocar: tap, redibujar: draw }); notices.replaceChildren(...(b ? [b] : [])); };
@@ -604,10 +608,11 @@ export async function drawProfile(root, { sub }) {
     if (mine !== turn) return;
     let duelList = null, DU = null, duelF = null;
     const duelsExtra = () => {
-      if (!DU) return [];
+      if (!DU) return {};
+      // The record on top, right under the group's title; the way to /duels/ at the foot
       const pills = duelList ? DU.pildoras(duelList, yo.jid) : [];
-      return [pills.length ? el('div', { class: 'dl-pills pf-duel-pills' }, pills) : null,
-        el('a', { class: 'btn btn--ghost btn--sm pf-duels-go', id: 'pf-duels-go', href: DU.hrefDuelos(), onClick: tap }, T.duelsGo)].filter(Boolean);
+      return { top: pills.length ? el('div', { class: 'dl-pills pf-duel-pills' }, pills) : null,
+        foot: el('a', { class: 'btn btn--ghost btn--sm pf-duels-go', id: 'pf-duels-go', href: DU.hrefDuelos(), onClick: tap }, T.duelsGo) };
     };
     const paint = (final = false) => {
       const list = badgeState(duelF ? { ...f, duels: duelF } : f, yo.jid).filter(b => duelsOn || b.group !== 'duels');
@@ -657,8 +662,9 @@ export async function drawProfile(root, { sub }) {
     if (mine !== turn) return;
     repaint(paint(true));
   };
-  // A tap on a name in any of the page's rankings opens that player's profile at a glance (the owner, 2026-11-22)
-  import('./peek.js').then(m => m.peekOnTap(root, { onTap: tap })).catch(() => {});
+  // A tap on a name in any of the page's rankings opens that player's profile at a glance (the owner, 2026-11-22);
+  // with the lab flag ranking-peek each ranking opens it itself, headed by where it was tapped (ranking.js)
+  import('../assets/js/player-peek.js').then(m => m.peekOnTap(root, { onTap: tap, contextOf: () => null })).catch(() => {});
   J.escuchar(() => draw());
   await draw();
   window.__profile = { redraw: draw };

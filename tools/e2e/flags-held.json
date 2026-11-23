@@ -16,5 +16,8 @@
   },
   "profile": {
     "state": "off"
+  },
+  "cloud-quiet": {
+    "state": "off"
   }
 }

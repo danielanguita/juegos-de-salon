@@ -32,6 +32,7 @@ if (unmeasured.length) console.log(`  not measured yet (estimated from their sib
 const real = group(jobs(), measured);
 assert.ok(real.length <= MAXIMUM, `${real.length} groups: more than the runners`);
 const longest = Math.max(...jobs().map(t => duration(t, measured)));
-const alarm = Math.max(TARGET_S, longest) * 1.15;
+// Rounded: 400 × 1.15 is 459.99999999999994 in floating point, and a 460 s group failed main on it
+const alarm = Math.round(Math.max(TARGET_S, longest) * 1.15);
 assert.ok(real[0].s <= alarm, `the heaviest group (${real[0].s} s) goes far over the target: cut browser time or propose the next TARGET_S (D-585)`);
 console.log(`groups: green · ${real.length} groups, the longest ${real[0].s} s, ${Math.floor(alarm - real[0].s)} s of headroom before the alarm`);

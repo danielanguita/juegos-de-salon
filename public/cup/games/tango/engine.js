@@ -83,7 +83,7 @@ function solucionAlAzar(a, n) {
   return g;
 }
 
-export function generar(codigo, dia, { n = 6, sal = 'tango' } = {}) {
+export function generar(codigo, dia, { n = 6, sal = 'tango', variante = null } = {}) {
   const a = azar(codigo, dia, sal);
   const sol = solucionAlAzar(a, n);
   // Pistas posibles: casillas dadas y marcas entre vecinas
@@ -108,7 +108,8 @@ export function generar(codigo, dia, { n = 6, sal = 'tango' } = {}) {
     sacar(p);
     if (resolver({ n, dadas, marcas }) !== 1) poner(p);
   }
-  return { n, dadas, marcas, sol };
+  // A cup created with Tango's new rule (D-607) plays this board by time, as its own page does
+  return { n, dadas, marcas, sol, ...(variante === 'time' ? { porTiempo: true } : {}) };
 }
 
 export const esDada = (p, i) => p.dadas[i] !== undefined;
@@ -199,8 +200,8 @@ export function estado(p, jugadas) {
 }
 
 /**
- * Lab flag `tango-time` (lab: #seccion-tango-time), only outside La Copa so no running cup changes
- * its rule: the time scores, as in Queens (D-107), and mistakes cost nothing. 100 up to `RAPIDO_MS`,
+ * Lab flag `tango-time` (lab: #seccion-tango-time), on its own page and in the cups created while it
+ * is on (`p.porTiempo`, D-607), so no running cup changes its rule: the time scores, as in Queens (D-107), and mistakes cost nothing. 100 up to `RAPIDO_MS`,
  * then evenly down to 10 at `LENTO_MS`; each hint adds `PISTA_MS` to the time. The page marks the
  * final state with `porTiempo` and `ms`, so the score and its breakdown read it from the state.
  */

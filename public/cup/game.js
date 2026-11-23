@@ -465,7 +465,7 @@ function portada() {
       el('summary', {}, T.howTitle),
       el('ol', { class: 'como' }, T.howItems.map(x => el('li', {}, x)))),
     // Los campeones de las copas terminadas (D-212): al final, para no empujar lo de crear o entrar
-    rankingsVisibles() ? bloqueCampeones() : null,
+    rankingsVisibles() ? bloqueCampeones({ alTocar: () => SFX.tap() }) : null,
   );
 }
 
@@ -902,7 +902,22 @@ function vistaTabla(filas, { dias, meta, now }) {
     // Today's comments as an extra line of the row, under the name: place, arrow and points stay where they were
     ...(() => { const cs = charla ? comentariosEnFila(f.pid, now) : []; return cs.length ? [el('div', { class: 'fila-comentarios' }, cs)] : []; })()),
   conCharla ? cajonCharla(f.pid, now) : null].filter(Boolean)));
+  fichasEnTabla(tablaNodo);
   return recortarTabla(tablaNodo, filas.length);
+}
+
+/**
+ * A tap on a signed-in player's row opens their public profile, headed by this Cup and their place and points
+ * in it (lab flag `ranking-peek`, player-peek.js; the owner, 2026-11-23). Seats with no name of their own do nothing.
+ * lab: #seccion-ranking-peek
+ */
+function fichasEnTabla(nodo) {
+  flag('ranking-peek').then(on => on && import('../assets/js/player-peek.js')).then(m => m?.peekOnTap(nodo, {
+    onTap: () => SFX.tap(), rows: '.fila',
+    jidOf: r => L()?.players?.[r.dataset.pid]?.j,
+    nameOf: r => r.querySelector('.quien b')?.firstChild?.textContent || '',
+    contextOf: r => ({ label: `🏆 ${L()?.meta?.name || ''}`.trim(), place: r.querySelector('.lugar')?.textContent || '', value: r.querySelector('.total')?.textContent || '' }),
+  })).catch(() => {});
 }
 
 // A cup of more than 10 players (up to 20): the table shows the first 10, the 11th peeks faded under
@@ -1812,7 +1827,8 @@ function panelReglas(id, { copa = true, prueba = false, variante = null } = {}) 
   // puzzles and was hard to keep in mind (player feedback, 2026-11-12). lab: #seccion-mistakes-rule
   if (J.errores) {
     const juego = S.juego;
-    // Tango scored by time says mistakes cost nothing, outside La Copa only (lab: #seccion-tango-time)
+    // Tango scored by time says mistakes cost nothing: on its own page with the flag; a cup created
+    // with the new rule already reads it through conVariante (D-607). lab: #seccion-tango-time
     const porTiempo = !copa && J.erroresTiempo ? flag('tango-time').catch(() => false) : Promise.resolve(false);
     Promise.all([flag('mistakes-rule'), porTiempo]).then(([on, tiempo]) => {
       if (!on || S.juego !== juego || document.getElementById('regla-errores')) return;
@@ -1831,7 +1847,8 @@ function panelReglas(id, { copa = true, prueba = false, variante = null } = {}) 
     id === 'trio' ? [el('p', { class: 'lead' }, T.trioGames), listaRondas()] : null,
     el('p', { class: 'lead' }, T.scoring),
     el('p', { class: 'muted' }, puntajeTexto(J, copa))));
-  // Tango scored by time, outside La Copa only so no running cup changes its rule (lab: #seccion-tango-time)
+  // Tango scored by time on its own page; in a cup only when created with the new rule, through
+  // conVariante, so no running cup changes its rule (D-607). lab: #seccion-tango-time
   if (!copa && J.puntajeTiempo) {
     const juego = S.juego;
     flag('tango-time').then(on => {
@@ -2205,7 +2222,7 @@ function practica(id, varianteElegida = null) {
       el('p', { class: 'lead', style: 'margin:10px 0 4px' }, T.scoring), el('p', { class: 'muted', id: 'como-puntaje' }, puntajeTexto(Jr, false))),
     rankea(id) ? bloqueRanking({ juego: tablaRk(id, variante), titulo: tituloRk(J), pestanas: varianteRk(id, variante) ? ['semana', 'siempre', 'amigos'] : ['semana', 'siempre', 'amigos', 'copa'], alTocar: () => SFX.tap() }) : null));
   pieComentario({ juego: id, semilla, pantalla: 'antesala' });
-  // Tango scored by time outside La Copa: the cover says so too (lab: #seccion-tango-time, D-572)
+  // Tango scored by time on its own page: the cover says so too (lab: #seccion-tango-time, D-572)
   if (Jr.puntajeTiempo) flag('tango-time').then(on => { const x = on && document.getElementById('como-puntaje'); if (x) x.textContent = Jr.puntajeTiempo; }, () => {});
   // A game's own page: Instrucciones and Entrar as dialogs, no game chip on top (lab: #seccion-cover-dialogs)
   if (SUELTO) coverWithDialogs(body, { lang: LANG, alTocar: () => SFX.tap() });
@@ -2359,7 +2376,7 @@ async function jugarSinPuntaje(id, p, alTerminar, { ensayo = false, guardado = n
   mod.montar(body, {
     p, jugadas: guardado?.jugadas, T, fmt, el, SFX, vibrate, lang: LANG, pantallaCompleta,
     textoFin: ensayo ? T.trialEnd : undefined,
-    // Played on its own, not in a cup: a game may try a rule change here first (Tango, lab: #seccion-tango-time)
+    // Played on its own, not in a cup: a game may try a rule change here first (Tango, lab: #seccion-tango-time; a cup takes it when created, D-607)
     suelto: true,
     // One a Day: a game whose end screen only repeats the result skips it (lab: #seccion-uad-skip-end)
     directo: HOY && !ensayo && saltarFin,

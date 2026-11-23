@@ -175,6 +175,12 @@ PR that changes what is kept on the phone.
    checks file by file that the release's list is kept and shows one of four states: storing, ready ✓
    (glows), missing ! (Reintentar asks the worker to store what is missing) and unsupported (private mode,
    an old browser). A tap opens a sheet explaining the state, live (`offline-ready.test.mjs`).
+   - **Quiet cloud** (flag `cloud-quiet`, in Labs, the owner, 2026-11-23): with the profile's ⚙️ settings, the
+     bar shows the cloud only while it asks for something (storing, missing), then its slot closes up; ready and
+     unsupported live in a «Juegos sin señal» row of ⚙️ Preferencias (`offlineReadyRow`), which opens the same
+     sheet. ⚙️ is for players with an account, so a guest still gets the cloud whenever something needs them.
+     The «T» tab's cloud states go with the flag's own row while it is in the lab, on both pages
+     (`tools/e2e/home/cloud-quiet.mjs`).
 10. Publish: the owner flips `flags/offline` to *all*; RP-13 ✅.
 
 ## Risks

@@ -100,6 +100,7 @@ const ES = [
   { c: 'Padre de familia sobrealimentado que además es poeta y ciego', k: 'definitions', l: 'm', d: 'Padre de familia sobrealimentado', s: 'EVcERVVRZSsoaCEuTkNMV0FISzQbGkMnBRgAFQAAF0QAQVMRDQscSkMWDFASCA4GBhwERxwcTxYATB8IAQoAWwIWBlAQDEMDC1UWAh0aSEQcDRYNTB8BShcTSRMdDAQAShIXDgoUQkpFYRwSTAsBXEMBBh5UISwiLycqRRI=' },
   { c: 'No me digas la primera de Marcela, que viene mi padre, y la saltean con ajo', k: 'charade', l: 'h', d: 'la saltean con ajo', s: 'EVcERVVRbiUpYTIsPC5MA0EKS0pWJwxPBxBFAwYUTBdfDTAgICMvFEMeCFAEGwoCDwcERwsWDSkEXxAEAA5UDy5JSR0dSRMODgcAXU8jbEpFZwYPGAAdA0MxKDw4KC4/K1lFFhoWDRcADQAAABsLTkMRBh5UCAkASAg=' },
   { c: 'Nadie debe saberlo y, en segundo lugar, usted me ocultó tres veces, otra no', k: 'selector', l: 'h', d: 'Nadie debe saberlo', s: 'EVcERVVRfiEmfzY1I01CDRtQU1IxB0McDxIQCQscDQgQShITVk8CTkMBDBcBBwcOShkAEx0SDQAADRAACA5OXwIeCBIGCE1PHyYRAgtfDQkgAVMOLxoCW6DBRVAAOwYcRlUTIgwWXkhFQicTDUNOQSxSVFAnLCA9LyEqS08CWAFFQxIFBQpOSwYQDFAHCAEKGFcY' },
+  { c: 'Es brillante que en el ADN culmine la esencia de Dios', k: 'charade', l: 'h', d: 'Es brillante', s: 'EVcERVVRaiErZDxDQE0WDVlQJR9UGBYKSh0EHk8WQ0QAQVMgKCFUDyQ3J0tUBQJPDwYACQwaTEQBSFMlBQAdA0MeCANUBQYbGBQWRwsWDRcQDRAEAhscQFlSID9aSSkaBAEKFENTaiErZDxNTA4CSBYbDB5UCxEGBhkECRsWDxk=' },
 ];
 
 /** Spanish only for now (the owner, 2026-11-19): the mechanics first, the other banks once it works. */

@@ -63,15 +63,30 @@ export const POZO_FIJO = POZO.filter(id => !LANZADOS.some(g => g.id === id));
 // Sudoku's levels (D-517's way): easy, the 6×6 mini, is the default a cup day and Uno al día play
 // Croc!'s traffic (D-517's way): normal is the default a cup day and Uno al día play, hard the heavy traffic
 export const VARIANTES = { pintaminas: ['easy', 'hard'], loteo: ['numbers', 'utilities'], sudoku: ['easy', 'hard'], croc: ['normal', 'hard'] };
+/**
+ * A game's new rule, for the cups created from then on (D-607): not the admin's choice like VARIANTES,
+ * but the rule the game is played by everywhere else. A cup is created with it while its flag is on
+ * (`newRulesOn`), written `tango:time` in `meta.cal` like a variant, so every player of that cup plays
+ * the same rule whatever their own flags say, and a cup created before keeps the one it began with.
+ * Tango by time (D-572): mistakes cost nothing and a hint adds 15 s, as on its own page.
+ */
+export const NEW_RULES = { tango: { variant: 'time', flag: 'tango-time' } };   // lab: #seccion-tango-time
+/** The games whose new rule a cup created now takes: those whose flag is on for its creator. */
+export const newRulesOn = async flag => (await Promise.all(Object.entries(NEW_RULES).map(async ([id, r]) => ((await flag(r.flag).catch(() => false)) ? id : null)))).filter(Boolean);
 /** A calendar entry split into its game and its variant: `'loteo:utilities'` → `{ id: 'loteo', variante: 'utilities' }`. */
 export function diaDeCal(x) {
   if (String(x || '').includes(TRIO_SEP)) return { id: TRIO, variante: null };
   const [id, v] = String(x || '').split(':');
+  if (NEW_RULES[id]) return { id, variante: v === NEW_RULES[id].variant ? v : null };
   const vs = VARIANTES[id];
   return { id, variante: vs ? (vs.includes(v) ? v : vs[0]) : null };
 }
 /** The calendar entry for a game and a variant: the default one is written without it. */
-export const entradaCal = (id, variante = null) => (VARIANTES[id] && variante && variante !== VARIANTES[id][0] ? `${id}:${variante}` : id);
+export const entradaCal = (id, variante = null) => (NEW_RULES[id] ? (variante && variante === NEW_RULES[id].variant ? `${id}:${variante}` : id)
+  : VARIANTES[id] && variante && variante !== VARIANTES[id][0] ? `${id}:${variante}` : id);
+/** A calendar with the new rule of the games in `ids` (D-607): `tango` → `tango:time`, on a day of three too. */
+export const withNewRules = (cal, ids = []) => cal.map(x => String(x).split(TRIO_SEP)
+  .map(y => (ids.includes(y) && NEW_RULES[y] ? `${y}:${NEW_RULES[y].variant}` : y)).join(TRIO_SEP));
 
 /**
  * The 3-day cup is played without the Grand Final since D-438 (the owner's request): three games of
@@ -127,7 +142,7 @@ export function calendarioValido(cal, dias) {
   if (tres.length && (conFinal || tres.length !== dias || tres.some(x => String(x).split(TRIO_SEP).length !== TRIO_JUEGOS))) return false;
   const dia = (conFinal ? cal.slice(0, -1) : cal).flatMap(x => String(x).split(TRIO_SEP));
   const ids = dia.map(x => String(x).split(':')[0]);
-  const variantesOk = dia.every(x => { const [id, v] = String(x).split(':'); return v === undefined || (VARIANTES[id] || []).includes(v); });
+  const variantesOk = dia.every(x => { const [id, v] = String(x).split(':'); return v === undefined || (VARIANTES[id] || []).includes(v) || NEW_RULES[id]?.variant === v; });
   return variantesOk && ids.every(id => POZO.includes(id)) && new Set(ids).size === ids.length;
 }
 
@@ -319,12 +334,13 @@ export function ventanas(inicio, dias, tz = ZONA) {
  * Lo que se guarda al crear una copa. `win` lleva las ventanas ya calculadas porque las
  * reglas de la base no saben de zonas horarias: comparan `now` contra estos números.
  */
-export function nuevaMeta({ nombre, dias, inicio, tz = ZONA, admin, creada, lab = false, alias = null, cal = null, lang = 'es', aud = null }) {
+export function nuevaMeta({ nombre, dias, inicio, tz = ZONA, admin, creada, lab = false, alias = null, cal = null, lang = 'es', aud = null, newRules = [] }) {
   if (!CALENDARIOS[dias] && !(cal && largoValido(dias))) throw new Error('modalidad');
   if (cal && !calendarioValido(cal, dias)) throw new Error('calendario');
   return {
     v: 1, name: limpiarNombre(nombre, COPA_MAX), days: dias, start: inicio, tz, admin,
-    cal: (cal || CALENDARIOS[dias]).join(','), win: ventanas(inicio, dias, tz), createdAt: creada,
+    // The games whose new rule this cup is created with (D-607), so all its players play the same one
+    cal: withNewRules(cal || CALENDARIOS[dias], newRules).join(','), win: ventanas(inicio, dias, tz), createdAt: creada,
     end: medianoche(sumarDias(inicio, dias), tz),
     // Las reglas de la base no suman ni convierten números a texto: lo que necesitan comparar
     // va ya calculado. `joinUntil` = cuándo empieza la final (sin final, el último día); `final` = el día

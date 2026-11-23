@@ -6,6 +6,7 @@
 //   node tools/e2e/ci.mjs --list --changes <file>      # [] if the PR touches nothing in the browser (D-205, D-299)
 //   node tools/e2e/ci.mjs --groups [--changes <file>]  # the same, in even groups for GitHub's matrix (D-307)
 //   node tools/e2e/ci.mjs --groups --changes <file> --smoke   # always with smoke.mjs: a merge on main (D-496)
+//   node tools/e2e/ci.mjs --groups --changes <file> --meet <brought>   # a PR's merge of main: what both reach (D-612)
 //   node tools/e2e/ci.mjs --scope --changes <file>     # the PR's test scope, as Markdown for the run's summary (D-378)
 //   node tools/e2e/ci.mjs cup/tournament.mjs        # only those (the path from tools/e2e/)
 //   node tools/e2e/ci.mjs cup/tournament.mjs:cup    # only one part of a long script (see PARTS)
@@ -22,6 +23,7 @@ import { SUELTOS } from '../../public/assets/js/games.js';
 import { noBrowser } from './changes.mjs';
 import { affectedJobs, changeLevel, scopeReport, parseJob } from './affected.mjs';
 import { group, readDurations, NOTICE } from './groups.mjs';
+import { meetJobs } from './since-passed.mjs';
 import { visualScreens, PATHS, routeOf } from './paths.mjs';
 import { JUEGOS_DIA } from '../../public/assets/js/uno-al-dia.js';
 import { rutaHoy } from '../../public/assets/js/uno-al-dia-ui.js';
@@ -162,9 +164,11 @@ function run(script, suffix = '') {
  * The jobs a PR needs: none if it touches nothing in the browser (D-205, D-299), only the scripts
  * whose pages load what it changed (affected.mjs, D-329), all of them without a list (main).
  */
-export function chosenJobs(changes = null, { smoke = false } = {}) {
+export function chosenJobs(changes = null, { smoke = false, meet = null } = {}) {
   if (!changes) return jobs();
-  const chosen = noBrowser(changes) ? [] : affectedJobs(jobs(), changes, shared, ONLY) || jobs();
+  // A merge of main (D-612): only the PR's scripts that what the merge brought also reaches
+  const chosen = meet ? meetJobs(changes, meet, cs => chosenJobs(cs))
+    : noBrowser(changes) ? [] : affectedJobs(jobs(), changes, shared, ONLY) || jobs();
   // A merge on main always opens every page (D-496), also when its diff reaches no script
   return smoke && !chosen.includes('smoke.mjs') ? [...chosen, 'smoke.mjs'] : chosen;
 }
@@ -215,6 +219,8 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const args = process.argv.slice(2);
   // The PR's files, one per line: if nothing reaches the browser, there is nothing to run
   const changesOf = () => args.includes('--changes') ? readFileSync(args[args.indexOf('--changes') + 1], 'utf8').split('\n') : null;
+  // What a merge of main brought since the PR last passed (since-passed.mjs --brought, D-612)
+  const meet = args.includes('--meet') ? readFileSync(args[args.indexOf('--meet') + 1], 'utf8').split('\n').map(l => l.trim()).filter(Boolean) : null;
   // The change's test level (D-346), on stderr so the workflow logs it and the JSON stays clean
   const said = changesOf();
   if (said) { const l = changeLevel(jobs(), said, shared, noBrowser(said), ONLY); console.error(`test level ${l.level} · ${l.name}: ${l.reason}`); }
@@ -224,11 +230,12 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     console.log(report);
     if (process.env.GITHUB_STEP_SUMMARY) appendFileSync(process.env.GITHUB_STEP_SUMMARY, report + '\n');
   } else if (args.includes('--groups')) {
-    const gs = groups(changesOf(), { smoke: args.includes('--smoke') });
+    const gs = groups(changesOf(), { smoke: args.includes('--smoke'), meet });
+    if (meet) console.error(`a merge of main (D-612): ${gs.reduce((n, g) => n + g.scripts.length, 0)} of the PR's ${chosenJobs(changesOf()).length} jobs, those what it brought also reaches`);
     if (!gs.length) console.error('the PR changes nothing an end-to-end script loads: none runs (D-205, D-299, D-329)');
     console.log(JSON.stringify(gs.map(g => ({ name: g.name, scripts: g.scripts.join(' ') }))));
   } else if (args.includes('--list')) {
-    const chosen = chosenJobs(changesOf(), { smoke: args.includes('--smoke') });
+    const chosen = chosenJobs(changesOf(), { smoke: args.includes('--smoke'), meet });
     if (!chosen.length) console.error('the PR changes nothing an end-to-end script loads: none runs (D-205, D-299, D-329)');
     console.log(JSON.stringify(chosen));
   } else {

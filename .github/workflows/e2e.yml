@@ -62,9 +62,11 @@ jobs:
           echo "tree=$(git rev-parse 'HEAD^{tree}')" >> "$GITHUB_OUTPUT"
           if [ -n "$PR" ]; then
             # Only what changed since the PR's last commit that passed (D-392); the whole PR on its
-            # first push, after a force push, or when asking fails
-            node tools/e2e/since-passed.mjs --pr "$PR" --head "$HEAD" > "$RUNNER_TEMP/changes"
-            echo "groups=$(node tools/e2e/ci.mjs --groups --changes "$RUNNER_TEMP/changes")" >> "$GITHUB_OUTPUT"
+            # first push, after a force push, or when asking fails. A merge of main writes what it
+            # brought, and only the PR's scripts that it also reaches run (D-610, D-612)
+            node tools/e2e/since-passed.mjs --pr "$PR" --head "$HEAD" --brought "$RUNNER_TEMP/brought" > "$RUNNER_TEMP/changes"
+            meet=""; [ -s "$RUNNER_TEMP/brought" ] && meet="--meet $RUNNER_TEMP/brought"
+            echo "groups=$(node tools/e2e/ci.mjs --groups --changes "$RUNNER_TEMP/changes" $meet)" >> "$GITHUB_OUTPUT"
             # The PR's test scope in the run's summary: what runs, and through what each file reaches (D-378)
             node tools/e2e/ci.mjs --scope --changes "$RUNNER_TEMP/changes" > /dev/null || true
           elif [ -n "$BASE" ] && git diff --name-only "$BASE" HEAD > "$RUNNER_TEMP/changes"; then

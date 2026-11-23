@@ -78,7 +78,7 @@ panel del dueño (D-137).
 | Podio anticipado | In the lab, flag `cup-podium-early`: on the last day, once nothing left to play can change the first three places, the board announces them above the days («¡Cata ya ganó la copa!», the three steps without points, and why it is known), as the viewer sees the table: a day they have not played counts as open for everyone, the points of a day still open may drop as others play it, a free wildcard may still double a day, so it waits when in doubt (`podioDecidido` in `engine.js`). The podium with its medals, the closing notice and the splash come as always when the cup closes. Demo `decided`. |
 | Pie del tablero | (Lab, flag `cup-footer`.) The board ends with the site's violet-sunset footer (`site-footer.js`, U-38): the report and leave-the-cup links become its tiles, without the general inbox (`inbox: false`); without the flag they stay as loose links under the board (`tools/e2e/cup/footer.mjs`). |
 | Sin conexión | (Lab, flag `cup-offline`, D-544.) A pending day of a cup this phone opened with signal plays with no signal, from the copy the phone kept; its result waits on the phone and uploads when the signal is back. It has to reach the server before the day closes (the rules' window, grace day included): later, the day counts as not played. One already on the server from another phone wins. Creating, joining, the wildcard and the admin need signal. |
-| Lo que cuesta un error | (Lab, flag `mistakes-rule`.) In the logic puzzles (Tango, Reinas, Conexiones, Toque y Fama: Número, El caso, Loteo, Pintaminas, Sudoku), one muted line under the play head says what a mistake costs, from the game's `errores` text in `rules.js` (or its `texts.js`): «❌ Cada error resta 10, aunque lo deshagas.» or «✅ Equivocarte no resta: solo cuenta el tiempo.». Tango outside La Copa with the `tango-time` flag on (D-572) reads its `erroresTiempo` line instead (mistakes cost nothing, each hint adds 15 s). Not shown in practice's antesala (`tools/e2e/tango/mistakes-rule.mjs`). |
+| Lo que cuesta un error | (Lab, flag `mistakes-rule`.) In the logic puzzles (Tango, Reinas, Conexiones, Toque y Fama: Número, El caso, Loteo, Pintaminas, Sudoku), one muted line under the play head says what a mistake costs, from the game's `errores` text in `rules.js` (or its `texts.js`): «❌ Cada error resta 10, aunque lo deshagas.» or «✅ Equivocarte no resta: solo cuenta el tiempo.». Tango on its own page with the `tango-time` flag on (D-572), and in a cup created with it (`tango:time`, D-607), reads its `erroresTiempo` line instead (mistakes cost nothing, each hint adds 15 s). Not shown in practice's antesala (`tools/e2e/tango/mistakes-rule.mjs`). |
 | Medallas | Campeón, más días ganados, la remontada (más puestos subidos desde la mitad) y "al descenso" (el último). |
 
 ### Cuenta: nombre y PIN
@@ -551,6 +551,10 @@ answer `escucharCharla`, `decir` and `ocultar`; offline it is not drawn. Stored 
 Notification (D-564): the row's player gets «💬 Bea comentó tu resultado» (who, never what; several together; never at night),
 decided by `tools/push/talk.mjs` (`talk.test.mjs`) inside `notify.mjs`, if their ⚙️ Avisos switch «Comentarios» (`charla`) is on.
 Balloon (D-566, lab, flag `cup-talk-hint`): the first time a 💬 shows, a note at the top of the table (`.charla-pista`, `T.talkHint`) says you can comment on any player's result today; ✕ or using a 💬 closes it (`cerrarPista`) for good on that phone (`cuenta.pistaCharla`, key `pista-charla`).
+
+## A name opens the player's profile (lab, flag `ranking-peek`)
+
+A tap (or Enter) on a named seat's row of the table opens `player-peek.js` (`assets/js/`, with `assets/css/player-peek.css`): the same sheet every ranking opens, headed by this cup, the player's place and points in it. A seat with no name of its own is not a button. Wired in `game.js`; end to end: `tools/e2e/cup/peek.mjs`.
 
 ## Excepciones a los cánones
 

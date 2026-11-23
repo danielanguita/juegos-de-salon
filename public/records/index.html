@@ -224,7 +224,7 @@
     // (la ficha de Relámpago no tiene copa: sus temáticas no son juegos de La Copa)
     const fichasDia = el('div', { class: 'rk-juegos', role: 'group', 'aria-label': T.cupBestDay }, deCopa.map(o => ficha(o, elegirDia)));
     const seccionCopas = el('div', { class: 'rk-seccion', id: 'rk-copas' },
-      bloqueCampeones({ max: 20, enlace: false, ultimas: 10 }),
+      bloqueCampeones({ max: 20, enlace: false, ultimas: 10, alTocar: tap }),
       el('div', { class: 'panel' }, el('p', { class: 'lead rk-titulo' }, `📅 ${T.cupBestDay}`), el('p', { class: 'muted rk-hint' }, T.cupBestDayHint), fichasDia),
       ranuraDia);
     if (deCopa.length) elegirDia(deCopa[0].id);
