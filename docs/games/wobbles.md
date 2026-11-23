@@ -1,11 +1,11 @@
-# ⚖️ The Wobbles (Tembleque; /wobbles/, ready to launch by flag, home page only)
+# ⚖️ The Wobbles (Tembleque; /wobbles/, launched 2026-11-22, home page only)
 
 A balance game with two levels: **easy, in 2D** and **hard, in 3D**. The owner built both with another AI
 outside this repo and brought them as finished pages; they came into the lab **kept whole, as delivered**
 (the owner's ask), each a page of its own behind one cover (the owner, 2026-11-17: one game, not two).
 Making them a game of the house (an engine, the shared modules) is later work.
 
-## Launch (prepared, not launched)
+## Launch (launched 2026-11-22, 21:00 Pacific)
 
 Prepared on 2026-11-21 the way D-517 launches a game (docs/LAUNCH.md step 1), with the scope **the owner
 chose on 2026-11-21: the home page only** (D-601). Once flags/wobbles is *all* it is a game like any other:
@@ -13,7 +13,7 @@ its home card with ✨ Nuevo for 10 days, the search and the 🎯 Pulso filter, 
 **Not La Copa and not Uno al día**: no `copa` and no `unoAlDia` until it has a version on the house's engine,
 which is later work.
 
-- **Launch:** scheduled for 2026-11-22 at 21:00 Pacific (2026-11-23 05:00 UTC) with 🐸 Croc!, the nine cheers
+- **Launch:** launched on 2026-11-22 at 21:00 Pacific (2026-11-23 05:00 UTC) with 🐸 Croc!, the nine cheers
   (flag `wobbles-cheers`) and the splash `nos-volvimos-locos`. `nuevoDesde` in `game.json` is the launch day
   (`2026-11-22`; the ✨ Nuevo label also starts at the flag's `at`, D-556).
 - **The splash** `nos-volvimos-locos` (off) names it by its id (`game: 'wobbles'`) and opens its cover, `/wobbles/`.
@@ -59,7 +59,7 @@ it starts on easy, as in Sudoku. The player never reads "2D" or "3D" (the owner)
 and the hard level's name is plain Tembleque too.
 
 
-Cover (‹ Menú, a moving picture of the level, the level lever, ¡A jugar!, how to play folded, the sign-in, the table of the level on the lever (`wobbles_easy` or `wobbles_hard`, it follows the lever as Sudoku's), the site footer
+Cover (‹ Menú, a moving picture of the level, the level lever, ⚖️ Empezar, how to play folded, the sign-in, the table of the level on the lever (`wobbles_easy` or `wobbles_hard`, it follows the lever as Sudoku's), the site footer
 with 💬; behind the lab flag `cover-dialogs`, how to play and the sign-in are the «📖 Instrucciones» and «👤 Entrar»
 dialogs) → a level: its card (how to play, ▶ Play) → the round (its HUD: ‹ back to the cover, lives, score, mute) →
 its result card, in C-19's order: the score, ↻ Again, the rankings notice (one line), the exit from `fin.js`

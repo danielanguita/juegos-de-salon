@@ -117,18 +117,28 @@ function renderModes() {
   // ¡A jugar! opens the level the lever shows; `?lang` goes along if it came
   const play = () => { SFX.tap(); location.href = (chosen === 'hard' ? 'hard/' : 'easy/') + location.search; };
   $('#modes').replaceChildren(lever,
-    el('button', { class: 'btn btn--yellow', id: 'btn-play', 'data-mode': 'solo', onClick: play }, T.play));
+    el('button', { class: 'btn btn--yellow', id: 'btn-play', 'data-mode': 'solo', onClick: play }, `${manifest.emoji || '⚖️'} ${T.play}`));
   if (hard) startFlicker(lever);
   setTheme(); drawPicture();
 }
 
 /* ---------------- The level's table on the cover, as Sudoku's: it follows the lever ---------------- */
 // No sign-in offer under it (the owner, 2026-11-23): the cover already has its «👤 Entrar»
+/**
+ * «Ranking de Tembleque · 🟢 Fácil»: the cover and each level's result name the level (the player agent, 2026-11-22:
+ * after a hard game the result said only «Ranking de Tembleque»). The dot and the colour stay on the word's line at
+ * 320 px (no-break spaces; usability, 2026-11-22).
+ */
+function rankingTitle(level) {
+  const name = (SOLO_LEVELS[GAME_ID]?.[level]?.[lang] || SOLO_LEVELS[GAME_ID]?.[level]?.es || '').replace(/ /g, '\u00a0');
+  const game = manifest.name[lang] || manifest.name.es;
+  return fmt(C.rk.titleOf, { game: name ? `${game}\u00a0· ${name}` : game });
+}
+
 function drawRanking() {
   const slot = document.getElementById('ranking');
   if (!slot) return;
-  const name = `${manifest.name[lang] || manifest.name.es} · ${SOLO_LEVELS.wobbles[chosen][lang] || SOLO_LEVELS.wobbles[chosen].es}`;
-  slot.replaceChildren(bloqueTabla({ tabla: `${GAME_ID}_${chosen}`, titulo: fmt(C.rk.titleOf, { game: name }), alTocar: () => SFX.tap(), entrar: false }));
+  slot.replaceChildren(bloqueTabla({ tabla: `${GAME_ID}_${chosen}`, titulo: rankingTitle(chosen), alTocar: () => SFX.tap(), entrar: false }));
 }
 
 // The cover ends with the site's footer, the game's own comment as its option (C-17, U-38)
@@ -184,7 +194,7 @@ function wireResult() {
     rank.replaceChildren();
     byId('cAviso').replaceChildren();
     if (!rankingsVisibles()) return;
-    const table = bloqueTabla({ tabla: `${GAME_ID}_${resultLevel}`, titulo: fmt(C.rk.titleOf, { game: manifest.name[lang] || manifest.name.es }), entrar: false });
+    const table = bloqueTabla({ tabla: `${GAME_ID}_${resultLevel}`, titulo: rankingTitle(resultLevel), entrar: false });
     rank.append(table);
     // Signed in, the score is recorded and said; not yet, the one-line offer to make it count
     byId('cAviso').append(avisoPartida({ juego: GAME_ID, variante: resultLevel, s, ms, alAnotar: () => table.recargar() }));
