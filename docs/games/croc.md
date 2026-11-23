@@ -10,10 +10,9 @@ A solo arcade highway crossing built for mobile touch controls and deterministic
   heavy traffic `croc_hard`) and `games.js`. The phone's old lab keys (`juegos-de-salon:croc:best`, `:diff`,
   `:session`) are no longer read.
 - **For whom:** 1 player. Languages: es, en, pt (C-3).
-- **Launch dates: placeholders.** `unoAlDia.desde` (`2027-01-02`) and `nuevoDesde` (`2027-01-01`) in its
-  `games.js` entry are placeholders until the owner picks the launch date: **the launch PR must move them**
-  (`desde` to the day after the launch, `nuevoDesde` to the launch day; docs/LAUNCH.md step 3). Uno al día
-  deals by date, never by flag, so they stay far out until then.
+- **Launch:** scheduled for 2026-11-22 at 21:00 Pacific (2026-11-23 05:00 UTC) with ⚖️ Tembleque and the
+  splash `nos-volvimos-locos`. `nuevoDesde` is the launch day (`2026-11-22`) and `unoAlDia.desde` the day after
+  (`2026-11-23`, Pacific like every Uno al día day). Uno al día deals by date, never by flag: if the launch slips, move it.
 
 ## Rules
 
