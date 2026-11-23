@@ -2,7 +2,7 @@
 // Offline mode's detector (D-538, PR 3): on at once when the browser says offline or after two bad
 // probes, off only after two good probes STEADY apart, and testers can force it.
 import assert from 'node:assert/strict';
-import { createConnection, FORCE_KEY, PROBE_TIMEOUT, STEADY, EVERY_ONLINE, RETRIES } from './connection.js';
+import { createConnection, FORCE_KEY, PROBE_TIMEOUT, STEADY, EVERY_ONLINE, RETRIES, CONFIRM } from './connection.js';
 
 function rig({ online = true } = {}) {
   const t = { now: 0, jobs: [] };
@@ -60,6 +60,35 @@ function rig({ online = true } = {}) {
   assert.equal(r.c.mode(), 'online', 'one slow probe does not switch');
   await r.advance(EVERY_ONLINE + PROBE_TIMEOUT);
   assert.equal(r.c.mode(), 'offline', 'two in a row do');
+}
+
+// Airplane mode on an iPhone: the browser keeps saying online and sends no event; the probes catch it
+// within one round and a quick confirmation, not two full rounds (the owner, 2026-11-22: two minutes)
+{
+  const r = rig();
+  r.c.start();
+  await r.advance(0);
+  r.net.mode = 'down';   // navigator.onLine stays true
+  await r.advance(EVERY_ONLINE);
+  assert.equal(r.c.mode(), 'online', 'one failed probe does not switch');
+  await r.advance(CONFIRM);
+  assert.equal(r.c.mode(), 'offline', 'the quick confirmation does');
+  assert.ok(EVERY_ONLINE + CONFIRM <= 25000, 'offline within 25 s at most, without the browser\'s word');
+}
+
+// Airplane mode switched on with the app in the background: back in front, it looks at once
+{
+  const r = rig();
+  r.c.start();
+  await r.advance(0);
+  r.doc.visibilityState = 'hidden';
+  r.net.mode = 'down';
+  await r.advance(EVERY_ONLINE * 3);
+  assert.equal(r.c.mode(), 'online', 'a hidden page does not probe');
+  r.doc.visibilityState = 'visible';
+  r.handlers.visibilitychange();
+  await r.advance(CONFIRM);
+  assert.equal(r.c.mode(), 'offline', 'back in front: a probe and its confirmation, seconds');
 }
 
 // Back online: at once when the browser says so and a probe agrees, on the same screen
@@ -167,4 +196,4 @@ function rig({ online = true } = {}) {
   assert.equal(r.c.forced(), false);
 }
 
-console.log('✓ connection: offline at once, poor after two probes, online after two steady ones, testers can force it');
+console.log('✓ connection: offline at once, poor or silent after two probes seconds apart, online after two steady ones, testers can force it');

@@ -24,9 +24,12 @@ site when it opens (the Firebase SDK is loaded with `import()` only when a room 
 `public/assets/js/connection.js` (PR 3), started by `instalable.js` on every page while the flag is on:
 
 - `offline` event or `navigator.onLine === false`: on at once.
-- Poor connection: two probes in a row fail or take over 4 s. A probe is a no-cache `HEAD` of
-  `precache.json`, which the service worker never answers from its cache; one a minute online, every
-  15 s offline.
+- Poor connection, or a dead one the browser does not report (an iPhone in airplane mode often keeps
+  `navigator.onLine` true and sends no `offline` event): two probes in a row fail or take over 4 s. A
+  probe is a no-cache `HEAD` of `precache.json`, which the service worker never answers from its cache;
+  one every 20 s online while the page is in view (none while hidden), a failed one confirmed 3 s later,
+  every 15 s offline, and one each time the page comes back to the front. So a silent cut shows in
+  at most ~23 s, and in ~3 s after returning to the app (the owner, 2026-11-22: it took two minutes).
 - Off only after two good probes at least 10 s apart, so a flaky signal does not flip the screen.
 - The state is `connection().mode()`, an `onChange` listener, `<html data-connection>` and a
   `connection` event; screens only listen.

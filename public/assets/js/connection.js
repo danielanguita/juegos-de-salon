@@ -5,6 +5,8 @@
  * - On at once when the browser says it is offline (`offline` event, `navigator.onLine === false`).
  * - On when the connection is too poor to use: two probes in a row fail or take over PROBE_TIMEOUT.
  *   A probe is a HEAD of `precache.json`, which the service worker never answers from its cache.
+ *   A failed probe is confirmed CONFIRM later, not at the next round: an iPhone in airplane mode often
+ *   keeps saying it is online and sends no `offline` event, so the probes are all there is.
  * - Off at once when the browser says it is back online (`online` event) and a probe agrees; otherwise
  *   only after two good probes at least STEADY apart, so a flaky signal does not flip the screen.
  * - Testers can force it from the offline card in /labs/ or the T tab (FORCE_KEY '1' on this phone); players cannot.
@@ -16,7 +18,11 @@
 export const FORCE_KEY = 'juegos-de-salon:offline-forced';
 export const PROBE_TIMEOUT = 4000;
 export const STEADY = 10000;
-export const EVERY_ONLINE = 60000;
+// Online, a probe every EVERY_ONLINE while the page is in view (none while hidden), and one more each
+// time it comes back to the front. 60 s, with a second one more round later, kept a phone in airplane
+// mode in the normal colours for up to two minutes (the owner, 2026-11-22)
+export const EVERY_ONLINE = 20000;
+export const CONFIRM = 3000;
 export const EVERY_OFFLINE = 15000;
 /**
  * When the browser says it is back (or the page comes back to the front), the first probe often fails:
@@ -99,12 +105,22 @@ export function createConnection({
       next = timer.set(() => { next = null; recheck(left.slice(1)); }, left[0]);
       return;
     }
-    schedule(detected === 'offline' ? EVERY_OFFLINE : EVERY_ONLINE);
+    schedule(after());
   }
+
+  // The wait before the next probe: a failed one is confirmed soon, so a dead connection shows in seconds
+  const after = () => (detected === 'offline' ? EVERY_OFFLINE : fails > 0 ? CONFIRM : EVERY_ONLINE);
+  const hidden = () => doc?.visibilityState === 'hidden';
 
   function schedule(ms) {
     if (next !== null) timer.clear(next);
-    next = timer.set(async () => { next = null; await probe(); schedule(detected === 'offline' ? EVERY_OFFLINE : EVERY_ONLINE); }, ms);
+    next = timer.set(async () => {
+      next = null;
+      // A page out of sight does not probe (battery, data); it looks again when it comes back
+      if (hidden()) return;
+      await probe();
+      schedule(after());
+    }, ms);
   }
 
   const api = {
@@ -141,9 +157,17 @@ export function createConnection({
       if (doc?.documentElement) doc.documentElement.dataset.connection = shown;
       win?.addEventListener?.('offline', () => { lastGood = null; set('offline'); schedule(EVERY_OFFLINE); });
       win?.addEventListener?.('online', () => recheck());
-      // A phone switched out of airplane mode from its settings: the page was in the background, its
-      // timers asleep, and the `online` event may never reach it. Back in front, it looks again
-      const back = () => { if (detected === 'offline' && doc?.visibilityState !== 'hidden') recheck(); };
+      // A phone switched into or out of airplane mode from its settings: the page was in the background,
+      // its timers asleep, and the `offline` or `online` event may never reach it. Back in front, it
+      // looks again: out of offline with quick retries, into it with a probe confirmed CONFIRM later.
+      // Once per return: `visibilitychange`, `pageshow` and `focus` often come together
+      let lastBack = -Infinity;
+      const back = () => {
+        if (hidden() || now() - lastBack < 1000) return;
+        lastBack = now();
+        if (detected === 'offline') recheck();
+        else schedule(0);
+      };
       doc?.addEventListener?.('visibilitychange', back);
       win?.addEventListener?.('pageshow', back);
       win?.addEventListener?.('focus', back);
