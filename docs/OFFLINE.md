@@ -176,7 +176,8 @@ PR that changes what is kept on the phone.
    (glows), missing ! (Reintentar asks the worker to store what is missing) and unsupported (private mode,
    an old browser). A tap opens a sheet explaining the state, live (`offline-ready.test.mjs`).
    - **Quiet cloud** (flag `cloud-quiet`, in Labs, the owner, 2026-11-23): with the profile's ⚙️ settings, the
-     bar shows the cloud only while it asks for something (storing, missing), then its slot closes up; ready and
+     bar shows the cloud only while it asks for something (storing, missing), on share's left so share and the pill
+     never move (the owner, 2026-11-23), then its slot closes up; ready and
      unsupported live in a «Juegos sin señal» row of ⚙️ Preferencias (`offlineReadyRow`), which opens the same
      sheet. ⚙️ is for players with an account, so a guest still gets the cloud whenever something needs them.
      The «T» tab's cloud states go with the flag's own row while it is in the lab, on both pages

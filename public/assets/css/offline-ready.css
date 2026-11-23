@@ -47,3 +47,6 @@
 .or-fila-icono { display: inline-flex; flex: none; }
 /* Quiet cloud (flag cloud-quiet, offline-ready.js): while the bar's ☁️ is hidden its slot takes no room, so the bar closes up */
 html.cloud-quiet .portada-barra .tools > span:has(> .offline-ready[hidden]) { display: none; }
+/* …and it comes and goes on the left of share (the owner, 2026-11-23): share and the pill never move, the cloud takes
+   the empty room toward the language */
+html.cloud-quiet .portada-barra .tools > #offline-ready-slot { order: -1; }
