@@ -88,33 +88,6 @@ export function panelNemesis(lista, me, { alTocar = () => {} } = {}) {
     el('button', { type: 'button', class: 'btn btn--cyan btn--sm', onClick: () => { alTocar(); abrirNuevo({ lista, rival: { jid: nem.jid, n: nem.n }, alTocar }); } }, T.rematch));
 }
 
-/** The profile's section: the pills, ＋ New duel and the open duels as cards, See all, the nemesis. */
-export async function seccionPerfil({ alTocar = () => {} } = {}) {
-  cargarCss();
-  const yo = leerYo();
-  const caja = el('section', { class: 'dl-seccion', id: 'duelos' });
-  if (!yo) return caja;
-  const J = await jugador();
-  const D = await J.duelos();
-  const pintar = lista => {
-    const abiertos = ordenar(lista, yo.jid).filter(d => !estado(d, yo.jid).termino);
-    const turnos = abiertos.filter(d => estado(d, yo.jid).turno >= 0).length;
-    caja.replaceChildren(...[
-      pildoras(lista, yo.jid).length ? el('div', { class: 'dl-pills' }, pildoras(lista, yo.jid)) : null,
-      el('div', { class: 'dl-head' },
-        el('p', { class: 'lead' }, T.yourDuels, turnos ? el('small', {}, ` ${fmt(T.yourTurnN, { n: turnos })}`) : null),
-        el('a', { href: hrefDuelos(), onClick: alTocar }, T.seeAll)),
-      el('div', { class: 'dl-fila' },
-        el('button', { type: 'button', class: 'panel dl-nuevo', id: 'dl-nuevo', onClick: () => { alTocar(); abrirNuevo({ lista, alTocar }); } },
-          el('span', { 'aria-hidden': 'true' }, '⚔️'), el('span', {}, T.newDuel), el('span', { class: 'dl-mas', 'aria-hidden': 'true' }, '+')),
-        abiertos.map(d => duelCard(d, yo.jid, { alTocar }))),
-      panelNemesis(lista, yo.jid, { alTocar })].filter(Boolean));
-  };
-  pintar([]);
-  D.mios().then(pintar).catch(() => {});
-  return caja;
-}
-
 /** The invite link a challenger sends: the duel's own page, where the rival accepts (duels-page.js). */
 export const inviteHref = d => `${RAIZ}duels/?d=${d.id}`;
 

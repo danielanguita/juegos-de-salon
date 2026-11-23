@@ -33,6 +33,10 @@
 .pf-group-head { display: flex; justify-content: space-between; align-items: baseline; gap: var(--s-8); margin: 0 0 var(--s-12); }
 .pf-group-head small { color: var(--muted); font-weight: 800; font-size: var(--fs-85); white-space: nowrap; }
 .pf-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--s-10); overflow-x: clip; } /* a reveal's rays never widen the page */
+.pf-group .pf-duel-pills { margin: 0 0 0 auto; flex-wrap: nowrap; }
+.pf-group-head:has(.pf-duel-pills) { align-items: center; }
+@media (max-width: 359px) { .pf-group .pf-duel-pills { display: none; } }
+.pf-group .pf-duels-go, .pf-group .pf-group-go { margin-top: var(--s-12); width: 100%; }
 .pf-badge {
   position: relative; display: grid; justify-items: center; align-content: start; gap: var(--s-4);
   text-align: center; padding: var(--s-12) var(--s-4) var(--s-10); border-radius: var(--r-14); background: var(--well);

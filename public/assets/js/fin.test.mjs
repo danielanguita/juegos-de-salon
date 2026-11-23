@@ -43,7 +43,7 @@ const dia = resCopa.slice(resCopa.indexOf('function pantallaResultado('), resCop
 assert.ok(dia.indexOf("id: 'btn-volver'") < dia.indexOf('T.dayTable'), 'a Cup day: back to the board before the day table (C-8, C-19)');
 assert.ok(dia.indexOf("id: 'btn-volver'") < dia.indexOf('explicacion('), 'a Cup day: back to the board before the breakdown');
 assert.match(copa, /salidasFin\('podio'/, 'the podium offers the way back to the menu');
-assert.match(copa, /hoy \? null : volverDePractica\(\)/, 'One a Day in La Copa\'s games: the exits are the card\'s');
+assert.match(copa, /DUELO \? salidaDuelo : hoy \? null : volverDePractica\(\)/, 'One a Day in La Copa\'s games: the exits are the card\'s; a duel round: only back to the duels');
 
 // What a result says, once (C-19, D-353)
 const exp = copa.slice(copa.indexOf('function explicacion('), copa.indexOf('function explicacion(') + 1400);
