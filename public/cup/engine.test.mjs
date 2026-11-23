@@ -824,6 +824,7 @@ test('a launched game is in the open pool once its flag is all, and never only f
 // D-608: a new cup's audience from the phone's zone, not its language
 assert.equal(publicoDelHuso('America/Santiago'), 'cl');
 assert.equal(publicoDelHuso('Pacific/Easter'), 'cl');
+assert.equal(publicoDelHuso('America/Coyhaique'), 'cl');
 assert.equal(publicoDelHuso('America/Sao_Paulo'), 'br');
 assert.equal(publicoDelHuso('America/Manaus'), 'br');
 assert.equal(publicoDelHuso('America/Los_Angeles'), 'global');

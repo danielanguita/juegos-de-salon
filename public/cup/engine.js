@@ -214,7 +214,7 @@ const HUSOS_BR = new Set(['Sao_Paulo', 'Araguaina', 'Bahia', 'Belem', 'Boa_Vista
  * Chile starts on 🇨🇱, one in Brazil on 🇧🇷, any other on 🌎 global (whose zone is then the phone's).
  * A Spanish speaker in the United States no longer gets Chile's content and Chile's midnight.
  */
-export const publicoDelHuso = tz => (['America/Santiago', 'America/Punta_Arenas', 'Pacific/Easter'].includes(tz) ? 'cl' : HUSOS_BR.has(tz) ? 'br' : 'global');
+export const publicoDelHuso = tz => (['America/Santiago', 'America/Punta_Arenas', 'America/Coyhaique', 'Pacific/Easter'].includes(tz) ? 'cl' : HUSOS_BR.has(tz) ? 'br' : 'global');
 
 /** Identificador de jugador dentro de la copa: 6 letras minúsculas o cifras. */
 export const PID = /^[a-z0-9]{6}$/;
