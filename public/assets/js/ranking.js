@@ -41,6 +41,16 @@ export { mmss };
 export const URL_RECORDS = new URL('../../records/', import.meta.url).href;
 
 const MEDALLA = ['🥇', '🥈', '🥉'];
+
+/**
+ * A tap on a name in a ranking opens that player's public profile, with what that table says of them on top
+ * (lab flag `ranking-peek`, player-peek.js; the owner, 2026-11-23: every ranking with names, everywhere).
+ * lab: #seccion-ranking-peek
+ */
+function conFichas(caja, alTocar) {
+  if (typeof document === 'undefined') return;
+  flag('ranking-peek').then(on => on && import('./player-peek.js')).then(m => m?.peekOnTap(caja, { onTap: alTocar })).catch(() => {});
+}
 const errorDe = e => ({ pin: R().loggedOut, 'pin-actual': R().errCurrentPin, espera: R().errWait })[e?.code] || R().errNet;
 
 /* ------------------------------------------------------------------ */
@@ -277,6 +287,7 @@ export function bloqueRanking({ juego, titulo = null, hint = null, pestanas = ['
     if (!v.top.length) { lista.append(el('p', { class: 'muted rk-centro' }, v.amigos ? sinAmigos : T.empty)); return; }
     const t = PESTANAS[actual].tabla || juego;
     const tipo = t === PARTIDAS ? 'partidas' : t === UAD_RACHA ? 'racha' : t === UAD_PUNTOS ? 'puntos' : esVictorias(t);
+    caja.dataset.pestana = actual;
     lista.append(...v.top.map(f => fila(f, yo, tipo, campeon)));
     // What is shown, for whoever draws it elsewhere (sharing the ranking as a picture)
     caja.datos = { pestana: actual, rotulo: PESTANAS[actual].rotulo(T), top: v.top, vecinos: v.vecinos || [], yo, tipo, campeon };
@@ -290,6 +301,7 @@ export function bloqueRanking({ juego, titulo = null, hint = null, pestanas = ['
     hint ? el('p', { class: 'muted rk-hint' }, hint) : null,
     seg, lista);
   caja.recargar = cargar;
+  conFichas(caja, alTocar);
   cargar();
   if (!rapido) jugador().then(J => J.escuchar(() => cargar())).catch(() => {});
   return caja;
@@ -395,7 +407,7 @@ export function avisoPartida({ juego, variante = '', s, ms, alAnotar = () => {},
 /* ------------------------------------------------------------------ */
 
 /** El medallero de las copas terminadas y las últimas que se jugaron. */
-export function bloqueCampeones({ max = 5, enlace = true, ultimas = 3 } = {}) {
+export function bloqueCampeones({ max = 5, enlace = true, ultimas = 3, alTocar = () => {} } = {}) {
   const T = R();
   const lista = el('div', { class: 'rk-lista' }, el('p', { class: 'muted rk-centro' }, T.loading));
   const caja = el('div', { class: 'panel rk-campeones' },
@@ -403,6 +415,7 @@ export function bloqueCampeones({ max = 5, enlace = true, ultimas = 3 } = {}) {
     el('p', { class: 'muted rk-hint' }, T.championsHint),
     lista,
     enlace ? el('a', { class: 'rk-link rk-ver', href: `${URL_RECORDS}#copas` }, T.seeAll) : null);
+  conFichas(caja, alTocar);
   (async () => {
     try {
       const J = await jugador();
@@ -411,7 +424,7 @@ export function bloqueCampeones({ max = 5, enlace = true, ultimas = 3 } = {}) {
       const yo = leerYo()?.jid;
       lista.replaceChildren();
       if (!filas.length) { lista.append(el('p', { class: 'muted rk-centro' }, T.noChampions)); return; }
-      lista.append(...filas.map(f => el('div', { class: 'rk-fila' + (yo && f.jid === yo ? ' yo' : '') },
+      lista.append(...filas.map(f => el('div', { class: 'rk-fila' + (yo && f.jid === yo ? ' yo' : ''), 'data-jid': f.jid },
         el('span', { class: 'rk-puesto' }, `${f.puesto}`),
         el('span', { class: 'rk-nombre' }, el('span', { class: 'rk-n' }, conBandera(f.co, f.n))),
         el('span', { class: 'rk-medallas' }, `🥇${f.oro} 🥈${f.plata} 🥉${f.bronce}`))));
