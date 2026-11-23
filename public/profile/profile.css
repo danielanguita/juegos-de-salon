@@ -1,8 +1,5 @@
 /* The player's profile (lab flag profile). The medals' metals are the page's own colours (DESIGN.md §4). */
 :root {
-  --pf-oro-luz: #fff3b0; --pf-oro: #ffc93c; --pf-oro-hondo: #c98a00; --pf-oro-aro: #ffe48a;
-  --pf-plata-luz: #ffffff; --pf-plata: #cfd8e3; --pf-plata-hondo: #8a97a8; --pf-plata-aro: #e6edf5;
-  --pf-bronce-luz: #ffd9b8; --pf-bronce: #d98a4e; --pf-bronce-hondo: #8f4f22; --pf-bronce-aro: #f0b483;
   --pf-tinta-lima: #123012;
 }
 
@@ -15,10 +12,6 @@
 .pf-who { display: grid; text-align: center; }
 .pf-player { margin: 0; font-weight: 900; font-size: var(--fs-140); line-height: 1.2; overflow-wrap: anywhere; }
 .pf-since { margin: var(--s-2) 0 0; font-size: var(--fs-90); }
-.pf-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--s-8); margin-top: var(--s-14); }
-.pf-stat { background: var(--well); border-radius: var(--r-12); padding: var(--s-10) var(--s-6); text-align: center; }
-.pf-stat b { display: block; font: 900 var(--fs-140) var(--font-num); font-variant-numeric: tabular-nums; color: var(--yellow); }
-.pf-stat span { font-size: var(--fs-75); color: var(--muted); font-weight: 800; }
 
 /* The three tabs: always in view while scrolling */
 /* Sticky over the badges: nearly opaque in the page's own colour, blurred behind and edged, so it reads as a bar
@@ -36,10 +29,6 @@
   position: relative; display: grid; justify-items: center; align-content: start; gap: var(--s-4);
   text-align: center; padding: var(--s-12) var(--s-4) var(--s-10); border-radius: var(--r-14); background: var(--well);
 }
-.pf-medal { width: 58px; height: 58px; border-radius: 50%; display: grid; place-items: center; font-size: var(--fs-160); margin-bottom: var(--s-2); }
-.pf-badge--gold .pf-medal { background: radial-gradient(circle at 35% 30%, var(--pf-oro-luz), var(--pf-oro) 45%, var(--pf-oro-hondo)); box-shadow: 0 0 0 3px var(--pf-oro-aro), 0 6px 16px rgb(var(--yellow-rgb) / 0.45); }
-.pf-badge--silver .pf-medal { background: radial-gradient(circle at 35% 30%, var(--pf-plata-luz), var(--pf-plata) 45%, var(--pf-plata-hondo)); box-shadow: 0 0 0 3px var(--pf-plata-aro); }
-.pf-badge--bronze .pf-medal { background: radial-gradient(circle at 35% 30%, var(--pf-bronce-luz), var(--pf-bronce) 45%, var(--pf-bronce-hondo)); box-shadow: 0 0 0 3px var(--pf-bronce-aro); }
 /* Still to earn: grey, a dashed ring, its progress under it */
 .pf-badge--locked .pf-medal { background: rgb(var(--ink-rgb) / 0.08); box-shadow: none; outline: 2px dashed rgb(var(--ink-rgb) / 0.3); filter: grayscale(1); opacity: 0.55; color: var(--muted); font: 900 var(--fs-160) var(--font-body); }
 .pf-badge--locked .pf-name { color: var(--muted); }
@@ -130,29 +119,6 @@
 .pf-logout-ask p { margin: 0; }
 .pf-more { justify-self: center; margin-top: var(--s-10); }
 
-/* Another player's profile at a glance (peek.js): a tap on a name in a ranking (the owner, 2026-11-22) */
-.pf-tab .rk-fila[data-peek] { cursor: pointer; }
-.pf-tab .rk-fila[data-peek]:active { background: rgb(var(--ink-rgb) / 0.14); }
-/* A fine, faint line under the name says it opens something without weighing on the table (the owner, 2026-11-22) */
-.pf-tab .rk-fila[data-peek] .rk-n { text-decoration: underline; text-decoration-thickness: 1px; text-decoration-color: rgb(var(--ink-rgb) / 0.18); text-underline-offset: 4px; }
-.pf-peek-who { min-width: 0; }
-.pf-peek-kicker { margin: 0; color: var(--cyan); font-weight: 900; font-size: var(--fs-75); text-transform: uppercase; letter-spacing: 0.08em; }
-.hoja .pf-peek-name { font-size: var(--fs-160); overflow-wrap: anywhere; }
-.pf-peek-body { display: grid; gap: var(--s-20); }
-.hoja .pf-peek-line { font-size: var(--fs-85); }
-.pf-peek-stats { margin-top: 0; }
-.pf-peek-part { display: grid; gap: var(--s-10); }
-.pf-peek-part h3 { margin: 0; font-size: var(--fs-100); font-weight: 900; }
-.pf-peek-games { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--s-6); }
-.pf-peek-games li { display: flex; justify-content: space-between; align-items: center; gap: var(--s-10); background: var(--well); border-radius: var(--r-12); padding: var(--s-8) var(--s-12); }
-.pf-peek-game { font-weight: 900; min-width: 0; }
-.pf-peek-games small { color: var(--muted); font-weight: 800; white-space: nowrap; }
-.pf-peek-badges { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--s-8); }
-.pf-peek-badges li { display: grid; justify-items: center; gap: var(--s-4); text-align: center; }
-.pf-peek-badges .pf-medal { width: 44px; height: 44px; font-size: var(--fs-140); margin: 0; }
-.pf-peek-badges small { font-size: var(--fs-75); font-weight: 800; line-height: 1.15; overflow-wrap: anywhere; }
-.pf-peek-more .pf-medal { background: rgb(var(--ink-rgb) / 0.1); font: 900 var(--fs-100) var(--font-num); }
-@media (max-width: 359px) { .pf-peek-badges { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
 /* 🏆 Your cups: the place (a medal on the podium) on the left, the name, dates and who won, a › to the cup */
 .pf-cup-list { display: grid; gap: var(--s-6); }
 .pf-cup { display: grid; grid-template-columns: 3.2rem 1fr auto; align-items: center; column-gap: var(--s-10); min-height: 44px;

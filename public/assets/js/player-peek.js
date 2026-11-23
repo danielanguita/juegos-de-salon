@@ -1,6 +1,6 @@
 /**
- * Another player's profile, at a glance (lab flag `profile`; the owner, 2026-11-22): a tap on a name in a
- * ranking opens a sheet with what matters most about that player: their flag and name, their place in the
+ * Another player's profile, at a glance (lab flag `profile`; the owner, 2026-11-22): a tap on a name in any
+ * ranking (every `bloqueRanking` and the Cups' medal table in ranking.js, a Cup's own table) opens a sheet with what matters most about that player: their flag and name, their place in the
  * overall ranking when in its top 10 and the achievements anyone can see. Tapping your own name, or
  * «Ver cómo me ven los demás» in ⚙️, shows exactly what others see: the same sheet, the same words (D-604).
  *
@@ -14,18 +14,25 @@
  * Each of their most played games says their place in its all-time table, never how many times they played it:
  * a count tells how much someone plays, a place only how well (the owner, 2026-11-22).
  *
- * First on the profile page (`peekOnTap`); the game and Cup covers come later.
+ * The sheet opens where the name was tapped, and says so first (the owner, 2026-11-23: «that the card makes
+ * sense with the view it comes from»): under the name, the table and tab it was tapped in with the row as it
+ * showed (place, score, time), and, from a week's or friends' tab, their all-time place in that same table.
+ * A Cup's table says the Cup and their place and points in it.
  */
-import { el } from '../assets/js/ui.js';
-import { withIcon } from '../assets/js/game-icon.js';
-import { getLang, pickLang } from '../assets/js/i18n.js';
-import { ALL_GAMES, GAMES, SOLO_TABLES, FIRST_VARIANT_TABLES } from '../assets/js/games.js';
-import { conBandera } from '../assets/js/ranking.js';
-import { jugador } from '../assets/js/jugador.js';
-import { TODOTERRENO, UAD_PUNTOS, SIEMPRE, medallero } from '../assets/js/records.js';
-import { recorrer, fechaLocal } from '../assets/js/uno-al-dia.js';
-import { BADGES, earned } from './badges.js';
-import { TEXTS } from './texts.js';
+import { el } from './ui.js';
+import { withIcon } from './game-icon.js';
+import { getLang, pickLang } from './i18n.js';
+import { ALL_GAMES, GAMES, SOLO_TABLES, FIRST_VARIANT_TABLES } from './games.js';
+import { jugador } from './jugador.js';
+import { TODOTERRENO, UAD_PUNTOS, SIEMPRE, medallero, bandera } from './records.js';
+import { recorrer, fechaLocal } from './uno-al-dia.js';
+import { earned } from './badges.js';
+import { TEXTS } from './profile-texts.js';
+import { loadCss } from './load-css.js';
+
+const conBandera = (co, n) => [bandera(co), n].filter(Boolean).join('\u00a0');
+/** The sheet's styles (and the tappable name's), shared by every page with a ranking. */
+const CSS = new URL('../css/player-peek.css', import.meta.url).href;
 
 /** The achievements that public data can tell: the rest live on the player's own phone. */
 export const PUBLIC_BADGES = new Set(['streak-10', 'streak-30', 'streak-100', 'month-full', 'month-podium', 'month-champion',
@@ -105,9 +112,36 @@ async function readFacts(J, jid) {
 }
 const nextMonth = m => { const [y, mo] = m.split('-').map(Number); return mo === 12 ? `${y + 1}-01` : `${y}-${String(mo + 1).padStart(2, '0')}`; };
 
-/** Opens the sheet for `jid`; `hint` (`{ n, co }`) is what the tapped row showed, drawn while the rest loads. */
-export async function peekPlayer(jid, { hint = {}, lang = getLang(), doc = document, onTap = () => {} } = {}) {
+/**
+ * Where a ranking row was tapped, read from what the screen shows (pure for node: `r` only needs
+ * `closest` and `querySelector`): `label` the table's title and its tab, `place` the row's (a medal or a
+ * number), `value` the rest of it (score, time or medals, as drawn), `allTime` the table to read their all-time place from, only from a tab that is
+ * not already all-time (a week's or friends').
+ */
+export function rowContext(r) {
+  const box = r.closest?.('.rk-ranking, .rk-campeones');
+  const txt = x => (x?.textContent || '').replace(/\s+/g, ' ').trim();
+  const on = box?.querySelector('.rk-seg .on');
+  const tab = on?.dataset?.p || box?.dataset?.pestana || '';
+  const place = txt(r.querySelector('.rk-puesto'));
+  const value = ['.rk-puntos', '.rk-tiempo', '.rk-medallas'].map(c => txt(r.querySelector(c))).filter(Boolean);
+  const table = box?.dataset?.tabla;
+  return {
+    label: [txt(box?.querySelector('.rk-titulo')), txt(on)].filter(Boolean).join(' · '),
+    place: place === '·' ? '' : place,
+    value: value.join(' · '),
+    // The overall table's all-time place is already the sheet's own line (peekPlace)
+    allTime: ['semana', 'amigos'].includes(tab) && table && table !== TODOTERRENO ? table : null,
+  };
+}
+
+/**
+ * Opens the sheet for `jid`; `hint` (`{ n, co }`) is what the tapped row showed, drawn while the rest loads;
+ * `context` (`{ label, place, value, allTime }`, from `rowContext`) says where it was tapped.
+ */
+export async function peekPlayer(jid, { hint = {}, context = null, lang = getLang(), doc = document, onTap = () => {} } = {}) {
   if (!jid || doc.getElementById('pf-peek')) return null;
+  loadCss(CSS);
   const T = TEXTS[lang] || TEXTS.es;
   const fmt = (s, v = {}) => String(s).replace(/\{(\w+)\}/g, (_, k) => (v[k] !== undefined ? v[k] : `{${k}}`));
   const num = x => new Intl.NumberFormat(lang).format(x);
@@ -124,13 +158,20 @@ export async function peekPlayer(jid, { hint = {}, lang = getLang(), doc = docum
   };
   const onKey = e => { if (e.key === 'Escape') close(); };
   const who = el('h2', { id: 'pf-peek-name', class: 'pf-peek-name' }, conBandera(hint.co, hint.n || '…'));
+  const placeOf = n => (lang === 'en' ? `#${n}` : `${n}.º`);
+  // Where it was tapped, first: the table and tab, the row as it showed, and (filled in below) their all-time place
+  const allTime = el('small', { class: 'pf-peek-here-all' });
+  const here = context && (context.label || context.place || context.value) ? el('div', { class: 'pf-peek-here' },
+    context.label ? el('small', { class: 'pf-peek-here-label' }, context.label) : null,
+    context.place || context.value ? el('b', {}, [/^\d+$/.test(context.place || '') ? placeOf(context.place) : context.place, context.value].filter(Boolean).join(/^\d+$/.test(context.place || '') ? ' · ' : ' ')) : null,
+    allTime) : null;
   const body = el('div', { class: 'pf-peek-body' }, el('p', { class: 'muted pf-peek-wait' }, T.peekLoading));
   const panel = el('div', { class: 'hoja pf-peek', id: 'pf-peek', role: 'dialog', 'aria-modal': 'true', 'aria-labelledby': 'pf-peek-name' },
     el('div', { class: 'hoja-asa', 'aria-hidden': 'true' }),
     el('div', { class: 'hoja-cabeza' },
       el('div', { class: 'pf-peek-who' }, who),
       el('button', { type: 'button', class: 'icon-btn', 'aria-label': T.peekClose, title: T.peekClose, onClick: close }, '✕')),
-    body,
+    here, body,
     el('div', { class: 'btn-row' }, el('button', { type: 'button', class: 'btn btn--yellow pf-peek-ok', onClick: close }, T.peekClose)));
   layer = el('div', { class: 'hoja-capa' }, el('div', { class: 'hoja-fondo', onClick: close }), panel);
   doc.body.append(layer);
@@ -139,12 +180,20 @@ export async function peekPlayer(jid, { hint = {}, lang = getLang(), doc = docum
   panel.querySelector('.pf-peek-ok')?.focus?.({ preventScroll: true });
 
   let f = null;
-  try { f = await readFacts(await jugador(), jid); } catch (_) { f = null; }
+  try {
+    const J = await jugador();
+    [f] = await Promise.all([readFacts(J, jid), context?.allTime
+      ? J.tabla(context.allTime, SIEMPRE, { top: 100, reciente: 60000 }).then(v => {
+        const p = v.top.find(x => x.jid === jid)?.puesto;
+        if (Number.isInteger(p)) allTime.textContent = fmt(T.peekGamePlace, { place: placeOf(p) });
+      }).catch(() => {})
+      : null]);
+  } catch (_) { f = null; }
   if (!layer) return null;
   if (!f) { body.replaceChildren(el('p', { class: 'muted pf-peek-wait' }, T.peekError)); return panel; }
   who.textContent = conBandera(f.co, f.n);
   const line = [f.since ? fmt(T.since, { month: new Intl.DateTimeFormat(lang, { month: 'long', year: 'numeric' }).format(new Date(f.since)) }) : null,
-    f.allRounder ? fmt(T.peekPlace, { place: lang === 'en' ? `#${f.allRounder}` : `${f.allRounder}.º` }) : null].filter(Boolean);
+    f.allRounder ? fmt(T.peekPlace, { place: placeOf(f.allRounder) }) : null].filter(Boolean);
   const stat = (b, s) => el('div', { class: 'pf-stat' }, el('b', {}, b), el('span', {}, s));
   const badges = peekBadges(f);
   const name = b => (T.badges[b.id] || [b.id])[0];
@@ -158,7 +207,7 @@ export async function peekPlayer(jid, { hint = {}, lang = getLang(), doc = docum
       fav.length
         ? el('ol', { class: 'pf-peek-games' }, fav.map(g => el('li', { 'data-game': g.id },
           el('span', { class: 'pf-peek-game' }, withIcon(gameOf(g.id), pickLang(gameOf(g.id).name, lang))),
-          Number.isInteger(g.place) ? el('small', {}, fmt(T.peekGamePlace, { place: lang === 'en' ? `#${g.place}` : `${g.place}.º` })) : null)))
+          Number.isInteger(g.place) ? el('small', {}, fmt(T.peekGamePlace, { place: placeOf(g.place) })) : null)))
         : el('p', { class: 'muted' }, T.peekNoGames)),
     el('section', { class: 'pf-peek-part' },
       el('h3', {}, badges.length === 1 ? T.peekBadgesOne : badges.length ? fmt(T.peekBadges, { n: badges.length }) : T.peekBadgesNone),
@@ -175,24 +224,39 @@ export async function peekPlayer(jid, { hint = {}, lang = getLang(), doc = docum
 /**
  * Makes every ranking row under `root` open its player's sheet: rows come and go as tabs change, so the
  * taps are caught on `root`, and each new row is made a button for the keyboard and screen readers.
+ * By default the rows are ranking.js' (`.rk-fila` with their `data-jid`) and the context is read from the
+ * table they are in; a page with its own table (a Cup's) passes `rows`, `jidOf`, `nameOf` and `contextOf`.
+ * A tap on a button inside a row (a duel's ⚔️, a Cup's 💬) is that button's, not the sheet's.
  */
-export function peekOnTap(root, { onTap = () => {} } = {}) {
+export function peekOnTap(root, {
+  onTap = () => {}, rows = '.rk-fila[data-jid]', jidOf = r => r.dataset.jid,
+  nameOf = r => r.querySelector('.rk-n')?.textContent || '', contextOf = rowContext,
+} = {}) {
+  if (!root || root.dataset?.peekOn) return;
+  root.dataset.peekOn = '1';
+  loadCss(CSS);
   const T = TEXTS[getLang()] || TEXTS.es;
-  const ready = () => root.querySelectorAll('.rk-fila[data-jid]:not([data-peek])').forEach(r => {
-    if (!/^[a-z0-9]{8}$/.test(r.dataset.jid)) return;
+  const ready = () => root.querySelectorAll(`${rows}:not([data-peek])`).forEach(r => {
+    if (!/^[a-z0-9]{8}$/.test(jidOf(r) || '')) return;
     r.dataset.peek = '1';
     r.setAttribute('role', 'button');
     r.tabIndex = 0;
-    r.setAttribute('aria-label', `${r.querySelector('.rk-n')?.textContent || ''} · ${T.peekOpen}`);
+    r.setAttribute('aria-label', `${nameOf(r).trim()} · ${T.peekOpen}`);
   });
   const open = r => {
     onTap();
-    peekPlayer(r.dataset.jid, { hint: { n: r.querySelector('.rk-n')?.textContent || '' }, onTap });
+    peekPlayer(jidOf(r), { hint: { n: nameOf(r).trim() }, context: contextOf(r), onTap });
   };
-  root.addEventListener('click', e => { const r = e.target.closest?.('.rk-fila[data-peek]'); if (r) open(r); });
+  const rowOf = e => {
+    const r = e.target.closest?.(`${rows}[data-peek]`);
+    if (!r || !root.contains(r)) return null;
+    const own = e.target.closest?.('button, a, input, textarea');
+    return own && own !== r && r.contains(own) ? null : r;
+  };
+  root.addEventListener('click', e => { const r = rowOf(e); if (r) open(r); });
   root.addEventListener('keydown', e => {
-    const r = e.target.closest?.('.rk-fila[data-peek]');
-    if (r && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); open(r); }
+    const r = rowOf(e);
+    if (r && e.target === r && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); open(r); }
   });
   ready();
   new MutationObserver(ready).observe(root, { childList: true, subtree: true });

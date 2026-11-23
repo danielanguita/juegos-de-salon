@@ -23,7 +23,7 @@ import { leer as leerDia, recorrer } from '../assets/js/uno-al-dia.js';
 import { firebaseConfig } from '../assets/js/firebase-config.js';
 import { BADGES, GROUPS, earned, lastOnDay, withAnnounced } from './badges.js';
 import { TEXTS } from './texts.js';
-import { tableOf } from './peek.js';
+import { tableOf } from '../assets/js/player-peek.js';
 import { phoneFacts, LOCAL_BADGES } from '../assets/js/phone-facts.js';
 import { announced } from '../assets/js/secret-achievements.js';
 
@@ -506,7 +506,7 @@ function accountPanel(yo) {
  * hide (D-605): the sheet shows where someone stands, not how much they play.
  */
 function publicPanel(yo) {
-  const see = el('button', { type: 'button', class: 'btn btn--ghost pf-see-public', onClick: () => { tap(); import('./peek.js').then(m => m.peekPlayer(yo.jid, { hint: yo, onTap: tap })); } }, T.seePublic);
+  const see = el('button', { type: 'button', class: 'btn btn--ghost pf-see-public', onClick: () => { tap(); import('../assets/js/player-peek.js').then(m => m.peekPlayer(yo.jid, { hint: yo, onTap: tap })); } }, T.seePublic);
   return el('section', { class: 'panel pf-settings pf-public' }, el('p', { class: 'lead rk-titulo' }, T.publicTitle),
     el('p', { class: 'muted rk-hint' }, T.publicHint), see);
 }
@@ -619,8 +619,6 @@ export async function drawProfile(root, { sub }) {
     if (f.general) rk.general(f.general);
     repaint(paint(true));
   };
-  // A tap on a name in any of the page's rankings opens that player's profile at a glance (the owner, 2026-11-22)
-  import('./peek.js').then(m => m.peekOnTap(root, { onTap: tap })).catch(() => {});
   J.escuchar(() => draw());
   await draw();
   window.__profile = { redraw: draw };
