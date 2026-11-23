@@ -84,21 +84,33 @@ function badgeState(f, jid) {
  */
 const REVEAL_GAP = 450;
 const revealAt = new Map();
-let revealScrolled = false;
+let revealUntil = null;
 const calm = () => !!globalThis.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
 function revealDelay(id) {
   const now = performance.now();
   if (!revealAt.has(id)) revealAt.set(id, Math.max(now + 350, ...[...revealAt.values()].map(t => t + REVEAL_GAP)));
   return Math.round(revealAt.get(id) - now);
 }
-/** After a draw: the first badge being revealed comes into view, once per visit, if the badges' tab is showing. */
+/**
+ * After a draw: the first badge being revealed comes into view if the badges' tab is showing, and stays in view until
+ * its reveal and glow are over: whatever grows above it meanwhile (the server's facts, the duels, the fonts) brings
+ * it back, so it is seen happening, unless the player scrolls first.
+ */
 function revealIntoView(root) {
-  if (revealScrolled) return;
-  const b = root.querySelector('.pf-badge--reveal');
-  if (!b || b.closest('[hidden]')) return;
-  revealScrolled = true;
-  const r = b.getBoundingClientRect();
-  if (r.top < 0 || r.bottom > innerHeight) b.scrollIntoView({ behavior: calm() ? 'auto' : 'smooth', block: 'center' });
+  const find = () => { const b = root.querySelector('.pf-badge--reveal'); return b && !b.closest('[hidden]') ? b : null; };
+  const b = find();
+  if (!b || revealUntil != null) return;
+  revealUntil = revealAt.get(b.dataset.badge) + 4500;
+  const keep = () => {
+    if (performance.now() > revealUntil) { ro?.disconnect(); return; }
+    const x = find(), r = x?.getBoundingClientRect();
+    if (r && (r.top < 0 || r.bottom > innerHeight)) x.scrollIntoView({ behavior: calm() ? 'auto' : 'smooth', block: 'center' });
+  };
+  const ro = globalThis.ResizeObserver ? new ResizeObserver(keep) : null;
+  ro?.observe(document.body);
+  // The player's own scroll wins: a touch or a wheel ends the follow
+  for (const ev of ['touchstart', 'wheel']) addEventListener(ev, () => { revealUntil = 0; ro?.disconnect(); }, { once: true, passive: true });
+  keep();
 }
 
 /** The facts this phone holds without asking anyone (a guest's, and a player's first draw): phone-facts.js. */

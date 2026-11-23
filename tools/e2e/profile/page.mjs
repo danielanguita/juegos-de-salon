@@ -145,12 +145,13 @@ for (const W of [320, 390]) {
   // 🎬 A badge a game's window celebrated is earned on the profile even if the page's facts say otherwise, and the
   // next visit reveals it once: grey to its metal with a flash, «¡Nueva!» kept through every draw, brought into view (the owner, 2026-11-22)
   await ev(`(() => { const d = JSON.parse(localStorage.getItem('juegos-de-salon:logros-anunciados') || '{}'); d.premiere = Date.now(); localStorage.setItem('juegos-de-salon:logros-anunciados', JSON.stringify(d)); })()`);
-  await b.go(`${SITE}/profile/?test#badges`, 1200);
+  // A reload, not a hash change: only the hash would not draw the page again
+  await ev(`location.hash = 'badges'; location.reload()`); await sleep(1200);
   ok(await ev(`(() => { const x = document.querySelector('[data-badge="premiere"]'); return !!x && !x.classList.contains('pf-badge--locked') && x.classList.contains('pf-badge--reveal') && !!x.querySelector('.pf-new') && document.getAnimations().some(a => a.animationName === 'pf-unlock'); })()`), `${W}: 🎬 a badge its window celebrated is earned here and revealed`);
   await sleep(4500);
   ok(await ev(`(() => { const x = document.querySelector('[data-badge="premiere"]'), r = x?.getBoundingClientRect(); return !!x?.querySelector('.pf-new') && r.top >= 0 && r.bottom <= innerHeight; })()`), `${W}: 🎬 after every draw it is still new, and in view`);
   await b.shot(`badge-revealed-${W}`);
-  await b.go(`${SITE}/profile/?test#badges`, 4000);
+  await ev(`location.reload()`); await sleep(4000);
   ok(await ev(`(() => { const x = document.querySelector('[data-badge="premiere"]'); return !!x && !x.classList.contains('pf-badge--locked') && !x.classList.contains('pf-badge--reveal') && !x.querySelector('.pf-new'); })()`), `${W}: 🎬 the next visit: still earned, revealed only once`);
   ok(await ev(`document.documentElement.scrollWidth <= ${W}`), `${W}: badges, no sideways scroll`);
   await full(b, `badges-${W}`, W);
