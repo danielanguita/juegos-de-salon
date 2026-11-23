@@ -179,7 +179,7 @@ The same mechanism as La Copa, for the whole app:
   ends in `_victorias` (D-215), and the `partidas` one (D-219), also requires `ms` = 0 and that `s` go up
   by exactly one. Each row can carry `co`, the player's country (two letters, D-219).
 - `jugadores/<jid>/co`: the player's country, once, by whoever is seated (D-219).
-- `jugadores/<jid>/abierto`: `true` when the player shows their activity on their public profile (lab flag `profile`), absent otherwise; written or removed only by one of the player's seated phones (D-602).
+- `jugadores/<jid>/oculto`: `true` when the player hides their activity from their public profile (lab flag `profile`), absent while it shows (the default, D-604); written or removed only by one of the player's seated phones.
 - `torneoPodios/<código>`: the podium of a finished cup, with `.indexOn: end`. Read without an account.
 - `uadTemporada/s<yyyy-mm>`: Uno al día's season places by week (D-424), `{ c, t, j: { <jid>: { n, co?, s, l } } }`. Read without an account; written only by the administrator, by the nightly points rebuild (`uad-points-backfill.mjs --rebuild`). It also holds `top` (D-473): `{ c, t, p: players, j: the rows down to the 10th place }`; the home page's season recap reads only `top` and the player's own `j/<jid>`, never the whole table.
 - **Indexes for the panel (D-473):** `torneos` is indexed on `meta/end` and `meta/alias`, and `feedback` on `at`, so the panel downloads only the period it shows.
