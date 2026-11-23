@@ -24,7 +24,7 @@ site when it opens (the Firebase SDK is loaded with `import()` only when a room 
 `public/assets/js/connection.js` (PR 3), started by `instalable.js` on every page while the flag is on:
 
 - `offline` event or `navigator.onLine === false`: on at once.
-- A probe refused outright (no route at all, as in airplane mode): on at once. An iPhone in airplane
+- A probe refused outright twice, 0.5 s apart (no route at all, as in airplane mode): on in about half a second; one refusal alone is a hiccup, and offline only by refusals one good answer brings it back. An iPhone in airplane
   mode often keeps `navigator.onLine` true and sends no `offline` event, so the probes are all there is
   (D-609, the owner 2026-11-23: it must be immediate). Online they run every 5 s while the page is in
   view (none while hidden), on each touch of the screen (at most every 2 s), when Android reports a
@@ -54,7 +54,7 @@ No new control on the home page while online. Offline:
    playing (`html.offline-play`), so it never covers a board. A tap on the
    sticker opens the sheet of point 1 again, as often as wanted. Every link to a page the phone
    does not keep (La Copa, Rankings, /privacy/…) and every game's two-phone mode stay in place, dimmed
-   and tagged **"📡 Con señal"** (Needs signal / Com sinal); small icon buttons and things inside a
+   and tagged **"📡 Solo con señal"** (Needs signal / Só com sinal; "Con señal" until D-609, which read as "has signal"); small icon buttons and things inside a
    dimmed card are dimmed without a tag of their own. A tap shows one line: "Esto necesita conexión.
    Vuelve cuando vuelva la señal." The games mark their modes with `data-mode`.
 3. **End screen**: "Guardado en tu celular. Se sube al volver la señal." instead of the ranking place;
@@ -126,7 +126,7 @@ PR that changes what is kept on the phone.
    No update toast: pages are network-first and assets are content-hashed, so a new release is
    picked up on the next load with no prompt (`sw.test.mjs`, `precache.test.mjs`).
 3. ✅ `connection.js`: probes, hysteresis, the tester switch in `/labs/` and the T tab, a real cut while on (`offline-cut.js` and the service worker: nothing reaches the network, `navigator.onLine` false; `?connection=online` is the way out) (`connection.test.mjs`).
-4. ✅ Home page and game covers: dimmed links and two-phone modes with "📡 Con señal", the chip, the
+4. ✅ Home page and game covers: dimmed links and two-phone modes with "📡 Solo con señal", the chip, the
    one-line explanation on tap (`offline-ui.test.mjs`).
 5. ✅ Scores: queue of 200 with ids and exactly-once counting, queued without Firebase, end-screen wording,
    reconnect toast with what was lost and why, `storage.persist()`, Uno al día yesterday within 48 h,
@@ -167,7 +167,7 @@ PR that changes what is kept on the phone.
      same screen and crossfades (~600 ms, View Transitions; instant without them or with reduced
      motion). Back online is immediate when the browser says so and a probe agrees; only a recovered
      poor connection still waits for two good probes 10 s apart.
-   - **Readable**: text and the dimmed "📡 Con señal" tags on the new background pass WCAG AA contrast
+   - **Readable**: text and the dimmed "📡 Solo con señal" tags on the new background pass WCAG AA contrast
      (4.5:1), checked by a test.
    - **The random game offline** (the owner, 2026-11-07): the 🎲 picks only games this phone keeps and
      can play (`guardados` in `azar.js`), so it never lands on a page that cannot open.

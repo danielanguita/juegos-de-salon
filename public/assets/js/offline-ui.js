@@ -2,7 +2,7 @@
  * What offline mode shows (D-538, docs/OFFLINE.md, PR 4), on every page while the flag `offline` is
  * on and connection.js says offline. Nothing is added while online.
  *
- * - **Dimmed, tagged "📡 Con señal"**: every link to a page of the site the phone does not keep
+ * - **Dimmed, tagged "📡 Solo con señal"**: every link to a page of the site the phone does not keep
  *   offline (La Copa, Rankings, /privacy/…; the kept ones are the offline-capable games and the home
  *   page) and every game's two-phone mode (`.mode[data-mode="online"]`). They stay in place; a tap
  *   says in one line why, instead of opening.

@@ -3,8 +3,9 @@
  * whole page; screens only listen (`onChange`) and read it (`mode()`), they never probe themselves.
  *
  * - On at once when the browser says it is offline (`offline` event, `navigator.onLine === false`).
- * - On at once when a probe is refused outright (the request fails, no answer at all): the phone has
- *   no route, as in airplane mode. An iPhone there often keeps saying it is online and sends no
+ * - On within REFUSED_AGAIN when a probe is refused outright twice (the request fails, no answer at
+ *   all): the phone has no route, as in airplane mode. One refusal alone is a hiccup (a DNS miss, a
+ *   Wi-Fi to mobile-data handoff) and must not paint a room in Candlelight; an aborted request is none. An iPhone there often keeps saying it is online and sends no
  *   `offline` event, so the probes are all there is; they run every EVERY_ONLINE while the page is in
  *   view, on each touch of the screen (at most every TOUCH_GAP), when the phone's network changes
  *   (`navigator.connection`, Android) and on coming back to the front.
@@ -26,6 +27,8 @@ export const STEADY = 10000;
 // show at once (the owner, 2026-11-23: 60 s and then 20 s rounds were "several seconds" too many)
 export const EVERY_ONLINE = 5000;
 export const CONFIRM = 1500;
+// A refused probe is asked again this soon: airplane mode shows in about half a second, a hiccup does not
+export const REFUSED_AGAIN = 500;
 // A touch of the screen probes, at most this often: the player who just switched airplane mode on and
 // taps sees the offline palette right away
 export const TOUCH_GAP = 2000;
@@ -77,9 +80,12 @@ export function createConnection({
   function set(m) { detected = m; publish(); }
 
   let lastProbe = -Infinity;
+  let refusedLast = false;   // the last failed probe got no answer at all (not a slow one)
+  let byRefusal = false;     // offline because the requests were refused, not because they were slow
   async function probe({ trusted = false, careful = false } = {}) {
     let ok = false;
     let refused = false;
+    let aborted = false;
     let slow = null;
     lastProbe = now();
     try {
@@ -88,15 +94,21 @@ export function createConnection({
         new Promise((_, no) => { slow = timer.set(() => no(new Error('slow')), PROBE_TIMEOUT); }),
       ]);
       ok = !!r && r.status < 500;
-    } catch (e) { ok = false; refused = e?.message !== 'slow'; }
+    } catch (e) { ok = false; aborted = e?.name === 'AbortError'; refused = !aborted && e?.message !== 'slow'; }
     if (slow !== null) timer.clear(slow);
+    // A request the page itself cancelled (leaving the page) says nothing about the connection
+    if (aborted) return false;
     if (!ok) {
       lastGood = null;
-      // Refused outright: no route, offline now. Slow or a server error: a poor connection, two in a row.
-      // Right after coming back to the front a refusal may be the radio waking up: confirmed first
-      if (++fails >= 2 || nav?.onLine === false || (refused && !careful)) set('offline');
+      // Two failures in a row: refused ones are asked again REFUSED_AGAIN later, slow ones CONFIRM later,
+      // and right after coming back to the front (a waking radio) CONFIRM later too
+      refusedLast = refused && !careful;
+      if (++fails >= 2 || nav?.onLine === false) { byRefusal = refused; set('offline'); }
     } else {
       fails = 0;
+      // Offline only because requests were refused, and the browser never said offline: one good answer
+      // is the route back, at once (a false flash lasts half a second, not half a minute)
+      if (detected === 'offline' && byRefusal && nav?.onLine !== false) { byRefusal = false; set('online'); return ok; }
       // Back online only after two good probes STEADY apart, unless the browser itself said it is back
       // (the `online` event) and a probe agrees: then at once, on the screen the player is on (the
       // owner, 2026-11-07: it waited for the next page)
@@ -123,7 +135,7 @@ export function createConnection({
   }
 
   // The wait before the next probe: a failed one is confirmed soon, so a dead connection shows in seconds
-  const after = () => (detected === 'offline' ? EVERY_OFFLINE : fails > 0 ? CONFIRM : EVERY_ONLINE);
+  const after = () => (detected === 'offline' ? EVERY_OFFLINE : fails > 0 ? (refusedLast ? REFUSED_AGAIN : CONFIRM) : EVERY_ONLINE);
   const hidden = () => doc?.visibilityState === 'hidden';
 
   function schedule(ms, careful = false) {
@@ -137,7 +149,8 @@ export function createConnection({
     }, ms);
   }
   // A probe soon, unless one ran a moment ago (touches, network changes)
-  const soon = () => { if (detected === 'online' && !hidden() && now() - lastProbe >= TOUCH_GAP) schedule(0); };
+  // Offline by refusals, a touch also looks for the way back
+  const soon = () => { if ((detected === 'online' || byRefusal) && !hidden() && now() - lastProbe >= TOUCH_GAP) schedule(0); };
 
   const api = {
     mode,
@@ -171,7 +184,7 @@ export function createConnection({
       started = true;
       shown = mode();
       if (doc?.documentElement) doc.documentElement.dataset.connection = shown;
-      win?.addEventListener?.('offline', () => { lastGood = null; set('offline'); schedule(EVERY_OFFLINE); });
+      win?.addEventListener?.('offline', () => { lastGood = null; byRefusal = false; set('offline'); schedule(EVERY_OFFLINE); });
       win?.addEventListener?.('online', () => recheck());
       // A phone switched into or out of airplane mode from its settings: the page was in the background,
       // its timers asleep, and the `offline` or `online` event may never reach it. Back in front, it
@@ -190,7 +203,8 @@ export function createConnection({
       win?.addEventListener?.('storage', e => { if (e.key === FORCE_KEY) publish(); });
       // The player touches the screen, or the phone's network changes (Android): look now
       doc?.addEventListener?.('pointerdown', soon, { capture: true, passive: true });
-      try { nav?.connection?.addEventListener?.('change', () => (detected === 'offline' ? recheck() : schedule(0))); } catch (_) { /* no Network Information API */ }
+      // A handoff (Wi-Fi to mobile data) refuses requests for a moment: looked at like a return to the front
+      try { nav?.connection?.addEventListener?.('change', () => (detected === 'offline' ? recheck() : schedule(RETURN_WAIT, true))); } catch (_) { /* no Network Information API */ }
       schedule(detected === 'offline' ? EVERY_OFFLINE : 0);
       return api;
     },
