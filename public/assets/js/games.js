@@ -91,8 +91,8 @@ export const GAMES = [
   catalogEntry(fourthKingManifest),
   // wobbles: from public/wobbles/game.json. ⚖️ Tembleque out of the lab (D-517's way), launched by flags/wobbles:
   // until then hidden (`oculto`). Home page, search and Rankings only (the owner, 2026-11-21): no La Copa and no
-  // Uno al día, which wait for a house-engine version. `nuevoDesde` in game.json is a placeholder: the launch PR
-  // moves it to the launch day. The id is the lab's (usage signal, the `wobbles_easy` and `wobbles_hard` tables);
+  // Uno al día, which wait for a house-engine version. `nuevoDesde` in game.json is the launch day (2026-11-22,
+  // 21:00 Pacific). The id is the lab's (usage signal, the `wobbles_easy` and `wobbles_hard` tables);
   // /labs/wobbles/ is a bridge (`deLabs`)
   { ...catalogEntry(wobblesManifest), deLabs: 'wobbles', lanza: 'wobbles', diasNuevo: 10, oculto: !lanzado('wobbles') },
 ];
@@ -550,7 +550,7 @@ export const SUELTOS = [
   },
   {
     // 🐸 Out of the lab like Sudoku (D-517's way): La Copa's screen in cup/games/croc/, its page /croc/, hidden
-    // until the owner switches flags/croc on (prepared, not launched: the owner picks the date). Its traffic
+    // until flags/croc is on (launch: 2026-11-22, 21:00 Pacific, with Tembleque). Its traffic
     // levels are La Copa's variants (normal by default, hard as heavy traffic; ranked apart, D-331). The id, its
     // ranking table and the usage signal are the lab's. Its lab page /labs/croc/ is a bridge to /croc/ (`deLabs`,
     // C-18): the prototype's code is this game's now, and a lab key opens /croc/ before the launch
@@ -559,7 +559,7 @@ export const SUELTOS = [
     lanza: 'croc',
     copa: { pozo: 21 },
     // Uno al día: by date, never by flag. PLACEHOLDER: the launch PR sets it to the day after the launch
-    unoAlDia: { orden: 26, desde: '2027-01-02' },
+    unoAlDia: { orden: 26, desde: '2026-11-23' },
     slug: 'croc',
     emoji: '🐸',
     name: { es: 'Croc!', en: 'Croc!', pt: 'Croc!' },
@@ -572,7 +572,7 @@ export const SUELTOS = [
     tipos: ['skill'],
     duration: '1–2',
     // PLACEHOLDER: the launch PR sets it to the launch day (the ✨ Nuevo label starts with the flag anyway, D-556)
-    nuevoDesde: '2027-01-01',
+    nuevoDesde: '2026-11-22',
     diasNuevo: 10,
   },
   // Los del laboratorio viven en /labs/<slug>/ (D-267): al salir pasan a /<slug>/
