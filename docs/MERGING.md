@@ -21,6 +21,7 @@ job's log, find the cause, fix it on the branch and push, without asking the own
 3. **No merge without ✅ on GitHub in `tests` and in `end-to-end`** (D-143,
    D-193, D-213, D-216), even if they already passed here. `main` requires both: `end-to-end` is the
    job that summarizes the `End to end` workflow (the scripts in even groups, D-307) and goes red if any fails.
+   A PR that launches a game also runs `launch-check.mjs --screens` there (the `launch` job, D-606).
    A PR runs only the scripts whose pages load what it changed (`tools/e2e/affected.mjs`, D-329), and for a site module only the pages that use the
    declarations or text keys its patch changes (`tools/e2e/narrow.mjs`, D-516); its run
    summary shows that scope, and `tools/e2e/scope.test.mjs` stops a page that loads another game's files (D-378);
