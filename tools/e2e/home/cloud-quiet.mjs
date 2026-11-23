@@ -1,5 +1,5 @@
 // The quiet cloud (flag cloud-quiet, offline-ready.js): on the home page's bar the ☁️ shows only while it asks for
-// something (storing, files missing), on share's left so share and the pill never move, and its slot closes up when it hides; the profile's ⚙️ always has a «Juegos sin
+// something (storing, files missing), floats away when it is done, on share's left so share and the pill never move, and its slot closes up when it hides; the profile's ⚙️ always has a «Juegos sin
 // señal» row with the state, which opens the same sheet. Every state is pretended from the «T» tab's cloud states, which
 // go with the flag's own row while it is in the lab (D-592). With the flag off, the bar keeps the cloud in every state
 // and ⚙️ has no row (checked at 390 only). The home page is the owner's: the icon view and the profile's pill.
@@ -73,7 +73,11 @@ for (const width of [390, 320]) {
   // The pretend storing takes six seconds: its end, once
   if (width === 390) {
     ok(await waitFor(cloudIs('ready'), 9000), `${width}: storing ends ready: the ☁️ stays a moment with its flash`);
-    ok(await waitFor(`!${cloud} && ${slotGone}`, 4000), `${width}: then it leaves the bar`);
+    // It floats away (the owner's variant 3): up and fading, then its slot narrows, with no jump
+    ok(await waitFor(`!!document.querySelector('#offline-ready-slot .offline-ready.or-se-va')`, 4000), `${width}: then it floats up and fades`);
+    ok(await waitFor(`document.getElementById('offline-ready-slot').classList.contains('or-cierra')`, 1500), `${width}: and its slot narrows to nothing`);
+    ok(await waitFor(`!${cloud} && ${slotGone}`, 2000), `${width}: then it leaves the bar`);
+    ok(await ev(fixed) === still, `${width}: share and the pill end where they were`);
   }
 
   // The profile's ⚙️ row, for a player with an account

@@ -279,10 +279,15 @@ export function cloudWatch({ doc = globalThis.document, lang = getLang(), nav = 
 /**
  * Quiet cloud (flag `cloud-quiet`, lab: #seccion-cloud-quiet): the home page's bar shows the cloud only
  * while it asks for something, storing or missing files; ready or unsupported, it lives in the profile's
- * ⚙️ row. After a storing ends ready, it stays QUIET_GOODBYE_MS with its flash, then leaves.
+ * ⚙️ row. After a storing ends ready, it stays QUIET_GOODBYE_MS with its flash, then floats away
+ * (the owner, 2026-11-23, variant 3 of five): it rises and fades in QUIET_FLOAT_MS, and from QUIET_CLOSE_AT
+ * its slot closes up in QUIET_CLOSE_MS, so nothing in the bar jumps. With reduced motion it only fades.
  */
 export const QUIET_SHOWN = new Set(['loading', 'missing']);
 export const QUIET_GOODBYE_MS = 2500;
+export const QUIET_FLOAT_MS = 450;
+export const QUIET_CLOSE_AT = 400;
+export const QUIET_CLOSE_MS = 300;
 export const shownWhenQuiet = s => QUIET_SHOWN.has(s?.state);
 
 /** The row the T tab's cloud states go with (D-592): the quiet cloud's own while it is in the lab here, else offline mode's. */
@@ -303,11 +308,33 @@ export function offlineReadyButton({ doc = globalThis.document, lang = getLang()
   let on = false;
   let quiet = false;
   let goodbye = null;
-  const visible = (s, was) => {
+  // The way out, undone at once: the cloud back in place and its slot as wide as it was
+  const settle = () => {
     clearTimeout(goodbye); goodbye = null;
+    btn.classList.remove('or-se-va');
+    const slot = btn.parentElement;
+    if (slot?.classList.contains('or-cierra')) { slot.classList.remove('or-cierra', 'or-cerrado'); slot.style.width = ''; }
+  };
+  // Floats away: up and out (CSS), then its slot narrows to nothing, then it is hidden and the slot leaves the layout
+  const floatAway = () => {
+    btn.classList.add('or-se-va');
+    goodbye = setTimeout(() => {
+      const slot = btn.parentElement;
+      if (slot) {
+        slot.style.width = `${slot.offsetWidth}px`;
+        slot.classList.add('or-cierra');
+        void slot.offsetWidth;
+        slot.style.width = '0px';
+        slot.classList.add('or-cerrado');
+      }
+      goodbye = setTimeout(() => { settle(); btn.hidden = true; }, QUIET_CLOSE_MS);
+    }, QUIET_CLOSE_AT);
+  };
+  const visible = (s, was) => {
+    settle();
     if (!quiet || shownWhenQuiet(s)) { btn.hidden = false; return; }
-    // Just finished storing: the flash shows where it went, then the cloud leaves the bar
-    if (was === 'loading' && s.state === 'ready' && !btn.hidden) { goodbye = setTimeout(() => { btn.hidden = true; }, QUIET_GOODBYE_MS); return; }
+    // Just finished storing: the flash shows where it went, then the cloud floats away
+    if (was === 'loading' && s.state === 'ready' && !btn.hidden) { goodbye = setTimeout(floatAway, QUIET_GOODBYE_MS); return; }
     btn.hidden = true;
   };
   const watch = cloudWatch({ doc, lang, nav, onDraw: s => { if (!on) return; const was = btn.dataset.state; paint(btn, s, lang); visible(s, was); } });
