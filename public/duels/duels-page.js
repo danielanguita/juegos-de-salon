@@ -10,7 +10,7 @@ import { SFX } from '../assets/js/sound.js';
 import { jugador, leerYo } from '../assets/js/jugador.js';
 import { bloqueJugador } from '../assets/js/ranking.js';
 import { estado, record, esDid, rondas } from '../assets/js/duels.js';
-import { T, fmt, fila, ordenar, abrirNuevo, titulo, hrefRonda, hrefDuelos, shareInvite, panelRecientes } from '../assets/js/duels-ui.js';
+import { T, fmt, fila, ordenar, abrirNuevo, titulo, hrefRonda, hrefDuelos, shareInvite, panelRecientes, panelNemesis } from '../assets/js/duels-ui.js';
 
 export { T };
 const tap = () => SFX.tap();
@@ -59,7 +59,7 @@ export async function drawDuels(root, { sub }) {
     await once();
     return;
   }
-  let turn = 0, tab = 'turn', abierta = false; // the new-duel sheet opens on its own once, for a first-timer
+  let turn = 0, abierta = false; // the new-duel sheet opens on its own once, for a first-timer
   const draw = async () => {
     const mine = ++turn;
     const yo = leerYo();
@@ -90,20 +90,12 @@ export async function drawDuels(root, { sub }) {
     }
     const orden = ordenar(lista, yo.jid);
     const es = d => estado(d, yo.jid);
-    const grupos = { turn: orden.filter(d => es(d).turno >= 0), waiting: orden.filter(d => !es(d).termino && es(d).turno < 0) };
+    // One list, no tabs (the owner, 2026-11-23: few duels each): your turn first, with ▶ Play; then «Waiting for …»
+    const abiertos = orden.filter(d => !es(d).termino);
     const hechos = orden.filter(d => es(d).termino);
-    const listaAbierta = el('div', { id: 'dl-abiertos' });
-    const seg = el('div', { class: 'rk-seg', role: 'tablist' }, ['turn', 'waiting'].map(k => el('button', {
-      type: 'button', role: 'tab', 'data-t': k, onClick: () => { tap(); tab = k; marcar(); },
-    }, `${T[k === 'turn' ? 'tabTurn' : 'tabWaiting']} ${grupos[k].length}`)));
-    function marcar() {
-      seg.querySelectorAll('button').forEach(b => { const on = b.dataset.t === tab; b.classList.toggle('on', on); b.setAttribute('aria-selected', String(on)); });
-      listaAbierta.replaceChildren(...(grupos[tab].length ? grupos[tab].map(d => fila(d, yo.jid, { alTocar: tap })) : [el('p', { class: 'muted rk-centro' }, T.emptyTab)]));
-    }
-    if (!grupos.turn.length && grupos.waiting.length) tab = 'waiting';
-    marcar();
     root.replaceChildren(...[nuevo,
-      el('section', { class: 'panel', id: 'dl-mios' }, el('p', { class: 'lead' }, T.mineTitle), seg, listaAbierta),
+      abiertos.length ? el('section', { class: 'panel', id: 'dl-mios' }, el('p', { class: 'lead' }, T.mineTitle), abiertos.map(d => fila(d, yo.jid, { alTocar: tap }))) : null,
+      panelNemesis(lista, yo.jid, { alTocar: tap }),
       hechos.length ? el('section', { class: 'panel', id: 'dl-terminados' }, el('p', { class: 'lead' }, T.tabDone), hechos.map(d => fila(d, yo.jid, { alTocar: tap }))) : null,
       otros].filter(Boolean));
   };

@@ -79,6 +79,15 @@ export function ordenar(lista, me) {
   return [...lista].sort((a, b) => peso(a) - peso(b) || b.at - a.at);
 }
 
+/** Your nemesis, the rival you lose to most, with ⚔️ Rematch (the profile and /duels/), or null. */
+export function panelNemesis(lista, me, { alTocar = () => {} } = {}) {
+  const nem = nemesis(lista, me);
+  if (!nem) return null;
+  return el('div', { class: 'panel dl-nemesis', id: 'dl-nemesis' },
+    el('b', {}, `${T.nemesis} · ${nem.n} ${nem.g}–${nem.p}`),
+    el('button', { type: 'button', class: 'btn btn--cyan btn--sm', onClick: () => { alTocar(); abrirNuevo({ lista, rival: { jid: nem.jid, n: nem.n }, alTocar }); } }, T.rematch));
+}
+
 /** The profile's section: the pills, ＋ New duel and the open duels as cards, See all, the nemesis. */
 export async function seccionPerfil({ alTocar = () => {} } = {}) {
   cargarCss();
@@ -90,7 +99,6 @@ export async function seccionPerfil({ alTocar = () => {} } = {}) {
   const pintar = lista => {
     const abiertos = ordenar(lista, yo.jid).filter(d => !estado(d, yo.jid).termino);
     const turnos = abiertos.filter(d => estado(d, yo.jid).turno >= 0).length;
-    const nem = nemesis(lista, yo.jid);
     caja.replaceChildren(...[
       pildoras(lista, yo.jid).length ? el('div', { class: 'dl-pills' }, pildoras(lista, yo.jid)) : null,
       el('div', { class: 'dl-head' },
@@ -100,9 +108,7 @@ export async function seccionPerfil({ alTocar = () => {} } = {}) {
         el('button', { type: 'button', class: 'panel dl-nuevo', id: 'dl-nuevo', onClick: () => { alTocar(); abrirNuevo({ lista, alTocar }); } },
           el('span', { 'aria-hidden': 'true' }, '⚔️'), el('span', {}, T.newDuel), el('span', { class: 'dl-mas', 'aria-hidden': 'true' }, '+')),
         abiertos.map(d => duelCard(d, yo.jid, { alTocar }))),
-      nem ? el('div', { class: 'panel dl-nemesis' },
-        el('b', {}, `${T.nemesis} · ${nem.n} ${nem.g}–${nem.p}`),
-        el('button', { type: 'button', class: 'btn btn--cyan btn--sm', onClick: () => { alTocar(); abrirNuevo({ lista, rival: { jid: nem.jid, n: nem.n }, alTocar }); } }, T.rematch)) : null].filter(Boolean));
+      panelNemesis(lista, yo.jid, { alTocar })].filter(Boolean));
   };
   pintar([]);
   D.mios().then(pintar).catch(() => {});
