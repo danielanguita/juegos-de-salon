@@ -67,6 +67,13 @@ include any the PR itself does not change, they came from `main`, and the push t
 again against the new `main`, as its first push did. #1802 had passed with its profile script, then a
 merge of `main` brought 19 files and ran 18 batches of the home page's scripts.
 
+**And only the scripts both reach** (D-612): of the PR's own jobs, the run keeps those that the files the
+push brought also reach (`since-passed.mjs --brought`, `ci.mjs --meet`, `meetJobs`), plus every job the
+push's changes to the PR's own files reach. A script only the PR reaches loads nothing `main` changed since
+the PR passed; a script only `main` reaches passed on `main`. A PR that reaches the home page used to rerun
+all 18 batches on every merge-queue update; now only when `main` brought something core too. Being partial,
+a met run leaves no tree mark, and `publish.yml` runs its smoke batch (D-496).
+
 What is not retested on the PR: changes on `main`, merged into it or not. GitHub tests a PR merged
 with the `main` of that moment, so a later push tests its own files against a newer `main` without
 rerunning what the newer `main` brought. The safety net is `publish.yml`, which tests what it publishes
@@ -155,7 +162,7 @@ the graph, a declared fact or a guard.
 | Phase | What | State |
 |---|---|---|
 | 1 | The graph reads on-demand loads (`import('…')`, `new URL`); `scope-guard.test.mjs`; the lab index counts as lab for N2 · home | **Built** (D-391) |
-| 2 | Increment: a push tests only what changed since the PR's last commit that passed (`since-passed.mjs`, the `e2e-head-<sha>` marks); a merge of main, the PR's own scope | **Built** (D-392, D-610) |
+| 2 | Increment: a push tests only what changed since the PR's last commit that passed (`since-passed.mjs`, the `e2e-head-<sha>` marks); a merge of main, what both the PR and main reach | **Built** (D-392, D-610, D-612) |
 | 3 | Feedback: the over-budget line in the run summary, and the escape line in the merged PR's comment | Proposed |
 
 Left out after review (D-392): a ledger with a daily audit (it costs every day what the guards already
@@ -187,7 +194,7 @@ catch in the PR) and moving the declared facts to their own module (tidier, but 
 | What | File |
 |---|---|
 | This design | `docs/TEST-SCOPE.md` |
-| Why each step was taken | `docs/decisions/`: D-308, D-329, D-346, D-378, D-388, D-391, D-392, D-496, D-506, D-515, D-516, D-588, D-610 |
+| Why each step was taken | `docs/decisions/`: D-308, D-329, D-346, D-378, D-388, D-391, D-392, D-496, D-506, D-515, D-516, D-588, D-610, D-612 |
 | How to run and write scripts | `tools/e2e/README.md` |
 | The code | `tools/e2e/affected.mjs`, `changes.mjs`, `ci.mjs`, `since-passed.mjs` (D-392), `inert.mjs` (D-515), `narrow.mjs` (D-516) |
 | The guards | `tools/e2e/*.test.mjs` (`only.test.mjs`: the `--only` narrowing, D-588) |

@@ -102,7 +102,7 @@ and this folder, `tools/agents/`, `tools/firebase/`, `firebase/` and the workflo
 Four guards on how a push is tested: [`landing-stamp.mjs`](landing-stamp.mjs) records that a touched cover was measured (`node tools/e2e/landing-stamp.test.mjs`); `--only <ids>` runs the all-games scripts only for the games a PR reaches (`node tools/e2e/only.test.mjs`, D-588); no script depends on the real date (`node tools/e2e/real-date.test.mjs`, D-589); and the Visual references workflow stays safe and narrow (`node tools/e2e/visual-refs.test.mjs`).
 
 Each push to a PR tests only what changed since the PR's last commit that passed (D-392,
-[`since-passed.mjs`](since-passed.mjs), tested by `node tools/e2e/since-passed.test.mjs`): the first push, or one after a red run, tests the whole PR.
+[`since-passed.mjs`](since-passed.mjs), tested by `node tools/e2e/since-passed.test.mjs`): the first push, or one after a red run, tests the whole PR. A merge of `main` runs only the jobs both the PR and what the merge brought reach (`--brought`, `ci.mjs --meet`, D-610, D-612).
 Any other PR runs **only the scripts whose pages load what it changed** (D-329,
 [`affected.mjs`](affected.mjs), tested by `node tools/e2e/affected.test.mjs`). There is no build, so
 the graph is read straight from the files: each `index.html`, what it links, and what that imports.
