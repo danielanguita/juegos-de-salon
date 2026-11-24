@@ -66,6 +66,9 @@
       font: 900 0.95rem var(--font-body); border-radius: 999px; padding: 6px 12px; min-height: 44px; cursor: pointer;
     }
     .rk-juegos button.on { border-color: var(--cyan); background: rgba(46, 230, 214, 0.18); }
+    .rk-perfil ul { list-style: none; padding: 0; margin: 6px 0 0; display: grid; gap: 4px; }
+    .rk-perfil li { display: flex; justify-content: space-between; gap: 8px; }
+    details.rk-perfil summary { cursor: pointer; min-height: 44px; display: flex; align-items: center; }
   </style>
   <link rel="apple-touch-icon" href="../assets/icons/apple-touch-icon.png">
   <meta name="apple-mobile-web-app-title" content="Juegos de Salón">
@@ -97,6 +100,7 @@
     import { trackVisit } from '../assets/js/transport/stats.js';
     import { bloqueJugador, bloqueRanking, bloqueCampeones } from '../assets/js/ranking.js';
     import { jugador, leerYo } from '../assets/js/jugador.js';
+    import { flag } from '../assets/js/flags.js';
     import { TODOTERRENO, PARTIDAS, UAD_PUNTOS } from '../assets/js/records.js';
     import { VARIANTES } from '../cup/engine.js';
     import { juegosCopa } from '../cup/rules.js';
@@ -120,7 +124,30 @@
     const juegos = SUELTOS.filter(g => !g.labs && !g.oculto);
     const pagina = document.getElementById('rk-pagina');
 
-    /* «Tus partidas» moved to the profile (the owner, 2026-11-23): /profile/'s Logros tab */
+    /* Tus partidas: cuántas veces jugó cada cosa (solo con jugador). Cambiar el PIN va en "Juegas como". */
+    const perfil = el('div', {});
+    async function dibujarPerfil() {
+      perfil.replaceChildren();
+      if (!leerYo()) return;
+      // In the lab it moved to the profile (flag profile-plays, the owner, 2026-11-23)
+      if (await flag('profile-plays').catch(() => false)) return;
+      try {
+        const p = await (await jugador()).perfil();
+        const filas = Object.entries(p?.juegos || {}).sort((a, b2) => b2[1].n - a[1].n);
+        if (!filas.length) return;
+        const lista = el('ul', {});
+        for (const [id, x] of filas) {
+          const g = juegos.find(j => j.id === id) || gameById(id);
+          lista.append(el('li', {}, el('span', {}, g ? withIcon(g, pickLang(g.name, lang)) : id), el('b', {}, x.n === 1 ? T.playsOne : fmt(T.plays, { n: x.n }))));
+        }
+        // Folded with the total in its title, so the rankings show first (#783)
+        const total = filas.reduce((s, [, x]) => s + x.n, 0);
+        perfil.replaceChildren(el('details', { class: 'panel rk-perfil' },
+          el('summary', { class: 'lead rk-titulo' }, `👤 ${T.myPlays} · ${total === 1 ? T.playsOne : fmt(T.plays, { n: total })}`), lista));
+      } catch (_) { /* sin red: no hay qué mostrar */ }
+    }
+    dibujarPerfil();
+    jugador().then(J => J.escuchar(dibujarPerfil)).catch(() => {});
 
     /*
      * La página (D-219): arriba lo que vale para todos los juegos —el Ranking general y las
@@ -232,6 +259,7 @@
     const puntosDia = bloqueRanking({ juego: UAD_PUNTOS, titulo: `📅 ${T.dailyPoints}`, hint: T.dailyPointsHint, pestanas: ['mes', 'amigosMes'], alTocar: tap });
     pagina.append(
       bloqueJugador({ alTocar: tap }),
+      perfil,
       bloqueRanking({ juego: TODOTERRENO, titulo: `🏅 ${T.general}`, hint: T.allRounderHint, alTocar: tap }),
       bloqueRanking({ juego: PARTIDAS, titulo: `🎲 ${T.playsTitle}`, hint: T.playsHint, alTocar: tap }),
       puntosDia,

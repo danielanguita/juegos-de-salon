@@ -227,10 +227,13 @@ function badgeEl(b, { reveal = false } = {}) {
 }
 
 /**
- * 🎮 Your games (the owner, 2026-11-23: moved here from /records/): how many times the player finished each game, as
+ * 🎮 Your games (the owner, 2026-11-23: moved here from /records/, in the lab: flag profile-plays): how many times the player finished each game, as
  * bars, the most played first. Five show; the rest open below, so it never takes the whole screen.
  */
 const PLAYS_SHOWN = 5;
+// In the lab (flag profile-plays; lab: #seccion-profile-plays): drawn once the flag answers
+let playsOn = false;
+flag('profile-plays').then(on => { if (on) { playsOn = true; globalThis.__profile?.redraw?.(); } }).catch(() => {});
 function playsPanel(f) {
   const rows = (f.byGame || []).filter(g => gameOf(g.id));
   if (!rows.length) return null;
@@ -670,7 +673,7 @@ export async function drawProfile(root, { sub }) {
     let ready = false;
     const repaint = list => {
       cardSlot.replaceChildren(card(yo, f, list, ready));
-      badgesBox.replaceChildren(...[playsPanel(f), ...badgePanels(list, { reveal, duels: duelsExtra })].filter(Boolean));
+      badgesBox.replaceChildren(...[playsOn ? playsPanel(f) : null, ...badgePanels(list, { reveal, duels: duelsExtra })].filter(Boolean));
       if (badgesBox.isConnected) revealIntoView(badgesBox);
     };
     repaint(paint());
