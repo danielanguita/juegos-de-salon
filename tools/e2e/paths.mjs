@@ -806,7 +806,7 @@ PATHS.copa['share-sheet'] = [`location.href='/?test'`, `1`, `1`, `document.getEl
 PATHS.copa['home-card-dudo'] = [`location.href='/?test'`, `1`, `1`, `[...document.querySelectorAll('.game-card')].find(c=>c.querySelector('h2')?.textContent.match(/dudo|liar|mentiroso|lügen/i))?.scrollIntoView({ block: 'center' })`, `1`];
 // Toque y Fama's single card on the home page, with 🔤 Palabra inside (#767)
 PATHS.copa['home-card-tyf'] = [`location.href='/?test'`, `1`, `1`, `[...document.querySelectorAll('.game-card')].find(c=>c.querySelector('h2')?.textContent.match(/toque|bulls|bullen/i))?.scrollIntoView({ block: 'center' })`, `1`];
-// Rankings, with "Tus partidas" folded with its total when the player has plays (#783)
+// Rankings («Tus partidas» moved to the profile, 2026-11-23)
 PATHS.copa['records'] = [`location.href='/records/'`, `1`, `1`, `1`];
 // The privacy page (D-463), linked from the home page footer and the email note of every feedback form
 PATHS.copa['privacy'] = [`location.href='/privacy/'`, `1`, `1`, `1`];
