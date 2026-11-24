@@ -146,6 +146,17 @@ export function rowContext(r) {
   };
 }
 
+/** The word after a figure in the sheet's header: singular for exactly 1 («1 victoria», «🔥 1 día seguido»), never «1 victorias». */
+export function unitWord(T, unit, v) {
+  const one = /^(🔥\s*)?1$/.test(String(v).trim());
+  return ({
+    pts: T.peekUnitPts, time: T.peekUnitTime,
+    wins: one ? T.peekUnitWin : T.peekUnitWins,
+    plays: one ? T.peekUnitPlay : T.peekUnitPlays,
+    streak: one ? T.peekUnitStreakOne : T.statStreak,
+  })[unit] || '';
+}
+
 /**
  * Opens the sheet for `jid`; `hint` (`{ n, co }`) is what the tapped row showed, drawn while the rest loads;
  * `context` (`{ label, place, values, allTime }`, from `rowContext`) says where it was tapped: a medal with their
@@ -174,7 +185,6 @@ export async function peekPlayer(jid, { hint = {}, context = null, lang = getLan
   const placeOf = n => (lang === 'en' ? `#${n}` : `${n}.º`);
   // Where it was tapped, first: the table and tab, the row as it showed, and (filled in below) their all-time place
   const allTime = el('small', { class: 'pf-peek-here-all' });
-  const unit = { pts: T.peekUnitPts, time: T.peekUnitTime, wins: T.peekUnitWins, plays: T.peekUnitPlays, streak: T.statStreak };
   const n = /^\d+$/.test(context?.place || '') ? Number(context.place) : null;
   const tier = n === 1 ? 'gold' : n === 2 ? 'silver' : n === 3 ? 'bronze' : 'plain';
   const vals = context?.values || [];
@@ -182,7 +192,7 @@ export async function peekPlayer(jid, { hint = {}, context = null, lang = getLan
     context.place ? el('div', { class: `pf-peek-here-medal pf-badge--${tier}` }, el('span', { class: 'pf-medal' }, n ? placeOf(n) : context.place)) : null,
     el('div', { class: 'pf-peek-here-txt' },
       context.label ? el('small', { class: 'pf-peek-here-label' }, context.label) : null,
-      vals.length ? el('div', { class: 'pf-peek-here-vals' }, vals.map(x => el('span', {}, el('b', {}, x.v), x.unit && unit[x.unit] ? el('small', {}, unit[x.unit]) : null))) : null,
+      vals.length ? el('div', { class: 'pf-peek-here-vals' }, vals.map(x => el('span', {}, el('b', {}, x.v), unitWord(T, x.unit, x.v) ? el('small', {}, unitWord(T, x.unit, x.v)) : null))) : null,
       allTime)) : null;
   const body = el('div', { class: 'pf-peek-body' }, el('p', { class: 'muted pf-peek-wait' }, T.peekLoading));
   const panel = el('div', { class: 'hoja pf-peek', id: 'pf-peek', role: 'dialog', 'aria-modal': 'true', 'aria-labelledby': 'pf-peek-name' },

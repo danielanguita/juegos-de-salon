@@ -1,6 +1,6 @@
 // Another player's profile at a glance (player-peek.js): only public facts, only the achievements they can tell
 import assert from 'node:assert/strict';
-import { peekFacts, peekBadges, tableOf, PUBLIC_BADGES, rowContext } from './player-peek.js';
+import { peekFacts, peekBadges, tableOf, PUBLIC_BADGES, rowContext, unitWord } from './player-peek.js';
 import { SOLO_TABLES } from './games.js';
 import { BADGES } from './badges.js';
 import { TEXTS } from './profile-texts.js';
@@ -64,3 +64,15 @@ assert.deepEqual(rowContext(node({ closest: { '.rk-ranking, .rk-campeones': cham
 const general = node({ data: { tabla: 'todoterreno', pestana: 'semana' }, q: { '.rk-seg .on': tabOn } });
 assert.equal(rowContext(node({ closest: { '.rk-ranking, .rk-campeones': general }, q: {} })).allTime, null, 'the overall place is already the sheet\'s own line');
 console.log('✓ the sheet says where it was opened');
+
+// One is singular (U-6): «1 victoria», «🔥 1 día seguido», never «1 victorias» (the usability review of #1827)
+for (const l of ['es', 'en', 'pt']) {
+  const T = TEXTS[l];
+  for (const [u, many, one] of [['wins', 'peekUnitWins', 'peekUnitWin'], ['plays', 'peekUnitPlays', 'peekUnitPlay'], ['streak', 'statStreak', 'peekUnitStreakOne']]) {
+    assert.ok(T[one] && T[one] !== T[many], `${l}.${one}`);
+    assert.equal(unitWord(T, u, u === 'streak' ? '🔥 1' : '1'), T[one], `${l}: 1 ${u} is singular`);
+    assert.equal(unitWord(T, u, u === 'streak' ? '🔥 12' : '12'), T[many], `${l}: 12 ${u} is plural`);
+  }
+  assert.equal(unitWord(T, 'pts', '1'), T.peekUnitPts);
+}
+console.log('✓ one is singular');
