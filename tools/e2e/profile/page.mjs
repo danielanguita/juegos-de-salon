@@ -36,7 +36,7 @@ const small = b => b.evaluate(`[...document.querySelectorAll('main button, main 
 for (const W of [320, 390]) {
   const b = await launch({ dir: `${OUT}/p${W}`, out: OUT, width: W, height: W === 320 ? 640 : 844, clock: true });
   // The home page as the owner sees it in Labs: its icon view (flag home-carousels), with the profile's pill
-  b.flags({ profile: 'all', 'home-carousels': 'all', 'ranking-peek': 'all' });
+  b.flags({ profile: 'all', 'home-carousels': 'all', 'ranking-peek': 'all', 'profile-plays': 'all' });
   const ev = e => b.evaluate(e);
   // A guest (a clean phone, so the script can run again)
   await b.go(`${SITE}/profile/?test`, 1500);
@@ -129,6 +129,14 @@ for (const W of [320, 390]) {
   // The figures pop in once the server answers (the owner, 2026-11-23), then stay
   await sleep(1600);
   ok(/14/.test(await ev(`document.querySelector('.pf-stat b')?.textContent`)), `${W}: the card shows the 14-day streak`);
+  // 🎮 Your games played, moved from /records/ (the owner, 2026-11-23): bars, the most played first, five shown, the rest below
+  await sleep(1200);
+  ok(await ev(`(() => { const p = document.querySelector('.pf-plays-panel'); if (!p) return false; const li = [...p.querySelectorAll('.pf-play')], shown = li.filter(x => !x.hidden); return li.length === 8 && shown.length === 5 && li[0].dataset.game === 'reinas' && li[0].querySelector('b').textContent === '6' && /20 partidas/.test(p.textContent) && p.getBoundingClientRect().height < 420; })()`), `${W}: 🎮 your games played: eight bars, Reinas first with 6, five shown, not the whole screen`);
+  await ev(`document.querySelector('.pf-plays-panel').scrollIntoView({ block: 'center' })`); await sleep(900);
+  await b.shot(`plays-${W}`);
+  await ev(`document.querySelector('.pf-plays-panel .pf-more').click()`); await sleep(200);
+  ok(await ev(`(() => { const p = document.querySelector('.pf-plays-panel'); return [...p.querySelectorAll('.pf-play')].every(x => !x.hidden) && p.querySelector('.pf-more').getAttribute('aria-expanded') === 'true' && document.documentElement.scrollWidth <= ${W}; })()`), `${W}: 🎮 «Ver 3 juegos más» opens the rest, and closes them again`);
+  await ev(`document.querySelector('.pf-plays-panel .pf-more').click()`); await sleep(200);
   ok(await ev(`!!document.querySelector('[data-badge="streak-10"]:not(.pf-badge--locked)')`), `${W}: 🔥 10 in a row is earned`);
   ok(/14 \/ 30/.test(await ev(`document.querySelector('[data-badge="streak-30"]')?.textContent`)), `${W}: 🔥 30 in a row shows its progress, 14 / 30`);
   ok(/4 \/ 7/.test(await ev(`document.querySelector('[data-badge="early-bird"]')?.textContent`)), `${W}: 🌅 the early bird counts the mornings, 4 / 7`);
