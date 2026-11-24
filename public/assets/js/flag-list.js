@@ -4,6 +4,7 @@
  * end-to-end scripts of every page (D-515). A new flag is a row here and its card in /labs/.
  */
 export const FLAGS = {
+  'profile-plays': '🎮 Profile: «Tus partidas» moves from Rankings to the profile\'s Logros tab, as one bar per game, five shown',
   'panel-nav-more': '📊 Panel on a phone: five tabs and ☰ More at the bottom, the other sections in a sheet by group',
   'cup-footer': '🏆 La Copa: the board ends with the site footer, its report and leave links as tiles (U-38)',
   'cup-zone-phone': '🏆 La Copa: a new cup\'s audience, and so its zone, starts on the phone\'s zone, not its language (D-608)',
@@ -45,12 +46,14 @@ export const FLAGS = {
   'babel-tally': '🗼 Babel: the score adds itself up on the end screen, floors + bonuses = points, with its show',
   'word-in-words': '🔤 Home page: Toque y Fama: Palabra gets its own card under the 🔤 Palabras filter (only there: with no filter, Toque y Fama\'s page still picks the number or the word, #767)',
   'cover-share': '📤 Game covers: a share button in the top bar sends the game\'s link with one line about it',
+  'cloud-quiet': '☁️ Offline mode: the home page\'s cloud shows only while storing or when files are missing; the profile\'s ⚙️ always has a «Juegos sin señal» row with the state',
+  'extended-offline': '📴 Extended offline mode: on the home page a still plate, 📴 over «SIN CONEXIÓN», takes the place of the dancing emoji (a tap opens the offline sheet) and a line at the bottom says how many games wait to upload; every other page has no sticker, only the Candlelight palette',
   'offline': '📴 Offline mode: the app stores the offline-capable games on the phone and opens them with no signal (D-538, PR 2 of 8)',
   'news-once': '📣 Each piece of news told once: no home window on a visit from a notification, no splash for games already played, an ended cup seen on its board is not recapped again (D-546)',
   'routes-hint': '🚇 Broken Routes: a 💡 Hint button on its own page (one player, never La Copa) marks one rectangle of a shortest solution, −3 points each (#1381)',
   'tango-time': '☀️ Tango on its own, in Uno al día and in the cups created while on (D-607): the time scores as in Queens, mistakes cost nothing, a hint adds 15 s',
   'uad-skip-end': '📅 Uno al día: Shinobi and Aletazo go straight to the result, without their own end screen',
-  'mistakes-rule': '❌ Logic puzzles: what a mistake costs, in one line under the title while playing (Tango −10 in La Copa, Reinas nothing…)',
+  'mistakes-rule': '❌ Logic puzzles: what a mistake costs, in one line under the title while playing (Reinas and Tango nothing, in La Copa too; Conexiones −5…)',
   'wobbles': '⚖️ Tembleque: the game, on the home page, the search and Rankings (D-517\'s way; not La Copa or Uno al día, the owner, 2026-11-21); prepared, not launched: the owner picks the date',
   'wobbles-cheers':'⚖️ Tembleque: a balanced drop says one of nine cheers (¡Impecable!, ¡Clavado!, ¡Bravo!…), never the same twice in a row, instead of always ¡Perfecto!',
   'blackjack-felt': '♠️ Blackjack: a felt table, bigger fanned cards with corner indices, the bet as a chip, the shoe as a bar with its red card, each hand\'s result as a stamp',

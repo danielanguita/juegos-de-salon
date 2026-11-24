@@ -175,6 +175,19 @@ PR that changes what is kept on the phone.
    checks file by file that the release's list is kept and shows one of four states: storing, ready ✓
    (glows), missing ! (Reintentar asks the worker to store what is missing) and unsupported (private mode,
    an old browser). A tap opens a sheet explaining the state, live (`offline-ready.test.mjs`).
+   - **Quiet cloud** (flag `cloud-quiet`, in Labs, the owner, 2026-11-23): with the profile's ⚙️ settings, the
+     bar shows the cloud only while it asks for something (storing, missing), on share's left so share and the pill
+     never move (the owner, 2026-11-23); when a storing ends it flashes, waits 2.5 s and floats away (the cloud rises
+     out of its button, which fades in place, so the screen's top edge never cuts it; then its slot narrows, nothing
+     jumps; a repeated ready does not cut it; the owner's pick of five, 2026-11-23); ready and
+     unsupported live in a «Juegos sin señal» row of ⚙️ Preferencias (`offlineReadyRow`), which opens the same
+     sheet. ⚙️ is for players with an account, so a guest still gets the cloud whenever something needs them.
+     The «T» tab's cloud states go with the flag's own row while it is in the lab, on both pages
+     (`tools/e2e/home/cloud-quiet.mjs`).
+   - **Extended offline mode** (flag `extended-offline`, in Labs, the owner, 2026-11-23, D-614): on the home page
+     the dancing emoji gives its place to a still plate «📴 SIN CONEXIÓN» that moves nothing and opens the sheet;
+     every other view has no sticker, the palette alone says it; pending uploads show apart, as a line at the
+     bottom («⏳ 2 partidas esperan señal para subir») (`tools/e2e/home/extended-offline.mjs`).
 10. Publish: the owner flips `flags/offline` to *all*; RP-13 ✅.
 
 ## Risks

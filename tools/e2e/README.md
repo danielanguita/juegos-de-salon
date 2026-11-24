@@ -81,7 +81,7 @@ and are still run by hand. The ones in `OBSOLETE` test something that no longer 
 
 **In groups** (D-307): [`groups.mjs`](groups.mjs) splits the scripts into even groups based on
 how long each one actually took ([`durations.json`](durations.json), in seconds), so that none
-goes over ~6.5 min (`TARGET_S`, 400 s, D-585) and all fit at once in the 20 runners GitHub gives at a time. Each group is a
+goes over ~7 min (`TARGET_S`, 420 s, D-611) and all fit at once in the 20 runners GitHub gives at a time. Each group is a
 job that runs its scripts one after another (that they stay even and each script appears once is tested by
 `node tools/e2e/groups.test.mjs`); the run summary has the table with each script, its
 time and its result, and the `screenshots-g<n>` artifact has, in one folder per script, the screenshots of
@@ -102,7 +102,7 @@ and this folder, `tools/agents/`, `tools/firebase/`, `firebase/` and the workflo
 Four guards on how a push is tested: [`landing-stamp.mjs`](landing-stamp.mjs) records that a touched cover was measured (`node tools/e2e/landing-stamp.test.mjs`); `--only <ids>` runs the all-games scripts only for the games a PR reaches (`node tools/e2e/only.test.mjs`, D-588); no script depends on the real date (`node tools/e2e/real-date.test.mjs`, D-589); and the Visual references workflow stays safe and narrow (`node tools/e2e/visual-refs.test.mjs`).
 
 Each push to a PR tests only what changed since the PR's last commit that passed (D-392,
-[`since-passed.mjs`](since-passed.mjs), tested by `node tools/e2e/since-passed.test.mjs`): the first push, or one after a red run, tests the whole PR.
+[`since-passed.mjs`](since-passed.mjs), tested by `node tools/e2e/since-passed.test.mjs`): the first push, or one after a red run, tests the whole PR. A merge of `main` runs only the jobs both the PR and what the merge brought reach (`--brought`, `ci.mjs --meet`, D-610, D-612).
 Any other PR runs **only the scripts whose pages load what it changed** (D-329,
 [`affected.mjs`](affected.mjs), tested by `node tools/e2e/affected.test.mjs`). There is no build, so
 the graph is read straight from the files: each `index.html`, what it links, and what that imports.
@@ -328,6 +328,8 @@ node tools/e2e/contact-sheet.mjs cuarto-rey --out /tmp/contact-sheet
 | `home/carousels.mjs` | The home page as carousels (lab flag `home-carousels`, turned on with `browser.flags()`): the rows, a tile opening the game's cover, and with sub-flag `home-carousels-sheet` its sheet instead, playing the game's cover animation framed from `cup/cover/` |
 | `home/cup-today.mjs` | La Copa's card on the home page (lab flag `copa-hoy`): with a day of this phone's cup left to play, ▶ Jugar hoy and a link to that day, read from `juegos-de-salon:copa:hoy:<code>` without loading the cup's files (D-378); once played, the card as always |
 | `home/word-in-words.mjs` | Toque y Fama: Palabra under the home page's 🔤 Palabras filter (lab flag `word-in-words`): its own card, opening `/word/`, only with that filter on; with no filter, another type or the flag off, the one Toque y Fama card as always (#767); the count's total leaves it out |
+| `home/cloud-quiet.mjs` | The offline ☁️ on the home page (lab flag `cloud-quiet`): it shows only while storing or with files missing, and the profile's ⚙️ always has a «Juegos sin señal» row opening the same sheet; the «T» tab's cloud states drive both |
+| `home/extended-offline.mjs` | Extended offline mode (lab flag `extended-offline`): with offline forced, the home page's emoji gives its place to a still plate «📴 SIN CONEXIÓN» (the title does not move, nothing covered, a tap opens the sheet), a line says the games waiting to upload, Zip's cover has no sticker; flag off keeps the sticker. 390 and 320 px |
 | `home/dice.mjs` | 🎲 Juego al azar with the 🎲 Dados filter on: it still lands on games of every kind, and never on Cuarto Rey (in La Bodega since D-420) nor La Copa (D-188, D-374); back on the home page before the game loaded, no dice is left over it and 🎲 rolls at once (D-375) |
 | `home/instant.mjs` | The home page drawn at once (D-435): the first visit saves a copy of the list, the next draws it before any module and the real cards replace it with the same HTML; a `?type=` link never uses it; and Uno al día's place on the card refreshed from the month's table once today is played |
 | `home/tester-tab.mjs` | The «T» tester tab in two views (D-592): «Testing now» shows only the pinned rows and any row out of its normal state; «Experiments» lists every row with its 📌 and switch; a pin hides a row without turning it off. |

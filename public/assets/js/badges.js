@@ -2,7 +2,8 @@
  * The player's badges (lab flag `profile`): what each one asks, computed from what the profile page
  * reads. Pure, for node: `earned(facts)` takes the facts and returns one entry per badge.
  *
- * A badge has a tier (bronze, silver, gold), a group (daily, cup, games) and is either visible from
+ * A badge has a tier (bronze, silver, gold), a group (daily, cup, games, duels: only while the lab
+ * flag `rivals` is on, `DUELS_FLAG`) and is either visible from
  * the start, locked until earned (greyed, with its progress when it has one), or secret (`secret`):
  * a secret one shows as «?» until it is earned. Some count how many times (`count`: Cup wins).
  *
@@ -25,6 +26,7 @@
  *   byGame         [{ id, n }] games finished with the player, by game
  *   cupList        [{ code, at }] the cups the player sat in, with when
  *   climbs         how many cups the player won after being last on day 1
+ *   duels          { played, won, bestRun, rivals } the player's finished duels (duels.js `duelFacts`)
  *   since          when the player was created (ms)
  *   now            ms
  */
@@ -32,7 +34,12 @@
 import { LOCAL_SECRETS, NIGHT_GAMES } from './secret-achievements.js';
 
 export { NIGHT_GAMES };
-export const GROUPS = ['daily', 'cup', 'games'];
+export const GROUPS = ['daily', 'cup', 'duels', 'games'];
+/** The duels' badges show only while the duels do (lab flag rivals). */
+export const DUELS_FLAG = 'rivals';
+export const DUEL_WINS = 10;     // duels won
+export const DUEL_RUN = 5;       // duels won in a row
+export const DUEL_RIVALS = 5;    // different rivals
 export const EARLY_GAMES = 3;   // games before 7 in one morning…
 export const EARLY_DAYS = 7;    // …on this many mornings
 export const RUN_GAMES = 10;    // one same game in a row
@@ -124,6 +131,12 @@ export const BADGES = [
   { id: 'climber', group: 'cup', tier: 'gold', icon: '🧗', check: f => { const c = n(f.climbs); return { got: c > 0, count: c }; } },
   { id: 'party', group: 'cup', tier: 'silver', icon: '🥂', check: f => progress(cupsInAWeek(f.cupList), PARTY_CUPS) },
   // Games
+  { id: 'duel-first', group: 'duels', tier: 'bronze', icon: '🤺', check: f => ({ got: n(f.duels?.played) >= 1 }) },
+  { id: 'duel-win', group: 'duels', tier: 'bronze', icon: '⚔️', check: f => ({ got: n(f.duels?.won) >= 1 }) },
+  { id: 'duel-rivals', group: 'duels', tier: 'silver', icon: '🤝', check: f => progress(f.duels?.rivals, DUEL_RIVALS) },
+  { id: 'duel-wins', group: 'duels', tier: 'silver', icon: '🛡️', check: f => progress(f.duels?.won, DUEL_WINS) },
+  { id: 'duel-run', group: 'duels', tier: 'gold', icon: '🗡️', check: f => progress(f.duels?.bestRun, DUEL_RUN) },
+
   { id: 'explorer', group: 'games', tier: 'bronze', icon: '🧭', check: f => progress(f.gamesPlayed, 10) },
   { id: 'collector', group: 'games', tier: 'gold', icon: '🧩', check: f => progress(f.gamesPlayed, Math.max(1, n(f.gamesTotal))) },
   { id: 'plays-100', group: 'games', tier: 'bronze', icon: '🎲', check: f => progress(f.plays, 100) },

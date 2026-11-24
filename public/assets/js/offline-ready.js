@@ -216,19 +216,18 @@ function openSheet({ doc, lang, get, retry, online }) {
 }
 
 /**
- * The button, for the home page's bar. Empty and hidden until the flag says offline mode is on for
- * this visitor; then it draws its state and keeps it current.
+ * Where this phone stands, kept current, for the home page's button and the profile's ⚙️ row: reads the
+ * caches, follows the worker's progress and the connection, opens the sheet, retries, and lets a tester
+ * pretend a state (the T tab). `onDraw(s)` runs on every new state. `start()` begins following.
  */
-export function offlineReadyButton({ doc = globalThis.document, lang = getLang(), nav = globalThis.navigator, tap = () => {} } = {}) {
-  const btn = el('button', { type: 'button', class: 'icon-btn offline-ready', hidden: true });
+export function cloudWatch({ doc = globalThis.document, lang = getLang(), nav = globalThis.navigator, onDraw = () => {} } = {}) {
   let current = lastState();
   let sheet = null;
   // A tester's pretend state (the T tab): while set, what the phone really keeps is not drawn
   let demo = null;
-  const draw = s => { current = s; paint(btn, s, lang); if (sheet?.isOpen()) sheet.draw(s); };
+  const draw = s => { current = s; onDraw(s); if (sheet?.isOpen()) sheet.draw(s); };
   const show = s => {
     if (demo) return;
-    btn.hidden = false;
     draw(s);
     try { globalThis.localStorage?.setItem(LAST_KEY, JSON.stringify(s)); } catch (_) { /* no storage */ }
   };
@@ -260,13 +259,11 @@ export function offlineReadyButton({ doc = globalThis.document, lang = getLang()
     // No word from the worker in a while: read again, so the sheet never spins forever
     setTimeout(refresh, 8000);
   };
-  btn.addEventListener('click', () => { tap(); sheet = openSheet({ doc, lang, get: () => current || { state: 'loading', have: 0, total: 0 }, retry, online: () => nav.onLine !== false }) || sheet; refresh(); });
-  import('./flags.js').then(m => m.flag('offline')).then(on => {
-    if (!on) return;
-    loadCss(new URL('../css/offline-ready.css', import.meta.url));
-    // The last state read here draws at once; with none yet, the button shows when the check ends,
-    // so a phone that already keeps everything never flashes the loading ring on its way back home
-    if (current) { btn.hidden = false; paint(btn, current, lang); }
+  const open = () => {
+    sheet = openSheet({ doc, lang, get: () => current || { state: 'loading', have: 0, total: 0 }, retry, online: () => nav.onLine !== false }) || sheet;
+    if (!demo) refresh();
+  };
+  const start = () => {
     refresh();
     nav.serviceWorker?.addEventListener?.('message', e => {
       if (e.data?.type !== 'offline-progress') return;
@@ -275,11 +272,114 @@ export function offlineReadyButton({ doc = globalThis.document, lang = getLang()
     });
     globalThis.addEventListener?.('online', refresh);
     globalThis.addEventListener?.('offline', refresh);
-    // The T tab, for testers: one button per state, to see each one without cutting the network. Bundled
-    // with the offline-mode row (D-592): it shows in «Probando ahora» only while that row does
-    import('./tester-ribbon.js').then(({ setTesterContext, OFFLINE_ROW }) => setTesterContext(testerControls(pretend), { bundle: OFFLINE_ROW })).catch(() => {});
+  };
+  return { get current() { return current; }, refresh, pretend, retry, open, start };
+}
+
+/**
+ * Quiet cloud (flag `cloud-quiet`, lab: #seccion-cloud-quiet): the home page's bar shows the cloud only
+ * while it asks for something, storing or missing files; ready or unsupported, it lives in the profile's
+ * ⚙️ row. After a storing ends ready, it stays QUIET_GOODBYE_MS with its flash, then floats away
+ * (the owner, 2026-11-23, variant 3 of five): the cloud rises out of its button and fades while the button
+ * fades in place (QUIET_FLOAT_MS; the button itself never rises, or the screen's top edge would cut it), and
+ * only once the cloud is gone its slot closes up in QUIET_CLOSE_MS, so nothing is seen sliding sideways.
+ * A ready drawn again meanwhile (the worker repeats it) does not cut the way out. Reduced motion: it only fades.
+ */
+export const QUIET_SHOWN = new Set(['loading', 'missing']);
+export const QUIET_GOODBYE_MS = 2500;
+export const QUIET_FLOAT_MS = 600;
+export const QUIET_CLOSE_MS = 300;
+export const shownWhenQuiet = s => QUIET_SHOWN.has(s?.state);
+
+/** The row the T tab's cloud states go with (D-592): the quiet cloud's own while it is in the lab here, else offline mode's. */
+const testerBundle = (labHere, OFFLINE_ROW) => (labHere.has('cloud-quiet') ? 'cloud-quiet' : OFFLINE_ROW);
+function registerTester(pretend) {
+  Promise.all([import('./tester-ribbon.js'), import('./flags.js')])
+    .then(([{ setTesterContext, OFFLINE_ROW }, { labHere }]) => setTesterContext(testerControls(pretend), { bundle: testerBundle(labHere, OFFLINE_ROW) }))
+    .catch(() => {});
+}
+
+/**
+ * The button, for the home page's bar. Empty and hidden until the flag says offline mode is on for
+ * this visitor; then it draws its state and keeps it current. With `cloud-quiet`, hidden while ready
+ * or unsupported (its slot collapses with it, index.html).
+ */
+export function offlineReadyButton({ doc = globalThis.document, lang = getLang(), nav = globalThis.navigator, tap = () => {} } = {}) {
+  const btn = el('button', { type: 'button', class: 'icon-btn offline-ready', hidden: true });
+  let on = false;
+  let quiet = false;
+  let goodbye = null;
+  let leaving = false;
+  // The way out, undone at once: the cloud back in place and its slot as wide as it was
+  const settle = () => {
+    clearTimeout(goodbye); goodbye = null; leaving = false;
+    btn.classList.remove('or-se-va', 'or-ido');
+    const slot = btn.parentElement;
+    if (slot?.classList.contains('or-cierra')) { slot.classList.remove('or-cierra', 'or-cerrado'); slot.style.width = ''; }
+  };
+  // Floats away: the cloud up and out of its button (CSS), then, with nothing left to see, its slot narrows to
+  // nothing, then it is hidden and the slot leaves the layout
+  const floatAway = () => {
+    btn.classList.add('or-se-va');
+    goodbye = setTimeout(() => {
+      btn.classList.add('or-ido');
+      const slot = btn.parentElement;
+      if (slot) {
+        slot.style.width = `${slot.offsetWidth}px`;
+        slot.classList.add('or-cierra');
+        void slot.offsetWidth;
+        slot.style.width = '0px';
+        slot.classList.add('or-cerrado');
+      }
+      goodbye = setTimeout(() => { settle(); btn.hidden = true; }, QUIET_CLOSE_MS);
+    }, QUIET_FLOAT_MS);
+  };
+  const visible = (s, was) => {
+    // On its way out and still nothing to ask: let it finish (a repeated ready must not cut it)
+    if (leaving && !shownWhenQuiet(s) && quiet) return;
+    settle();
+    if (!quiet || shownWhenQuiet(s)) { btn.hidden = false; return; }
+    // Just finished storing: the flash shows where it went, then the cloud floats away
+    if (was === 'loading' && s.state === 'ready' && !btn.hidden) { leaving = true; goodbye = setTimeout(floatAway, QUIET_GOODBYE_MS); return; }
+    btn.hidden = true;
+  };
+  const watch = cloudWatch({ doc, lang, nav, onDraw: s => { if (!on) return; const was = btn.dataset.state; paint(btn, s, lang); visible(s, was); } });
+  btn.addEventListener('click', () => { tap(); watch.open(); });
+  import('./flags.js').then(async m => {
+    // The quiet cloud from the first frame (what this phone saw last time), so a ready cloud never flashes in the bar
+    quiet = m.flagGuess('cloud-quiet');
+    if (!(await m.flag('offline'))) return;
+    on = true;
+    loadCss(new URL('../css/offline-ready.css', import.meta.url));
+    const setQuiet = q => { quiet = !!q; doc.documentElement.classList.toggle('cloud-quiet', quiet); if (watch.current) visible(watch.current); };
+    setQuiet(quiet);
+    // The last state read here draws at once; with none yet, the button shows when the check ends,
+    // so a phone that already keeps everything never flashes the loading ring on its way back home
+    if (watch.current) { paint(btn, watch.current, lang); visible(watch.current); }
+    m.flag('cloud-quiet').then(setQuiet).catch(() => {}).finally(() => registerTester(watch.pretend));
+    watch.start();
   }).catch(() => {});
   return btn;
+}
+
+/**
+ * The profile's ⚙️ row (flag `cloud-quiet`): «Juegos sin señal» with the state's title under it and
+ * the cloud at its end; a tap anywhere on it opens the sheet. The caller checks the flags.
+ */
+export function offlineReadyRow({ doc = globalThis.document, lang = getLang(), nav = globalThis.navigator, tap = () => {} } = {}) {
+  const T = TEXTS[lang] || TEXTS.es;
+  loadCss(new URL('../css/offline-ready.css', import.meta.url));
+  const icon = el('span', { class: 'offline-ready or-fila-icono', 'aria-hidden': 'true' });
+  const hint = el('small', { id: 'or-fila-estado' });
+  const row = el('button', { type: 'button', class: 'toggle-row or-fila', id: 'or-fila' }, el('span', { class: 'txt' }, el('b', {}, T.button), hint), icon);
+  const draw = s => { paint(icon, s, lang); hint.textContent = T[s.state].title; row.dataset.state = s.state; };
+  const watch = cloudWatch({ doc, lang, nav, onDraw: draw });
+  row.addEventListener('click', () => { tap(); watch.open(); });
+  // The last state read here at once; with none yet, «Preparando los juegos…» until the check ends
+  draw(watch.current || { state: 'loading', have: 0, total: 0 });
+  watch.start();
+  registerTester(watch.pretend);
+  return row;
 }
 
 /** The tester's buttons: the four states and back to the real one (labels for testers, like the tab's other controls). */

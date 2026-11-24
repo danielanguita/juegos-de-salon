@@ -16,5 +16,11 @@
   },
   "profile": {
     "state": "off"
+  },
+  "cloud-quiet": {
+    "state": "off"
+  },
+  "extended-offline": {
+    "state": "off"
   }
 }
